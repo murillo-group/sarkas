@@ -1,0 +1,22 @@
+#Depreciated. not work any more
+potential           Yukawa              Yukawa potential. kappa and Gamma should be defined.
+units               cgs              t in in 1/wp units, r is in ai units. 
+pot_calc_algrthm    PP                  P3M or PP.
+Gamma               159.1
+kappa               2.85 	            kappa
+Np                  100  	            Number of particles
+dt                  2.5318714265465894e-17                dt in sec. if units is "Yukawa", dt is 1/wp unit
+N_eq                100                 Number of equilibration steps
+N_post_eq           100                 Number of post-equilibration steps
+PBC                 1                   Periodic boundary condition (1=yes, 0=no)
+Langevin            BBK 98741190954152.78 0          Langevin model. gamma in sec unit unless "Yukawa"
+snap_int            10                  snapshot interval
+init                0                   intial conditions (1=file, 0=random)
+write_output        1                   write to output (irp.out) file (1=yes, 0=no)
+write_xyz           0                   wirite to Ovito (irp.xyz) file (1=yes, 0=no)
+seed                11                  seed for random number generator for initial positions and velocities
+be used for FT.
+ni                  1.e22               ion number density
+Zi                  3                   ionization degree
+verbose             0                   0: less output on screen 1: more output on screen
+rc                  1.8

@@ -1,0 +1,37 @@
+Region:
+
+  - Species:
+      name: ion1
+
+  - Load:
+      species_name: ion1
+      Num: 300
+
+  - Potential: 
+      type: Yukawa
+      algorithm: PP
+      kappa: 3
+      Gamma: 1000
+      rc: 1.8
+      
+
+  - Thermostat:
+      type: Berendsen
+
+  - Langevin:
+      type: BBK
+      gamma: 0.1
+
+  - Control:
+      dt: 0.1
+      Neq: 1000 
+      Nstep: 2000 
+      BC: periodic
+      units: Yukawa
+      ptcls_init: random
+      writeout: yes
+      writexyz: no
+      dump_step: 10
+      random_seed: 1
+      restart: 0
+      verbose: yes
