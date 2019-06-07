@@ -9,12 +9,21 @@ Welcome to Sarkas's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
+
    todo
-   test
-   blah
+	
+   :caption: Test:
 
+   integrators
 
+.. code-block:: python
+   :emphasize-lines: 3,5
+
+   def some_function():
+       interesting = False
+       print 'This line is highlighted.'
+       print 'This one is not...'
+       print '...but this one is.'
 
 Indices and tables
 ==================
