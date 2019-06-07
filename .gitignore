@@ -1,0 +1,7 @@
+*.pyc
+*.out
+*.xyz
+*.pdf
+*~
+*.swp
+*.npy
