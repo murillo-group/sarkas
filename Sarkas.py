@@ -17,6 +17,7 @@ import numpy as np
 import time
 import sys
 
+DEBUG = 0
 t1 = time.time()
 
 # Importing MD modules
@@ -30,13 +31,19 @@ import S_p3m as p3m
 import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
+from S_particles import particles
+from S_params import Params
+
 
 input_file = sys.argv[1]
 # Reading MD conditions from input file
 read_input.parameters(input_file)
-
+####
+# 
+params = Params()
+params.setup(input_file)
+###
 #glb.Zi = 1
-
 
 Zi = glb.Zi
 q1 = glb.q1
@@ -182,7 +189,24 @@ else:
     
     # initial particle positions uniformly distributed in the box
     # initial particle velocities with Maxwell-Boltzmann distribution
-    pos, vel = initialize_pos_vel.initial(pos, vel, T_desired) 
+    total_num_ptcls = 0
+    for i, load in enumerate(params.load):
+        total_num_ptcls += params.load[i].Num  # currently same as glb.N
+
+    ptcls = particles(params, total_num_ptcls)
+    pos = np.empty_like(pos)
+    vel = np.empty_like(vel)
+    pos[:, 0], pos[:, 1], pos[:, 2], vel[:, 0], vel[:, 1], vel[:, 2] = ptcls.load(glb, total_num_ptcls)
+
+    if(DEBUG):
+        pos2, vel2 = initialize_pos_vel.initial(pos, vel, T_desired) 
+        print(np.allclose(pos, pos2, rtol=1.e-20))
+        print(np.allclose(vel, vel2, rtol=1.e-20))
+
+        sys.exit()
+        
+
+##        pos2, vel2 = particles()
 
 t4 = time.time()
 # Calculating initial forces and potential energy
