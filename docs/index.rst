@@ -11,11 +11,7 @@ Welcome to Sarkas's documentation!
    :caption: Contents:
 
    todo
-	
-   :caption: Test:
-
    integrators
-
    QuickStart
 
 .. code-block:: python
