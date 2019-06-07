@@ -9,6 +9,10 @@ Welcome to Sarkas's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   
+   todo
+   test
+   blah
 
 
 
