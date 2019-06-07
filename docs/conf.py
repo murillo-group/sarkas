@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Sarkas'
-copyright = '2019, Lucas Stanek, David Rimel, Yongjun Choi, Gautham Dharuman, Michael S. Murillo'
-author = 'Lucas Stanek, David Rimel, Yongjun Choi, Gautham Dharuman, Michael S. Murillo'
+copyright = '2019, Gautham Dharuman, Yongjun Choi, David Rimel, Luke Stanek, Michael S. Murillo'
+author = 'Gautham Dharuman, Yongjun Choi, David Rimel, Luke Stanek, Michael S. Murillo'
 
 # The short X.Y version
 version = ''
@@ -78,7 +78,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'classic'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -133,7 +133,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Sarkas.tex', 'Sarkas Documentation',
-     'Lucas Stanek, David Rimel, Yongjun Choi, Gautham Dharuman, Michael S. Murillo', 'manual'),
+     'Gautham Dharuman, Yongjun Choi, David Rimel, Luke Stanek, Michael S. Murillo', 'manual'),
 ]
 
 
