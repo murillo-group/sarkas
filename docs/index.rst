@@ -16,6 +16,8 @@ Welcome to Sarkas's documentation!
 
    integrators
 
+   QuickStart
+
 .. code-block:: python
    :emphasize-lines: 3,5
 
