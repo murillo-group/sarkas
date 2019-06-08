@@ -34,7 +34,7 @@ def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x
     return pos, vel, acc, U
 
 @nb.autojit
-def update_Langevin(pos, vel, acc, Z,  G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+def update_Langevin(pos, vel, acc, Z,  G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,N):
     dt = glb.dt
     g = glb.g_0
     Gamma = glb.Gamma
@@ -42,7 +42,7 @@ def update_Langevin(pos, vel, acc, Z,  G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, 
     Lmin_v = glb.Lmin_v
     Lv = glb.Lv
     PBC = glb.PBC
-    N = glb.N
+    #N = glb.N
     d = glb.d
 
     rtdt = np.sqrt(dt)

@@ -182,7 +182,8 @@ if(glb.verbose):
 
 # DECOMPOSE DOMAIN ####################
 
-Nlocal = np.floor(N/size)
+Nlocal = int(N/size)
+
 if rank < (N%size):
     Nlocal += 1
 if DEBUG:
@@ -190,7 +191,33 @@ if DEBUG:
     print("prime_factors(3*3*5*7) = ", prime_factors(3*3*5*7) )
     print( "domain_decomp(3*3*5*7) = ",domain_decomp(3*3*5*7) )
 
-pos = np.zeros((N, glb.d))
+decomp = domain_decomp(3*3*5*7)
+
+Lxlocal = L/decomp[0]
+Lylocal = L/decomp[1]
+Lzlocal = L/decomp[2]
+
+LxMin = (rank%decomp[0])*Lxlocal
+LxMax = Lxlocal + LxMin
+
+LyMin = np.floor(rank/decomp[1])*Lylocal
+LyMax = LyMin + Lylocal
+
+LzMin = np.floor(rank/(decomp[0]*decomp[1]))*Lzlocal
+LzMax = LzMin + Lzlocal
+
+if DEBUG:
+    print("LxMin = ", LxMin)
+    print("LxMax = ", LxMax)
+    print("rank mod decomp[0] = ",(rank%decomp[0]))
+    print("LyMin = ", LyMin)
+    print("LyMax = ", LyMax)
+    print("rank mod decomp[1] = ",(rank%decomp[1]))
+    print("LzMin = ", LzMin)
+    print("LzMax = ", LzMax)
+    print("rank mod decomp[2] = ",(rank%decomp[2]))
+
+pos = np.zeros((Nlocal, glb.d))
 vel = np.zeros_like(pos)
 acc = np.zeros_like(pos)
 Z = np.ones(N)
@@ -243,7 +270,7 @@ else:
     
     # initial particle positions uniformly distributed in the box
     # initial particle velocities with Maxwell-Boltzmann distribution
-    pos, vel = initialize_pos_vel.initial(pos, vel, T_desired) 
+    pos, vel = initialize_pos_vel.initial(pos, vel, T_desired,Nlocal)
 
 t4 = time.time()
 # Calculating initial forces and potential energy
@@ -284,7 +311,7 @@ f_xyz = open('p_v_a.xyz','w')
 
 for it in range(Nt):
     
-    pos, vel, acc, U = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    pos, vel, acc, U = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,Nlocal)
 
     #K = 0.5*mi*np.ndarray.sum(vel**2)
     #Tp = (2/3)*K/float(N)/const.kb

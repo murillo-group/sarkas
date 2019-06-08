@@ -5,9 +5,9 @@ import sys
 
 # Assigns velocities with Maxwell-Boltzmann (Gaussian) distribution and positions with uniform random distribution
 #def initial(seed_int,N,Lv,pos,vel,T_desired):
-def initial(pos,vel,T_desired):
+def initial(pos,vel,T_desired,N):
     seed_int = glb.seed_int
-    N = glb.N
+    #N = glb.N
     Lv = glb.Lv
     q1 = glb.q1
     q2 = glb.q2
