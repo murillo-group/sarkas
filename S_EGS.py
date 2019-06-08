@@ -6,7 +6,7 @@ import fdint
 import S_global_names as glb
 import S_constants as const
 
-#@nb.autojit
+@nb.autojit
 def init_parameters():
     l = 1 #lambda parameter (1 or 1/9 in egs paper)
     k = const.kb

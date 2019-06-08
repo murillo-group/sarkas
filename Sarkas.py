@@ -13,7 +13,9 @@
 #############################################################################################
 
 # python modules
+from mpi4py import MPI
 import numpy as np
+import numba as nb
 import time
 import sys
 
@@ -31,12 +33,49 @@ import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
 
+def prime_factors(n):
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n > 1:
+        factors.append(n)
+    return factors
+
+def domain_decomp(n):
+    pf= prime_factors(n)
+    Ln = len(primefact)
+    rtn = np.array([1,1,1])
+    if Ln == 1:
+        rtn = np.array([pf[0],1,1])
+    elif Ln == 2:
+        rtn = np.array([pf[0],pf[1],1])
+    else:
+        a = pf.pop(-1)
+        b = pf.pop(-1)
+        c = pf.pop(-1)
+        rtn = np.array([a,b,c])
+        while not pf:
+            fact = pf.pop(-1)
+
+comm = MPI.COMM_WORLD
+
+global size
+global rank
+global DEBUG
+DEBUG = True
+size = comm.size
+rank = comm.rank
+
 input_file = sys.argv[1]
 # Reading MD conditions from input file
 read_input.parameters(input_file)
 
 #glb.Zi = 1
-
 
 Zi = glb.Zi
 q1 = glb.q1
@@ -64,9 +103,9 @@ L = ai*(4.0*np.pi*glb.N/3.0)**(1.0/3.0)      # box length
 glb.Lx = L
 glb.Ly = L
 glb.Lz = L
-glb.Lv = np.array([L, L, L])              # box length vector
+glb.Lv = np.array([L, L, L])              # box length vectorimport numba as nb
 glb.d = np.count_nonzero(glb.Lv)              # no. of dimensions
-glb.Lmax_v = np.array([L, L, L]) 
+glb.Lmax_v = np.array([L, L, L])
 glb.Lmin_v = np.array([0.0, 0.0, 0.0])
 
 #Ewald parameters
@@ -88,8 +127,13 @@ glb.mz_max = 3
 
 t2 = time.time()
 
-#if(glb.potential_type == glb.Yukawa_P3M):
-G_k, kx_v, ky_v, kz_v, A_pm = yukawa_gf_opt.gf_opt()
+G_k=0
+kx_v=0
+ky_v=0
+kz_v=0
+A_pm=0
+if( p3m == 1):
+    G_k, kx_v, ky_v, kz_v, A_pm = yukawa_gf_opt.gf_opt()
 if(glb.potential_type == glb.EGS):
   EGS.init_parameters()
 
@@ -103,9 +147,10 @@ glb.kf = 1.5                              # kinetic energy factor for Yukawa uni
 af = glb.af
 uf = glb.uf
 kf = glb.kf
+
 N = glb.N
 dt = glb.dt
-glb.p3m_flag = 1 # default is P3M
+glb.p3m_flag = 1 # default is P3M OFF
 if(glb.pot_calc_algrthm == "PP"):
   glb.p3m_flag = 0
 
@@ -132,10 +177,24 @@ if(glb.verbose):
         print("plasma frequency, wi = ", glb.wp)
         print("number density, ni = ", glb.ni)
 # Particle positions and velocities array
-pos = np.zeros((glb.N, glb.d))
+
+# DECOMPOSE DOMAIN ####################
+
+primes = prime_factors(63)
+
+Nlocal = np.floor(N/size)
+if rank < (N%size):
+    Nlocal += 1
+if DEBUG:
+    print("rank: %d, N = %d" %(rank,Nlocal))
+    print("prime factors = ", primes)
+
+primes = prime_factors(size)
+
+pos = np.zeros((N, glb.d))
 vel = np.zeros_like(pos)
 acc = np.zeros_like(pos)
-Z = np.ones(glb.N)
+Z = np.ones(N)
 
 acc_s_r = np.zeros_like(pos)
 acc_fft = np.zeros_like(pos)
@@ -144,6 +203,9 @@ rho_r = np.zeros((glb.Mz, glb.My, glb.Mx))
 E_x_p = np.zeros(glb.N)
 E_y_p = np.zeros(glb.N)
 E_z_p = np.zeros(glb.N)
+
+#####################################
+
 
 # F(k,t): Spatial Fourier transform of density fluctutations
 dq = 2.*np.pi/L
@@ -154,7 +216,7 @@ q_max = 30/ai
 glb.Nq = 3*int(q_max/dq)
 Nq = glb.Nq   # 3 is for x, y, and z commponent
 
-n_q_t = np.zeros((Nt, Nq, 3),dtype='complex128') #
+#n_q_t = np.zeros((Nt, Nq, 3),dtype='complex128') #
 
 # initializing the q vector
 qv = np.zeros(Nq)
@@ -225,40 +287,40 @@ for it in range(Nt):
     
     pos, vel, acc, U = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
-    K = 0.5*mi*np.ndarray.sum(vel**2)
-    Tp = (2/3)*K/float(N)/const.kb
-    if(glb.units == "Yukawa"):
-        K *= 3.
-        Tp *= 3.
+    #K = 0.5*mi*np.ndarray.sum(vel**2)
+    #Tp = (2/3)*K/float(N)/const.kb
+    #if(glb.units == "Yukawa"):
+    #    K *= 3.
+    #    Tp *= 3.
 
-    E = K + U
+    #E = K + U
 
-    if(it%glb.snap_int == 0 and glb.verbose):
-        print("productoin: timestep, T, E, K, U = ", it, Tp, E, K, U)
+    #if(it%glb.snap_int == 0 and glb.verbose):
+    #    print("productoin: timestep, T, E, K, U = ", it, Tp, E, K, U)
     
-    t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
-    t_Tp_E_K_U2[:] = t_Tp_E_K_U
+    #t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
+    #t_Tp_E_K_U2[:] = t_Tp_E_K_U
     
     # Spatial Fourier transform
-    for iqv in range(Nq):
-        q_p = qv[iqv]
-        n_q_t[it,iqv,0] = np.sum(np.exp(-1j*q_p*pos[:,0]))
-        n_q_t[it,iqv,1] = np.sum(np.exp(-1j*q_p*pos[:,1]))
-        n_q_t[it,iqv,2] = np.sum(np.exp(-1j*q_p*pos[:,2]))
+    #for iqv in range(Nq):
+    #    q_p = qv[iqv]
+    #    n_q_t[it,iqv,0] = np.sum(np.exp(-1j*q_p*pos[:,0]))
+    #    n_q_t[it,iqv,1] = np.sum(np.exp(-1j*q_p*pos[:,1]))
+    #    n_q_t[it,iqv,2] = np.sum(np.exp(-1j*q_p*pos[:,2]))
     
     # writing particle positions and velocities to file
-    if glb.write_output == 1:
-        if np.mod(it+1, glb.snap_int) == 0:
-            irp = np.hstack((pos, vel, acc))
-            np.savetxt(f_output, irp)
-            np.savetxt(f_output_E, t_Tp_E_K_U2)
-            
-            if glb.write_xyz == 1:
-                f_xyz.writelines('{0:d}\n'.format(N))
-                f_xyz.writelines('x y z vx vy vz ax ay az\n')
-                np.savetxt(f_xyz,irp)
+    #if glb.write_output == 1:
+    #    if np.mod(it+1, glb.snap_int) == 0:
+    #        irp = np.hstack((pos, vel, acc))
+    #        np.savetxt(f_output, irp)
+    #        np.savetxt(f_output_E, t_Tp_E_K_U2)
+    #        
+    #        if glb.write_xyz == 1:
+    #            f_xyz.writelines('{0:d}\n'.format(N))
+    #            f_xyz.writelines('x y z vx vy vz ax ay az\n')
+    #            np.savetxt(f_xyz,irp)
 
-np.save('n_qt',n_q_t)
+#np.save('n_qt',n_q_t)
 
 # closing output files        
 f_output.close()

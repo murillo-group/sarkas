@@ -209,6 +209,12 @@ def parameters(input_file):
 
     #if(units == "cgs-eV"):
     #if(units == "mks-eV"):
+    if(glb.pot_calc_algrthm == "PP"):
+        glb.p3m_flag = 0
+
+    if(glb.pot_calc_algrthm == "P3M"):
+        glb.p3m_flag = 1
+
     if(glb.pot_calc_algrthm == "PP" and potential_type == "Yukawa"):
         glb.potential_type = glb.Yukawa_PP
 

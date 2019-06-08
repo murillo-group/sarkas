@@ -14,7 +14,7 @@ def particle_particle(pos,acc_s_r):
     kappa = glb.kappa
     G = glb.G
     ai = glb.ai
-   
+
     N = len(pos[:,0])
     d = len(pos[0,:])
 
@@ -33,7 +33,7 @@ def particle_particle(pos,acc_s_r):
     rc_z = Lz/Lzd
 
     Ncell = Lxd*Lyd*Lzd
-    
+
     #print(Ncell)
 
     head = np.arange(Ncell)
@@ -45,10 +45,10 @@ def particle_particle(pos,acc_s_r):
     U_s_r = 0.0
     #count = 0
     #count_rc = 0
-    
+
     acc_s_r.fill(0.0)
     for i in range(N):
-    
+
         cx = int(np.floor(pos[i,0]/rc_x))
         cy = int(np.floor(pos[i,1]/rc_y))
         cz = int(np.floor(pos[i,2]/rc_z))
@@ -111,32 +111,31 @@ def particle_particle(pos,acc_s_r):
                                         dx = pos[i,0] - (pos[j,0] + rshift[0])
                                         dy = pos[i,1] - (pos[j,1] + rshift[1])
                                         dz = pos[i,2] - (pos[j,2] + rshift[2])
-                                        #r = np.linalg.norm(rv)  
+                                        #r = np.linalg.norm(rv)
                                         r = np.sqrt(dx**2 + dy**2 + dz**2)
                                         #count = count + 1
                                         if r < rc:
 #                                            U_s_r = 0.
-                                            f1 = 0.
-                                            f2 = 0.
-                                            f3 = 0.
-                                            fr = 0.
+                                            #f1 = 0.
+                                            #f2 = 0.
+                                            #f3 = 0.
+                                            #fr = 0.
                                             #########################
-                                            if(glb.potential_type == glb.Yukawa_P3M): # P3M. Do not compare strings. It is very expensive!
+                                            #if(glb.potential_type == glb.Yukawa_P3M): # P3M. Do not compare strings. It is very expensive!
                                             #Gautham's thesis Eq. 3.22
                                             # Short range  potential
-                                                U_s_r = U_s_r + (0.5/r)*(np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G) + np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G))
-                                                f1 = (0.5/r**2)*np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G)*(1-kappa*r)
-                                                f2 = (0.5/r**2)*np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G)*(1+kappa*r)
-                                                f3 = (G/np.sqrt(np.pi)/r)*(np.exp(-(G*r + 0.5*kappa/G)**2)*np.exp(kappa*r) + np.exp(-(G*r - 0.5*kappa/G)**2)*np.exp(-kappa*r))
-                                                fr = f1+f2+f3
+                                            #    U_s_r = U_s_r + (0.5/r)*(np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G) + np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G))
+                                            #    f1 = (0.5/r**2)*np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G)*(1-kappa*r)
+                                            #    f2 = (0.5/r**2)*np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G)*(1+kappa*r)
+                                            #    f3 = (G/np.sqrt(np.pi)/r)*(np.exp(-(G*r + 0.5*kappa/G)**2)*np.exp(kappa*r) + np.exp(-(G*r - 0.5*kappa/G)**2)*np.exp(-kappa*r))
+                                            #    fr = f1+f2+f3
 
-                                            if(glb.potential_type == glb.Yukawa_PP): # PP
-                                                U_s_r = U_s_r + np.exp(-kappa*r)/r 
-#                                                print("r, U_s_r, kappa = ", r, U_s_r, kappa)
-                                                f1 = 1./r**2*np.exp(-kappa*r)
-                                                f2 = kappa/r*np.exp(-kappa*r)
-                                                fr = f1+f2
-                                           ########################## 
+                                            #if(glb.potential_type == glb.Yukawa_PP): # PP
+                                            U_s_r = U_s_r + np.exp(-kappa*r)/r
+                                            f1 = 1./r**2*np.exp(-kappa*r)
+                                            f2 = kappa/r*np.exp(-kappa*r)
+                                            fr = f1+f2
+                                           ##########################
                                             acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
                                             acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
                                             acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
