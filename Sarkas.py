@@ -48,7 +48,7 @@ def prime_factors(n):
 
 def domain_decomp(n):
     pf= prime_factors(n)
-    Ln = len(primefact)
+    Ln = len(pf)
     rtn = np.array([1,1,1])
     if Ln == 1:
         rtn = np.array([pf[0],1,1])
@@ -58,9 +58,11 @@ def domain_decomp(n):
         a = pf.pop(-1)
         b = pf.pop(-1)
         c = pf.pop(-1)
-        rtn = np.array([a,b,c])
-        while not pf:
+        rtn = np.array([c,b,a])
+        while pf:
             fact = pf.pop(-1)
+            rtn[np.argmin(rtn)] *= fact
+    return rtn
 
 comm = MPI.COMM_WORLD
 
@@ -180,16 +182,13 @@ if(glb.verbose):
 
 # DECOMPOSE DOMAIN ####################
 
-primes = prime_factors(63)
-
 Nlocal = np.floor(N/size)
 if rank < (N%size):
     Nlocal += 1
 if DEBUG:
     print("rank: %d, N = %d" %(rank,Nlocal))
-    print("prime factors = ", primes)
-
-primes = prime_factors(size)
+    print("prime_factors(3*3*5*7) = ", prime_factors(3*3*5*7) )
+    print( "domain_decomp(3*3*5*7) = ",domain_decomp(3*3*5*7) )
 
 pos = np.zeros((N, glb.d))
 vel = np.zeros_like(pos)
