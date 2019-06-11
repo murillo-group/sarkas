@@ -260,7 +260,6 @@ t_Tp_E_K_U2 = np.zeros((1,5))
 if glb.init == 1:
     
     print('\nReading initial particle positions and velocities from file...')
-    
     f_input = 'init.out'           # name of input file
     pos, vel = read.initL(pos, vel, f_input)
     
