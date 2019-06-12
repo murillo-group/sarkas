@@ -22,9 +22,12 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     #N = len(pos[:,0])
     d = len(pos[0,:])
 
-    Lx = glb.Lv[0]
-    Ly = glb.Lv[1]
-    Lz = glb.Lv[2]
+    #Lx = glb.Lv[0]
+    #Ly = glb.Lv[1]
+    #Lz = glb.Lv[2]
+    Lx = mpiComm.Ll[0]
+    Ly = mpiComm.Ll[1]
+    Lz = mpiComm.Ll[2]
 
     empty = -50
 
@@ -159,13 +162,15 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     MPI.Request.waitall(recv_requests)
 
     Nr = int(len(recvPos)/6)
-    recvBuff = recvPos.reshape(Nr,3,2)
+    recvBuff = recvPos.reshape(Nr,3,2) #breaks if Nr is zero!!
     recvPos = recvBuff[:,:,0]
     recvVel = recvBuff[:,:,1]
 
     #=========================================
 
     #LCL for particles that DID migrate
+    # I think this is where the problem is!!
+    # if you commment this out then it works
     ls = np.append(ls,np.zeros(Nr,dtype=np.int))
     for i in range(Nr):
 
@@ -180,6 +185,10 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
 
 
     pos = np.append(pos,recvPos,0)
+    if mpiComm.rank == 0:
+        print(pos)
+        print(ls)
+        print(head)
     vel = np.append(vel,recvVel,0)
     acc_s_r = np.zeros_like(pos)
     N = len(pos[:,0])
@@ -239,6 +248,9 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
                                         dy = pos[i,1] - (pos[j,1] + rshift[1])
                                         dz = pos[i,2] - (pos[j,2] + rshift[2])
                                         r = np.sqrt(dx**2 + dy**2 + dz**2)
+                                        if mpiComm.rank==0:
+                                            print("i = ",i)
+                                            print("j = ",j)
 
                                         if r < rc:
                                             if mpiComm.rank==0:
