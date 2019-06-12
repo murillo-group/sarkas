@@ -32,46 +32,7 @@ import S_p3m as p3m
 import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
-
-def prime_factors(n):
-    i = 2
-    factors = []
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors.append(i)
-    if n > 1:
-        factors.append(n)
-    return factors
-
-def domain_decomp(n):
-    pf= prime_factors(n)
-    Ln = len(pf)
-    rtn = np.array([1,1,1])
-    if Ln == 1:
-        rtn = np.array([pf[0],1,1])
-    elif Ln == 2:
-        rtn = np.array([pf[0],pf[1],1])
-    else:
-        a = pf.pop(-1)
-        b = pf.pop(-1)
-        c = pf.pop(-1)
-        rtn = np.array([c,b,a])
-        while pf:
-            fact = pf.pop(-1)
-            rtn[np.argmin(rtn)] *= fact
-    return rtn
-
-comm = MPI.COMM_WORLD
-
-global size
-global rank
-global DEBUG
-DEBUG = True
-size = comm.size
-rank = comm.rank
+import S_mpi_comm as mpi_comm
 
 input_file = sys.argv[1]
 # Reading MD conditions from input file
@@ -182,42 +143,13 @@ if(glb.verbose):
 
 # DECOMPOSE DOMAIN ####################
 
-Nlocal = int(N/size)
+comm = MPI.COMM_WORLD
+mpiComm = mpi_comm.mpi_comm(comm)
 
-if rank < (N%size):
-    Nlocal += 1
-if DEBUG:
-    print("rank: %d, N = %d" %(rank,Nlocal))
-    print("prime_factors(3*3*5*7) = ", prime_factors(3*3*5*7) )
-    print( "domain_decomp(3*3*5*7) = ",domain_decomp(3*3*5*7) )
+print("rank " + str(mpiComm.rank) + " Lmax = ", mpiComm.Lmax)
+print("rank " + str(mpiComm.rank) + " Lmin = ", mpiComm.Lmin)
 
-decomp = domain_decomp(3*3*5*7)
-
-Lxlocal = L/decomp[0]
-Lylocal = L/decomp[1]
-Lzlocal = L/decomp[2]
-
-LxMin = (rank%decomp[0])*Lxlocal
-LxMax = Lxlocal + LxMin
-
-LyMin = np.floor(rank/decomp[1])*Lylocal
-LyMax = LyMin + Lylocal
-
-LzMin = np.floor(rank/(decomp[0]*decomp[1]))*Lzlocal
-LzMax = LzMin + Lzlocal
-
-if DEBUG:
-    print("LxMin = ", LxMin)
-    print("LxMax = ", LxMax)
-    print("rank mod decomp[0] = ",(rank%decomp[0]))
-    print("LyMin = ", LyMin)
-    print("LyMax = ", LyMax)
-    print("rank mod decomp[1] = ",(rank%decomp[1]))
-    print("LzMin = ", LzMin)
-    print("LzMax = ", LzMax)
-    print("rank mod decomp[2] = ",(rank%decomp[2]))
-
-pos = np.zeros((Nlocal, glb.d))
+pos = np.zeros((mpiComm.Nl, glb.d))
 vel = np.zeros_like(pos)
 acc = np.zeros_like(pos)
 Z = np.ones(N)
@@ -269,11 +201,11 @@ else:
     
     # initial particle positions uniformly distributed in the box
     # initial particle velocities with Maxwell-Boltzmann distribution
-    pos, vel = initialize_pos_vel.initial(pos, vel, T_desired,Nlocal)
+    pos, vel = initialize_pos_vel.initial(pos, vel, T_desired,mpiComm.Nl)
 
 t4 = time.time()
 # Calculating initial forces and potential energy
-U, acc = p3m.force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+U, acc, vel, pos = p3m.force_pot(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
 
 K = 0.5*mi*np.ndarray.sum(vel**2)
 Tp = (2/3)*K/float(N)/const.kb
@@ -287,7 +219,7 @@ print('\n------------- Equilibration -------------')
 #print('time - temperature')
 for it in range(Neq):
 #    print("it = ", it)
-    pos, vel, acc, U = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    pos, vel, acc, U = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
 #---------------
     K = 0.5*mi*np.ndarray.sum(vel**2)
     Tp = (2/3)*K/float(N)/const.kb
@@ -309,8 +241,8 @@ f_xyz = open('p_v_a.xyz','w')
 #print('time - total energy - kinetic energy - potential energy')
 
 for it in range(Nt):
-    
-    pos, vel, acc, U = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,Nlocal)
+
+    pos, vel, acc, U = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
 
     #K = 0.5*mi*np.ndarray.sum(vel**2)
     #Tp = (2/3)*K/float(N)/const.kb

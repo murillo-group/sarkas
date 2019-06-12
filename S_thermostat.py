@@ -5,7 +5,7 @@ import S_velocity_verlet as velocity_verlet
 import S_global_names as glb
 import S_constants as const
 
-def vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+def vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm):
     kf = glb.kf
     dt = glb.dt
     N = glb.N
@@ -14,7 +14,7 @@ def vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_
     q1 = glb.q1
     q2 = glb.q2
 
-    pos, vel, acc, U = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    pos, vel, acc, U = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
 
 
     if(glb.units == "Yukawa"):
