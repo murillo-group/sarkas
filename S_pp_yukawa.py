@@ -127,9 +127,11 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     for i in range(size):
         index = int(sendBuff[i,0])
         if index == 1 and i != mpiComm.rank:
-            Sreq = mpiComm.comm.Isend([ np.array([-50.,-50.,-50.]), MPI.DOUBLE], dest = i, tag = mpiComm.rank)
+            #print("testasdfasdf")
+            Sreq = mpiComm.comm.Isend([ np.array([-50.,-50.,-50.,-50.,-50.,-50.]), MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
         elif i != mpiComm.rank:
+            print("exchange!")
             buff = sendBuff[i,1:index]
             SIZE += len(buff)
             Sreq = mpiComm.comm.Isend([buff, MPI.DOUBLE], dest = i, tag = mpiComm.rank)
@@ -152,12 +154,6 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
         cy = int(np.floor((pos[i,1] - mpiComm.Lmin[1])/rc_y))
         cz = int(np.floor((pos[i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*Lxd + cz*Lxd*Lyd
-        #if mpiComm.rank==0:
-        #    print("cx = ",cx)
-        #    print("cy = ",cy)
-        #    print("cz = ",cz)
-        #    print("c = ",c)
-        #    print(pos[i,:])
 
         ls[i] = head[c]
         head[c] = i
@@ -185,15 +181,15 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     MPI.Request.waitall(send_requests)
     MPI.Request.waitall(recv_requests)
 
-
-    Nr = int(len(recvPos)/6)
+    recvBuff = recvPos.reshape(int(len(recvPos)/6),3,2)
+    recvBuff = recvBuff[np.where(recvBuff[:,0,0]!=-50.)]
+    Nr = recvBuff.shape[0]
     if Nr != 0:
-        recvBuff = recvPos.reshape(Nr,3,2) #breaks if Nr is zero!!
         recvPos = recvBuff[:,:,0]
         recvVel = recvBuff[:,:,1]
         vel = np.append(vel,recvVel,0)
         pos = np.append(pos,recvPos,0)
-        acc_s_r = np.zeros_like(pos)
+    acc_s_r = np.zeros_like(pos)
 
 
     #=========================================
