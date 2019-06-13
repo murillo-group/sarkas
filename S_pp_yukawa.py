@@ -45,6 +45,18 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     head.fill(empty)
     #ls = np.arange(N)
 
+    #if mpiComm.rank==0:
+    #    print("rank 0 N=",len(pos[:,0]))
+    #    print("Lxd = ",Lxd)
+    #    print("Lyd = ",Lyd)
+    #    print("Lzd = ",Lzd)
+
+    #if mpiComm.rank==1:
+    #    print("rank 1 N=",len(pos[:,0]))
+    #    print(np.where(pos[:,0]>9.42698613))
+    #    print(np.where(pos[:,1]>9.42698613))
+    #    print(np.where(pos[:,2]>9.42698613))
+
     rshift = np.zeros(d)
 
     #=== Particle Migration-SEND =============
@@ -71,6 +83,10 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     vel = np.delete(vel,migIndex[0],0)
 
     N = len(pos[:,0])
+    #if mpiComm.rank==0:
+    #    print(pos)
+    #if mpiComm.rank==1:
+    #    print(migBuff_pos)
 
     buffLen = 600
     sendBuff = np.ones( (size,buffLen+1))
@@ -128,12 +144,20 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     #LCL for particles that DID NOT migrate
     ls = np.arange(N)
     U_s_r = 0.0
+    #if mpiComm.rank==1:
+    #    print(N)
     for i in range(N):
 
-        cx = int(np.floor(pos[i,0]/rc_x))
-        cy = int(np.floor(pos[i,1]/rc_y))
-        cz = int(np.floor(pos[i,2]/rc_z))
+        cx = int(np.floor((pos[i,0] - mpiComm.Lmin[0])/rc_x))
+        cy = int(np.floor((pos[i,1] - mpiComm.Lmin[1])/rc_y))
+        cz = int(np.floor((pos[i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*Lxd + cz*Lxd*Lyd
+        #if mpiComm.rank==0:
+        #    print("cx = ",cx)
+        #    print("cy = ",cy)
+        #    print("cz = ",cz)
+        #    print("c = ",c)
+        #    print(pos[i,:])
 
         ls[i] = head[c]
         head[c] = i
@@ -161,37 +185,47 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     MPI.Request.waitall(send_requests)
     MPI.Request.waitall(recv_requests)
 
+
     Nr = int(len(recvPos)/6)
-    recvBuff = recvPos.reshape(Nr,3,2) #breaks if Nr is zero!!
-    recvPos = recvBuff[:,:,0]
-    recvVel = recvBuff[:,:,1]
+    if Nr != 0:
+        recvBuff = recvPos.reshape(Nr,3,2) #breaks if Nr is zero!!
+        recvPos = recvBuff[:,:,0]
+        recvVel = recvBuff[:,:,1]
+        vel = np.append(vel,recvVel,0)
+        pos = np.append(pos,recvPos,0)
+        acc_s_r = np.zeros_like(pos)
+
 
     #=========================================
 
     #LCL for particles that DID migrate
     # I think this is where the problem is!!
     # if you commment this out then it works
+    #if mpiComm.rank==1:
+    #    print(Nr)
     ls = np.append(ls,np.zeros(Nr,dtype=np.int))
     for i in range(Nr):
 
-        cx = int(np.floor(recvPos[i,0]/rc_x))
-        cy = int(np.floor(recvPos[i,1]/rc_y))
-        cz = int(np.floor(recvPos[i,2]/rc_z))
+        cx = int(np.floor((pos[N+i,0] - mpiComm.Lmin[0])/rc_x))
+        cy = int(np.floor((pos[N+i,1] - mpiComm.Lmin[1])/rc_y))
+        cz = int(np.floor((pos[N+i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*Lxd + cz*Lxd*Lyd
 
         ls[N+i] = head[c]
         head[c] = N+i
 
-
-
-    pos = np.append(pos,recvPos,0)
-    if mpiComm.rank == 0:
-        print(pos)
-        print(ls)
-        print(head)
-    vel = np.append(vel,recvVel,0)
-    acc_s_r = np.zeros_like(pos)
     N = len(pos[:,0])
+
+    #if mpiComm.rank == 0:
+    #    print(pos)
+    #    print(ls)
+    #    print(head)
+    #    print(test)
+    #if mpiComm.rank==0:
+    #    print(pos[19])
+    #    print(pos[70])
+    #    print(recvPos)
+    #    print(pos)
 
     for cx in range(Lxd):
         for cy in range(Lyd):
@@ -234,6 +268,9 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
                                 rshift[2] = 0.0
 
                             c_N = (cx_N+cx_shift) + (cy_N+cy_shift)*Lxd + (cz_N+cz_shift)*Lxd*Lyd
+                            #if mpiComm.rank == 0:
+                            #    print("c_N = ", c_N)
+                            #    print("c = ", c)
 
                             i = head[c]
 
@@ -248,15 +285,15 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
                                         dy = pos[i,1] - (pos[j,1] + rshift[1])
                                         dz = pos[i,2] - (pos[j,2] + rshift[2])
                                         r = np.sqrt(dx**2 + dy**2 + dz**2)
-                                        if mpiComm.rank==0:
-                                            print("i = ",i)
-                                            print("j = ",j)
+                                        #if mpiComm.rank==0:
+                                            #print("r_i="+str(i)+"_j="+str(j)+" = ",r)
+                                            #print("j = ",j)
 
                                         if r < rc:
-                                            if mpiComm.rank==0:
-                                                print("r = ", r)
-                                                print("pos_i = ",pos[i,:])
-                                                print("pos_j = ",pos[j,:])
+                                            #if mpiComm.rank==0:
+                                            #    print("r = ", r)
+                                            #    print("pos_i = ",pos[i,:])
+                                            #    print("pos_j = ",pos[j,:])
                                             #U_s_r = 0.
                                             #f1 = 0.
                                             #f2 = 0.

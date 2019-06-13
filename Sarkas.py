@@ -201,7 +201,7 @@ else:
     
     # initial particle positions uniformly distributed in the box
     # initial particle velocities with Maxwell-Boltzmann distribution
-    pos, vel = initialize_pos_vel.initial(pos, vel, T_desired,mpiComm.Nl)
+    pos, vel = initialize_pos_vel.initial(pos, vel, T_desired,mpiComm)
 
 t4 = time.time()
 # Calculating initial forces and potential energy

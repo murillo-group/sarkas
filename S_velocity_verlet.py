@@ -8,12 +8,13 @@ import S_constants as const
 #@nb.autojit
 def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm):
     dt = glb.dt
-    N = glb.N
+    #N = glb.N
     d = glb.d
     Lv = glb.Lv
     PBC = glb.PBC
     Lmax_v = glb.Lmax_v
     Lmin_v = glb.Lmin_v
+
     vel = vel + 0.5*acc*dt
     
     pos = pos + vel*dt
