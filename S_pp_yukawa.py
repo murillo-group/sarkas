@@ -171,6 +171,10 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     #        print("recv size = ",buffSize)
 
 
+    #This need to gather ALL MESSAGES!
+    # right now it only just overwrites one buffer
+    # DONEST WORK FOR MORE THAN ONE MPI RANK!!!!
+    #NOTE: mabey try a gather instead?!
     recv_requests=[]
     recvPos = np.empty(buffSize,dtype=np.float64)
     for p in range(size):
