@@ -45,18 +45,6 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     head.fill(empty)
     #ls = np.arange(N)
 
-    #if mpiComm.rank==0:
-    #    print("rank 0 N=",len(pos[:,0]))
-    #    print("Lxd = ",Lxd)
-    #    print("Lyd = ",Lyd)
-    #    print("Lzd = ",Lzd)
-
-    #if mpiComm.rank==1:
-    #    print("rank 1 N=",len(pos[:,0]))
-    #    print(np.where(pos[:,0]>9.42698613))
-    #    print(np.where(pos[:,1]>9.42698613))
-    #    print(np.where(pos[:,2]>9.42698613))
-
     rshift = np.zeros(d)
 
     #=== Particle Migration-SEND =============
@@ -73,7 +61,7 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     migFilter_X = np.logical_or(posX > Lmax[0] , posX < Lmin[0] )
     migFilter_Y = np.logical_or(posY > Lmax[1] , posY < Lmin[1] )
     migFilter_Z = np.logical_or(posZ > Lmax[2] , posZ < Lmin[2] )
-    migFilter = np.logical_or(np.logical_or(migFilter_X,migFilter_Y),migFilter_Z)
+    migFilter = np.logical_or.reduce( (migFilter_X,migFilter_Y,migFilter_Z) )
 
     migIndex = np.where(migFilter)
     migBuff_pos = pos[migIndex[0],:]
@@ -81,64 +69,35 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     migBuff = np.stack((migBuff_pos,migBuff_vel),axis=2)
     pos = np.delete(pos,migIndex[0],0)
     vel = np.delete(vel,migIndex[0],0)
-
     N = len(pos[:,0])
-    #if mpiComm.rank==0:
-    #    print(pos)
-    #if mpiComm.rank==1:
-    #    print(migBuff_pos)
 
     buffLen = 600
-    sendBuff = np.ones( (size,buffLen+1))
+    sendDict = {}
     for i in range(len(migBuff[:,0])):
         rank = mpiComm.posToRank(migBuff[i,:,0])
-        buff = sendBuff[rank,:]
-        index = int(buff[0])
-        if index >= sendBuff.shape[1]:
-            buffLen *= 6
-            temp = np.ones( (mpiComm.size,buffLen+1))
-            temp[:,0:index] = sendBuff
-            sendBuff = temp
-            buff = sendBuff[rank,:]
-        buff[index:index+6] = migBuff[i,:].flatten()
-        buff[0] = index+6
+        if rank in sendDict:
+            index = int(sendDict[rank][0])
+            if index >= len(sendDict[rank]):
+                Ln = len(sendDict[rank])
+                Ln *= 6
+                temp = np.ones( Ln )
+                temp[:,0:index] = sendDict[rank]
+                sendDict[rank] = temp
+            sendDict[rank][index:index+6] = migBuff[i,:,:].flatten()
+            sendDict[rank][0] = index+6
+        else:
+            sendDict[rank] = np.ones( buffLen )
+            sendDict[rank][1:7] = migBuff[i,:,:].flatten()
+            sendDict[rank][0]=7
 
-    #sendDict = {}
-    #for i in range(len(migBuff[:,0])):
-    #    rank = mpiComm.posToRank(migBuff[i,:])
-    #    if rank in sendDict:
-    #        sendDict[rank] = np.append(sendDict[rank],migBuff[i,:],axis=0)
-    #    else:
-    #        sendDict[rank] = migBuff[i,:]
-    #
-    #print(mpiComm.glbIndexToRank( mpiComm.posToGlb([6.49114691, 7.39617972, 3.29489686])) )
-    #print(mpiComm.posToGlb([2.49114691, 7.39617972, 3.29489686]))
-    #send_requests=[]
-    #for i in range(mpiComm.size):
-    #    if i in sendDict:
-    #        Sreq = mpiComm.comm.Isend([sendDict[i].flatten(), MPI.DOUBLE], dest = i, tag = mpiComm.rank)
-    #        send_requests.append(Sreq)
-    #    else:
-    #        Sreq = mpiComm.comm.Isend([np.array([-50.0]), MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
-    #        send_requests.append(Sreq)
-
-    SIZE = 0
     send_requests=[]
-    for i in range(size):
-        index = int(sendBuff[i,0])
-        if index == 1 and i != mpiComm.rank:
-            #print("testasdfasdf")
-            Sreq = mpiComm.comm.Isend([ np.array([-50.,-50.,-50.,-50.,-50.,-50.]), MPI.DOUBLE], dest = i, tag = mpiComm.rank)
+    for i in mpiComm.neigs.ranks:
+        if i in sendDict:
+            Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])], MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
-        elif i != mpiComm.rank:
-            print("exchange!")
-            buff = sendBuff[i,1:index]
-            SIZE += len(buff)
-            Sreq = mpiComm.comm.Isend([buff, MPI.DOUBLE], dest = i, tag = mpiComm.rank)
+        else:
+            Sreq = mpiComm.comm.Isend([np.array([-50.,-50.,-50.,-50.,-50.,-50.]), MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
             send_requests.append(Sreq)
-    #if DEBUG:
-    #    if(mpiComm.rank==0):
-    #        print("send size = ",SIZE)
 
 
     #====================================
@@ -146,8 +105,6 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     #LCL for particles that DID NOT migrate
     ls = np.arange(N)
     U_s_r = 0.0
-    #if mpiComm.rank==1:
-    #    print(N)
     for i in range(N):
 
         cx = int(np.floor((pos[i,0] - mpiComm.Lmin[0])/rc_x))
@@ -160,27 +117,19 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
 
     #=== Particle Migration-Recv =============
 
-    buffSize = 0
-    for p in range(size):
-        if p != mpiComm.rank:
-            probS = mpiComm.comm.Probe(status=s,source=p,tag=p)
-            buffSize += s.Get_count(datatype=MPI.DOUBLE)
+    recvB = []
+    for i in mpiComm.neigs.ranks:
+        probS = mpiComm.comm.Probe(status=s,source=i,tag=i)
+        count = s.Get_count(datatype=MPI.DOUBLE)
+        recvB.append(np.empty(count,dtype=np.float64))
 
-    #if DEBUG:
-    #    if mpiComm.rank==1:
-    #        print("recv size = ",buffSize)
-
-
-    #This need to gather ALL MESSAGES!
-    # right now it only just overwrites one buffer
-    # DONEST WORK FOR MORE THAN ONE MPI RANK!!!!
-    #NOTE: mabey try a gather instead?!
     recv_requests=[]
-    recvPos = np.empty(buffSize,dtype=np.float64)
-    for p in range(size):
-        if p != mpiComm.rank:
-            Rreq = mpiComm.comm.Irecv([recvPos, MPI.DOUBLE], source = p, tag = p)
-            recv_requests.append(Rreq)
+    p = 0
+    for i in mpiComm.neigs.ranks:
+        Rreq = mpiComm.comm.Irecv([recvB[p], MPI.DOUBLE], source = i, tag = i)
+        recv_requests.append(Rreq)
+        p+=1
+    recvPos = np.concatenate(recvB,axis=0)
 
     MPI.Request.waitall(send_requests)
     MPI.Request.waitall(recv_requests)
@@ -215,17 +164,6 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
         head[c] = N+i
 
     N = len(pos[:,0])
-
-    #if mpiComm.rank == 0:
-    #    print(pos)
-    #    print(ls)
-    #    print(head)
-    #    print(test)
-    #if mpiComm.rank==0:
-    #    print(pos[19])
-    #    print(pos[70])
-    #    print(recvPos)
-    #    print(pos)
 
     for cx in range(Lxd):
         for cy in range(Lyd):
@@ -268,9 +206,6 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
                                 rshift[2] = 0.0
 
                             c_N = (cx_N+cx_shift) + (cy_N+cy_shift)*Lxd + (cz_N+cz_shift)*Lxd*Lyd
-                            #if mpiComm.rank == 0:
-                            #    print("c_N = ", c_N)
-                            #    print("c = ", c)
 
                             i = head[c]
 
@@ -285,9 +220,6 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
                                         dy = pos[i,1] - (pos[j,1] + rshift[1])
                                         dz = pos[i,2] - (pos[j,2] + rshift[2])
                                         r = np.sqrt(dx**2 + dy**2 + dz**2)
-                                        #if mpiComm.rank==0:
-                                            #print("r_i="+str(i)+"_j="+str(j)+" = ",r)
-                                            #print("j = ",j)
 
                                         if r < rc:
                                             #if mpiComm.rank==0:

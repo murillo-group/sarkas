@@ -203,6 +203,8 @@ else:
     # initial particle velocities with Maxwell-Boltzmann distribution
     pos, vel = initialize_pos_vel.initial(pos, vel, T_desired,mpiComm)
 
+print("vel = ", vel)
+
 t4 = time.time()
 # Calculating initial forces and potential energy
 U, acc, vel, pos = p3m.force_pot(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
