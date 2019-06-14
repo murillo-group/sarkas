@@ -1,0 +1,22 @@
+Sarkas Tutorial
+===============
+Sarkas is a pure python MD code designed for computational plasma physics. Before you can begin working
+with Sarkas, you will need to have python installed. A useful python distribution is Anaconda that has many of the 
+necessary packages for Sarkas can be downloaced here_.
+
+.. _here: https://www.anaconda.com
+
+
+Preliminary Packages
+--------------------
+If you already have a version of python installed, you may still need to download additional packages such as
+`pyfftw` and `numba`. If you have the python package manager `pip` installed, you can install these packages, 
+by simply opening a terminal and running the following commands:
+
+.. code-block:: bash
+
+   $ pip install pyfftw
+
+.. code-block:: bash
+
+   $ pip install numba

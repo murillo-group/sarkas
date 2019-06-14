@@ -9,6 +9,8 @@ Welcome to Sarkas's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   
+   quickstart
 
    todo
 	
@@ -32,3 +34,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 test
+bla
