@@ -13,10 +13,8 @@ Welcome to Sarkas's documentation!
    quickstart
 
    todo
-	
-   :caption: Test:
-
-   integrators
+   installation
+   QuickStart
 
 .. code-block:: python
    :emphasize-lines: 3,5
@@ -33,5 +31,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-test
-bla
+
