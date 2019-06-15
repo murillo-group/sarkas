@@ -232,7 +232,8 @@ for it in range(Neq):
     E = K + U
     if mpiComm.rank == 0:
         if(it%glb.snap_int == 0 and glb.verbose):
-            print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
+            print("productoin: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
+
 t5 = time.time()
 
 print('\n------------- Production -------------')
@@ -263,7 +264,7 @@ for it in range(Nt):
     #    print("k= ", K)
     if mpiComm.rank == 0:
         if(it%glb.snap_int == 0 and glb.verbose ):
-            print("productoin: timestep, T, E, K, U = ", it, Tp, E, K, U)
+            print("productoin: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
             #print(vel)
     
     #t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])

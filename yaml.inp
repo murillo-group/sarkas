@@ -23,7 +23,7 @@ Region:
 
   - Control:
       dt: 0.01
-      Neq: 2000
+      Neq: 4000
       Nstep: 2000
       BC: periodic
       units: Yukawa
