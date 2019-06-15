@@ -59,6 +59,7 @@ class Params:
             self.species_name = None
             self.Num = None
             self.np = None
+            self.method = None
 
     class plasma_potential:
         def __init__(self):
@@ -124,6 +125,9 @@ class Params:
 
                             if(key == 'number_density'):
                                 self.load[ic].np = value
+
+                            if(key == 'method'):
+                                self.load[ic].method = value
    
                     if(key == 'Potential'):
                         plasma_potential = self.plasma_potential()

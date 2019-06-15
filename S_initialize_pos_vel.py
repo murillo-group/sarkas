@@ -1,3 +1,6 @@
+'''
+deprecated. will be removed after implementing particle class fully. 
+'''
 import numpy as np
 import S_global_names as glb
 import S_constants as const
