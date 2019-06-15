@@ -14,7 +14,7 @@ def vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_
     q1 = glb.q1
     q2 = glb.q2
 
-    pos, vel, acc, U = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
+    U, acc, vel, pos = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
 
 
     if(glb.units == "Yukawa"):
@@ -39,4 +39,4 @@ def vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_
         
         fact = np.sqrt((20.0*T_desired/T-1.0)/20.0)
         vel = vel*fact
-    return pos, vel, acc, U
+    return  U, acc, vel, pos

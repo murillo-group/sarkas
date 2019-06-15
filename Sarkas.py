@@ -203,7 +203,6 @@ else:
     # initial particle velocities with Maxwell-Boltzmann distribution
     pos, vel = initialize_pos_vel.initial(pos, vel, T_desired,mpiComm)
 
-print("vel = ", vel)
 
 t4 = time.time()
 # Calculating initial forces and potential energy
@@ -221,7 +220,8 @@ print('\n------------- Equilibration -------------')
 #print('time - temperature')
 for it in range(Neq):
 #    print("it = ", it)
-    pos, vel, acc, U = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
+    U, acc, vel, pos = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
+
 #---------------
     K = 0.5*mi*np.ndarray.sum(vel**2)
     Tp = (2/3)*K/float(N)/const.kb
@@ -230,8 +230,9 @@ for it in range(Neq):
         Tp *= 3
 
     E = K + U
-    if(it%glb.snap_int == 0 and glb.verbose):
-        print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
+    if mpiComm.rank == 0:
+        if(it%glb.snap_int == 0 and glb.verbose):
+            print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
 t5 = time.time()
 
 print('\n------------- Production -------------')
@@ -244,18 +245,26 @@ f_xyz = open('p_v_a.xyz','w')
 
 for it in range(Nt):
 
-    pos, vel, acc, U = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
+    #Not Implemented in MPI yet, need to communicate the OLD accleration
+    # to migrated particles!
+    #U, acc, vel, pos = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
 
-    #K = 0.5*mi*np.ndarray.sum(vel**2)
-    #Tp = (2/3)*K/float(N)/const.kb
-    #if(glb.units == "Yukawa"):
-    #    K *= 3.
-    #    Tp *= 3.
+    U, acc, vel, pos = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
 
-    #E = K + U
+    K = 0.5*mi*np.ndarray.sum(vel**2)
+    Tp = (2/3)*K/float(N)/const.kb
+    if(glb.units == "Yukawa"):
+        K *= 3.
+        Tp *= 3.
 
-    #if(it%glb.snap_int == 0 and glb.verbose):
-    #    print("productoin: timestep, T, E, K, U = ", it, Tp, E, K, U)
+    E = K + U
+
+    #if mpiComm.rank==0:
+    #    print("k= ", K)
+    if mpiComm.rank == 0:
+        if(it%glb.snap_int == 0 and glb.verbose ):
+            print("productoin: timestep, T, E, K, U = ", it, Tp, E, K, U)
+            #print(vel)
     
     #t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
     #t_Tp_E_K_U2[:] = t_Tp_E_K_U

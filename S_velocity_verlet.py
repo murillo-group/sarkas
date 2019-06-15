@@ -18,6 +18,12 @@ def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x
     vel = vel + 0.5*acc*dt
     
     pos = pos + vel*dt
+
+    #if mpiComm.rank == 0:
+    #    print("BEFORE")
+    #    print("acc = ", acc.shape)
+    #    print("vel = ", vel.shape)
+    #    print("pos = ", pos.shape)
     
     # periodic boundary condition
     if PBC == 1:
@@ -30,9 +36,17 @@ def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x
                     pos[i,p] = pos[i,p] + Lv[p]
         
     U, acc, vel, pos = p3m.force_pot(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
+
+    #if mpiComm.rank == 0:
+    #    #if  acc.shape[0] != 50 or  vel.shape[0] != 50 or  pos.shape[0] != 50:
+    #    print("AFTER")
+    #    print("acc = ", acc.shape)
+    #    print("vel = ", vel.shape)
+    #    print("pos = ", pos.shape)
+
     vel = vel + 0.5*acc*dt
 
-    return pos, vel, acc, U
+    return U, acc, vel, pos
 
 #@nb.autojit
 def update_Langevin(pos, vel, acc, Z,  G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p, mpiComm):
@@ -56,10 +70,11 @@ def update_Langevin(pos, vel, acc, Z,  G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, 
     c2 = 1./(1. + 0.5*g*dt)
     beta = np.random.normal(0., 1., 3*N).reshape(N, 3)
 
-    #if mpiComm.rank == 0:
-    #    print("acc = ", acc.shape)
-    #    print("vel = ", vel.shape)
-    #    print("pos = ", pos.shape)
+   # if mpiComm.rank == 0:
+   #     print("BEFORE")
+   #     print("acc = ", acc.shape)
+   #     print("vel = ", vel.shape)
+   #     print("pos = ", pos.shape)
 
     pos = pos + c1*dt*vel + 0.5*dt**2*acc + 0.5*sig* dt**1.5*beta
     
@@ -75,8 +90,16 @@ def update_Langevin(pos, vel, acc, Z,  G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, 
         
     
     U, acc_new, vel, pos = p3m.force_pot(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
+
+   # if mpiComm.rank == 0:
+   #     #if  acc.shape[0] != 50 or  vel.shape[0] != 50 or  pos.shape[0] != 50:
+   #     print("AFTER")
+   #     print("acc = ", acc.shape)
+   #     print("acc_new = ", acc_new.shape)
+   #     print("vel = ", vel.shape)
+   #     print("pos = ", pos.shape)
     
     vel = c1*c2*vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
     acc = acc_new
     
-    return pos, vel, acc, U
+    return U, acc, vel, pos

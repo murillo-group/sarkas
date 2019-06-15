@@ -13,7 +13,7 @@ DEBUG = False
 
 #@nb.autojit
 #def particle_particle(kappa,G,rc,Lv,pos,acc_s_r):
-def particle_particle(pos,acc_s_r, vel, mpiComm):
+def particle_particle(pos, vel, acc_s_r, mpiComm):
     rc = glb.rc
     kappa = glb.kappa
     G = glb.G
@@ -30,6 +30,7 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     Lz = mpiComm.Ll[2]
 
     empty = -50
+    emptyArray = np.array([-50.,-50.,-50.,-50.,-50.,-50.])
 
     Lxd = int(np.floor(Lx/rc))
     Lyd = int(np.floor(Ly/rc))
@@ -63,6 +64,7 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     migFilter_Z = np.logical_or(posZ > Lmax[2] , posZ < Lmin[2] )
     migFilter = np.logical_or.reduce( (migFilter_X,migFilter_Y,migFilter_Z) )
 
+
     migIndex = np.where(migFilter)
     migBuff_pos = pos[migIndex[0],:]
     migBuff_vel = vel[migIndex[0],:]
@@ -70,6 +72,8 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     pos = np.delete(pos,migIndex[0],0)
     vel = np.delete(vel,migIndex[0],0)
     N = len(pos[:,0])
+    NsP = len(migBuff_pos)
+    NsV = len(migBuff_vel)
 
     buffLen = 600
     sendDict = {}
@@ -96,7 +100,7 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
             Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])], MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
         else:
-            Sreq = mpiComm.comm.Isend([np.array([-50.,-50.,-50.,-50.,-50.,-50.]), MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
+            Sreq = mpiComm.comm.Isend([emptyArray, MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
             send_requests.append(Sreq)
 
 
@@ -114,6 +118,9 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
 
         ls[i] = head[c]
         head[c] = i
+
+
+
 
     #=== Particle Migration-Recv =============
 
@@ -148,10 +155,6 @@ def particle_particle(pos,acc_s_r, vel, mpiComm):
     #=========================================
 
     #LCL for particles that DID migrate
-    # I think this is where the problem is!!
-    # if you commment this out then it works
-    #if mpiComm.rank==1:
-    #    print(Nr)
     ls = np.append(ls,np.zeros(Nr,dtype=np.int))
     for i in range(Nr):
 

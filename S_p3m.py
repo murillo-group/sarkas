@@ -35,7 +35,13 @@ def force_pot(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, 
     if(glb.potential_type == glb.EGS):
         U_short, acc_s_r = pp_EGS.particle_particle(pos,acc_s_r)
     else:
-        U_short, acc_s_r, vel, pos = pp_yukawa.particle_particle(pos,vel,acc_s_r,mpiComm)
+       # if mpiComm.rank == 0:
+       #     #if  acc.shape[0] != 50 or  vel.shape[0] != 50 or  pos.shape[0] != 50:
+       #     print("BEFORE (in p3m.py file)")
+       #     print("acc = ", acc.shape)
+       #     print("vel = ", vel.shape)
+       #     print("pos = ", pos.shape)
+        U_short, acc_s_r, vel, pos = pp_yukawa.particle_particle(pos, vel, acc_s_r, mpiComm)
 
     if(p3m == 1):  # PM
         U_fft, acc_fft = pm.particle_mesh_fft_r(pos, Z, G_k, kx_v, ky_v, kz_v, rho_r, acc_fft, E_x_p,E_y_p, E_z_p)
