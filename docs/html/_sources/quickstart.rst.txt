@@ -66,6 +66,28 @@ Unless adding new features to Sarkas such as new integrators, thermostats, poten
 will  need to modify is the `yaml.inp` file. This file is responsible for specifying the simulation parameters 
 such as the number of particles, number of timesteps, and initialization type for example. 
 
+.. image:: /images/yaml.png
+   :scale: 25%
+   :alt: input file for Sarkas
+   :align: left
+
+Example yaml.inp file
+~~~~~~~~~~~~~~~~~~~~~
+In the image to the left, we can see the various options for specifying simulation parameters.
+
+* Num: The number of particles
+* Gamma: Coulomb coupling parameter
+* Kappa: Electron screening parameter
+* ....
+
+|
+|
+|
+|
+|
+|
+|
+
 Units
 ~~~~~
 Currently, Sarkas uses Yukawa units to specify the system the user wants to simulate. For example,
