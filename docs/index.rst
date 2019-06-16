@@ -3,27 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Sarkas's documentation!
-==================================
+Sarkas Documentaion
+===================
+
+Sarkas is a pure-python molecular dynamics (MD) code designed with plasma physics in mind. The
+pure-python construction allows users to quickly add their own features to model the systems of
+their choosing. 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
    
    quickstart
-
    todo
-   installation
-   QuickStart
-
-.. code-block:: python
-   :emphasize-lines: 3,5
-
-   def some_function():
-       interesting = False
-       print 'This line is highlighted.'
-       print 'This one is not...'
-       print '...but this one is.'
 
 Indices and tables
 ==================

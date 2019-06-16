@@ -46,7 +46,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="To-Do List" href="todo.html" />
-    <link rel="prev" title="Welcome to Sarkas’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Sarkas Documentaion" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -107,7 +107,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="todo.html">To-Do List</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
 
             
@@ -174,33 +173,36 @@
             
   <div class="section" id="sarkas-quickstart">
 <h1>Sarkas Quickstart<a class="headerlink" href="#sarkas-quickstart" title="Permalink to this headline">¶</a></h1>
-<p>Sarkas is a pure python MD code designed for computational plasma physics. Before you can begin working
-with Sarkas, you will need to have python installed. A useful python distribution is Anaconda that has many of the
-necessary packages for Sarkas can be downloaced <a class="reference external" href="https://www.anaconda.com">here</a>.</p>
+<p>Before you can begin working with Sarkas, you will need to have python3 installed. A useful python
+distribution that has many of the necessary packages for Sarkas is Anaconda. Anaconda can be downloaded <a class="reference external" href="https://www.anaconda.com">here</a>.</p>
 <div class="section" id="obtaining-sarkas">
 <h2>Obtaining Sarkas<a class="headerlink" href="#obtaining-sarkas" title="Permalink to this headline">¶</a></h2>
-<p>Sarkas is undergoing heavy development but the most recent version can be found on <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">GitHub</a>, which can then be
-cloned.</p>
+<p>Sarkas is undergoing heavy development but the most recent version can be found on <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">GitHub</a>, which
+can then be cloned.</p>
 <div class="section" id="preliminary-packages">
 <h3>Preliminary Packages<a class="headerlink" href="#preliminary-packages" title="Permalink to this headline">¶</a></h3>
-<p>If you already have a version of python installed, you may still need to download additional packages such as
-<a class="reference external" href="https://pypi.org/project/pyFFTW/">pyfftw</a>, <a class="reference external" href="https://pypi.org/project/fdint/">fdint</a>, and <a class="reference external" href="https://numba.pydata.org">numba</a>. If you have the most recent version of Anaconda installed, you should already
-have numba, installed. If you have the python package manager <a class="reference external" href="https://pip.pypa.io/en/stable/">pip</a> installed, you can install these packages,
-by simply opening a terminal and running the following commands:</p>
+<p>If you already have a version of python3 installed, you may still need to download additional packages
+such as <a class="reference external" href="https://pypi.org/project/pyFFTW/">pyfftw</a>, <a class="reference external" href="https://pypi.org/project/fdint/">fdint</a>, and <a class="reference external" href="https://numba.pydata.org">numba</a>. If you have the most recent version of Anaconda installed,
+you should already have numba, installed. If you have the python package manager <a class="reference external" href="https://pip.pypa.io/en/stable/">pip</a> installed,
+you can install these packages, by simply opening a terminal and running the following commands:</p>
+<p>To install pyfftw</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install pyfftw
 </pre></div>
 </div>
+<p>To install numba</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install numba
 </pre></div>
 </div>
+<p>To install fdint</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install fdint
 </pre></div>
 </div>
 </div>
 <div class="section" id="testing-your-install">
 <h3>Testing Your Install<a class="headerlink" href="#testing-your-install" title="Permalink to this headline">¶</a></h3>
-<p>Once you have Sarkas and all necessary packages installed, you can run a test to make sure that all packages are
-installed correclty by navigating to the directory that contains Sarkas and running the command:</p>
+<p>Once you have Sarkas and all necessary packages installed, you can run a test to make sure that all
+packages are installed correclty by navigating to the directory that contains Sarkas and running the
+command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 Sarkas.py test.inp
 </pre></div>
 </div>
@@ -212,26 +214,29 @@ something here?&gt;</p>
 <h2>Using Sarkas<a class="headerlink" href="#using-sarkas" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="input-files">
 <h3>Input files<a class="headerlink" href="#input-files" title="Permalink to this headline">¶</a></h3>
-<p>Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will
-need to modify is the <cite>yaml.inp</cite> file. This file is responsible for specifying the simulation parameters such as
-the number of particels, number of timesteps, and initialization type for example.</p>
+<p>Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you
+will  need to modify is the <cite>yaml.inp</cite> file. This file is responsible for specifying the simulation parameters
+such as the number of particles, number of timesteps, and initialization type for example.</p>
 </div>
 <div class="section" id="units">
 <h3>Units<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h3>
-<p>Currently, Sarkas’ uses Yukawa units to specify the system the user wants to simulate. For example, the user might
-want to model strongly coupled plasmas for a specific ion species and would need to supply the corresponding
-<cite>coulomb coupling paramters</cite>, <span class="math notranslate nohighlight">\(\Gamma\)</span>, and <cite>electron screening length</cite>, <span class="math notranslate nohighlight">\(\kappa\)</span>. The coulomb coupling parameter for between species <span class="math notranslate nohighlight">\(i\)</span>
-and <span class="math notranslate nohighlight">\(j\)</span> is defined as</p>
+<p>Currently, Sarkas uses Yukawa units to specify the system the user wants to simulate. For example,
+the user might want to model strongly coupled plasmas for a specific ion species and would need to
+supply the corresponding <cite>coulomb coupling paramters</cite>, <span class="math notranslate nohighlight">\(\Gamma\)</span>, and <cite>electron screening parameter</cite>
+<span class="math notranslate nohighlight">\(\kappa\)</span>. The coulomb coupling parameter for between species <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> is defined as</p>
 <div class="math notranslate nohighlight">
 \[\Gamma_{ij} = \frac{Z_i Z_j e^2}{a_{ij} T_{ij}},\]</div>
-<p>where <span class="math notranslate nohighlight">\(Z_s\)</span> is the effective charge for species <span class="math notranslate nohighlight">\(s\)</span>, <span class="math notranslate nohighlight">\(a_{ij} = (4 \pi n/3)^{-1/3}\)</span> is the
-ion-sphere radius, <span class="math notranslate nohighlight">\(n = n_i + n_j\)</span> is the total particle number density, <span class="math notranslate nohighlight">\(e\)</span> is the elementary charge,
-and <span class="math notranslate nohighlight">\(T_{ij} = (T_i + T_j)/2\)</span> is the temperature of the system.</p>
-<p>Additionally, the non-dimensional electron screening length is defined as</p>
+<p>where <span class="math notranslate nohighlight">\(Z_s\)</span> is the effective charge for species <span class="math notranslate nohighlight">\(s\)</span>, <span class="math notranslate nohighlight">\(a_{ij} = (4 \pi n/3)^{-1/3}\)</span>
+is the
+ion-sphere radius, <span class="math notranslate nohighlight">\(n = n_i + n_j\)</span> is the total particle number density, <span class="math notranslate nohighlight">\(e\)</span> is the elementary
+charge, and <span class="math notranslate nohighlight">\(T_{ij} = (T_i + T_j)/2\)</span> is the temperature of the system.</p>
+<p>Additionally, the non-dimensional electron screening parameter is defined as</p>
 <div class="math notranslate nohighlight">
-\[\kappa = \frac{a_i}{\lambda_s},\]</div>
-<p>where <span class="math notranslate nohighlight">\(\lambda_s\)</span> is the screening length. In the case that the screening length is the <cite>Debye-Huckel</cite>
-screening length, <span class="math notranslate nohighlight">\(\lambda_s = \lambda_{DH} = \sqrt{\frac{T}{4\pi n Z_i Z_j e^2}}\)</span>.</p>
+\[\kappa = \frac{a_{ij}}{\lambda_e},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\lambda_e\)</span> is the electron screening length defined as</p>
+<div class="math notranslate nohighlight">
+\[\lambda_e^2 = \frac{\sqrt{ T_{ij} + \left(\frac{2}{3} E_F \right)^2 }}{4\pi n_e e^2}.\]</div>
+<p>In the above expression, <span class="math notranslate nohighlight">\(E_F\)</span> is the Fermi energy, and <span class="math notranslate nohighlight">\(n_e\)</span> is the electron number density.</p>
 </div>
 <div class="section" id="output">
 <h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
@@ -250,7 +255,7 @@ screening length, <span class="math notranslate nohighlight">\(\lambda_s = \lamb
         <a href="todo.html" class="btn btn-neutral float-right" title="To-Do List" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Sarkas’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Sarkas Documentaion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -309,11 +314,14 @@ screening length, <span class="math notranslate nohighlight">\(\lambda_s = \lamb
       background: #535054;
     }
     .wy-menu-vertical p.caption {
-	  color: #fff
+	  color: #fff;
 	}
 	.wy-menu-vertical a {
-	  color: #eee
+	  color: #eee;
 	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+}
   </style>
 
 
