@@ -18,7 +18,7 @@ Preliminary Packages
 ~~~~~~~~~~~~~~~~~~~~
 If you already have a version of python installed, you may still need to download additional packages such as
 pyfftw_, fdint_, and numba_. If you have the most recent version of Anaconda installed, you should already 
-have num If you have the python package manager pip_ installed, you can install these packages,
+have numba, installed. If you have the python package manager pip_ installed, you can install these packages,
 by simply opening a terminal and running the following commands:
 
 .. code-block:: bash
