@@ -37,6 +37,7 @@ control - general setup values for the simulations
 '''
 
 import yaml
+import numpy as np
 
 class Params:
     def __init__(self):
@@ -128,7 +129,22 @@ class Params:
 
                             if(key == 'method'):
                                 self.load[ic].method = value
-   
+                                # print(self.load[ic].method)
+                            
+                            if(key == 'r_reject'):
+                                self.load[ic].r_reject = float(value)
+                                # print(self.load[ic].r_reject)
+
+                            if(key == 'perturb'):
+                                self.load[ic].perturb = float(value)
+                                # print(self.load[ic].perturb)
+
+                            if(key == 'rand_seed'):
+                                self.load[ic].rand_seed = value
+
+                            if(key == 'halton_bases'):
+                                self.load[ic].halton_bases = np.array(value)
+
                     if(key == 'Potential'):
                         plasma_potential = self.plasma_potential()
                         self.potential.append(plasma_potential)

@@ -5,9 +5,12 @@ Region:
 
   - Load:
       species_name: ion1
-      Num: 343
+      Num: 216
       method: random_reject
+      rand_seed: 1
       r_reject: 1e-2
+      perturb: 0.2 
+      halton_bases: [2,3,5]
 
   - Potential: 
       type: Yukawa
@@ -15,7 +18,6 @@ Region:
       kappa: 3
       Gamma: 1000
       rc: 1.8
-      
 
   - Thermostat:
       type: Berendsen
@@ -26,8 +28,8 @@ Region:
 
   - Control:
       dt: 0.1
-      Neq: 0
-      Nstep: 0
+      Neq: 100
+      Nstep: 300
       BC: periodic
       units: Yukawa
       ptcls_init: random

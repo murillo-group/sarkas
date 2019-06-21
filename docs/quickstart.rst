@@ -44,56 +44,53 @@ To install fdint
 .. _numba: https://numba.pydata.org
 .. _pip: https://pip.pypa.io/en/stable/
 
-Testing Your Install
-~~~~~~~~~~~~~~~~~~~~
-Once you have Sarkas and all necessary packages installed, you can run a test to make sure that all
-packages are installed correclty by navigating to the directory that contains Sarkas and running the 
-command:
-
-.. code-block:: bash
-   
-   $ python3 Sarkas.py test.inp
-
-Sarkas should then begin running and you should see the following messages from your command line: <Add 
-something here?>
 
 Using Sarkas
 ------------
 
 Input files
 ~~~~~~~~~~~
-Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you 
-will  need to modify is the `yaml.inp` file. This file is responsible for specifying the simulation parameters 
-such as the number of particles, number of timesteps, and initialization type for example. 
-
-.. image:: /images/yaml.png
-   :scale: 25%
-   :alt: input file for Sarkas
-   :align: left
+Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the `yaml.inp` file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example. 
 
 Example yaml.inp file
-~~~~~~~~~~~~~~~~~~~~~
-In the image to the left, we can see the various options for specifying simulation parameters.
+~~~~~~~~~~~~~~~~~~~~~~~
+To specify you simulation parameters, open the `yaml.inp` file in your text editor and alter the values to
+the right of the keywords. Below is a description of what each keyword is used for in Sarkas. 
 
-* Num: The number of particles
-* Gamma: Coulomb coupling parameter
-* Kappa: Electron screening parameter
-* ....
+* Num (int): The number of particles
+* method (string): Particle position initialization schemes. So far the options are
 
-|
-|
-|
-|
-|
-|
-|
+   * lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that `Num` must be a perfect cube if using this method.
+   * random_reject: Places particles down by sampling a uniform distribution and uses a rejection radius to avoid placing particles too close together.
+   * halton_reject: Places particles down according to a Halton sequence for a choice of bases in addition to using a rejection radius.
+   * random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.
+* rand_seed: Random seed for random_reject initialization scheme.
+* perturb (double): perturbation for particle at lattice point when using the `lattice` initialization scheme. Must be a value between 0 and 1. If 0, particles occupy the lattice points. If 1, particles are randomly perturbed 0.5 the lattice spacing. 
+* halton_bases: The bases used to define the halton sequence. See this webpage__ for more information
+* Gamma (double): Coulomb coupling parameter
+* Kappa (double): Electron screening parameter
+* rc (double): Cutoff radius for PP interactions
+* gamma (double): Magnitude of Langevin random kick
+* dt (double): Timestep
+* Neq (int): Number of thermostat timesteps
+* Nstep (int): Number of simulation timesteps
+* BC (str): Boundary conditions - so far only have periodic
+* ptcls_init (deprecated): just leave as `init` and ignore
+* writeout (str): yes/no. Writes to an out file where first three columns are positions, next three velocity, and last 3 acceleration.
+* writexyz (str): yes/no. Writes in xyz format
+* dump_step (int): Save particle information after `dump_step` steps in simulation
+* random_seed (int): Random seed for Langevin kick
+* restart (int): 0/1 Restart simulation from input file
+* verbose (str): yes/no Output simulation data as it is running.
+
+.. _webpage: test.com
 
 Units
 ~~~~~
 Currently, Sarkas uses Yukawa units to specify the system the user wants to simulate. For example,
 the user might want to model strongly coupled plasmas for a specific ion species and would need to
 supply the corresponding `coulomb coupling paramters`, :math:`\Gamma`, and `electron screening parameter`
-:math:`\kappa`. The coulomb coupling parameter for between species :math:`i` and :math:`j` is defined as
+:math:`\kappa`. The coulomb coupling parameter between species :math:`i` and :math:`j` is defined as
 
 .. math::
    \Gamma_{ij} = \frac{Z_i Z_j e^2}{a_{ij} T_{ij}},
@@ -115,5 +112,10 @@ where :math:`\lambda_e` is the electron screening length defined as
 
 In the above expression, :math:`E_F` is the Fermi energy, and :math:`n_e` is the electron number density.
 
-Output
-~~~~~~
+Running Sarkas
+--------------
+To run Sarkas once you have edited the yaml file, simply type the command
+
+.. code-block:: bash
+   
+   $ python3 Sarkas.py yaml.inp

@@ -95,16 +95,15 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Sarkas Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#obtaining-sarkas">Obtaining Sarkas</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#preliminary-packages">Preliminary Packages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#testing-your-install">Testing Your Install</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#using-sarkas">Using Sarkas</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#input-files">Input files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#example-yaml-inp-file">Example yaml.inp file</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#units">Units</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#running-sarkas">Running Sarkas</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="todo.html">To-Do List</a></li>
@@ -199,52 +198,74 @@ you can install these packages, by simply opening a terminal and running the fol
 </pre></div>
 </div>
 </div>
-<div class="section" id="testing-your-install">
-<h3>Testing Your Install<a class="headerlink" href="#testing-your-install" title="Permalink to this headline">¶</a></h3>
-<p>Once you have Sarkas and all necessary packages installed, you can run a test to make sure that all
-packages are installed correclty by navigating to the directory that contains Sarkas and running the
-command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 Sarkas.py test.inp
-</pre></div>
-</div>
-<p>Sarkas should then begin running and you should see the following messages from your command line: &lt;Add
-something here?&gt;</p>
-</div>
 </div>
 <div class="section" id="using-sarkas">
 <h2>Using Sarkas<a class="headerlink" href="#using-sarkas" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="input-files">
 <h3>Input files<a class="headerlink" href="#input-files" title="Permalink to this headline">¶</a></h3>
-<p>Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you
-will  need to modify is the <cite>yaml.inp</cite> file. This file is responsible for specifying the simulation parameters
-such as the number of particles, number of timesteps, and initialization type for example.</p>
-<a class="reference internal image-reference" href="_images/yaml.png"><img alt="input file for Sarkas" class="align-left" src="_images/yaml.png" style="width: 228.5px; height: 359.0px;" /></a>
+<p>Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the <cite>yaml.inp</cite> file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example.</p>
 </div>
 <div class="section" id="example-yaml-inp-file">
 <h3>Example yaml.inp file<a class="headerlink" href="#example-yaml-inp-file" title="Permalink to this headline">¶</a></h3>
-<p>In the image to the left, we can see the various options for specifying simulation parameters.</p>
-<ul class="simple">
-<li>Num: The number of particles</li>
-<li>Gamma: Coulomb coupling parameter</li>
-<li>Kappa: Electron screening parameter</li>
-<li></li>
+<p>To specify you simulation parameters, open the <cite>yaml.inp</cite> file in your text editor and alter the values to
+the right of the keywords. Below is a description of what each keyword is used for in Sarkas.</p>
+<ul>
+<li><p class="first">Num (int): The number of particles</p>
+</li>
+<li><p class="first">method (string): Particle position initialization schemes. So far the options are</p>
+<blockquote>
+<div><ul class="simple">
+<li>lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that <cite>Num</cite> must be a perfect cube if using this method.</li>
+<li>random_reject: Places particles down by sampling a uniform distribution and uses a rejection radius to avoid placing particles too close together.</li>
+<li>halton_reject: Places particles down according to a Halton sequence for a choice of bases in addition to using a rejection radius.</li>
+<li>random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.</li>
 </ul>
-<div class="line-block">
-<div class="line"><br /></div>
-<div class="line"><br /></div>
-<div class="line"><br /></div>
-<div class="line"><br /></div>
-<div class="line"><br /></div>
-<div class="line"><br /></div>
-<div class="line"><br /></div>
-</div>
+</div></blockquote>
+</li>
+<li><p class="first">rand_seed: Random seed for random_reject initialization scheme.</p>
+</li>
+<li><p class="first">perturb (double): perturbation for particle at lattice point when using the <cite>lattice</cite> initialization scheme. Must be a value between 0 and 1. If 0, particles occupy the lattice points. If 1, particles are randomly perturbed 0.5 the lattice spacing.</p>
+</li>
+<li><p class="first">halton_bases: The bases used to define the halton sequence. See this <a href="#id1"><span class="problematic" id="id2">webpage__</span></a> for more information</p>
+</li>
+<li><p class="first">Gamma (double): Coulomb coupling parameter</p>
+</li>
+<li><p class="first">Kappa (double): Electron screening parameter</p>
+</li>
+<li><p class="first">rc (double): Cutoff radius for PP interactions</p>
+</li>
+<li><p class="first">gamma (double): Magnitude of Langevin random kick</p>
+</li>
+<li><p class="first">dt (double): Timestep</p>
+</li>
+<li><p class="first">Neq (int): Number of thermostat timesteps</p>
+</li>
+<li><p class="first">Nstep (int): Number of simulation timesteps</p>
+</li>
+<li><p class="first">BC (str): Boundary conditions - so far only have periodic</p>
+</li>
+<li><p class="first">ptcls_init (deprecated): just leave as <cite>init</cite> and ignore</p>
+</li>
+<li><p class="first">writeout (str): yes/no. Writes to an out file where first three columns are positions, next three velocity, and last 3 acceleration.</p>
+</li>
+<li><p class="first">writexyz (str): yes/no. Writes in xyz format</p>
+</li>
+<li><p class="first">dump_step (int): Save particle information after <cite>dump_step</cite> steps in simulation</p>
+</li>
+<li><p class="first">random_seed (int): Random seed for Langevin kick</p>
+</li>
+<li><p class="first">restart (int): 0/1 Restart simulation from input file</p>
+</li>
+<li><p class="first">verbose (str): yes/no Output simulation data as it is running.</p>
+</li>
+</ul>
 </div>
 <div class="section" id="units">
 <h3>Units<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h3>
 <p>Currently, Sarkas uses Yukawa units to specify the system the user wants to simulate. For example,
 the user might want to model strongly coupled plasmas for a specific ion species and would need to
 supply the corresponding <cite>coulomb coupling paramters</cite>, <span class="math notranslate nohighlight">\(\Gamma\)</span>, and <cite>electron screening parameter</cite>
-<span class="math notranslate nohighlight">\(\kappa\)</span>. The coulomb coupling parameter for between species <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> is defined as</p>
+<span class="math notranslate nohighlight">\(\kappa\)</span>. The coulomb coupling parameter between species <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> is defined as</p>
 <div class="math notranslate nohighlight">
 \[\Gamma_{ij} = \frac{Z_i Z_j e^2}{a_{ij} T_{ij}},\]</div>
 <p>where <span class="math notranslate nohighlight">\(Z_s\)</span> is the effective charge for species <span class="math notranslate nohighlight">\(s\)</span>, <span class="math notranslate nohighlight">\(a_{ij} = (4 \pi n/3)^{-1/3}\)</span>
@@ -259,8 +280,12 @@ charge, and <span class="math notranslate nohighlight">\(T_{ij} = (T_i + T_j)/2\
 \[\lambda_e^2 = \frac{\sqrt{ T_{ij} + \left(\frac{2}{3} E_F \right)^2 }}{4\pi n_e e^2}.\]</div>
 <p>In the above expression, <span class="math notranslate nohighlight">\(E_F\)</span> is the Fermi energy, and <span class="math notranslate nohighlight">\(n_e\)</span> is the electron number density.</p>
 </div>
-<div class="section" id="output">
-<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="running-sarkas">
+<h2>Running Sarkas<a class="headerlink" href="#running-sarkas" title="Permalink to this headline">¶</a></h2>
+<p>To run Sarkas once you have edited the yaml file, simply type the command</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 Sarkas.py yaml.inp
+</pre></div>
 </div>
 </div>
 </div>

@@ -51,7 +51,7 @@ q2 = glb.q2
 ni = glb.ni
 wp = glb.wp
 ai = glb.ai
-mi= const.pMass
+mi = const.pMass
 
 # Other MD parameters
 if(glb.potential_type == glb.Yukawa_PP or glb.potential_type == glb.Yukawa_P3M):
@@ -185,7 +185,12 @@ if glb.init == 1:
     
 else:
     
-    print('\nAssigning random initial positions and velocities...')
+    if params.load[0].method == 'random_no_reject':
+        print('\nAssigning random initial positions {}'.format(params.load[0].method))
+    else:
+        print('\nAssigning initial positions according to {}'.format(params.load[0].method))
+
+    print('Assigning random initial velocities...')
     
     # initial particle positions uniformly distributed in the box
     # initial particle velocities with Maxwell-Boltzmann distribution
@@ -194,9 +199,11 @@ else:
         total_num_ptcls += params.load[i].Num  # currently same as glb.N
 
     ptcls = particles(params, total_num_ptcls)
+
     pos = np.empty_like(pos)
     vel = np.empty_like(vel)
-    pos[:, 0], pos[:, 1], pos[:, 2], vel[:, 0], vel[:, 1], vel[:, 2] = ptcls.load(glb, total_num_ptcls)
+
+    pos[:,0], pos[:,1], pos[:,2], vel[:,0], vel[:,1], vel[:,2] = ptcls.load(glb, total_num_ptcls)
 
     if(DEBUG):
         pos2, vel2 = initialize_pos_vel.initial(pos, vel, T_desired) 
@@ -258,7 +265,7 @@ for it in range(Nt):
     E = K + U
 
     if(it%glb.snap_int == 0 and glb.verbose):
-        print("productoin: timestep, T, E, K, U = ", it, Tp, E, K, U)
+        print("Production: timestep, T, E, K, U = ", it, Tp, E, K, U)
     
     t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
     t_Tp_E_K_U2[:] = t_Tp_E_K_U
