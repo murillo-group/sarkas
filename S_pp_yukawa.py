@@ -97,6 +97,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     send_requests=[]
     for i in mpiComm.neigs.ranks:
         if i in sendDict:
+            if mpiComm.rank==0:
+                print("exchange!!")
             Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])], MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
         else:
@@ -118,8 +120,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
 
         ls[i] = head[c]
         head[c] = i
-
-
 
 
     #=== Particle Migration-Recv =============

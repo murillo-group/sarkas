@@ -6,8 +6,11 @@ import S_global_names as glb
 import S_constants as const
 
 #@nb.autojit
-def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm):
+def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm,eq):
+    
     dt = glb.dt
+    if eq == 1:
+        dt =0.01
     #N = glb.N
     d = glb.d
     Lv = glb.Lv

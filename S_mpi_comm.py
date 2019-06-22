@@ -116,8 +116,8 @@ class mpi_comm:
         self.comm = comm
         self.size = comm.size
         self.rank = comm.rank
-        self.Nl = self._localPartNum()
-        self.decomp = self._domain_decomp(self.size)
+        self.Nl = self.__localPartNum()
+        self.decomp = self.__domain_decomp(self.size)
         self.Ll = np.array([glb.Lx/self.decomp[0]\
                            ,glb.Ly/self.decomp[1]\
                            ,glb.Lz/self.decomp[2]])
@@ -138,13 +138,13 @@ class mpi_comm:
         self.glbIndex = self.rankToGlbIndex(self.rank)
         self.neigs = neigs(self)
 
-    def _localPartNum(self):
+    def __localPartNum(self):
         Nlocal = int(glb.N/self.size)
         if self.rank < (glb.N%self.size):
             Nlocal += 1
         return Nlocal
 
-    def _prime_factors(self,n):
+    def __prime_factors(self,n):
         i = 2
         factors = []
         while i * i <= n:
@@ -157,8 +157,8 @@ class mpi_comm:
             factors.append(n)
         return factors
 
-    def _domain_decomp(self,n):
-        pf= self._prime_factors(n)
+    def __domain_decomp(self,n):
+        pf= self.__prime_factors(n)
         Ln = len(pf)
         rtn = np.array([1,1,1])
         if Ln == 1:

@@ -23,12 +23,12 @@ Region:
 
   - Control:
       dt: 0.01
-      Neq: 4000
-      Nstep: 2000
+      Neq: 6000
+      Nstep: 15000
       BC: periodic
       units: Yukawa
       ptcls_init: random
-      writeout: no
+      writeout: yes
       writexyz: no
       dump_step: 100
       random_seed: 1

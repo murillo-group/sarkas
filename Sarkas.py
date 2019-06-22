@@ -220,7 +220,7 @@ print('\n------------- Equilibration -------------')
 #print('time - temperature')
 for it in range(Neq):
 #    print("it = ", it)
-    U, acc, vel, pos = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
+    U, acc, vel, pos = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm,1)
 
 #---------------
     K = 0.5*mi*np.ndarray.sum(vel**2)
@@ -250,7 +250,7 @@ for it in range(Nt):
     # to migrated particles!
     #U, acc, vel, pos = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
 
-    U, acc, vel, pos = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm)
+    U, acc, vel, pos = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm,0)
 
     K = 0.5*mi*np.ndarray.sum(vel**2)
     Tp = (2/3)*K/float(N)/const.kb
@@ -267,8 +267,8 @@ for it in range(Nt):
             print("productoin: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
             #print(vel)
     
-    #t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
-    #t_Tp_E_K_U2[:] = t_Tp_E_K_U
+    t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
+    t_Tp_E_K_U2[:] = t_Tp_E_K_U
     
     # Spatial Fourier transform
     #for iqv in range(Nq):
@@ -278,11 +278,11 @@ for it in range(Nt):
     #    n_q_t[it,iqv,2] = np.sum(np.exp(-1j*q_p*pos[:,2]))
     
     # writing particle positions and velocities to file
-    #if glb.write_output == 1:
-    #    if np.mod(it+1, glb.snap_int) == 0:
-    #        irp = np.hstack((pos, vel, acc))
-    #        np.savetxt(f_output, irp)
-    #        np.savetxt(f_output_E, t_Tp_E_K_U2)
+    if glb.write_output == 1:
+        if np.mod(it+1, glb.snap_int) == 0:
+            irp = np.hstack((pos, vel, acc))
+            np.savetxt(f_output, irp)
+            np.savetxt(f_output_E, t_Tp_E_K_U2)
     #        
     #        if glb.write_xyz == 1:
     #            f_xyz.writelines('{0:d}\n'.format(N))
