@@ -7,7 +7,6 @@ from S_params import Params
 # read input data from yukawa_MD_p3m.in
 def parameters(input_file):
 
-
     units = "Yukawa"
     glb.Gamma = -1.
     glb.kappa = -1.
@@ -29,138 +28,37 @@ def parameters(input_file):
 
     glb.pot_type = glb.Yukawa_P3M
 
+    params = Params()
+    params.setup(input_file)
+    potential_type = params.potential[0].type
+    units = params.control[0].units
+    glb.pot_calc_algrthm = params.potential[0].algorithm
+    glb.Gamma = params.potential[0].Gamma
+    glb.kappa = params.potential[0].kappa
 
+    glb.N = params.load[0].Num
+    glb.dt = params.control[0].dt
+    glb.Neq = params.control[0].Neq
 
+    glb.Nt = params.control[0].Nstep 
+    if( params.control[0].BC == "periodic"):
+        glb.PBC = 1
 
-    if(1):
-        params = Params()
-        params.setup(input_file)
-        potential_type = params.potential[0].type
-        units = params.control[0].units
-        glb.pot_calc_algrthm = params.potential[0].algorithm
-        glb.Gamma = params.potential[0].Gamma
-        glb.kappa = params.potential[0].kappa
+    glb.Langevin_model = params.Langevin[0].type
+    glb.g_0 = params.Langevin[0].gamma
+    glb.snap_int = params.control[0].dump_step
+    #glb.init = params.control[0].init
+    glb.write_output = params.control[0].writeout
+    glb.write_xyz = params.control[0].writexyz
+    glb.seed_int = params.control[0].seed
+    glb.Zi = params.species[0].charge
+    glb.ni = params.load[0].np
 
-        glb.N = params.load[0].Num
-        glb.dt = params.control[0].dt
-        glb.Neq = params.control[0].Neq
-
-        glb.Nt = params.control[0].Nstep 
-        if( params.control[0].BC == "periodic"):
-            glb.PBC = 1
-
-        glb.Langevin_model = params.Langevin[0].type
-        glb.g_0 = params.Langevin[0].gamma
-        glb.snap_int = params.control[0].dump_step
-        glb.init = params.control[0].init
-        glb.write_output = params.control[0].writeout
-        glb.write_xyz = params.control[0].writexyz
-        glb.seed_int = params.control[0].seed
-        glb.Zi = params.species[0].charge
-        glb.ni = params.load[0].np
-
-        glb.rc = params.potential[0].rc
-        glb.Te =        params.species[0].T0
-        glb.T_desired = params.species[0].T0
-        glb.verbose = params.control[0].verbose
+    glb.rc = params.potential[0].rc
+    glb.Te =        params.species[0].T0
+    glb.T_desired = params.species[0].T0
+    glb.verbose = params.control[0].verbose
             
-        
-        
-#  c = [np.array(map(None, line.split())) for line in open('yukawa_MD_p3m.in')]
-#  print(len(c))
-    if(0):
-     for line in open(input_file):  
-        c = line.split()
-        try:
-            c[0]
-# check the potential system
-            if(c[0] == "potential"):
-              if(c[1] == "Yukawa"): 
-                potential_type = "Yukawa"
-
-              elif(c[1] == "EGS"): 
-                potential_type = "EGS"
-                units = "MKS"
-
-              else :
-                print("Check your input file. Only Yukawa or EGS potential is supported!")
-
-                sys.exit(0)
-
-            if(c[0] == "units"):
-                units = str(c[1])
-            if(c[0] == "pot_calc_algrthm"):
-              glb.pot_calc_algrthm = c[1]
-
-            if(c[0] == "Gamma"):
-              glb.Gamma = float(c[1])
-
-            if(c[0] == "kappa"):
-              glb.kappa = float(c[1])
-
-            if(c[0] == "Np"):
-              glb.N = int(c[1])
-
-            if(c[0] == "dt"):
-              glb.dt = float(c[1])
-
-            if(c[0] == "N_eq"):
-              glb.Neq = int(c[1])
-
-            if(c[0] == "N_post_eq"):
-              glb.Nt = int(c[1])
-
-            if(c[0] == "PBC"):
-              glb.PBC = int(c[1])
-
-            if(c[0] == "Langevin"):
-              glb.Langevin_model = str(c[1])
-              if(c[1] == "BBK"):
-                glb.g_0 = float(c[2])
-
-            if(c[0] == "snap_int"):
-              glb.snap_int = int(c[1])
-
-            if(c[0] == "init"):
-              glb.init = int(c[1])
-
-            if(c[0] == "write_output"):
-              glb.write_output = int(c[1])
-
-            if(c[0] == "write_xyz"):
-              glb.write_xyz = int(c[1])
-
-            if(c[0] == "seed"):
-              glb.seed_int = int(c[1])
-
-            if(c[0] == "Zi"):
-              glb.Zi = float(c[1])
-
-            if(c[0] == "ni"):
-              glb.ni = float(c[1])
-
-#            if(c[0] == "Nq"):
-#              glb.Nq = int(c[1])
-
-            if(c[0] == "rc"):
-              glb.rc = float(c[1])
-
-            if(c[0] == "Ti"):
-              glb.T_desired = float(c[1])
-
-            if(c[0] == "Te"):
-              glb.Te = float(c[1])
-
-            if(c[0] == "verbose"):
-              glb.verbose = int(c[1])
-
-
-        except IndexError:
-           break;
-
-
-
-
     if(units == "yukawa" or units =="Yukawa"):
         glb.units     = "Yukawa"
         const.eCharge = 1
@@ -228,13 +126,8 @@ def parameters(input_file):
             print("You must set Te for EGS.")
             sys.exit()
 
-
-
     if(glb.potential_type == "Yukawa"):
       if (glb.Gamma < 0. or glb.kappa < 0.):
         print("Check your input file. Gamma and/or kappa is wrong in the Yukawa potential.")
         sys.exit(0)
     return
-
-#  return Gamma, kappa, N, dt, Neq, Nt, PBC, Langevin_model, g_0, snap_int, init, \
-#         write_output, write_xyz, seed_int

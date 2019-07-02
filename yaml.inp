@@ -6,7 +6,7 @@ Region:
   - Load:
       species_name: ion1
       Num: 216
-      method: random_reject
+      method: file 
       rand_seed: 1
       r_reject: 1e-2
       perturb: 0.2 
@@ -32,10 +32,11 @@ Region:
       Nstep: 300
       BC: periodic
       units: Yukawa
-      ptcls_init: random
       writeout: yes
       writexyz: no
       dump_step: 1
       random_seed: 1
+      restart_dump_step: 100
       restart: 0
-      verbose: yes
+      verbose: no
+

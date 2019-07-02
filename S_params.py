@@ -87,6 +87,7 @@ class Params:
             self.dump_step = None
             self.seed = None
             self.restart = None 
+            self.restart_dump_step = 1000
 
     def setup(self, filename):
         with open(filename, 'r') as stream:
@@ -230,6 +231,9 @@ class Params:
 
                             if(key == 'restart'):
                                 self.control[0].restart = value
+
+                            if(key == 'restart_dump_step'):
+                                self.control[0].restart_dump_step = value
 
                             if(key == 'verbose'):
                                 if(value == False):

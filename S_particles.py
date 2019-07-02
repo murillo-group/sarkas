@@ -13,11 +13,14 @@ mass
 import numpy as np
 from inspect import currentframe, getframeinfo
 import time
+import sys
 
 DEBUG = 0
 
 class particles:
     def __init__(self, params, total_num_part):
+
+        
 
         N = total_num_part
         self.params = params
@@ -46,107 +49,123 @@ class particles:
 # initial whole particles loading.
 # Here numba does not help at all. In fact loading is slower with numba. 
     def load(self, glb_vars, N):
-        Lx = glb_vars.Lx
-        Ly = glb_vars.Ly
-        Lz = glb_vars.Lz
+        if self.params.load[0].method == 'random_no_reject':
+            print('\nAssigning random initial positions {}'.format(self.params.load[0].method))
+        else:
+            print('\nAssigning initial positions according to {}'.format(self.params.load[0].method))
 
-        idx_end = 0
-        for i, load in enumerate(self.params.load):
-            idx_start = idx_end
-            idx_end += self.params.load[i].Num
-            for j in range(idx_start, idx_end):
-                self.species_name[j] = self.params.load[i].species_name
+        print('Assigning random initial velocities...')
 
-        for i in range(N):
-            for j, species in enumerate(self.params.species):
+        if (self.params.load[0].method == 'file'):
+            print('\nReading initial particle positions and velocities from file...')
+            
+            f_input = 'init.out'           # name of input file
+            self.load_from_file(f_input, N)
 
-                if(DEBUG):
-                    frameinfo = getframeinfo(currentframe())
-                    print( frameinfo.filename, frameinfo.lineno)
-                    print("===", self.species_name[i], self.params.species[j].name)
+            return np.transpose(np.array([self.px, self.py, self.pz])), np.transpose(np.array([self.vx, self.vy, self.vz]))
+        else:
+            Lx = glb_vars.Lx
+            Ly = glb_vars.Ly
+            Lz = glb_vars.Lz
 
-                if(self.species_name[i] == self.params.species[j].name):
-                    self.mass[j] = self.params.species[j].mass
-                    self.charge[j] = self.params.species[j].charge
-                    break
+            idx_end = 0
+            for i, load in enumerate(self.params.load):
+                idx_start = idx_end
+                idx_end += self.params.load[i].Num
+                for j in range(idx_start, idx_end):
+                    self.species_name[j] = self.params.load[i].species_name
 
-        two_pi = 2*np.pi 
+            for i in range(N):
+                for j, species in enumerate(self.params.species):
 
-        potential_type = self.params.potential[0].type
-        units = self.params.control[0].units
+                    if(DEBUG):
+                        frameinfo = getframeinfo(currentframe())
+                        print( frameinfo.filename, frameinfo.lineno)
+                        print("===", self.species_name[i], self.params.species[j].name)
+
+                    if(self.species_name[i] == self.params.species[j].name):
+                        self.mass[j] = self.params.species[j].mass
+                        self.charge[j] = self.params.species[j].charge
+                        break
+
+            two_pi = 2*np.pi 
+
+            potential_type = self.params.potential[0].type
+            units = self.params.control[0].units
 
 #   Here, we assume one species model. Will be expanded for multi-species in the future.
-        if(potential_type == "Yukawa"):
-            if(units == "cgs"):
-                #Vsig = np.sqrt(q1*q2/ai/mi/Gamma)
-                print("Please use 'Yukawa' units for Yukawa potential.")
-                sys.exit()
+            if(potential_type == "Yukawa"):
+                if(units == "cgs"):
+                    #Vsig = np.sqrt(q1*q2/ai/mi/Gamma)
+                    print("Please use 'Yukawa' units for Yukawa potential.")
+                    sys.exit()
 
-            elif(units == "mks"):
-                #Vsig = np.sqrt(q1*q2/ai/mi/Gamma/(4*np.pi*const.eps_0))
-                print("Please use 'Yukawa' units for Yukawa potential.")
+                elif(units == "mks"):
+                    #Vsig = np.sqrt(q1*q2/ai/mi/Gamma/(4*np.pi*const.eps_0))
+                    print("Please use 'Yukawa' units for Yukawa potential.")
 
-            elif(units == "Yukawa"):
-                if(DEBUG):
-                    frameinfo = getframeinfo(currentframe())
-                    print(frameinfo.filename, frameinfo.lineno)
-                q1 = 1. 
-                q2 = 1.
-                mi = 1.
-                Gamma = glb_vars.Gamma
-                T_desired = 1/Gamma
+                elif(units == "Yukawa"):
+                    if(DEBUG):
+                        frameinfo = getframeinfo(currentframe())
+                        print(frameinfo.filename, frameinfo.lineno)
+                    q1 = 1. 
+                    q2 = 1.
+                    mi = 1.
+                    Gamma = glb_vars.Gamma
+                    T_desired = 1/Gamma
 
-                Vsig = np.sqrt(1./Gamma/3)
+                    Vsig = np.sqrt(1./Gamma/3)
 
-            if(potential_type == "EGS"):
-                print("Will be implemented...")
-                sys.exit()
+                if(potential_type == "EGS"):
+                    print("Will be implemented...")
+                    sys.exit()
 #                if(units == "cgs"):
 #                  sig = np.sqrt(q1*q2/ai/mi/T_desired)
 #                elif(units == "mks"):
 #                  sig = np.sqrt(q1*q2/ai/mi/T_desired/(4*np.pi*const.eps_0))
 
-        #Box-Muller transform to generate Gaussian random numbers from uniform random numbers 
-        u1 = np.random.random(N)
-        u2 = np.random.random(N)
-        u3 = np.random.random(N)
-        u4 = np.random.random(N)
+            #Box-Muller transform to generate Gaussian random numbers from uniform random numbers 
+            u1 = np.random.random(N)
+            u2 = np.random.random(N)
+            u3 = np.random.random(N)
+            u4 = np.random.random(N)
 
-        self.vx[:] = Vsig*np.sqrt(-2*np.log(u1))*np.cos(two_pi*u2) #distribution of vx
-        self.vy[:] = Vsig*np.sqrt(-2*np.log(u1))*np.sin(two_pi*u2) #distribution of vy
-        self.vz[:] = Vsig*np.sqrt(-2*np.log(u3))*np.cos(two_pi*u4) #distribution of vz
-    
-        #computing the mean of each velocity component to impose mean value of the velocity components to be zero
-        vx_mean = np.mean(self.vx)
-        vy_mean = np.mean(self.vy)
-        vz_mean = np.mean(self.vz)
+            self.vx[:] = Vsig*np.sqrt(-2*np.log(u1))*np.cos(two_pi*u2) #distribution of vx
+            self.vy[:] = Vsig*np.sqrt(-2*np.log(u1))*np.sin(two_pi*u2) #distribution of vy
+            self.vz[:] = Vsig*np.sqrt(-2*np.log(u3))*np.cos(two_pi*u4) #distribution of vz
+        
+            #computing the mean of each velocity component to impose mean value of the velocity components to be zero
+            vx_mean = np.mean(self.vx)
+            vy_mean = np.mean(self.vy)
+            vz_mean = np.mean(self.vz)
 
-        #mean value of the velocity components to be zero
-        self.vx -= vx_mean
-        self.vy -= vy_mean
-        self.vz -= vz_mean
+            #mean value of the velocity components to be zero
+            self.vx -= vx_mean
+            self.vy -= vy_mean
+            self.vz -= vz_mean
 
-        if (load.method == 'lattice'):
-            self.lattice(N, self.params.load[0].perturb, self.params.load[0].rand_seed)
+            if (load.method == 'lattice'):
+                self.lattice(N, self.params.load[0].perturb, self.params.load[0].rand_seed)
 
-        elif (load.method == 'random_reject'):
-            self.random_reject(N, self.params.load[0].r_reject, self.params.load[0].rand_seed)
+            elif (load.method == 'random_reject'):
+                self.random_reject(N, self.params.load[0].r_reject, self.params.load[0].rand_seed)
 
-        elif (load.method == 'halton_reject'):
-            self.halton_reject(N, self.params.load[0].halton_bases, self.params.load[0].r_reject)
+            elif (load.method == 'halton_reject'):
+                self.halton_reject(N, self.params.load[0].halton_bases, self.params.load[0].r_reject)
 
-        elif (load.method == 'random_no_reject'):
-            self.px = Lx*np.random.random(N)
-            self.py = Ly*np.random.random(N)
-            self.pz = Lz*np.random.random(N)
+            elif (load.method == 'random_no_reject'):
+                self.px = Lx*np.random.random(N)
+                self.py = Ly*np.random.random(N)
+                self.pz = Lz*np.random.random(N)
 
-        else:
-            print('Incorrect particle placement scheme specified... Using "random_no_reject"')
-            self.px = Lx*np.random.random(N)
-            self.py = Ly*np.random.random(N)
-            self.pz = Lz*np.random.random(N)
-           
-        return self.px, self.py, self.pz, self.vx, self.vy, self.vz
+            else:
+                print('Incorrect particle placement scheme specified... Using "random_no_reject"')
+                self.px = Lx*np.random.random(N)
+                self.py = Ly*np.random.random(N)
+                self.pz = Lz*np.random.random(N)
+               
+            return np.transpose(np.array([self.px, self.py, self.pz])), np.transpose(np.array([self.vx, self.vy, self.vz]))
+
 
 # add more particles: specific species, and number of particles
     def add(self):
@@ -158,6 +177,22 @@ class particles:
 
     def update(self):
         pass
+
+    def load_from_file(self, f_name, N):
+        
+        pv_data = np.loadtxt(f_name)
+        if not (pv_data.shape[0] == N):
+            print("Number of particles is not same between input file and initial p & v data file.")
+            print("From the input file: N = ", N)
+            print("From the initial p & v data: N = ", pv_data.shape[0])
+            sys.exit()
+        self.px = pv_data[:, 0]
+        self.py = pv_data[:, 1]
+        self.pz = pv_data[:, 2]
+
+        self.vx = pv_data[:, 3]
+        self.vy = pv_data[:, 4]
+        self.vz = pv_data[:, 5]
 
     def lattice(self, N, perturb, rand_seed):
         ''' Place particles in a simple cubic lattice with a slight perturbation
@@ -507,4 +542,5 @@ class particles:
         # End timer        
         end = time.time()
         print('Halton Elapsed time: ', end - start)
+
 

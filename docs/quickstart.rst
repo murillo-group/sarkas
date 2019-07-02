@@ -59,7 +59,8 @@ the right of the keywords. Below is a description of what each keyword is used f
 
 * Num (int): The number of particles
 * method (string): Particle position initialization schemes. So far the options are
-
+   * file: read particles position and velocity from a file "init.out". File format is six columns, and N lows. First
+     three columns are px, py, and pz. Second three columns are vx, vy, and vz. Each row represents particle.
    * lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that `Num` must be a perfect cube if using this method.
    * random_reject: Places particles down by sampling a uniform distribution and uses a rejection radius to avoid placing particles too close together.
    * halton_reject: Places particles down according to a Halton sequence for a choice of bases in addition to using a rejection radius.

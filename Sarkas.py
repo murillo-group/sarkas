@@ -16,6 +16,7 @@
 import numpy as np
 import time
 import sys
+import os
 
 DEBUG = 0
 t1 = time.time()
@@ -32,6 +33,7 @@ import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
 from S_particles import particles
+from S_verbose import verbose
 from S_params import Params
 
 
@@ -42,6 +44,7 @@ read_input.parameters(input_file)
 # 
 params = Params()
 params.setup(input_file)
+verbose = verbose(params, glb)
 ###
 #glb.Zi = 1
 
@@ -94,7 +97,6 @@ glb.my_max = 3
 glb.mz_max = 3
 
 t2 = time.time()
-
 #if(glb.potential_type == glb.Yukawa_P3M):
 G_k, kx_v, ky_v, kz_v, A_pm = yukawa_gf_opt.gf_opt()
 if(glb.potential_type == glb.EGS):
@@ -116,28 +118,6 @@ glb.p3m_flag = 1 # default is P3M
 if(glb.pot_calc_algrthm == "PP"):
   glb.p3m_flag = 0
 
-if(glb.verbose):
-    print('\n\n----------- Molecular Dynamics Simulation of Yukawa System ----------------------')
-    print("units: ", glb.units)
-    if(glb.potential_type == glb.Yukawa_PP or glb.potential_type == glb.Yukawa_P3M):
-      print('Gamma = ', glb.Gamma)
-      print('kappa = ', glb.kappa)
-      print('grid_size * Ewald_parameter (h * alpha) = ', glb.hx*glb.G_ew)
-    print('Temperature = ', T_desired)
-    print('No. of particles = ', glb.N)
-    print('Box length along x axis = ', glb.Lv[0])
-    print('Box length along y axis = ', glb.Lv[1])
-    print('Box length along z axis = ', glb.Lv[2])
-    print('No. of non-zero box dimensions = ', glb.d)
-    print('time step = ',glb.dt)
-    print('No. of equilibration steps = ', glb.Neq)
-    print('No. of post-equilibration steps = ', glb.Nt)
-    print('snapshot interval = ', glb.snap_int)
-    print('Periodic boundary condition{1=yes, 0=no} =', glb.PBC)
-    print("Langevin model = ", glb.Langevin_model)
-    if(glb.units != "Yukawa"):
-        print("plasma frequency, wi = ", glb.wp)
-        print("number density, ni = ", glb.ni)
 # Particle positions and velocities array
 pos = np.zeros((glb.N, glb.d))
 vel = np.zeros_like(pos)
@@ -153,10 +133,10 @@ E_y_p = np.zeros(glb.N)
 E_z_p = np.zeros(glb.N)
 
 # F(k,t): Spatial Fourier transform of density fluctutations
-dq = 2.*np.pi/L
 if(glb.verbose):
-    print('smallest interval in Fourier space for S(q,w): dq = ', dq)
+    verbose.output() # simulation setting
 
+dq = 2.*np.pi/L
 q_max = 30/ai
 glb.Nq = 3*int(q_max/dq)
 Nq = glb.Nq   # 3 is for x, y, and z commponent
@@ -175,45 +155,17 @@ for iqv in range(0, Nq, 3):
 #array for temperature, total energy, kinetic energy, potential energy
 t_Tp_E_K_U2 = np.zeros((1,5))
 
+restartDir = "Restart"
+if not (os.path.exists(restartDir)):
+    os.mkdir(restartDir)
+
+total_num_ptcls = 0
+for i, load in enumerate(params.load):
+    total_num_ptcls += params.load[i].Num  # currently same as glb.N
+
 # Initializing particle positions and velocities
-if glb.init == 1:
-    
-    print('\nReading initial particle positions and velocities from file...')
-    
-    f_input = 'init.out'           # name of input file
-    pos, vel = read.initL(pos, vel, f_input)
-    
-else:
-    
-    if params.load[0].method == 'random_no_reject':
-        print('\nAssigning random initial positions {}'.format(params.load[0].method))
-    else:
-        print('\nAssigning initial positions according to {}'.format(params.load[0].method))
-
-    print('Assigning random initial velocities...')
-    
-    # initial particle positions uniformly distributed in the box
-    # initial particle velocities with Maxwell-Boltzmann distribution
-    total_num_ptcls = 0
-    for i, load in enumerate(params.load):
-        total_num_ptcls += params.load[i].Num  # currently same as glb.N
-
-    ptcls = particles(params, total_num_ptcls)
-
-    pos = np.empty_like(pos)
-    vel = np.empty_like(vel)
-
-    pos[:,0], pos[:,1], pos[:,2], vel[:,0], vel[:,1], vel[:,2] = ptcls.load(glb, total_num_ptcls)
-
-    if(DEBUG):
-        pos2, vel2 = initialize_pos_vel.initial(pos, vel, T_desired) 
-        print(np.allclose(pos, pos2, rtol=1.e-20))
-        print(np.allclose(vel, vel2, rtol=1.e-20))
-
-        sys.exit()
-        
-
-##        pos2, vel2 = particles()
+ptcls = particles(params, total_num_ptcls)
+pos, vel = ptcls.load(glb, total_num_ptcls)
 
 t4 = time.time()
 # Calculating initial forces and potential energy
@@ -241,7 +193,9 @@ for it in range(Neq):
 
     E = K + U
     if(it%glb.snap_int == 0 and glb.verbose):
+
         print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
+    
 t5 = time.time()
 
 print('\n------------- Production -------------')
