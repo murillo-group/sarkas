@@ -22,9 +22,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     #N = len(pos[:,0])
     d = len(pos[0,:])
 
-    #Lx = glb.Lv[0]
-    #Ly = glb.Lv[1]
-    #Lz = glb.Lv[2]
     Lx = mpiComm.Ll[0]
     Ly = mpiComm.Ll[1]
     Lz = mpiComm.Ll[2]
@@ -44,11 +41,53 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
 
     head = np.arange(Ncell)
     head.fill(empty)
-    #ls = np.arange(N)
 
     rshift = np.zeros(d)
 
-    #=== Particle Migration-SEND =============
+
+    #====LCL-Copy-Buffers=====================
+    Upper = Lzd-1
+    Lower = 0
+    North = Lyd-1
+    South = 0
+    East  = Lxd-1
+    West  = 0
+
+    lclBuffLen = 300 #needs to be multiple of 3
+    sendLCLDict = {}
+
+
+    #U_buff   = np.empty(0,dtype=np.float64)
+    #UN_buff  = np.empty(0,dtype=np.float64)
+    #US_buff  = np.empty(0,dtype=np.float64)
+    #UE_buff  = np.empty(0,dtype=np.float64)
+    #UW_buff  = np.empty(0,dtype=np.float64)
+    #UNE_buff = np.empty(0,dtype=np.float64)
+    #UNW_buff = np.empty(0,dtype=np.float64)
+    #USE_buff = np.empty(0,dtype=np.float64)
+    #USW_buff = np.empty(0,dtype=np.float64)
+
+    #N_buff  = np.empty(0,dtype=np.float64)
+    #S_buff  = np.empty(0,dtype=np.float64)
+    #E_buff  = np.empty(0,dtype=np.float64)
+    #W_buff  = np.empty(0,dtype=np.float64)
+    #NE_buff = np.empty(0,dtype=np.float64)
+    #NW_buff = np.empty(0,dtype=np.float64)
+    #SE_buff = np.empty(0,dtype=np.float64)
+    #SW_buff = np.empty(0,dtype=np.float64)
+
+    #D_buff   = np.empty(0,dtype=np.float64)
+    #DN_buff  = np.empty(0,dtype=np.float64)
+    #DS_buff  = np.empty(0,dtype=np.float64)
+    #DE_buff  = np.empty(0,dtype=np.float64)
+    #DW_buff  = np.empty(0,dtype=np.float64)
+    #DNE_buff = np.empty(0,dtype=np.float64)
+    #DNW_buff = np.empty(0,dtype=np.float64)
+    #DSE_buff = np.empty(0,dtype=np.float64)
+    #DSW_buff = np.empty(0,dtype=np.float64)
+
+
+    #=== Particle Migration-Send =============
 
     s = MPI.Status()
     Lmax = mpiComm.Lmax
@@ -56,6 +95,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     LocalL = mpiComm.Ll
     size = mpiComm.size
 
+    #build Boolean Mask For paticles that
+    #will be migrated to neighboring MPI ranks.
     posX = pos[:,0]
     posY = pos[:,1]
     posZ = pos[:,2]
@@ -64,7 +105,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     migFilter_Z = np.logical_or(posZ > Lmax[2] , posZ < Lmin[2] )
     migFilter = np.logical_or.reduce( (migFilter_X,migFilter_Y,migFilter_Z) )
 
-
+    #Create Buffer for particles that will
+    #be migrated
     migIndex = np.where(migFilter)
     migBuff_pos = pos[migIndex[0],:]
     migBuff_vel = vel[migIndex[0],:]
@@ -75,7 +117,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     NsP = len(migBuff_pos)
     NsV = len(migBuff_vel)
 
-    buffLen = 600
+    #BuckSort particles to ranks they migrated to
+    buffLen = 600 #needs to be multiple of 6
     sendDict = {}
     for i in range(len(migBuff[:,0])):
         rank = mpiComm.posToRank(migBuff[i,:,0])
@@ -90,16 +133,18 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
             sendDict[rank][index:index+6] = migBuff[i,:,:].flatten()
             sendDict[rank][0] = index+6
         else:
-            sendDict[rank] = np.ones( buffLen )
+            sendDict[rank] = np.ones( buffLen + 1 )
             sendDict[rank][1:7] = migBuff[i,:,:].flatten()
             sendDict[rank][0]=7
 
+    #send migrated particles.
     send_requests=[]
     for i in mpiComm.neigs.ranks:
         if i in sendDict:
             if mpiComm.rank==0:
                 print("exchange!!")
-            Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])], MPI.DOUBLE], dest = i, tag = mpiComm.rank)
+            Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])]\
+                              ,MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
         else:
             Sreq = mpiComm.comm.Isend([emptyArray, MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
@@ -118,18 +163,68 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         cz = int(np.floor((pos[i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*Lxd + cz*Lxd*Lyd
 
+        x ,y ,z = mpiComm.glbIndex
+        #East/West
+        if cx == East:
+            x += 1
+            if x > mpiComm.decomp[0]-1:
+                x = 0
+        elif cx == West:
+            x -= 1
+            if x < 0:
+                x = mpiComm.decomp[0]-1
+        #North/South
+        if cy == North:
+            y -= 1
+            if y < 0:
+                y = mpiComm.decomp[1]-1
+        elif cy == South:
+            y += 1
+            if y > mpiComm.decomp[1]-1:
+                y = 0
+        #Upper/Lower
+        if cz == Upper:
+            z -= 1
+            if z < 0:
+                z = mpiComm.decomp[2] - 1
+        elif cz == Lower:
+            z += 1
+            if z > mpiComm.decomp[2]-1:
+                z = 0
+
+        commRank = mpiComm.glbIndexToRank((x,y,z))
+        if commRank in sendLCLDict:
+            index = int(sendLCLDict[commRank][0])
+            if index >= len(sendLCLDict[commRank]):
+                Ln = len(sendLCLDict[commRank])
+                Ln *= 3
+                temp = np.ones( Ln )
+                temp[:,0:index] = sendLCLDict[commRank]
+                sendLCLDict[commRank] = temp
+            sendLCLDict[commRank][index:index+3] = pos[i,:].flatten()
+            sendLCLDict[commRank][0] = index+3
+        else:
+            sendLCLDict[commRank] = np.ones( lclBuffLen + 1 )
+            sendLCLDict[commRank][1:4] = pos[i,:].flatten()
+            sendLCLDict[commRank][0]=4
+
+
         ls[i] = head[c]
         head[c] = i
 
 
     #=== Particle Migration-Recv =============
 
+    #probe incomming messages for total
+    #number of received particles and
+    #build recv buffers.
     recvB = []
     for i in mpiComm.neigs.ranks:
         probS = mpiComm.comm.Probe(status=s,source=i,tag=i)
         count = s.Get_count(datatype=MPI.DOUBLE)
         recvB.append(np.empty(count,dtype=np.float64))
 
+    #recieve particles
     recv_requests=[]
     p = 0
     for i in mpiComm.neigs.ranks:
@@ -141,6 +236,7 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     MPI.Request.waitall(send_requests)
     MPI.Request.waitall(recv_requests)
 
+    #move migrated particles into rank's particle array
     recvBuff = recvPos.reshape(int(len(recvPos)/6),3,2)
     recvBuff = recvBuff[np.where(recvBuff[:,0,0]!=-50.)]
     Nr = recvBuff.shape[0]
@@ -163,11 +259,71 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         cz = int(np.floor((pos[N+i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*Lxd + cz*Lxd*Lyd
 
+        x ,y ,z = mpiComm.glbIndex
+        #East/West
+        if cx == East:
+            x += 1
+            if x > mpiComm.decomp[0]-1:
+                x = 0
+        elif cx == West:
+            x -= 1
+            if x < 0:
+                x = mpiComm.decomp[0]-1
+        #North/South
+        if cy == North:
+            y -= 1
+            if y < 0:
+                y = mpiComm.decomp[1]-1
+        elif cy == South:
+            y += 1
+            if y > mpiComm.decomp[1]-1:
+                y = 0
+        #Upper/Lower
+        if cz == Upper:
+            z -= 1
+            if z < 0:
+                z = mpiComm.decomp[2] - 1
+        elif cz == Lower:
+            z += 1
+            if z > mpiComm.decomp[2]-1:
+                z = 0
+
+        commRank = mpiComm.glbIndexToRank((x,y,z))
+        if commRank in sendLCLDict:
+            index = int(sendLCLDict[commRank][0])
+            if index >= len(sendLCLDict[commRank]):
+                Ln = len(sendLCLDict[commRank])
+                Ln *= 3
+                temp = np.ones( Ln )
+                temp[:,0:index] = sendLCLDict[commRank]
+                sendLCLDict[commRank] = temp
+            sendLCLDict[commRank][index:index+3] = pos[i,:].flatten()
+            sendLCLDict[commRank][0] = index+3
+        else:
+            sendLCLDict[commRank] = np.ones( lclBuffLen + 1 )
+            sendLCLDict[commRank][1:4] = pos[i,:].flatten()
+            sendLCLDict[commRank][0]=4
+
         ls[N+i] = head[c]
         head[c] = N+i
 
     N = len(pos[:,0])
 
+    ##copy particles for LCL.
+    #send_requests=[]
+    #for i in mpiComm.neigs.ranks:
+    #    if i in sendLCLDict:
+    #        if mpiComm.rank==0:
+    #            print("copy!!")
+    #        Sreq = mpiComm.comm.Isend([sendLCLDict[i][1:int(sendLCLDict[i][0])]\
+    #                          ,MPI.DOUBLE], dest = i, tag = mpiComm.rank)
+    #        send_requests.append(Sreq)
+    #    else:
+    #        Sreq = mpiComm.comm.Isend([emptyArray, MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
+    #        send_requests.append(Sreq)
+
+
+    #Split this into interior and exterior updates
     for cx in range(Lxd):
         for cy in range(Lyd):
             for cz in range(Lzd):
@@ -225,31 +381,12 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
                                         r = np.sqrt(dx**2 + dy**2 + dz**2)
 
                                         if r < rc:
-                                            #if mpiComm.rank==0:
-                                            #    print("r = ", r)
-                                            #    print("pos_i = ",pos[i,:])
-                                            #    print("pos_j = ",pos[j,:])
-                                            #U_s_r = 0.
-                                            #f1 = 0.
-                                            #f2 = 0.
-                                            #f3 = 0.
-                                            #fr = 0.
-                                            #########################
-                                            #if(glb.potential_type == glb.Yukawa_P3M): # P3M. Do not compare strings. It is very expensive!
-                                            #Gautham's thesis Eq. 3.22
-                                            # Short range  potential
-                                            #    U_s_r = U_s_r + (0.5/r)*(np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G) + np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G))
-                                            #    f1 = (0.5/r**2)*np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G)*(1-kappa*r)
-                                            #    f2 = (0.5/r**2)*np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G)*(1+kappa*r)
-                                            #    f3 = (G/np.sqrt(np.pi)/r)*(np.exp(-(G*r + 0.5*kappa/G)**2)*np.exp(kappa*r) + np.exp(-(G*r - 0.5*kappa/G)**2)*np.exp(-kappa*r))
-                                            #    fr = f1+f2+f3
 
-                                            #if(glb.potential_type == glb.Yukawa_PP): # PP
                                             U_s_r = U_s_r + np.exp(-kappa*r)/r
                                             f1 = 1./r**2*np.exp(-kappa*r)
                                             f2 = kappa/r*np.exp(-kappa*r)
                                             fr = f1+f2
-                                           ##########################
+
                                             acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
                                             acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
                                             acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
