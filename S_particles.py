@@ -49,21 +49,36 @@ class particles:
 # initial whole particles loading.
 # Here numba does not help at all. In fact loading is slower with numba. 
     def load(self, glb_vars, N):
-        if self.params.load[0].method == 'random_no_reject':
-            print('\nAssigning random initial positions {}'.format(self.params.load[0].method))
-        else:
-            print('\nAssigning initial positions according to {}'.format(self.params.load[0].method))
 
-        print('Assigning random initial velocities...')
+        if (self.params.load[0].method == 'restart'):
+            timestep = self.params.load[0].restart_step
+            if(timestep == None):
+                print("restart_step is not defined!!!")
+                sys.exit()
+            
+            pos, vel, acc = self.load_from_restart(timestep)
+            return pos, vel
+            
 
-        if (self.params.load[0].method == 'file'):
+        elif (self.params.load[0].method == 'file'):
             print('\nReading initial particle positions and velocities from file...')
             
             f_input = 'init.out'           # name of input file
             self.load_from_file(f_input, N)
 
             return np.transpose(np.array([self.px, self.py, self.pz])), np.transpose(np.array([self.vx, self.vy, self.vz]))
+
         else:
+
+            if self.params.load[0].method == 'random_no_reject':
+                print('\nAssigning random initial positions {}'.format(self.params.load[0].method))
+
+            else:
+                print('\nAssigning initial positions according to {}'.format(self.params.load[0].method))
+
+            print('Assigning random initial velocities...')
+
+
             Lx = glb_vars.Lx
             Ly = glb_vars.Ly
             Lz = glb_vars.Lz
@@ -177,6 +192,15 @@ class particles:
 
     def update(self):
         pass
+
+    def load_from_restart(self, it):
+        file_name = "Restart/restart_"+str(it)+".npz"
+        data = np.load(file_name)
+        pos = data['pos']
+        vel = data["vel"]
+        acc = data["acc"]
+        return pos, vel, acc
+
 
     def load_from_file(self, f_name, N):
         

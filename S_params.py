@@ -13,6 +13,7 @@ load - particles loading described in Species
     species_name: should be one of names in Species
     Num: number of particles of the species to load
     number_density: number density of the species
+    method: particle loading method. Files, restart file mathemathical mehtods.
 
 potential - Two body potential 
     type: potential type. Yukawa, EGS are available
@@ -33,7 +34,6 @@ control - general setup values for the simulations
     units: cgs, mks, Yukawa
     dump_step: output step
     seed: random number seed for particles' positions and velocities
-    restart: restart the simulation from this step. Not yet implemented.
 '''
 
 import yaml
@@ -61,6 +61,7 @@ class Params:
             self.Num = None
             self.np = None
             self.method = None
+            self.restart_step = None
 
     class plasma_potential:
         def __init__(self):
@@ -86,7 +87,6 @@ class Params:
             self.units= None
             self.dump_step = None
             self.seed = None
-            self.restart = None 
             self.restart_dump_step = 1000
 
     def setup(self, filename):
@@ -130,15 +130,16 @@ class Params:
 
                             if(key == 'method'):
                                 self.load[ic].method = value
-                                # print(self.load[ic].method)
+
+                            if(key == 'restart_step'):
+                                self.load[ic].restart_step = value
+
                             
                             if(key == 'r_reject'):
                                 self.load[ic].r_reject = float(value)
-                                # print(self.load[ic].r_reject)
 
                             if(key == 'perturb'):
                                 self.load[ic].perturb = float(value)
-                                # print(self.load[ic].perturb)
 
                             if(key == 'rand_seed'):
                                 self.load[ic].rand_seed = value
@@ -228,9 +229,6 @@ class Params:
 
                             if(key == 'random_seed'):
                                 self.control[0].seed = int(value)
-
-                            if(key == 'restart'):
-                                self.control[0].restart = value
 
                             if(key == 'restart_dump_step'):
                                 self.control[0].restart_dump_step = value

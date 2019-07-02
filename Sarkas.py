@@ -18,8 +18,8 @@ import time
 import sys
 import os
 
-DEBUG = 0
-t1 = time.time()
+time_stamp = np.zeros(10)
+time_stamp[0] = time.time()
 
 # Importing MD modules
 import S_read as read
@@ -35,7 +35,7 @@ import S_constants as const
 from S_particles import particles
 from S_verbose import verbose
 from S_params import Params
-
+from S_restart import restart
 
 input_file = sys.argv[1]
 # Reading MD conditions from input file
@@ -45,6 +45,7 @@ read_input.parameters(input_file)
 params = Params()
 params.setup(input_file)
 verbose = verbose(params, glb)
+restart = restart()
 ###
 #glb.Zi = 1
 
@@ -96,13 +97,12 @@ glb.mx_max = 3
 glb.my_max = 3
 glb.mz_max = 3
 
-t2 = time.time()
-#if(glb.potential_type == glb.Yukawa_P3M):
+time_stamp[1] = time.time()
 G_k, kx_v, ky_v, kz_v, A_pm = yukawa_gf_opt.gf_opt()
 if(glb.potential_type == glb.EGS):
   EGS.init_parameters()
 
-t3 = time.time()
+time_stamp[2] = time.time()
 glb.kappa /=glb.ai
 
 # pre-factors as a result of using 'reduced' units
@@ -134,7 +134,7 @@ E_z_p = np.zeros(glb.N)
 
 # F(k,t): Spatial Fourier transform of density fluctutations
 if(glb.verbose):
-    verbose.output() # simulation setting
+    verbose.sim_setting_summary() # simulation setting summary
 
 dq = 2.*np.pi/L
 q_max = 30/ai
@@ -143,7 +143,7 @@ Nq = glb.Nq   # 3 is for x, y, and z commponent
 
 n_q_t = np.zeros((Nt, Nq, 3),dtype='complex128') #
 
-# initializing the q vector
+# initializing the wave vector vector qv
 qv = np.zeros(Nq)
 
 for iqv in range(0, Nq, 3):
@@ -155,9 +155,6 @@ for iqv in range(0, Nq, 3):
 #array for temperature, total energy, kinetic energy, potential energy
 t_Tp_E_K_U2 = np.zeros((1,5))
 
-restartDir = "Restart"
-if not (os.path.exists(restartDir)):
-    os.mkdir(restartDir)
 
 total_num_ptcls = 0
 for i, load in enumerate(params.load):
@@ -167,9 +164,11 @@ for i, load in enumerate(params.load):
 ptcls = particles(params, total_num_ptcls)
 pos, vel = ptcls.load(glb, total_num_ptcls)
 
-t4 = time.time()
+time_stamp[3] = time.time()
+
 # Calculating initial forces and potential energy
 U, acc = p3m.force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+
 
 K = 0.5*mi*np.ndarray.sum(vel**2)
 Tp = (2/3)*K/float(N)/const.kb
@@ -179,24 +178,23 @@ if(glb.units == "Yukawa"):
 E = K + U
 print("=====T, E, K, U = ", Tp, E, K, U)
 
-print('\n------------- Equilibration -------------')
-#print('time - temperature')
-for it in range(Neq):
-#    print("it = ", it)
-    pos, vel, acc, U = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+print("=====", params.load[0].method)
+if not (params.load[0].method == "restart"):
+    print('\n------------- Equilibration -------------')
+    for it in range(Neq):
+        pos, vel, acc, U = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 #---------------
-    K = 0.5*mi*np.ndarray.sum(vel**2)
-    Tp = (2/3)*K/float(N)/const.kb
-    if(glb.units == "Yukawa"):
-        K *= 3
-        Tp *= 3
+        K = 0.5*mi*np.ndarray.sum(vel**2)
+        Tp = (2/3)*K/float(N)/const.kb
+        if(glb.units == "Yukawa"):
+            K *= 3
+            Tp *= 3
 
-    E = K + U
-    if(it%glb.snap_int == 0 and glb.verbose):
+        E = K + U
+        if(it%glb.snap_int == 0 and glb.verbose):
+            print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
 
-        print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
-    
-t5 = time.time()
+time_stamp[4] = time.time()
 
 print('\n------------- Production -------------')
 # Opening files for writing particle positions, velcoities and forces
@@ -205,10 +203,14 @@ f_output_E = open('t_T_totalE_kinE_potE.out','w')
 f_xyz = open('p_v_a.xyz','w')
 
 #print('time - total energy - kinetic energy - potential energy')
+if (params.load[0].method == "restart"):
+    it_start = params.load[0].restart_step+1
+else:
+    it_start = 0
 
-for it in range(Nt):
-    
-    pos, vel, acc, U = velocity_verlet.update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+for it in range(it_start, Nt):
+
+    pos, vel, acc, U = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
     K = 0.5*mi*np.ndarray.sum(vel**2)
     Tp = (2/3)*K/float(N)/const.kb
@@ -223,6 +225,10 @@ for it in range(Nt):
     
     t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
     t_Tp_E_K_U2[:] = t_Tp_E_K_U
+
+
+    if(it%params.control[0].restart_dump_step == 0):
+        restart.dump(pos, vel, acc, it)
     
     # Spatial Fourier transform
     for iqv in range(Nq):
@@ -253,14 +259,10 @@ f_xyz.close()
 irp2 = np.hstack((pos,vel,acc))
 np.savetxt('p_v_a_final.out',irp2)
 
-t6 = time.time()
+time_stamp[5] = time.time()
 
 if(glb.verbose):
-    print('Time for importing required libraries = ', t2-t1)
-    print('Time for computing converged Greens function = ', t3-t2)
-    print('Time for initialization = ', t4-t3)
-    print('Time for equilibration = ', t5-t4)
-    print('Time for production = ', t6-t5)
-    print('Total elapsed time = ', t6-t1)
+    verbose.time_stamp(time_stamp)
+
 
 # end of the code

@@ -1,0 +1,42 @@
+Region:
+
+  - Species:
+      name: ion1
+
+  - Load:
+      species_name: ion1
+      Num: 2
+      metho: random
+      restart_step: 10
+      rand_seed: 1
+      r_reject: 1e-2
+      perturb: 0.2 
+      halton_bases: [2,3,5]
+
+  - Potential: 
+      type: Yukawa
+      algorithm: PP
+      kappa: 3
+      Gamma: 1000
+      rc: 1.8
+
+  - Thermostat:
+      type: Berendsen
+
+  - Langevin:
+      type: BBK
+      gamma: 10.1
+
+  - Control:
+      dt: 0.1
+      Neq: 10
+      Nstep: 12
+      BC: periodic
+      units: Yukawa
+      writeout: yes
+      writexyz: no
+      dump_step: 10
+      random_seed: 1
+      restart_dump_step: 1
+      verbose: no
+

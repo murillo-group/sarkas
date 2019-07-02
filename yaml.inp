@@ -5,8 +5,9 @@ Region:
 
   - Load:
       species_name: ion1
-      Num: 216
-      method: file 
+      Num: 261
+      method: random
+      restart_step: 300
       rand_seed: 1
       r_reject: 1e-2
       perturb: 0.2 
@@ -24,19 +25,18 @@ Region:
 
   - Langevin:
       type: BBK
-      gamma: 0.1
+      gamma: 10.1
 
   - Control:
       dt: 0.1
       Neq: 100
-      Nstep: 300
+      Nstep: 400 
       BC: periodic
       units: Yukawa
       writeout: yes
       writexyz: no
-      dump_step: 1
+      dump_step: 10
       random_seed: 1
-      restart_dump_step: 100
-      restart: 0
+      restart_dump_step: 10
       verbose: no
 
