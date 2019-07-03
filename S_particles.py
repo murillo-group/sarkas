@@ -194,11 +194,13 @@ class particles:
         pass
 
     def load_from_restart(self, it):
-        file_name = "Restart/restart_"+str(it)+".npz"
+        file_name = "Checkpoint/S_checkpoint_"+str(it)+".npz"
         data = np.load(file_name)
-        pos = data['pos']
+        pos = data["pos"]
         vel = data["vel"]
         acc = data["acc"]
+        params = data["params"]
+
         return pos, vel, acc
 
 

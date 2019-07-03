@@ -85,9 +85,8 @@ class Params:
             self.Nstep = None
             self.BC = None
             self.units= None
-            self.dump_step = None
+            self.dump_step = 1
             self.seed = None
-            self.restart_dump_step = 1000
 
     def setup(self, filename):
         with open(filename, 'r') as stream:
@@ -214,12 +213,12 @@ class Params:
                                     self.control[0].init = 0
                                 if(value == "file"):
                                     self.control[0].init = 1
-
-                            if(key == "writeout"):
-                                if(value == False):
-                                    self.control[0].writeout = 0
-                                if(value == True):
-                                    self.control[0].writeout = 1
+                            if(0): #deprecated. Not used anymore
+                                if(key == "writeout"):
+                                    if(value == False):
+                                        self.control[0].writeout = 0
+                                    if(value == True):
+                                        self.control[0].writeout = 1
 
                             if(key == "writexyz"):
                                 if(value == False):
@@ -229,9 +228,6 @@ class Params:
 
                             if(key == 'random_seed'):
                                 self.control[0].seed = int(value)
-
-                            if(key == 'restart_dump_step'):
-                                self.control[0].restart_dump_step = value
 
                             if(key == 'verbose'):
                                 if(value == False):

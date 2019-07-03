@@ -3,6 +3,7 @@
 *.xyz
 *.pdf
 *~
+*.swo
 *.swp
 *.npy
 *.npz

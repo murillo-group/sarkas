@@ -48,7 +48,6 @@ def parameters(input_file):
     glb.g_0 = params.Langevin[0].gamma
     glb.snap_int = params.control[0].dump_step
     #glb.init = params.control[0].init
-    glb.write_output = params.control[0].writeout
     glb.write_xyz = params.control[0].writexyz
     glb.seed_int = params.control[0].seed
     glb.Zi = params.species[0].charge

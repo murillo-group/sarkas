@@ -19,7 +19,8 @@ import sys
 import os
 
 time_stamp = np.zeros(10)
-time_stamp[0] = time.time()
+its = 0
+time_stamp[its] = time.time(); its += 1
 
 # Importing MD modules
 import S_read as read
@@ -35,7 +36,7 @@ import S_constants as const
 from S_particles import particles
 from S_verbose import verbose
 from S_params import Params
-from S_restart import restart
+from S_checkpoint import checkpoint
 
 input_file = sys.argv[1]
 # Reading MD conditions from input file
@@ -45,7 +46,7 @@ read_input.parameters(input_file)
 params = Params()
 params.setup(input_file)
 verbose = verbose(params, glb)
-restart = restart()
+checkpoint = checkpoint(params)
 ###
 #glb.Zi = 1
 
@@ -97,12 +98,13 @@ glb.mx_max = 3
 glb.my_max = 3
 glb.mz_max = 3
 
-time_stamp[1] = time.time()
+time_stamp[its] = time.time(); its += 1
+
 G_k, kx_v, ky_v, kz_v, A_pm = yukawa_gf_opt.gf_opt()
 if(glb.potential_type == glb.EGS):
   EGS.init_parameters()
 
-time_stamp[2] = time.time()
+time_stamp[its] = time.time(); its += 1
 glb.kappa /=glb.ai
 
 # pre-factors as a result of using 'reduced' units
@@ -164,7 +166,7 @@ for i, load in enumerate(params.load):
 ptcls = particles(params, total_num_ptcls)
 pos, vel = ptcls.load(glb, total_num_ptcls)
 
-time_stamp[3] = time.time()
+time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
 U, acc = p3m.force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
@@ -178,7 +180,6 @@ if(glb.units == "Yukawa"):
 E = K + U
 print("=====T, E, K, U = ", Tp, E, K, U)
 
-print("=====", params.load[0].method)
 if not (params.load[0].method == "restart"):
     print('\n------------- Equilibration -------------')
     for it in range(Neq):
@@ -194,7 +195,7 @@ if not (params.load[0].method == "restart"):
         if(it%glb.snap_int == 0 and glb.verbose):
             print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
 
-time_stamp[4] = time.time()
+time_stamp[its] = time.time(); its += 1
 
 print('\n------------- Production -------------')
 # Opening files for writing particle positions, velcoities and forces
@@ -227,8 +228,9 @@ for it in range(it_start, Nt):
     t_Tp_E_K_U2[:] = t_Tp_E_K_U
 
 
-    if(it%params.control[0].restart_dump_step == 0):
-        restart.dump(pos, vel, acc, it)
+    # writing particle positions and velocities to file
+    if(it%params.control[0].dump_step == 0):
+        checkpoint.dump(pos, vel, acc, it)
     
     # Spatial Fourier transform
     for iqv in range(Nq):
@@ -237,17 +239,12 @@ for it in range(it_start, Nt):
         n_q_t[it,iqv,1] = np.sum(np.exp(-1j*q_p*pos[:,1]))
         n_q_t[it,iqv,2] = np.sum(np.exp(-1j*q_p*pos[:,2]))
     
-    # writing particle positions and velocities to file
-    if glb.write_output == 1:
-        if np.mod(it+1, glb.snap_int) == 0:
-            irp = np.hstack((pos, vel, acc))
-            np.savetxt(f_output, irp)
-            np.savetxt(f_output_E, t_Tp_E_K_U2)
-            
-            if glb.write_xyz == 1:
-                f_xyz.writelines('{0:d}\n'.format(N))
-                f_xyz.writelines('x y z vx vy vz ax ay az\n')
-                np.savetxt(f_xyz,irp)
+    np.savetxt(f_output_E, t_Tp_E_K_U2)
+
+    if glb.write_xyz == 1:
+        f_xyz.writelines('{0:d}\n'.format(N))
+        f_xyz.writelines('x y z vx vy vz ax ay az\n')
+        np.savetxt(f_xyz,irp)
 
 np.save('n_qt',n_q_t)
 
@@ -256,10 +253,11 @@ f_output.close()
 f_output_E.close()
 f_xyz.close()
 # saving last positions, velocities and accelerations
-irp2 = np.hstack((pos,vel,acc))
-np.savetxt('p_v_a_final.out',irp2)
+checkpoint.dump(pos, vel, acc, Nt)
+#irp2 = np.hstack((pos,vel,acc))
+#np.savetxt('p_v_a_final.out',irp2)
 
-time_stamp[5] = time.time()
+time_stamp[its] = time.time(); its += 1
 
 if(glb.verbose):
     verbose.time_stamp(time_stamp)
