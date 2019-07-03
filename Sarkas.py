@@ -251,13 +251,10 @@ f_output_E.close()
 f_xyz.close()
 # saving last positions, velocities and accelerations
 checkpoint.dump(pos, vel, acc, Nt)
-#irp2 = np.hstack((pos,vel,acc))
-#np.savetxt('p_v_a_final.out',irp2)
 
 time_stamp[its] = time.time(); its += 1
 
 if(glb.verbose):
     verbose.time_stamp(time_stamp)
-
 
 # end of the code
