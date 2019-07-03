@@ -23,7 +23,6 @@ its = 0
 time_stamp[its] = time.time(); its += 1
 
 # Importing MD modules
-import S_read as read
 import S_initialize_pos_vel as initialize_pos_vel
 import S_velocity_verlet as velocity_verlet
 import S_thermostat as thermostat
@@ -199,7 +198,6 @@ time_stamp[its] = time.time(); its += 1
 
 print('\n------------- Production -------------')
 # Opening files for writing particle positions, velcoities and forces
-f_output = open('p_v_a.out','w')
 f_output_E = open('t_T_totalE_kinE_potE.out','w')
 f_xyz = open('p_v_a.xyz','w')
 
@@ -249,7 +247,6 @@ for it in range(it_start, Nt):
 np.save('n_qt',n_q_t)
 
 # closing output files        
-f_output.close()
 f_output_E.close()
 f_xyz.close()
 # saving last positions, velocities and accelerations
