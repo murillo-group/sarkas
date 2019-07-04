@@ -38,6 +38,10 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     rc_z = Lz/Lzd
 
     Ncell = Lxd*Lyd*Lzd
+    #if mpiComm.rank==0:
+    #    print(Lxd)
+    #    print(Lyd)
+    #    print(Lzd)
 
     head = np.arange(Ncell)
     head.fill(empty)
@@ -342,10 +346,23 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
                 ,(mpiComm.neigs.DE_rank,DE_buff),(mpiComm.neigs.DW_rank,DW_buff)\
                 ,(mpiComm.neigs.DNE_rank,DNE_buff),(mpiComm.neigs.DNW_rank,DNW_buff)\
                 ,(mpiComm.neigs.DSE_rank,DSE_buff),(mpiComm.neigs.DSW_rank,DSW_buff)]
-    #send_requests=[]
-    #for rank, buff in send_buff:
-    #        Sreq = mpiComm.comm.Isend([buff,MPI.DOUBLE], dest = rank, tag = mpiComm.rank)
-    #        send_requests.append(Sreq)
+
+
+    #MPI Send
+    send_dict = {}
+    for rank, buff in send_buff:
+        if rank in send_dict:
+            send_dict[rank] = np.append(send_dict[rank],buff)
+        else:
+            send_dict[rank] = buff
+
+    send_requests = []
+    for i in mpiComm.neigs.ranks:
+        buff = send_dict[i].reshape(int(len(send_dict[i])/3),3)
+        buff = np.unique(buff,axis=0)
+        Sreq = mpiComm.comm.Isend([buff.flatten(),MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
+        send_requests.append(Sreq)
+
 
     #interior
     for cx in range(1,Lxd-1):
@@ -393,6 +410,35 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
 
                                 i = ls[i]
 
+
+    #probe incomming messages for total
+    #number of received particles and
+    #build recv buffers.
+    recvB = []
+    for i in mpiComm.neigs.ranks:
+        probS = mpiComm.comm.Probe(status=s,source=i,tag=i*10)
+        count = s.Get_count(datatype=MPI.DOUBLE)
+        recvB.append(np.empty(count,dtype=np.float64))
+
+    #recieve particles
+    recv_requests=[]
+    p = 0
+    for i in mpiComm.neigs.ranks:
+        Rreq = mpiComm.comm.Irecv([recvB[p], MPI.DOUBLE], source = i, tag = i*10)
+        recv_requests.append(Rreq)
+        p+=1
+    recvPos = np.concatenate(recvB,axis=0)
+
+    MPI.Request.waitall(send_requests)
+    MPI.Request.waitall(recv_requests)
+
+    recvBuff = recvPos.reshape(int(len(recvPos)/3),3)
+    recvBuff = recvBuff[np.where(recvBuff[:,0]!=-50.)]
+    #recvBuff = np.unique(recvBuff,axis=0) #works!
+
+    #if mpiComm.rank==1:
+    #    print("After = ",recvBuff.shape)
+    #    print("Total Particle = ",len(pos[:,0]))
 
     #exterior
     for cx in [0,Lxd-1]:
