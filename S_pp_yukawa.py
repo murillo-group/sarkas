@@ -375,7 +375,7 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
                     for cy_N in range(cy-1,cy+2):
                         for cx_N in range(cx-1,cx+2):
 
-                            c_N = (cx_N+cx_shift) + (cy_N+cy_shift)*Lxd + (cz_N+cz_shift)*Lxd*Lyd
+                            c_N = cx_N + cy_N*Lxd + cz_N*Lxd*Lyd
 
                             i = head[c]
 
