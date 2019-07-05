@@ -19,7 +19,6 @@ import sys
 import os
 
 # Importing MD modules
-import S_initialize_pos_vel as initialize_pos_vel
 import S_velocity_verlet as velocity_verlet
 import S_EGS as EGS
 import S_p3m as p3m
