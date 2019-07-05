@@ -22,6 +22,9 @@ Region:
   - Thermostat:
       type: Berendsen
 
+  - Integrator:
+        type: Verlet
+
   - Langevin:
       type: BBK
       gamma: 10.1

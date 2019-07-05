@@ -33,7 +33,9 @@ class verbose:
         print('No. of post-equilibration steps = ', glb.Nt)
         print('snapshot interval = ', glb.snap_int)
         print('Periodic boundary condition{1=yes, 0=no} =', glb.PBC)
-        print("Langevin model = ", glb.Langevin_model)
+        if(params.Langevin):
+            print("Langevin model = ", glb.Langevin_model)
+
         if(glb.units != "Yukawa"):
             print("plasma frequency, wi = ", glb.wp)
             print("number density, ni = ", glb.ni)

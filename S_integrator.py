@@ -3,17 +3,34 @@ import sys
 import S_p3m as p3m
 import S_global_names as glb
 import S_constants as const
+import S_yukawa_gf_opt as yukawa_gf_opt
 
 class integrator:
     def __init__(self, params, glb):
         self.params = params
         self.glb_vars = glb
         if(self.params.potential[0].type == "Yukawa"):
-            print("here, inte")
-            
+            glb.G_k, glb.kx_v, glb.ky_v, glb.kz_v, glb.A_pm = yukawa_gf_opt.gf_opt()
+
+        if(params.Integrator[0].type == "Verlet"):
+            if(params.Langevin):
+                self.update = self.Verlet_with_Langevin
+            else:
+                self.update = self.Verlet
 
 
-    def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    def Verlet2(self, it):
+        return 2*it
+
+    def Verlet_with_Langevin(self, it):
+        return 2*it+1
+
+    def Verlet(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+        G_k = glb.G_k
+        kx_v = glb.kx_v
+        ky_v = glb.ky_v
+        kz_v = glb.kz_v
+
         dt = glb.dt
         N = glb.N
         d = glb.d
@@ -35,12 +52,12 @@ class integrator:
                     if pos[i,p] < Lmin_v[p]:
                         pos[i,p] = pos[i,p] + Lv[p]
             
-        U, acc = p3m.force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U, acc = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         vel = vel + 0.5*acc*dt
 
         return pos, vel, acc, U
 
-    def update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    def Verlet_with_Langevin2(pos, vel, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         dt = glb.dt
         g = glb.g_0
         Gamma = glb.Gamma
@@ -74,7 +91,7 @@ class integrator:
                         pos[i,p] = pos[i,p] + Lv[p]
             
         
-        U, acc_new = p3m.force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U, acc_new = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         
         vel = c1*c2*vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
         acc = acc_new

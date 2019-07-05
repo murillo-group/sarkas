@@ -18,19 +18,18 @@ import time
 import sys
 import os
 
-
 # Importing MD modules
 import S_initialize_pos_vel as initialize_pos_vel
 import S_velocity_verlet as velocity_verlet
-import S_yukawa_gf_opt as yukawa_gf_opt
-import S_thermostat as thermostat
 import S_EGS as EGS
 import S_p3m as p3m
 import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
 
-#from S_thermostat import thermostat
+#import S_thermostat as thermostat
+from S_thermostat import thermostat
+from S_integrator import integrator 
 from S_particles import particles
 from S_verbose import verbose
 from S_params import Params
@@ -47,11 +46,14 @@ params = Params()
 params.setup(input_file)
 verbose = verbose(params, glb)
 checkpoint = checkpoint(params)  # For restart and pva backups.
+integrator = integrator(params, glb)
+thermostat = thermostat(params, glb)
+
 ###
 Nt = params.control[0].Nstep    # number of time steps
 time_stamp[its] = time.time(); its += 1
 
-G_k, kx_v, ky_v, kz_v, A_pm = yukawa_gf_opt.gf_opt()
+
 if(glb.potential_type == glb.EGS):
     EGS.init_parameters()
 
@@ -61,6 +63,11 @@ time_stamp[its] = time.time(); its += 1
 pos = np.zeros((glb.N, glb.d))
 vel = np.zeros_like(pos)
 acc = np.zeros_like(pos)
+
+
+#######################
+# YJC -- starts
+# these varaibles shold be in FFT or force part. Will be moved soon!
 Z = np.ones(glb.N)
 
 acc_s_r = np.zeros_like(pos)
@@ -70,13 +77,17 @@ rho_r = np.zeros((glb.Mz, glb.My, glb.Mx))
 E_x_p = np.zeros(glb.N)
 E_y_p = np.zeros(glb.N)
 E_z_p = np.zeros(glb.N)
+# YJC -- ends
+
+# YJC -- starts
+n_q_t = np.zeros((glb.Nt, glb.Nq, 3), dtype="complex128")
+# YJC -- ends
+########################
 
 # F(k,t): Spatial Fourier transform of density fluctutations
 if(glb.verbose):
     verbose.sim_setting_summary()   # simulation setting summary
 
-
-n_q_t = np.zeros((glb.Nt, glb.Nq, 3), dtype="complex128")
 
 # initializing the wave vector vector qv
 qv = np.zeros(glb.Nq)
@@ -102,7 +113,7 @@ pos, vel = ptcls.load(glb, total_num_ptcls)
 time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
-U, acc = p3m.force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+U, acc = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
 K = 0.5*glb.mi*np.ndarray.sum(vel**2)
 Tp = (2/3)*K/float(N)/const.kb
@@ -112,13 +123,25 @@ if(glb.units == "Yukawa"):
 E = K + U
 print("=====T, E, K, U = ", Tp, E, K, U)
 
+
+
+
+if(0):
+    for i in range(100):
+        j = thermostat.update(i)
+        print(i, j)
+
+    sys.exit()
+
+
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
         
         #thermostat.update(pos, vel, acc, params, it)
 
-        pos, vel, acc, U = thermostat.vscale(pos, vel, acc, glb.T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        pos, vel, acc, U = thermostat.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+#        pos, vel, acc, U = thermostat.vscale(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
 
 
@@ -148,7 +171,7 @@ else:
 
 for it in range(it_start, Nt):
 
-    pos, vel, acc, U = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    pos, vel, acc, U = velocity_verlet.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
     K = 0.5*glb.mi*np.ndarray.sum(vel**2)
     Tp = (2/3)*K/float(N)/const.kb
@@ -169,11 +192,12 @@ for it in range(it_start, Nt):
         checkpoint.dump(pos, vel, acc, it)
 
     # Spatial Fourier transform
-    for iqv in range(glb.Nq):
-        q_p = qv[iqv]
-        n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*pos[:, 0]))
-        n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*pos[:, 1]))
-        n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*pos[:, 2]))
+    if(0):
+        for iqv in range(glb.Nq):
+            q_p = qv[iqv]
+            n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*pos[:, 0]))
+            n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*pos[:, 1]))
+            n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*pos[:, 2]))
 
     np.savetxt(f_output_E, t_Tp_E_K_U2)
 
@@ -182,7 +206,7 @@ for it in range(it_start, Nt):
         f_xyz.writelines("x y z vx vy vz ax ay az\n")
         np.savetxt(f_xyz, irp)
 
-np.save("n_qt", n_q_t)
+#np.save("n_qt", n_q_t)
 
 # closing output files
 f_output_E.close()

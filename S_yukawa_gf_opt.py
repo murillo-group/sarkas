@@ -2,7 +2,7 @@ import numpy as np
 import numba as nb
 import S_global_names as glb
 import sys
-@nb.autojit
+@nb.jit
 def gf_opt():
     kappa = glb.kappa
     Gew = glb.G_ew

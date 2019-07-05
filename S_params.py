@@ -20,8 +20,11 @@ potential - Two body potential
     Gamma: plasma prameter Gamma
     kappa: plasma parameter kappa
 
-thermostat - Thermostat to equilibrize the system
+Thermostat - Thermostat to equilibrize the system
     type: Thermostat type. Only Berendsen for now.
+
+Integrator
+    type: Verlet only.
 
 Langevin
     type: Langevin model type. Only BBK for now.
@@ -44,6 +47,7 @@ class Params:
         self.species = [] 
         self.potential = [] 
         self.load = []
+        self.Integrator = []
         self.Langevin = []
         self.thermostat = []
         self.control = []
@@ -72,6 +76,10 @@ class Params:
     class md_thermostat:
         def __init__(self):
             self.type = None
+
+    class md_Integrator:
+        def __init__(self):
+            self.type = "Verlet"
 
     class md_Langevin:
         def __init__(self):
@@ -174,6 +182,14 @@ class Params:
                         for key, value in value.items():
                             if(key == 'type'):
                                 self.thermostat[0].type = value
+
+                    if(key == 'Integrator'):
+                        md_Integrator = self.md_Integrator()
+                        self.Integrator.append(md_Integrator)
+                        ic = len(self.Integrator) - 1
+                        for key, value in value.items():
+                            if(key == 'type'):
+                                self.Integrator[0].type = value
 
                     if(key == 'Langevin'):
                         md_Langevin = self.md_Langevin()

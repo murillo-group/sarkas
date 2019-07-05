@@ -46,8 +46,10 @@ def parameters(input_file):
     if( params.control[0].BC == "periodic"):
         glb.PBC = 1
 
-    glb.Langevin_model = params.Langevin[0].type
-    glb.g_0 = params.Langevin[0].gamma
+    if(params.Langevin):
+        glb.Langevin_model = params.Langevin[0].type
+        glb.g_0 = params.Langevin[0].gamma
+
     glb.snap_int = params.control[0].dump_step
     #glb.init = params.control[0].init
     glb.write_xyz = params.control[0].writexyz
