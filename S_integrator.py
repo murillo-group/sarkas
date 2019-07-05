@@ -18,12 +18,9 @@ class integrator:
                 self.update = self.Verlet_with_Langevin
             else:
                 self.update = self.Verlet
-
-    def Verlet2(self, it):
-        return 2*it
-
-    def Verlet_with_Langevin2(self, it):
-        return 2*it+1
+        else:
+            print("Only Verlet integrator is supported. Check your input file, integrator part.")
+            sys.exit()
 
     def Verlet(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         G_k = glb.G_k
@@ -92,3 +89,10 @@ class integrator:
         vel = c1*c2*vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
         acc = acc_new
         return pos, vel, acc, U
+
+
+    def RK45(self):
+        pass
+
+    def RK45_with_Langevin(self):
+        pass

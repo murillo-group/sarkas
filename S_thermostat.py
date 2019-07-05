@@ -40,11 +40,12 @@ class thermostat:
     def Berendsen(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         T_desired = glb.T_desired
         pos, vel, acc, U = self.integrator(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-        # K = self.K_factor*np.ndarray.sum(vel**2)
-        # T = self.T_factor*K
         mi = const.proton_mass
         K = self.kf*mi*np.ndarray.sum(vel**2)
         T = K/self.kf/float(glb.N)/const.kb
+        
+        # K = self.K_factor*np.ndarray.sum(vel**2)
+        # T = self.T_factor*K
 
         if it <= 1999:
             fact = np.sqrt(T_desired/T)
