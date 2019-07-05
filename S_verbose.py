@@ -41,9 +41,8 @@ class verbose:
 
     def time_stamp(self, time_stamp):
         t = time_stamp
-        print('Time for importing required libraries = ', t[1]-t[0])
-        print('Time for computing converged Greens function = ', t[2]-t[1])
-        print('Time for initialization = ', t[3]-t[2])
-        print('Time for equilibration = ', t[4]-t[3])
-        print('Time for production = ', t[5]-t[4])
-        print('Total elapsed time = ', t[5]-t[0])
+        print('Time for computing converged Greens function = ', t[1]-t[0])
+        print('Time for initialization = ', t[2]-t[1])
+        print('Time for equilibration = ', t[3]-t[2])
+        print('Time for production = ', t[4]-t[3])
+        print('Total elapsed time = ', t[4]-t[0])

@@ -36,7 +36,9 @@ def parameters(input_file):
     glb.Gamma = params.potential[0].Gamma
     glb.kappa = params.potential[0].kappa
 
-    glb.N = params.load[0].Num
+    glb.N = 0
+    for i, load in enumerate(params.load):
+        glb.N += params.load[i].Num  # currently same as glb.N
     glb.dt = params.control[0].dt
     glb.Neq = params.control[0].Neq
 
@@ -60,9 +62,9 @@ def parameters(input_file):
             
     if(units == "yukawa" or units =="Yukawa"):
         glb.units     = "Yukawa"
-        const.eCharge = 1
-        const.eMass   = 1
-        const.pMass   = 1
+        const.elec_charge = 1
+        const.elec_mass   = 1
+        const.proton_mass   = 1
         const.kb      = 1
         const.e_0     = 1.
 
@@ -75,33 +77,33 @@ def parameters(input_file):
 
     if(units == "cgs" or units == "CGS"):
         glb.units     = "cgs"
-        const.eCharge = 4.80320425e-10
-        const.eMass   = 9.10938356e-28
-        const.pMass   = 1.672621898e-24
+        const.elec_charge = 4.80320425e-10
+        const.elec_mass   = 9.10938356e-28
+        const.proton_mass   = 1.672621898e-24
         const.kb      = 1.38064852e-16
         const.hbar    = 1.05e-27
         const.eps_0     = 1.
 
-        glb.q1 = const.eCharge*glb.Zi
-        glb.q2 = const.eCharge*glb.Zi
+        glb.q1 = const.elec_charge*glb.Zi
+        glb.q2 = const.elec_charge*glb.Zi
         glb.ai = (3/(4*np.pi*glb.ni))**(1./3.)
-        glb.wp = np.sqrt(4*np.pi*glb.q1*glb.q2*glb.ni/const.pMass)
+        glb.wp = np.sqrt(4*np.pi*glb.q1*glb.q2*glb.ni/const.proton_mass)
         #print("wp: {0:15E}, ai: {1:15E}".format(glb.dt, glb.ai))
         #print("g0: {0:17E}".format(glb.wp*0.25))
 
     if(units == "mks" or units =="MKS"):
         glb.units     = "mks"
-        const.eCharge = 1.602176634e-19
-        const.eMass   = 9.10938356e-31
-        const.pMass   = 1.672621898e-27
+        const.elec_charge = 1.602176634e-19
+        const.elec_mass   = 9.10938356e-31
+        const.proton_mass   = 1.672621898e-27
         const.kb      = 1.38064852e-23
         const.eps_0   = 8.854187817e-12
         const.hbar    = 1.05e-34
 
-        glb.q1 = const.eCharge*glb.Zi
-        glb.q2 = const.eCharge*glb.Zi
+        glb.q1 = const.elec_charge*glb.Zi
+        glb.q2 = const.elec_charge*glb.Zi
         glb.ai = (3/(4*np.pi*glb.ni))**(1./3.)
-        glb.wp = np.sqrt(glb.q1*glb.q2*glb.ni/const.pMass/const.eps_0)
+        glb.wp = np.sqrt(glb.q1*glb.q2*glb.ni/const.proton_mass/const.eps_0)
         #print("wp: {0:15E}, ai: {1:15E}".format(glb.dt, glb.ai))
 
     #if(units == "cgs-eV"):
@@ -129,4 +131,66 @@ def parameters(input_file):
       if (glb.Gamma < 0. or glb.kappa < 0.):
         print("Check your input file. Gamma and/or kappa is wrong in the Yukawa potential.")
         sys.exit(0)
+
+    glb.mi = const.proton_mass
+    glb.kappa /= glb.ai
+
+# pre-factors as a result of using 'reduced' units
+    glb.af = 1.0/3.0                          # acceleration factor for Yukawa units
+    glb.uf = 1.0                              # potential energy factor for Yukawa units
+    glb.kf = 1.5                              # kinetic energy factor for Yukawa units
+    glb.p3m_flag = 1    # default is P3M
+    if(glb.pot_calc_algrthm == "PP"):
+        glb.p3m_flag = 0
+
+
+    '''
+    Below is temporary until the paramtere optimization is done.
+    '''
+
+# Other MD parameters
+    if(glb.potential_type == glb.Yukawa_PP or glb.potential_type == glb.Yukawa_P3M):
+        if(glb.units == "Yukawa"):
+            glb.T_desired = 1/(glb.Gamma)                # desired temperature
+
+        if(glb.units == "cgs"):
+            glb.T_desired = q1*q2/ai/(const.kb*glb.Gamma)                # desired temperature
+
+        if(glb.units == "mks"):
+            glb.T_desired = q1*q2/ai/(const.kb*glb.Gamma*4*np.pi*const.eps_0)                # desired temperature
+
+    T_desired = glb.T_desired
+    Nt = glb.Nt
+    Neq = glb.Neq
+    glb.L = glb.ai*(4.0*np.pi*glb.N/3.0)**(1.0/3.0)      # box length
+    L = glb.L
+    glb.Lx = L
+    glb.Ly = L
+    glb.Lz = L
+    glb.Lv = np.array([L, L, L])              # box length vector
+    glb.d = np.count_nonzero(glb.Lv)              # no. of dimensions
+    glb.Lmax_v = np.array([L, L, L])
+    glb.Lmin_v = np.array([0.0, 0.0, 0.0])
+
+    glb.dq = 2.*np.pi/glb.L
+    glb.q_max = 30/glb.ai
+    glb.Nq = 3*int(glb.q_max/glb.dq)
+
+# Ewald parameters
+    glb.G = 0.46/glb.ai
+    glb.G_ew = glb.G
+    glb.rc *= glb.ai
+
+# P3M parameters
+    glb.Mx = 64
+    glb.My = 64
+    glb.Mz = 64
+    glb.hx = glb.Lx/glb.Mx
+    glb.hy = glb.Ly/glb.My
+    glb.hz = glb.Lz/glb.Mz
+    glb.p = 6
+    glb.mx_max = 3
+    glb.my_max = 3
+    glb.mz_max = 3
+
     return

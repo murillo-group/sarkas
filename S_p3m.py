@@ -16,7 +16,7 @@ def force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p
     Zi = glb.Zi
     q1 = glb.q1
     q2 = glb.q2
-    mi = const.pMass
+    mi = const.proton_mass
     p3m = glb.p3m_flag
     acc_s_r.fill(0.0)
     acc_fft.fill(0.0)

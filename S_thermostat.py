@@ -10,7 +10,7 @@ def vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_
     dt = glb.dt
     N = glb.N
     ai = glb.ai
-    mi = const.pMass
+    mi = const.proton_mass
     q1 = glb.q1
     q2 = glb.q2
 

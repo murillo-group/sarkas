@@ -15,7 +15,7 @@ def initial(pos,vel,T_desired):
     q1 = glb.q1
     q2 = glb.q2
     ai = glb.ai
-    mi = const.pMass
+    mi = const.proton_mass
 
     np.random.seed(seed=seed_int)
     

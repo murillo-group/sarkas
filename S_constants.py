@@ -1,12 +1,12 @@
 # constant physics variables
 # electron charge
-eCharge = ""  
+elec_charge = ""  
 
 # electron mass
-eMass = ""
+elec_mass = ""
 
 # proton mass
-pMass = ""
+proton_mass = ""
 
 # boltzmann constant
 kb = ""
