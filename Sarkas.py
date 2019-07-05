@@ -27,9 +27,8 @@ import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
 
-#import S_thermostat as thermostat
 from S_thermostat import thermostat
-from S_integrator import integrator 
+from S_integrator import integrator
 from S_particles import particles
 from S_verbose import verbose
 from S_params import Params
@@ -63,7 +62,6 @@ time_stamp[its] = time.time(); its += 1
 pos = np.zeros((glb.N, glb.d))
 vel = np.zeros_like(pos)
 acc = np.zeros_like(pos)
-
 
 #######################
 # YJC -- starts
@@ -123,29 +121,10 @@ if(glb.units == "Yukawa"):
 E = K + U
 print("=====T, E, K, U = ", Tp, E, K, U)
 
-
-
-
-if(0):
-    for i in range(100):
-        j = thermostat.update(i)
-        print(i, j)
-
-    sys.exit()
-
-
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
-        
-        #thermostat.update(pos, vel, acc, params, it)
-
         pos, vel, acc, U = thermostat.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-#        pos, vel, acc, U = thermostat.vscale(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-
-
-
-
 
         K = 0.5*glb.mi*np.ndarray.sum(vel**2)
         Tp = (2/3)*K/float(N)/const.kb
@@ -206,7 +185,7 @@ for it in range(it_start, Nt):
         f_xyz.writelines("x y z vx vy vz ax ay az\n")
         np.savetxt(f_xyz, irp)
 
-#np.save("n_qt", n_q_t)
+# np.save("n_qt", n_q_t)
 
 # closing output files
 f_output_E.close()
