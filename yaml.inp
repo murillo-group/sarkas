@@ -19,15 +19,15 @@ Region:
       Gamma: 1000
       rc: 1.8
 
+  - Integrator:
+      type: Verlet
+
   - Thermostat:
       type: Berendsen
 
-  - Integrator:
-        type: Verlet
-
   - Langevin:
       type: BBK
-      gamma: 10.1
+      gamma: 0.1
 
   - Control:
       dt: 0.1
@@ -36,6 +36,5 @@ Region:
       BC: periodic
       units: Yukawa
       writexyz: no
-      random_seed: 1
-      verbose: no
+      verbose: yes
 
