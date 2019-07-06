@@ -1,7 +1,11 @@
+'''
+S_thermostat.py
+
+Berendsen only.
+'''
 import numpy as np
 import sys
 
-import S_global_names as glb
 import S_constants as const
 from S_integrator import integrator
 
@@ -37,11 +41,12 @@ class thermostat:
         return pos, vel, acc, U
 
     def Berendsen(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
-        T_desired = glb.T_desired
+        T_desired = self.glb_vars.T_desired
+        
         pos, vel, acc, U = self.integrator(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         mi = const.proton_mass
         K = self.kf*mi*np.ndarray.sum(vel**2)
-        T = K/self.kf/float(glb.N)/const.kb
+        T = K/self.kf/float(self.glb_vars.N)/const.kb
         
         # K = self.K_factor*np.ndarray.sum(vel**2)
         # T = self.T_factor*K

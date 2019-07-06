@@ -12,7 +12,7 @@ RK45_with_Langevin: N/A
 import numpy as np
 import sys
 import S_p3m as p3m
-import S_global_names as glb
+#import S_global_names as glb
 import S_constants as const
 import S_yukawa_gf_opt as yukawa_gf_opt
 
@@ -23,7 +23,7 @@ class integrator:
         self.glb_vars = glb
         if(self.params.potential[0].type == "Yukawa"):
             # need one more condition, P3M
-            glb.G_k, glb.kx_v, glb.ky_v, glb.kz_v, glb.A_pm = yukawa_gf_opt.gf_opt()
+            self.glb_vars.G_k, self.glb_vars.kx_v, self.glb_vars.ky_v, self.glb_vars.kz_v, self.glb_vars.A_pm = yukawa_gf_opt.gf_opt()
 
         if(params.Integrator[0].type == "Verlet"):
             if(params.Langevin):
@@ -35,18 +35,18 @@ class integrator:
             sys.exit()
 
     def Verlet(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
-        G_k = glb.G_k
-        kx_v = glb.kx_v
-        ky_v = glb.ky_v
-        kz_v = glb.kz_v
+        G_k = self.glb_vars.G_k
+        kx_v = self.glb_vars.kx_v
+        ky_v = self.glb_vars.ky_v
+        kz_v = self.glb_vars.kz_v
 
-        dt = glb.dt
-        N = glb.N
-        d = glb.d
-        Lv = glb.Lv
-        PBC = glb.PBC
-        Lmax_v = glb.Lmax_v
-        Lmin_v = glb.Lmin_v
+        dt = self.glb_vars.dt
+        N = self.glb_vars.N
+        d = self.glb_vars.d
+        Lv = self.glb_vars.Lv
+        PBC = self.glb_vars.PBC
+        Lmax_v = self.glb_vars.Lmax_v
+        Lmin_v = self.glb_vars.Lmin_v
 
         vel = vel + 0.5*acc*dt
         pos = pos + vel*dt
@@ -66,20 +66,20 @@ class integrator:
         return pos, vel, acc, U
 
     def Verlet_with_Langevin(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
-        dt = glb.dt
-        g = glb.g_0
-        Gamma = glb.Gamma
-        Lmax_v = glb.Lmax_v
-        Lmin_v = glb.Lmin_v
-        Lv = glb.Lv
-        PBC = glb.PBC
-        N = glb.N
-        d = glb.d
+        dt = self.glb_vars.dt
+        g = self.glb_vars.g_0
+        Gamma = self.glb_vars.Gamma
+        Lmax_v = self.glb_vars.Lmax_v
+        Lmin_v = self.glb_vars.Lmin_v
+        Lv = self.glb_vars.Lv
+        PBC = self.glb_vars.PBC
+        N = self.glb_vars.N
+        d = self.glb_vars.d
 
         rtdt = np.sqrt(dt)
 
-        sig = np.sqrt(2. * g*const.kb*glb.T_desired/const.proton_mass)
-        if(glb.units == "Yukawa"):
+        sig = np.sqrt(2. * g*const.kb*self.glb_vars.T_desired/const.proton_mass)
+        if(self.glb_vars.units == "Yukawa"):
             sig = np.sqrt(2. * g/(3*Gamma))
 
         c1 = (1. - 0.5*g*dt)
