@@ -36,7 +36,6 @@ control - general setup values for the simulations
     BC: Boundary condition. periodic only
     units: cgs, mks, Yukawa
     dump_step: output step
-    seed: random number seed for particles' positions and velocities
 '''
 
 import yaml
@@ -94,7 +93,6 @@ class Params:
             self.BC = None
             self.units= None
             self.dump_step = 1
-            self.seed = None
 
     def setup(self, filename):
         with open(filename, 'r') as stream:
@@ -241,9 +239,6 @@ class Params:
                                     self.control[0].writexyz = 0
                                 if(value == True):
                                     self.control[0].writexyz = 1
-
-                            if(key == 'random_seed'):
-                                self.control[0].seed = int(value)
 
                             if(key == 'verbose'):
                                 if(value == False):

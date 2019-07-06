@@ -19,13 +19,10 @@ DEBUG = 0
 
 class particles:
     def __init__(self, params, total_num_part):
-
-        
-
         N = total_num_part
         self.params = params
         #print(self.params)
-        iseed = params.control[0].seed
+        iseed = params.load[0].rand_seed)
         np.random.seed(seed=iseed)
 
         self.px = np.empty(N) 

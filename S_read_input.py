@@ -53,7 +53,7 @@ def parameters(input_file):
     glb.snap_int = params.control[0].dump_step
     #glb.init = params.control[0].init
     glb.write_xyz = params.control[0].writexyz
-    glb.seed_int = params.control[0].seed
+    glb.seed_int = params.load[0].rand_seed
     glb.Zi = params.species[0].charge
     glb.ni = params.load[0].np
 
