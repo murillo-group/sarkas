@@ -1,3 +1,14 @@
+'''
+S_integrator.py
+
+velocity integrator
+
+Verlet: velocity Verlet 
+Verlet_with_Langevin: Verlet with Langevin damping
+RK45: N/A
+RK45_with_Langevin: N/A
+
+'''
 import numpy as np
 import sys
 import S_p3m as p3m
@@ -53,7 +64,7 @@ class integrator:
 
         return pos, vel, acc, U
 
-    def Verlet_with_Langevin(pos, vel, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    def Verlet_with_Langevin(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         dt = glb.dt
         g = glb.g_0
         Gamma = glb.Gamma

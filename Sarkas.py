@@ -19,7 +19,6 @@ import sys
 import os
 
 # Importing MD modules
-import S_velocity_verlet as velocity_verlet
 import S_EGS as EGS
 import S_p3m as p3m
 import S_read_input as read_input
@@ -63,7 +62,6 @@ vel = np.zeros_like(pos)
 acc = np.zeros_like(pos)
 
 #######################
-# YJC -- starts
 # these varaibles shold be in FFT or force part. Will be moved soon!
 Z = np.ones(glb.N)
 
@@ -74,17 +72,13 @@ rho_r = np.zeros((glb.Mz, glb.My, glb.Mx))
 E_x_p = np.zeros(glb.N)
 E_y_p = np.zeros(glb.N)
 E_z_p = np.zeros(glb.N)
-# YJC -- ends
 
-# YJC -- starts
+# this variable will be moved to observable class
 n_q_t = np.zeros((glb.Nt, glb.Nq, 3), dtype="complex128")
-# YJC -- ends
 ########################
 
-# F(k,t): Spatial Fourier transform of density fluctutations
 if(glb.verbose):
     verbose.sim_setting_summary()   # simulation setting summary
-
 
 # initializing the wave vector vector qv
 qv = np.zeros(glb.Nq)
@@ -124,7 +118,6 @@ if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
         pos, vel, acc, U = thermostat.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-
         K = 0.5*glb.mi*np.ndarray.sum(vel**2)
         Tp = (2/3)*K/float(N)/const.kb
         if(glb.units == "Yukawa"):
@@ -147,9 +140,10 @@ if (params.load[0].method == "restart"):
 else:
     it_start = 0
 
+
 for it in range(it_start, Nt):
 
-    pos, vel, acc, U = velocity_verlet.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    pos, vel, acc, U = integrator.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
     K = 0.5*glb.mi*np.ndarray.sum(vel**2)
     Tp = (2/3)*K/float(N)/const.kb
@@ -170,7 +164,8 @@ for it in range(it_start, Nt):
         checkpoint.dump(pos, vel, acc, it)
 
     # Spatial Fourier transform
-    if(0):
+    # will be move to observable class
+    if(1):
         for iqv in range(glb.Nq):
             q_p = qv[iqv]
             n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*pos[:, 0]))
@@ -184,11 +179,13 @@ for it in range(it_start, Nt):
         f_xyz.writelines("x y z vx vy vz ax ay az\n")
         np.savetxt(f_xyz, irp)
 
-# np.save("n_qt", n_q_t)
+# will be moved to observable class
+ np.save("n_qt", n_q_t)
 
 # closing output files
 f_output_E.close()
 f_xyz.close()
+
 # saving last positions, velocities and accelerations
 checkpoint.dump(pos, vel, acc, Nt)
 
