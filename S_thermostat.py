@@ -1,7 +1,6 @@
 import numpy as np
 import sys
 
-import S_velocity_verlet as velocity_verlet
 import S_global_names as glb
 import S_constants as const
 from S_integrator import integrator
