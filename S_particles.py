@@ -22,7 +22,7 @@ class particles:
         N = total_num_part
         self.params = params
         #print(self.params)
-        iseed = params.load[0].rand_seed)
+        iseed = params.load[0].rand_seed
         np.random.seed(seed=iseed)
 
         self.px = np.empty(N) 
@@ -256,7 +256,7 @@ class particles:
             print('Warning: Random perturbation must not exceed 1. Setting perturb = 1.')
             perturb = 1 # Maximum perturbation
             
-        print('Initializing particles with maximum random perturbation of {} times the lattice spacing.'.format(perturb*0.5))
+        print('Initializing particles with maximum random perturbation of {} times the aattice spacing.'.format(perturb*0.5))
         
         # Determining number of particles per side of simple cubic lattice
         part_per_side = (N)**(1/3) # Number of particles per side of cubic lattice
