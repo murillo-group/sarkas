@@ -15,7 +15,7 @@ load - particles loading described in Species
     number_density: number density of the species
     method: particle loading method. Files, restart file mathemathical mehtods.
 
-potential - Two body potential 
+potential - Two body potential
     type: potential type. Yukawa, EGS are available
     Gamma: plasma prameter Gamma
     kappa: plasma parameter kappa
@@ -41,10 +41,11 @@ control - general setup values for the simulations
 import yaml
 import numpy as np
 
+
 class Params:
     def __init__(self):
-        self.species = [] 
-        self.potential = [] 
+        self.species = []
+        self.potential = []
         self.load = []
         self.Integrator = []
         self.Langevin = []
@@ -78,7 +79,7 @@ class Params:
 
     class md_Integrator:
         def __init__(self):
-            self.type = "Verlet"
+            self.type = None
 
     class md_Langevin:
         def __init__(self):
@@ -91,10 +92,21 @@ class Params:
             self.Neq = None
             self.Nstep = None
             self.BC = None
-            self.units= None
+            self.units = None
             self.dump_step = 1
 
     def setup(self, filename):
+        # default thermostat and integrator
+        md_thermostat = self.md_thermostat()
+        self.thermostat.append(md_thermostat)
+        ic = len(self.thermostat) - 1
+        self.thermostat[0].type = "Berendsen"
+
+        md_Integrator = self.md_Integrator()
+        self.Integrator.append(md_Integrator)
+        ic = len(self.Integrator) - 1
+        self.Integrator[0].type = "Verlet"
+
         with open(filename, 'r') as stream:
             dics = yaml.load(stream)
 
@@ -139,7 +151,6 @@ class Params:
                             if(key == 'restart_step'):
                                 self.load[ic].restart_step = value
 
-                            
                             if(key == 'r_reject'):
                                 self.load[ic].r_reject = float(value)
 
@@ -206,7 +217,7 @@ class Params:
                         for key, value in value.items():
                             if(key == 'dt'):
                                 self.control[0].dt = value
-    
+
                             if(key == 'Nstep'):
                                 self.control[0].Nstep = int(value)
 
@@ -227,22 +238,15 @@ class Params:
                                     self.control[0].init = 0
                                 if(value == "file"):
                                     self.control[0].init = 1
-                            if(0): #deprecated. Not used anymore
-                                if(key == "writeout"):
-                                    if(value == False):
-                                        self.control[0].writeout = 0
-                                    if(value == True):
-                                        self.control[0].writeout = 1
 
                             if(key == "writexyz"):
-                                if(value == False):
+                                if(value is False):
                                     self.control[0].writexyz = 0
-                                if(value == True):
+                                if(value is True):
                                     self.control[0].writexyz = 1
 
                             if(key == 'verbose'):
-                                if(value == False):
+                                if(value is False):
                                     self.control[0].verbose = 0
-                                if(value == True):
+                                if(value is True):
                                     self.control[0].verbose = 1
-

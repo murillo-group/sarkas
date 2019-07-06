@@ -3,7 +3,7 @@ S_integrator.py
 
 velocity integrator
 
-Verlet: velocity Verlet 
+Verlet: velocity Verlet
 Verlet_with_Langevin: Verlet with Langevin damping
 RK45: N/A
 RK45_with_Langevin: N/A
@@ -12,7 +12,6 @@ RK45_with_Langevin: N/A
 import numpy as np
 import sys
 import S_p3m as p3m
-#import S_global_names as glb
 import S_constants as const
 import S_yukawa_gf_opt as yukawa_gf_opt
 
