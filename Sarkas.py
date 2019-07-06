@@ -180,7 +180,7 @@ for it in range(it_start, Nt):
         np.savetxt(f_xyz, irp)
 
 # will be moved to observable class
- np.save("n_qt", n_q_t)
+np.save("n_qt", n_q_t)
 
 # closing output files
 f_output_E.close()

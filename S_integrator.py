@@ -7,8 +7,8 @@ Verlet: velocity Verlet
 Verlet_with_Langevin: Verlet with Langevin damping
 RK45: N/A
 RK45_with_Langevin: N/A
-
 '''
+
 import numpy as np
 import sys
 import S_p3m as p3m
@@ -22,6 +22,7 @@ class integrator:
         self.params = params
         self.glb_vars = glb
         if(self.params.potential[0].type == "Yukawa"):
+            # need one more condition, P3M
             glb.G_k, glb.kx_v, glb.ky_v, glb.kz_v, glb.A_pm = yukawa_gf_opt.gf_opt()
 
         if(params.Integrator[0].type == "Verlet"):
@@ -100,7 +101,6 @@ class integrator:
         vel = c1*c2*vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
         acc = acc_new
         return pos, vel, acc, U
-
 
     def RK45(self):
         pass
