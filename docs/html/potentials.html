@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>To-Do List &mdash; Sarkas  documentation</title>
+  <title>Potentials &mdash; Sarkas  documentation</title>
   
 
   
@@ -45,7 +45,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Potentials" href="potentials.html" /> 
+    <link rel="next" title="To-Do List" href="todo.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,8 +94,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">To-Do List</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Potentials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#yukawa-potential">Yukawa Potential</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">To-Do List</a></li>
 </ul>
 
             
@@ -140,13 +144,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>To-Do List</li>
+      <li>Potentials</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/todo.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/potentials.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -159,12 +163,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="to-do-list">
-<h1>To-Do List<a class="headerlink" href="#to-do-list" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="potentials">
+<h1>Potentials<a class="headerlink" href="#potentials" title="Permalink to this headline">¶</a></h1>
+<p>Sarkas aims to support a variety of potentials both built-in and user defined. Currently the potential functions that are implemented include</p>
 <ul class="simple">
-<li>Add new integrators</li>
-<li>Make sure code works</li>
+<li>Pairwise Yukawa</li>
 </ul>
+<p>You can read more about each of these potentials in the corresponding sections below.</p>
+<div class="section" id="yukawa-potential">
+<h2>Yukawa Potential<a class="headerlink" href="#yukawa-potential" title="Permalink to this headline">¶</a></h2>
+<p>The Yukawa potential is a widely used in the plasma community to describe the interactions of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two identical ions is given by</p>
+<div class="math notranslate nohighlight">
+\[V(r) = \frac{Z_{eff}^2}{r}e^{-r/\lambda_e},\]</div>
+<p>Where <span class="math notranslate nohighlight">\(r\)</span> is the distance between ions, <span class="math notranslate nohighlight">\(Z_{eff}\)</span> is the effective ion charge or the effective ionization, and <span class="math notranslate nohighlight">\(\lambda_e\)</span> is the electron screening length.</p>
+</div>
 </div>
 
 
@@ -175,8 +187,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="todo.html" class="btn btn-neutral float-right" title="To-Do List" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="potentials.html" class="btn btn-neutral float-left" title="Potentials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

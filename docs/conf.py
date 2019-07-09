@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Sarkas'
-copyright = '2019, Gautham Dharuman, Yongjun Choi, David Rimel, Luke Stanek, Michael S. Murillo'
-author = 'Gautham Dharuman, Yongjun Choi, David Rimel, Luke Stanek, Michael S. Murillo'
+copyright = '2019, The Murillo Group at Michigan State University'
+author = 'The Murillo Group at Michigan State University'
 
 # The short X.Y version
 version = ''
@@ -147,7 +147,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Sarkas.tex', 'Sarkas Documentation',
-     'Gautham Dharuman, Yongjun Choi, David Rimel, Luke Stanek, Michael S. Murillo', 'manual'),
+     'The Murillo Group at Michigan State University', 'manual'),
 ]
 
 

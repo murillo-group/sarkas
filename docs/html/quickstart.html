@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Sarkas Quickstart &mdash; Sarkas  documentation</title>
+  <title>Quickstart &mdash; Sarkas  documentation</title>
   
 
   
@@ -45,7 +45,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="To-Do List" href="todo.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
     <link rel="prev" title="Sarkas Documentaion" href="index.html" /> 
 </head>
 
@@ -92,20 +92,22 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Sarkas Quickstart</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#obtaining-sarkas">Obtaining Sarkas</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#preliminary-packages">Preliminary Packages</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#using-sarkas">Using Sarkas</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#input-files">Input files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#example-yaml-inp-file">Example yaml.inp file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-input-file">Using the input file</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#units">Units</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-sarkas">Running Sarkas</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="todo.html">To-Do List</a></li>
 </ul>
 
@@ -152,7 +154,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Sarkas Quickstart</li>
+      <li>Quickstart</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -171,10 +173,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="sarkas-quickstart">
-<h1>Sarkas Quickstart<a class="headerlink" href="#sarkas-quickstart" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
 <p>Before you can begin working with Sarkas, you will need to have python3 installed. A useful python
-distribution that has many of the necessary packages for Sarkas is Anaconda. Anaconda can be downloaded <a class="reference external" href="https://www.anaconda.com">here</a>.</p>
+distribution that has many of the necessary packages for Sarkas is Anaconda which an be downloaded <a class="reference external" href="https://www.anaconda.com">here</a>.</p>
 <div class="section" id="obtaining-sarkas">
 <h2>Obtaining Sarkas<a class="headerlink" href="#obtaining-sarkas" title="Permalink to this headline">¶</a></h2>
 <p>Sarkas is undergoing heavy development but the most recent version can be found on <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">GitHub</a>, which
@@ -205,59 +207,174 @@ you can install these packages, by simply opening a terminal and running the fol
 <h3>Input files<a class="headerlink" href="#input-files" title="Permalink to this headline">¶</a></h3>
 <p>Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the <cite>yaml.inp</cite> file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example.</p>
 </div>
-<div class="section" id="example-yaml-inp-file">
-<h3>Example yaml.inp file<a class="headerlink" href="#example-yaml-inp-file" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="using-the-input-file">
+<h3>Using the input file<a class="headerlink" href="#using-the-input-file" title="Permalink to this headline">¶</a></h3>
 <p>To specify you simulation parameters, open the <cite>yaml.inp</cite> file in your text editor and alter the values to
-the right of the keywords. Below is a description of what each keyword is used for in Sarkas.</p>
-<ul>
-<li><p class="first">Num (int): The number of particles</p>
-</li>
-<li><p class="first">method (string): Particle position initialization schemes. So far the options are</p>
-<blockquote>
-<div><ul class="simple">
+the right of the keywords. Below is a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: <cite>https://learn.getgrav.org/16/advanced/yaml</cite>.</p>
+<table border="1" class="colwidths-auto docutils" id="id1">
+<caption><span class="caption-text">Table for “Load” section key and value pairs in .yaml file</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Value Data Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>species_name</td>
+<td>string</td>
+<td>Name for particle species (e.g. ion1, C, etc.)</td>
+</tr>
+<tr class="row-odd"><td>Num</td>
+<td>int</td>
+<td>Number of particles for desired species (eg. 500)</td>
+</tr>
+<tr class="row-even"><td>method</td>
+<td>string</td>
+<td>Particle position initialization schemes</td>
+</tr>
+<tr class="row-odd"><td>rand_seed</td>
+<td>int</td>
+<td>Random seed for random_reject and lattice initialization schemes</td>
+</tr>
+<tr class="row-even"><td>r_reject</td>
+<td>float</td>
+<td>Rejection radius for ‘random_reject’ and ‘halton’ initilization schemes. (e.g, 0.1, 1e-2, 1, etc.)</td>
+</tr>
+<tr class="row-odd"><td>perturb</td>
+<td>float</td>
+<td>Perturbation for particle at lattice point for ‘lattice’ initialization scheme. Must be between 0 and 1.</td>
+</tr>
+<tr class="row-even"><td>halton_bases</td>
+<td>python list</td>
+<td>List of 3 numbers to be used as the ‘bases’ for the ‘halton_reject’ initialization scheme.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="colwidths-auto docutils" id="id2">
+<caption><span class="caption-text">Table for “Potential” section key and value pairs in .yaml file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Value Data Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>type</td>
+<td>string</td>
+<td>Name of desired potential. See &lt;link to potentials page&gt; for a list of supported potentials</td>
+</tr>
+<tr class="row-odd"><td>algorithm</td>
+<td>string</td>
+<td>Specify algorithm used. See &lt;link to algorithms page&gt; for a list of supported algorithms</td>
+</tr>
+<tr class="row-even"><td>kappa</td>
+<td>float</td>
+<td>Electron screening length. See ‘Units’ section below for more detail</td>
+</tr>
+<tr class="row-odd"><td>gamma</td>
+<td>float</td>
+<td>Coulomb coupling parameter for system. See ‘Units’ section below for more detail</td>
+</tr>
+<tr class="row-even"><td>rc</td>
+<td>float</td>
+<td>Potential cutoff radius. Contributions to force beyond this distance ignored</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="colwidths-auto docutils" id="id3">
+<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in .yaml file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Value Data Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>type</td>
+<td>string</td>
+<td>Name of desired thermostat to be used during equilibration phase. See &lt;link to initilization/equlibration page&gt; for a list of supported thermostats</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="colwidths-auto docutils" id="id4">
+<caption><span class="caption-text">Table for “Langevin” section key and value pairs in .yaml file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Value Data Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>type</td>
+<td>string</td>
+<td>Name of desired Langevin model to be used.</td>
+</tr>
+<tr class="row-odd"><td>gamma</td>
+<td>float</td>
+<td>Magnitude of Langevin ‘kick’</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="colwidths-auto docutils" id="id5">
+<caption><span class="caption-text">Table for “Control” section key and value pairs in .yaml file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Value Data Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>dt</td>
+<td>float</td>
+<td>Size of timestep used in both equilibration and production phases (e.g. 0.1)</td>
+</tr>
+<tr class="row-odd"><td>Neq</td>
+<td>int</td>
+<td>Number of equilibration steps (e.g. 1000)</td>
+</tr>
+<tr class="row-even"><td>Nstep</td>
+<td>int</td>
+<td>Number of production steps (e.g. 5000)</td>
+</tr>
+<tr class="row-odd"><td>BC</td>
+<td>string</td>
+<td>Type of boundary conditions on all edges of simulation cell. Currently, ‘periodic’ is only supported boundary condition</td>
+</tr>
+<tr class="row-even"><td>ptcls_init</td>
+<td>string (deprecated)</td>
+<td>Just leave as <cite>init</cite> and ignore</td>
+</tr>
+<tr class="row-odd"><td>writeout</td>
+<td>string</td>
+<td>Determines if .out file will be generated with positions, velocities, and accelerations for each particle during the extent of the simulation. Options are: ‘yes or no’</td>
+</tr>
+<tr class="row-even"><td>writexyz</td>
+<td>string</td>
+<td>Determines if .xyz file, following the ‘xyz’ formatting standarsds, will be generated during the extent of the simulation. Options are: ‘yes or no’</td>
+</tr>
+<tr class="row-odd"><td>dump_step</td>
+<td>int</td>
+<td>Number of steps between saving particle data</td>
+</tr>
+<tr class="row-even"><td>random_seed</td>
+<td>int (deprecated)</td>
+<td>Just leave as ‘1’ and ignore</td>
+</tr>
+<tr class="row-odd"><td>restart</td>
+<td>int</td>
+<td>Restarts the simulation using information from a previous run or from a text file. Options: 1 (yes) or 0 (no)</td>
+</tr>
+<tr class="row-even"><td>verbose</td>
+<td>string</td>
+<td>Writes simulation information to standard output. Options are yes or no</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
 <li>lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that <cite>Num</cite> must be a perfect cube if using this method.</li>
 <li>random_reject: Places particles down by sampling a uniform distribution and uses a rejection radius to avoid placing particles too close together.</li>
 <li>halton_reject: Places particles down according to a Halton sequence for a choice of bases in addition to using a rejection radius.</li>
 <li>random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.</li>
-</ul>
-</div></blockquote>
-</li>
-<li><p class="first">rand_seed: Random seed for random_reject initialization scheme.</p>
-</li>
-<li><p class="first">perturb (double): perturbation for particle at lattice point when using the <cite>lattice</cite> initialization scheme. Must be a value between 0 and 1. If 0, particles occupy the lattice points. If 1, particles are randomly perturbed 0.5 the lattice spacing.</p>
-</li>
-<li><p class="first">halton_bases: The bases used to define the halton sequence. See this <a href="#id1"><span class="problematic" id="id2">webpage__</span></a> for more information</p>
-</li>
-<li><p class="first">Gamma (double): Coulomb coupling parameter</p>
-</li>
-<li><p class="first">Kappa (double): Electron screening parameter</p>
-</li>
-<li><p class="first">rc (double): Cutoff radius for PP interactions</p>
-</li>
-<li><p class="first">gamma (double): Magnitude of Langevin random kick</p>
-</li>
-<li><p class="first">dt (double): Timestep</p>
-</li>
-<li><p class="first">Neq (int): Number of thermostat timesteps</p>
-</li>
-<li><p class="first">Nstep (int): Number of simulation timesteps</p>
-</li>
-<li><p class="first">BC (str): Boundary conditions - so far only have periodic</p>
-</li>
-<li><p class="first">ptcls_init (deprecated): just leave as <cite>init</cite> and ignore</p>
-</li>
-<li><p class="first">writeout (str): yes/no. Writes to an out file where first three columns are positions, next three velocity, and last 3 acceleration.</p>
-</li>
-<li><p class="first">writexyz (str): yes/no. Writes in xyz format</p>
-</li>
-<li><p class="first">dump_step (int): Save particle information after <cite>dump_step</cite> steps in simulation</p>
-</li>
-<li><p class="first">random_seed (int): Random seed for Langevin kick</p>
-</li>
-<li><p class="first">restart (int): 0/1 Restart simulation from input file</p>
-</li>
-<li><p class="first">verbose (str): yes/no Output simulation data as it is running.</p>
-</li>
 </ul>
 </div>
 <div class="section" id="units">
@@ -298,7 +415,7 @@ charge, and <span class="math notranslate nohighlight">\(T_{ij} = (T_i + T_j)/2\
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="todo.html" class="btn btn-neutral float-right" title="To-Do List" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Sarkas Documentaion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -310,7 +427,7 @@ charge, and <span class="math notranslate nohighlight">\(T_{ij} = (T_i + T_j)/2\
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Gautham Dharuman, Yongjun Choi, David Rimel, Luke Stanek, Michael S. Murillo
+        &copy; Copyright 2019, The Murillo Group at Michigan State University
 
     </p>
   </div>
@@ -367,6 +484,10 @@ charge, and <span class="math notranslate nohighlight">\(T_{ij} = (T_i + T_j)/2\
 	}
 	.wy-menu-vertical a:hover {
     background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
 }
   </style>
 

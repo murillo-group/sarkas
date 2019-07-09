@@ -15,7 +15,10 @@ their choosing.
    :caption: Contents:
    
    quickstart
+   tutorial
+   potentials
    todo
+
 
 Indices and tables
 ==================

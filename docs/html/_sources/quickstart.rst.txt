@@ -1,8 +1,8 @@
 
-Sarkas Quickstart
-=================
+Quickstart
+==========
 Before you can begin working with Sarkas, you will need to have python3 installed. A useful python 
-distribution that has many of the necessary packages for Sarkas is Anaconda. Anaconda can be downloaded here_.
+distribution that has many of the necessary packages for Sarkas is Anaconda which an be downloaded here_.
 
 .. _here: https://www.anaconda.com
 
@@ -52,36 +52,69 @@ Input files
 ~~~~~~~~~~~
 Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the `yaml.inp` file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example. 
 
-Example yaml.inp file
-~~~~~~~~~~~~~~~~~~~~~~~
+Using the input file
+~~~~~~~~~~~~~~~~~~~~
 To specify you simulation parameters, open the `yaml.inp` file in your text editor and alter the values to
-the right of the keywords. Below is a description of what each keyword is used for in Sarkas. 
+the right of the keywords. Below is a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: `https://learn.getgrav.org/16/advanced/yaml`.
 
-* Num (int): The number of particles
-* method (string): Particle position initialization schemes. So far the options are
 
-   * lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that `Num` must be a perfect cube if using this method.
-   * random_reject: Places particles down by sampling a uniform distribution and uses a rejection radius to avoid placing particles too close together.
-   * halton_reject: Places particles down according to a Halton sequence for a choice of bases in addition to using a rejection radius.
-   * random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.
-* rand_seed: Random seed for random_reject initialization scheme.
-* perturb (double): perturbation for particle at lattice point when using the `lattice` initialization scheme. Must be a value between 0 and 1. If 0, particles occupy the lattice points. If 1, particles are randomly perturbed 0.5 the lattice spacing. 
-* halton_bases: The bases used to define the halton sequence. See this webpage__ for more information
-* Gamma (double): Coulomb coupling parameter
-* Kappa (double): Electron screening parameter
-* rc (double): Cutoff radius for PP interactions
-* gamma (double): Magnitude of Langevin random kick
-* dt (double): Timestep
-* Neq (int): Number of thermostat timesteps
-* Nstep (int): Number of simulation timesteps
-* BC (str): Boundary conditions - so far only have periodic
-* ptcls_init (deprecated): just leave as `init` and ignore
-* writeout (str): yes/no. Writes to an out file where first three columns are positions, next three velocity, and last 3 acceleration.
-* writexyz (str): yes/no. Writes in xyz format
-* dump_step (int): Save particle information after `dump_step` steps in simulation
-* random_seed (int): Random seed for Langevin kick
-* restart (int): 0/1 Restart simulation from input file
-* verbose (str): yes/no Output simulation data as it is running.
+.. csv-table:: Table for "Load" section key and value pairs in .yaml file
+   :header: "Key", "Value Data Type", "Description"
+   :widths: auto
+
+   "species_name", "string", "Name for particle species (e.g. ion1, C, etc.)"
+   "Num", "int", "Number of particles for desired species (eg. 500)"
+   "method", "string", "Particle position initialization schemes"
+   "rand_seed", "int", "Random seed for random_reject and lattice initialization schemes"
+   "r_reject", "float", "Rejection radius for 'random_reject' and 'halton' initilization schemes. (e.g, 0.1, 1e-2, 1, etc.)"
+   "perturb", "float", "Perturbation for particle at lattice point for 'lattice' initialization scheme. Must be between 0 and 1."
+   "halton_bases", "python list", "List of 3 numbers to be used as the 'bases' for the 'halton_reject' initialization scheme."
+
+.. csv-table:: Table for "Potential" section key and value pairs in .yaml file
+   :header: "Key", "Value Data Type", "Description"
+   :widths: auto
+
+   "type", "string", "Name of desired potential. See <link to potentials page> for a list of supported potentials"
+   "algorithm", "string", "Specify algorithm used. See <link to algorithms page> for a list of supported algorithms"
+   "kappa", "float", "Electron screening length. See 'Units' section below for more detail"
+   "gamma", "float", "Coulomb coupling parameter for system. See 'Units' section below for more detail"
+   "rc", "float", "Potential cutoff radius. Contributions to force beyond this distance ignored"
+
+.. csv-table:: Table for "Thermostat" section key and value pairs in .yaml file
+   :header: "Key", "Value Data Type", "Description"
+   :widths: auto
+
+   "type", "string", "Name of desired thermostat to be used during equilibration phase. See <link to initilization/equlibration page> for a list of supported thermostats"
+
+.. csv-table:: Table for "Langevin" section key and value pairs in .yaml file
+   :header: "Key", "Value Data Type", "Description"
+   :widths: auto
+
+   "type", "string", "Name of desired Langevin model to be used."
+   "gamma", "float", "Magnitude of Langevin 'kick'"
+
+.. csv-table:: Table for "Control" section key and value pairs in .yaml file
+   :header: "Key", "Value Data Type", "Description"
+   :widths: auto
+
+   "dt", "float", "Size of timestep used in both equilibration and production phases (e.g. 0.1)"
+   "Neq", "int", "Number of equilibration steps (e.g. 1000)"
+   "Nstep", "int", "Number of production steps (e.g. 5000)"
+   "BC", "string", "Type of boundary conditions on all edges of simulation cell. Currently, 'periodic' is only supported boundary condition"
+   "ptcls_init", "string (deprecated)", "Just leave as `init` and ignore"
+   "writeout", "string", "Determines if .out file will be generated with positions, velocities, and accelerations for each particle during the extent of the simulation. Options are: 'yes or no'"
+   "writexyz", "string", "Determines if .xyz file, following the 'xyz' formatting standarsds, will be generated during the extent of the simulation. Options are: 'yes or no'"
+   "dump_step", "int", "Number of steps between saving particle data"
+   "random_seed", "int (deprecated)", "Just leave as '1' and ignore"
+   "restart", "int", "Restarts the simulation using information from a previous run or from a text file. Options: 1 (yes) or 0 (no)"
+   "verbose", "string", "Writes simulation information to standard output. Options are yes or no"
+
+
+* lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that `Num` must be a perfect cube if using this method.
+* random_reject: Places particles down by sampling a uniform distribution and uses a rejection radius to avoid placing particles too close together.
+* halton_reject: Places particles down according to a Halton sequence for a choice of bases in addition to using a rejection radius.
+* random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.
+
 
 .. _webpage: test.com
 
