@@ -6,13 +6,13 @@ import fdint
 import S_global_names as glb
 import S_constants as const
 
-#@nb.autojit
+@nb.jit
 def init_parameters():
     l = 1 #lambda parameter (1 or 1/9 in egs paper)
     k = const.kb
-    e = const.eCharge
+    e = const.elec_charge
     hbar = const.hbar
-    m_e = const.eMass
+    m_e = const.elec_mass
     e_0 = const.eps_0
     T  = glb.Te
     Zi = glb.Zi

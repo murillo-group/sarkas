@@ -8,7 +8,7 @@ import S_pp_EGS as pp_EGS
 import S_global_names as glb
 import S_constants as const
 
-def force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+def force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
     N = glb.N
     G = glb.G
     af = glb.af
@@ -16,8 +16,20 @@ def force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p
     Zi = glb.Zi
     q1 = glb.q1
     q2 = glb.q2
-    mi = const.pMass
+    mi = const.proton_mass
+    G_k = glb.G_k
+    kx_v = glb.kx_v
+    ky_v = glb.ky_v
+    kz_v = glb.kz_v
     p3m = glb.p3m_flag
+
+
+
+
+
+
+
+
     acc_s_r.fill(0.0)
     acc_fft.fill(0.0)
     

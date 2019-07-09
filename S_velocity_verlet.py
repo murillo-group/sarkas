@@ -4,7 +4,7 @@ import S_p3m as p3m
 import S_global_names as glb
 import S_constants as const
 
-def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+def update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
     dt = glb.dt
     N = glb.N
     d = glb.d
@@ -12,8 +12,12 @@ def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x
     PBC = glb.PBC
     Lmax_v = glb.Lmax_v
     Lmin_v = glb.Lmin_v
+    G_k = glb.G_k
+    kx_v = glb.kx_v
+    ky_v = glb.ky_v
+    kz_v = glb.kz_v
+
     vel = vel + 0.5*acc*dt
-    
     pos = pos + vel*dt
     
     # periodic boundary condition
@@ -26,12 +30,12 @@ def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x
                 if pos[i,p] < Lmin_v[p]:
                     pos[i,p] = pos[i,p] + Lv[p]
         
-    U, acc = p3m.force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    U, acc = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
     vel = vel + 0.5*acc*dt
 
     return pos, vel, acc, U
 
-def update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+def update_Langevin(pos, vel, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
     dt = glb.dt
     g = glb.g_0
     Gamma = glb.Gamma
@@ -41,10 +45,14 @@ def update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, r
     PBC = glb.PBC
     N = glb.N
     d = glb.d
+    G_k = glb.G_k
+    kx_v = glb.kx_v
+    ky_v = glb.ky_v
+    kz_v = glb.kz_v
 
     rtdt = np.sqrt(dt)
 
-    sig = np.sqrt(2. * g*const.kb*glb.T_desired/const.pMass)
+    sig = np.sqrt(2. * g*const.kb*glb.T_desired/const.proton_mass)
     if(glb.units == "Yukawa"):
         sig = np.sqrt(2. * g/(3*Gamma))
 
@@ -65,7 +73,7 @@ def update_Langevin(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, r
                     pos[i,p] = pos[i,p] + Lv[p]
         
     
-    U, acc_new = p3m.force_pot(pos, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    U, acc_new = p3m.force_pot(pos, acc, Z)
     
     vel = c1*c2*vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
     acc = acc_new

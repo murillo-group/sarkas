@@ -3,5 +3,8 @@
 *.xyz
 *.pdf
 *~
+*.swo
 *.swp
 *.npy
+*.npz
+Checkpoint

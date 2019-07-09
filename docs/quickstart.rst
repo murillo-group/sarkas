@@ -116,8 +116,6 @@ the right of the keywords. Below is a description of what each keyword is used f
 * random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.
 
 
-.. _webpage: test.com
-
 Units
 ~~~~~
 Currently, Sarkas uses Yukawa units to specify the system the user wants to simulate. For example,

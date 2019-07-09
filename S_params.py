@@ -13,14 +13,18 @@ load - particles loading described in Species
     species_name: should be one of names in Species
     Num: number of particles of the species to load
     number_density: number density of the species
+    method: particle loading method. Files, restart file mathemathical mehtods.
 
-potential - Two body potential 
+potential - Two body potential
     type: potential type. Yukawa, EGS are available
     Gamma: plasma prameter Gamma
     kappa: plasma parameter kappa
 
-thermostat - Thermostat to equilibrize the system
+Thermostat - Thermostat to equilibrize the system
     type: Thermostat type. Only Berendsen for now.
+
+Integrator
+    type: Verlet only.
 
 Langevin
     type: Langevin model type. Only BBK for now.
@@ -32,18 +36,18 @@ control - general setup values for the simulations
     BC: Boundary condition. periodic only
     units: cgs, mks, Yukawa
     dump_step: output step
-    seed: random number seed for particles' positions and velocities
-    restart: restart the simulation from this step. Not yet implemented.
 '''
 
 import yaml
 import numpy as np
 
+
 class Params:
     def __init__(self):
-        self.species = [] 
-        self.potential = [] 
+        self.species = []
+        self.potential = []
         self.load = []
+        self.Integrator = []
         self.Langevin = []
         self.thermostat = []
         self.control = []
@@ -61,6 +65,7 @@ class Params:
             self.Num = None
             self.np = None
             self.method = None
+            self.restart_step = None
 
     class plasma_potential:
         def __init__(self):
@@ -69,6 +74,10 @@ class Params:
             self.kappa = None
 
     class md_thermostat:
+        def __init__(self):
+            self.type = None
+
+    class md_Integrator:
         def __init__(self):
             self.type = None
 
@@ -83,12 +92,21 @@ class Params:
             self.Neq = None
             self.Nstep = None
             self.BC = None
-            self.units= None
-            self.dump_step = None
-            self.seed = None
-            self.restart = None 
+            self.units = None
+            self.dump_step = 1
 
     def setup(self, filename):
+        # default thermostat and integrator
+        md_thermostat = self.md_thermostat()
+        self.thermostat.append(md_thermostat)
+        ic = len(self.thermostat) - 1
+        self.thermostat[0].type = "Berendsen"
+
+        md_Integrator = self.md_Integrator()
+        self.Integrator.append(md_Integrator)
+        ic = len(self.Integrator) - 1
+        self.Integrator[0].type = "Verlet"
+
         with open(filename, 'r') as stream:
             dics = yaml.load(stream)
 
@@ -129,15 +147,15 @@ class Params:
 
                             if(key == 'method'):
                                 self.load[ic].method = value
-                                # print(self.load[ic].method)
-                            
+
+                            if(key == 'restart_step'):
+                                self.load[ic].restart_step = value
+
                             if(key == 'r_reject'):
                                 self.load[ic].r_reject = float(value)
-                                # print(self.load[ic].r_reject)
 
                             if(key == 'perturb'):
                                 self.load[ic].perturb = float(value)
-                                # print(self.load[ic].perturb)
 
                             if(key == 'rand_seed'):
                                 self.load[ic].rand_seed = value
@@ -174,6 +192,14 @@ class Params:
                             if(key == 'type'):
                                 self.thermostat[0].type = value
 
+                    if(key == 'Integrator'):
+                        md_Integrator = self.md_Integrator()
+                        self.Integrator.append(md_Integrator)
+                        ic = len(self.Integrator) - 1
+                        for key, value in value.items():
+                            if(key == 'type'):
+                                self.Integrator[0].type = value
+
                     if(key == 'Langevin'):
                         md_Langevin = self.md_Langevin()
                         self.Langevin.append(md_Langevin)
@@ -191,7 +217,7 @@ class Params:
                         for key, value in value.items():
                             if(key == 'dt'):
                                 self.control[0].dt = value
-    
+
                             if(key == 'Nstep'):
                                 self.control[0].Nstep = int(value)
 
@@ -213,27 +239,14 @@ class Params:
                                 if(value == "file"):
                                     self.control[0].init = 1
 
-                            if(key == "writeout"):
-                                if(value == False):
-                                    self.control[0].writeout = 0
-                                if(value == True):
-                                    self.control[0].writeout = 1
-
                             if(key == "writexyz"):
-                                if(value == False):
+                                if(value is False):
                                     self.control[0].writexyz = 0
-                                if(value == True):
+                                if(value is True):
                                     self.control[0].writexyz = 1
 
-                            if(key == 'random_seed'):
-                                self.control[0].seed = int(value)
-
-                            if(key == 'restart'):
-                                self.control[0].restart = value
-
                             if(key == 'verbose'):
-                                if(value == False):
+                                if(value is False):
                                     self.control[0].verbose = 0
-                                if(value == True):
+                                if(value is True):
                                     self.control[0].verbose = 1
-

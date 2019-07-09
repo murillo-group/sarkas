@@ -5,7 +5,7 @@ Region:
 
   - Load:
       species_name: ion1
-      Num: 216
+      Num: 261
       method: random_reject
       rand_seed: 1
       r_reject: 1e-2
@@ -19,6 +19,9 @@ Region:
       Gamma: 1000
       rc: 1.8
 
+  - Integrator:
+      type: Verlet
+
   - Thermostat:
       type: Berendsen
 
@@ -29,13 +32,9 @@ Region:
   - Control:
       dt: 0.1
       Neq: 100
-      Nstep: 300
+      Nstep: 400 
       BC: periodic
       units: Yukawa
-      ptcls_init: random
-      writeout: yes
       writexyz: no
-      dump_step: 1
-      random_seed: 1
-      restart: 0
       verbose: yes
+
