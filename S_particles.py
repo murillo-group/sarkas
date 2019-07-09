@@ -281,9 +281,10 @@ class particles:
 
         # Create a lattice with approprate x, y, and z values based on arange
         X, Y, Z = np.meshgrid(x,y,z)
+        
         # Random seed
-        # print('Random number generator using rand_seed = {}'.format(self.rand_seed))
-        np.random.seed(1) # Seed for random number generator
+        print('Random number generator using rand_seed = {}'.format(rand_seed))
+        np.random.seed(rand_seed) # Seed for random number generator
         
         # Perturb lattice
         X +=  np.random.uniform(-0.5, 0.5, np.shape(X)) * perturb * d_lattice
@@ -334,6 +335,9 @@ class particles:
         Updates: N/A
 
         '''
+
+        # Set random seed
+        np.random.seed(rand_seed)
         
         # Determine box side length
         L = (4 * np.pi * N/3)**(1/3)
@@ -468,9 +472,6 @@ class particles:
         # Initialize particle counter and Halton counter
         i = 1
         k = 1
-        
-        # Counter for bad placements
-        bad_count = 0
 
         # Start timer
         start = time.time() # Start timer for placing particles
@@ -542,7 +543,6 @@ class particles:
 
                 # Check if new particle is below rejection radius. If not, break out and try again
                 if r <= r_reject:
-                    bad_count += 1
                     k += 1 # Increment Halton counter
                     flag = 0 # New position not added (0 -> no longer outside reject r)
                     break
