@@ -56,17 +56,13 @@ if(glb.potential_type == glb.EGS):
 
 time_stamp[its] = time.time(); its += 1
 
-# Particle positions and velocities array
-pos = np.zeros((glb.N, glb.d))
-vel = np.zeros_like(pos)
-acc = np.zeros_like(pos)
 
 #######################
 # these varaibles shold be in FFT or force part. Will be moved soon!
 Z = np.ones(glb.N)
 
-acc_s_r = np.zeros_like(pos)
-acc_fft = np.zeros_like(pos)
+acc_s_r = np.zeros((glb.N, glb.d))
+acc_fft = np.zeros_like(acc_s_r)
 
 rho_r = np.zeros((glb.Mz, glb.My, glb.Mx))
 E_x_p = np.zeros(glb.N)
@@ -99,14 +95,14 @@ N = total_num_ptcls
 
 # Initializing particle positions and velocities
 ptcls = particles(params, total_num_ptcls)
-pos, vel = ptcls.load(glb, total_num_ptcls)
+ptcls.load(glb, total_num_ptcls)
 
 time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
-U, acc = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+U, ptcls.acc = p3m.force_pot(ptcls.pos, ptcls.acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
-K = 0.5*glb.mi*np.ndarray.sum(vel**2)
+K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
 Tp = (2/3)*K/float(N)/const.kb
 if(glb.units == "Yukawa"):
     K *= 3
@@ -117,8 +113,8 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
-        pos, vel, acc, U = thermostat.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-        K = 0.5*glb.mi*np.ndarray.sum(vel**2)
+        ptcls.pos, ptcls.vel, ptcls.acc, U = thermostat.update(ptcls.pos, ptcls.vel, ptcls.acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
         Tp = (2/3)*K/float(N)/const.kb
         if(glb.units == "Yukawa"):
             K *= 3
@@ -143,9 +139,9 @@ else:
 
 for it in range(it_start, Nt):
 
-    pos, vel, acc, U = integrator.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    ptcls.pos, ptcls.vel, ptcls.acc, U = integrator.update(ptcls.pos, ptcls.vel, ptcls.acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
-    K = 0.5*glb.mi*np.ndarray.sum(vel**2)
+    K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
     Tp = (2/3)*K/float(N)/const.kb
     if(glb.units == "Yukawa"):
         K *= 3.
@@ -161,16 +157,16 @@ for it in range(it_start, Nt):
 
     # writing particle positions and velocities to file
     if(it % params.control[0].dump_step == 0):
-        checkpoint.dump(pos, vel, acc, it)
+        checkpoint.dump(ptcls.pos, ptcls.vel, ptcls.acc, it)
 
     # Spatial Fourier transform
     # will be move to observable class
-    if(1):
+    if(0):
         for iqv in range(glb.Nq):
             q_p = qv[iqv]
-            n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*pos[:, 0]))
-            n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*pos[:, 1]))
-            n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*pos[:, 2]))
+            n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 0]))
+            n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 1]))
+            n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 2]))
 
     np.savetxt(f_output_E, t_Tp_E_K_U2)
 
@@ -187,7 +183,7 @@ f_output_E.close()
 f_xyz.close()
 
 # saving last positions, velocities and accelerations
-checkpoint.dump(pos, vel, acc, Nt)
+checkpoint.dump(ptcls.pos, ptcls.vel, ptcls.acc, Nt)
 
 time_stamp[its] = time.time(); its += 1
 

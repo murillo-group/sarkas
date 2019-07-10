@@ -23,13 +23,6 @@ def force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
     kz_v = glb.kz_v
     p3m = glb.p3m_flag
 
-
-
-
-
-
-
-
     acc_s_r.fill(0.0)
     acc_fft.fill(0.0)
     
