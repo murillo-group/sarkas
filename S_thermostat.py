@@ -37,13 +37,13 @@ class thermostat:
             sys.exit()
 
     def update(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
-        ptcls, U = self.type(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-        return ptcls, U
+        U = self.type(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        return U
 
     def Berendsen(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         T_desired = self.glb_vars.T_desired
 
-        ptcls, U = self.integrator(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U = self.integrator(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         mi = const.proton_mass
         K = self.kf*mi*np.ndarray.sum(ptcls.vel**2)
         T = K/self.kf/float(self.glb_vars.N)/const.kb
@@ -59,4 +59,4 @@ class thermostat:
             fact = np.sqrt((20.0*T_desired/T-1.0)/20.0)
             ptcls.vel = ptcls.vel*fact
 
-        return ptcls, U
+        return U

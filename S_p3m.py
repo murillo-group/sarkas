@@ -65,4 +65,4 @@ def force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         if(glb.units =="mks"):
           U /= (4*np.pi*const.eps_0)
     #    print('U_short, U_long, U_self =', [U_short, U_fft, U_self])
-    return ptcls, U
+    return U

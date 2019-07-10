@@ -106,12 +106,12 @@ class integrator:
                         ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         # Compute total potential energy and accleration for second half step velocity update                 
-        ptcls, U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         
         # Second half step velocity update
         ptcls.vel = ptcls.vel + 0.5*ptcls.acc*dt
 
-        return ptcls, U
+        return U
 
     def Verlet_with_Langevin(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         dt = self.glb_vars.dt
@@ -146,10 +146,10 @@ class integrator:
                         ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         acc = ptcls.acc
-        ptcls, U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         acc_new = ptcls.acc
         ptcls.vel = c1*c2*ptcls.vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
-        return ptcls, U
+        return U
 
     def RK45(self):
         pass
