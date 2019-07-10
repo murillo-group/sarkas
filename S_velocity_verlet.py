@@ -5,6 +5,43 @@ import S_global_names as glb
 import S_constants as const
 
 def update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    ''' Update particle position and velocity based on velocity verlet method.
+    More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration
+    or on the Sarkas website. 
+    
+    Parameters
+    ----------
+    pos : array_like
+        Positions of particles
+    
+    vel : array_like
+        Velocities of particles
+        
+    acc : array_like
+        Accelerations of particles
+    
+    it : THIS DOES NOT GET USED IN THIS FILE...
+    
+    Z : float
+        Ionization?
+    
+    Returns
+    -------
+    pos : array_like
+        Updated positions of particles
+        
+    vel : array_like
+        Updated velocities of particles
+        
+    acc : array_like
+        Updated accelerations of particles
+    
+    U : float
+        Total potential energy
+        
+    '''
+    
+    # Import global parameters (is there a better way to do this?)
     dt = glb.dt
     N = glb.N
     d = glb.d
@@ -17,20 +54,33 @@ def update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
     ky_v = glb.ky_v
     kz_v = glb.kz_v
 
+    # First half step velocity update
     vel = vel + 0.5*acc*dt
+    
+    # Full step position update
     pos = pos + vel*dt
     
-    # periodic boundary condition
+    # Periodic boundary conditions
     if PBC == 1:
+        
+        # Loop over all particles
         for i in np.arange(N):
+            
+            # Loop over dimensions (x=0, y=1, z=2)
             for p in np.arange(d):
         
+                # If particle is outside of box in positive direction, wrap to negative side
                 if pos[i,p] > Lmax_v[p]:
                     pos[i,p] = pos[i,p] - Lv[p]
+                    
+                # If particle is outside of box in negative direction, wrap to positive side
                 if pos[i,p] < Lmin_v[p]:
                     pos[i,p] = pos[i,p] + Lv[p]
-        
+                    
+    # Compute total potential energy and accleration for second half step velocity update 
     U, acc = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    
+    # Second half step velocity update
     vel = vel + 0.5*acc*dt
 
     return pos, vel, acc, U
