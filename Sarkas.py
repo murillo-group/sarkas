@@ -98,7 +98,7 @@ ptcls.load(glb, total_num_ptcls)
 time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
-ptcls, U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
 K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
 Tp = (2/3)*K/float(N)/const.kb
@@ -111,7 +111,7 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
-        ptcls, U = thermostat.update(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U = thermostat.update(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
         Tp = (2/3)*K/float(N)/const.kb
         if(glb.units == "Yukawa"):
@@ -137,7 +137,7 @@ else:
 
 for it in range(it_start, Nt):
 
-    ptcls, U = integrator.update(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    U = integrator.update(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
     K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
     Tp = (2/3)*K/float(N)/const.kb
@@ -159,7 +159,7 @@ for it in range(it_start, Nt):
 
     # Spatial Fourier transform
     # will be move to observable class
-    if(0):
+    if(1):
         for iqv in range(glb.Nq):
             q_p = qv[iqv]
             n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 0]))
