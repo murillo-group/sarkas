@@ -8,7 +8,7 @@ import S_pp_EGS as pp_EGS
 import S_global_names as glb
 import S_constants as const
 
-def force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+def force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
     N = glb.N
     G = glb.G
     af = glb.af
@@ -37,26 +37,26 @@ def force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
 #        U_short, acc_s_r = pp_EGS.particle_particle(pos,acc_s_r)
 #    else: 
     if(glb.potential_type == glb.EGS):
-        U_short, acc_s_r = pp_EGS.particle_particle(pos,acc_s_r)
+        U_short, acc_s_r = pp_EGS.particle_particle(ptcls.pos, acc_s_r)
     else:
-        U_short, acc_s_r = pp_yukawa.particle_particle(pos,acc_s_r)
+        U_short, acc_s_r = pp_yukawa.particle_particle(ptcls.pos, acc_s_r)
 
     if(p3m == 1):  # PM
-        U_fft, acc_fft = pm.particle_mesh_fft_r(pos, Z, G_k, kx_v, ky_v, kz_v, rho_r, acc_fft, E_x_p,E_y_p, E_z_p)
-        acc = af*(acc_s_r + acc_fft)
+        U_fft, acc_fft = pm.particle_mesh_fft_r(ptcls.pos, Z, G_k, kx_v, ky_v, kz_v, rho_r, acc_fft, E_x_p,E_y_p, E_z_p)
+        ptcls.acc = af*(acc_s_r + acc_fft)
         U_self = -glb.N*glb.G/np.sqrt(np.pi)
         U = uf*(U_short + U_fft + U_self)
 #        print('U_short, U_long, U_self =', [U_short, U_fft, U_self])
 
     else:
         if(glb.units == "Yukawa"):
-            acc = af*(acc_s_r)
+            ptcls.acc = af*(acc_s_r)
             #acc *= af
         else:
-            acc = af*(acc_s_r)*(3*q1*q2/mi)
+            ptcls.acc = af*(acc_s_r)*(3*q1*q2/mi)
 
         if(glb.units == "mks"):
-            acc /= (4*np.pi*const.eps_0)
+            ptcls.acc /= (4*np.pi*const.eps_0)
 
         U_fft = 0
         U_self = 0.
@@ -65,4 +65,4 @@ def force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         if(glb.units =="mks"):
           U /= (4*np.pi*const.eps_0)
     #    print('U_short, U_long, U_self =', [U_short, U_fft, U_self])
-    return U, acc
+    return ptcls, U

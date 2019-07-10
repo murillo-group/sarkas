@@ -50,12 +50,10 @@ thermostat = thermostat(params, glb)
 Nt = params.control[0].Nstep    # number of time steps
 time_stamp[its] = time.time(); its += 1
 
-
 if(glb.potential_type == glb.EGS):
     EGS.init_parameters()
 
 time_stamp[its] = time.time(); its += 1
-
 
 #######################
 # these varaibles shold be in FFT or force part. Will be moved soon!
@@ -100,7 +98,7 @@ ptcls.load(glb, total_num_ptcls)
 time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
-U, ptcls.acc = p3m.force_pot(ptcls.pos, ptcls.acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+ptcls, U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
 K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
 Tp = (2/3)*K/float(N)/const.kb
@@ -113,7 +111,7 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
-        ptcls.pos, ptcls.vel, ptcls.acc, U = thermostat.update(ptcls.pos, ptcls.vel, ptcls.acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        ptcls, U = thermostat.update(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
         Tp = (2/3)*K/float(N)/const.kb
         if(glb.units == "Yukawa"):
@@ -139,7 +137,7 @@ else:
 
 for it in range(it_start, Nt):
 
-    ptcls.pos, ptcls.vel, ptcls.acc, U = integrator.update(ptcls.pos, ptcls.vel, ptcls.acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    ptcls, U = integrator.update(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
 
     K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
     Tp = (2/3)*K/float(N)/const.kb

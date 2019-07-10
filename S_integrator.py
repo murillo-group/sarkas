@@ -33,7 +33,7 @@ class integrator:
             print("Only Verlet integrator is supported. Check your input file, integrator part.")
             sys.exit()
 
-    def Verlet(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    def Verlet(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         ''' Update particle position and velocity based on velocity verlet method.
         More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration
         or on the Sarkas website. 
@@ -84,10 +84,10 @@ class integrator:
         Lmin_v = self.glb_vars.Lmin_v
 
         # First half step velocity update
-        vel = vel + 0.5*acc*dt
+        ptcls.vel = ptcls.vel + 0.5*ptcls.acc*dt
         
         # Full step position update
-        pos = pos + vel*dt
+        ptcls.pos = ptcls.pos + ptcls.vel*dt
 
         # Periodic boundary condition
         if PBC == 1:
@@ -98,22 +98,22 @@ class integrator:
                 for p in np.arange(d):
                     
                     # If particle is outside of box in positive direction, wrap to negative side
-                    if pos[i, p] > Lmax_v[p]:
-                        pos[i, p] = pos[i, p] - Lv[p]
+                    if ptcls.pos[i, p] > Lmax_v[p]:
+                        ptcls.pos[i, p] = ptcls.pos[i, p] - Lv[p]
                     
                     # If particle is outside of box in negative direction, wrap to positive side
-                    if pos[i, p] < Lmin_v[p]:
-                        pos[i, p] = pos[i, p] + Lv[p]
+                    if ptcls.pos[i, p] < Lmin_v[p]:
+                        ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         # Compute total potential energy and accleration for second half step velocity update                 
-        U, acc = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        ptcls, U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
         
         # Second half step velocity update
-        vel = vel + 0.5*acc*dt
+        ptcls.vel = ptcls.vel + 0.5*ptcls.acc*dt
 
-        return pos, vel, acc, U
+        return ptcls, U
 
-    def Verlet_with_Langevin(self, pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    def Verlet_with_Langevin(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
         dt = self.glb_vars.dt
         g = self.glb_vars.g_0
         Gamma = self.glb_vars.Gamma
@@ -134,21 +134,22 @@ class integrator:
         c2 = 1./(1. + 0.5*g*dt)
         beta = np.random.normal(0., 1., 3*N).reshape(N, 3)
 
-        pos = pos + c1*dt*vel + 0.5*dt**2*acc + 0.5*sig*dt**1.5*beta
+        ptcls.pos = ptcls.pos + c1*dt*ptcls.vel + 0.5*dt**2*ptcls.acc + 0.5*sig*dt**1.5*beta
 
         # periodic boundary condition
         if PBC == 1:
             for i in np.arange(N):
                 for p in np.arange(d):
-                    if pos[i, p] > Lmax_v[p]:
-                        pos[i, p] = pos[i, p] - Lv[p]
-                    if pos[i, p] < Lmin_v[p]:
-                        pos[i, p] = pos[i, p] + Lv[p]
+                    if ptcls.pos[i, p] > Lmax_v[p]:
+                        ptcls.pos[i, p] = ptcls.pos[i, p] - Lv[p]
+                    if ptcls.pos[i, p] < Lmin_v[p]:
+                        ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
-        U, acc_new = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-        vel = c1*c2*vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
-        acc = acc_new
-        return pos, vel, acc, U
+        acc = ptcls.acc
+        ptcls, U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        acc_new = ptcls.acc
+        ptcls.vel = c1*c2*ptcls.vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
+        return ptcls, U
 
     def RK45(self):
         pass
