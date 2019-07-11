@@ -33,38 +33,17 @@ class integrator:
             print("Only Verlet integrator is supported. Check your input file, integrator part.")
             sys.exit()
 
-    def Verlet(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    def Verlet(self, ptcls):
         ''' Update particle position and velocity based on velocity verlet method.
         More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration
         or on the Sarkas website. 
     
         Parameters
         ----------
-        pos : array_like
-            Positions of particles
-
-        vel : array_like
-            Velocities of particles
-
-        acc : array_like
-            Accelerations of particles
-
-        it : THIS DOES NOT GET USED IN THIS FILE...
-
-        Z : float
-            Ionization?
+        ptlcs: particles data. See S_particles.py for the detailed information
 
         Returns
         -------
-        pos : array_like
-            Updated positions of particles
-
-        vel : array_like
-            Updated velocities of particles
-
-        acc : array_like
-            Updated accelerations of particles
-
         U : float
             Total potential energy
         '''
@@ -106,14 +85,14 @@ class integrator:
                         ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         # Compute total potential energy and accleration for second half step velocity update                 
-        U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U = p3m.force_pot(ptcls)
         
         # Second half step velocity update
         ptcls.vel = ptcls.vel + 0.5*ptcls.acc*dt
 
         return U
 
-    def Verlet_with_Langevin(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    def Verlet_with_Langevin(self, ptcls):
         dt = self.glb_vars.dt
         g = self.glb_vars.g_0
         Gamma = self.glb_vars.Gamma
@@ -146,7 +125,7 @@ class integrator:
                         ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         acc = ptcls.acc
-        U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U = p3m.force_pot(ptcls)
         acc_new = ptcls.acc
         ptcls.vel = c1*c2*ptcls.vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
         return U
