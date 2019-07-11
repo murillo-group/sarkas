@@ -57,15 +57,6 @@ time_stamp[its] = time.time(); its += 1
 
 #######################
 # these varaibles shold be in FFT or force part. Will be moved soon!
-Z = np.ones(glb.N)
-
-acc_s_r = np.zeros((glb.N, glb.d))
-acc_fft = np.zeros_like(acc_s_r)
-
-rho_r = np.zeros((glb.Mz, glb.My, glb.Mx))
-E_x_p = np.zeros(glb.N)
-E_y_p = np.zeros(glb.N)
-E_z_p = np.zeros(glb.N)
 
 # this variable will be moved to observable class
 n_q_t = np.zeros((glb.Nt, glb.Nq, 3), dtype="complex128")
@@ -98,7 +89,7 @@ ptcls.load(glb, total_num_ptcls)
 time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
-U = p3m.force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+U = p3m.force_pot(ptcls)
 
 K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
 Tp = (2/3)*K/float(N)/const.kb
@@ -111,7 +102,7 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
-        U = thermostat.update(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U = thermostat.update(ptcls, it)
         K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
         Tp = (2/3)*K/float(N)/const.kb
         if(glb.units == "Yukawa"):
@@ -137,7 +128,7 @@ else:
 
 for it in range(it_start, Nt):
 
-    U = integrator.update(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    U = integrator.update(ptcls)
 
     K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
     Tp = (2/3)*K/float(N)/const.kb
