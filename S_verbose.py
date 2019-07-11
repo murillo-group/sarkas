@@ -7,7 +7,7 @@ from inspect import currentframe, getframeinfo
 import time
 
 
-class verbose:
+class Verbose:
     def __init__(self, params, glb):
         print("Sarkas Ver. 1.0")
         self.params = params

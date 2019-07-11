@@ -7,12 +7,12 @@ import numpy as np
 import sys
 
 import S_constants as const
-from S_integrator import integrator
+from S_integrator import Integrator
 
 
-class thermostat:
+class Thermostat:
     def __init__(self, params, glb):
-        self.integrator = integrator(params, glb)
+        self.integrator = Integrator(params, glb)
 
         self.params = params
         self.glb_vars = glb

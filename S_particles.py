@@ -17,7 +17,7 @@ import sys
 
 DEBUG = 0
 
-class particles:
+class Particles:
     def __init__(self, params, total_num_part):
         N = total_num_part
         self.params = params

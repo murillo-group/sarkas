@@ -16,7 +16,7 @@ import S_constants as const
 import S_yukawa_gf_opt as yukawa_gf_opt
 
 
-class integrator:
+class Integrator:
     def __init__(self, params, glb):
         self.params = params
         self.glb_vars = glb

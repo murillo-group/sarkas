@@ -52,14 +52,14 @@ class Params:
         self.thermostat = []
         self.control = []
 
-    class species_spec:
+    class Species_spec:
         def __init__(self):
             self.name = None
             self.mass = None
             self.charge = None
             self.T0 = None
 
-    class species_load:
+    class Species_load:
         def __init__(self):
             self.species_name = None
             self.Num = None
@@ -67,26 +67,26 @@ class Params:
             self.method = None
             self.restart_step = None
 
-    class plasma_potential:
+    class Plasma_potential:
         def __init__(self):
             self.type = None
             self.Gamma = None
             self.kappa = None
 
-    class md_thermostat:
+    class MD_thermostat:
         def __init__(self):
             self.type = None
 
-    class md_Integrator:
+    class MD_integrator:
         def __init__(self):
             self.type = None
 
-    class md_Langevin:
+    class MD_Langevin:
         def __init__(self):
             self.type = None
             self.gamma = None
 
-    class md_control:
+    class MD_control:
         def __init__(self):
             self.dt = None
             self.Neq = None
@@ -97,12 +97,12 @@ class Params:
 
     def setup(self, filename):
         # default thermostat and integrator
-        md_thermostat = self.md_thermostat()
+        md_thermostat = self.MD_thermostat()
         self.thermostat.append(md_thermostat)
         ic = len(self.thermostat) - 1
         self.thermostat[0].type = "Berendsen"
 
-        md_Integrator = self.md_Integrator()
+        md_Integrator = self.MD_integrator()
         self.Integrator.append(md_Integrator)
         ic = len(self.Integrator) - 1
         self.Integrator[0].type = "Verlet"
@@ -113,7 +113,7 @@ class Params:
             for keyword in dics['Region']:
                 for key, value in keyword.items():
                     if(key == 'Species'):
-                        spec = self.species_spec()
+                        spec = self.Species_spec()
                         self.species.append(spec)
                         ic = len(self.species) - 1
 
@@ -131,7 +131,7 @@ class Params:
                                 self.species[ic].T0 = value
 
                     if(key == 'Load'):
-                        load = self.species_load()
+                        load = self.Species_load()
                         self.load.append(load)
                         ic = len(self.load) - 1
 
@@ -164,7 +164,7 @@ class Params:
                                 self.load[ic].halton_bases = np.array(value)
 
                     if(key == 'Potential'):
-                        plasma_potential = self.plasma_potential()
+                        plasma_potential = self.Plasma_potential()
                         self.potential.append(plasma_potential)
                         ic = len(self.potential) - 1
                         for key, value in value.items():
@@ -184,7 +184,7 @@ class Params:
                                 self.potential[0].rc = value
 
                     if(key == 'Thermostat'):
-                        md_thermostat = self.md_thermostat()
+                        md_thermostat = self.MD_thermostat()
                         self.thermostat.append(md_thermostat)
                         ic = len(self.thermostat) - 1
 
@@ -193,7 +193,7 @@ class Params:
                                 self.thermostat[0].type = value
 
                     if(key == 'Integrator'):
-                        md_Integrator = self.md_Integrator()
+                        md_Integrator = self.MD_integrator()
                         self.Integrator.append(md_Integrator)
                         ic = len(self.Integrator) - 1
                         for key, value in value.items():
@@ -201,7 +201,7 @@ class Params:
                                 self.Integrator[0].type = value
 
                     if(key == 'Langevin'):
-                        md_Langevin = self.md_Langevin()
+                        md_Langevin = self.MD_Langevin()
                         self.Langevin.append(md_Langevin)
                         ic = len(self.Langevin) - 1
                         for key, value in value.items():
@@ -211,7 +211,7 @@ class Params:
                                 self.Langevin[0].gamma = value
 
                     if(key == 'Control'):
-                        md_control = self.md_control()
+                        md_control = self.MD_control()
                         self.control.append(md_control)
                         ic = len(self.control) - 1
                         for key, value in value.items():

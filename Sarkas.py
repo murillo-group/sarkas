@@ -25,12 +25,12 @@ import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
 
-from S_thermostat import thermostat
-from S_integrator import integrator
-from S_particles import particles
-from S_verbose import verbose
+from S_thermostat import Thermostat
+from S_integrator import Integrator
+from S_particles import Particles
+from S_verbose import Verbose
 from S_params import Params
-from S_checkpoint import checkpoint
+from S_checkpoint import Checkpoint
 
 time_stamp = np.zeros(10)
 its = 0
@@ -41,10 +41,10 @@ read_input.parameters(input_file)
 
 params = Params()
 params.setup(input_file)
-verbose = verbose(params, glb)
-checkpoint = checkpoint(params)  # For restart and pva backups.
-integrator = integrator(params, glb)
-thermostat = thermostat(params, glb)
+verbose = Verbose(params, glb)
+checkpoint = Checkpoint(params)  # For restart and pva backups.
+integrator = Integrator(params, glb)
+thermostat = Thermostat(params, glb)
 
 ###
 Nt = params.control[0].Nstep    # number of time steps
@@ -56,8 +56,6 @@ if(glb.potential_type == glb.EGS):
 time_stamp[its] = time.time(); its += 1
 
 #######################
-# these varaibles shold be in FFT or force part. Will be moved soon!
-
 # this variable will be moved to observable class
 n_q_t = np.zeros((glb.Nt, glb.Nq, 3), dtype="complex128")
 ########################
@@ -83,7 +81,7 @@ for i, load in enumerate(params.load):
 N = total_num_ptcls
 
 # Initializing particle positions and velocities
-ptcls = particles(params, total_num_ptcls)
+ptcls = Particles(params, total_num_ptcls)
 ptcls.load(glb, total_num_ptcls)
 
 time_stamp[its] = time.time(); its += 1
