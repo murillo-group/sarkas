@@ -8,7 +8,7 @@ import S_pp_EGS as pp_EGS
 import S_global_names as glb
 import S_constants as const
 
-def force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+def force_pot(ptcls):
     N = glb.N
     G = glb.G
     af = glb.af
@@ -22,6 +22,15 @@ def force_pot(ptcls, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
     ky_v = glb.ky_v
     kz_v = glb.kz_v
     p3m = glb.p3m_flag
+
+    Z = np.ones(glb.N)
+    acc_s_r = np.zeros((glb.N, glb.d))
+    acc_fft = np.zeros_like(acc_s_r)
+
+    rho_r = np.zeros((glb.Mz, glb.My, glb.Mx))
+    E_x_p = np.zeros(glb.N)
+    E_y_p = np.zeros(glb.N)
+    E_z_p = np.zeros(glb.N)
 
     acc_s_r.fill(0.0)
     acc_fft.fill(0.0)

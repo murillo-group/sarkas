@@ -36,14 +36,26 @@ class thermostat:
             print("Only Verlet integrator is supported. Check your input file, integrator part.")
             sys.exit()
 
-    def update(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
-        U = self.type(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    def update(self, ptcls, it):
+        U = self.type(ptcls, it)
         return U
 
-    def Berendsen(self, ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
+    def Berendsen(self, ptcls, it):
+        ''' Update particle velocity based on Berendsen thermostat.
+    
+        Parameters
+        ----------
+        ptlcs: particles data. See S_particles.py for the detailed information
+        it: timestep
+
+        Returns
+        -------
+        U : float
+            Total potential energy
+        '''
         T_desired = self.glb_vars.T_desired
 
-        U = self.integrator(ptcls, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+        U = self.integrator(ptcls)
         mi = const.proton_mass
         K = self.kf*mi*np.ndarray.sum(ptcls.vel**2)
         T = K/self.kf/float(self.glb_vars.N)/const.kb
