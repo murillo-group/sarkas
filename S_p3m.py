@@ -1,7 +1,6 @@
 import numpy as np
 import sys
 import S_pm as pm
-import S_pp as pp
 import S_pp_yukawa as pp_yukawa
 import S_pp_EGS as pp_EGS
 #import S_pp_EGS as pp_EGS
