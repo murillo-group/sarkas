@@ -10,30 +10,44 @@ class neigs:
 
         self._rank = mpiComm.rank
 
+        No_shift = np.zeros(3,dtype=np.float64)
+        N_shift = 0.
+        S_shift = 0.
+        E_shift = 0.
+        W_shift = 0.
+        U_shift = 0.
+        D_shift = 0.
+
         #enforce Periodic Boundaries
         W = mpiComm.glbIndex[0] - 1
         if W < 0:
             W = mpiComm.decomp[0] - 1
+            W_shift =  glb.Lx
 
         E = mpiComm.glbIndex[0] + 1
         if E > mpiComm.decomp[0]-1:
             E = 0
+            E_shift =  -glb.Lx
 
         N = mpiComm.glbIndex[1] - 1
         if N < 0:
             N = mpiComm.decomp[1] - 1
+            N_shift =  glb.Ly
 
         S = mpiComm.glbIndex[1] + 1
         if S > mpiComm.decomp[1]-1:
             S = 0
+            S_shift =  -glb.Ly
 
         U = mpiComm.glbIndex[2] - 1
         if U < 0:
             U = mpiComm.decomp[2] - 1
+            U_shift =  glb.Lz
 
         D = mpiComm.glbIndex[2] + 1
         if D > mpiComm.decomp[2]-1:
             D = 0
+            D_shift =  -glb.Lz
 
         #Calculate Global Index of Neigbhors (global Index)
         self.U_glbI = (mpiComm.glbIndex[0],mpiComm.glbIndex[1],U)
@@ -96,6 +110,37 @@ class neigs:
         self.DNW_rank = mpiComm.glbIndexToRank(self.DNW_glbI)
         self.DSE_rank = mpiComm.glbIndexToRank(self.DSE_glbI)
         self.DSW_rank = mpiComm.glbIndexToRank(self.DSW_glbI)
+
+        #Calc Shifts
+        self.U_shift = np.array([No_shift[0],No_shift[1],U_shift])
+        self.UN_shift = np.array([No_shift[0],N_shift,U_shift])
+        self.US_shift = np.array([No_shift[0],S_shift,U_shift])
+        self.UE_shift = np.array([E_shift,No_shift[1],U_shift])
+        self.UW_shift = np.array([W_shift,No_shift[1],U_shift])
+        self.UNE_shift = np.array([E_shift,N_shift,U_shift])
+        self.UNW_shift = np.array([W_shift,N_shift,U_shift])
+        self.USE_shift = np.array([E_shift,S_shift,U_shift])
+        self.USW_shift = np.array([W_shift,S_shift,U_shift])
+
+        self.N_shift = np.array([No_shift[0],N_shift,No_shift[2]])
+        self.S_shift = np.array([No_shift[0],S_shift,No_shift[2]])
+        self.E_shift = np.array([E_shift,No_shift[1],No_shift[2]])
+        self.W_shift = np.array([W_shift,No_shift[1],No_shift[2]])
+        self.NE_shift = np.array([E_shift,N_shift,No_shift[2]])
+        self.NW_shift = np.array([W_shift,N_shift,No_shift[2]])
+        self.SE_shift = np.array([E_shift,S_shift,No_shift[2]])
+        self.SW_shift = np.array([W_shift,S_shift,No_shift[2]])
+
+        self.D_shift = np.array([No_shift[0],No_shift[1],D_shift])
+        self.DN_shift = np.array([No_shift[0],N_shift,D_shift])
+        self.DS_shift = np.array([No_shift[0],S_shift,D_shift])
+        self.DE_shift = np.array([E_shift,No_shift[1],D_shift])
+        self.DW_shift = np.array([W_shift,No_shift[1],D_shift])
+        self.DNE_shift = np.array([E_shift,N_shift,D_shift])
+        self.DNW_shift = np.array([W_shift,N_shift,D_shift])
+        self.DSE_shift = np.array([E_shift,S_shift,D_shift])
+        self.DSW_shift = np.array([W_shift,S_shift,D_shift])
+
 
         self.ranks = np.delete(np.unique(np.array([\
                          self.UNE_rank,self.UN_rank,self.UNW_rank\

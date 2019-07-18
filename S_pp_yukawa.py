@@ -11,7 +11,14 @@ import S_global_names as glb
 global DEBUG
 DEBUG = False
 
-#@nb.autojit
+
+global LOOPDEBUG
+LOOPDEBUG=False
+
+global LOOPDEBUG1
+LOOPDEBUG1=False
+
+
 #def particle_particle(kappa,G,rc,Lv,pos,acc_s_r):
 def particle_particle(pos, vel, acc_s_r, mpiComm):
     rc = glb.rc
@@ -38,22 +45,18 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     rc_z = Lz/Lzd
 
     Ncell = Lxd*Lyd*Lzd
-    #if mpiComm.rank==0:
-    #    print(Lxd)
-    #    print(Lyd)
-    #    print(Lzd)
 
     head = np.arange(Ncell)
     head.fill(empty)
 
-    rshift = np.zeros(d)
-
-
     #====LCL-Copy-Buffers=====================
-    Upper = Lzd-1
-    Lower = 0
-    North = Lyd-1
-    South = 0
+
+    lclDict = {}
+
+    Lower = Lzd-1
+    Upper = 0
+    South = Lyd-1
+    North = 0
     East  = Lxd-1
     West  = 0
 
@@ -86,6 +89,35 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     DSE_buff = np.array([-50.,-50.,-50.],dtype=np.float64)
     DSW_buff = np.array([-50.,-50.,-50.],dtype=np.float64)
 
+    U_shift = mpiComm.neigs.U_shift
+    UN_shift = mpiComm.neigs.UN_shift
+    US_shift = mpiComm.neigs.US_shift
+    UE_shift = mpiComm.neigs.UE_shift
+    UW_shift = mpiComm.neigs.UW_shift
+    UNE_shift = mpiComm.neigs.UNE_shift
+    UNW_shift = mpiComm.neigs.UNW_shift
+    USE_shift = mpiComm.neigs.USE_shift
+    USW_shift = mpiComm.neigs.USW_shift
+
+    N_shift = mpiComm.neigs.N_shift
+    S_shift = mpiComm.neigs.S_shift
+    E_shift = mpiComm.neigs.E_shift
+    W_shift = mpiComm.neigs.W_shift
+    NE_shift = mpiComm.neigs.NE_shift
+    NW_shift = mpiComm.neigs.NW_shift
+    SE_shift = mpiComm.neigs.SE_shift
+    SW_shift = mpiComm.neigs.SW_shift
+
+    D_shift = mpiComm.neigs.D_shift
+    DN_shift = mpiComm.neigs.DN_shift
+    DS_shift = mpiComm.neigs.DS_shift
+    DE_shift = mpiComm.neigs.DE_shift
+    DW_shift = mpiComm.neigs.DW_shift
+    DNE_shift = mpiComm.neigs.DNE_shift
+    DNW_shift = mpiComm.neigs.DNW_shift
+    DSE_shift = mpiComm.neigs.DSE_shift
+    DSW_shift = mpiComm.neigs.DSW_shift
+
 
     #=== Particle Migration-Send =============
 
@@ -114,8 +146,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     pos = np.delete(pos,migIndex[0],0)
     vel = np.delete(vel,migIndex[0],0)
     N = len(pos[:,0])
-    NsP = len(migBuff_pos)
-    NsV = len(migBuff_vel)
 
     #BuckSort particles to ranks they migrated to
     buffLen = 600 #needs to be multiple of 6
@@ -141,8 +171,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     send_requests=[]
     for i in mpiComm.neigs.ranks:
         if i in sendDict:
-            if mpiComm.rank==0:
-                print("exchange!!")
+            #if mpiComm.rank==0:
+            #    print("exchange!!")
             Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])]\
                               ,MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
@@ -166,59 +196,59 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         ptcl = pos[i,:].flatten()
 
         if cz == Upper:
-            U_buff = np.append(U_buff,ptcl)
+            U_buff = np.append(U_buff,ptcl+U_shift)
         if cz == Upper and cy == North:
-            UN_buff = np.append(UN_buff,ptcl)
+            UN_buff = np.append(UN_buff,ptcl+UN_shift)
         if cz == Upper and cy == South:
-            US_buff = np.append(US_buff,ptcl)
+            US_buff = np.append(US_buff,ptcl+US_shift)
         if cz == Upper and cx == East:
-            UE_buff = np.append(UE_buff,ptcl)
+            UE_buff = np.append(UE_buff,ptcl+UE_shift)
         if cz == Upper and cx == West:
-            UW_buff = np.append(UW_buff,ptcl)
+            UW_buff = np.append(UW_buff,ptcl+UW_shift)
         if cz == Upper and cy == North and cx == East:
-            UNE_buff = np.append(UNE_buff,ptcl)
+            UNE_buff = np.append(UNE_buff,ptcl+UNE_shift)
         if cz == Upper and cy == North and cx == West:
-            UNW_buff = np.append(UNW_buff,ptcl)
+            UNW_buff = np.append(UNW_buff,ptcl+UNW_shift)
         if cz == Upper and cy == South and cx == East:
-            USE_buff = np.append(USE_buff,ptcl)
+            USE_buff = np.append(USE_buff,ptcl+USE_shift)
         if cz == Upper and cy == South and cx == West:
-            USW_buff = np.append(USW_buff,ptcl)
+            USW_buff = np.append(USW_buff,ptcl+USW_shift)
 
-        if cz != Upper  and cz != Lower and cy == North:
-            N_buff = np.append(N_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == South:
-            S_buff = np.append(S_buff,ptcl)
-        if cz != Upper  and cz != Lower and cx == East:
-            E_buff = np.append(E_buff,ptcl)
-        if cz != Upper  and cz != Lower and cx == West:
-            W_buff = np.append(W_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == North and cx == East:
-            NE_buff = np.append(NE_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == North and cx == West:
-            NW_buff = np.append(NW_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == South and cx == East:
-            SE_buff = np.append(SE_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == South and cx == West:
-            SW_buff = np.append(SW_buff,ptcl)
+        if cy == North:
+            N_buff = np.append(N_buff,ptcl+N_shift)
+        if cy == South:
+            S_buff = np.append(S_buff,ptcl+S_shift)
+        if cx == East:
+            E_buff = np.append(E_buff,ptcl+E_shift)
+        if cx == West:
+            W_buff = np.append(W_buff,ptcl+W_shift)
+        if cy == North and cx == East:
+            NE_buff = np.append(NE_buff,ptcl+NE_shift)
+        if cy == North and cx == West:
+            NW_buff = np.append(NW_buff,ptcl+NW_shift)
+        if cy == South and cx == East:
+            SE_buff = np.append(SE_buff,ptcl+SE_shift)
+        if cy == South and cx == West:
+            SW_buff = np.append(SW_buff,ptcl+SW_shift)
 
         if cz == Lower:
-            D_buff = np.append(D_buff,ptcl)
+            D_buff = np.append(D_buff,ptcl+D_shift)
         if cz == Lower and cy == North:
-            DN_buff = np.append(DN_buff,ptcl)
+            DN_buff = np.append(DN_buff,ptcl+DN_shift)
         if cz == Lower and cy == South:
-            DS_buff = np.append(DS_buff,ptcl)
+            DS_buff = np.append(DS_buff,ptcl+DS_shift)
         if cz == Lower and cx == East:
-            DE_buff = np.append(DE_buff,ptcl)
+            DE_buff = np.append(DE_buff,ptcl+DE_shift)
         if cz == Lower and cx == West:
-            DW_buff = np.append(DW_buff,ptcl)
+            DW_buff = np.append(DW_buff,ptcl+DW_shift)
         if cz == Lower and cy == North and cx == East:
-            DNE_buff = np.append(DNE_buff,ptcl)
+            DNE_buff = np.append(DNE_buff,ptcl+DNE_shift)
         if cz == Lower and cy == North and cx == West:
-            DNW_buff = np.append(DNW_buff,ptcl)
+            DNW_buff = np.append(DNW_buff,ptcl+DNW_shift)
         if cz == Lower and cy == South and cx == East:
-            DSE_buff = np.append(DSE_buff,ptcl)
+            DSE_buff = np.append(DSE_buff,ptcl+DSE_shift)
         if cz == Lower and cy == South and cx == West:
-            DSW_buff = np.append(DSW_buff,ptcl)
+            DSW_buff = np.append(DSW_buff,ptcl+DSW_shift)
 
         ls[i] = head[c]
         head[c] = i
@@ -270,62 +300,62 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         cz = int(np.floor((pos[N+i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*Lxd + cz*Lxd*Lyd
 
-        ptcl = pos[i,:].flatten()
+        ptcl = pos[N+i,:].flatten()
 
         if cz == Upper:
-            U_buff = np.append(U_buff,ptcl)
+            U_buff = np.append(U_buff,ptcl+U_shift)
         if cz == Upper and cy == North:
-            UN_buff = np.append(UN_buff,ptcl)
+            UN_buff = np.append(UN_buff,ptcl+UN_shift)
         if cz == Upper and cy == South:
-            US_buff = np.append(US_buff,ptcl)
+            US_buff = np.append(US_buff,ptcl+US_shift)
         if cz == Upper and cx == East:
-            UE_buff = np.append(UE_buff,ptcl)
+            UE_buff = np.append(UE_buff,ptcl+UE_shift)
         if cz == Upper and cx == West:
-            UW_buff = np.append(UW_buff,ptcl)
+            UW_buff = np.append(UW_buff,ptcl+UW_shift)
         if cz == Upper and cy == North and cx == East:
-            UNE_buff = np.append(UNE_buff,ptcl)
+            UNE_buff = np.append(UNE_buff,ptcl+UNE_shift)
         if cz == Upper and cy == North and cx == West:
-            UNW_buff = np.append(UNW_buff,ptcl)
+            UNW_buff = np.append(UNW_buff,ptcl+UNW_shift)
         if cz == Upper and cy == South and cx == East:
-            USE_buff = np.append(USE_buff,ptcl)
+            USE_buff = np.append(USE_buff,ptcl+USE_shift)
         if cz == Upper and cy == South and cx == West:
-            USW_buff = np.append(USW_buff,ptcl)
+            USW_buff = np.append(USW_buff,ptcl+USW_shift)
 
-        if cz != Upper  and cz != Lower and cy == North:
-            N_buff = np.append(N_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == South:
-            S_buff = np.append(S_buff,ptcl)
-        if cz != Upper  and cz != Lower and cx == East:
-            E_buff = np.append(E_buff,ptcl)
-        if cz != Upper  and cz != Lower and cx == West:
-            W_buff = np.append(W_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == North and cx == East:
-            NE_buff = np.append(NE_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == North and cx == West:
-            NW_buff = np.append(NW_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == South and cx == East:
-            SE_buff = np.append(SE_buff,ptcl)
-        if cz != Upper  and cz != Lower and cy == South and cx == West:
-            SW_buff = np.append(SW_buff,ptcl)
+        if cy == North:
+            N_buff = np.append(N_buff,ptcl+N_shift)
+        if cy == South:
+            S_buff = np.append(S_buff,ptcl+S_shift)
+        if cx == East:
+            E_buff = np.append(E_buff,ptcl+E_shift)
+        if cx == West:
+            W_buff = np.append(W_buff,ptcl+W_shift)
+        if cy == North and cx == East:
+            NE_buff = np.append(NE_buff,ptcl+NE_shift)
+        if cy == North and cx == West:
+            NW_buff = np.append(NW_buff,ptcl+NW_shift)
+        if cy == South and cx == East:
+            SE_buff = np.append(SE_buff,ptcl+SE_shift)
+        if cy == South and cx == West:
+            SW_buff = np.append(SW_buff,ptcl+SW_shift)
 
         if cz == Lower:
-            D_buff = np.append(D_buff,ptcl)
+            D_buff = np.append(D_buff,ptcl+D_shift)
         if cz == Lower and cy == North:
-            DN_buff = np.append(DN_buff,ptcl)
+            DN_buff = np.append(DN_buff,ptcl+DN_shift)
         if cz == Lower and cy == South:
-            DS_buff = np.append(DS_buff,ptcl)
+            DS_buff = np.append(DS_buff,ptcl+DS_shift)
         if cz == Lower and cx == East:
-            DE_buff = np.append(DE_buff,ptcl)
+            DE_buff = np.append(DE_buff,ptcl+DE_shift)
         if cz == Lower and cx == West:
-            DW_buff = np.append(DW_buff,ptcl)
+            DW_buff = np.append(DW_buff,ptcl+DW_shift)
         if cz == Lower and cy == North and cx == East:
-            DNE_buff = np.append(DNE_buff,ptcl)
+            DNE_buff = np.append(DNE_buff,ptcl+DNE_shift)
         if cz == Lower and cy == North and cx == West:
-            DNW_buff = np.append(DNW_buff,ptcl)
+            DNW_buff = np.append(DNW_buff,ptcl+DNW_shift)
         if cz == Lower and cy == South and cx == East:
-            DSE_buff = np.append(DSE_buff,ptcl)
+            DSE_buff = np.append(DSE_buff,ptcl+DSE_shift)
         if cz == Lower and cy == South and cx == West:
-            DSW_buff = np.append(DSW_buff,ptcl)
+            DSW_buff = np.append(DSW_buff,ptcl+DSW_shift)
 
         ls[N+i] = head[c]
         head[c] = N+i
@@ -356,13 +386,20 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         else:
             send_dict[rank] = buff
 
+    #BUG: particles not sent to self!
     send_requests = []
     for i in mpiComm.neigs.ranks:
-        buff = send_dict[i].reshape(int(len(send_dict[i])/3),3)
-        buff = np.unique(buff,axis=0)
-        Sreq = mpiComm.comm.Isend([buff.flatten(),MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
+        #if mpiComm.rank==0:
+        #    print("USE = ", mpiComm.neigs.USE_rank)
+        #    print("USE_shift = ", USE_shift)
+        #    print("USE Buff = ", USE_buff)
+        #    USEBuff = USE_buff.reshape(int(len(USE_buff)/3),3)
+        #    Rc = np.array([rc_x,rc_y,rc_z])
+        #    print("C = ",np.floor((USEBuff - mpiComm.Lmin)/Rc))
+        #    print("USE Buff after before = ",USE_buff.reshape(int(len(USE_buff)/3),3) -  USE_shift)
+        #    print("send to rank 2 from rank 0 = ", send_dict[2])
+        Sreq = mpiComm.comm.Isend([send_dict[i],MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
         send_requests.append(Sreq)
-
 
     #interior
     for cx in range(1,Lxd-1):
@@ -386,9 +423,9 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
                                 while(j != empty):
 
                                     if i < j:
-                                        dx = pos[i,0] - (pos[j,0] + rshift[0])
-                                        dy = pos[i,1] - (pos[j,1] + rshift[1])
-                                        dz = pos[i,2] - (pos[j,2] + rshift[2])
+                                        dx = pos[i,0] - pos[j,0]
+                                        dy = pos[i,1] - pos[j,1]
+                                        dz = pos[i,2] - pos[j,2]
                                         r = np.sqrt(dx**2 + dy**2 + dz**2)
 
                                         if r < rc:
@@ -427,74 +464,149 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         Rreq = mpiComm.comm.Irecv([recvB[p], MPI.DOUBLE], source = i, tag = i*10)
         recv_requests.append(Rreq)
         p+=1
-    recvPos = np.concatenate(recvB,axis=0)
 
     MPI.Request.waitall(send_requests)
     MPI.Request.waitall(recv_requests)
 
+    recvPos = np.concatenate(recvB,axis=0)
+
+    #filter empty messages
     recvBuff = recvPos.reshape(int(len(recvPos)/3),3)
     recvBuff = recvBuff[np.where(recvBuff[:,0]!=-50.)]
-    #recvBuff = np.unique(recvBuff,axis=0) #works!
 
-    #if mpiComm.rank==1:
-    #    print("After = ",recvBuff.shape)
-    #    print("Total Particle = ",len(pos[:,0]))
+    if mpiComm.rank in send_dict:
+        selfBuff = send_dict[mpiComm.rank]
+        selfBuff = selfBuff.reshape(int(len(selfBuff)/3),3)
+        selfBuff = selfBuff[np.where(selfBuff[:,0]!=-50.)]
+    else:
+        selfBuff = np.array([],dtype=np.float64)
+
+    #add Copied Particles to particle position array
+    pos = np.append(pos,recvBuff,axis=0)
+    pos = np.append(pos,selfBuff,axis=0)
+
+    #construct new linked cell list using
+    # old LCL and copied particles
+    #Nb = len(recvBuff[:,0]) + len(selfBuff[:,0])
+    Nb = len(pos[:,0]) - N
+    #print(Nb)
+    lsRecv  = np.arange(N+Nb,dtype=np.int32)
+    lsRecv[:N] = ls
+    headRecv= np.empty(shape=((Lzd+2),(Lyd+2),(Lxd+2)),dtype=np.int32)
+    headRecv.fill(empty)
+    headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape(Lzd,Lyd,Lxd)
+    headRecv = headRecv.flatten()
+    old = np.copy(headRecv)
+    for i in range(N,Nb):
+        #i = i + N
+        cx = int(np.floor((rc_x + pos[i,0] - mpiComm.Lmin[0])/rc_x))
+        cy = int(np.floor((rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y))
+        cz = int(np.floor((rc_z + pos[i,2] - mpiComm.Lmin[2])/rc_z))
+        c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+        if (cx != Lxd+1 and cx != 0) and (cy != Lyd+1 and cy != 0) and (cz != Lzd+1 and cz != 0) and DEBUG and mpiComm.rank == 2:
+            print("------ i=%d ----" %i)
+            print("RANK = ", mpiComm.rank)
+            #print("headR length = ", headRecv.shape[0])
+            #print("max index = ", (Lxd+1) + (Lyd+1)*(Lxd+2) + (Lzd+1)*(Lxd+2)*(Lyd+2))
+            print("U_shift = ", U_shift)
+            print("UN_shift = ", UN_shift)
+            print("US_shift = ", US_shift)
+            print("UE_shift = ", UE_shift)
+            print("UW_shift = ", UW_shift)
+            print("UNE_shift = ",UNE_shift)
+            print("UNW_shift = ",UNW_shift)
+            print("USE_shift = ",USE_shift)
+            print("USW_shift = ",USW_shift)
+
+            print("N_shift = ",N_shift)
+            print("S_shift = ",S_shift)
+            print("E_shift = ",E_shift)
+            print("W_shift = ",W_shift)
+            print("NE_shift = ",NE_shift)
+            print("NW_shift = ",NW_shift)
+            print("SE_shift = ",SE_shift)
+            print("SW_shift = ",SW_shift)
+
+            print("D_shift = ",D_shift)
+            print("DN_shift = ",DN_shift)
+            print("DS_shift = ",DS_shift)
+            print("DE_shift = ",DE_shift)
+            print("DW_shift = ",DW_shift)
+            print("DNE_shift = ",DNE_shift)
+            print("DNW_shift = ",DNW_shift)
+            print("DSE_shift = ",DSE_shift)
+            print("DSW_shift = ",DSW_shift)
+
+            print("cx = %d, Lxd_max = %d" %(cx,Lxd+1))
+            print("cy = %d, Lyd_max = %d" %(cy,Lyd+1))
+            print("cz = %d, Lzd_max = %d" %(cz,Lzd+1))
+            print("c = ",c)
+            print("pos = ",pos[i,:])
+            print("rc = ",np.array([rc_x,rc_y,rc_z]))
+            print("mpiComm.Lmin = ",mpiComm.Lmin)
+            print("mpiComm.Lmax = ",mpiComm.Lmax)
+            print("N = ",N)
+            print("Nb = ",Nb)
+
+            print("test = ",(rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y)
+
+        lsRecv[i] = headRecv[c]
+        headRecv[c] = i
 
     #exterior
-    for cx in [0,Lxd-1]:
-        for cy in [0,Lyd-1]:
-            for cz in [0,Lzd-1]:
+    for cx in [1,Lxd]:
+        for cy in [1,Lyd]:
+            for cz in [1,Lzd]:
 
-                c = cx + cy*Lxd + cz*Lxd*Lyd
+                c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
 
+                prt = 0
                 for cz_N in range(cz-1,cz+2):
                     for cy_N in range(cy-1,cy+2):
                         for cx_N in range(cx-1,cx+2):
 
-                            if (cx_N < 0):
-                                cx_shift = Lxd
-                                rshift[0] = -Lx
-                            elif (cx_N >= Lxd):
-                                cx_shift = -Lxd
-                                rshift[0] = Lx
-                            else:
-                                cx_shift = 0
-                                rshift[0] = 0.0
+                            c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
 
-                            if (cy_N < 0):
-                                cy_shift = Lyd
-                                rshift[1] = -Ly
-                            elif (cy_N >= Lyd):
-                                cy_shift = -Lyd
-                                rshift[1] = Ly
-                            else:
-                                cy_shift = 0
-                                rshift[1] = 0.0
-
-                            if (cz_N < 0):
-                                cz_shift = Lzd
-                                rshift[2] = -Lz
-                            elif (cz_N >= Lzd):
-                                cz_shift = -Lzd
-                                rshift[2] = Lz
-                            else:
-                                cz_shift = 0
-                                rshift[2] = 0.0
-
-                            c_N = (cx_N+cx_shift) + (cy_N+cy_shift)*Lxd + (cz_N+cz_shift)*Lxd*Lyd
-
-                            i = head[c]
+                            i = headRecv[c]
 
                             while(i != empty):
+                                if mpiComm.rank == 0 and prt != 1 and LOOPDEBUG:
+                                    print("")
+                                    print("=====================")
+                                    print("cx = ",cx)
+                                    print("cy = ", cy)
+                                    print("cz = ", cz)
+                                    print("i = ",i)
+                                    print("pos[i] = ",pos[i,:])
+                                    print("index pos[i] = ",(np.array([rc_x,rc_y,rc_z]) + pos[i,:] - mpiComm.Lmin))
+                                    prt += 1
+                                    print("=====================")
+                                    print("")
 
-                                j = head[c_N]
+                                j = headRecv[c_N]
 
                                 while(j != empty):
+                                    if mpiComm.rank == 0 and LOOPDEBUG1:
+                                        print("")
+                                        print("=====================")
+                                        print("i = ",i)
+                                        print("cx = ",cx)
+                                        print("cy = ", cy)
+                                        print("cz = ", cz)
+                                        print("cx_N = ",cx_N)
+                                        print("cy_N = ", cy_N)
+                                        print("cz_N = ", cz_N)
+                                        print("j = ",j)
+                                        print("pos[j] = ",pos[j,:])
+                                        print("index pos[j] = ",(np.array([rc_x,rc_y,rc_z]) + pos[j,:] - mpiComm.Lmin))
+                                        print("=====================")
+                                        print("")
 
-                                    if i < j:
-                                        dx = pos[i,0] - (pos[j,0] + rshift[0])
-                                        dy = pos[i,1] - (pos[j,1] + rshift[1])
-                                        dz = pos[i,2] - (pos[j,2] + rshift[2])
+                                    if i > j:
+
+                                        dx = pos[i,0] - pos[j,0]
+                                        dy = pos[i,1] - pos[j,1]
+                                        dz = pos[i,2] - pos[j,2]
                                         r = np.sqrt(dx**2 + dy**2 + dz**2)
 
                                         if r < rc:
@@ -508,13 +620,15 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
                                             acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
                                             acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
 
-                                            acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
-                                            acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
-                                            acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
+                                            if j < N:
 
-                                    j = ls[j]
+                                                acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
+                                                acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
+                                                acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
 
-                                i = ls[i]
+                                    j = lsRecv[j]
+
+                                i = lsRecv[i]
 
 
-    return U_s_r, acc_s_r, vel,pos
+    return U_s_r, acc_s_r, vel, pos[:N]

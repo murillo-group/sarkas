@@ -218,6 +218,7 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 
 print('\n------------- Equilibration -------------')
 #print('time - temperature')
+print(Neq)
 for it in range(Neq):
 #    print("it = ", it)
     U, acc, vel, pos = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm,1)
@@ -232,7 +233,7 @@ for it in range(Neq):
     E = K + U
     if mpiComm.rank == 0:
         if(it%glb.snap_int == 0 and glb.verbose):
-            print("productoin: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
+            print("Equilibration: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
 
 t5 = time.time()
 
@@ -264,7 +265,7 @@ for it in range(Nt):
     #    print("k= ", K)
     if mpiComm.rank == 0:
         if(it%glb.snap_int == 0 and glb.verbose ):
-            print("productoin: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
+            print("Production: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
             #print(vel)
     
     t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
