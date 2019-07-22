@@ -182,6 +182,7 @@ class mpi_comm:
         self.Lmin = np.array([LxMin,LyMin,LzMin])
         self.glbIndex = self.rankToGlbIndex(self.rank)
         self.neigs = neigs(self)
+        self.interiorCells, self.exteriorCells = self.__interiorExterior()
 
     def __localPartNum(self):
         Nlocal = int(glb.N/self.size)
@@ -219,6 +220,43 @@ class mpi_comm:
                 fact = pf.pop(-1)
                 rtn[np.argmin(rtn)] *= fact
         return rtn
+
+    def __interiorExterior(self):
+
+        Lxd = int(np.floor(self.Ll[0]/glb.rc))
+        Lyd = int(np.floor(self.Ll[1]/glb.rc))
+        Lzd = int(np.floor(self.Ll[2]/glb.rc))
+
+        ix = np.linspace(1,Lxd,Lxd,dtype=np.int)
+        iy = np.linspace(1,Lyd,Lyd,dtype=np.int)
+        iz = np.linspace(1,Lzd,Lzd,dtype=np.int)
+        yy,zz,xx = np.meshgrid(iy,iz,ix)
+        zyx = np.dstack((zz.flatten(),yy.flatten(),xx.flatten()))[0] - np.ones(3,dtype=np.int)
+
+        interior=np.array([],dtype=np.int)
+        intL = 0
+        exterior=np.array([],dtype=np.int)
+        extL = 0
+        for I in zyx:
+            cx = I[2]
+            cy = I[1]
+            cz = I[0]
+            if cx == 0 or cx == Lxd-1:
+                extL +=1
+                exterior = np.append(exterior,I)
+            elif cy == 0 or cy == Lyd-1:
+                extL +=1
+                exterior = np.append(exterior,I)
+            elif cz == 0 or cz == Lzd-1:
+                extL +=1
+                exterior = np.append(exterior,I)
+            else:
+                intL +=1
+                interior = np.append(interior,I)
+
+        exterior = exterior.reshape(extL,3)
+        interior = interior.reshape(intL,3)
+        return (interior, exterior)
 
 
     def rankToGlbIndex(self,rank):

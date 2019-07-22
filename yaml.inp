@@ -24,7 +24,7 @@ Region:
   - Control:
       dt: 0.01
       Neq: 6000
-      Nstep: 15000
+      Nstep: 25000
       BC: periodic
       units: Yukawa
       ptcls_init: random
