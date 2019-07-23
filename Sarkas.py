@@ -160,7 +160,7 @@ for it in range(it_start, Nt):
     if glb.write_xyz == 1:
         f_xyz.writelines("{0:d}\n".format(N))
         f_xyz.writelines("x y z vx vy vz ax ay az\n")
-        np.savetxt(f_xyz, irp)
+        np.savetxt(f_xyz, np.c_[ptcls.pos, ptcls.vel, ptcls.acc])
 
 # will be moved to observable class
 np.save("n_qt", n_q_t)
