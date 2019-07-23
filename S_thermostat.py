@@ -68,7 +68,7 @@ class Thermostat:
             ptcls.vel = ptcls.vel*fact
 
         else:
-            fact = np.sqrt((20.0*T_desired/T-1.0)/20.0)
+            fact = np.sqrt((21.0*T_desired/T-1.0)/20.0)
             ptcls.vel = ptcls.vel*fact
 
         return U
