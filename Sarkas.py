@@ -12,19 +12,19 @@ Dept. of Computational Mathematics, Science, and Engineering,
 Michigan State University
 '''
 
-# python modules
+# Python modules
 import numpy as np
 import time
 import sys
 import os
 
-# Importing MD modules
+# Importing MD modules, non class
 import S_EGS as EGS
 import S_p3m as p3m
-import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
 
+# import MD modules, class
 from S_thermostat import Thermostat
 from S_integrator import Integrator
 from S_particles import Particles
@@ -36,15 +36,14 @@ time_stamp = np.zeros(10)
 its = 0
 
 input_file = sys.argv[1]
-# Reading MD conditions from input file
-read_input.parameters(input_file)
 
 params = Params()
-params.setup(input_file)
+params.setup(input_file)                # Read initial conditions and setup parameters
+glb.init(params)                        # Setup global variables
 verbose = Verbose(params, glb)
-checkpoint = Checkpoint(params)  # For restart and pva backups.
-integrator = Integrator(params, glb)
-thermostat = Thermostat(params, glb)
+checkpoint = Checkpoint(params)         # For restart and pva backups.
+integrator = Integrator(params, glb)    # Setup a velocity integrator
+thermostat = Thermostat(params, glb)    # Setup a themrostat
 
 ###
 Nt = params.control[0].Nstep    # number of time steps
