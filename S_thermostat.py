@@ -2,6 +2,7 @@
 S_thermostat.py
 
 Berendsen only.
+N: strength of temperature relaxation after t > 2000th steps.
 '''
 import numpy as np
 import sys
@@ -62,13 +63,13 @@ class Thermostat:
 
         # K = self.K_factor*np.ndarray.sum(vel**2)
         # T = self.T_factor*K
-
+        N = 20.0
         if it <= 1999:
             fact = np.sqrt(T_desired/T)
             ptcls.vel = ptcls.vel*fact
 
         else:
-            fact = np.sqrt((21.0*T_desired/T-1.0)/20.0)
+            fact = np.sqrt((T_desired/T + N - 1.0)/N)
             ptcls.vel = ptcls.vel*fact
 
         return U
