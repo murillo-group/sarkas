@@ -1,5 +1,5 @@
 import numpy as np
-import S_pp_yukawa as pp_yukawa
+import S_calc_force_pp as force_pp
 import S_pp_EGS as pp_EGS
 import S_global_names as glb
 import S_constants as const
@@ -42,7 +42,7 @@ def force_pot(ptcls):
 
     U_fft = 0.
     U_self = 0.
-    U_short, acc_s_r = pp_yukawa.particle_particle(ptcls.pos, acc_s_r)
+    U_short, acc_s_r = force_pp.update(ptcls.pos, acc_s_r)
 
     ptcls.acc = af*(acc_s_r)
             #acc *= af

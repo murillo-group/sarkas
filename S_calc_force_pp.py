@@ -1,5 +1,5 @@
 '''
-S_calc_force_pp
+S_calc_force_pp.py
 
 calculate force and potential based on LCL.
 glb.force is defined in S_force.py
@@ -14,7 +14,7 @@ import time
 import S_global_names as glb
 
 @nb.jit
-def particle_particle(pos,acc_s_r):
+def update(pos,acc_s_r):
     rc = glb.rc
    
     N = len(pos[:,0])
