@@ -14,15 +14,17 @@ import sys
 import S_p3m as p3m
 import S_constants as const
 import S_yukawa_gf_opt as yukawa_gf_opt
-
+import S_force as force
 
 class Integrator:
     def __init__(self, params, glb):
+
+        if(params.potential[0].type == "Yukawa" or params.potential[0].type == "yukawa"):
+            self.calc_force = p3m.force_pot
+
+
         self.params = params
         self.glb_vars = glb
-        if(self.params.potential[0].type == "Yukawa"):
-            # need one more condition, P3M
-            self.glb_vars.G_k, self.glb_vars.kx_v, self.glb_vars.ky_v, self.glb_vars.kz_v, self.glb_vars.A_pm = yukawa_gf_opt.gf_opt()
 
         if(params.Integrator[0].type == "Verlet"):
             if(params.Langevin):
@@ -49,11 +51,6 @@ class Integrator:
         '''
 
         # Import global parameters (is there a better way to do this?)
-        G_k = self.glb_vars.G_k
-        kx_v = self.glb_vars.kx_v
-        ky_v = self.glb_vars.ky_v
-        kz_v = self.glb_vars.kz_v
-
         dt = self.glb_vars.dt
         N = self.glb_vars.N
         d = self.glb_vars.d
@@ -85,7 +82,9 @@ class Integrator:
                         ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         # Compute total potential energy and accleration for second half step velocity update                 
-        U = p3m.force_pot(ptcls)
+        #U = p3m.force_pot(ptcls)
+        U = self.calc_force(ptcls)
+        #U = self.update_force(ptcls)
         
         # Second half step velocity update
         ptcls.vel = ptcls.vel + 0.5*ptcls.acc*dt
@@ -125,7 +124,9 @@ class Integrator:
                         ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         acc = ptcls.acc
-        U = p3m.force_pot(ptcls)
+        #U = p3m.force_pot(ptcls)
+        U = self.calc_force(ptcls)
+        #U = self.update_force(ptcls)
         acc_new = ptcls.acc
         ptcls.vel = c1*c2*ptcls.vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
         return U

@@ -23,6 +23,7 @@ import S_EGS as EGS
 import S_p3m as p3m
 import S_global_names as glb
 import S_constants as const
+import S_force as force
 
 # import MD modules, class
 from S_thermostat import Thermostat
@@ -42,25 +43,25 @@ params.setup(input_file)                # Read initial conditions and setup para
 glb.init(params)                        # Setup global variables
 verbose = Verbose(params, glb)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
+
+if(params.potential[0].type == "EGS" or params.potential[0].type == "egs"):
+    EGS.init()
+
+    pass
+calc_force = p3m.force_pot
+
 integrator = Integrator(params, glb)    # Setup a velocity integrator
 thermostat = Thermostat(params, glb)    # Setup a themrostat
-
 ###
 Nt = params.control[0].Nstep    # number of time steps
 time_stamp[its] = time.time(); its += 1
 
-if(glb.potential_type == glb.EGS):
-    EGS.init_parameters()
 
 time_stamp[its] = time.time(); its += 1
 
 #######################
 # this variable will be moved to observable class
 n_q_t = np.zeros((glb.Nt, glb.Nq, 3), dtype="complex128")
-########################
-
-if(glb.verbose):
-    verbose.sim_setting_summary()   # simulation setting summary
 
 # initializing the wave vector vector qv
 qv = np.zeros(glb.Nq)
@@ -70,6 +71,10 @@ for iqv in range(0, glb.Nq, 3):
     qv[iqv] = (iq+1.)*glb.dq
     qv[iqv+1] = (iq+1.)*np.sqrt(2.)*glb.dq
     qv[iqv+2] = (iq+1.)*np.sqrt(3.)*glb.dq
+########################
+
+if(glb.verbose):
+    verbose.sim_setting_summary()   # simulation setting summary
 
 # array for temperature, total energy, kinetic energy, potential energy
 t_Tp_E_K_U2 = np.zeros((1, 5))
@@ -86,8 +91,9 @@ ptcls.load(glb, total_num_ptcls)
 time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
-U = p3m.force_pot(ptcls)
-
+#U = p3m.force_pot(ptcls)
+U = calc_force(ptcls)
+#U = update_force(ptcls)
 K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
 Tp = (2/3)*K/float(N)/const.kb
 if(glb.units == "Yukawa"):
@@ -99,7 +105,9 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
+
         U = thermostat.update(ptcls, it)
+
         K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
         Tp = (2/3)*K/float(N)/const.kb
         if(glb.units == "Yukawa"):

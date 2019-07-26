@@ -72,6 +72,7 @@ class Params:
             self.type = None
             self.Gamma = None
             self.kappa = None
+            self.rc = None
 
     class MD_thermostat:
         def __init__(self):
@@ -94,6 +95,7 @@ class Params:
             self.BC = None
             self.units = None
             self.dump_step = 1
+            self.verbose = None
 
     def setup(self, filename):
         # default thermostat and integrator

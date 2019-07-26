@@ -1,7 +1,13 @@
+'''
+S_yukawa_gf_opt.sy
+
+Optimized Green's Function
+'''
+
 import numpy as np
 import numba as nb
 import S_global_names as glb
-import sys
+
 @nb.jit
 def gf_opt():
     kappa = glb.kappa

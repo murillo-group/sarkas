@@ -7,12 +7,10 @@ import time
 import S_global_names as glb
 #import S_update as update
 
-@nb.autojit
-#def particle_particle(kappa,G,rc,Lv,pos,acc_s_r):
+@nb.jit
 def particle_particle(pos,acc_s_r):
     rc = glb.rc
     kappa = glb.kappa
-    G = glb.G
     ai = glb.ai
     Zi = glb.Zi 
     N = len(pos[:,0])
