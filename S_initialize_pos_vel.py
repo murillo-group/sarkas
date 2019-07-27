@@ -14,7 +14,7 @@ def initial(pos,vel,T_desired,mpiComm):
     ai = glb.ai
     mi = const.pMass
 
-    np.random.seed(seed=seed_int)
+    np.random.seed(seed=seed_int*mpiComm.rank*100)
 
     #sig = np.sqrt(T_desired/3)      # standard deviation in terms of temperature in reduced units
     #print("sig = ", sig)
