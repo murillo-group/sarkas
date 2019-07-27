@@ -12,73 +12,56 @@ Dept. of Computational Mathematics, Science, and Engineering,
 Michigan State University
 '''
 
-# python modules
+# Python modules
 import numpy as np
 import time
 import sys
 import os
 
-# Importing MD modules
+# Importing MD modules, non class
 import S_EGS as EGS
 import S_p3m as p3m
-import S_read_input as read_input
 import S_global_names as glb
 import S_constants as const
+import S_force as force
 
-from S_thermostat import thermostat
-from S_integrator import integrator
-from S_particles import particles
-from S_verbose import verbose
+# import MD modules, class
+from S_thermostat import Thermostat
+from S_integrator import Integrator
+from S_particles import Particles
+from S_verbose import Verbose
 from S_params import Params
-from S_checkpoint import checkpoint
+from S_checkpoint import Checkpoint
 
 time_stamp = np.zeros(10)
 its = 0
 
 input_file = sys.argv[1]
-# Reading MD conditions from input file
-read_input.parameters(input_file)
 
 params = Params()
-params.setup(input_file)
-verbose = verbose(params, glb)
-checkpoint = checkpoint(params)  # For restart and pva backups.
-integrator = integrator(params, glb)
-thermostat = thermostat(params, glb)
+params.setup(input_file)                # Read initial conditions and setup parameters
+glb.init(params)                        # Setup global variables
+verbose = Verbose(params, glb)
+checkpoint = Checkpoint(params)         # For restart and pva backups.
 
+if(params.potential[0].type == "EGS" or params.potential[0].type == "egs"):
+    EGS.init()
+
+    pass
+calc_force = p3m.force_pot
+
+integrator = Integrator(params, glb)    # Setup a velocity integrator
+thermostat = Thermostat(params, glb)    # Setup a themrostat
 ###
 Nt = params.control[0].Nstep    # number of time steps
 time_stamp[its] = time.time(); its += 1
 
 
-if(glb.potential_type == glb.EGS):
-    EGS.init_parameters()
-
 time_stamp[its] = time.time(); its += 1
 
-# Particle positions and velocities array
-pos = np.zeros((glb.N, glb.d))
-vel = np.zeros_like(pos)
-acc = np.zeros_like(pos)
-
 #######################
-# these varaibles shold be in FFT or force part. Will be moved soon!
-Z = np.ones(glb.N)
-
-acc_s_r = np.zeros_like(pos)
-acc_fft = np.zeros_like(pos)
-
-rho_r = np.zeros((glb.Mz, glb.My, glb.Mx))
-E_x_p = np.zeros(glb.N)
-E_y_p = np.zeros(glb.N)
-E_z_p = np.zeros(glb.N)
-
 # this variable will be moved to observable class
 n_q_t = np.zeros((glb.Nt, glb.Nq, 3), dtype="complex128")
-########################
-
-if(glb.verbose):
-    verbose.sim_setting_summary()   # simulation setting summary
 
 # initializing the wave vector vector qv
 qv = np.zeros(glb.Nq)
@@ -88,6 +71,10 @@ for iqv in range(0, glb.Nq, 3):
     qv[iqv] = (iq+1.)*glb.dq
     qv[iqv+1] = (iq+1.)*np.sqrt(2.)*glb.dq
     qv[iqv+2] = (iq+1.)*np.sqrt(3.)*glb.dq
+########################
+
+if(glb.verbose):
+    verbose.sim_setting_summary()   # simulation setting summary
 
 # array for temperature, total energy, kinetic energy, potential energy
 t_Tp_E_K_U2 = np.zeros((1, 5))
@@ -98,15 +85,16 @@ for i, load in enumerate(params.load):
 N = total_num_ptcls
 
 # Initializing particle positions and velocities
-ptcls = particles(params, total_num_ptcls)
-pos, vel = ptcls.load(glb, total_num_ptcls)
+ptcls = Particles(params, total_num_ptcls)
+ptcls.load(glb, total_num_ptcls)
 
 time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
-U, acc = p3m.force_pot(pos, acc, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-
-K = 0.5*glb.mi*np.ndarray.sum(vel**2)
+#U = p3m.force_pot(ptcls)
+U = calc_force(ptcls)
+#U = update_force(ptcls)
+K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
 Tp = (2/3)*K/float(N)/const.kb
 if(glb.units == "Yukawa"):
     K *= 3
@@ -117,8 +105,10 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
-        pos, vel, acc, U = thermostat.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
-        K = 0.5*glb.mi*np.ndarray.sum(vel**2)
+
+        U = thermostat.update(ptcls, it)
+
+        K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
         Tp = (2/3)*K/float(N)/const.kb
         if(glb.units == "Yukawa"):
             K *= 3
@@ -143,9 +133,9 @@ else:
 
 for it in range(it_start, Nt):
 
-    pos, vel, acc, U = integrator.update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p)
+    U = integrator.update(ptcls)
 
-    K = 0.5*glb.mi*np.ndarray.sum(vel**2)
+    K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
     Tp = (2/3)*K/float(N)/const.kb
     if(glb.units == "Yukawa"):
         K *= 3.
@@ -161,23 +151,23 @@ for it in range(it_start, Nt):
 
     # writing particle positions and velocities to file
     if(it % params.control[0].dump_step == 0):
-        checkpoint.dump(pos, vel, acc, it)
+        checkpoint.dump(ptcls.pos, ptcls.vel, ptcls.acc, it)
 
     # Spatial Fourier transform
     # will be move to observable class
     if(1):
         for iqv in range(glb.Nq):
             q_p = qv[iqv]
-            n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*pos[:, 0]))
-            n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*pos[:, 1]))
-            n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*pos[:, 2]))
+            n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 0]))
+            n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 1]))
+            n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 2]))
 
     np.savetxt(f_output_E, t_Tp_E_K_U2)
 
     if glb.write_xyz == 1:
         f_xyz.writelines("{0:d}\n".format(N))
         f_xyz.writelines("x y z vx vy vz ax ay az\n")
-        np.savetxt(f_xyz, irp)
+        np.savetxt(f_xyz, np.c_[ptcls.pos, ptcls.vel, ptcls.acc])
 
 # will be moved to observable class
 np.save("n_qt", n_q_t)
@@ -187,7 +177,7 @@ f_output_E.close()
 f_xyz.close()
 
 # saving last positions, velocities and accelerations
-checkpoint.dump(pos, vel, acc, Nt)
+checkpoint.dump(ptcls.pos, ptcls.vel, ptcls.acc, Nt)
 
 time_stamp[its] = time.time(); its += 1
 

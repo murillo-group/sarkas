@@ -7,7 +7,7 @@ from inspect import currentframe, getframeinfo
 import time
 
 
-class verbose:
+class Verbose:
     def __init__(self, params, glb):
         print("Sarkas Ver. 1.0")
         self.params = params
@@ -18,10 +18,11 @@ class verbose:
         params = self.params
         print('\n\n----------- Molecular Dynamics Simulation of Yukawa System ----------------------')
         print("units: ", glb.units)
-        if(glb.potential_type == glb.Yukawa_PP or glb.potential_type == glb.Yukawa_P3M):
+        if(params.control[0].units == "Yukawa" or params.control[0].units == "yukawa"):
             print('Gamma = ', glb.Gamma)
             print('kappa = ', glb.kappa)
-            print('grid_size * Ewald_parameter (h * alpha) = ', glb.hx*glb.G_ew)
+            if(glb.potential_type == glb.Yukawa_P3M):
+                print('grid_size * Ewald_parameter (h * alpha) = ', glb.hx*glb.G_ew)
         print('Temperature = ', glb.T_desired)
         print('No. of particles = ', glb.N)
         print('Box length along x axis = ', glb.Lv[0])

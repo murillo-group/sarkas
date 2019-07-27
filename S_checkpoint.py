@@ -10,7 +10,7 @@ import time
 import pickle
 
 
-class checkpoint:
+class Checkpoint:
     def __init__(self, params):
         self.params = params
         self.checkpoint_dir = "Checkpoint/"

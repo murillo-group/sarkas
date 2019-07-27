@@ -1,36 +1,10 @@
-''' Place particles by sampling a uniform distribution from 0 to L (the box length)
-    and uses a rejection radius to avoid placing particles to close to each other.
-
-Parameters
-----------
-N_part : int
-    Total number of particles to place.
-
-r_reject : float
-    Value of rejection radius.
-
-rand_seed : int
-    Seed for random number generator. 
-    Default: 1.
-
-Returns
--------
-x : array_like
-    X positions for particles.
-    
-y : array_like
-    Y positions for particles.
-
-z : array_like
-    Z positions for particles.
-
-Notes
------    
-Author: Luke Stanek
-Date Created: 5/6/19
-Date Updated: N/A
-Updates: N/A
-
+'''
+species_name
+pos: position components
+vel: velocity components
+acc: acc. components
+charge
+mass
 '''
 import numpy as np
 from inspect import currentframe, getframeinfo
@@ -39,7 +13,7 @@ import sys
 
 DEBUG = 0
 
-class particles:
+class Particles:
     def __init__(self, params, total_num_part):
         N = total_num_part
         self.params = params
@@ -47,17 +21,9 @@ class particles:
         iseed = params.load[0].rand_seed
         np.random.seed(seed=iseed)
 
-        self.px = np.empty(N) 
-        self.py = np.empty(N) 
-        self.pz = np.empty(N) 
-
-        self.vx = np.empty(N)
-        self.vy = np.empty(N)
-        self.vz = np.empty(N)
-
-        self.ax = np.empty(N)
-        self.ay = np.empty(N)
-        self.az = np.empty(N)
+        self.pos = np.empty((N, 3)) 
+        self.vel = np.empty((N, 3)) 
+        self.acc = np.empty((N, 3)) 
 
         self.species_name = [None]*N
 
@@ -75,17 +41,13 @@ class particles:
                 print("restart_step is not defined!!!")
                 sys.exit()
             
-            pos, vel, acc = self.load_from_restart(timestep)
-            return pos, vel
-            
+            self.pos, self.vel, self.acc = self.load_from_restart(timestep)
 
         elif (self.params.load[0].method == 'file'):
             print('\nReading initial particle positions and velocities from file...')
             
             f_input = 'init.out'           # name of input file
             self.load_from_file(f_input, N)
-
-            return np.transpose(np.array([self.px, self.py, self.pz])), np.transpose(np.array([self.vx, self.vy, self.vz]))
 
         else:
 
@@ -164,19 +126,19 @@ class particles:
             u3 = np.random.random(N)
             u4 = np.random.random(N)
 
-            self.vx[:] = Vsig*np.sqrt(-2*np.log(u1))*np.cos(two_pi*u2) #distribution of vx
-            self.vy[:] = Vsig*np.sqrt(-2*np.log(u1))*np.sin(two_pi*u2) #distribution of vy
-            self.vz[:] = Vsig*np.sqrt(-2*np.log(u3))*np.cos(two_pi*u4) #distribution of vz
+            self.vel[:, 0] = Vsig*np.sqrt(-2*np.log(u1))*np.cos(two_pi*u2) #distribution of vx
+            self.vel[:, 1] = Vsig*np.sqrt(-2*np.log(u1))*np.sin(two_pi*u2) #distribution of vy
+            self.vel[:, 2] = Vsig*np.sqrt(-2*np.log(u3))*np.cos(two_pi*u4) #distribution of vz
         
             #computing the mean of each velocity component to impose mean value of the velocity components to be zero
-            vx_mean = np.mean(self.vx)
-            vy_mean = np.mean(self.vy)
-            vz_mean = np.mean(self.vz)
+            vx_mean = np.mean(self.vel[:, 0])
+            vy_mean = np.mean(self.vel[:, 1])
+            vz_mean = np.mean(self.vel[:, 2])
 
             #mean value of the velocity components to be zero
-            self.vx -= vx_mean
-            self.vy -= vy_mean
-            self.vz -= vz_mean
+            self.vel[:, 0] -= vx_mean
+            self.vel[:, 1] -= vy_mean
+            self.vel[:, 2] -= vz_mean
 
             if (load.method == 'lattice'):
                 self.lattice(N, self.params.load[0].perturb, self.params.load[0].rand_seed)
@@ -188,19 +150,16 @@ class particles:
                 self.halton_reject(N, self.params.load[0].halton_bases, self.params.load[0].r_reject)
 
             elif (load.method == 'random_no_reject'):
-                self.px = Lx*np.random.random(N)
-                self.py = Ly*np.random.random(N)
-                self.pz = Lz*np.random.random(N)
+                self.pos[:, 0] = Lx*np.random.random(N)
+                self.pos[:, 1] = Ly*np.random.random(N)
+                self.pos[:, 2] = Lz*np.random.random(N)
 
             else:
                 print('Incorrect particle placement scheme specified... Using "random_no_reject"')
-                self.px = Lx*np.random.random(N)
-                self.py = Ly*np.random.random(N)
-                self.pz = Lz*np.random.random(N)
+                self.pos[:, 0] = Lx*np.random.random(N)
+                self.pos[:, 1] = Ly*np.random.random(N)
+                self.pos[:, 2] = Lz*np.random.random(N)
                
-            return np.transpose(np.array([self.px, self.py, self.pz])), np.transpose(np.array([self.vx, self.vy, self.vz]))
-
-
 # add more particles: specific species, and number of particles
     def add(self):
         pass
@@ -220,9 +179,6 @@ class particles:
         acc = data["acc"]
         params = data["params"]
 
-        return pos, vel, acc
-
-
     def load_from_file(self, f_name, N):
         
         pv_data = np.loadtxt(f_name)
@@ -231,13 +187,13 @@ class particles:
             print("From the input file: N = ", N)
             print("From the initial p & v data: N = ", pv_data.shape[0])
             sys.exit()
-        self.px = pv_data[:, 0]
-        self.py = pv_data[:, 1]
-        self.pz = pv_data[:, 2]
+        self.pos[:, 0] = pv_data[:, 0]
+        self.pos[:, 1] = pv_data[:, 1]
+        self.pos[:, 2] = pv_data[:, 2]
 
-        self.vx = pv_data[:, 3]
-        self.vy = pv_data[:, 4]
-        self.vz = pv_data[:, 5]
+        self.vel[:, 0] = pv_data[:, 3]
+        self.vel[:, 1] = pv_data[:, 4]
+        self.vel[:, 2] = pv_data[:, 5]
 
     def lattice(self, N, perturb, rand_seed):
         ''' Place particles in a simple cubic lattice with a slight perturbation
@@ -314,9 +270,9 @@ class particles:
         Z +=  np.random.uniform(-0.5, 0.5, np.shape(Z)) * perturb * d_lattice
 
         # Flatten the meshgrid values for plotting and computation
-        self.px = X.ravel()
-        self.py = Y.ravel()
-        self.pz = Z.ravel()
+        self.pos[:, 0] = X.ravel()
+        self.pos[:, 1] = Y.ravel()
+        self.pos[:, 2] = Z.ravel()
         
         # End timer
         end = time.time()
@@ -436,9 +392,9 @@ class particles:
                 # Increment particle number
                 i += 1
                 
-        self.px = x
-        self.py = y
-        self.pz = z
+        self.pos[:, 0] = x
+        self.pos[:, 1] = y
+        self.pos[:, 2] = z
 
         end = time.time()
         print('Random Elapsed time: ', end - start)
@@ -580,9 +536,9 @@ class particles:
                 k += 1 # Increment Halton counter
                 i += 1 # Increment particle number
 
-        self.px = x
-        self.py = y
-        self.pz = z
+        self.pos[:, 0] = x
+        self.pos[:, 1] = y
+        self.pos[:, 2] = z
 
         # End timer        
         end = time.time()

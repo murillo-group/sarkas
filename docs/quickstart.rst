@@ -50,15 +50,15 @@ Using Sarkas
 
 Input files
 ~~~~~~~~~~~
-Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the `yaml.inp` file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example. 
+Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the `input.yaml` file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example. 
 
 Using the input file
 ~~~~~~~~~~~~~~~~~~~~
-To specify you simulation parameters, open the `yaml.inp` file in your text editor and alter the values to
+To specify you simulation parameters, open the `input.yaml` file in your text editor and alter the values to
 the right of the keywords. Below is a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: `https://learn.getgrav.org/16/advanced/yaml`.
 
 
-.. csv-table:: Table for "Load" section key and value pairs in .yaml file
+.. csv-table:: Table for "Load" section key and value pairs in the input.yaml file
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
@@ -70,7 +70,7 @@ the right of the keywords. Below is a description of what each keyword is used f
    "perturb", "float", "Perturbation for particle at lattice point for 'lattice' initialization scheme. Must be between 0 and 1."
    "halton_bases", "python list", "List of 3 numbers to be used as the 'bases' for the 'halton_reject' initialization scheme."
 
-.. csv-table:: Table for "Potential" section key and value pairs in .yaml file
+.. csv-table:: Table for "Potential" section key and value pairs in the input.yaml file
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
@@ -80,20 +80,20 @@ the right of the keywords. Below is a description of what each keyword is used f
    "gamma", "float", "Coulomb coupling parameter for system. See 'Units' section below for more detail"
    "rc", "float", "Potential cutoff radius. Contributions to force beyond this distance ignored"
 
-.. csv-table:: Table for "Thermostat" section key and value pairs in .yaml file
+.. csv-table:: Table for "Thermostat" section key and value pairs in the input.yaml file
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
    "type", "string", "Name of desired thermostat to be used during equilibration phase. See <link to initilization/equlibration page> for a list of supported thermostats"
 
-.. csv-table:: Table for "Langevin" section key and value pairs in .yaml file
+.. csv-table:: Table for "Langevin" section key and value pairs in the input.yaml file
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
    "type", "string", "Name of desired Langevin model to be used."
    "gamma", "float", "Magnitude of Langevin 'kick'"
 
-.. csv-table:: Table for "Control" section key and value pairs in .yaml file
+.. csv-table:: Table for "Control" section key and value pairs in the input.yaml file
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
@@ -145,8 +145,8 @@ In the above expression, :math:`E_F` is the Fermi energy, and :math:`n_e` is the
 
 Running Sarkas
 --------------
-To run Sarkas once you have edited the yaml file, simply type the command
+To run Sarkas once you have edited the input.yaml file, simply type the command
 
 .. code-block:: bash
    
-   $ python3 Sarkas.py yaml.inp
+   $ python3 Sarkas.py input.yaml

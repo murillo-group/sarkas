@@ -7,7 +7,7 @@ import S_global_names as glb
 import S_constants as const
 
 @nb.jit
-def init_parameters():
+def init():
     l = 1 #lambda parameter (1 or 1/9 in egs paper)
     k = const.kb
     e = const.elec_charge
@@ -51,3 +51,7 @@ def init_parameters():
         glb.alphap = b/np.sqrt(nu-b)
         glb.nu = nu
 #        return zbar(Z, m, T, n)*e**2/(4*np.pi*e_0)*(np.cos(r/gamma_m) + alpha*np.sin(r/gamma_m))*np.exp(-r/gamma_p)
+
+
+def update(pos,acc_s_r):
+    pass
