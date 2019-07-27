@@ -1,14 +1,36 @@
-'''
-S_particle.py
+''' Place particles by sampling a uniform distribution from 0 to L (the box length)
+    and uses a rejection radius to avoid placing particles to close to each other.
 
-particle loading, adding, and removing
+Parameters
+----------
+N_part : int
+    Total number of particles to place.
 
-species_name
-px,py,pz: position components
-vx, vy, vz: velocity components
-ax, ay, az: acc. components
-charge
-mass
+r_reject : float
+    Value of rejection radius.
+
+rand_seed : int
+    Seed for random number generator. 
+    Default: 1.
+
+Returns
+-------
+x : array_like
+    X positions for particles.
+    
+y : array_like
+    Y positions for particles.
+
+z : array_like
+    Z positions for particles.
+
+Notes
+-----    
+Author: Luke Stanek
+Date Created: 5/6/19
+Date Updated: N/A
+Updates: N/A
+
 '''
 import numpy as np
 from inspect import currentframe, getframeinfo
@@ -281,7 +303,7 @@ class particles:
 
         # Create a lattice with approprate x, y, and z values based on arange
         X, Y, Z = np.meshgrid(x,y,z)
-        
+
         # Random seed
         print('Random number generator using rand_seed = {}'.format(rand_seed))
         np.random.seed(rand_seed) # Seed for random number generator

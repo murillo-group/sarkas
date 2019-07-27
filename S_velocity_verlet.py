@@ -38,7 +38,15 @@ def update(pos, vel, acc, it, Z, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p):
     
     U : float
         Total potential energy
-        
+
+    Notes
+    -----
+    The velocity Verlet integration algorithm is comprised of a three-step update
+    the following form:
+
+    1. :math:`\mathbf{v}(t + \Delta t/2) = \mathbf{v}(t) + \mathbf{a}(t) \Delta t/2`
+    2. :math:`\mathbf{x}(t + \Delta t) = \mathbf{x}(t) + \mathbf{v}(t + \Delta t/2) \Delta t`
+    3. :math:`\mathbf{v}(t + \Delta t) = \mathbf{v}(t + \Delta t/2) + \mathbf{a}(t + \Delta t)\Delta t/2`   
     '''
     
     # Import global parameters (is there a better way to do this?)
