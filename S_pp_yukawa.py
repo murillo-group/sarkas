@@ -385,8 +385,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     #BUG: particles not sent to self!
     send_requests = []
     for i in mpiComm.neigs.ranks:
-        if mpiComm.rank==1:
-            print("rank1: send buff len = ", len(send_dict[i]))
+        #if mpiComm.rank==1:
+        #    print("rank1: send buff len = ", len(send_dict[i]))
         Sreq = mpiComm.comm.Isend([send_dict[i],MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
         send_requests.append(Sreq)
 
@@ -446,8 +446,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     recv_requests=[]
     p = 0
     for i in mpiComm.neigs.ranks:
-        if mpiComm.rank==0:
-            print("Rank0: Recv Len = ", len(recvB[p]))
+        #if mpiComm.rank==0:
+        #    print("Rank0: Recv Len = ", len(recvB[p]))
         Rreq = mpiComm.comm.Irecv([recvB[p], MPI.DOUBLE], source = i, tag = i*10)
         recv_requests.append(Rreq)
         p+=1
@@ -475,15 +475,16 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     #construct new linked cell list using
     # old LCL and copied particles
     #Nb = len(recvBuff[:,0]) + len(selfBuff[:,0])
-    Nb = len(pos[:,0]) - N
-    lsRecv  = np.arange(N+Nb,dtype=np.int32)
-    lsRecv[:N] = ls
+    #Nb = len(pos[:,0]) - N
+    Nb = len(pos[:,0])
+    lsRecv  = np.arange(Nb,dtype=np.int32)
+    #lsRecv[:N] = ls
     headRecv= np.empty(shape=((Lzd+2),(Lyd+2),(Lxd+2)),dtype=np.int32)
     headRecv.fill(empty)
-    headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape(Lzd,Lyd,Lxd)
+    #headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape(Lzd,Lyd,Lxd)
     headRecv = headRecv.flatten()
-    old = np.copy(headRecv)
-    for i in range(N,Nb):
+    #old = np.copy(headRecv)
+    for i in range(Nb):
         cx = int(np.floor((rc_x + pos[i,0] - mpiComm.Lmin[0])/rc_x))
         cy = int(np.floor((rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y))
         cz = int(np.floor((rc_z + pos[i,2] - mpiComm.Lmin[2])/rc_z))
