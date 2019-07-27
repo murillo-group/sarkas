@@ -16,8 +16,9 @@ their choosing.
    
    quickstart
    tutorial
+   code
    potentials
-   todo
+   thermostats
 
 
 Indices and tables
