@@ -227,11 +227,13 @@ class mpi_comm:
         Lyd = int(np.floor(self.Ll[1]/glb.rc))
         Lzd = int(np.floor(self.Ll[2]/glb.rc))
 
+        print("(Lzd,Lyd,Lxd) = ", (Lzd,Lyd,Lxd))
+
         ix = np.linspace(1,Lxd,Lxd,dtype=np.int)
         iy = np.linspace(1,Lyd,Lyd,dtype=np.int)
         iz = np.linspace(1,Lzd,Lzd,dtype=np.int)
         yy,zz,xx = np.meshgrid(iy,iz,ix)
-        zyx = np.dstack((zz.flatten(),yy.flatten(),xx.flatten()))[0] - np.ones(3,dtype=np.int)
+        zyx = np.dstack((zz.flatten(),yy.flatten(),xx.flatten()))[0]# - np.ones(3,dtype=np.int)
 
         interior=np.array([],dtype=np.int)
         intL = 0
@@ -241,13 +243,14 @@ class mpi_comm:
             cx = I[2]
             cy = I[1]
             cz = I[0]
-            if cx == 0 or cx == Lxd-1:
+            print("(cz,cy,cx) = ",(cz,cy,cx))
+            if cx == 1 or cx == Lxd:
                 extL +=1
                 exterior = np.append(exterior,I)
-            elif cy == 0 or cy == Lyd-1:
+            elif cy == 1 or cy == Lyd:
                 extL +=1
                 exterior = np.append(exterior,I)
-            elif cz == 0 or cz == Lzd-1:
+            elif cz == 1 or cz == Lzd:
                 extL +=1
                 exterior = np.append(exterior,I)
             else:

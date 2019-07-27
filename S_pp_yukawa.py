@@ -34,6 +34,10 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     exterior = mpiComm.exteriorCells
     interior = mpiComm.interiorCells
 
+    #if mpiComm.rank==0 and True:
+    #    print("int = ",interior)
+    #    print("ext = ",exterior)
+
     rc_x = Lx/Lxd
     rc_y = Ly/Lyd
     rc_z = Lz/Lzd
@@ -44,8 +48,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     head.fill(empty)
 
     #====LCL-Copy-Buffers=====================
-
-    lclDict = {}
 
     Lower = Lzd-1
     Upper = 0
@@ -383,53 +385,53 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     #BUG: particles not sent to self!
     send_requests = []
     for i in mpiComm.neigs.ranks:
+        if mpiComm.rank==1:
+            print("rank1: send buff len = ", len(send_dict[i]))
         Sreq = mpiComm.comm.Isend([send_dict[i],MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
         send_requests.append(Sreq)
 
-    for I in interior:
+    #for cx in range(1,Lxd-1):
+    #    for cy in range(1,Lyd-1):
+    #        for cz in range(1,Lzd-1):
 
-        cx = I[2]
-        cy = I[1]
-        cz = I[0]
+    #            c = cx + cy*Lxd + cz*Lxd*Lyd
 
-        c = cx + cy*Lxd + cz*Lxd*Lyd
+    #            for cz_N in range(cz-1,cz+2):
+    #                for cy_N in range(cy-1,cy+2):
+    #                    for cx_N in range(cx-1,cx+2):
 
-        for cz_N in range(cz-1,cz+2):
-            for cy_N in range(cy-1,cy+2):
-                for cx_N in range(cx-1,cx+2):
+    #                        c_N = cx_N + cy_N*Lxd + cz_N*Lxd*Lyd
 
-                    c_N = cx_N + cy_N*Lxd + cz_N*Lxd*Lyd
+    #                        i = head[c]
 
-                    i = head[c]
+    #                        while(i != empty):
 
-                    while(i != empty):
+    #                            j = head[c_N]
 
-                        j = head[c_N]
+    #                            while(j != empty):
 
-                        while(j != empty):
+    #                                if i < j:
+    #                                    dx = pos[i,0] - pos[j,0]
+    #                                    dy = pos[i,1] - pos[j,1]
+    #                                    dz = pos[i,2] - pos[j,2]
+    #                                    r = np.sqrt(dx**2 + dy**2 + dz**2)
 
-                            if i < j:
-                                dx = pos[i,0] - pos[j,0]
-                                dy = pos[i,1] - pos[j,1]
-                                dz = pos[i,2] - pos[j,2]
-                                r = np.sqrt(dx**2 + dy**2 + dz**2)
+    #                                    if r < rc:
+    #                                        U_s_r = U_s_r + np.exp(-kappa*r)/r
+    #                                        f1 = 1./r**2*np.exp(-kappa*r)
+    #                                        f2 = kappa/r*np.exp(-kappa*r)
+    #                                        fr = f1+f2
+    #                                        acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
+    #                                        acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
+    #                                        acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
 
-                                if r < rc:
-                                    U_s_r = U_s_r + np.exp(-kappa*r)/r
-                                    f1 = 1./r**2*np.exp(-kappa*r)
-                                    f2 = kappa/r*np.exp(-kappa*r)
-                                    fr = f1+f2
-                                    acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
-                                    acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
-                                    acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
+    #                                        acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
+    #                                        acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
+    #                                        acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
 
-                                    acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
-                                    acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
-                                    acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
+    #                                j = ls[j]
 
-                            j = ls[j]
-
-                        i = ls[i]
+    #                            i = ls[i]
 
     #probe incomming messages for total
     #number of received particles and
@@ -444,6 +446,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     recv_requests=[]
     p = 0
     for i in mpiComm.neigs.ranks:
+        if mpiComm.rank==0:
+            print("Rank0: Recv Len = ", len(recvB[p]))
         Rreq = mpiComm.comm.Irecv([recvB[p], MPI.DOUBLE], source = i, tag = i*10)
         recv_requests.append(Rreq)
         p+=1
@@ -479,61 +483,113 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape(Lzd,Lyd,Lxd)
     headRecv = headRecv.flatten()
     old = np.copy(headRecv)
-    for i in range(Nb):
-        i = i + N
+    for i in range(N,Nb):
         cx = int(np.floor((rc_x + pos[i,0] - mpiComm.Lmin[0])/rc_x))
         cy = int(np.floor((rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y))
         cz = int(np.floor((rc_z + pos[i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+        #if mpiComm.rank==0:
+        #    print("=========")
+        #    print("cx = %d, rx = %f, rx_cor = %f" %(cx,pos[i,0],rc_x + pos[i,0] - mpiComm.Lmin[0]))
+        #    print("cy = %d, ry = %f, ry_cor = %f" %(cy,pos[i,1],(rc_y + pos[i,1] - mpiComm.Lmin[1])))
+        #    print("cz = %d, rz = %f, rz_cor = %f" %(cz,pos[i,2],(rc_z + pos[i,2] - mpiComm.Lmin[2])))
 
         lsRecv[i] = headRecv[c]
         headRecv[c] = i
 
-    for I in exterior:
+    for cx in range(1,Lxd+1):
+        for cy in range(1,Lyd+1):
+            for cz in range(1,Lzd+1):
 
-        cx = I[2] + 1
-        cy = I[1] + 1
-        cz = I[0] + 1
+                c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
 
-        c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+                for cz_N in range(cz-1,cz+2):
+                    for cy_N in range(cy-1,cy+2):
+                        for cx_N in range(cx-1,cx+2):
 
-        for cz_N in range(cz-1,cz+2):
-            for cy_N in range(cy-1,cy+2):
-                for cx_N in range(cx-1,cx+2):
+                            c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
 
-                    c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
+                            i = headRecv[c]
 
-                    i = headRecv[c]
+                            while(i != empty):
 
-                    while(i != empty):
+                                j = headRecv[c_N]
 
-                        j = headRecv[c_N]
+                                while(j != empty):
 
-                        while(j != empty):
+                                    if i < j:
+                                        dx = pos[i,0] - pos[j,0]
+                                        dy = pos[i,1] - pos[j,1]
+                                        dz = pos[i,2] - pos[j,2]
+                                        r = np.sqrt(dx**2 + dy**2 + dz**2)
 
-                            if i < j:
+                                        if r < rc:
+                                            U_s_r = U_s_r + np.exp(-kappa*r)/r
+                                            f1 = 1./r**2*np.exp(-kappa*r)
+                                            f2 = kappa/r*np.exp(-kappa*r)
+                                            fr = f1+f2
+                                            acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
+                                            acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
+                                            acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
 
-                                dx = pos[i,0] - pos[j,0]
-                                dy = pos[i,1] - pos[j,1]
-                                dz = pos[i,2] - pos[j,2]
-                                r = np.sqrt(dx**2 + dy**2 + dz**2)
+                                            if j < N:
+                                                acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
+                                                acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
+                                                acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
 
-                                if r < rc:
+                                    j = lsRecv[j]
 
-                                    U_s_r = U_s_r + np.exp(-kappa*r)/r
-                                    f1 = 1./r**2*np.exp(-kappa*r)
-                                    f2 = kappa/r*np.exp(-kappa*r)
-                                    fr = f1+f2
-                                    acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
-                                    acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
-                                    acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
-                                    if j < N:
-                                        acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
-                                        acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
-                                        acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
+                                i = lsRecv[i]
 
-                            j = lsRecv[j]
+    #print("")
+    #print("++++++++")
+    #for I in exterior:
+    #    if mpiComm.rank==0:
+    #        print(I)
 
-                        i = lsRecv[i]
+    #    cx = I[2]#+1
+    #    cy = I[1]#+1
+    #    cz = I[0]#+1
+
+    #    c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+
+    #    for cz_N in range(cz-1,cz+2):
+    #        for cy_N in range(cy-1,cy+2):
+    #            for cx_N in range(cx-1,cx+2):
+
+    #                c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
+
+    #                i = headRecv[c]
+
+    #                while(i != empty):
+
+    #                    j = headRecv[c_N]
+
+    #                    while(j != empty):
+
+    #                        if i < j:
+
+    #                            dx = pos[i,0] - pos[j,0]
+    #                            dy = pos[i,1] - pos[j,1]
+    #                            dz = pos[i,2] - pos[j,2]
+    #                            r = np.sqrt(dx**2 + dy**2 + dz**2)
+
+    #                            if r < rc:
+
+    #                                U_s_r = U_s_r + np.exp(-kappa*r)/r
+    #                                f1 = 1./r**2*np.exp(-kappa*r)
+    #                                f2 = kappa/r*np.exp(-kappa*r)
+    #                                fr = f1+f2
+    #                                acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
+    #                                acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
+    #                                acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
+    #                                if j < N:
+    #                                    acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
+    #                                    acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
+    #                                    acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
+
+    #                        j = lsRecv[j]
+
+    #                    i = lsRecv[i]
 
     return U_s_r, acc_s_r, vel, pos[:N]

@@ -218,22 +218,23 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 
 print('\n------------- Equilibration -------------')
 #print('time - temperature')
-print(Neq)
 for it in range(Neq):
-#    print("it = ", it)
+
     U, acc, vel, pos = thermostat.vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm,1)
 
-#---------------
     K = 0.5*mi*np.ndarray.sum(vel**2)
-    Tp = (2/3)*K/float(N)/const.kb
     if(glb.units == "Yukawa"):
         K *= 3
-        Tp *= 3
 
     E = K + U
-    if mpiComm.rank == 0:
-        if(it%glb.snap_int == 0 and glb.verbose):
-            print("Equilibration: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
+
+    if(it%glb.snap_int == 0 and glb.verbose ):
+        Energy=np.zeros(3,dtype=np.float64)
+        mpiComm.comm.Reduce([np.array([E,K,U]), MPI.DOUBLE],[Energy, MPI.DOUBLE],op = MPI.SUM,root = 0)
+        if mpiComm.rank == 0:
+            K = Energy[1]
+            Tp = (2/3)*K/float(N)/const.kb
+            print("Equilibration: timestep, T, E, K, U, Np = ", it, Tp, Energy[0], Energy[1], Energy[2], len(pos[:,0]))
 
 t5 = time.time()
 
@@ -254,20 +255,19 @@ for it in range(Nt):
     U, acc, vel, pos = velocity_verlet.update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm,0)
 
     K = 0.5*mi*np.ndarray.sum(vel**2)
-    Tp = (2/3)*K/float(N)/const.kb
     if(glb.units == "Yukawa"):
-        K *= 3.
-        Tp *= 3.
+        K *= 3
 
     E = K + U
 
-    #if mpiComm.rank==0:
-    #    print("k= ", K)
-    if mpiComm.rank == 0:
-        if(it%glb.snap_int == 0 and glb.verbose ):
-            print("Production: timestep, T, E, K, U, Np = ", it, Tp, E, K, U, len(pos[:,0]))
-            #print(vel)
-    
+    if(it%glb.snap_int == 0 and glb.verbose ):
+        Energy=np.zeros(3,dtype=np.float64)
+        mpiComm.comm.Reduce([np.array([E,K,U]), MPI.DOUBLE],[Energy, MPI.DOUBLE],op = MPI.SUM,root = 0)
+        if mpiComm.rank == 0:
+            K = Energy[1]
+            Tp = (2/3)*K/float(N)/const.kb
+            print("Production: timestep, T, E, K, U, Np = ", it, Tp, Energy[0], Energy[1], Energy[2], len(pos[:,0]))
+
     t_Tp_E_K_U = np.array([dt*it, Tp, E, K, U])
     t_Tp_E_K_U2[:] = t_Tp_E_K_U
     
