@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial &mdash; Sarkas  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Code" href="code.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #18453b" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#problem-set-up">Problem Set-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#saving-output-from-sarkas">Saving Output from Sarkas</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="code.html">Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Tutorial</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>Here we provide a step-by-step guide to illustrate how to run Sarkas and how to obtain useful quantities from your simulation data once you run is complete. The topics that are listed in this tutorial are as follows</p>
+<ul class="simple">
+<li>Saving output data from Sarkas</li>
+<li>Computing the radial distribution function (RDF)</li>
+<li>Computing the velocity autocorrelation function (VACF)</li>
+<li>Computing the self-diffusion coefficient</li>
+</ul>
+<div class="section" id="problem-set-up">
+<h2>Problem Set-up<a class="headerlink" href="#problem-set-up" title="Permalink to this headline">¶</a></h2>
+<p>Let’s consider a strongly coupled plasma comprised of 500 copper ions with a number density of <span class="math notranslate nohighlight">\(n_i = 6e+22 \frac{N}{cm^3}\)</span> at a temperature <span class="math notranslate nohighlight">\(1 eV\)</span>, the non-dimensional parameters, assuming a Yukawa potential is used for the interactions, the “Potential” section of the yaml.inp file would be set-up as follows</p>
+<table border="1" class="colwidths-auto docutils" id="id1">
+<caption><span class="caption-text">Example values for “Potential” section in yaml.inp file</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>type</td>
+<td>Yukwa</td>
+</tr>
+<tr class="row-odd"><td>algorithm</td>
+<td>PP</td>
+</tr>
+<tr class="row-even"><td>kappa</td>
+<td>3.04</td>
+</tr>
+<tr class="row-odd"><td>Gamma</td>
+<td>129.12</td>
+</tr>
+<tr class="row-even"><td>rc</td>
+<td>3.78</td>
+</tr>
+</tbody>
+</table>
+<p>After adding these parameters to the yaml.inp file, we move to the “Control” section of the yaml.inp file to specify the simulation parameters. Supposing that we want a fairly converged RDF and VACF, we could specify the following values</p>
+<table border="1" class="colwidths-auto docutils" id="id2">
+<caption><span class="caption-text">Example values for “Control” section in yaml.inp file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>dt</td>
+<td>0.1</td>
+</tr>
+<tr class="row-odd"><td>Neq</td>
+<td>1000</td>
+</tr>
+<tr class="row-even"><td>Nstep</td>
+<td>30000</td>
+</tr>
+<tr class="row-odd"><td>BC</td>
+<td>periodic</td>
+</tr>
+<tr class="row-even"><td>writeout</td>
+<td>yes</td>
+</tr>
+<tr class="row-odd"><td>writexyz</td>
+<td>no</td>
+</tr>
+<tr class="row-even"><td>dump_step</td>
+<td>10</td>
+</tr>
+<tr class="row-odd"><td>random_seed</td>
+<td>1 (deprecated)</td>
+</tr>
+<tr class="row-even"><td>restart</td>
+<td>no</td>
+</tr>
+<tr class="row-odd"><td>verbose</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="colwidths-auto docutils" id="id3">
+<caption><span class="caption-text">Example values for “Control” section in yaml.inp file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>dt</td>
+<td>0.1</td>
+</tr>
+<tr class="row-odd"><td>Neq</td>
+<td>1000</td>
+</tr>
+<tr class="row-even"><td>Nstep</td>
+<td>30000</td>
+</tr>
+<tr class="row-odd"><td>BC</td>
+<td>periodic</td>
+</tr>
+<tr class="row-even"><td>writeout</td>
+<td>yes</td>
+</tr>
+<tr class="row-odd"><td>writexyz</td>
+<td>no</td>
+</tr>
+<tr class="row-even"><td>dump_step</td>
+<td>10</td>
+</tr>
+<tr class="row-odd"><td>random_seed</td>
+<td>1 (deprecated)</td>
+</tr>
+<tr class="row-even"><td>restart</td>
+<td>no</td>
+</tr>
+<tr class="row-odd"><td>verbose</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="saving-output-from-sarkas">
+<h2>Saving Output from Sarkas<a class="headerlink" href="#saving-output-from-sarkas" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="code.html" class="btn btn-neutral float-right" title="Code" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Murillo Group at Michigan State University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

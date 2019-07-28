@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Sarkas Documentaion &mdash; Sarkas  documentation</title>
+  <title>Thermostats &mdash; Sarkas  documentation</title>
   
 
   
@@ -44,8 +44,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quickstart" href="quickstart.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -59,7 +58,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> Sarkas
+            <a href="index.html" class="icon icon-home"> Sarkas
           
 
           
@@ -95,7 +94,6 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code.html">Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
 </ul>
 
             
@@ -110,7 +108,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Sarkas</a>
+          <a href="index.html">Sarkas</a>
         
       </nav>
 
@@ -139,15 +137,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Sarkas Documentaion</li>
+      <li>Thermostats</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/thermostat.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -160,44 +158,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="sarkas-documentaion">
-<h1>Sarkas Documentaion<a class="headerlink" href="#sarkas-documentaion" title="Permalink to this headline">¶</a></h1>
-<p>Sarkas is a pure-python molecular dynamics (MD) code designed with plasma physics in mind. The
-pure-python construction allows users to quickly add their own features to model the systems of
-their choosing.</p>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#obtaining-sarkas">Obtaining Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-sarkas">Using Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-sarkas">Running Sarkas</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#problem-set-up">Problem Set-up</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#saving-output-from-sarkas">Saving Output from Sarkas</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="code.html">Code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="potentials.html#yukawa-potential">Yukawa Potential</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="thermostats.html#berendsen-thermostat">Berendsen Thermostat</a></li>
-</ul>
-</li>
-</ul>
+  <div class="section" id="thermostats">
+<h1>Thermostats<a class="headerlink" href="#thermostats" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="berendsen-thermostat">
+<h2>Berendsen Thermostat<a class="headerlink" href="#berendsen-thermostat" title="Permalink to this headline">¶</a></h2>
+<p>The Berendsen Thermostat (BT) using a tapered velocity scaling approach. In a strict velocity scaling approach the temperature <span class="math notranslate nohighlight">\(T_e\)</span> is estimated, through a quantity proportional to <span class="math notranslate nohighlight">\(\langle v^2 \rangle\)</span>, and the velocities are scaled to values consistent with the desired temperature <span class="math notranslate nohighlight">\(T_d\)</span>, as in <span class="math notranslate nohighlight">\(v_i \to \alpha v_i\)</span>. Being completely inconsistent with physical laws, it is preferable to use the same simple algorithm but more gently so that the dynamics during the thermostat period is more consistent with the underlying equations of motion. In the BT we begin with an model for the temperature as we would like to see it evolve over a slower timescale <span class="math notranslate nohighlight">\(\tau_{BT}\)</span>. One model is</p>
+<div class="math notranslate nohighlight">
+\[\frac{dT}{dt} = \frac{T_d - T}{\tau_{BT}},\]</div>
+<p>This equation can be solved analytically to yield</p>
+<div class="math notranslate nohighlight">
+\[T(t) = T(0)e^{-t/\tau_BT} + \left(1 - e^{-t/\tau_BT}  \right)T_d ,\]</div>
+<p>which can be seen to transition from the initial temperature <span class="math notranslate nohighlight">\(T(0)\)</span> to the desired temperature <span class="math notranslate nohighlight">\(T_d$ on a time scale of :math:\)</span>tau_{BT}`. By choosing <span class="math notranslate nohighlight">\(\tau_{BT}\)</span> to be many time steps we can eventually equilibrate the system while allowing it to explore configurations closer to the real (not velocity scaled) dynamics.</p>
+<p>To implement BT we discretize the BT model across one time step to obtain</p>
+<div class="math notranslate nohighlight">
+\[T(t + \Delta t) = T(t) + \frac{\Delta t}{\tau_{BT}}\left(T_d - T(t) \right) .\]</div>
+<p>We want to scale the current velocities such that this new temperature <span class="math notranslate nohighlight">\(T(t+\Delta t)\)</span> is achieved, because that the temperature prescribed by the BT. Finding the ratio then of the target temperature and the current temperature, we get</p>
+<div class="math notranslate nohighlight">
+\[\frac{T(t + \Delta t)}{T(t) } = 1+ \frac{\Delta t}{\tau_{BT}}\left(\frac{T_d}{T(t) } - 1 \right)\]</div>
+<p>Taking the square root this yields the scaling factor for the velocities.</p>
+<p>The BT is implemented in Sarkas with several epochs. You can specify the number of epochs and the individual strengths <span class="math notranslate nohighlight">\(\tau_{BT,j}\)</span>. This allows for a stronger thermostat initially, but tapering to a more gentle thermostat toward the end of the equilibration phase.</p>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
 </div>
 
 
@@ -205,13 +185,6 @@ their choosing.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>

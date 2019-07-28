@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S_integrator &mdash; Sarkas  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #18453b" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code.html">Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>S_integrator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for S_integrator</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">S_p3m</span> <span class="k">as</span> <span class="nn">p3m</span>
+<span class="kn">import</span> <span class="nn">S_constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">import</span> <span class="nn">S_yukawa_gf_opt</span> <span class="k">as</span> <span class="nn">yukawa_gf_opt</span>
+<span class="kn">import</span> <span class="nn">S_force</span> <span class="k">as</span> <span class="nn">force</span>
+
+<div class="viewcode-block" id="Integrator"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator">[docs]</a><span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39; Integrates the equation of motion for the particles. Updating position, velocity, and acceleration. &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">glb</span><span class="p">):</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;yukawa&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span> <span class="o">=</span> <span class="n">p3m</span><span class="o">.</span><span class="n">force_pot</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span> <span class="o">=</span> <span class="n">glb</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Verlet&quot;</span><span class="p">):</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Verlet_with_Langevin</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Verlet</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only Verlet integrator is supported. Check your input file, integrator part.&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Integrator.Verlet"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.Verlet">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Update particle position and velocity based on velocity verlet method.</span>
+<span class="sd">        More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration</span>
+<span class="sd">        or on the Sarkas website. </span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The velocity Verlet integration algorithm is comprised of a three-step update</span>
+<span class="sd">        the following form:</span>
+
+<span class="sd">        1. :math:`\mathbf{v}(t + \Delta t/2) = \mathbf{v}(t) + \mathbf{a}(t) \Delta t/2`</span>
+<span class="sd">        2. :math:`\mathbf{x}(t + \Delta t) = \mathbf{x}(t) + \mathbf{v}(t + \Delta t/2) \Delta t`</span>
+<span class="sd">        3. :math:`\mathbf{v}(t + \Delta t) = \mathbf{v}(t + \Delta t/2) + \mathbf{a}(t + \Delta t)\Delta t/2`   </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Import global parameters (is there a better way to do this?)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">N</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">d</span>
+        <span class="n">Lv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lv</span>
+        <span class="n">PBC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">PBC</span>
+        <span class="n">Lmax_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lmax_v</span>
+        <span class="n">Lmin_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lmin_v</span>
+
+        <span class="c1"># First half step velocity update</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">dt</span>
+        
+        <span class="c1"># Full step position update</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="o">*</span><span class="n">dt</span>
+
+        <span class="c1"># Periodic boundary condition</span>
+        <span class="k">if</span> <span class="n">PBC</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            
+            <span class="c1"># Loop over all particles</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="c1"># Loop over dimensions (x=0, y=1, z=2)</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                    
+                    <span class="c1"># If particle is outside of box in positive direction, wrap to negative side</span>
+                    <span class="k">if</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">Lmax_v</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
+                        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">Lv</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+                    
+                    <span class="c1"># If particle is outside of box in negative direction, wrap to positive side</span>
+                    <span class="k">if</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Lmin_v</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
+                        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">+</span> <span class="n">Lv</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+
+        <span class="c1"># Compute total potential energy and accleration for second half step velocity update                 </span>
+        <span class="c1">#U = p3m.force_pot(ptcls)</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+        <span class="c1">#U = self.update_force(ptcls)</span>
+        
+        <span class="c1"># Second half step velocity update</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">dt</span>
+
+        <span class="k">return</span> <span class="n">U</span></div>
+
+<div class="viewcode-block" id="Integrator.Verlet_with_Langevin"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.Verlet_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">g_0</span>
+        <span class="n">Gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Gamma</span>
+        <span class="n">Lmax_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lmax_v</span>
+        <span class="n">Lmin_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lmin_v</span>
+        <span class="n">Lv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lv</span>
+        <span class="n">PBC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">PBC</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">N</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">d</span>
+
+        <span class="n">rtdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">g</span><span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">kb</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">T_desired</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">proton_mass</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span><span class="p">):</span>
+            <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">g</span><span class="o">/</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">Gamma</span><span class="p">))</span>
+
+        <span class="n">c1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">g</span><span class="o">*</span><span class="n">dt</span><span class="p">)</span>
+        <span class="n">c2</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">g</span><span class="o">*</span><span class="n">dt</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="n">c1</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">sig</span><span class="o">*</span><span class="n">dt</span><span class="o">**</span><span class="mf">1.5</span><span class="o">*</span><span class="n">beta</span>
+
+        <span class="c1"># periodic boundary condition</span>
+        <span class="k">if</span> <span class="n">PBC</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">Lmax_v</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
+                        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">Lv</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Lmin_v</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
+                        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">+</span> <span class="n">Lv</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span>
+        <span class="c1">#U = p3m.force_pot(ptcls)</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+        <span class="c1">#U = self.update_force(ptcls)</span>
+        <span class="n">acc_new</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">c1</span><span class="o">*</span><span class="n">c2</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">acc_new</span> <span class="o">+</span> <span class="n">acc</span><span class="p">)</span><span class="o">*</span><span class="n">c2</span> <span class="o">+</span> <span class="n">c2</span><span class="o">*</span><span class="n">sig</span><span class="o">*</span><span class="n">rtdt</span><span class="o">*</span><span class="n">beta</span>
+        <span class="k">return</span> <span class="n">U</span></div>
+
+<div class="viewcode-block" id="Integrator.RK45"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.RK45">[docs]</a>    <span class="k">def</span> <span class="nf">RK45</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Integrator.RK45_with_Langevin"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.RK45_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">RK45_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Murillo Group at Michigan State University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

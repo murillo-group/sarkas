@@ -1,0 +1,786 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S_particles &mdash; Sarkas  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #18453b" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code.html">Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>S_particles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for S_particles</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">species_name</span>
+<span class="sd">pos: position components</span>
+<span class="sd">vel: velocity components</span>
+<span class="sd">acc: acc. components</span>
+<span class="sd">charge</span>
+<span class="sd">mass</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">currentframe</span><span class="p">,</span> <span class="n">getframeinfo</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Particles"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles">[docs]</a><span class="k">class</span> <span class="nc">Particles</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">total_num_part</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">total_num_part</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="c1">#print(self.params)</span>
+        <span class="n">iseed</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rand_seed</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">iseed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> 
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">N</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+
+<span class="c1"># initial whole particles loading.</span>
+<span class="c1"># Here numba does not help at all. In fact loading is slower with numba. </span>
+<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">glb_vars</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;restart&#39;</span><span class="p">):</span>
+            <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">restart_step</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">timestep</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;restart_step is not defined!!!&quot;</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Reading initial particle positions and velocities from file...&#39;</span><span class="p">)</span>
+            
+            <span class="n">f_input</span> <span class="o">=</span> <span class="s1">&#39;init.out&#39;</span>           <span class="c1"># name of input file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">f_input</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;random_no_reject&#39;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Assigning random initial positions </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">method</span><span class="p">))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Assigning initial positions according to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">method</span><span class="p">))</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Assigning random initial velocities...&#39;</span><span class="p">)</span>
+
+
+            <span class="n">Lx</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Lx</span>
+            <span class="n">Ly</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Ly</span>
+            <span class="n">Lz</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Lz</span>
+
+            <span class="n">idx_end</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">load</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">):</span>
+                <span class="n">idx_start</span> <span class="o">=</span> <span class="n">idx_end</span>
+                <span class="n">idx_end</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Num</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">idx_start</span><span class="p">,</span> <span class="n">idx_end</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species_name</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">species</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
+
+                    <span class="k">if</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">):</span>
+                        <span class="n">frameinfo</span> <span class="o">=</span> <span class="n">getframeinfo</span><span class="p">(</span><span class="n">currentframe</span><span class="p">())</span>
+                        <span class="nb">print</span><span class="p">(</span> <span class="n">frameinfo</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">frameinfo</span><span class="o">.</span><span class="n">lineno</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+                    <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span>
+                        <span class="k">break</span>
+
+            <span class="n">two_pi</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> 
+
+            <span class="n">potential_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">control</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">units</span>
+
+<span class="c1">#   Here, we assume one species model. Will be expanded for multi-species in the future.</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">potential_type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span><span class="p">):</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">):</span>
+                    <span class="c1">#Vsig = np.sqrt(q1*q2/ai/mi/Gamma)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please use &#39;Yukawa&#39; units for Yukawa potential.&quot;</span><span class="p">)</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+                <span class="k">elif</span><span class="p">(</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;mks&quot;</span><span class="p">):</span>
+                    <span class="c1">#Vsig = np.sqrt(q1*q2/ai/mi/Gamma/(4*np.pi*const.eps_0))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please use &#39;Yukawa&#39; units for Yukawa potential.&quot;</span><span class="p">)</span>
+
+                <span class="k">elif</span><span class="p">(</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span><span class="p">):</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">):</span>
+                        <span class="n">frameinfo</span> <span class="o">=</span> <span class="n">getframeinfo</span><span class="p">(</span><span class="n">currentframe</span><span class="p">())</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">frameinfo</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">frameinfo</span><span class="o">.</span><span class="n">lineno</span><span class="p">)</span>
+                    <span class="n">q1</span> <span class="o">=</span> <span class="mf">1.</span> 
+                    <span class="n">q2</span> <span class="o">=</span> <span class="mf">1.</span>
+                    <span class="n">mi</span> <span class="o">=</span> <span class="mf">1.</span>
+                    <span class="n">Gamma</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Gamma</span>
+                    <span class="n">T_desired</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">Gamma</span>
+
+                    <span class="n">Vsig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">Gamma</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+
+                <span class="k">if</span><span class="p">(</span><span class="n">potential_type</span> <span class="o">==</span> <span class="s2">&quot;EGS&quot;</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Will be implemented...&quot;</span><span class="p">)</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+<span class="c1">#                if(units == &quot;cgs&quot;):</span>
+<span class="c1">#                  sig = np.sqrt(q1*q2/ai/mi/T_desired)</span>
+<span class="c1">#                elif(units == &quot;mks&quot;):</span>
+<span class="c1">#                  sig = np.sqrt(q1*q2/ai/mi/T_desired/(4*np.pi*const.eps_0))</span>
+
+            <span class="c1">#Box-Muller transform to generate Gaussian random numbers from uniform random numbers </span>
+            <span class="n">u1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+            <span class="n">u2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+            <span class="n">u3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+            <span class="n">u4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vsig</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">u1</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">two_pi</span><span class="o">*</span><span class="n">u2</span><span class="p">)</span> <span class="c1">#distribution of vx</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vsig</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">u1</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">two_pi</span><span class="o">*</span><span class="n">u2</span><span class="p">)</span> <span class="c1">#distribution of vy</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vsig</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">u3</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">two_pi</span><span class="o">*</span><span class="n">u4</span><span class="p">)</span> <span class="c1">#distribution of vz</span>
+        
+            <span class="c1">#computing the mean of each velocity component to impose mean value of the velocity components to be zero</span>
+            <span class="n">vx_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">vy_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">vz_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+
+            <span class="c1">#mean value of the velocity components to be zero</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">vx_mean</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">vy_mean</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">vz_mean</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;lattice&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">perturb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rand_seed</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;random_reject&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">r_reject</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rand_seed</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;halton_reject&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">halton_bases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">r_reject</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="p">(</span><span class="n">load</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;random_no_reject&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lx</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ly</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lz</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Incorrect particle placement scheme specified... Using &quot;random_no_reject&quot;&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lx</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ly</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lz</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span></div>
+               
+<span class="c1"># add more particles: specific species, and number of particles</span>
+<div class="viewcode-block" id="Particles.add"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<span class="c1"># remove particles: need to specify particle id</span>
+<div class="viewcode-block" id="Particles.remove"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Particles.update"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Particles.load_from_restart"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.load_from_restart">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;Checkpoint/S_checkpoint_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;.npz&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span>
+        <span class="n">vel</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">]</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+        
+        <span class="n">pv_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">f_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pv_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">N</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of particles is not same between input file and initial p &amp; v data file.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;From the input file: N = &quot;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;From the initial p &amp; v data: N = &quot;</span><span class="p">,</span> <span class="n">pv_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">perturb</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Place particles in a simple cubic lattice with a slight perturbation</span>
+<span class="sd">        ranging from 0 to 0.5 times the lattice spacing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        N_particles : int</span>
+<span class="sd">            Number of particles to be placed.</span>
+
+<span class="sd">        perturb : float</span>
+<span class="sd">            Value of perturbation, p, such that 0 &lt;= p &lt;= 1.</span>
+
+<span class="sd">        rand_seed : int</span>
+<span class="sd">            Seed for random number generator. </span>
+<span class="sd">            Default: 1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        x : array_like</span>
+<span class="sd">            X positions for particles.</span>
+<span class="sd">                </span>
+<span class="sd">        y : array_like</span>
+<span class="sd">            Y positions for particles.</span>
+<span class="sd">            </span>
+<span class="sd">        z : array_like</span>
+<span class="sd">            Z positions for particles.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----    </span>
+<span class="sd">        Author: Luke Stanek</span>
+<span class="sd">        Date Created: 5/6/19</span>
+<span class="sd">        Date Updated: 6/2/19</span>
+<span class="sd">        Updates: Added to S_init_schemes.py for Sarkas import</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+                          
+        <span class="c1"># Check if perturbation is below maximum allowed. If not, default to maximum perturbation.</span>
+        <span class="k">if</span> <span class="n">perturb</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Random perturbation must not exceed 1. Setting perturb = 1.&#39;</span><span class="p">)</span>
+            <span class="n">perturb</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># Maximum perturbation</span>
+            
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initializing particles with maximum random perturbation of </span><span class="si">{}</span><span class="s1"> times the aattice spacing.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">perturb</span><span class="o">*</span><span class="mf">0.5</span><span class="p">))</span>
+        
+        <span class="c1"># Determining number of particles per side of simple cubic lattice</span>
+        <span class="n">part_per_side</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># Number of particles per side of cubic lattice</span>
+        
+        <span class="c1"># Check if total number of particles is a perfect cube, if not, place more than the requested amount</span>
+        <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="n">part_per_side</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span> <span class="o">!=</span> <span class="n">N</span><span class="p">:</span>
+        
+            <span class="n">part_per_side</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span> <span class="n">N</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Total number of particles requested is not a perfect cube. Initializing with </span><span class="si">{}</span><span class="s1"> particles.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">part_per_side</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="p">))</span>
+
+        <span class="n">L</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">N</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># Box length normalized by weigner-steitz radius</span>
+
+        <span class="n">d_lattice</span> <span class="o">=</span>  <span class="n">L</span><span class="o">/</span><span class="p">(</span><span class="n">N</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">))</span> <span class="c1"># Lattice spacing</span>
+
+        <span class="c1"># Start timer</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1"># Create x, y, and z position arrays</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d_lattice</span> <span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">d_lattice</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d_lattice</span> <span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">d_lattice</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d_lattice</span> <span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">d_lattice</span>
+
+        <span class="c1"># Create a lattice with approprate x, y, and z values based on arange</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="c1"># Random seed</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Random number generator using rand_seed = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rand_seed</span><span class="p">))</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">rand_seed</span><span class="p">)</span> <span class="c1"># Seed for random number generator</span>
+        
+        <span class="c1"># Perturb lattice</span>
+        <span class="n">X</span> <span class="o">+=</span>  <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">d_lattice</span>
+        <span class="n">Y</span> <span class="o">+=</span>  <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">Y</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">d_lattice</span>
+        <span class="n">Z</span> <span class="o">+=</span>  <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">Z</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">d_lattice</span>
+
+        <span class="c1"># Flatten the meshgrid values for plotting and computation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        
+        <span class="c1"># End timer</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Lattice Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Place particles by sampling a uniform distribution from 0 to L (the box length)</span>
+<span class="sd">            and uses a rejection radius to avoid placing particles to close to each other.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        N_part : int</span>
+<span class="sd">            Total number of particles to place.</span>
+
+<span class="sd">        r_reject : float</span>
+<span class="sd">            Value of rejection radius.</span>
+
+<span class="sd">        rand_seed : int</span>
+<span class="sd">            Seed for random number generator. </span>
+<span class="sd">            Default: 1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        x : array_like</span>
+<span class="sd">            X positions for particles.</span>
+<span class="sd">            </span>
+<span class="sd">        y : array_like</span>
+<span class="sd">            Y positions for particles.</span>
+<span class="sd">        </span>
+<span class="sd">        z : array_like</span>
+<span class="sd">            Z positions for particles.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----    </span>
+<span class="sd">        Author: Luke Stanek</span>
+<span class="sd">        Date Created: 5/6/19</span>
+<span class="sd">        Date Updated: N/A</span>
+<span class="sd">        Updates: N/A</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Set random seed</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">rand_seed</span><span class="p">)</span>
+        
+        <span class="c1"># Determine box side length</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">N</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># Initialize Arrays</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+        <span class="c1"># Set first x, y, and z positions</span>
+        <span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+        <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+        <span class="n">z_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+
+        <span class="c1"># Append to arrays</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_new</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">z_new</span><span class="p">)</span>
+
+        <span class="c1"># Particle counter</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="c1"># Start timer for placing particles</span>
+        <span class="n">bad_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Loop to place particles</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            
+            <span class="c1"># Set x, y, and z positions</span>
+            <span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+            <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+            <span class="n">z_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>   
+            
+            <span class="c1"># Check if particle was place too close relative to all other current particles</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+
+                <span class="c1"># Flag for if particle is outside of cutoff radius (True -&gt; not inside rejection radius)</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span>
+
+                <span class="c1"># Compute distance b/t particles for initial placement</span>
+                <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_new</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_new</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_new</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+                <span class="c1"># periodic condition applied for minimum image</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">x_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">+</span> <span class="n">L</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">x_diff</span> <span class="o">&gt;</span> <span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">-</span> <span class="n">L</span>
+                    
+                <span class="k">if</span><span class="p">(</span><span class="n">y_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">+</span> <span class="n">L</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">y_diff</span> <span class="o">&gt;</span> <span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">-</span> <span class="n">L</span>
+                    
+                <span class="k">if</span><span class="p">(</span><span class="n">z_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">+</span> <span class="n">L</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">z_diff</span> <span class="o">&gt;</span> <span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">-</span> <span class="n">L</span>
+
+                <span class="c1"># Compute distance</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_diff</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_diff</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z_diff</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+                <span class="c1"># Check if new particle is below rejection radius. If not, break out and try again</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">r_reject</span><span class="p">:</span>
+                    <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># new position not added (False -&gt; no longer outside reject r)</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># If flag true add new positiion</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_new</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">z_new</span><span class="p">)</span>
+
+                <span class="c1"># Increment particle number</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Random Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Place particles according to a Halton sequence from 0 to L (the box length)</span>
+<span class="sd">            and uses a rejection radius to avoid placing particles to close to each other.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        N_part : int</span>
+<span class="sd">            Total number of particles to place.</span>
+
+<span class="sd">        bases : array_like</span>
+<span class="sd">            Array of 3 ints each of which is a base for the Halton sequence.</span>
+<span class="sd">            Defualt: bases = np.array([2,3,5])</span>
+
+<span class="sd">        r_reject : float</span>
+<span class="sd">            Value of rejection radius.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        x : array_like</span>
+<span class="sd">            X positions for particles.</span>
+<span class="sd">            </span>
+<span class="sd">        y : array_like</span>
+<span class="sd">            Y positions for particles.</span>
+<span class="sd">        </span>
+<span class="sd">        z : array_like</span>
+<span class="sd">            Z positions for particles.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----    </span>
+<span class="sd">        Author: Luke Stanek</span>
+<span class="sd">        Date Created: 5/6/19</span>
+<span class="sd">        Date Updated: N/A</span>
+<span class="sd">        Updates: N/A</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="c1"># Get bases</span>
+        <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span> <span class="o">=</span> <span class="n">bases</span>
+
+        <span class="c1"># Determine box side length</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">N</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># Box length normalized by weigner-steitz radius</span>
+
+        <span class="c1"># Allocate space and store first value from Halton</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="c1"># Initialize particle counter and Halton counter</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># Start timer</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="c1"># Start timer for placing particles</span>
+        
+        <span class="c1"># Loop over all particles</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">:</span>
+
+            <span class="c1"># Increment particle counter</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">k</span>
+            
+            <span class="c1"># Determine x coordinate</span>
+            <span class="n">f1</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">r1</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">f1</span> <span class="o">/=</span> <span class="n">b1</span>
+                <span class="n">r1</span> <span class="o">+=</span> <span class="n">f1</span> <span class="o">*</span> <span class="p">(</span> <span class="n">n</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="n">b1</span><span class="p">)</span>
+            <span class="n">x_new</span> <span class="o">=</span> <span class="n">L</span><span class="o">*</span><span class="n">r1</span> <span class="c1"># new x value</span>
+            
+            <span class="c1"># Determine y coordinate</span>
+            <span class="n">f2</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">r2</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">m</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">f2</span> <span class="o">/=</span> <span class="n">b2</span>
+                <span class="n">r2</span> <span class="o">+=</span> <span class="n">f2</span> <span class="o">*</span> <span class="p">(</span> <span class="n">m</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">b2</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">m</span><span class="o">/</span><span class="n">b2</span><span class="p">)</span>
+            <span class="n">y_new</span> <span class="o">=</span> <span class="n">L</span><span class="o">*</span><span class="n">r2</span> <span class="c1"># new y value</span>
+
+            <span class="c1"># Determine z coordinate</span>
+            <span class="n">f3</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">r3</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">f3</span> <span class="o">/=</span> <span class="n">b3</span>
+                <span class="n">r3</span> <span class="o">+=</span> <span class="n">f3</span> <span class="o">*</span> <span class="p">(</span> <span class="n">p</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">b3</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="n">p</span><span class="o">/</span><span class="n">b3</span> <span class="p">)</span>
+            <span class="n">z_new</span> <span class="o">=</span> <span class="n">L</span><span class="o">*</span><span class="n">r3</span> <span class="c1"># new z value</span>
+        
+            <span class="c1"># Check if particle was place too close relative to all other current particles</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+
+                <span class="c1"># Flag for if particle is outside of cutoff radius (1 -&gt; not inside rejection radius)</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span>
+
+                <span class="c1"># Compute distance b/t particles for initial placement</span>
+                <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_new</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_new</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_new</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+                <span class="c1"># Periodic condition applied for minimum image</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">x_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">+</span> <span class="n">L</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">x_diff</span> <span class="o">&gt;</span> <span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">-</span> <span class="n">L</span>
+                    
+                <span class="k">if</span><span class="p">(</span><span class="n">y_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">+</span> <span class="n">L</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">y_diff</span> <span class="o">&gt;</span> <span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">-</span> <span class="n">L</span>
+                    
+                <span class="k">if</span><span class="p">(</span><span class="n">z_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">+</span> <span class="n">L</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">z_diff</span> <span class="o">&gt;</span> <span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">-</span> <span class="n">L</span>
+
+                <span class="c1"># Compute distance</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_diff</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_diff</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z_diff</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+                <span class="c1"># Check if new particle is below rejection radius. If not, break out and try again</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">r_reject</span><span class="p">:</span>
+                    <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># Increment Halton counter</span>
+                    <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># New position not added (0 -&gt; no longer outside reject r)</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># If flag true add new positiion</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                
+                <span class="c1"># Add new positions to arrays</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_new</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">z_new</span><span class="p">)</span>
+                
+                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># Increment Halton counter</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># Increment particle number</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span>
+
+        <span class="c1"># End timer        </span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Halton Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div></div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Murillo Group at Michigan State University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

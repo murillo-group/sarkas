@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S_params module &mdash; Sarkas  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #18453b" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code.html">Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>S_params module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/S_params.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-S_params">
+<span id="s-params-module"></span><h1>S_params module<a class="headerlink" href="#module-S_params" title="Permalink to this headline">¶</a></h1>
+<p>S_params.py</p>
+<p>a code to read Sarkas input file with a YAML format.</p>
+<dl class="docutils">
+<dt>species - species to use in the simulation</dt>
+<dd>name: species name
+mass: species mass
+charge: species charge
+Temperature: desired species temperature</dd>
+<dt>load - particles loading described in Species</dt>
+<dd>species_name: should be one of names in Species
+Num: number of particles of the species to load
+number_density: number density of the species
+method: particle loading method. Files, restart file mathemathical mehtods.</dd>
+<dt>potential - Two body potential</dt>
+<dd>type: potential type. Yukawa, EGS are available
+Gamma: plasma prameter Gamma
+kappa: plasma parameter kappa</dd>
+<dt>Thermostat - Thermostat to equilibrize the system</dt>
+<dd>type: Thermostat type. Only Berendsen for now.</dd>
+<dt>Integrator</dt>
+<dd>type: Verlet only.</dd>
+<dt>Langevin</dt>
+<dd>type: Langevin model type. Only BBK for now.</dd>
+<dt>control - general setup values for the simulations</dt>
+<dd>dt: timestep
+Neq: number of steps to make the system equblizing
+Nstep: number of steps for data collecting
+BC: Boundary condition. periodic only
+units: cgs, mks, Yukawa
+dump_step: output step</dd>
+</dl>
+<dl class="class">
+<dt id="S_params.Params">
+<em class="property">class </em><code class="descclassname">S_params.</code><code class="descname">Params</code><a class="reference internal" href="../_modules/S_params.html#Params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a href="#id1"><span class="problematic" id="id2">:class:`object`</span></a></p>
+<dl class="class">
+<dt id="S_params.Params.MD_Langevin">
+<em class="property">class </em><code class="descname">MD_Langevin</code><a class="reference internal" href="../_modules/S_params.html#Params.MD_Langevin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.MD_Langevin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a href="#id3"><span class="problematic" id="id4">:class:`object`</span></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="S_params.Params.MD_control">
+<em class="property">class </em><code class="descname">MD_control</code><a class="reference internal" href="../_modules/S_params.html#Params.MD_control"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.MD_control" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a href="#id5"><span class="problematic" id="id6">:class:`object`</span></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="S_params.Params.MD_integrator">
+<em class="property">class </em><code class="descname">MD_integrator</code><a class="reference internal" href="../_modules/S_params.html#Params.MD_integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.MD_integrator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a href="#id7"><span class="problematic" id="id8">:class:`object`</span></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="S_params.Params.MD_thermostat">
+<em class="property">class </em><code class="descname">MD_thermostat</code><a class="reference internal" href="../_modules/S_params.html#Params.MD_thermostat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.MD_thermostat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a href="#id9"><span class="problematic" id="id10">:class:`object`</span></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="S_params.Params.Plasma_potential">
+<em class="property">class </em><code class="descname">Plasma_potential</code><a class="reference internal" href="../_modules/S_params.html#Params.Plasma_potential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.Plasma_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a href="#id11"><span class="problematic" id="id12">:class:`object`</span></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="S_params.Params.Species_load">
+<em class="property">class </em><code class="descname">Species_load</code><a class="reference internal" href="../_modules/S_params.html#Params.Species_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.Species_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a href="#id13"><span class="problematic" id="id14">:class:`object`</span></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="S_params.Params.Species_spec">
+<em class="property">class </em><code class="descname">Species_spec</code><a class="reference internal" href="../_modules/S_params.html#Params.Species_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.Species_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a href="#id15"><span class="problematic" id="id16">:class:`object`</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_params.Params.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/S_params.html#Params.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Murillo Group at Michigan State University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>
