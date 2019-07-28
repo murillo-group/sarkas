@@ -107,8 +107,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html">Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="todo.html">To-Do List</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
 </ul>
 
             
@@ -205,14 +206,14 @@ you can install these packages, by simply opening a terminal and running the fol
 <h2>Using Sarkas<a class="headerlink" href="#using-sarkas" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="input-files">
 <h3>Input files<a class="headerlink" href="#input-files" title="Permalink to this headline">¶</a></h3>
-<p>Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the <cite>yaml.inp</cite> file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example.</p>
+<p>Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the <cite>input.yaml</cite> file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example.</p>
 </div>
 <div class="section" id="using-the-input-file">
 <h3>Using the input file<a class="headerlink" href="#using-the-input-file" title="Permalink to this headline">¶</a></h3>
-<p>To specify you simulation parameters, open the <cite>yaml.inp</cite> file in your text editor and alter the values to
+<p>To specify you simulation parameters, open the <cite>input.yaml</cite> file in your text editor and alter the values to
 the right of the keywords. Below is a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: <cite>https://learn.getgrav.org/16/advanced/yaml</cite>.</p>
 <table border="1" class="colwidths-auto docutils" id="id1">
-<caption><span class="caption-text">Table for “Load” section key and value pairs in .yaml file</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-text">Table for “Load” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Key</th>
 <th class="head">Value Data Type</th>
@@ -251,7 +252,7 @@ the right of the keywords. Below is a description of what each keyword is used f
 </tbody>
 </table>
 <table border="1" class="colwidths-auto docutils" id="id2">
-<caption><span class="caption-text">Table for “Potential” section key and value pairs in .yaml file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-text">Table for “Potential” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Key</th>
 <th class="head">Value Data Type</th>
@@ -282,7 +283,7 @@ the right of the keywords. Below is a description of what each keyword is used f
 </tbody>
 </table>
 <table border="1" class="colwidths-auto docutils" id="id3">
-<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in .yaml file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Key</th>
 <th class="head">Value Data Type</th>
@@ -297,7 +298,7 @@ the right of the keywords. Below is a description of what each keyword is used f
 </tbody>
 </table>
 <table border="1" class="colwidths-auto docutils" id="id4">
-<caption><span class="caption-text">Table for “Langevin” section key and value pairs in .yaml file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-text">Table for “Langevin” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Key</th>
 <th class="head">Value Data Type</th>
@@ -316,7 +317,7 @@ the right of the keywords. Below is a description of what each keyword is used f
 </tbody>
 </table>
 <table border="1" class="colwidths-auto docutils" id="id5">
-<caption><span class="caption-text">Table for “Control” section key and value pairs in .yaml file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-text">Table for “Control” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Key</th>
 <th class="head">Value Data Type</th>
@@ -400,8 +401,8 @@ charge, and <span class="math notranslate nohighlight">\(T_{ij} = (T_i + T_j)/2\
 </div>
 <div class="section" id="running-sarkas">
 <h2>Running Sarkas<a class="headerlink" href="#running-sarkas" title="Permalink to this headline">¶</a></h2>
-<p>To run Sarkas once you have edited the yaml file, simply type the command</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 Sarkas.py yaml.inp
+<p>To run Sarkas once you have edited the input.yaml file, simply type the command</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 Sarkas.py input.yaml
 </pre></div>
 </div>
 </div>

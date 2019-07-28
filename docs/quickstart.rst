@@ -1,4 +1,3 @@
-
 Quickstart
 ==========
 Before you can begin working with Sarkas, you will need to have python3 installed. A useful python 

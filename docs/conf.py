@@ -12,10 +12,18 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('./pathtosourcecode'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
+
+# -- Adding this to avoid bug where some sidebar options disappear -----------
+
+from sphinx.highlighting import lexers
+from pygments.lexers.web import PhpLexer
+lexers['php'] = PhpLexer(startinline=True, linenos=1)
+lexers['php-annotations'] = PhpLexer(startinline=True, linenos=1)
+primary_domain = 'php'
 
 # -- Project information -----------------------------------------------------
 

@@ -1,0 +1,555 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S_pm &mdash; Sarkas  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #18453b" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code.html">Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>S_pm</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for S_pm</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+<span class="kn">import</span> <span class="nn">pyfftw</span>
+<span class="kn">import</span> <span class="nn">S_global_names</span> <span class="k">as</span> <span class="nn">glb</span>
+
+<div class="viewcode-block" id="charge_assgn_6_numba"><a class="viewcode-back" href="../source/S_pm.html#S_pm.charge_assgn_6_numba">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">charge_assgn_6_numba</span><span class="p">(</span><span class="n">rho_r</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">Mx</span><span class="p">,</span><span class="n">My</span><span class="p">,</span><span class="n">Mz</span><span class="p">,</span><span class="n">hx</span><span class="p">,</span><span class="n">hy</span><span class="p">,</span><span class="n">hz</span><span class="p">):</span>
+    
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">wx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">wy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">wz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="n">rho_r</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ipart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+
+        <span class="n">ix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">hx</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">ix</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">hx</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">/</span><span class="n">hx</span>
+
+        <span class="n">iy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">hy</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">iy</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">hy</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">/</span><span class="n">hy</span>
+
+        <span class="n">iz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">hz</span><span class="p">))</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">iz</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">hz</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">/</span><span class="n">hz</span>
+
+        <span class="n">wx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">10</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">32</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">-</span> <span class="mi">750</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">-</span> <span class="mi">770</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">560</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">+</span> <span class="mi">770</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">560</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">+</span> <span class="mi">750</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">240</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">32</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+      
+        <span class="n">wy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">10</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">32</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">-</span> <span class="mi">750</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">-</span> <span class="mi">770</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">560</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">+</span> <span class="mi">770</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">560</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">+</span> <span class="mi">750</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">240</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">32</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        
+        <span class="n">wz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">10</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">32</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">-</span> <span class="mi">750</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">-</span> <span class="mi">770</span><span class="o">*</span><span class="n">z</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">560</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">+</span> <span class="mi">770</span><span class="o">*</span><span class="n">z</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">560</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">+</span> <span class="mi">750</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">240</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">32</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+
+        <span class="c1">#print(w)</span>
+
+        <span class="n">izn</span> <span class="o">=</span> <span class="n">iz</span> <span class="c1"># min. index along z-axis</span>
+    
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    
+            <span class="k">if</span> <span class="n">izn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">r_g</span> <span class="o">=</span> <span class="n">izn</span> <span class="o">+</span> <span class="n">Mz</span>
+            <span class="k">elif</span> <span class="n">izn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">Mz</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">r_g</span> <span class="o">=</span> <span class="n">izn</span> <span class="o">-</span> <span class="n">Mz</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">r_g</span> <span class="o">=</span> <span class="n">izn</span>
+
+            <span class="n">iyn</span> <span class="o">=</span> <span class="n">iy</span> <span class="c1"># min. index along y-axis</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    
+                <span class="k">if</span> <span class="n">iyn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">r_i</span> <span class="o">=</span> <span class="n">iyn</span> <span class="o">+</span> <span class="n">My</span>
+                <span class="k">elif</span> <span class="n">iyn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">My</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">r_i</span> <span class="o">=</span> <span class="n">iyn</span> <span class="o">-</span> <span class="n">My</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">r_i</span> <span class="o">=</span> <span class="n">iyn</span>
+    
+                <span class="n">ixn</span> <span class="o">=</span> <span class="n">ix</span> <span class="c1"># min. index along x-axis</span>
+    
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    
+                    <span class="k">if</span> <span class="n">ixn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">+</span> <span class="n">Mx</span>
+                    <span class="k">elif</span> <span class="n">ixn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">Mx</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">-</span> <span class="n">Mx</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span>
+        
+                    <span class="c1">#print([r_g,r_i,r_j], [wz[g],wy[i],wx[j]])</span>
+    
+                    <span class="n">rho_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">]</span> <span class="o">+</span> <span class="n">Z</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span><span class="o">*</span><span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span><span class="o">*</span><span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+    
+                    <span class="n">ixn</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+                <span class="n">iyn</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+            <span class="n">izn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">rho_r</span></div>
+
+
+<div class="viewcode-block" id="Efield_fourier"><a class="viewcode-back" href="../source/S_pm.html#S_pm.Efield_fourier">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">Efield_fourier</span><span class="p">(</span><span class="n">phi_k</span><span class="p">,</span><span class="n">kx_v</span><span class="p">,</span><span class="n">ky_v</span><span class="p">,</span><span class="n">kz_v</span><span class="p">):</span>
+    
+    <span class="n">E_kx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">kx_v</span><span class="o">*</span><span class="n">phi_k</span>
+    <span class="n">E_ky</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">ky_v</span><span class="o">*</span><span class="n">phi_k</span>
+    <span class="n">E_kz</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">kz_v</span><span class="o">*</span><span class="n">phi_k</span>
+    
+    <span class="k">return</span> <span class="n">E_kx</span><span class="p">,</span> <span class="n">E_ky</span><span class="p">,</span> <span class="n">E_kz</span></div>
+    
+
+<div class="viewcode-block" id="field_assgn_6_numba"><a class="viewcode-back" href="../source/S_pm.html#S_pm.field_assgn_6_numba">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">field_assgn_6_numba</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span><span class="n">E_x_p</span><span class="p">,</span><span class="n">E_y_p</span><span class="p">,</span><span class="n">E_z_p</span><span class="p">,</span><span class="n">E_x_r</span><span class="p">,</span><span class="n">E_y_r</span><span class="p">,</span><span class="n">E_z_r</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">Mx</span><span class="p">,</span><span class="n">My</span><span class="p">,</span><span class="n">Mz</span><span class="p">,</span><span class="n">hx</span><span class="p">,</span><span class="n">hy</span><span class="p">,</span><span class="n">hz</span><span class="p">):</span>
+    
+    <span class="n">E_x_p</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
+    <span class="n">E_y_p</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
+    <span class="n">E_z_p</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
+    
+    <span class="n">acc</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
+    
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">wx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">wy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">wz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ipart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+
+        <span class="n">ix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">hx</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">ix</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">hx</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">/</span><span class="n">hx</span>
+
+        <span class="n">iy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">hy</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">iy</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">hy</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">/</span><span class="n">hy</span>
+
+        <span class="n">iz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">hz</span><span class="p">))</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">iz</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">hz</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">/</span><span class="n">hz</span>
+
+        <span class="n">wx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">10</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">32</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">-</span> <span class="mi">750</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">-</span> <span class="mi">770</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">560</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">+</span> <span class="mi">770</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">560</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">+</span> <span class="mi">750</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">240</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wx</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">32</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+      
+        <span class="n">wy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">10</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">32</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">-</span> <span class="mi">750</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">-</span> <span class="mi">770</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">560</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">+</span> <span class="mi">770</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">560</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">+</span> <span class="mi">750</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">240</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wy</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">32</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        
+        <span class="n">wz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">10</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">32</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">-</span> <span class="mi">750</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">-</span> <span class="mi">770</span><span class="o">*</span><span class="n">z</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">560</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">841</span> <span class="o">+</span> <span class="mi">770</span><span class="o">*</span><span class="n">z</span> <span class="o">-</span> <span class="mi">440</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">560</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">160</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">1920</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">237</span> <span class="o">+</span> <span class="mi">750</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="mi">840</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">240</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">240</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">160</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+        <span class="n">wz</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">80</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">32</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="mi">3840</span>
+
+        <span class="c1">#print(w)</span>
+
+        <span class="n">izn</span> <span class="o">=</span> <span class="n">iz</span> <span class="c1"># min. index along z-axis</span>
+    
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    
+            <span class="k">if</span> <span class="n">izn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">r_g</span> <span class="o">=</span> <span class="n">izn</span> <span class="o">+</span> <span class="n">Mz</span>
+            <span class="k">elif</span> <span class="n">izn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">Mz</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">r_g</span> <span class="o">=</span> <span class="n">izn</span> <span class="o">-</span> <span class="n">Mz</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">r_g</span> <span class="o">=</span> <span class="n">izn</span>
+
+            <span class="n">iyn</span> <span class="o">=</span> <span class="n">iy</span> <span class="c1"># min. index along y-axis</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    
+                <span class="k">if</span> <span class="n">iyn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">r_i</span> <span class="o">=</span> <span class="n">iyn</span> <span class="o">+</span> <span class="n">My</span>
+                <span class="k">elif</span> <span class="n">iyn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">My</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">r_i</span> <span class="o">=</span> <span class="n">iyn</span> <span class="o">-</span> <span class="n">My</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">r_i</span> <span class="o">=</span> <span class="n">iyn</span>
+    
+                <span class="n">ixn</span> <span class="o">=</span> <span class="n">ix</span> <span class="c1"># min. index along x-axis</span>
+    
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    
+                    <span class="k">if</span> <span class="n">ixn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">+</span> <span class="n">Mx</span>
+                    <span class="k">elif</span> <span class="n">ixn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">Mx</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">-</span> <span class="n">Mx</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span>
+        
+                    <span class="c1">#print([r_g,r_i,r_j], [wz[g],wy[i],wx[j]])</span>
+    
+                    <span class="n">E_x_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_x_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">+</span> <span class="n">E_x_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">]</span><span class="o">*</span><span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span><span class="o">*</span><span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">E_y_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_y_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">+</span> <span class="n">E_y_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">]</span><span class="o">*</span><span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span><span class="o">*</span><span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">E_z_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_z_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">+</span> <span class="n">E_z_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">]</span><span class="o">*</span><span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span><span class="o">*</span><span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+    
+                    <span class="n">ixn</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+                <span class="n">iyn</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+            <span class="n">izn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">acc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z</span><span class="o">*</span><span class="n">E_x_p</span>
+    <span class="n">acc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z</span><span class="o">*</span><span class="n">E_y_p</span>
+    <span class="n">acc</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z</span><span class="o">*</span><span class="n">E_z_p</span>
+            
+    <span class="k">return</span> <span class="n">acc</span></div>
+    
+<span class="c1">## FFTW version</span>
+<div class="viewcode-block" id="particle_mesh_fft_r"><a class="viewcode-back" href="../source/S_pm.html#S_pm.particle_mesh_fft_r">[docs]</a><span class="k">def</span> <span class="nf">particle_mesh_fft_r</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">G_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">,</span> <span class="n">rho_r</span><span class="p">,</span> <span class="n">acc_f</span><span class="p">,</span> <span class="n">E_x_p</span><span class="p">,</span> <span class="n">E_y_p</span><span class="p">,</span> <span class="n">E_z_p</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">N</span>
+
+    <span class="n">Lx</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">Lx</span>
+    <span class="n">Ly</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">Ly</span>
+    <span class="n">Lz</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">Lz</span>
+
+    <span class="n">Mx</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">Mx</span>
+    <span class="n">My</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">My</span>
+    <span class="n">Mz</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">Mz</span>
+
+    <span class="n">hx</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">hx</span>
+    <span class="n">hy</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">hy</span>
+    <span class="n">hz</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">hz</span>
+    
+    <span class="n">V</span> <span class="o">=</span> <span class="n">Lx</span><span class="o">*</span><span class="n">Ly</span><span class="o">*</span><span class="n">Lz</span>
+    <span class="n">M_V</span> <span class="o">=</span> <span class="n">Mx</span><span class="o">*</span><span class="n">My</span><span class="o">*</span><span class="n">Mz</span>
+    
+    <span class="n">rho_r</span> <span class="o">=</span> <span class="n">charge_assgn_6_numba</span><span class="p">(</span><span class="n">rho_r</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">Mx</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mz</span><span class="p">,</span> <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span><span class="p">)</span>
+    
+    <span class="n">fftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">rho_r</span><span class="p">)</span>
+    <span class="n">rho_k_fft</span> <span class="o">=</span> <span class="n">fftw_n</span><span class="p">()</span>
+    <span class="n">rho_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">rho_k_fft</span><span class="p">)</span>
+
+    <span class="n">phi_k</span> <span class="o">=</span> <span class="n">G_k</span><span class="o">*</span><span class="n">rho_k</span>
+       
+    <span class="n">rho_k_real</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">rho_k</span><span class="p">)</span>
+    <span class="n">rho_k_imag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">rho_k</span><span class="p">)</span>
+    <span class="n">rho_k_sq</span> <span class="o">=</span> <span class="n">rho_k_real</span><span class="o">*</span><span class="n">rho_k_real</span> <span class="o">+</span> <span class="n">rho_k_imag</span><span class="o">*</span><span class="n">rho_k_imag</span>
+    
+    <span class="n">U_f</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rho_k_sq</span><span class="o">*</span><span class="n">G_k</span><span class="p">)</span><span class="o">/</span><span class="n">V</span>
+    
+    <span class="n">E_kx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">kx_v</span><span class="o">*</span><span class="n">phi_k</span>
+    <span class="n">E_ky</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">ky_v</span><span class="o">*</span><span class="n">phi_k</span>
+    <span class="n">E_kz</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">kz_v</span><span class="o">*</span><span class="n">phi_k</span>
+    
+    <span class="n">E_kx_unsh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">E_kx</span><span class="p">)</span>
+    <span class="n">E_ky_unsh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">E_ky</span><span class="p">)</span>
+    <span class="n">E_kz_unsh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">E_kz</span><span class="p">)</span>
+    
+    <span class="n">ifftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">E_kx_unsh</span><span class="p">)</span>
+    <span class="n">E_x</span> <span class="o">=</span> <span class="n">ifftw_n</span><span class="p">()</span>
+    <span class="n">ifftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">E_ky_unsh</span><span class="p">)</span>
+    <span class="n">E_y</span> <span class="o">=</span> <span class="n">ifftw_n</span><span class="p">()</span>
+    <span class="n">ifftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">E_kz_unsh</span><span class="p">)</span>
+    <span class="n">E_z</span> <span class="o">=</span> <span class="n">ifftw_n</span><span class="p">()</span>
+    
+    <span class="n">E_x</span> <span class="o">=</span> <span class="n">M_V</span><span class="o">*</span><span class="n">E_x</span><span class="o">/</span><span class="n">V</span>
+    <span class="n">E_y</span> <span class="o">=</span> <span class="n">M_V</span><span class="o">*</span><span class="n">E_y</span><span class="o">/</span><span class="n">V</span>
+    <span class="n">E_z</span> <span class="o">=</span> <span class="n">M_V</span><span class="o">*</span><span class="n">E_z</span><span class="o">/</span><span class="n">V</span>
+    
+    <span class="n">E_x_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">E_x</span><span class="p">)</span>
+    <span class="n">E_y_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">E_y</span><span class="p">)</span>
+    <span class="n">E_z_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">E_z</span><span class="p">)</span>
+    
+    <span class="n">acc_f</span> <span class="o">=</span> <span class="n">field_assgn_6_numba</span><span class="p">(</span><span class="n">acc_f</span><span class="p">,</span><span class="n">E_x_p</span><span class="p">,</span><span class="n">E_y_p</span><span class="p">,</span><span class="n">E_z_p</span><span class="p">,</span><span class="n">E_x_r</span><span class="p">,</span><span class="n">E_y_r</span><span class="p">,</span><span class="n">E_z_r</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">Mx</span><span class="p">,</span><span class="n">My</span><span class="p">,</span><span class="n">Mz</span><span class="p">,</span><span class="n">hx</span><span class="p">,</span><span class="n">hy</span><span class="p">,</span><span class="n">hz</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">U_f</span><span class="p">,</span> <span class="n">acc_f</span></div>
+    
+<span class="c1">## FFTW version with modified charge-assigment and field-assignment routines (not more efficient than the routine above)</span>
+<span class="c1">#def particle_mesh_fftw_r_wpart(kappa,G_ew,pos,Z,N,G_k,kx_v,ky_v,kz_v,Mx,My,Mz,hx,hy,hz,Lx,Ly,Lz,p,mx_max,my_max,mz_max,rho_r,acc_f,E_x_p,E_y_p,E_z_p):</span>
+<span class="c1">#    </span>
+<span class="c1">#    V = Lx*Ly*Lz</span>
+<span class="c1">#    M_V = Mx*My*Mz</span>
+<span class="c1">#    </span>
+<span class="c1">#    rho_r, wx_part, wy_part, wz_part = charge_assgn_6_numba_wpart(rho_r,pos,Z,N,Mx,My,Mz,hx,hy,hz)</span>
+<span class="c1">#    </span>
+<span class="c1">#    fftw_n = pyfftw.builders.fftn(rho_r)</span>
+<span class="c1">#    rho_k_fft = fftw_n()</span>
+<span class="c1">#    rho_k = np.fft.fftshift(rho_k_fft)</span>
+<span class="c1">#</span>
+<span class="c1">#    phi_k = G_k*rho_k</span>
+<span class="c1">#       </span>
+<span class="c1">#    rho_k_real = np.real(rho_k)</span>
+<span class="c1">#    rho_k_imag = np.imag(rho_k)</span>
+<span class="c1">#    rho_k_sq = rho_k_real*rho_k_real + rho_k_imag*rho_k_imag</span>
+<span class="c1">#    </span>
+<span class="c1">#    U_f = 0.5*np.sum(rho_k_sq*G_k)/V</span>
+<span class="c1">#    </span>
+<span class="c1">#    E_kx = -1j*kx_v*phi_k</span>
+<span class="c1">#    E_ky = -1j*ky_v*phi_k</span>
+<span class="c1">#    E_kz = -1j*kz_v*phi_k</span>
+<span class="c1">#    </span>
+<span class="c1">#    E_kx_unsh = np.fft.ifftshift(E_kx)</span>
+<span class="c1">#    E_ky_unsh = np.fft.ifftshift(E_ky)</span>
+<span class="c1">#    E_kz_unsh = np.fft.ifftshift(E_kz)</span>
+<span class="c1">#    </span>
+<span class="c1">#    ifftw_n = pyfftw.builders.ifftn(E_kx_unsh)</span>
+<span class="c1">#    E_x = ifftw_n()</span>
+<span class="c1">#    ifftw_n = pyfftw.builders.ifftn(E_ky_unsh)</span>
+<span class="c1">#    E_y = ifftw_n()</span>
+<span class="c1">#    ifftw_n = pyfftw.builders.ifftn(E_kz_unsh)</span>
+<span class="c1">#    E_z = ifftw_n()</span>
+<span class="c1">#    </span>
+<span class="c1">#    E_x = M_V*E_x/V</span>
+<span class="c1">#    E_y = M_V*E_y/V</span>
+<span class="c1">#    E_z = M_V*E_z/V</span>
+<span class="c1">#    </span>
+<span class="c1">#    E_x_r = np.real(E_x)</span>
+<span class="c1">#    E_y_r = np.real(E_y)</span>
+<span class="c1">#    E_z_r = np.real(E_z)</span>
+<span class="c1">#    </span>
+<span class="c1">#    acc_f = field_assgn_6_numba_wpart(acc_f,wx_part,wy_part,wz_part,E_x_p,E_y_p,E_z_p,E_x_r,E_y_r,E_z_r,pos,Z,N,Mx,My,Mz,hx,hy,hz)</span>
+<span class="c1">#    </span>
+<span class="c1">#    return U_f, acc_f</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Murillo Group at Michigan State University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>
