@@ -17,7 +17,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     G = glb.G
     ai = glb.ai
 
-    #N = len(pos[:,0])
     d = len(pos[0,:])
 
     Lx = mpiComm.Ll[0]
@@ -32,11 +31,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     Lzd = int(np.floor(Lz/rc))
 
     exterior = mpiComm.exteriorCells
-    interior = mpiComm.interiorCells
-
-    #if mpiComm.rank==0 and True:
-    #    print("int = ",interior)
-    #    print("ext = ",exterior)
 
     rc_x = Lx/Lxd
     rc_y = Ly/Lyd
@@ -167,8 +161,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     send_requests=[]
     for i in mpiComm.neigs.ranks:
         if i in sendDict:
-            #if mpiComm.rank==0:
-            #    print("exchange!!")
             Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])]\
                               ,MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
@@ -289,14 +281,14 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
 
     #LCL for particles that DID migrate
     ls = np.append(ls,np.zeros(Nr,dtype=np.int))
-    for i in range(Nr):
+    for i in range(N,Nr):
 
-        cx = int(np.floor((pos[N+i,0] - mpiComm.Lmin[0])/rc_x))
-        cy = int(np.floor((pos[N+i,1] - mpiComm.Lmin[1])/rc_y))
-        cz = int(np.floor((pos[N+i,2] - mpiComm.Lmin[2])/rc_z))
+        cx = int(np.floor((pos[i,0] - mpiComm.Lmin[0])/rc_x))
+        cy = int(np.floor((pos[i,1] - mpiComm.Lmin[1])/rc_y))
+        cz = int(np.floor((pos[i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*Lxd + cz*Lxd*Lyd
 
-        ptcl = pos[N+i,:].flatten()
+        ptcl = pos[i,:].flatten()
 
         if cz == Upper:
             U_buff = np.append(U_buff,ptcl+U_shift)
@@ -353,8 +345,8 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         if cz == Lower and cy == South and cx == West:
             DSW_buff = np.append(DSW_buff,ptcl+DSW_shift)
 
-        ls[N+i] = head[c]
-        head[c] = N+i
+        ls[i] = head[c]
+        head[c] = i
 
     N = len(pos[:,0])
 
@@ -374,16 +366,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
                 ,(mpiComm.neigs.DSE_rank,DSE_buff),(mpiComm.neigs.DSW_rank,DSW_buff)]
 
 
-    #if mpiComm.rank==0:
-    #    print("U_rank = " +str(mpiComm.neigs.U_rank) +" U_shift = ", mpiComm.neigs.U_shift)
-    #    print("UN_rank = " +str(mpiComm.neigs.UN_rank) +" UN_shift = ", mpiComm.neigs.UN_shift)
-    #    print("US_rank = ", mpiComm.neigs.US_rank)
-    #    print("UW_rank = ", mpiComm.neigs.UW_rank)
-    #    print("UE_rank = ", mpiComm.neigs.UE_rank)
-
-
-
-
     #MPI Send
     send_dict = {}
     for rank, buff in send_buff:
@@ -395,8 +377,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     #BUG: particles not sent to self!
     send_requests = []
     for i in mpiComm.neigs.ranks:
-        #if mpiComm.rank==1:
-        #    print("rank1: send buff len = ", len(send_dict[i]))
         Sreq = mpiComm.comm.Isend([send_dict[i],MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
         send_requests.append(Sreq)
 
@@ -484,8 +464,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
 
     #construct new linked cell list using
     # old LCL and copied particles
-    #Nb = len(recvBuff[:,0]) + len(selfBuff[:,0])
-    #Nb = len(pos[:,0]) - N
     Nb = len(pos[:,0])
     lsRecv  = np.arange(Nb)
     lsRecv[:N] = ls
@@ -493,84 +471,20 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     headRecv.fill(empty)
     headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape((Lzd,Lyd,Lxd))
     headRecv = headRecv.flatten()
-    #old = np.copy(headRecv)
     for i in range(N,Nb):
         cx = int(np.floor((rc_x + pos[i,0] - mpiComm.Lmin[0])/rc_x))
         cy = int(np.floor((rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y))
         cz = int(np.floor((rc_z + pos[i,2] - mpiComm.Lmin[2])/rc_z))
         c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
-        #if mpiComm.rank==0:
-        #    print("=========")
-        #    print("cx = %d, rx = %f, rx_cor = %f" %(cx,pos[i,0],rc_x + pos[i,0] - mpiComm.Lmin[0]))
-        #    print("cy = %d, ry = %f, ry_cor = %f" %(cy,pos[i,1],(rc_y + pos[i,1] - mpiComm.Lmin[1])))
-        #    print("cz = %d, rz = %f, rz_cor = %f" %(cz,pos[i,2],(rc_z + pos[i,2] - mpiComm.Lmin[2])))
 
         lsRecv[i] = headRecv[c]
         headRecv[c] = i
 
-    #acc_s_r = np.zeros_like(pos)
-    #for cx in range(1,Lxd+1):
-    #    for cy in range(1,Lyd+1):
-    #        for cz in range(1,Lzd+1):
-
-    #            c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
-    #            #if mpiComm.rank==0:
-    #            #    print("Cx = ", cx)
-    #            #    print("Cy = ", cy)
-    #            #    print("Cz = ", cz)
-
-    #            for cz_N in range(cz-1,cz+2):
-    #                for cy_N in range(cy-1,cy+2):
-    #                    for cx_N in range(cx-1,cx+2):
-
-    #                        c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
-    #                        #if mpiComm.rank==0:
-    #                        #    print("(Cz_N,Cy_N,Cx_N) = ", (cz_N,cy_N,cx_N) )
-
-    #                        i = headRecv[c]
-
-    #                        while(i != empty):
-
-    #                            j = headRecv[c_N]
-
-    #                            while(j != empty):
-
-    #                                if i < j:
-    #                                    dx = pos[i,0] - pos[j,0]
-    #                                    dy = pos[i,1] - pos[j,1]
-    #                                    dz = pos[i,2] - pos[j,2]
-    #                                    r = np.sqrt(dx**2 + dy**2 + dz**2)
-
-    #                                    if r < rc:
-    #                                        f1 = 0.
-    #                                        f2 = 0.
-    #                                        f3 = 0.
-    #                                        fr = 0.
-    #                                        U_s_r = U_s_r + np.exp(-kappa*r)/r
-    #                                        f1 = 1./r**2*np.exp(-kappa*r)
-    #                                        f2 = kappa/r*np.exp(-kappa*r)
-    #                                        fr = f1+f2
-    #                                        acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
-    #                                        acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
-    #                                        acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
-
-    #                                        acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
-    #                                        acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
-    #                                        acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
-
-    #                                j = lsRecv[j]
-
-    #                            i = lsRecv[i]
-
-    #print("")
-    #print("++++++++")
     for I in exterior:
-        #if mpiComm.rank==0:
-        #    print(I)
 
-        cx = I[2]#+1
-        cy = I[1]#+1
-        cz = I[0]#+1
+        cx = I[2]
+        cy = I[1]
+        cz = I[0]
 
         c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
 
