@@ -196,12 +196,12 @@ if glb.init == 1:
     pos, vel = read.initL(pos, vel, f_input)
     
 else:
-    
+    print("rank = ", mpiComm.rank)
     print('\nAssigning random initial positions and velocities...')
     
     # initial particle positions uniformly distributed in the box
     # initial particle velocities with Maxwell-Boltzmann distribution
-    pos, vel = initialize_pos_vel.initial(pos, vel, T_desired,mpiComm)
+    pos, vel, acc = initialize_pos_vel.initial( T_desired,mpiComm)
 
 
 t4 = time.time()
@@ -242,7 +242,7 @@ t5 = time.time()
 print('\n------------- Production -------------')
 # Opening files for writing particle positions, velcoities and forces
 f_output = open('p_v_a.out','w')
-f_output_E = open('t_T_totalE_kinE_potE.out','w')
+f_output_E = open('t_T_totalE_kinE_potTEST.out','w')
 f_xyz = open('p_v_a.xyz','w')
 
 #print('time - total energy - kinetic energy - potential energy')
@@ -285,11 +285,11 @@ for it in range(Nt):
             irp = np.hstack((pos, vel, acc))
             np.savetxt(f_output, irp)
             np.savetxt(f_output_E, t_Tp_E_K_U2)
-    #        
-    #        if glb.write_xyz == 1:
-    #            f_xyz.writelines('{0:d}\n'.format(N))
-    #            f_xyz.writelines('x y z vx vy vz ax ay az\n')
-    #            np.savetxt(f_xyz,irp)
+            
+            if glb.write_xyz == 1:
+                f_xyz.writelines('{0:d}\n'.format(N))
+                f_xyz.writelines('x y z vx vy vz ax ay az\n')
+                np.savetxt(f_xyz,irp)
 
 #np.save('n_qt',n_q_t)
 

@@ -227,8 +227,6 @@ class mpi_comm:
         Lyd = int(np.floor(self.Ll[1]/glb.rc))
         Lzd = int(np.floor(self.Ll[2]/glb.rc))
 
-        print("(Lzd,Lyd,Lxd) = ", (Lzd,Lyd,Lxd))
-
         ix = np.linspace(1,Lxd,Lxd,dtype=np.int)
         iy = np.linspace(1,Lyd,Lyd,dtype=np.int)
         iz = np.linspace(1,Lzd,Lzd,dtype=np.int)
@@ -243,7 +241,6 @@ class mpi_comm:
             cx = I[2]
             cy = I[1]
             cz = I[0]
-            print("(cz,cy,cx) = ",(cz,cy,cx))
             if cx == 1 or cx == Lxd:
                 extL +=1
                 exterior = np.append(exterior,I)
