@@ -488,13 +488,13 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     #Nb = len(pos[:,0]) - N
     Nb = len(pos[:,0])
     lsRecv  = np.arange(Nb)
-    #lsRecv[:N] = ls
-    headRecv= np.empty((Lxd+2)*(Lyd+2)*(Lzd+2),dtype=np.int32)
+    lsRecv[:N] = ls
+    headRecv= np.empty(shape=((Lzd+2),(Lyd+2),(Lxd+2)),dtype=np.int32)
     headRecv.fill(empty)
-    #headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape(Lzd,Lyd,Lxd)
+    headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape((Lzd,Lyd,Lxd))
     headRecv = headRecv.flatten()
     #old = np.copy(headRecv)
-    for i in range(Nb):
+    for i in range(N,Nb):
         cx = int(np.floor((rc_x + pos[i,0] - mpiComm.Lmin[0])/rc_x))
         cy = int(np.floor((rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y))
         cz = int(np.floor((rc_z + pos[i,2] - mpiComm.Lmin[2])/rc_z))
