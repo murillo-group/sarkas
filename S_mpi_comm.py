@@ -1,4 +1,5 @@
 import numpy as np
+import numba as nb
 import sys
 import S_global_names as glb
 import S_constants as const
@@ -50,34 +51,34 @@ class neigs:
             D_shift =  -glb.Lz
 
         #Calculate Global Index of Neigbhors (global Index)
-        self.U_glbI = (mpiComm.glbIndex[0],mpiComm.glbIndex[1],U)
-        self.UN_glbI = (mpiComm.glbIndex[0],N,U)
-        self.US_glbI = (mpiComm.glbIndex[0],S,U)
-        self.UE_glbI = (E,mpiComm.glbIndex[1],U)
-        self.UW_glbI = (W,mpiComm.glbIndex[1],U)
-        self.UNE_glbI = (E,N,U)
-        self.UNW_glbI = (W,N,U)
-        self.USE_glbI = (E,S,U)
-        self.USW_glbI = (W,S,U)
+        self.U_glbI = np.array([mpiComm.glbIndex[0],mpiComm.glbIndex[1],U])
+        self.UN_glbI = np.array([mpiComm.glbIndex[0],N,U])
+        self.US_glbI = np.array([mpiComm.glbIndex[0],S,U])
+        self.UE_glbI = np.array([E,mpiComm.glbIndex[1],U])
+        self.UW_glbI = np.array([W,mpiComm.glbIndex[1],U])
+        self.UNE_glbI = np.array([E,N,U])
+        self.UNW_glbI = np.array([W,N,U])
+        self.USE_glbI = np.array([E,S,U])
+        self.USW_glbI = np.array([W,S,U])
 
-        self.N_glbI = (mpiComm.glbIndex[0],N,mpiComm.glbIndex[2])
-        self.S_glbI = (mpiComm.glbIndex[0],S,mpiComm.glbIndex[2])
-        self.E_glbI = (E,mpiComm.glbIndex[1],mpiComm.glbIndex[2])
-        self.W_glbI = (W,mpiComm.glbIndex[1],mpiComm.glbIndex[2])
-        self.NE_glbI = (E,N,mpiComm.glbIndex[2])
-        self.NW_glbI = (W,N,mpiComm.glbIndex[2])
-        self.SE_glbI = (E,S,mpiComm.glbIndex[2])
-        self.SW_glbI = (W,S,mpiComm.glbIndex[2])
+        self.N_glbI = np.array([mpiComm.glbIndex[0],N,mpiComm.glbIndex[2]])
+        self.S_glbI = np.array([mpiComm.glbIndex[0],S,mpiComm.glbIndex[2]])
+        self.E_glbI = np.array([E,mpiComm.glbIndex[1],mpiComm.glbIndex[2]])
+        self.W_glbI = np.array([W,mpiComm.glbIndex[1],mpiComm.glbIndex[2]])
+        self.NE_glbI = np.array([E,N,mpiComm.glbIndex[2]])
+        self.NW_glbI = np.array([W,N,mpiComm.glbIndex[2]])
+        self.SE_glbI = np.array([E,S,mpiComm.glbIndex[2]])
+        self.SW_glbI = np.array([W,S,mpiComm.glbIndex[2]])
 
-        self.D_glbI = (mpiComm.glbIndex[0],mpiComm.glbIndex[1],D)
-        self.DN_glbI = (mpiComm.glbIndex[0],N,D)
-        self.DS_glbI = (mpiComm.glbIndex[0],S,D)
-        self.DE_glbI = (E,mpiComm.glbIndex[1],D)
-        self.DW_glbI = (W,mpiComm.glbIndex[1],D)
-        self.DNE_glbI = (E,N,D)
-        self.DNW_glbI = (W,N,D)
-        self.DSE_glbI = (E,S,D)
-        self.DSW_glbI = (W,S,D)
+        self.D_glbI = np.array([mpiComm.glbIndex[0],mpiComm.glbIndex[1],D])
+        self.DN_glbI = np.array([mpiComm.glbIndex[0],N,D])
+        self.DS_glbI = np.array([mpiComm.glbIndex[0],S,D])
+        self.DE_glbI = np.array([E,mpiComm.glbIndex[1],D])
+        self.DW_glbI = np.array([W,mpiComm.glbIndex[1],D])
+        self.DNE_glbI = np.array([E,N,D])
+        self.DNW_glbI = np.array([W,N,D])
+        self.DSE_glbI = np.array([E,S,D])
+        self.DSW_glbI = np.array([W,S,D])
 
         #Calc Rank of Neigs
         self.U_rank = mpiComm.glbIndexToRank(self.U_glbI)
@@ -152,8 +153,6 @@ class neigs:
                         ,self.DNE_rank,self.DN_rank,self.DNW_rank\
                         ,self.DE_rank ,self.D_rank ,self.DW_rank\
                         ,self.DSE_rank,self.DS_rank,self.DSW_rank])),self._rank)
-
-
 
 
 class mpi_comm:

@@ -138,36 +138,61 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     N = len(pos[:,0])
 
     #BuckSort particles to ranks they migrated to
-    buffLen = 600 #needs to be multiple of 6
-    sendDict = {}
+    #buffLen = 600 #needs to be multiple of 6
+    #sendDict = {}
+    #for i in range(len(migBuff[:,0])):
+    #    rank = mpiComm.posToRank(migBuff[i,:,0])
+    #    if rank in sendDict:
+    #        index = int(sendDict[rank][0])
+    #        if index >= len(sendDict[rank]):
+    #            Ln = len(sendDict[rank])
+    #            Ln *= 6
+    #            temp = np.ones( Ln )
+    #            temp[:,0:index] = sendDict[rank]
+    #            sendDict[rank] = temp
+    #        sendDict[rank][index:index+6] = migBuff[i,:,:].flatten()
+    #        sendDict[rank][0] = index+6
+    #    else:
+    #        sendDict[rank] = np.ones( buffLen + 1 )
+    #        sendDict[rank][1:7] = migBuff[i,:,:].flatten()
+    #        sendDict[rank][0]=7
+
+    ##send migrated particles.
+    #send_requests=[]
+    #for i in mpiComm.neigs.ranks:
+    #    if i in sendDict:
+    #        Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])]\
+    #                          ,MPI.DOUBLE], dest = i, tag = mpiComm.rank)
+    #        send_requests.append(Sreq)
+    #    else:
+    #        Sreq = mpiComm.comm.Isend([emptyArray, MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
+    #        send_requests.append(Sreq)
+
+    buffLen = 600
+    sendBuff = np.ones( (size,buffLen+1))
     for i in range(len(migBuff[:,0])):
         rank = mpiComm.posToRank(migBuff[i,:,0])
-        if rank in sendDict:
-            index = int(sendDict[rank][0])
-            if index >= len(sendDict[rank]):
-                Ln = len(sendDict[rank])
-                Ln *= 6
-                temp = np.ones( Ln )
-                temp[:,0:index] = sendDict[rank]
-                sendDict[rank] = temp
-            sendDict[rank][index:index+6] = migBuff[i,:,:].flatten()
-            sendDict[rank][0] = index+6
-        else:
-            sendDict[rank] = np.ones( buffLen + 1 )
-            sendDict[rank][1:7] = migBuff[i,:,:].flatten()
-            sendDict[rank][0]=7
+        buff = sendBuff[rank,:]
+        index = int(buff[0])
+        if index >= sendBuff.shape[1]:
+            buffLen *= 6
+            temp = np.ones( (mpiComm.size,buffLen+1))
+            temp[:,0:index] = sendBuff
+            sendBuff = temp
+            buff = sendBuff[rank,:]
+        buff[index:index+6] = migBuff[i,:].flatten()
+        buff[0] = index+6
 
-    #send migrated particles.
     send_requests=[]
-    for i in mpiComm.neigs.ranks:
-        if i in sendDict:
-            Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])]\
-                              ,MPI.DOUBLE], dest = i, tag = mpiComm.rank)
+    for i in range(size):
+        index = int(sendBuff[i,0])
+        if index == 1 and i != mpiComm.rank:
+            Sreq = mpiComm.comm.Isend([ np.array([-50.,-50.,-50.,-50.,-50.,-50.]), MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
-        else:
-            Sreq = mpiComm.comm.Isend([emptyArray, MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
+        elif i != mpiComm.rank:
+            buff = sendBuff[i,1:index]
+            Sreq = mpiComm.comm.Isend([buff, MPI.DOUBLE], dest = i, tag = mpiComm.rank)
             send_requests.append(Sreq)
-
 
     #====================================
 
@@ -367,19 +392,49 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
 
 
     #MPI Send
-    send_dict = {}
+    #send_dict = {}
+    #for rank, buff in send_buff:
+    #    if rank in send_dict:
+    #        send_dict[rank] = np.append(send_dict[rank],buff)
+    #    else:
+    #        send_dict[rank] = buff
+
+
+    buffLen = 300
+    sendBuff = np.ones( (size,buffLen+1))
     for rank, buff in send_buff:
-        if rank in send_dict:
-            send_dict[rank] = np.append(send_dict[rank],buff)
-        else:
-            send_dict[rank] = buff
+        tempBuff = sendBuff[rank,:]
+        index = int(tempBuff[0])
+        while index + len(buff) >= buffLen:
+            buffLen *= 3
+            temp = np.ones( (mpiComm.size,buffLen+1))
+            temp[:,0:index] = sendBuff
+            sendBuff = temp
+            tempBuff = sendBuff[rank,:]
+        buffSize=len(buff)
+        tempBuff[index:index+buffSize] = buff
+        tempBuff[0] = index+buffSize
+
 
     #BUG: particles not sent to self!
-    send_requests = []
-    for i in mpiComm.neigs.ranks:
-        Sreq = mpiComm.comm.Isend([send_dict[i],MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
-        send_requests.append(Sreq)
+    #send_requests = []
+    #for i in mpiComm.neigs.ranks:
+    #    Sreq = mpiComm.comm.Isend([sendBuff[i],MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
+    #    send_requests.append(Sreq)
 
+    send_requests=[]
+    for i in mpiComm.neigs.ranks:
+        index = int(sendBuff[i,0])
+        if index == 1:
+            Sreq = mpiComm.comm.Isend([ np.array([-50.,-50.,-50.,-50.,-50.,-50.]), MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
+            send_requests.append(Sreq)
+        else:
+            buff = sendBuff[i,1:index]
+            Sreq = mpiComm.comm.Isend([buff, MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
+            send_requests.append(Sreq)
+
+
+    #interior update
     for cx in range(1,Lxd-1):
         for cy in range(1,Lyd-1):
             for cz in range(1,Lzd-1):
@@ -436,8 +491,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     recv_requests=[]
     p = 0
     for i in mpiComm.neigs.ranks:
-        #if mpiComm.rank==0:
-        #    print("Rank0: Recv Len = ", len(recvB[p]))
         Rreq = mpiComm.comm.Irecv([recvB[p], MPI.DOUBLE], source = i, tag = i*10)
         recv_requests.append(Rreq)
         p+=1
@@ -451,12 +504,13 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     recvBuff = recvPos.reshape(int(len(recvPos)/3),3)
     recvBuff = recvBuff[np.where(recvBuff[:,0]!=-50.)]
 
-    if mpiComm.rank in send_dict:
-        selfBuff = send_dict[mpiComm.rank]
+    index = int(sendBuff[mpiComm.rank,0])
+    if index == 1:
+        selfBuff = np.array([],dtype=np.float64)
+    else:
+        selfBuff = sendBuff[mpiComm.rank,1:index]
         selfBuff = selfBuff.reshape(int(len(selfBuff)/3),3)
         selfBuff = selfBuff[np.where(selfBuff[:,0]!=-50.)]
-    else:
-        selfBuff = np.array([],dtype=np.float64)
 
     #add Copied Particles to particle position array
     pos = np.append(pos,recvBuff,axis=0)
@@ -480,6 +534,7 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         lsRecv[i] = headRecv[c]
         headRecv[c] = i
 
+    #exterior update
     for I in exterior:
 
         cx = I[2]
