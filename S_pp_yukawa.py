@@ -8,6 +8,52 @@ import time
 import S_global_names as glb
 #import S_update as update
 
+@nb.jit(nopython=True,fastmath=True)
+def partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N):
+    for cx in range(1,Lxd+1):
+        for cy in range(1,Lyd+1):
+            for cz in range(1,Lzd+1):
+
+                c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+
+                for cz_N in range(cz-1,cz+2):
+                    for cy_N in range(cy-1,cy+2):
+                        for cx_N in range(cx-1,cx+2):
+
+                            c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
+
+                            i = headRecv[c]
+
+                            while(i != empty):
+
+                                j = headRecv[c_N]
+
+                                while(j != empty):
+
+                                    if i < j:
+                                        dx = pos[i,0] - pos[j,0]
+                                        dy = pos[i,1] - pos[j,1]
+                                        dz = pos[i,2] - pos[j,2]
+                                        r = np.sqrt(dx**2 + dy**2 + dz**2)
+
+                                        if r < rc:
+                                            U_s_r = U_s_r + np.exp(-kappa*r)/r
+                                            f1 = 1./r**2*np.exp(-kappa*r)
+                                            f2 = kappa/r*np.exp(-kappa*r)
+                                            fr = f1+f2
+                                            acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
+                                            acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
+                                            acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
+                                            if j < N:
+                                                acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
+                                                acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
+                                                acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
+
+                                    j = lsRecv[j]
+
+                                i = lsRecv[i]
+    return acc_s_r, U_s_r
+
 
 #def particle_particle(kappa,G,rc,Lv,pos,acc_s_r):
 #@nb.jit(nopython=True)
@@ -138,36 +184,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     N = len(pos[:,0])
 
     #BuckSort particles to ranks they migrated to
-    #buffLen = 600 #needs to be multiple of 6
-    #sendDict = {}
-    #for i in range(len(migBuff[:,0])):
-    #    rank = mpiComm.posToRank(migBuff[i,:,0])
-    #    if rank in sendDict:
-    #        index = int(sendDict[rank][0])
-    #        if index >= len(sendDict[rank]):
-    #            Ln = len(sendDict[rank])
-    #            Ln *= 6
-    #            temp = np.ones( Ln )
-    #            temp[:,0:index] = sendDict[rank]
-    #            sendDict[rank] = temp
-    #        sendDict[rank][index:index+6] = migBuff[i,:,:].flatten()
-    #        sendDict[rank][0] = index+6
-    #    else:
-    #        sendDict[rank] = np.ones( buffLen + 1 )
-    #        sendDict[rank][1:7] = migBuff[i,:,:].flatten()
-    #        sendDict[rank][0]=7
-
-    ##send migrated particles.
-    #send_requests=[]
-    #for i in mpiComm.neigs.ranks:
-    #    if i in sendDict:
-    #        Sreq = mpiComm.comm.Isend([sendDict[i][1:int(sendDict[i][0])]\
-    #                          ,MPI.DOUBLE], dest = i, tag = mpiComm.rank)
-    #        send_requests.append(Sreq)
-    #    else:
-    #        Sreq = mpiComm.comm.Isend([emptyArray, MPI.DOUBLE], dest = i,  tag = mpiComm.rank)
-    #        send_requests.append(Sreq)
-
     buffLen = 600
     sendBuff = np.ones( (size,buffLen+1))
     for i in range(len(migBuff[:,0])):
@@ -391,15 +407,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
                 ,(mpiComm.neigs.DSE_rank,DSE_buff),(mpiComm.neigs.DSW_rank,DSW_buff)]
 
 
-    #MPI Send
-    #send_dict = {}
-    #for rank, buff in send_buff:
-    #    if rank in send_dict:
-    #        send_dict[rank] = np.append(send_dict[rank],buff)
-    #    else:
-    #        send_dict[rank] = buff
-
-
     buffLen = 300
     sendBuff = np.ones( (size,buffLen+1))
     for rank, buff in send_buff:
@@ -415,13 +422,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         tempBuff[index:index+buffSize] = buff
         tempBuff[0] = index+buffSize
 
-
-    #BUG: particles not sent to self!
-    #send_requests = []
-    #for i in mpiComm.neigs.ranks:
-    #    Sreq = mpiComm.comm.Isend([sendBuff[i],MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
-    #    send_requests.append(Sreq)
-
     send_requests=[]
     for i in mpiComm.neigs.ranks:
         index = int(sendBuff[i,0])
@@ -433,50 +433,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
             Sreq = mpiComm.comm.Isend([buff, MPI.DOUBLE], dest = i, tag = mpiComm.rank*10)
             send_requests.append(Sreq)
 
-
-    #interior update
-    for cx in range(1,Lxd-1):
-        for cy in range(1,Lyd-1):
-            for cz in range(1,Lzd-1):
-
-                c = cx + cy*Lxd + cz*Lxd*Lyd
-
-                for cz_N in range(cz-1,cz+2):
-                    for cy_N in range(cy-1,cy+2):
-                        for cx_N in range(cx-1,cx+2):
-
-                            c_N = cx_N + cy_N*Lxd + cz_N*Lxd*Lyd
-
-                            i = head[c]
-
-                            while(i != empty):
-
-                                j = head[c_N]
-
-                                while(j != empty):
-
-                                    if i < j:
-                                        dx = pos[i,0] - pos[j,0]
-                                        dy = pos[i,1] - pos[j,1]
-                                        dz = pos[i,2] - pos[j,2]
-                                        r = np.sqrt(dx**2 + dy**2 + dz**2)
-
-                                        if r < rc:
-                                            U_s_r = U_s_r + np.exp(-kappa*r)/r
-                                            f1 = 1./r**2*np.exp(-kappa*r)
-                                            f2 = kappa/r*np.exp(-kappa*r)
-                                            fr = f1+f2
-                                            acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
-                                            acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
-                                            acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
-
-                                            acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
-                                            acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
-                                            acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
-
-                                    j = ls[j]
-
-                                i = ls[i]
 
     #probe incomming messages for total
     #number of received particles and
@@ -534,52 +490,6 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
         lsRecv[i] = headRecv[c]
         headRecv[c] = i
 
-    #exterior update
-    for I in exterior:
-
-        cx = I[2]
-        cy = I[1]
-        cz = I[0]
-
-        c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
-
-        for cz_N in range(cz-1,cz+2):
-            for cy_N in range(cy-1,cy+2):
-                for cx_N in range(cx-1,cx+2):
-
-                    c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
-
-                    i = headRecv[c]
-
-                    while(i != empty):
-
-                        j = headRecv[c_N]
-
-                        while(j != empty):
-
-                            if i < j:
-
-                                dx = pos[i,0] - pos[j,0]
-                                dy = pos[i,1] - pos[j,1]
-                                dz = pos[i,2] - pos[j,2]
-                                r = np.sqrt(dx**2 + dy**2 + dz**2)
-
-                                if r < rc:
-
-                                    U_s_r = U_s_r + np.exp(-kappa*r)/r
-                                    f1 = 1./r**2*np.exp(-kappa*r)
-                                    f2 = kappa/r*np.exp(-kappa*r)
-                                    fr = f1+f2
-                                    acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
-                                    acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
-                                    acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
-                                    if j < N:
-                                        acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
-                                        acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
-                                        acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
-
-                            j = lsRecv[j]
-
-                        i = lsRecv[i]
+    acc_s_r, U_s_r = partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N)
 
     return U_s_r, acc_s_r[:N], vel, pos[:N]
