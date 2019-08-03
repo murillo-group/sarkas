@@ -88,11 +88,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code.html">Code</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rst_files/auto_gen_rst/sarkas_rst/modules.html">sarkas</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
 </ul>
@@ -166,8 +172,10 @@
 <span class="kn">import</span> <span class="nn">S_yukawa_gf_opt</span> <span class="k">as</span> <span class="nn">yukawa_gf_opt</span>
 <span class="kn">import</span> <span class="nn">S_force</span> <span class="k">as</span> <span class="nn">force</span>
 
-<div class="viewcode-block" id="Integrator"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator">[docs]</a><span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39; Integrates the equation of motion for the particles. Updating position, velocity, and acceleration. &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Integrator"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator">[docs]</a><span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Integrates the equation of motion for the particles. Updating position, velocity, and acceleration.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">glb</span><span class="p">):</span>
 
         <span class="k">if</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;yukawa&quot;</span><span class="p">):</span>
@@ -186,10 +194,23 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only Verlet integrator is supported. Check your input file, integrator part.&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Integrator.Verlet"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.Verlet">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Update particle position and velocity based on velocity verlet method.</span>
+<div class="viewcode-block" id="Integrator.Verlet"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator.Verlet">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39; Update particle position and velocity based on velocity verlet method.</span>
 <span class="sd">        More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration</span>
 <span class="sd">        or on the Sarkas website. </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptlcs : array_like</span>
+<span class="sd">            particles data. See S_particles.py for the detailed information</span>
+
+<span class="sd">        test : int</span>
+<span class="sd">            this is a test.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        U : float</span>
+<span class="sd">            Total potential energy</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -242,7 +263,7 @@
 
         <span class="k">return</span> <span class="n">U</span></div>
 
-<div class="viewcode-block" id="Integrator.Verlet_with_Langevin"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.Verlet_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+<div class="viewcode-block" id="Integrator.Verlet_with_Langevin"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator.Verlet_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">dt</span>
         <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">g_0</span>
         <span class="n">Gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Gamma</span>
@@ -282,10 +303,10 @@
         <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">c1</span><span class="o">*</span><span class="n">c2</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">acc_new</span> <span class="o">+</span> <span class="n">acc</span><span class="p">)</span><span class="o">*</span><span class="n">c2</span> <span class="o">+</span> <span class="n">c2</span><span class="o">*</span><span class="n">sig</span><span class="o">*</span><span class="n">rtdt</span><span class="o">*</span><span class="n">beta</span>
         <span class="k">return</span> <span class="n">U</span></div>
 
-<div class="viewcode-block" id="Integrator.RK45"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.RK45">[docs]</a>    <span class="k">def</span> <span class="nf">RK45</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Integrator.RK45"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator.RK45">[docs]</a>    <span class="k">def</span> <span class="nf">RK45</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Integrator.RK45_with_Langevin"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.RK45_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">RK45_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Integrator.RK45_with_Langevin"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator.RK45_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">RK45_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div></div>
 </pre></div>
 

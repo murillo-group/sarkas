@@ -88,11 +88,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code.html">Code</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rst_files/auto_gen_rst/sarkas_rst/modules.html">sarkas</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
 </ul>
@@ -158,15 +164,21 @@
            <div itemprop="articleBody">
             
   <h1>Source code for rdf_sub</h1><div class="highlight"><pre>
-<span></span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">A code to calulate g(r), the radial distribution function, from Sarkas output.</span>
-<span class="sd">Assumed that the xyz data is normalized by a_i, the ion sphere radius.</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span></span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 
-<div class="viewcode-block" id="calc_rdf"><a class="viewcode-back" href="../source/rdf_sub.html#rdf_sub.calc_rdf">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span><span class="p">()</span>
+<div class="viewcode-block" id="calc_rdf"><a class="viewcode-back" href="../rst_files/auto_gen_rst/utilities_rst/rdf_sub.html#rdf_sub.calc_rdf">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">calc_rdf</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">ni</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; A code to calulate g(r), the radial distribution function, from Sarkas output.</span>
+<span class="sd">    Assumed that the xyz data is normalized by a_i, the ion sphere radius.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lines : array_like</span>
+<span class="sd">        Lines of output data from Sarkas .out file</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">ai</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">if</span><span class="p">(</span><span class="n">units</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
         <span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">ni</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>

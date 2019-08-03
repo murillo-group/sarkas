@@ -88,11 +88,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code.html">Code</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rst_files/auto_gen_rst/sarkas_rst/modules.html">sarkas</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
 </ul>
@@ -172,7 +178,7 @@
 <span class="kn">import</span> <span class="nn">S_force</span> <span class="k">as</span> <span class="nn">force</span>
 
 <span class="c1"># read input data from yukawa_MD_p3m.in</span>
-<div class="viewcode-block" id="init"><a class="viewcode-back" href="../source/S_global_names.html#S_global_names.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="init"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_global_names.html#S_global_names.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
 
     <span class="n">units</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">control</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">units</span>
     <span class="n">potential_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
@@ -197,7 +203,7 @@
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="Aux"><a class="viewcode-back" href="../source/S_global_names.html#S_global_names.Aux">[docs]</a><span class="k">def</span> <span class="nf">Aux</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Aux"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_global_names.html#S_global_names.Aux">[docs]</a><span class="k">def</span> <span class="nf">Aux</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
 
     <span class="n">glb</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">glb</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="mf">1.8</span>
@@ -244,7 +250,7 @@
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="Yukawa_units"><a class="viewcode-back" href="../source/S_global_names.html#S_global_names.Yukawa_units">[docs]</a><span class="k">def</span> <span class="nf">Yukawa_units</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Yukawa_units"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_global_names.html#S_global_names.Yukawa_units">[docs]</a><span class="k">def</span> <span class="nf">Yukawa_units</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="ow">or</span>  <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;yukawa&quot;</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Yukawa units are only for Yukawa potential.&quot;</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
@@ -333,11 +339,11 @@
 
     <span class="k">return</span></div>
 
-<div class="viewcode-block" id="CGS_units"><a class="viewcode-back" href="../source/S_global_names.html#S_global_names.CGS_units">[docs]</a><span class="k">def</span> <span class="nf">CGS_units</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="CGS_units"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_global_names.html#S_global_names.CGS_units">[docs]</a><span class="k">def</span> <span class="nf">CGS_units</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
     <span class="n">glb</span><span class="o">.</span><span class="n">kappa</span> <span class="o">/=</span> <span class="n">glb</span><span class="o">.</span><span class="n">ai</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="MKS_units"><a class="viewcode-back" href="../source/S_global_names.html#S_global_names.MKS_units">[docs]</a><span class="k">def</span> <span class="nf">MKS_units</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="MKS_units"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_global_names.html#S_global_names.MKS_units">[docs]</a><span class="k">def</span> <span class="nf">MKS_units</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
     <span class="n">glb</span><span class="o">.</span><span class="n">kappa</span> <span class="o">/=</span> <span class="n">glb</span><span class="o">.</span><span class="n">ai</span>
     <span class="k">pass</span></div>
 </pre></div>

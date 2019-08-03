@@ -88,11 +88,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code.html">Code</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rst_files/auto_gen_rst/sarkas_rst/modules.html">sarkas</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
 </ul>
@@ -202,7 +208,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="Params"><a class="viewcode-back" href="../source/S_params.html#S_params.Params">[docs]</a><span class="k">class</span> <span class="nc">Params</span><span class="p">:</span>
+<div class="viewcode-block" id="Params"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params">[docs]</a><span class="k">class</span> <span class="nc">Params</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potential</span> <span class="o">=</span> <span class="p">[]</span>
@@ -212,14 +218,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="Params.Species_spec"><a class="viewcode-back" href="../source/S_params.html#S_params.Params.Species_spec">[docs]</a>    <span class="k">class</span> <span class="nc">Species_spec</span><span class="p">:</span>
+<div class="viewcode-block" id="Params.Species_spec"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params.Species_spec">[docs]</a>    <span class="k">class</span> <span class="nc">Species_spec</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">T0</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Params.Species_load"><a class="viewcode-back" href="../source/S_params.html#S_params.Params.Species_load">[docs]</a>    <span class="k">class</span> <span class="nc">Species_load</span><span class="p">:</span>
+<div class="viewcode-block" id="Params.Species_load"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params.Species_load">[docs]</a>    <span class="k">class</span> <span class="nc">Species_load</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Num</span> <span class="o">=</span> <span class="kc">None</span>
@@ -227,27 +233,27 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">restart_step</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Params.Plasma_potential"><a class="viewcode-back" href="../source/S_params.html#S_params.Params.Plasma_potential">[docs]</a>    <span class="k">class</span> <span class="nc">Plasma_potential</span><span class="p">:</span>
+<div class="viewcode-block" id="Params.Plasma_potential"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params.Plasma_potential">[docs]</a>    <span class="k">class</span> <span class="nc">Plasma_potential</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Gamma</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Params.MD_thermostat"><a class="viewcode-back" href="../source/S_params.html#S_params.Params.MD_thermostat">[docs]</a>    <span class="k">class</span> <span class="nc">MD_thermostat</span><span class="p">:</span>
+<div class="viewcode-block" id="Params.MD_thermostat"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params.MD_thermostat">[docs]</a>    <span class="k">class</span> <span class="nc">MD_thermostat</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Params.MD_integrator"><a class="viewcode-back" href="../source/S_params.html#S_params.Params.MD_integrator">[docs]</a>    <span class="k">class</span> <span class="nc">MD_integrator</span><span class="p">:</span>
+<div class="viewcode-block" id="Params.MD_integrator"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params.MD_integrator">[docs]</a>    <span class="k">class</span> <span class="nc">MD_integrator</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Params.MD_Langevin"><a class="viewcode-back" href="../source/S_params.html#S_params.Params.MD_Langevin">[docs]</a>    <span class="k">class</span> <span class="nc">MD_Langevin</span><span class="p">:</span>
+<div class="viewcode-block" id="Params.MD_Langevin"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params.MD_Langevin">[docs]</a>    <span class="k">class</span> <span class="nc">MD_Langevin</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Params.MD_control"><a class="viewcode-back" href="../source/S_params.html#S_params.Params.MD_control">[docs]</a>    <span class="k">class</span> <span class="nc">MD_control</span><span class="p">:</span>
+<div class="viewcode-block" id="Params.MD_control"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params.MD_control">[docs]</a>    <span class="k">class</span> <span class="nc">MD_control</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Neq</span> <span class="o">=</span> <span class="kc">None</span>
@@ -257,7 +263,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Params.setup"><a class="viewcode-back" href="../source/S_params.html#S_params.Params.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Params.setup"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_params.html#S_params.Params.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="c1"># default thermostat and integrator</span>
         <span class="n">md_thermostat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MD_thermostat</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">md_thermostat</span><span class="p">)</span>

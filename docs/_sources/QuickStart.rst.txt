@@ -138,7 +138,7 @@ Additionally, the non-dimensional electron screening parameter is defined as
 where :math:`\lambda_e` is the electron screening length defined as
 
 .. math::
-   \lambda_e^2 = \frac{\sqrt{ T_{ij} + \left(\frac{2}{3} E_F \right)^2 }}{4\pi n_e e^2}.
+   \lambda_e^2 = \frac{\sqrt{ T_{ij}^2 + \left(\frac{2}{3} E_F \right)^2 }}{4\pi n_e e^2}.
 
 In the above expression, :math:`E_F` is the Fermi energy, and :math:`n_e` is the electron number density.
 

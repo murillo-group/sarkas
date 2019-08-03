@@ -12,11 +12,21 @@ their choosing.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting Started:
    
    quickstart
    tutorial
-   code
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Source Code:
+   
+   ./rst_files/auto_gen_rst/sarkas_rst/modules
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Theoretical Background:
+
    potentials
    thermostats
 

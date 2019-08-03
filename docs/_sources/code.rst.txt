@@ -1,5 +1,0 @@
-Code
-====
-
-.. automodule:: S_integrator
-   :members:
