@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import numba as nb
 from mpi4py import MPI
 
 import S_velocity_verlet as velocity_verlet
@@ -22,9 +23,9 @@ def vscale(pos, vel, acc, T_desired, it, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_
     if(glb.units == "Yukawa"):
         kf = 1.5
         K = kf*np.ndarray.sum(vel**2)
-        totalK = np.array([0.0])
-        mpiComm.comm.Allreduce(K, totalK, op=MPI.SUM)
-        K = totalK[0]
+        #totalK = np.array([0.0])
+        #mpiComm.comm.Allreduce(K, totalK, op=MPI.SUM)
+        #K = totalK[0]
         T = K/kf/float(N)
         #K *= 3
         #T *= 3

@@ -9,7 +9,18 @@ import S_global_names as glb
 #import S_update as update
 
 @nb.jit(nopython=True,fastmath=True)
-def partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N):
+def partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N,Nb,Lmin,rc_x,rc_y,rc_z):
+
+    for i in range(N,Nb):
+        cx = int(np.floor((rc_x + pos[i,0] - Lmin[0])/rc_x))
+        cy = int(np.floor((rc_y + pos[i,1] - Lmin[1])/rc_y))
+        cz = int(np.floor((rc_z + pos[i,2] - Lmin[2])/rc_z))
+        c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+
+        lsRecv[i] = headRecv[c]
+        headRecv[c] = i
+
+
     for cx in range(1,Lxd+1):
         for cy in range(1,Lyd+1):
             for cz in range(1,Lzd+1):
@@ -481,15 +492,15 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     headRecv.fill(empty)
     headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape((Lzd,Lyd,Lxd))
     headRecv = headRecv.flatten()
-    for i in range(N,Nb):
-        cx = int(np.floor((rc_x + pos[i,0] - mpiComm.Lmin[0])/rc_x))
-        cy = int(np.floor((rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y))
-        cz = int(np.floor((rc_z + pos[i,2] - mpiComm.Lmin[2])/rc_z))
-        c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+    #for i in range(N,Nb):
+    #    cx = int(np.floor((rc_x + pos[i,0] - mpiComm.Lmin[0])/rc_x))
+    #    cy = int(np.floor((rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y))
+    #    cz = int(np.floor((rc_z + pos[i,2] - mpiComm.Lmin[2])/rc_z))
+    #    c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
 
-        lsRecv[i] = headRecv[c]
-        headRecv[c] = i
+    #    lsRecv[i] = headRecv[c]
+    #    headRecv[c] = i
 
-    acc_s_r, U_s_r = partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N)
+    acc_s_r, U_s_r = partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N,Nb,Lmin,rc_x,rc_y,rc_z)
 
     return U_s_r, acc_s_r[:N], vel, pos[:N]

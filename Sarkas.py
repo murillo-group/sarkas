@@ -262,10 +262,10 @@ for it in range(Nt):
     E = K + U
 
     if(it%glb.snap_int == 0 and glb.verbose ):
-        Energy=np.zeros(3,dtype=np.float64)
-        mpiComm.comm.Reduce([np.array([E,K,U]), MPI.DOUBLE],[Energy, MPI.DOUBLE],op = MPI.SUM,root = 0)
+        #Energy=np.zeros(3,dtype=np.float64)
+        #mpiComm.comm.Reduce([np.array([E,K,U]), MPI.DOUBLE],[Energy, MPI.DOUBLE],op = MPI.SUM,root = 0)
         if mpiComm.rank == 0:
-            K = Energy[1]
+            #K = Energy[1]
             Tp = (2/3)*K/float(N)/const.kb
             print("Production: timestep, T, E, K, U, Np = ", it, Tp, Energy[0], Energy[1], Energy[2], len(pos[:,0]))
 

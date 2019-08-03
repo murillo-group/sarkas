@@ -5,7 +5,7 @@ import S_p3m as p3m
 import S_global_names as glb
 import S_constants as const
 
-#@nb.autojit
+
 def update(pos, vel, acc, Z, G_k, kx_v, ky_v, kz_v, acc_s_r, acc_fft, rho_r, E_x_p, E_y_p, E_z_p,mpiComm,eq):
     
     dt = glb.dt
