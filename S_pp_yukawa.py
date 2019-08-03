@@ -9,7 +9,54 @@ import S_global_names as glb
 #import S_update as update
 
 @nb.jit(nopython=True,fastmath=True)
-def partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N,Nb,Lmin,rc_x,rc_y,rc_z):
+def interiorUpdate(Lxd,Lyd,Lzd,ls,head,pos,acc_s_r,U_s_r,rc,empty,kappa,N):
+
+    for cx in range(1,Lxd-1):
+        for cy in range(1,Lyd-1):
+            for cz in range(1,Lzd-1):
+
+                c = cx + cy*Lxd + cz*Lxd*Lyd
+
+                for cz_N in range(cz-1,cz+2):
+                    for cy_N in range(cy-1,cy+2):
+                        for cx_N in range(cx-1,cx+2):
+
+                            c_N = cx_N + cy_N*Lxd + cz_N*Lxd*Lyd
+
+                            i = head[c]
+
+                            while(i != empty):
+
+                                j = head[c_N]
+
+                                while(j != empty):
+
+                                    if i < j:
+                                        dx = pos[i,0] - pos[j,0]
+                                        dy = pos[i,1] - pos[j,1]
+                                        dz = pos[i,2] - pos[j,2]
+                                        r = np.sqrt(dx**2 + dy**2 + dz**2)
+
+                                        if r < rc:
+                                            U_s_r = U_s_r + np.exp(-kappa*r)/r
+                                            f1 = 1./r**2*np.exp(-kappa*r)
+                                            f2 = kappa/r*np.exp(-kappa*r)
+                                            fr = f1+f2
+                                            acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
+                                            acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
+                                            acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
+                                            if j < N:
+                                                acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
+                                                acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
+                                                acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
+
+                                    j = ls[j]
+
+                                i = ls[i]
+    return acc_s_r, U_s_r
+
+@nb.jit(nopython=True,fastmath=True)
+def exteriorUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N,Nb,Lmin,rc_x,rc_y,rc_z):
 
     for i in range(N,Nb):
         cx = int(np.floor((rc_x + pos[i,0] - Lmin[0])/rc_x))
@@ -21,7 +68,7 @@ def partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N,Nb
         headRecv[c] = i
 
 
-    for cx in range(1,Lxd+1):
+    for cx in [1,Lxd]:
         for cy in range(1,Lyd+1):
             for cz in range(1,Lzd+1):
 
@@ -63,6 +110,94 @@ def partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N,Nb
                                     j = lsRecv[j]
 
                                 i = lsRecv[i]
+
+    for cy in [1,Lyd]:
+        for cx in range(2,Lxd):
+            for cz in range(1,Lzd+1):
+
+                c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+
+                for cz_N in range(cz-1,cz+2):
+                    for cy_N in range(cy-1,cy+2):
+                        for cx_N in range(cx-1,cx+2):
+
+                            c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
+
+                            i = headRecv[c]
+
+                            while(i != empty):
+
+                                j = headRecv[c_N]
+
+                                while(j != empty):
+
+                                    if i < j:
+                                        dx = pos[i,0] - pos[j,0]
+                                        dy = pos[i,1] - pos[j,1]
+                                        dz = pos[i,2] - pos[j,2]
+                                        r = np.sqrt(dx**2 + dy**2 + dz**2)
+
+                                        if r < rc:
+                                            U_s_r = U_s_r + np.exp(-kappa*r)/r
+                                            f1 = 1./r**2*np.exp(-kappa*r)
+                                            f2 = kappa/r*np.exp(-kappa*r)
+                                            fr = f1+f2
+                                            acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
+                                            acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
+                                            acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
+                                            if j < N:
+                                                acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
+                                                acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
+                                                acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
+
+                                    j = lsRecv[j]
+
+                                i = lsRecv[i]
+
+    for cz in [1,Lzd]:
+        for cx in range(2,Lxd):
+            for cy in range(2,Lyd):
+
+                c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
+
+                for cz_N in range(cz-1,cz+2):
+                    for cy_N in range(cy-1,cy+2):
+                        for cx_N in range(cx-1,cx+2):
+
+                            c_N = cx_N + cy_N*(Lxd+2) + cz_N*(Lxd+2)*(Lyd+2)
+
+                            i = headRecv[c]
+
+                            while(i != empty):
+
+                                j = headRecv[c_N]
+
+                                while(j != empty):
+
+                                    if i < j:
+                                        dx = pos[i,0] - pos[j,0]
+                                        dy = pos[i,1] - pos[j,1]
+                                        dz = pos[i,2] - pos[j,2]
+                                        r = np.sqrt(dx**2 + dy**2 + dz**2)
+
+                                        if r < rc:
+                                            U_s_r = U_s_r + np.exp(-kappa*r)/r
+                                            f1 = 1./r**2*np.exp(-kappa*r)
+                                            f2 = kappa/r*np.exp(-kappa*r)
+                                            fr = f1+f2
+                                            acc_s_r[i,0] = acc_s_r[i,0] + fr*dx/r
+                                            acc_s_r[i,1] = acc_s_r[i,1] + fr*dy/r
+                                            acc_s_r[i,2] = acc_s_r[i,2] + fr*dz/r
+                                            if j < N:
+                                                acc_s_r[j,0] = acc_s_r[j,0] - fr*dx/r
+                                                acc_s_r[j,1] = acc_s_r[j,1] - fr*dy/r
+                                                acc_s_r[j,2] = acc_s_r[j,2] - fr*dz/r
+
+                                    j = lsRecv[j]
+
+                                i = lsRecv[i]
+
+
     return acc_s_r, U_s_r
 
 
@@ -445,6 +580,9 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
             send_requests.append(Sreq)
 
 
+    acc_s_r, U_s_r = interiorUpdate(Lxd,Lyd,Lzd,ls,head,pos,acc_s_r,U_s_r,rc,empty,kappa,N)
+
+
     #probe incomming messages for total
     #number of received particles and
     #build recv buffers.
@@ -492,15 +630,7 @@ def particle_particle(pos, vel, acc_s_r, mpiComm):
     headRecv.fill(empty)
     headRecv[1:Lzd+1,1:Lyd+1,1:Lxd+1] = head.reshape((Lzd,Lyd,Lxd))
     headRecv = headRecv.flatten()
-    #for i in range(N,Nb):
-    #    cx = int(np.floor((rc_x + pos[i,0] - mpiComm.Lmin[0])/rc_x))
-    #    cy = int(np.floor((rc_y + pos[i,1] - mpiComm.Lmin[1])/rc_y))
-    #    cz = int(np.floor((rc_z + pos[i,2] - mpiComm.Lmin[2])/rc_z))
-    #    c = cx + cy*(Lxd+2) + cz*(Lxd+2)*(Lyd+2)
 
-    #    lsRecv[i] = headRecv[c]
-    #    headRecv[c] = i
-
-    acc_s_r, U_s_r = partUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N,Nb,Lmin,rc_x,rc_y,rc_z)
+    acc_s_r, U_s_r = exteriorUpdate(Lxd,Lyd,Lzd,lsRecv,headRecv,pos,acc_s_r,U_s_r,rc,empty,kappa,N,Nb,Lmin,rc_x,rc_y,rc_z)
 
     return U_s_r, acc_s_r[:N], vel, pos[:N]
