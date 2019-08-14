@@ -5,7 +5,7 @@ Region:
       ion_temperature: 1e6   # kelvin
       charge: 3                 # unit of e
       mass: 1.67e-24            # g
-      ion_number_density: 1.0e16    # number/meter^3
+      ion_number_density: 1.0e16    # number/centimeter^3
 
   - Load:
       species_name: ion1
