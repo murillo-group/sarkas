@@ -91,9 +91,8 @@ ptcls.load(glb, total_num_ptcls)
 time_stamp[its] = time.time(); its += 1
 
 # Calculating initial forces and potential energy
-#U = p3m.force_pot(ptcls)
 U = calc_force(ptcls)
-#U = update_force(ptcls)
+
 K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
 Tp = (2/3)*K/float(N)/const.kb
 if(glb.units == "Yukawa"):
@@ -105,9 +104,7 @@ print("=====T, E, K, U = ", Tp, E, K, U)
 if not (params.load[0].method == "restart"):
     print("\n------------- Equilibration -------------")
     for it in range(glb.Neq):
-
         U = thermostat.update(ptcls, it)
-
         K = 0.5*glb.mi*np.ndarray.sum(ptcls.vel**2)
         Tp = (2/3)*K/float(N)/const.kb
         if(glb.units == "Yukawa"):
@@ -180,7 +177,6 @@ f_xyz.close()
 checkpoint.dump(ptcls.pos, ptcls.vel, ptcls.acc, Nt)
 
 time_stamp[its] = time.time(); its += 1
-
 if(glb.verbose):
     verbose.time_stamp(time_stamp)
 

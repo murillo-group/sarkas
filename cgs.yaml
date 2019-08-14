@@ -1,0 +1,38 @@
+Region:
+
+  - Species:
+      name: ion1
+      ion_temperature: 1e6   # kelvin
+      charge: 3                 # unit of e
+      mass: 1.67e-24            # g
+      ion_number_density: 1.0e16    # number/meter^3
+
+  - Load:
+      species_name: ion1
+      Num: 2 
+      method: random 
+      rand_seed: 123
+      r_reject: 1e-2
+      perturb: 0.2 
+      halton_bases: [2,3,5]
+
+  - Potential: 
+      type: Yukawa
+      algorithm: PP
+      rc: 2.0                   # unit of ai
+
+  - Integrator:
+      type: Verlet
+
+  - Thermostat:
+      type: Berendsen
+
+  - Control:
+      dt: 2.53e-14              # unit of sec   
+      Neq: 100
+      Nstep: 100
+      BC: periodic
+      units: cgs
+      writexyz: no
+      verbose: yes
+

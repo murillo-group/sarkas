@@ -55,12 +55,10 @@ class Thermostat:
             Total potential energy
         '''
         T_desired = self.glb_vars.T_desired
-
         U = self.integrator(ptcls)
         mi = const.proton_mass
         K = self.kf*mi*np.ndarray.sum(ptcls.vel**2)
         T = K/self.kf/float(self.glb_vars.N)/const.kb
-
         # K = self.K_factor*np.ndarray.sum(vel**2)
         # T = self.T_factor*K
         N = 20.0

@@ -57,13 +57,14 @@ class Params:
             self.name = None
             self.mass = None
             self.charge = None
-            self.T0 = None
+            self.Ti = None
+            self.ni = None
+            self.ne = None
 
     class Species_load:
         def __init__(self):
             self.species_name = None
             self.Num = None
-            self.np = None
             self.method = None
             self.restart_step = None
 
@@ -124,13 +125,25 @@ class Params:
                                 self.species[ic].name = value
 
                             if(key == 'mass'):
-                                self.species[ic].mass = value
+                                self.species[ic].mass = float(value)
 
                             if(key == 'charge'):
-                                self.species[ic].charge = value
+                                self.species[ic].charge = float(value)
 
-                            if(key == 'Temperature'):
-                                self.species[ic].T0 = value
+                            if(key == 'ion_temperature'):
+                                self.species[ic].Ti = float(value)
+
+                            if(key == 'temperature'):
+                                self.species[ic].Ti = float(value)
+
+                            if(key == 'elec_temperature'):
+                                self.species[ic].Te = float(value)
+
+                            if(key == 'ion_number_density'):
+                                self.species[ic].ni = float(value)
+
+                            if(key == 'elec_number_density'):
+                                self.species[ic].ni = float(value)
 
                     if(key == 'Load'):
                         load = self.Species_load()
@@ -143,9 +156,6 @@ class Params:
 
                             if(key == 'Num'):
                                 self.load[ic].Num = int(value)
-
-                            if(key == 'number_density'):
-                                self.load[ic].np = value
 
                             if(key == 'method'):
                                 self.load[ic].method = value

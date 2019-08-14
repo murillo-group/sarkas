@@ -11,6 +11,8 @@ from inspect import currentframe, getframeinfo
 import time
 import sys
 
+import S_constants as const
+
 DEBUG = 0
 
 class Particles:
@@ -63,7 +65,6 @@ class Particles:
             Lx = glb_vars.Lx
             Ly = glb_vars.Ly
             Lz = glb_vars.Lz
-
             idx_end = 0
             for i, load in enumerate(self.params.load):
                 idx_start = idx_end
@@ -89,25 +90,36 @@ class Particles:
             potential_type = self.params.potential[0].type
             units = self.params.control[0].units
 
+            q1 = glb_vars.q1
+            q2 = glb_vars.q2
+            ai = glb_vars.ai
+            mi = glb_vars.mi
+
 #   Here, we assume one species model. Will be expanded for multi-species in the future.
             if(potential_type == "Yukawa"):
+                Gamma = glb_vars.Gamma
                 if(units == "cgs"):
-                    #Vsig = np.sqrt(q1*q2/ai/mi/Gamma)
-                    print("Please use 'Yukawa' units for Yukawa potential.")
-                    sys.exit()
+                    Vsig = np.sqrt(q1*q2/ai/mi/Gamma)
+                    print("ai = ", ai)
+                    print("mi =", mi)
+                    print("q = ", q1, q2)
+                    print("Gamma = ", Gamma)
+                    print("kappa = ", glb_vars.kappa)
+                    print("visg = ", Vsig)
 
                 elif(units == "mks"):
-                    #Vsig = np.sqrt(q1*q2/ai/mi/Gamma/(4*np.pi*const.eps_0))
-                    print("Please use 'Yukawa' units for Yukawa potential.")
+                    Vsig = np.sqrt(q1*q2/ai/mi/Gamma/(4*np.pi*const.epsilon_0))
+                    print("ai = ", ai)
+                    print("mi =", mi)
+                    print("q = ", q1, q2)
+                    print("Gamma = ", Gamma)
+                    print("kappa = ", glb_vars.kappa)
+                    print("visg = ", Vsig)
 
                 elif(units == "Yukawa"):
                     if(DEBUG):
                         frameinfo = getframeinfo(currentframe())
                         print(frameinfo.filename, frameinfo.lineno)
-                    q1 = 1. 
-                    q2 = 1.
-                    mi = 1.
-                    Gamma = glb_vars.Gamma
                     T_desired = 1/Gamma
 
                     Vsig = np.sqrt(1./Gamma/3)
@@ -115,10 +127,6 @@ class Particles:
                 if(potential_type == "EGS"):
                     print("Will be implemented...")
                     sys.exit()
-#                if(units == "cgs"):
-#                  sig = np.sqrt(q1*q2/ai/mi/T_desired)
-#                elif(units == "mks"):
-#                  sig = np.sqrt(q1*q2/ai/mi/T_desired/(4*np.pi*const.eps_0))
 
             #Box-Muller transform to generate Gaussian random numbers from uniform random numbers 
             u1 = np.random.random(N)

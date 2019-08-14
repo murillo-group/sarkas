@@ -14,9 +14,8 @@ import time
 import S_global_names as glb
 
 @nb.jit
-def update(pos,acc_s_r):
+def update(pos, acc_s_r):
     rc = glb.rc
-   
     N = len(pos[:,0])
     d = len(pos[0,:])
 
@@ -36,8 +35,6 @@ def update(pos,acc_s_r):
 
     Ncell = Lxd*Lyd*Lzd
     
-    #print(Ncell)
-
     head = np.arange(Ncell)
     head.fill(empty)
     ls = np.arange(N)
@@ -49,13 +46,13 @@ def update(pos,acc_s_r):
     #count_rc = 0
     
     acc_s_r.fill(0.0)
+
     for i in range(N):
     
         cx = int(np.floor(pos[i,0]/rc_x))
         cy = int(np.floor(pos[i,1]/rc_y))
         cz = int(np.floor(pos[i,2]/rc_z))
         c = cx + cy*Lxd + cz*Lxd*Lyd
-    
         ls[i] = head[c]
         head[c] = i
     

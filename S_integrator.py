@@ -49,7 +49,6 @@ class Integrator:
         U : float
             Total potential energy
         '''
-
         # Import global parameters (is there a better way to do this?)
         dt = self.glb_vars.dt
         N = self.glb_vars.N
@@ -58,6 +57,7 @@ class Integrator:
         PBC = self.glb_vars.PBC
         Lmax_v = self.glb_vars.Lmax_v
         Lmin_v = self.glb_vars.Lmin_v
+
 
         # First half step velocity update
         ptcls.vel = ptcls.vel + 0.5*ptcls.acc*dt

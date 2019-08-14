@@ -3,13 +3,16 @@ S_global_names.py
 
 setting global variables and physical constants
 '''
-
+import pdb
 import numpy as np
 import sys
+import fdint
+
 import S_global_names as glb # self import. I know it is weird, but it works.
 import S_constants as const
 import S_yukawa_gf_opt as yukawa_gf_opt
 import S_force as force
+
 
 # read input data from yukawa_MD_p3m.in
 def init(params):
@@ -21,21 +24,24 @@ def init(params):
     Aux(params)
 
     # Setup units-dep. vars.
-    if(units == "Yukawa" or "yukawa"):
+    if(units == "Yukawa" or units == "yukawa"):
         Yukawa_units(params)
 
-    elif(units == "CGS" or "cgs"):
-        CGS_units_CGS(params)
+    elif(units == "CGS" or units == "cgs"):
+        CGS_units(params)
 
-    elif(units == "MKS" or "mks"):
+    elif(units == "MKS" or units == "mks"):
         MKS_units(params)
+
     else:
         print("No such units are available")
         sys.exit()
 
+    # Setup for Yukawa potential related vars.
+    if (params.potential[0].type == "Yukawa" or  params.potential[0].type == "yukawa"):
+        Yukawa_aux(params)
 
     return
-
 
 def Aux(params):
 
@@ -68,45 +74,16 @@ def Aux(params):
     glb.write_xyz = params.control[0].writexyz
     glb.seed_int = params.load[0].rand_seed
     glb.Zi = params.species[0].charge
-    glb.ni = params.load[0].np
+    glb.ni = params.species[0].ni
 
     glb.rc = params.potential[0].rc
-    glb.Te =        params.species[0].T0
-    glb.T_desired = params.species[0].T0
+#    glb.Te =        params.species[0].Te
+    glb.T_desired = params.species[0].Ti
     glb.verbose = params.control[0].verbose
-
-
-# pre-factors as a result of using 'reduced' units
-    glb.af = 1.0/3.0                          # acceleration factor for Yukawa units
-    glb.uf = 1.0                              # potential energy factor for Yukawa units
-    glb.kf = 1.5                              # kinetic energy factor for Yukawa units
 
     return
 
-
-def Yukawa_units(params):
-    if not (params.potential[0].type == "Yukawa" or  params.potential[0].type == "yukawa"):
-        print("Yukawa units are only for Yukawa potential.")
-        sys.exit()
-
-    glb.Gamma = params.potential[0].Gamma
-    glb.kappa = params.potential[0].kappa
-
-    glb.units = "Yukawa"
-    const.elec_charge = 1
-    const.elec_mass   = 1
-    const.proton_mass   = 1
-    const.kb      = 1
-    const.e_0     = 1.
-
-    glb.ni = 1
-    glb.wp = 1
-    glb.ai = 1
-    glb.Zi = 1
-    glb.q1 = 1
-    glb.q2 = 1
-    glb.mi = const.proton_mass
-
+def Yukawa_aux(params):
     if(params.potential[0].algorithm == "PP"):
         glb.force = force.Yukawa_force_PP
         glb.potential_type = glb.Yukawa_PP
@@ -120,11 +97,6 @@ def Yukawa_units(params):
     else:
         print("Wrong potential algorithm.")
         sys.exit()
-
-
-    glb.T_desired = 1/(glb.Gamma)                # desired temperature
-
-
 
     '''
     Below is temporary until the paramtere optimization is done.
@@ -147,7 +119,6 @@ def Yukawa_units(params):
     glb.dq = 2.*np.pi/glb.L
     glb.q_max = 30/glb.ai
     glb.Nq = 3*int(glb.q_max/glb.dq)
-    
 
     # Ewald parameters
     glb.G = 0.46/glb.ai
@@ -167,16 +138,137 @@ def Yukawa_units(params):
         glb.my_max = 3
         glb.mz_max = 3
 
-
         # Optimized Green's Function
         glb.G_k, glb.kx_v, glb.ky_v, glb.kz_v, glb_vars.A_pm = yukawa_gf_opt.gf_opt()
 
     return
 
+def Yukawa_units(params):
+    if not (params.potential[0].type == "Yukawa" or  params.potential[0].type == "yukawa"):
+        print("Yukawa units are only for Yukawa potential.")
+        sys.exit()
+
+    glb.Gamma = params.potential[0].Gamma
+    glb.kappa = params.potential[0].kappa
+
+    glb.units = "Yukawa"
+    const.elec_charge = 1
+    const.elec_mass   = 1
+    const.proton_mass   = 1
+    const.kb      = 1
+    const.epsilon_0     = 1.
+
+    glb.ni = 1
+    glb.wp = 1
+    glb.ai = 1
+    glb.Zi = 1
+    glb.q1 = 1
+    glb.q2 = 1
+    glb.mi = const.proton_mass
+
+    glb.T_desired = 1/(glb.Gamma)                # desired temperature
+
+# pre-factors as a result of using 'reduced' units
+    glb.af = 1.0/3.0                          # acceleration factor for Yukawa units
+    glb.uf = 1.0                              # potential energy factor for Yukawa units
+    glb.kf = 1.5                              # kinetic energy factor for Yukawa units
+
+    return
+
 def CGS_units(params):
-    glb.kappa /= glb.ai
-    pass
+
+    const.elec_charge = 4.80320425e-10
+    const.elec_mass = 9.10938356e-28
+    const.proton_mass = 1.672621898e-24
+    const.kb = 1.38064852e-16
+    const.epsilon_0 = 1.
+    const.hbar = 1.05e-27
+
+    glb.units = "cgs"
+    glb.q1 = const.elec_charge*glb.Zi
+    glb.q2 = const.elec_charge*glb.Zi
+    glb.ni = params.species[0].ni
+    glb.ai = (3/(4*np.pi*glb.ni))**(1./3.)
+    glb.wp = np.sqrt(glb.q1*glb.q2*glb.ni/const.proton_mass/const.epsilon_0)
+    glb.Zi = params.species[0].charge
+    glb.mi = params.species[0].mass
+
+    if (params.potential[0].type == "Yukawa" or  params.potential[0].type == "yukawa"):
+        ne = params.species[0].charge*params.species[0].ni # when ne is not defined 
+        Te = params.species[0].Ti
+
+        #kF = (3*np.pi**2*ne)**(1./3.)
+        #Ef = const.hbar**2*kF**2/(2*const.elec_mass)  # Fermi Energy
+        #lambda_TF = np.sqrt( np.sqrt((const.kb*Te)**2 + 4./9.*Ef**2 )/(4*np.pi*ne*const.elec_charge**2))
+        # Using MKS relation to obtain kappa and Gamma
+        k = 1.38064852e-23
+        e = 1.602176634e-19
+        hbar = 1.05e-34
+        m_e = 9.10938356e-31
+        e_0 = 8.854187817e-12
+        T  = Te
+        Zi = glb.Zi
+        n = ne*1.e6
+        fdint_fdk_vec = np.vectorize(fdint.fdk)
+        fdint_dfdk_vec = np.vectorize(fdint.dfdk)
+        fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
+        beta = 1/(k*T)
+        eta = fdint_ifd1h_vec(np.pi**2*(beta*hbar**2/(m_e))**(3/2)/np.sqrt(2)*n) #eq 4 inverted
+
+        #kF = (3*np.pi**2*ne)**(1./3.)
+        #E_F = (hbar**2/(2*m_e))*(3*np.pi**2*n)**(2/3)
+        lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) #eq 10
+        glb.ai = (3./(4*np.pi*ni))**(1./3)
+        glb.kappa = (glb.ai*1e-2)/lambda_TF
+        glb.Gamma = (glb.Zi*const.elec_charge)**2/(glb.ai*const.kb*Te)
+        glb.af = (glb.q1*glb.q2/glb.mi) # acceleration factor for cgs units
+        glb.uf = glb.q1*glb.q2  # potential factor for cgs units
+
+    return
 
 def MKS_units(params):
-    glb.kappa /= glb.ai
-    pass
+
+    const.elec_charge = 1.602176634e-19
+    const.elec_mass = 9.10938356e-31
+    const.proton_mass = 1.672621898e-27
+    const.kb = 1.38064852e-23
+    const.epsilon_0 = 8.854187817e-12
+    const.hbar= 1.05e-34
+
+    glb.units = "mks"
+    glb.q1 = const.elec_charge*glb.Zi
+    glb.q2 = const.elec_charge*glb.Zi
+    glb.ni = params.species[0].ni
+    glb.ai = (3/(4*np.pi*glb.ni))**(1./3.)
+    glb.wp = np.sqrt(glb.q1*glb.q2*glb.ni/const.proton_mass/const.epsilon_0)
+    glb.Zi = params.species[0].charge
+    glb.mi = params.species[0].mass
+
+    if (params.potential[0].type == "Yukawa" or  params.potential[0].type == "yukawa"):
+        ne = params.species[0].charge*params.species[0].ni # when ne is not defined 
+        Te = params.species[0].Ti
+
+        k = const.kb
+        e = const.elec_charge
+        hbar = const.hbar
+        m_e = const.elec_mass
+        e_0 = const.epsilon_0
+        T  = Te
+        Zi = glb.Zi
+        n = ne
+        fdint_fdk_vec = np.vectorize(fdint.fdk)
+        fdint_dfdk_vec = np.vectorize(fdint.dfdk)
+        fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
+        beta = 1/(k*T)
+        eta = fdint_ifd1h_vec(np.pi**2*(beta*hbar**2/(m_e))**(3/2)/np.sqrt(2)*n) #eq 4 inverted
+
+        #kF = (3*np.pi**2*ne)**(1./3.)
+        #E_F = (hbar**2/(2*m_e))*(3*np.pi**2*n)**(2/3)
+        lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) #eq 10
+        glb.ai = (3./(4*np.pi*ni))**(1./3)
+        glb.kappa = glb.ai/lambda_TF
+        glb.Gamma = (glb.Zi*const.elec_charge)**2/(4*np.pi*const.epsilon_0*glb.ai*const.kb*Te)
+        glb.af = (glb.q1*glb.q2/glb.mi/(4*np.pi*const.epsilon_0)) # acceleration factor for mks units
+        glb.uf = glb.q1*glb.q2/(4*np.pi*const.epsilon_0)  # potential factor for mks units
+   
+    return

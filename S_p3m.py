@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 import S_calc_force_pp as force_pp
 import S_pp_EGS as pp_EGS
 import S_global_names as glb
@@ -43,12 +44,9 @@ def force_pot(ptcls):
     U_fft = 0.
     U_self = 0.
     U_short, acc_s_r = force_pp.update(ptcls.pos, acc_s_r)
-
     ptcls.acc = af*(acc_s_r)
             #acc *= af
     U_fft = 0
     U_self = 0.
-    #U = uf*(U_short)*(q1*q2)/(4*np.pi*const.eps_0)
-    U = uf*(U_short)*(q1*q2)
-    #    print('U_short, U_long, U_self =', [U_short, U_fft, U_self])
+    U = uf*(U_short)
     return U

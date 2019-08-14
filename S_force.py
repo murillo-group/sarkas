@@ -7,6 +7,7 @@ Calculate a short range force based on a given potential.
 import numpy as np
 import numba as nb
 import math as mt
+import sys
 
 # MD modules
 import S_global_names as glb
@@ -14,13 +15,15 @@ import S_global_names as glb
 
 @nb.jit
 def Yukawa_force_PP(r, U_s_r):
-    kappa = glb.kappa
+    kappa = glb.kappa/glb.ai
     U_s_r = U_s_r + np.exp(-kappa*r)/r 
     f1 = 1./r**2*np.exp(-kappa*r)
     f2 = kappa/r*np.exp(-kappa*r)
     fr = f1+f2
+
     return U_s_r, fr
 
+@nb.jit
 def Yukawa_force_P3M(U_s_r, r):
     #Gautham's thesis Eq. 3.22
     kappa = glb.kappa
@@ -32,6 +35,10 @@ def Yukawa_force_P3M(U_s_r, r):
     fr = f1+f2+f3
 
     return U_s_r, fr
+
+def Coulomb_force(U_s_r, r):
+    U_s_r = U_s_r - (1/r)
+    fr = 1/(r**2)
 
 
 def EGS_force(U_s_r, r):
