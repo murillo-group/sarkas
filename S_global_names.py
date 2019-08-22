@@ -162,7 +162,7 @@ def Yukawa_units(params):
     glb.kappa = params.potential[0].kappa
 
     glb.units = "Yukawa"
-    const.elec_charge = 1
+    const.elemtary_charge = 1
     const.elec_mass   = 1
     const.proton_mass   = 1
     const.kb      = 1
@@ -187,7 +187,7 @@ def Yukawa_units(params):
 
 def CGS_units(params):
 
-    const.elec_charge = 4.80320425e-10
+    const.elementary_charge = 4.80320425e-10
     const.elec_mass = 9.10938356e-28
     const.proton_mass = 1.672621898e-24
     const.kb = 1.38064852e-16
@@ -195,8 +195,8 @@ def CGS_units(params):
     const.hbar = 1.05e-27
 
     glb.units = "cgs"
-    glb.q1 = const.elec_charge*glb.Zi
-    glb.q2 = const.elec_charge*glb.Zi
+    glb.q1 = const.elementary_charge*glb.Zi
+    glb.q2 = const.elementary_charge*glb.Zi
     glb.ni = params.species[0].ni
     glb.ai = (3/(4*np.pi*glb.ni))**(1./3.)
     glb.wp = np.sqrt(glb.q1*glb.q2*glb.ni/const.proton_mass/const.epsilon_0)
@@ -209,7 +209,7 @@ def CGS_units(params):
 
         #kF = (3*np.pi**2*ne)**(1./3.)
         #Ef = const.hbar**2*kF**2/(2*const.elec_mass)  # Fermi Energy
-        #lambda_TF = np.sqrt( np.sqrt((const.kb*Te)**2 + 4./9.*Ef**2 )/(4*np.pi*ne*const.elec_charge**2))
+        #lambda_TF = np.sqrt( np.sqrt((const.kb*Te)**2 + 4./9.*Ef**2 )/(4*np.pi*ne*const.elementary_charge**2))
         # Using MKS relation to obtain kappa and Gamma
         k = 1.38064852e-23
         e = 1.602176634e-19
@@ -230,7 +230,7 @@ def CGS_units(params):
         lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) #eq 10
         glb.ai = (3./(4*np.pi*ni))**(1./3)
         glb.kappa = (glb.ai*1e-2)/lambda_TF
-        glb.Gamma = (glb.Zi*const.elec_charge)**2/(glb.ai*const.kb*Te)
+        glb.Gamma = (glb.Zi*const.elementary_charge)**2/(glb.ai*const.kb*Te)
         glb.af = (glb.q1*glb.q2/glb.mi) # acceleration factor for cgs units
         glb.uf = glb.q1*glb.q2  # potential factor for cgs units
 
@@ -238,7 +238,7 @@ def CGS_units(params):
 
 def MKS_units(params):
 
-    const.elec_charge = 1.602176634e-19
+    const.elementary_charge = 1.602176634e-19
     const.elec_mass = 9.10938356e-31
     const.proton_mass = 1.672621898e-27
     const.kb = 1.38064852e-23
@@ -246,8 +246,8 @@ def MKS_units(params):
     const.hbar= 1.05e-34
 
     glb.units = "mks"
-    glb.q1 = const.elec_charge*glb.Zi
-    glb.q2 = const.elec_charge*glb.Zi
+    glb.q1 = const.elementary_charge*glb.Zi
+    glb.q2 = const.elementary_charge*glb.Zi
     glb.ni = params.species[0].ni
     glb.ai = (3/(4*np.pi*glb.ni))**(1./3.)
     glb.wp = np.sqrt(glb.q1*glb.q2*glb.ni/const.proton_mass/const.epsilon_0)
@@ -259,7 +259,7 @@ def MKS_units(params):
         Te = params.species[0].Ti
 
         k = const.kb
-        e = const.elec_charge
+        e = const.elementary_charge
         hbar = const.hbar
         m_e = const.elec_mass
         e_0 = const.epsilon_0
@@ -278,7 +278,7 @@ def MKS_units(params):
                 (4*fdint_fdk_vec(k=-0.5, phi=eta))) #eq 10
         glb.ai = (3./(4*np.pi*ni))**(1./3)
         glb.kappa = glb.ai/lambda_TF
-        glb.Gamma = (glb.Zi*const.elec_charge)**2/(4*np.pi*const.epsilon_0*glb.ai*const.kb*Te)
+        glb.Gamma = (glb.Zi*const.elementary_charge)**2/(4*np.pi*const.epsilon_0*glb.ai*const.kb*Te)
         glb.af = (glb.q1*glb.q2/glb.mi/(4*np.pi*const.epsilon_0)) # acceleration factor for mks units
         glb.uf = glb.q1*glb.q2/(4*np.pi*const.epsilon_0)  # potential factor for mks units
 

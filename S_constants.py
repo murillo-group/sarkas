@@ -1,6 +1,6 @@
 # constant physics variables
-# electron charge
-elec_charge = ""  
+# elementary charge
+elementary_charge = ""  
 
 # electron mass
 elec_mass = ""

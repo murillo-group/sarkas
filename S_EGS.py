@@ -10,7 +10,7 @@ import S_constants as const
 def init():
     l = 1 #lambda parameter (1 or 1/9 in egs paper)
     k = const.kb
-    e = const.elec_charge
+    e = -const.elementary_charge
     hbar = const.hbar
     m_e = const.elec_mass
     e_0 = const.eps_0
