@@ -20,7 +20,7 @@ import os
 
 # Importing MD modules, non class
 import S_EGS as EGS
-import S_p3m as p3m
+import S_calc_force as calc_force 
 import S_global_names as glb
 import S_constants as const
 import S_force as force
@@ -48,7 +48,7 @@ if(params.potential[0].type == "EGS" or params.potential[0].type == "egs"):
     EGS.init()
 
     pass
-calc_force = p3m.force_pot
+calc_force = calc_force.force_pot
 
 integrator = Integrator(params, glb)    # Setup a velocity integrator
 thermostat = Thermostat(params, glb)    # Setup a themrostat

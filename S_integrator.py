@@ -11,7 +11,7 @@ RK45_with_Langevin: N/A
 
 import numpy as np
 import sys
-import S_p3m as p3m
+import S_calc_force as calc_force
 import S_constants as const
 import S_yukawa_gf_opt as yukawa_gf_opt
 import S_force as force
@@ -20,7 +20,7 @@ class Integrator:
     def __init__(self, params, glb):
 
         if(params.potential[0].type == "Yukawa" or params.potential[0].type == "yukawa"):
-            self.calc_force = p3m.force_pot
+            self.calc_force = calc_force.force_pot
 
 
         self.params = params
@@ -51,6 +51,7 @@ class Integrator:
         '''
         # Import global parameters (is there a better way to do this?)
         dt = self.glb_vars.dt
+        half_dt = 0.5*dt
         N = self.glb_vars.N
         d = self.glb_vars.d
         Lv = self.glb_vars.Lv
@@ -60,7 +61,7 @@ class Integrator:
 
 
         # First half step velocity update
-        ptcls.vel = ptcls.vel + 0.5*ptcls.acc*dt
+        ptcls.vel = ptcls.vel + ptcls.acc*half_dt
         
         # Full step position update
         ptcls.pos = ptcls.pos + ptcls.vel*dt
@@ -82,19 +83,12 @@ class Integrator:
                         ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         # Compute total potential energy and accleration for second half step velocity update                 
-        #U = p3m.force_pot(ptcls)
         U = self.calc_force(ptcls)
-        #U = self.update_force(ptcls)
         
         # Second half step velocity update
-        ptcls.vel = ptcls.vel + 0.5*ptcls.acc*dt
+        ptcls.vel = ptcls.vel + ptcls.acc*half_dt
 
         return U
-
-
-    
-
-
 
     def Verlet_with_Langevin(self, ptcls):
         dt = self.glb_vars.dt
@@ -129,15 +123,68 @@ class Integrator:
                         ptcls.pos[i, p] = ptcls.pos[i, p] + Lv[p]
 
         acc = ptcls.acc
-        #U = p3m.force_pot(ptcls)
         U = self.calc_force(ptcls)
-        #U = self.update_force(ptcls)
         acc_new = ptcls.acc
         ptcls.vel = c1*c2*ptcls.vel + 0.5*dt*(acc_new + acc)*c2 + c2*sig*rtdt*beta
         return U
 
-    def RK45(self):
+    def RK(self, ptcls):
+        ''' Update particle position and velocity based on the 4th order Runge-Kutta method
+        More information can be found here: 
+        https://en.wikipedia.org/wiki/Runge–Kutta_methods
+        or on the Sarkas website. 
+    
+        Parameters
+        ----------
+        ptlcs: particles data. See S_particles.py for the detailed information
+        k1: the vel, acc at the beginng
+        k2: the vel, acc at the middle
+        k3: the vel, acc at the middle if the acc. at the beginning was k2
+        k4: the vel, acc at the end if the acc. at the beginning was k3
+
+        Returns
+        -------
+        U : float
+            Total potential energy
+        '''
+        # Import global parameters (is there a better way to do this?)
+        dt = self.glb_vars.dt
+        half_dt = 0.5*dt
+        N = self.glb_vars.N
+        d = self.glb_vars.d
+        Lv = self.glb_vars.Lv
+
+
+
+
+
         pass
 
-    def RK45_with_Langevin(self):
+    def RK45(self, ptcls):
+        ''' Update particle position and velocity based on Explicit Runge-Kutta method of order 5(4). 
+        More information can be found here: 
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK45.html
+        https://en.wikipedia.org/wiki/Runge–Kutta_methods
+        or on the Sarkas website. 
+    
+        Parameters
+        ----------
+        ptlcs: particles data. See S_particles.py for the detailed information
+
+        Returns
+        -------
+        U : float
+            Total potential energy
+        '''
+        # Import global parameters (is there a better way to do this?)
+        dt = self.glb_vars.dt
+        N = self.glb_vars.N
+        d = self.glb_vars.d
+        Lv = self.glb_vars.Lv
+        PBC = self.glb_vars.PBC
+        Lmax_v = self.glb_vars.Lmax_v
+        Lmin_v = self.glb_vars.Lmin_v
+        pass
+
+    def RK45_with_Langevin(self, ptcls):
         pass

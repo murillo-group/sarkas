@@ -40,6 +40,8 @@ def force_pot(ptcls):
         E_x_p = np.zeros(glb.N)
         E_y_p = np.zeros(glb.N)
         E_z_p = np.zeros(glb.N)
+        print("under construction...")
+        sys.exit()
 
         rho_r.fill(0.0)
         E_x_p.fill(0.0)

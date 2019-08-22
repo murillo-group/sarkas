@@ -26,7 +26,7 @@ def Yukawa_force_PP(r, U_s_r):
 @nb.jit
 def Yukawa_force_P3M(U_s_r, r):
     #Gautham's thesis Eq. 3.22
-    kappa = glb.kappa
+    kappa = glb.kappa/glb.ai
     G = glb.G
     U_s_r = U_s_r + (0.5/r)*(np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G) + np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G))
     f1 = (0.5/r**2)*np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G)*(1-kappa*r)
@@ -36,10 +36,14 @@ def Yukawa_force_P3M(U_s_r, r):
 
     return U_s_r, fr
 
-def Coulomb_force(U_s_r, r):
-    U_s_r = U_s_r - (1/r)
+@nb.jit
+def Coulomb_force(U, r):
+    U = U - (1/r)
     fr = 1/(r**2)
 
+    return U
 
+
+@nb.jit
 def EGS_force(U_s_r, r):
     pass

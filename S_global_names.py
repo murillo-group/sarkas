@@ -18,7 +18,6 @@ import S_force as force
 def init(params):
 
     units = params.control[0].units
-    potential_type = params.potential[0].type
 
     # Setup units-indep. vars.
     Aux(params)
@@ -41,6 +40,11 @@ def init(params):
     if (params.potential[0].type == "Yukawa" or  params.potential[0].type == "yukawa"):
         Yukawa_aux(params)
 
+    # Setup for a brute-force technique. This is only for testing new integrators. 
+    # Do not use this part any other purpose unless you understand what you are doing!
+    if (params.potential[0].algorithm == "Brute"):
+        Brute_aux(params)
+
     return
 
 def Aux(params):
@@ -51,6 +55,7 @@ def Aux(params):
     glb.Yukawa_P3M = 1
     glb.Yukawa_PP = 2
     glb.EGS = 3
+    glb.Coulomb = 4
 
     potential_type = params.potential[0].type
     glb.pot_calc_algrthm = params.potential[0].algorithm
@@ -82,6 +87,11 @@ def Aux(params):
     glb.verbose = params.control[0].verbose
 
     return
+
+def Brute_aux(params):
+        glb.force = force.Coulomb_force
+        glb.potential_type = glb.Coulomb
+
 
 def Yukawa_aux(params):
     if(params.potential[0].algorithm == "PP"):
@@ -264,11 +274,12 @@ def MKS_units(params):
 
         #kF = (3*np.pi**2*ne)**(1./3.)
         #E_F = (hbar**2/(2*m_e))*(3*np.pi**2*n)**(2/3)
-        lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) #eq 10
+        lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/ \
+                (4*fdint_fdk_vec(k=-0.5, phi=eta))) #eq 10
         glb.ai = (3./(4*np.pi*ni))**(1./3)
         glb.kappa = glb.ai/lambda_TF
         glb.Gamma = (glb.Zi*const.elec_charge)**2/(4*np.pi*const.epsilon_0*glb.ai*const.kb*Te)
         glb.af = (glb.q1*glb.q2/glb.mi/(4*np.pi*const.epsilon_0)) # acceleration factor for mks units
         glb.uf = glb.q1*glb.q2/(4*np.pi*const.epsilon_0)  # potential factor for mks units
-   
+
     return

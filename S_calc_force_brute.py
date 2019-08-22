@@ -1,10 +1,10 @@
 '''
 S_calc_force_brute.py
 
-* Calculate force and potential using a brute-force technique. This is for just test potentials and 
-integrators, not a real simulation purpose!
+* Calculate force and potential using a brute-force technique. 
 
-* No periodic bc is assumed!
+* This is only for test potentials and integrators, not a real simulation purpose!
+* No periodic bc is assumed.
 
 * glb.force is defined in S_force.py
 '''
