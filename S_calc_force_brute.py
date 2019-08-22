@@ -25,9 +25,9 @@ def update(pos, acc_s_r):
 
     for i in range(N):
         for j in range(i, N):
-            dx = pos[i,0] - (pos[j,0]
-            dy = pos[i,1] - (pos[j,1]
-            dz = pos[i,2] - (pos[j,2]
+            dx = pos[i,0] - pos[j,0]
+            dy = pos[i,1] - pos[j,1]
+            dz = pos[i,2] - pos[j,2]
             r = np.sqrt(dx**2 + dy**2 + dz**2)
 
             U_s_r, fr = glb.force(r, U_s_r)
