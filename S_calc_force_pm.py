@@ -1,3 +1,14 @@
+'''
+S_calc_force_pm.py
+
+* Calculate force and potential based on PM algorithm.
+* glb.force is defined in S_force.py
+
+* input: under restructuring
+* output: under restructuring
+
+'''
+
 import numpy as np
 import numba as nb
 import pyfftw

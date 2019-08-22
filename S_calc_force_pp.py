@@ -1,8 +1,12 @@
 '''
 S_calc_force_pp.py
 
-calculate force and potential based on LCL.
-glb.force is defined in S_force.py
+* Calculate force and potential based on LCL.
+* glb.force is defined in S_force.py
+
+* input: particle positions
+* output: potential, acceleration without any physical constants. Physical constants will
+be taken care of in S_calc_force.py
 '''
 
 import numpy as np

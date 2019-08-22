@@ -1,3 +1,12 @@
+'''
+S_calc_force.py
+
+* Call an appropriate force calculation module based on the algorithm
+
+* input: particles
+* output: potential
+
+'''
 import numpy as np
 import sys
 import S_calc_force_pp as force_pp
