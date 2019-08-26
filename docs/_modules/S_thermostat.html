@@ -177,7 +177,7 @@
 <span class="kn">from</span> <span class="nn">S_integrator</span> <span class="k">import</span> <span class="n">Integrator</span>
 
 
-<div class="viewcode-block" id="Thermostat"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_thermostat.html#S_thermostat.Thermostat">[docs]</a><span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
+<div class="viewcode-block" id="Thermostat"><a class="viewcode-back" href="../source/S_thermostat.html#S_thermostat.Thermostat">[docs]</a><span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">glb</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span> <span class="o">=</span> <span class="n">Integrator</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">glb</span><span class="p">)</span>
 
@@ -203,11 +203,11 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only Verlet integrator is supported. Check your input file, integrator part.&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_thermostat.html#S_thermostat.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../source/S_thermostat.html#S_thermostat.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">U</span></div>
 
-<div class="viewcode-block" id="Thermostat.Berendsen"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_thermostat.html#S_thermostat.Thermostat.Berendsen">[docs]</a>    <span class="k">def</span> <span class="nf">Berendsen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermostat.Berendsen"><a class="viewcode-back" href="../source/S_thermostat.html#S_thermostat.Thermostat.Berendsen">[docs]</a>    <span class="k">def</span> <span class="nf">Berendsen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Update particle velocity based on Berendsen thermostat.</span>
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
@@ -221,12 +221,10 @@
 <span class="sd">            Total potential energy</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">T_desired</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">T_desired</span>
-
         <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
         <span class="n">mi</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">proton_mass</span>
         <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kf</span><span class="o">*</span><span class="n">mi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">T</span> <span class="o">=</span> <span class="n">K</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">kf</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">N</span><span class="p">)</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">kb</span>
-
         <span class="c1"># K = self.K_factor*np.ndarray.sum(vel**2)</span>
         <span class="c1"># T = self.T_factor*K</span>
         <span class="n">N</span> <span class="o">=</span> <span class="mf">20.0</span>

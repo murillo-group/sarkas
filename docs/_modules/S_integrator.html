@@ -164,22 +164,29 @@
            <div itemprop="articleBody">
             
   <h1>Source code for S_integrator</h1><div class="highlight"><pre>
-<span></span>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">S_integrator.py</span>
+
+<span class="sd">velocity integrator</span>
+
+<span class="sd">Verlet: velocity Verlet</span>
+<span class="sd">Verlet_with_Langevin: Verlet with Langevin damping</span>
+<span class="sd">RK45: N/A</span>
+<span class="sd">RK45_with_Langevin: N/A</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">S_p3m</span> <span class="k">as</span> <span class="nn">p3m</span>
+<span class="kn">import</span> <span class="nn">S_calc_force</span> <span class="k">as</span> <span class="nn">calc_force</span>
 <span class="kn">import</span> <span class="nn">S_constants</span> <span class="k">as</span> <span class="nn">const</span>
 <span class="kn">import</span> <span class="nn">S_yukawa_gf_opt</span> <span class="k">as</span> <span class="nn">yukawa_gf_opt</span>
 <span class="kn">import</span> <span class="nn">S_force</span> <span class="k">as</span> <span class="nn">force</span>
 
-<div class="viewcode-block" id="Integrator"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator">[docs]</a><span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Integrates the equation of motion for the particles. Updating position, velocity, and acceleration.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Integrator"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator">[docs]</a><span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">glb</span><span class="p">):</span>
 
         <span class="k">if</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;yukawa&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span> <span class="o">=</span> <span class="n">p3m</span><span class="o">.</span><span class="n">force_pot</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span> <span class="o">=</span> <span class="n">calc_force</span><span class="o">.</span><span class="n">force_pot</span>
 
 
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
@@ -194,36 +201,23 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only Verlet integrator is supported. Check your input file, integrator part.&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Integrator.Verlet"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator.Verlet">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&#39;&#39;&#39; Update particle position and velocity based on velocity verlet method.</span>
+<div class="viewcode-block" id="Integrator.Verlet"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.Verlet">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Update particle position and velocity based on velocity verlet method.</span>
 <span class="sd">        More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration</span>
 <span class="sd">        or on the Sarkas website. </span>
-
+<span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptlcs : array_like</span>
-<span class="sd">            particles data. See S_particles.py for the detailed information</span>
-
-<span class="sd">        test : int</span>
-<span class="sd">            this is a test.</span>
+<span class="sd">        ptlcs: particles data. See S_particles.py for the detailed information</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        U : float</span>
 <span class="sd">            Total potential energy</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The velocity Verlet integration algorithm is comprised of a three-step update</span>
-<span class="sd">        the following form:</span>
-
-<span class="sd">        1. :math:`\mathbf{v}(t + \Delta t/2) = \mathbf{v}(t) + \mathbf{a}(t) \Delta t/2`</span>
-<span class="sd">        2. :math:`\mathbf{x}(t + \Delta t) = \mathbf{x}(t) + \mathbf{v}(t + \Delta t/2) \Delta t`</span>
-<span class="sd">        3. :math:`\mathbf{v}(t + \Delta t) = \mathbf{v}(t + \Delta t/2) + \mathbf{a}(t + \Delta t)\Delta t/2`   </span>
 <span class="sd">        &#39;&#39;&#39;</span>
-
         <span class="c1"># Import global parameters (is there a better way to do this?)</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">half_dt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span>
         <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">N</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">d</span>
         <span class="n">Lv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lv</span>
@@ -231,8 +225,9 @@
         <span class="n">Lmax_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lmax_v</span>
         <span class="n">Lmin_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lmin_v</span>
 
+
         <span class="c1"># First half step velocity update</span>
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">dt</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">half_dt</span>
         
         <span class="c1"># Full step position update</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="o">*</span><span class="n">dt</span>
@@ -254,16 +249,14 @@
                         <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">+</span> <span class="n">Lv</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
 
         <span class="c1"># Compute total potential energy and accleration for second half step velocity update                 </span>
-        <span class="c1">#U = p3m.force_pot(ptcls)</span>
         <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
-        <span class="c1">#U = self.update_force(ptcls)</span>
         
         <span class="c1"># Second half step velocity update</span>
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">dt</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">half_dt</span>
 
         <span class="k">return</span> <span class="n">U</span></div>
 
-<div class="viewcode-block" id="Integrator.Verlet_with_Langevin"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator.Verlet_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+<div class="viewcode-block" id="Integrator.Verlet_with_Langevin"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.Verlet_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">Verlet_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">dt</span>
         <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">g_0</span>
         <span class="n">Gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Gamma</span>
@@ -296,17 +289,70 @@
                         <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">+</span> <span class="n">Lv</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
 
         <span class="n">acc</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span>
-        <span class="c1">#U = p3m.force_pot(ptcls)</span>
         <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
-        <span class="c1">#U = self.update_force(ptcls)</span>
         <span class="n">acc_new</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">c1</span><span class="o">*</span><span class="n">c2</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">acc_new</span> <span class="o">+</span> <span class="n">acc</span><span class="p">)</span><span class="o">*</span><span class="n">c2</span> <span class="o">+</span> <span class="n">c2</span><span class="o">*</span><span class="n">sig</span><span class="o">*</span><span class="n">rtdt</span><span class="o">*</span><span class="n">beta</span>
         <span class="k">return</span> <span class="n">U</span></div>
 
-<div class="viewcode-block" id="Integrator.RK45"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator.RK45">[docs]</a>    <span class="k">def</span> <span class="nf">RK45</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Integrator.RK"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.RK">[docs]</a>    <span class="k">def</span> <span class="nf">RK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Update particle position and velocity based on the 4th order Runge-Kutta method</span>
+<span class="sd">        More information can be found here: </span>
+<span class="sd">        https://en.wikipedia.org/wiki/Runge–Kutta_methods</span>
+<span class="sd">        or on the Sarkas website. </span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptlcs: particles data. See S_particles.py for the detailed information</span>
+<span class="sd">        k1: the vel, acc at the beginng</span>
+<span class="sd">        k2: the vel, acc at the middle</span>
+<span class="sd">        k3: the vel, acc at the middle if the acc. at the beginning was k2</span>
+<span class="sd">        k4: the vel, acc at the end if the acc. at the beginning was k3</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        U : float</span>
+<span class="sd">            Total potential energy</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Import global parameters (is there a better way to do this?)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">half_dt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">N</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">d</span>
+        <span class="n">Lv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lv</span>
+
+
+
+
+
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Integrator.RK45_with_Langevin"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_integrator.html#S_integrator.Integrator.RK45_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">RK45_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Integrator.RK45"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.RK45">[docs]</a>    <span class="k">def</span> <span class="nf">RK45</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Update particle position and velocity based on Explicit Runge-Kutta method of order 5(4). </span>
+<span class="sd">        More information can be found here: </span>
+<span class="sd">        https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK45.html</span>
+<span class="sd">        https://en.wikipedia.org/wiki/Runge–Kutta_methods</span>
+<span class="sd">        or on the Sarkas website. </span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptlcs: particles data. See S_particles.py for the detailed information</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        U : float</span>
+<span class="sd">            Total potential energy</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Import global parameters (is there a better way to do this?)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">N</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">d</span>
+        <span class="n">Lv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lv</span>
+        <span class="n">PBC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">PBC</span>
+        <span class="n">Lmax_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lmax_v</span>
+        <span class="n">Lmin_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb_vars</span><span class="o">.</span><span class="n">Lmin_v</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Integrator.RK45_with_Langevin"><a class="viewcode-back" href="../source/S_integrator.html#S_integrator.Integrator.RK45_with_Langevin">[docs]</a>    <span class="k">def</span> <span class="nf">RK45_with_Langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="k">pass</span></div></div>
 </pre></div>
 

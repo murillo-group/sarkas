@@ -173,6 +173,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="c1"># MD modules</span>
 <span class="kn">import</span> <span class="nn">S_global_names</span> <span class="k">as</span> <span class="nn">glb</span>
@@ -180,16 +181,18 @@
 
 <div class="viewcode-block" id="Yukawa_force_PP"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_force.html#S_force.Yukawa_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span> <span class="nf">Yukawa_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">U_s_r</span><span class="p">):</span>
-    <span class="n">kappa</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">kappa</span>
+    <span class="n">kappa</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">kappa</span><span class="o">/</span><span class="n">glb</span><span class="o">.</span><span class="n">ai</span>
     <span class="n">U_s_r</span> <span class="o">=</span> <span class="n">U_s_r</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa</span><span class="o">*</span><span class="n">r</span><span class="p">)</span><span class="o">/</span><span class="n">r</span> 
     <span class="n">f1</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa</span><span class="o">*</span><span class="n">r</span><span class="p">)</span>
     <span class="n">f2</span> <span class="o">=</span> <span class="n">kappa</span><span class="o">/</span><span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa</span><span class="o">*</span><span class="n">r</span><span class="p">)</span>
     <span class="n">fr</span> <span class="o">=</span> <span class="n">f1</span><span class="o">+</span><span class="n">f2</span>
+
     <span class="k">return</span> <span class="n">U_s_r</span><span class="p">,</span> <span class="n">fr</span></div>
 
-<div class="viewcode-block" id="Yukawa_force_P3M"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_force.html#S_force.Yukawa_force_P3M">[docs]</a><span class="k">def</span> <span class="nf">Yukawa_force_P3M</span><span class="p">(</span><span class="n">U_s_r</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+<div class="viewcode-block" id="Yukawa_force_P3M"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_force.html#S_force.Yukawa_force_P3M">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">Yukawa_force_P3M</span><span class="p">(</span><span class="n">U_s_r</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
     <span class="c1">#Gautham&#39;s thesis Eq. 3.22</span>
-    <span class="n">kappa</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">kappa</span>
+    <span class="n">kappa</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">kappa</span><span class="o">/</span><span class="n">glb</span><span class="o">.</span><span class="n">ai</span>
     <span class="n">G</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">G</span>
     <span class="n">U_s_r</span> <span class="o">=</span> <span class="n">U_s_r</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span><span class="o">/</span><span class="n">r</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa</span><span class="o">*</span><span class="n">r</span><span class="p">)</span><span class="o">*</span><span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">G</span><span class="o">*</span><span class="n">r</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">kappa</span><span class="o">/</span><span class="n">G</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa</span><span class="o">*</span><span class="n">r</span><span class="p">)</span><span class="o">*</span><span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">G</span><span class="o">*</span><span class="n">r</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">kappa</span><span class="o">/</span><span class="n">G</span><span class="p">))</span>
     <span class="n">f1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span><span class="o">/</span><span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa</span><span class="o">*</span><span class="n">r</span><span class="p">)</span><span class="o">*</span><span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">G</span><span class="o">*</span><span class="n">r</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">kappa</span><span class="o">/</span><span class="n">G</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">kappa</span><span class="o">*</span><span class="n">r</span><span class="p">)</span>
@@ -199,8 +202,16 @@
 
     <span class="k">return</span> <span class="n">U_s_r</span><span class="p">,</span> <span class="n">fr</span></div>
 
+<div class="viewcode-block" id="Coulomb_force"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_force.html#S_force.Coulomb_force">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">Coulomb_force</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">r</span><span class="p">)</span>
+    <span class="n">fr</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EGS_force"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_force.html#S_force.EGS_force">[docs]</a><span class="k">def</span> <span class="nf">EGS_force</span><span class="p">(</span><span class="n">U_s_r</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">U</span></div>
+
+
+<div class="viewcode-block" id="EGS_force"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_force.html#S_force.EGS_force">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">EGS_force</span><span class="p">(</span><span class="n">U_s_r</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
     <span class="k">pass</span></div>
 </pre></div>
 

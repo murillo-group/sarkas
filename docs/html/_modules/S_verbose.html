@@ -173,13 +173,13 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 
-<div class="viewcode-block" id="Verbose"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_verbose.html#S_verbose.Verbose">[docs]</a><span class="k">class</span> <span class="nc">Verbose</span><span class="p">:</span>
+<div class="viewcode-block" id="Verbose"><a class="viewcode-back" href="../source/S_verbose.html#S_verbose.Verbose">[docs]</a><span class="k">class</span> <span class="nc">Verbose</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">glb</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sarkas Ver. 1.0&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">glb</span> <span class="o">=</span> <span class="n">glb</span>
 
-<div class="viewcode-block" id="Verbose.sim_setting_summary"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_verbose.html#S_verbose.Verbose.sim_setting_summary">[docs]</a>    <span class="k">def</span> <span class="nf">sim_setting_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Verbose.sim_setting_summary"><a class="viewcode-back" href="../source/S_verbose.html#S_verbose.Verbose.sim_setting_summary">[docs]</a>    <span class="k">def</span> <span class="nf">sim_setting_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">glb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glb</span>
         <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">----------- Molecular Dynamics Simulation of Yukawa System ----------------------&#39;</span><span class="p">)</span>
@@ -208,7 +208,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;number density, ni = &quot;</span><span class="p">,</span> <span class="n">glb</span><span class="o">.</span><span class="n">ni</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;smallest interval in Fourier space for S(q,w): dq = &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">glb</span><span class="o">.</span><span class="n">Lx</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Verbose.time_stamp"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_verbose.html#S_verbose.Verbose.time_stamp">[docs]</a>    <span class="k">def</span> <span class="nf">time_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_stamp</span><span class="p">):</span>
+<div class="viewcode-block" id="Verbose.time_stamp"><a class="viewcode-back" href="../source/S_verbose.html#S_verbose.Verbose.time_stamp">[docs]</a>    <span class="k">def</span> <span class="nf">time_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_stamp</span><span class="p">):</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">time_stamp</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time for computing converged Greens function = &#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time for initialization = &#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>

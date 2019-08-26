@@ -177,9 +177,11 @@
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
+<span class="kn">import</span> <span class="nn">S_constants</span> <span class="k">as</span> <span class="nn">const</span>
+
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="Particles"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles">[docs]</a><span class="k">class</span> <span class="nc">Particles</span><span class="p">:</span>
+<div class="viewcode-block" id="Particles"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles">[docs]</a><span class="k">class</span> <span class="nc">Particles</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">total_num_part</span><span class="p">):</span>
         <span class="n">N</span> <span class="o">=</span> <span class="n">total_num_part</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
@@ -199,7 +201,7 @@
 
 <span class="c1"># initial whole particles loading.</span>
 <span class="c1"># Here numba does not help at all. In fact loading is slower with numba. </span>
-<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">glb_vars</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">glb_vars</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;restart&#39;</span><span class="p">):</span>
             <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">restart_step</span>
@@ -229,7 +231,6 @@
             <span class="n">Lx</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Lx</span>
             <span class="n">Ly</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Ly</span>
             <span class="n">Lz</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Lz</span>
-
             <span class="n">idx_end</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">load</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load</span><span class="p">):</span>
                 <span class="n">idx_start</span> <span class="o">=</span> <span class="n">idx_end</span>
@@ -255,25 +256,36 @@
             <span class="n">potential_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
             <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">control</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">units</span>
 
+            <span class="n">q1</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">q1</span>
+            <span class="n">q2</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">q2</span>
+            <span class="n">ai</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">ai</span>
+            <span class="n">mi</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">mi</span>
+
 <span class="c1">#   Here, we assume one species model. Will be expanded for multi-species in the future.</span>
             <span class="k">if</span><span class="p">(</span><span class="n">potential_type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span><span class="p">):</span>
+                <span class="n">Gamma</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Gamma</span>
                 <span class="k">if</span><span class="p">(</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">):</span>
-                    <span class="c1">#Vsig = np.sqrt(q1*q2/ai/mi/Gamma)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please use &#39;Yukawa&#39; units for Yukawa potential.&quot;</span><span class="p">)</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+                    <span class="n">Vsig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">q1</span><span class="o">*</span><span class="n">q2</span><span class="o">/</span><span class="n">ai</span><span class="o">/</span><span class="n">mi</span><span class="o">/</span><span class="n">Gamma</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ai = &quot;</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mi =&quot;</span><span class="p">,</span> <span class="n">mi</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;q = &quot;</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gamma = &quot;</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;kappa = &quot;</span><span class="p">,</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">kappa</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;visg = &quot;</span><span class="p">,</span> <span class="n">Vsig</span><span class="p">)</span>
 
                 <span class="k">elif</span><span class="p">(</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;mks&quot;</span><span class="p">):</span>
-                    <span class="c1">#Vsig = np.sqrt(q1*q2/ai/mi/Gamma/(4*np.pi*const.eps_0))</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please use &#39;Yukawa&#39; units for Yukawa potential.&quot;</span><span class="p">)</span>
+                    <span class="n">Vsig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">q1</span><span class="o">*</span><span class="n">q2</span><span class="o">/</span><span class="n">ai</span><span class="o">/</span><span class="n">mi</span><span class="o">/</span><span class="n">Gamma</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">epsilon_0</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ai = &quot;</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mi =&quot;</span><span class="p">,</span> <span class="n">mi</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;q = &quot;</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gamma = &quot;</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;kappa = &quot;</span><span class="p">,</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">kappa</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;visg = &quot;</span><span class="p">,</span> <span class="n">Vsig</span><span class="p">)</span>
 
                 <span class="k">elif</span><span class="p">(</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span><span class="p">):</span>
                     <span class="k">if</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">):</span>
                         <span class="n">frameinfo</span> <span class="o">=</span> <span class="n">getframeinfo</span><span class="p">(</span><span class="n">currentframe</span><span class="p">())</span>
                         <span class="nb">print</span><span class="p">(</span><span class="n">frameinfo</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">frameinfo</span><span class="o">.</span><span class="n">lineno</span><span class="p">)</span>
-                    <span class="n">q1</span> <span class="o">=</span> <span class="mf">1.</span> 
-                    <span class="n">q2</span> <span class="o">=</span> <span class="mf">1.</span>
-                    <span class="n">mi</span> <span class="o">=</span> <span class="mf">1.</span>
-                    <span class="n">Gamma</span> <span class="o">=</span> <span class="n">glb_vars</span><span class="o">.</span><span class="n">Gamma</span>
                     <span class="n">T_desired</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">Gamma</span>
 
                     <span class="n">Vsig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">Gamma</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
@@ -281,10 +293,6 @@
                 <span class="k">if</span><span class="p">(</span><span class="n">potential_type</span> <span class="o">==</span> <span class="s2">&quot;EGS&quot;</span><span class="p">):</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Will be implemented...&quot;</span><span class="p">)</span>
                     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
-<span class="c1">#                if(units == &quot;cgs&quot;):</span>
-<span class="c1">#                  sig = np.sqrt(q1*q2/ai/mi/T_desired)</span>
-<span class="c1">#                elif(units == &quot;mks&quot;):</span>
-<span class="c1">#                  sig = np.sqrt(q1*q2/ai/mi/T_desired/(4*np.pi*const.eps_0))</span>
 
             <span class="c1">#Box-Muller transform to generate Gaussian random numbers from uniform random numbers </span>
             <span class="n">u1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
@@ -327,17 +335,17 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lz</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span></div>
                
 <span class="c1"># add more particles: specific species, and number of particles</span>
-<div class="viewcode-block" id="Particles.add"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.add"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div>
 
 <span class="c1"># remove particles: need to specify particle id</span>
-<div class="viewcode-block" id="Particles.remove"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.remove"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Particles.update"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.update"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Particles.load_from_restart"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.load_from_restart">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load_from_restart"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.load_from_restart">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;Checkpoint/S_checkpoint_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;.npz&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span>
@@ -345,7 +353,7 @@
         <span class="n">acc</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">]</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
         
         <span class="n">pv_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">f_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pv_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">N</span><span class="p">):</span>
@@ -361,7 +369,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">perturb</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">perturb</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Place particles in a simple cubic lattice with a slight perturbation</span>
 <span class="sd">        ranging from 0 to 0.5 times the lattice spacing.</span>
 
@@ -387,6 +395,12 @@
 <span class="sd">            </span>
 <span class="sd">        z : array_like</span>
 <span class="sd">            Z positions for particles.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----    </span>
+<span class="sd">        Author: Luke Stanek</span>
+<span class="sd">        Date Created: 5/6/19</span>
+<span class="sd">        Date Updated: 6/2/19</span>
+<span class="sd">        Updates: Added to S_init_schemes.py for Sarkas import</span>
 <span class="sd">        &#39;&#39;&#39;</span>
                           
         <span class="c1"># Check if perturbation is below maximum allowed. If not, default to maximum perturbation.</span>
@@ -438,9 +452,9 @@
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Lattice Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Place particles by sampling a uniform distribution from 0 to L (the box length)</span>
-<span class="sd">        and uses a rejection radius to avoid placing particles to close to each other.</span>
+<span class="sd">            and uses a rejection radius to avoid placing particles to close to each other.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -464,6 +478,14 @@
 <span class="sd">        </span>
 <span class="sd">        z : array_like</span>
 <span class="sd">            Z positions for particles.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----    </span>
+<span class="sd">        Author: Luke Stanek</span>
+<span class="sd">        Date Created: 5/6/19</span>
+<span class="sd">        Date Updated: N/A</span>
+<span class="sd">        Updates: N/A</span>
+
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># Set random seed</span>
@@ -551,9 +573,10 @@
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Random Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_particles.html#S_particles.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../source/S_particles.html#S_particles.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
+
         <span class="sd">&#39;&#39;&#39; Place particles according to a Halton sequence from 0 to L (the box length)</span>
-<span class="sd">        and uses a rejection radius to avoid placing particles to close to each other.</span>
+<span class="sd">            and uses a rejection radius to avoid placing particles to close to each other.</span>
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -567,17 +590,24 @@
 <span class="sd">        r_reject : float</span>
 <span class="sd">            Value of rejection radius.</span>
 
-
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        x : array_like</span>
 <span class="sd">            X positions for particles.</span>
-
+<span class="sd">            </span>
 <span class="sd">        y : array_like</span>
 <span class="sd">            Y positions for particles.</span>
 <span class="sd">        </span>
 <span class="sd">        z : array_like</span>
 <span class="sd">            Z positions for particles.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----    </span>
+<span class="sd">        Author: Luke Stanek</span>
+<span class="sd">        Date Created: 5/6/19</span>
+<span class="sd">        Date Updated: N/A</span>
+<span class="sd">        Updates: N/A</span>
+
 <span class="sd">        &#39;&#39;&#39;</span>
         
         <span class="c1"># Get bases</span>
@@ -686,9 +716,7 @@
 
         <span class="c1"># End timer        </span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Halton Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-
-        <span class="k">return</span></div></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Halton Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div></div>
 
 
 </pre></div>

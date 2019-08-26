@@ -99,16 +99,17 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="S_EGS.html">S_EGS module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force.html">S_calc_force module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_brute.html">S_calc_force_brute module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pm.html">S_calc_force_pm module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_calc_force_pp.html">S_calc_force_pp module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_checkpoint.html">S_checkpoint module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_constants.html">S_constants module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_force module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_global_names.html">S_global_names module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="S_p3m.html">S_p3m module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="S_pm.html">S_pm module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pp_EGS.html">S_pp_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
@@ -191,14 +192,19 @@
 <span id="s-force-module"></span><h1>S_force module<a class="headerlink" href="#module-S_force" title="Permalink to this headline">¶</a></h1>
 <p>S_force.py</p>
 <p>Calculate a short range force based on a given potential.</p>
-<dl class="function">
-<dt id="S_force.EGS_force">
-<code class="descclassname">S_force.</code><code class="descname">EGS_force</code><span class="sig-paren">(</span><em>U_s_r</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/S_force.html#EGS_force"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_force.EGS_force" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="S_force.Coulomb_force">
+<code class="descclassname">S_force.</code><code class="descname">Coulomb_force</code><a class="reference internal" href="../../../_modules/S_force.html#Coulomb_force"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_force.Coulomb_force" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="attribute">
+<dt id="S_force.EGS_force">
+<code class="descclassname">S_force.</code><code class="descname">EGS_force</code><a class="reference internal" href="../../../_modules/S_force.html#EGS_force"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_force.EGS_force" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="S_force.Yukawa_force_P3M">
-<code class="descclassname">S_force.</code><code class="descname">Yukawa_force_P3M</code><span class="sig-paren">(</span><em>U_s_r</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/S_force.html#Yukawa_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_force.Yukawa_force_P3M" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">S_force.</code><code class="descname">Yukawa_force_P3M</code><a class="reference internal" href="../../../_modules/S_force.html#Yukawa_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_force.Yukawa_force_P3M" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">

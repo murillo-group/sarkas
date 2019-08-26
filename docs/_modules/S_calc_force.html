@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>S_p3m &mdash; Sarkas  documentation</title>
+  <title>S_calc_force &mdash; Sarkas  documentation</title>
   
 
   
@@ -148,7 +148,7 @@
         
           <li><a href="index.html">Module code</a> &raquo;</li>
         
-      <li>S_p3m</li>
+      <li>S_calc_force</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -163,14 +163,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for S_p3m</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+  <h1>Source code for S_calc_force</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">S_calc_force.py</span>
+
+<span class="sd">* Call an appropriate force calculation module based on the algorithm</span>
+
+<span class="sd">* input: particles</span>
+<span class="sd">* output: potential</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">S_calc_force_pp</span> <span class="k">as</span> <span class="nn">force_pp</span>
 <span class="kn">import</span> <span class="nn">S_pp_EGS</span> <span class="k">as</span> <span class="nn">pp_EGS</span>
 <span class="kn">import</span> <span class="nn">S_global_names</span> <span class="k">as</span> <span class="nn">glb</span>
 <span class="kn">import</span> <span class="nn">S_constants</span> <span class="k">as</span> <span class="nn">const</span>
 
-<div class="viewcode-block" id="force_pot"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_p3m.html#S_p3m.force_pot">[docs]</a><span class="k">def</span> <span class="nf">force_pot</span><span class="p">(</span><span class="n">ptcls</span><span class="p">):</span>
+<div class="viewcode-block" id="force_pot"><a class="viewcode-back" href="../rst_files/auto_gen_rst/sarkas_rst/S_calc_force.html#S_calc_force.force_pot">[docs]</a><span class="k">def</span> <span class="nf">force_pot</span><span class="p">(</span><span class="n">ptcls</span><span class="p">):</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">N</span>
     <span class="n">af</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">af</span>
     <span class="n">uf</span> <span class="o">=</span> <span class="n">glb</span><span class="o">.</span><span class="n">uf</span>
@@ -196,6 +206,8 @@
         <span class="n">E_x_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">glb</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
         <span class="n">E_y_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">glb</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
         <span class="n">E_z_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">glb</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;under construction...&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
         <span class="n">rho_r</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
         <span class="n">E_x_p</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
@@ -209,14 +221,11 @@
     <span class="n">U_fft</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="n">U_self</span> <span class="o">=</span> <span class="mf">0.</span>
     <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">acc_s_r</span><span class="p">)</span>
-
     <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">af</span><span class="o">*</span><span class="p">(</span><span class="n">acc_s_r</span><span class="p">)</span>
             <span class="c1">#acc *= af</span>
     <span class="n">U_fft</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">U_self</span> <span class="o">=</span> <span class="mf">0.</span>
-    <span class="c1">#U = uf*(U_short)*(q1*q2)/(4*np.pi*const.eps_0)</span>
-    <span class="n">U</span> <span class="o">=</span> <span class="n">uf</span><span class="o">*</span><span class="p">(</span><span class="n">U_short</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">q1</span><span class="o">*</span><span class="n">q2</span><span class="p">)</span>
-    <span class="c1">#    print(&#39;U_short, U_long, U_self =&#39;, [U_short, U_fft, U_self])</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">uf</span><span class="o">*</span><span class="p">(</span><span class="n">U_short</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">U</span></div>
 </pre></div>
 
