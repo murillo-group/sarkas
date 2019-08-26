@@ -47,9 +47,6 @@ def update(pos, acc_s_r):
     # Initialize
     U_s_r = 0.0 # Short-ranges potential energy accumulator
     acc_s_r.fill(0.0) # Vector of accelerations
-    head = np.arange(Ncell) # List of head particles
-    empty = -50 # value for empty list and head arrays
-    head.fill(empty) # Make head list empty until population
     ls = np.arange(N) # List of particle indices in a given cell
 
     # The number of cells in each dimension
@@ -64,6 +61,9 @@ def update(pos, acc_s_r):
 
     # Total number of cells in volume
     Ncell = Lxd*Lyd*Lzd
+    head = np.arange(Ncell) # List of head particles
+    empty = -50 # value for empty list and head arrays
+    head.fill(empty) # Make head list empty until population
 
     # Loop over all particles and place them in cells
     for i in range(N):
