@@ -38,8 +38,8 @@ Thermostat:
 
 Control:
     - dt: 5.4e-15                  # timestep, sec   
-    - Neq: 00000
-    - Nstep: 00000
+    - Neq: 10000
+    - Nstep: 10000
     - dump_step: 100
     - BC: periodic
     - units: cgs 
