@@ -8,17 +8,28 @@ import numpy as np
 from inspect import currentframe, getframeinfo
 import time
 import pickle
+import S_global_names as glb
 
 
 class Checkpoint:
     def __init__(self, params):
         self.params = params
-        self.checkpoint_dir = "Checkpoint/"
+        #self.checkpoint_dir = "Checkpoint/"
+        self.checkpoint_dir = self.params.Control.checkpoint_dir
         if not (os.path.exists(self.checkpoint_dir)):
             os.mkdir(self.checkpoint_dir)
 
-        pickle.dump(self.params, open(self.checkpoint_dir+"S_parameters.pickle", "wb"))
+        filename = self.checkpoint_dir+"/"+"S_parameters.pickle"
 
-    def dump(self, pos, vel, acc, it):
-        file_name = self.checkpoint_dir+"S_checkpoint_"+str(it)
-        np.savez(file_name, pos=pos, vel=vel, acc=acc)
+        save_file = open(filename, "wb")
+        pickle.dump(self.params, save_file)
+        save_file.close()
+
+    def dump(self, ptcls, it):
+        species_id = ptcls.species_id
+        species_name = ptcls.species_name
+        pos = ptcls.pos
+        vel = ptcls.vel
+        acc = ptcls.acc
+        file_name = self.checkpoint_dir+"/"+"S_checkpoint_"+str(it)
+        np.savez(file_name, species_id=species_id, species_name=species_name, pos=pos, vel=vel, acc=acc)

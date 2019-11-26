@@ -5,7 +5,7 @@ printout Version info & simulation progess
 import numpy as np
 from inspect import currentframe, getframeinfo
 import time
-
+import S_constants as const
 
 class Verbose:
     def __init__(self, params, glb):
@@ -14,37 +14,38 @@ class Verbose:
         self.glb = glb
 
     def sim_setting_summary(self):
-        glb = self.glb
         params = self.params
         print('\n\n----------- Molecular Dynamics Simulation of Yukawa System ----------------------')
-        print("units: ", glb.units)
-        if(params.control[0].units == "Yukawa" or params.control[0].units == "yukawa"):
-            print('Gamma = ', glb.Gamma)
-            print('kappa = ', glb.kappa)
-            if(glb.potential_type == glb.Yukawa_P3M):
-                print('grid_size * Ewald_parameter (h * alpha) = ', glb.hx*glb.G_ew)
-        print('Temperature = ', glb.T_desired)
-        print('No. of particles = ', glb.N)
-        print('Box length along x axis = ', glb.Lv[0])
-        print('Box length along y axis = ', glb.Lv[1])
-        print('Box length along z axis = ', glb.Lv[2])
-        print('No. of non-zero box dimensions = ', glb.d)
-        print('time step = ', glb.dt)
-        print('No. of equilibration steps = ', glb.Neq)
-        print('No. of post-equilibration steps = ', glb.Nt)
-        print('snapshot interval = ', glb.snap_int)
-        print('Periodic boundary condition{1=yes, 0=no} =', glb.PBC)
-        if(params.Langevin):
-            print("Langevin model = ", glb.Langevin_model)
+        print("units: ", params.units)
+        if(params.Potential.type == "Yukawa"):
+            print('kappa = ', params.Potential.matrix[0, 0, 0]*params.ai)
+            print('Gamma = ', params.Potential.matrix[1, 0, 0])
+            if(params.Potential.method == "P3M"):
+                print('grid_size * Ewald_parameter (h * alpha) = ', params.hx*params.P3M.G_ew)
 
-        if(glb.units != "Yukawa"):
-            print("plasma frequency, wi = ", glb.wp)
-            print("number density, ni = ", glb.ni)
-        print('smallest interval in Fourier space for S(q,w): dq = ', 2*np.pi/glb.Lx)
+            if(params.Potential.type == "Yukawa" and params.num_species == 1):
+                print("ion plasma wp = ", params.wp)
+
+        print('Temperature = ', params.Ti)
+        print('No. of particles = ', params.total_num_ptcls)
+        print('Box length along x axis = ', params.Lv[0])
+        print('Box length along y axis = ', params.Lv[1])
+        print('Box length along z axis = ', params.Lv[2])
+        print("ion sphere radius = ", params.ai)
+        print('No. of non-zero box dimensions = ', params.d)
+        print('time step = ', params.Control.dt)
+        print('No. of equilibration steps = ', params.Control.Neq)
+        print('No. of post-equilibration steps = ', params.Control.Nt)
+        print('snapshot interval = ', params.Control.dump_step)
+        print('Periodic boundary condition{1=yes, 0=no} =', params.Control.PBC)
+        if(params.Langevin.on):
+            print("Langevin model = ", params.Langevin.type)
+
+        print('smallest interval in Fourier space for S(q,w): dq = ', 2*np.pi/params.Lx)
+
 
     def time_stamp(self, time_stamp):
         t = time_stamp
-        print('Time for computing converged Greens function = ', t[1]-t[0])
         print('Time for initialization = ', t[2]-t[1])
         print('Time for equilibration = ', t[3]-t[2])
         print('Time for production = ', t[4]-t[3])

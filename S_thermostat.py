@@ -17,21 +17,14 @@ class Thermostat:
 
         self.params = params
         self.glb_vars = glb
-        self.kf = 0.5
-        if(glb.units == "Yukawa"):
-            self.kf = 1.5
 
-        mi = const.proton_mass
-        self.K_factor = self.kf*mi
-        self.T_factor = 1/self.kf/float(glb.N)/const.kb
-
-        if(params.thermostat[0].type == "Berendsen"):
+        if(params.Thermostat.type == "Berendsen"):
             self.type = self.Berendsen
         else:
             print("Only Berendsen thermostat is supported. Check your input file, thermostat part.")
             sys.exit()
 
-        if(params.Integrator[0].type == "Verlet"):
+        if(params.Integrator.type == "Verlet"):
             self.integrator = self.integrator.Verlet
         else:
             print("Only Verlet integrator is supported. Check your input file, integrator part.")
@@ -56,13 +49,18 @@ class Thermostat:
         '''
         T_desired = self.glb_vars.T_desired
         U = self.integrator(ptcls)
-        mi = const.proton_mass
-        K = self.kf*mi*np.ndarray.sum(ptcls.vel**2)
-        T = K/self.kf/float(self.glb_vars.N)/const.kb
-        # K = self.K_factor*np.ndarray.sum(vel**2)
-        # T = self.T_factor*K
-        N = 20.0
-        if it <= 1999:
+
+        K = 0
+        species_start = 0
+        for i in range(self.params.num_species):
+            species_end = species_start + self.params.species[i].num
+            K += 0.5*self.params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
+            species_start = species_end
+
+        T = (2/3)*K/float(self.params.total_num_ptcls)/const.kb
+
+        N = 20.0 # hardcode
+        if it <= 1999: #hardcode
             fact = np.sqrt(T_desired/T)
             ptcls.vel = ptcls.vel*fact
 

@@ -59,8 +59,6 @@ def charge_assgn_6_numba(rho_r,pos,Z,N,Mx,My,Mz,hx,hy,hz):
         wz[4] = (237 + 750*z + 840*z**2 + 240*z**3 - 240*z**4 - 160*z**5)/3840
         wz[5] = (1 + 10*z + 40*z**2 + 80*z**3 + 80*z**4 + 32*z**5)/3840
 
-        #print(w)
-
         izn = iz # min. index along z-axis
     
         for g in range(n):
