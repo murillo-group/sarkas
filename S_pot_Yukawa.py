@@ -1,8 +1,7 @@
-'''
-S_Yukawa.py
+""" S_Yukawa.py
 
 Optimized green's Function, potential and force calculation for Yukawa potential.
-'''
+"""
 
 import numpy as np
 import numba as nb
@@ -14,10 +13,36 @@ import S_global_names as glb
 
 @nb.jit
 def Yukawa_force_PP(r, pot_matrix_ij):
-    # pot_matrix_ij[0] = 1/lambda_TF (if Yukawa units, it is kappa)
-    # pot_matrix_ij[1] = Gamma
-    # pot_matrix_ij[2] = potential factor
+    """ Calculates the Yukawa Force between two particles when 
+        the PP algorithm is chosen
 
+    Parameters
+    ----------
+    r : real
+        distance between two particles
+
+    pot_matrix_ij : array_like
+                    it contains potential dependent variables
+                    pot_matrix_ij[0] = 1/lambda_TF (if Yukawa units, it is kappa)
+                    pot_matrix_ij[1] = Gamma
+                    pot_matrix_ij[2] = potential factor
+
+    Returns
+    -------
+    U : real
+        Potential value
+                
+    force : real
+            Force between two particles
+    
+    Notes
+    -----    
+    Author:
+    Date Created: 12/1/19
+    Date Updated: 
+    Updates: 
+    """
+    
     factor1 = r*pot_matrix_ij[0]
     factor2 = pot_matrix_ij[2]/r
     U = np.exp(-factor1)*(factor2)
@@ -27,9 +52,30 @@ def Yukawa_force_PP(r, pot_matrix_ij):
 
 @nb.jit
 def Yukawa_force_P3M(U_s_r, r):
-    #Gautham's thesis Eq. 3.22
+    """ Calculates the Yukawa Force between two particles when 
+        the P3M algorithm is chosen
+
+    Parameters
+    ----------
+    U_s_r : real
+            short range (PP) part of the potential
+
+    r : real
+        distance between two particles
+
+    Returns
+    -------
+    U_s_r : real
+            Potential value
+                
+    fr : real
+         Force between two particles calculated using eq.(22) in 
+         Dharuman et al. J Chem Phys 146, 024112 (2017)
+    
+    """
+    # Scale the screening parameter by the WS radius
     kappa = glb.kappa/glb.ai
-    G = glb.G
+    G = glb.G   # Ewald parameter alpha 
     U_s_r = U_s_r + (0.5/r)*(np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G) + np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G))
     f1 = (0.5/r**2)*np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G)*(1-kappa*r)
     f2 = (0.5/r**2)*np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G)*(1+kappa*r)
@@ -42,6 +88,35 @@ def Yukawa_force_P3M(U_s_r, r):
 #Optimized Green's Function
 @nb.jit
 def gf_opt(params):
+    """ Calculates the Optimized Green Function given by eq.(22) in
+        Stern et al. J Chem Phys 128, 214006 (2008)
+
+    Parameters
+    ----------
+    params : class
+
+    Returns
+    -------
+
+    G_k : array_like
+          optimal Green Function
+
+    kx_v : array_like
+           array of reciprocal space vectors along the x-axis
+
+    ky_v : array_like
+           array of reciprocal space vectors along the y-axis
+
+    kz_v : array_like
+           array of reciprocal space vectors along the z-axis
+
+    A_pm : real
+           Second term in eq.(28) in Stern et al. J Chem Phys 128, 214006 (2008)
+           representing the mean-square error for reciprocal space differentiation
+           A_pm notation comes from Dharuman et al. J Chem Phys 146, 024112 (2017)
+           which btw has a mistake since the first G(k) should be squared
+
+    """
     kappa = params.kappa
     Gew = glb.G_ew
     p = glb.p
@@ -106,7 +181,8 @@ def gf_opt(params):
                 
                     U_k_sq = 0.0
                     U_G_k = 0.0
-                
+
+                    # Sum over the aliases
                     for mz in range(-mz_max,mz_max+1):
                         for my in range(-my_max,my_max+1):
                             for mx in range(-mx_max,mx_max+1):
@@ -144,9 +220,11 @@ def gf_opt(params):
                                 U_G_k += (U_k_M_sq * G_k_M * k_dot_k_M)
                                 U_k_sq += U_k_M_sq
                             
-                    # Gautham's Thesis, eq. 3.31                                                   
+                    # eq.(31) of Dharuman et al. J Chem Phys 146, 024112 (2017)                                                 
                     G_k[nz,ny,nx] = U_G_k/((U_k_sq**2)*k_sq)
                     
+                    # eq.(28) of Stern et al. J Chem Phys 128, 214006 (2008)
+                    # eq.(32) of Dharuman et al. J Chem Phys 146, 024112 (2017)
                     A_pm = A_pm + U_G_k**2/((U_k_sq**2)*k_sq)
                        
     return G_k, kx_v, ky_v, kz_v, A_pm

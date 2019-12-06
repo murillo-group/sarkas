@@ -1,8 +1,8 @@
-'''
-S_units.py
+""" S_units.py
 
 setting units and physical constants
-'''
+"""
+
 import numpy as np
 import sys
 

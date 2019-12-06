@@ -97,16 +97,16 @@ class Params:
         self.common_parser(filename)
         self.N = self.total_num_ptcls
         # Yukawa potential
-        if(self.Potential.type == "Yukawa"):
+        if (self.Potential.type == "Yukawa"):
             self.Yukawa_setup(filename)
         
         # exact gradient-corrected screening (EGS) potential
-        if(self.Potential.type == "EGS"):
+        if (self.Potential.type == "EGS"):
             print("Not yet prepared!")
             sys.exit()
 
         # Lennard-Jones potential
-        if(self.Potential.type == "LJ"):
+        if (self.Potential.type == "LJ"):
             self.LJ_setup(filename)
 
         self.Potential.LL_on = 1       # linked list on
@@ -115,7 +115,7 @@ class Params:
             self.Potential.rc = self.L/2.
             self.Potential.LL_on = 0       # linked list off
 
-        if(self.Potential.rc > self.L/2.):
+        if (self.Potential.rc > self.L/2.):
             print("The cut-off radius is > L/2. L/2 = ", self.L/2, "will be used as rc")
             self.Potential.rc = self.L/2.
             self.Potential.LL_on = 0       # linked list off
@@ -129,141 +129,141 @@ class Params:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
 
             for lkey in dics:
-                if(lkey == "Particles"):
+                if (lkey == "Particles"):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
 
-                            if(key == "species"):
+                            if (key == "species"):
                                 spec = self.Species()
                                 self.species.append(spec)
                                 ic = len(self.species) - 1
 
                                 for key, value in value.items():
-                                    if(key == "name"):
+                                    if (key == "name"):
                                         self.species[ic].name = value
 
-                                    if(key == "number_density"):
+                                    if (key == "number_density"):
                                         self.species[ic].num_density = float(value)
                                         self.total_num_density += self.species[ic].num_density
 
-                                    if(key == "mass"):
+                                    if (key == "mass"):
                                         self.species[ic].mass = float(value)
 
-                                    if(key == "num"):
+                                    if (key == "num"):
                                         self.species[ic].num = int(value)
                                         self.total_num_ptcls += self.species[ic].num
 
-                                    if(key == "Z"):
+                                    if (key == "Z"):
                                         self.species[ic].Z = float(value)
 
-                                    if(key == "temperature"):
+                                    if (key == "temperature"):
                                         self.species[ic].temperature = float(value)
 
-                            if(key == "load"):
+                            if (key == "load"):
                                 for key, value in value.items():
-                                    if(key == "method"):
+                                    if (key == "method"):
                                         self.load_method = value
 
-                                    if(key == "rand_seed"):
+                                    if (key == "rand_seed"):
                                         self.load_rand_seed = int(value)
 
-                                    if(key == 'restart_step'):
+                                    if (key == 'restart_step'):
                                         self.load_restart_step = int(value)
                                         self.load_rand_seed = 1
 
-                                    if(key == 'r_reject'):
+                                    if (key == 'r_reject'):
                                         self.load_r_reject = float(value)
 
-                                    if(key == 'perturb'):
+                                    if (key == 'perturb'):
                                         self.load_perturb = float(value)
 
-                                    if(key == 'halton_bases'):
+                                    if (key == 'halton_bases'):
                                         self.load_halton_bases = np.array(value)
 
 
-                if(lkey == "Potential"):
+                if (lkey == "Potential"):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
-                            if(key == "type"):
+                            if (key == "type"):
                                 self.Potential.type = value
 
-                            if(key == "method"):
+                            if (key == "method"):
                                 self.Potential.method = value
 
-                            if(key == "rc"):
+                            if (key == "rc"):
                                 self.Potential.rc = float(value)
 
-                            if(key == "kappa"):
+                            if (key == "kappa"):
                                 self.Potential.kappa = float(value)
 
-                            if(key == "Gamma"):
+                            if (key == "Gamma"):
                                 self.Potential.Gamma = float(value)
 
-                if(lkey == "Thermostat"):
+                if (lkey == "Thermostat"):
                     self.Thermostat.on = 1
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
-                            if(key == 'type'):
+                            if (key == 'type'):
                                 self.Thermostat.type = value
 
-                if(lkey == "Integrator"):
+                if (lkey == "Integrator"):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
-                            if(key == 'type'):
+                            if (key == 'type'):
                                 self.Integrator.type = value
 
-                if(lkey == "Langevin"):
+                if (lkey == "Langevin"):
                     self.Langevin.on = 1
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
-                            if(key == 'type'):
+                            if (key == 'type'):
                                 self.Langevin.type = value
-                            if(key == 'gamma'):
+                            if (key == 'gamma'):
                                 self.Langevin.gamma = float(value)
 
-                if(lkey == "Control"):
+                if (lkey == "Control"):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
-                            if(key == "units"):
+                            if (key == "units"):
                                 self.Control.units = value
                                 self.units = self.Control.units
                                 units.setup(self)
 
-                            if(key == "dt"):
+                            if (key == "dt"):
                                 self.Control.dt = float(value)
                                 self.dt = self.Control.dt
 
-                            if(key == "Nstep"):
+                            if (key == "Nstep"):
                                 self.Control.Nstep = int(value)
                                 self.Control.Nt = self.Control.Nstep
                                 self.Nt = self.Control.Nstep
 
-                            if(key == "Neq"):
+                            if (key == "Neq"):
                                 self.Control.Neq = int(value)
                                 self.Neq = self.Control.Neq
 
-                            if(key == "BC"):
+                            if (key == "BC"):
                                 self.Control.BC = value
-                                if(self.Control.BC == "periodic"):
+                                if (self.Control.BC == "periodic"):
                                     self.Control.PBC = 1
 
-                            if(key == "dump_step"):
+                            if (key == "dump_step"):
                                 self.Control.dump_step = int(value)
                                 self.dump_step = self.Control.dump_step
 
-                            if(key == "writexyz"):
-                                if(value is False):
+                            if (key == "writexyz"):
+                                if (value is False):
                                     self.Control.writexyz = 0
-                                if(value is True):
+                                if (value is True):
                                     self.Control.writexyz = 1
 
-                            if(key == "verbose"):
-                                if(value is False):
+                            if (key == "verbose"):
+                                if (value is False):
                                     self.Control.verbose = 0
-                                if(value is True):
+                                if (value is True):
                                     self.Control.verbose = 1
 
-                            if(key =="output_dir"):
+                            if (key =="output_dir"):
                                 self.Control.checkpoint_dir = value
                                     
 
@@ -274,7 +274,7 @@ class Params:
                 self.species[ic].charge = const.elementary_charge*self.species[ic].Z
 
         self.ai = 0.0
-        if(self.total_num_density > 0.):
+        if (self.total_num_density > 0.):
             self.ai = (3/(4*np.pi*self.total_num_density))**(1./3.)
 
         self.ne = 0 # number of electron
@@ -301,11 +301,11 @@ class Params:
         self.Lmin_v = np.array([0.0, 0.0, 0.0])
 
         self.dq = 2*np.pi
-        if(self.L > 0.):
+        if (self.L > 0.):
             self.dq = 2.*np.pi/self.L
 
         self.q_max = 30                   # hardcode
-        if(self.ai > 0):
+        if (self.ai > 0):
             self.q_max = 30/self.ai       # hardcode, wave vector
         self.Nq = 3*int(self.q_max/self.dq)
 
@@ -315,20 +315,22 @@ class Params:
     
     # Yukawa potential
     def Yukawa_setup(self, filename):
-        # 0: kappa, 1: Gamma, 2: ij matrix for foce & potential calc.
+        # Yukawa_matrix[0,0,0] : kappa,
+        # Yukawa_matrix[1,0,0] : Gamma,
+        # Yukawa_matrix[2,:,:] : ij matrix for foce & potential calc.
         Yukawa_matrix = np.zeros((3, self.num_species, self.num_species)) 
 
-        if(self.num_species == 1 and self.Control.units == "Yukawa"):
+        if (self.num_species == 1 and self.Control.units == "Yukawa"):
             with open(filename, 'r') as stream:
                 dics = yaml.load(stream, Loader=yaml.FullLoader)
                 for lkey in dics:
-                    if(lkey == "Potential"):
+                    if (lkey == "Potential"):
                         for keyword in dics[lkey]:
                             for key, value in keyword.items():
-                                if(key == "kappa"):
+                                if (key == "kappa"):
                                     Yukawa_matrix[0, 0, 0] = np.array(value)
 
-                                if(key == "Gamma"):
+                                if (key == "Gamma"):
                                     Yukawa_matrix[1, 0, 0] = np.array(value)
 
             Yukawa_matrix[2, 0, 0] = 1./3.
@@ -341,7 +343,7 @@ class Params:
             self.ai = 1.
             self.wp = 1
 
-        elif(self.num_species > 1 and self.Control.units == "Yukawa"):
+        elif (self.num_species > 1 and self.Control.units == "Yukawa"):
             print("Yukawa units are for only OCP.")
             sys.exit()
 
@@ -350,10 +352,10 @@ class Params:
             with open(filename, 'r') as stream:
                 dics = yaml.load(stream, Loader=yaml.FullLoader)
                 for lkey in dics:
-                    if(lkey == "Potential"):
+                    if (lkey == "Potential"):
                         for keyword in dics[lkey]:
                             for key, value in keyword.items():
-                                if(key == "elec_temperature"):
+                                if (key == "elec_temperature"):
                                     self.Te = float(value)
 
             if not hasattr(self, "Te"):
@@ -362,7 +364,7 @@ class Params:
                 self.Te = self.species[0].temperature
 
             # Using MKS relation to obtain kappa and Gamma
-            if(self.Control.units == "cgs"):
+            if (self.Control.units == "cgs"):
                 units.mks_units()
 
             k = const.kb
@@ -371,17 +373,17 @@ class Params:
             m_e = const.elec_mass
             e_0 = const.epsilon_0
 
-            if(self.Control.units == "cgs"):
+            if (self.Control.units == "cgs"):
                 units.cgs_units() # back to the input nits.
 
             Te  = self.Te
             Ti = self.Ti
 
-            if(self.Control.units == "cgs"):
+            if (self.Control.units == "cgs"):
                 ne = self.ne*1.e6    # /cm^3 --> /m^3
                 ni = self.total_num_density*1.e6
 
-            if(self.Control.units == "mks"):
+            if (self.Control.units == "mks"):
                 ne = self.ne    # /cm^3 --> /m^3
                 ni = self.total_num_density
             fdint_fdk_vec = np.vectorize(fdint.fdk)
@@ -401,19 +403,19 @@ class Params:
                     Zj = self.species[j].Z
                     Yukawa_matrix[1, i, j] = (Zi*Zj)*e**2/(4*np.pi*e_0*ai*k*Ti) # Gamma
 
-                    if(self.Control.units == "cgs"):
+                    if (self.Control.units == "cgs"):
                         Yukawa_matrix[2, i, j] = (Zi*Zj)*const.elementary_charge**2
 
-                    if(self.Control.units == "mks"):
+                    if (self.Control.units == "mks"):
                         Yukawa_matrix[2, i, j] = (Zi*Zj)*const.elementary_charge**2/(4*np.pi*const.epsilon_0)
                 
 
-            if(self.Control.units == "cgs"):
+            if (self.Control.units == "cgs"):
                 self.lambda_TF = lambda_TF*100  # meter to centimeter
                 wp = np.sqrt(4*np.pi*self.species[0].charge**2*self.total_num_density/self.species[0].mass)
                 self.wp = wp
 
-            elif(self.Control.units == "mks"):
+            elif (self.Control.units == "mks"):
                 self.lambda_TF = lambda_TF
                 wp = np.sqrt(self.species[0].charge**2*self.total_num_density/(self.species[0].mass*const.epsilon_0))
                 self.wp = wp
@@ -435,10 +437,10 @@ class Params:
         self.Nq = 3*int(self.q_max/self.dq)
 
 
-        if(self.Potential.method == "PP"):
+        if (self.Potential.method == "PP"):
             self.force = Yukawa.Yukawa_force_PP
 
-        if(self.Potential.method == "P3M"):
+        if (self.Potential.method == "P3M"):
             self.force = Yukawa.Yukawa_force_P3M
 
             # P3M parameters
@@ -473,13 +475,13 @@ class Params:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
 
             for lkey in dics:
-                if(lkey == "Potential"):
+                if (lkey == "Potential"):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
-                            if(key == "epsilon"):
+                            if (key == "epsilon"):
                                 lj_m1 = np.array(value)
 
-                            if(key == "sigma"):
+                            if (key == "sigma"):
                                 lj_m2 = np.array(value)
 
 

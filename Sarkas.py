@@ -1,4 +1,4 @@
-'''
+"""
                        Sarkas
 
 A code that executes molecular dynamics simulation for a Yukawa plasma using
@@ -10,7 +10,7 @@ Professor Michael S. Murillo
 murillom@msu.edu
 Dept. of Computational Mathematics, Science, and Engineering,
 Michigan State University
-'''
+"""
 
 # Python modules
 import numpy as np
@@ -30,6 +30,7 @@ from S_particles import Particles
 from S_verbose import Verbose
 from S_params import Params
 from S_checkpoint import Checkpoint
+
 time_stamp= np.zeros(10)
 its = 0
 time_stamp[its] = time.time(); its += 1
@@ -78,8 +79,8 @@ N = len(ptcls.pos[:, 0])
 # Calculating initial forces and potential energy
 U = calc_force(ptcls)
 
-if(params.Control.units == "Yukawa"):
-    U *= 3
+if (params.Control.units == "Yukawa"):
+	U *= 3
 
 K = 0
 species_start = 0
@@ -114,7 +115,7 @@ if not (params.load_method == "restart"):
 
         E = K + U
 
-        if(it % glb.snap_int == 0 and glb.verbose):
+        if (it % glb.snap_int == 0 and glb.verbose):
             print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
 #        print("1: pos = ", ptcls.pos)
 #$        print("1: vel = ", ptcls.vel)
@@ -136,7 +137,7 @@ else:
 
 for it in range(it_start, Nt):
     U = integrator.update(ptcls)
-    if(params.Control.units == "Yukawa"):
+    if (params.Control.units == "Yukawa"):
         U *= 3
 
     K = 0
@@ -148,7 +149,7 @@ for it in range(it_start, Nt):
 
     Tp = (2/3)*K/float(N)/const.kb
     E = K + U
-    if(it % glb.snap_int == 0 and glb.verbose):
+    if (it % glb.snap_int == 0 and glb.verbose):
         print("Production: timestep, T, E, K, U = ", it, Tp, E, K, U)
 
 
@@ -156,12 +157,12 @@ for it in range(it_start, Nt):
     t_Tp_E_K_U2[:] = t_Tp_E_K_U
 
     # writing particle positions and velocities to file
-    if((it+1) % params.Control.dump_step == 0):
+    if ((it+1) % params.Control.dump_step == 0):
         checkpoint.dump(ptcls, it+1)
 
     # Spatial Fourier transform
     # will be move to observable class
-    if(1):
+    if (1):
         for iqv in range(glb.Nq):
             q_p = qv[iqv]
             n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 0]))
@@ -183,7 +184,7 @@ time_stamp[its] = time.time(); its += 1
 f_output_E.close()
 f_xyz.close()
 
-if(glb.verbose):
+if (glb.verbose):
     verbose.time_stamp(time_stamp)
 
 # end of the code

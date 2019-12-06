@@ -1,11 +1,11 @@
-'''
+""" S_particles.py
 species_name
 pos: position components
 vel: velocity components
 acc: acc. components
 charge
 mass
-'''
+"""
 import numpy as np
 from inspect import currentframe, getframeinfo
 import time
@@ -16,6 +16,12 @@ import S_constants as const
 DEBUG = 0
 
 class Particles:
+    """Particles
+
+    load --
+
+    """
+
     def __init__(self, params):
         
         self.params = params
@@ -101,6 +107,8 @@ class Particles:
                 species_start = species_end
                 species_end = species_start + num_ptcls
 
+                # This was written to compare with C code. Should we change it to
+                # np.random.normal(0,vth, N)
                 #Box-Muller transform to generate Gaussian random numbers from uniform random numbers 
                 u1 = np.random.random(num_ptcls)
                 u2 = np.random.random(num_ptcls)
@@ -139,12 +147,18 @@ class Particles:
     
         return       
 
-# add more particles: specific species, and number of particles
     def add(self):
+        """ add more particles: specific species, and number of particles
+        
+        """
+
         pass
 
-# remove particles: need to specify particle id
     def remove(self):
+        """ remove particles: need to specify particle id
+
+        """
+
         pass
 
     def update(self):
@@ -176,6 +190,10 @@ class Particles:
         self.vel[:, 2] = pv_data[:, 5]
 
     def random_no_reject(self, N):
+        """Randomly distribute particles along each direction
+
+        """
+
         #np.random.seed(self.params.load_rand_seed) # Seed for random number generator
 
         self.pos[:, 0] = self.params.Lx*np.random.random(N)
@@ -183,8 +201,8 @@ class Particles:
         self.pos[:, 2] = self.params.Lz*np.random.random(N)
 
     def lattice(self, N, perturb, rand_seed):
-        ''' Place particles in a simple cubic lattice with a slight perturbation
-        ranging from 0 to 0.5 times the lattice spacing.
+        """ Place particles in a simple cubic lattice with a slight perturbation
+            ranging from 0 to 0.5 times the lattice spacing.
 
         Parameters
         ----------
@@ -214,7 +232,7 @@ class Particles:
         Date Created: 5/6/19
         Date Updated: 6/2/19
         Updates: Added to S_init_schemes.py for Sarkas import
-        '''
+        """
                           
         # Check if perturbation is below maximum allowed. If not, default to maximum perturbation.
         if perturb > 1:
@@ -268,12 +286,12 @@ class Particles:
 
 
     def random_reject(self, N, r_reject, rand_seed):
-        ''' Place particles by sampling a uniform distribution from 0 to L (the box length)
+        """ Place particles by sampling a uniform distribution from 0 to L (the box length)
             and uses a rejection radius to avoid placing particles to close to each other.
         
         Parameters
         ----------
-        N_part : int
+        N : int
             Total number of particles to place.
 
         r_reject : float
@@ -301,7 +319,7 @@ class Particles:
         Date Updated: N/A
         Updates: N/A
 
-        '''
+        """
 
         # Set random seed
         np.random.seed(rand_seed)
@@ -391,12 +409,12 @@ class Particles:
 
     def halton_reject(self, N, bases, r_reject):
 
-        ''' Place particles according to a Halton sequence from 0 to L (the box length)
+        """ Place particles according to a Halton sequence from 0 to L (the box length)
             and uses a rejection radius to avoid placing particles to close to each other.
     
         Parameters
         ----------
-        N_part : int
+        N : int
             Total number of particles to place.
 
         bases : array_like
@@ -424,7 +442,7 @@ class Particles:
         Date Updated: N/A
         Updates: N/A
 
-        '''
+        """
         
         # Get bases
         b1, b2, b3 = bases
