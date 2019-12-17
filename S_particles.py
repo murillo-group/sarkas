@@ -107,17 +107,10 @@ class Particles:
                 species_start = species_end
                 species_end = species_start + num_ptcls
 
-                # This was written to compare with C code. Should we change it to
-                # np.random.normal(0,vth, N)
-                #Box-Muller transform to generate Gaussian random numbers from uniform random numbers 
-                u1 = np.random.random(num_ptcls)
-                u2 = np.random.random(num_ptcls)
-                u3 = np.random.random(num_ptcls)
-                u4 = np.random.random(num_ptcls)
-                self.vel[species_start:species_end, 0] = Vsig*np.sqrt(-2*np.log(u1))*np.cos(two_pi*u2) #distribution of vx
-                self.vel[species_start:species_end, 1] = Vsig*np.sqrt(-2*np.log(u1))*np.sin(two_pi*u2) #distribution of vy
-                self.vel[species_start:species_end, 2] = Vsig*np.sqrt(-2*np.log(u3))*np.cos(two_pi*u4) #distribution of vz
-        
+                self.vel[species_start:species_end,0] = np.random.normal(0.0,Vsig,self.N)
+                self.vel[species_start:species_end,1] = np.random.normal(0.0,Vsig,self.N)
+                self.vel[species_start:species_end,2] = np.random.normal(0.0,Vsig,self.N)
+                
                 #computing the mean of each velocity component to impose mean value of the velocity components to be zero
                 vx_mean = np.mean(self.vel[species_start:species_end, 0])
                 vy_mean = np.mean(self.vel[species_start:species_end, 1])

@@ -23,9 +23,9 @@ import S_calc_force as calc_force
 
 import S_constants as const
 import S_thermostat as thermostat
-
+import S_integrator as integrator
 # import MD modules, class
-from S_integrator import Integrator
+
 from S_particles import Particles
 from S_verbose import Verbose
 from S_params import Params
@@ -42,7 +42,6 @@ params.setup(input_file)                # Read initial conditions and setup para
 verbose = Verbose(params)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
 calc_force = calc_force.force_pot
-integrator = Integrator(params)    # Setup a velocity integrator
 ###
 Nt = params.Control.Nstep    # number of time steps
 
@@ -88,7 +87,7 @@ if not (params.load_method == "restart"):
 #    print("\n------------- Equilibration -------------")
     for it in range(params.Control.Neq):
 
-        U = integrator.update(ptcls)
+        U = integrator.Verlet(ptcls,params)
 
         thermostat.Berendsen(ptcls,params,it)
 
@@ -115,7 +114,7 @@ else:
 
 
 for it in range(it_start, Nt):
-    U = integrator.update(ptcls)
+    U = integrator.Verlet(ptcls,params)
     if (params.Control.units == "Yukawa"):
         U *= 3
 

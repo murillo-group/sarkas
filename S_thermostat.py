@@ -8,7 +8,6 @@ import numpy as np
 import sys
 
 import S_constants as const
-from S_integrator import Integrator
 
 '''
 class Thermostat:
