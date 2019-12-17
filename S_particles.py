@@ -80,15 +80,7 @@ class Particles:
 
         else:
 
-            if load_method == 'random_no_reject':
-                print('\nAssigning random initial positions {}'.format(load_method))
-
-            else:
-                print('\nAssigning initial positions according to {}'.format(load_method))
-
-            print('Assigning random initial velocities...')
-
-
+            print('Assigning initial velocities from a Maxwell-Boltzmann distribution')
 
             two_pi = 2*np.pi 
 
@@ -120,6 +112,14 @@ class Particles:
                 self.vel[species_start:species_end, 0] -= vx_mean
                 self.vel[species_start:species_end, 1] -= vy_mean
                 self.vel[species_start:species_end, 2] -= vz_mean
+
+            # Particles Position Initialization
+            if load_method == 'random_no_reject':
+                print('\nAssigning random initial positions {}'.format(load_method))
+
+            else:
+                print('\nAssigning initial positions according to {}'.format(load_method))
+
             # position distribution. 
             if (load_method == 'lattice'):
                 self.lattice(self.N, self.params.load_perturb, self.params.load_rand_seed)

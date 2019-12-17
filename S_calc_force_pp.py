@@ -7,7 +7,7 @@ import time
 import S_global_names as glb
 
 @nb.jit()
-def update_0D(ptcls, acc_s_r, params):
+def update_0D(ptcls, params):
     '''
     Special case for rc = L/2
     For no sub-cell. All ptcls within rc (= L/2) participate for force calculation. Cost ~ O(N^2)
@@ -18,13 +18,13 @@ def update_0D(ptcls, acc_s_r, params):
     Lh = L/2.
     N = len(pos[:,0]) # Number of particles
 
-    potential_matrix = glb.potential_matrix
+    potential_matrix = params.Potential.matrix
     id_ij = ptcls.species_id
     mass_ij = ptcls.mass
     force = params.force
     
     U_s_r = 0.0 # Short-ranges potential energy accumulator
-    acc_s_r.fill(0.0) # Vector of accelerations
+    acc_s_r = np.zeros( (params.N, params.d) ) # Vector of accelerations
 
     for i in range(N):
         for j in range(i+1, N):
@@ -91,9 +91,9 @@ def update_0D(ptcls, acc_s_r, params):
     return U_s_r, acc_s_r
 
 
-@nb.jit()
-def update(ptcls, acc_s_r,params):
-    ''' Updates the force on the particles based on a linked cell-list (LCL) algorithm.
+@nb.jit() # This will give a warning, but it is still faster than without it or in forceobj=True mode.
+def update(ptcls, params):
+    """ Updates the force on the particles based on a linked cell-list (LCL) algorithm.
 
     
     Parameters
@@ -121,8 +121,10 @@ def update(ptcls, acc_s_r,params):
     short and long ranged interactions. See the wikipedia article:
     https://en.wikipedia.org/wiki/Ewald_summation or
     "Computer Simulation of Liquids by Allen and Tildesley" for more information.
-    '''
+    """
     pos = ptcls.pos
+    acc_s_r = np.zeros_like(ptcls.acc)
+
     # Declare parameters 
     rc = params.Potential.rc # Cutoff-radius
     N = len(pos[:,0]) # Number of particles
@@ -138,7 +140,6 @@ def update(ptcls, acc_s_r,params):
 
     # Initialize
     U_s_r = 0.0 # Short-ranges potential energy accumulator
-    acc_s_r.fill(0.0) # Vector of accelerations
     ls = np.arange(N) # List of particle indices in a given cell
 
     # The number of cells in each dimension
@@ -162,15 +163,11 @@ def update(ptcls, acc_s_r,params):
     for i in range(N):
     
         # Determine what cell, in each direction, the i-th particle is in
-        cx = int(np.floor(pos[i,0]/rc_x)) # X cell
-        cy = int(np.floor(pos[i,1]/rc_y)) # Y cell
-        cz = int(np.floor(pos[i,2]/rc_z)) # Z cell
+        cx = int(pos[i,0]/rc_x) # X cell
+        cy = int(pos[i,1]/rc_y) # Y cell
+        cz = int(pos[i,2]/rc_z) # Z cell
         # Determine cell in 3D volume for i-th particle
         c = cx + cy*Lxd + cz*Lxd*Lyd
-#        print("rc = ", rc_x, rc_y, rc_z)
-#        print("cxyz = ", cx, cy, cz)
-#        print("pos = ", pos[i, 0], pos[i, 1], pos[i, 2])
-#        print("c = ", c )
         # List of particle indices occupying a given cell
         ls[i] = head[c]
 

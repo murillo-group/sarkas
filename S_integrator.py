@@ -12,7 +12,8 @@ RK45_with_Langevin: N/A
 import numpy as np
 import numba as nb
 import sys
-import S_calc_force as calc_force
+import S_calc_force_pp as force_pp
+import S_calc_force_pm as force_pm
 import S_constants as const
 
 '''
@@ -78,9 +79,8 @@ def Verlet(ptcls,params):
     if params.Control.PBC == 1:
         EnforcePBC(ptcls.pos,params.Lv)
         
-
     # Compute total potential energy and accleration for second half step velocity update                 
-    U = calc_force.force_pot(ptcls,params)
+    U = PotentialAcceleration(ptcls,params)
     
     #Second half step velocity update
     ptcls.vel = ptcls.vel + 0.5*ptcls.acc*params.Control.dt
@@ -90,10 +90,25 @@ def Verlet(ptcls,params):
 
 @nb.njit
 def EnforcePBC(pos, BoxVector):
+    """ Enforce Periodic Boundary Conditions. 
+
+    Parameters
+    ----------
+    pos : array
+          particles' positions = ptcls.pos
+
+    BoxVector : array
+                Box Dimensions
+
+    Return
+    ------
+
+    none
+    
+    """
 
     # Loop over all particles
     for i in np.arange(pos.shape[0]):
-        # Loop over dimensions (x=0, y=1, z=2)
         for p in np.arange(pos.shape[1]):
             
             # If particle is outside of box in positive direction, wrap to negative side
@@ -103,3 +118,38 @@ def EnforcePBC(pos, BoxVector):
             # If particle is outside of box in negative direction, wrap to positive side
             if pos[i, p] < 0.0:
                 pos[i, p] = pos[i, p] + BoxVector[p]
+
+    
+def PotentialAcceleration(ptcls,params):
+    """ Calculate the Potential and update particle's accelerations.
+
+    Parameter
+    ---------
+    ptcls : class
+            Particles' data. See S_particles for more information
+
+    params : class
+             Simulations data. See S_params for more information
+
+    Return
+    ------
+    U : float
+        Potential
+
+    """
+    
+    if(params.Potential.LL_on):
+        U_short, acc_s_r = force_pp.update(ptcls, params)
+    else:
+        U_short, acc_s_r = force_pp.update_0D(ptcls, params)
+    
+    ptcls.acc = acc_s_r
+
+    U = U_short
+
+    #if (params.P3M_flag):
+    #    U_long, acc_l_r = force_pm.update(ptcls,params)
+    #    U = U + U_long
+    #    ptcls.acc = ptcls.acc + acc_l_r
+    
+    return U

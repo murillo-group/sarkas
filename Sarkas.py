@@ -73,9 +73,9 @@ ptcls.load()
 time_stamp[its] = time.time(); its += 1
 N = len(ptcls.pos[:, 0])
 
-# Calculating initial forces and potential energy
-U = calc_force(ptcls,params)
-
+# Calculate initial forces and potential energy
+U = integrator.PotentialAcceleration(ptcls,params)
+# Calculate initial kinetic energy and temperature
 K, Tp = thermostat.KineticTemperature(ptcls, params)
         
 E = K + U
@@ -115,17 +115,9 @@ else:
 
 for it in range(it_start, Nt):
     U = integrator.Verlet(ptcls,params)
-    if (params.Control.units == "Yukawa"):
-        U *= 3
 
-    K = 0
-    species_start = 0
-    for i in range(params.num_species):
-        species_end = species_start + params.species[i].num
-        K += 0.5*params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
-        species_start = species_end
+    K, Tp = thermostat.KineticTemperature(ptcls, params)
 
-    Tp = (2/3)*K/float(N)/const.kb
     E = K + U
     if (it % params.Control.dump_step == 0 and params.Control.verbose):
         print("Production: timestep, T, E, K, U = ", it, Tp, E, K, U)

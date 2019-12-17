@@ -7,8 +7,6 @@ N: strength of temperature relaxation after t > 2000th steps.
 import numpy as np
 import sys
 
-import S_constants as const
-
 '''
 class Thermostat:
     def __init__(self, params):
@@ -64,12 +62,13 @@ def Berendsen(ptcls, params, it):
 
 def KineticTemperature(ptcls,params):
     K = 0
+    kb = 1.38064852e-23  # Boltzmann Const
     species_start = 0
     for i in range(params.num_species):
         species_end = species_start + params.species[i].num
         K += 0.5*params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
         species_start = species_end
 
-    T = (2/3)*K/float(params.total_num_ptcls)/const.kb
+    T = (2/3)*K/float(params.total_num_ptcls)/kb
 
     return K, T

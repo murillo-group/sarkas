@@ -10,7 +10,6 @@ S_calc_force.py
 import numpy as np
 import sys
 import S_calc_force_pp as force_pp
-import S_global_names as glb
 import S_constants as const
 
 def force_pot(ptcls,params):
