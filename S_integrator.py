@@ -15,22 +15,20 @@ import S_calc_force as calc_force
 import S_constants as const
 
 class Integrator:
-    def __init__(self, params, glb):
+    def __init__(self, params):
 
         self.calc_force = calc_force.force_pot
 
         self.params = params
 
-        self.glb_vars = glb
-
-        self.dt = self.glb_vars.dt
+        self.dt = params.Control.dt
         self.half_dt = 0.5*self.dt
-        self.N = self.glb_vars.N
-        self.d = self.glb_vars.d
-        self.Lv = self.glb_vars.Lv
-        self.PBC = self.glb_vars.PBC
-        self.Lmax_v = self.glb_vars.Lmax_v
-        self.Lmin_v = self.glb_vars.Lmin_v
+        self.N = params.N
+        self.d = params.d
+        self.Lv = params.Lv
+        self.PBC = params.Control.PBC
+        self.Lmax_v = params.Lmax_v
+        self.Lmin_v = params.Lmin_v
         self.N_species = self.params.num_species
         self.T = self.params.Ti
 
@@ -94,7 +92,7 @@ class Integrator:
 
 
         # Compute total potential energy and accleration for second half step velocity update                 
-        U = self.calc_force(ptcls)
+        U = self.calc_force(ptcls,self.params)
         
         #Second half step velocity update
         ptcls.vel = ptcls.vel + ptcls.acc*self.half_dt
@@ -165,7 +163,7 @@ class Integrator:
 
 
         if(0):
-            sig = np.sqrt(2. * g*const.kb*self.glb_vars.T_desired/const.proton_mass)
+            sig = np.sqrt(2. * g*const.kb*self.params.T_desired/const.proton_mass)
 
             c1 = (1. - 0.5*g*dt)
             c2 = 1./(1. + 0.5*g*dt)

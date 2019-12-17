@@ -12,11 +12,10 @@ from S_integrator import Integrator
 
 
 class Thermostat:
-    def __init__(self, params, glb):
-        self.integrator = Integrator(params, glb)
+    def __init__(self, params):
+        self.integrator = Integrator(params)
 
         self.params = params
-        self.glb_vars = glb
 
         if(params.Thermostat.type == "Berendsen"):
             self.type = self.Berendsen
@@ -47,7 +46,7 @@ class Thermostat:
         U : float
             Total potential energy
         '''
-        T_desired = self.glb_vars.T_desired
+        T_desired = self.params.T_desired
         U = self.integrator(ptcls)
 
         K = 0

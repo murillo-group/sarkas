@@ -120,7 +120,7 @@ class Params:
             self.Potential.rc = self.L/2.
             self.Potential.LL_on = 0       # linked list off
 
-
+        self.T_desired = self.Ti
         return
 
     # read input data which does not depend on potential type. 

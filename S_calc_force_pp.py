@@ -7,21 +7,21 @@ import time
 import S_global_names as glb
 
 @nb.jit()
-def update_0D(ptcls, acc_s_r):
+def update_0D(ptcls, acc_s_r, params):
     '''
     Special case for rc = L/2
     For no sub-cell. All ptcls within rc (= L/2) participate for force calculation. Cost ~ O(N^2)
     '''
     pos = ptcls.pos
-    rc = glb.rc
-    L = glb.L
+    rc = params.Potential.rc
+    L = params.L
     Lh = L/2.
     N = len(pos[:,0]) # Number of particles
 
     potential_matrix = glb.potential_matrix
     id_ij = ptcls.species_id
     mass_ij = ptcls.mass
-    force = glb.force
+    force = params.force
     
     U_s_r = 0.0 # Short-ranges potential energy accumulator
     acc_s_r.fill(0.0) # Vector of accelerations
@@ -92,7 +92,7 @@ def update_0D(ptcls, acc_s_r):
 
 
 @nb.jit()
-def update(ptcls, acc_s_r):
+def update(ptcls, acc_s_r,params):
     ''' Updates the force on the particles based on a linked cell-list (LCL) algorithm.
 
     
@@ -122,19 +122,19 @@ def update(ptcls, acc_s_r):
     https://en.wikipedia.org/wiki/Ewald_summation or
     "Computer Simulation of Liquids by Allen and Tildesley" for more information.
     '''
-    pos =ptcls.pos
+    pos = ptcls.pos
     # Declare parameters 
-    rc = glb.rc # Cutoff-radius
+    rc = params.Potential.rc # Cutoff-radius
     N = len(pos[:,0]) # Number of particles
     d = len(pos[0,:]) # Number of dimensions
     rshift = np.zeros(d) # Shifts for array flattening
-    Lx = glb.Lv[0] # X length of box
-    Ly = glb.Lv[1] # Y length of box
-    Lz = glb.Lv[2] # Z length of box
-    potential_matrix = glb.potential_matrix
+    Lx = params.Lv[0] # X length of box
+    Ly = params.Lv[1] # Y length of box
+    Lz = params.Lv[2] # Z length of box
+    potential_matrix = params.Potential.matrix
     id_ij = ptcls.species_id
     mass_ij = ptcls.mass
-    force = glb.force
+    force = params.force
 
     # Initialize
     U_s_r = 0.0 # Short-ranges potential energy accumulator

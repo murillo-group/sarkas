@@ -39,29 +39,29 @@ input_file = sys.argv[1]
 
 params = Params()
 params.setup(input_file)                # Read initial conditions and setup parameters
-glb.init(params)                        # Setup global variables
-verbose = Verbose(params, glb)
+#glb.init(params)                        # Setup global variables
+verbose = Verbose(params)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
 calc_force = calc_force.force_pot
-integrator = Integrator(params, glb)    # Setup a velocity integrator
-thermostat = Thermostat(params, glb)    # Setup a themrostat
+integrator = Integrator(params)    # Setup a velocity integrator
+thermostat = Thermostat(params)    # Setup a themrostat
 ###
 Nt = params.Control.Nstep    # number of time steps
 
 #######################
 # this variable will be moved to observable class
-n_q_t = np.zeros((glb.Nt, glb.Nq, 3), dtype="complex128")
+n_q_t = np.zeros((params.Control.Nt, params.Nq, 3), dtype="complex128")
 
 # initializing the wave vector vector qv
-qv = np.zeros(glb.Nq)
+qv = np.zeros(params.Nq)
 
-for iqv in range(0, glb.Nq, 3):
+for iqv in range(0, params.Nq, 3):
     iq = iqv/3.
-    qv[iqv] = (iq+1.)*glb.dq
-    qv[iqv+1] = (iq+1.)*np.sqrt(2.)*glb.dq
-    qv[iqv+2] = (iq+1.)*np.sqrt(3.)*glb.dq
+    qv[iqv] = (iq+1.)*params.dq
+    qv[iqv+1] = (iq+1.)*np.sqrt(2.)*params.dq
+    qv[iqv+2] = (iq+1.)*np.sqrt(3.)*params.dq
 ########################
-if(glb.verbose):
+if(params.Control.verbose):
     verbose.sim_setting_summary()   # simulation setting summary
 
 # array for temperature, total energy, kinetic energy, potential energy
@@ -77,7 +77,7 @@ time_stamp[its] = time.time(); its += 1
 N = len(ptcls.pos[:, 0])
 
 # Calculating initial forces and potential energy
-U = calc_force(ptcls)
+U = calc_force(ptcls,params)
 
 if (params.Control.units == "Yukawa"):
 	U *= 3
@@ -98,7 +98,7 @@ print("intial: T, E, K, U = ", Tp, E, K, U)
 
 if not (params.load_method == "restart"):
 #    print("\n------------- Equilibration -------------")
-    for it in range(glb.Neq):
+    for it in range(params.Control.Neq):
 
         U = thermostat.update(ptcls, it)
         if(params.Control.units == "Yukawa"):
@@ -115,7 +115,7 @@ if not (params.load_method == "restart"):
 
         E = K + U
 
-        if (it % glb.snap_int == 0 and glb.verbose):
+        if (it % params.Control.dump_step == 0 and params.Control.verbose):
             print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
 #        print("1: pos = ", ptcls.pos)
 #$        print("1: vel = ", ptcls.vel)
@@ -149,11 +149,11 @@ for it in range(it_start, Nt):
 
     Tp = (2/3)*K/float(N)/const.kb
     E = K + U
-    if (it % glb.snap_int == 0 and glb.verbose):
+    if (it % params.Control.dump_step == 0 and params.Control.verbose):
         print("Production: timestep, T, E, K, U = ", it, Tp, E, K, U)
 
 
-    t_Tp_E_K_U = np.array([glb.dt*it, Tp, E, K, U])
+    t_Tp_E_K_U = np.array([params.Control.dt*it, Tp, E, K, U])
     t_Tp_E_K_U2[:] = t_Tp_E_K_U
 
     # writing particle positions and velocities to file
@@ -163,7 +163,7 @@ for it in range(it_start, Nt):
     # Spatial Fourier transform
     # will be move to observable class
     if (1):
-        for iqv in range(glb.Nq):
+        for iqv in range(params.Nq):
             q_p = qv[iqv]
             n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 0]))
             n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 1]))
@@ -171,7 +171,7 @@ for it in range(it_start, Nt):
 
     np.savetxt(f_output_E, t_Tp_E_K_U2)
 
-    if glb.write_xyz == 1:
+    if params.Control.writexyz == 1:
         f_xyz.writelines("{0:d}\n".format(N))
         f_xyz.writelines("x y z vx vy vz ax ay az\n")
         np.savetxt(f_xyz, np.c_[ptcls.pos, ptcls.vel, ptcls.acc])
@@ -184,7 +184,7 @@ time_stamp[its] = time.time(); its += 1
 f_output_E.close()
 f_xyz.close()
 
-if (glb.verbose):
+if (params.Control.verbose):
     verbose.time_stamp(time_stamp)
 
 # end of the code

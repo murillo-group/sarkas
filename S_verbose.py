@@ -8,10 +8,9 @@ import time
 import S_constants as const
 
 class Verbose:
-    def __init__(self, params, glb):
+    def __init__(self, params):
         print("Sarkas Ver. 1.0")
         self.params = params
-        self.glb = glb
 
     def sim_setting_summary(self):
         params = self.params
