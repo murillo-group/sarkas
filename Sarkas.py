@@ -20,11 +20,11 @@ import os
 
 # Importing MD modules, non class
 import S_calc_force as calc_force 
-import S_global_names as glb
+
 import S_constants as const
+import S_thermostat as thermostat
 
 # import MD modules, class
-from S_thermostat import Thermostat
 from S_integrator import Integrator
 from S_particles import Particles
 from S_verbose import Verbose
@@ -39,12 +39,10 @@ input_file = sys.argv[1]
 
 params = Params()
 params.setup(input_file)                # Read initial conditions and setup parameters
-#glb.init(params)                        # Setup global variables
 verbose = Verbose(params)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
 calc_force = calc_force.force_pot
 integrator = Integrator(params)    # Setup a velocity integrator
-thermostat = Thermostat(params)    # Setup a themrostat
 ###
 Nt = params.Control.Nstep    # number of time steps
 
@@ -79,18 +77,8 @@ N = len(ptcls.pos[:, 0])
 # Calculating initial forces and potential energy
 U = calc_force(ptcls,params)
 
-if (params.Control.units == "Yukawa"):
-	U *= 3
-
-K = 0
-species_start = 0
-for i in range(params.num_species):
-    species_end = species_start + params.species[i].num
-    K += 0.5*params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
-    species_start = species_end
-
-Tp = (2/3)*K/float(N)/const.kb
-
+K, Tp = thermostat.KineticTemperature(ptcls, params)
+        
 E = K + U
 P = np.ndarray.sum(ptcls.pos**2)
 
@@ -100,25 +88,16 @@ if not (params.load_method == "restart"):
 #    print("\n------------- Equilibration -------------")
     for it in range(params.Control.Neq):
 
-        U = thermostat.update(ptcls, it)
-        if(params.Control.units == "Yukawa"):
-            U *= 3
+        U = integrator.update(ptcls)
 
-        K = 0
-        species_start = 0
-        for i in range(params.num_species):
-            species_end = species_start + params.species[i].num
-            K += 0.5*params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
-            species_start = species_end
-
-        Tp = (2/3)*K/float(N)/const.kb
-
-        E = K + U
+        thermostat.Berendsen(ptcls,params,it)
 
         if (it % params.Control.dump_step == 0 and params.Control.verbose):
+            K, Tp = thermostat.KineticTemperature(ptcls,params)
+    
+            E = K + U
+
             print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
-#        print("1: pos = ", ptcls.pos)
-#$        print("1: vel = ", ptcls.vel)
 
 # saving the 0th step
 checkpoint.dump(ptcls, 0)

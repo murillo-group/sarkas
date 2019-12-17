@@ -10,7 +10,7 @@ import sys
 import S_constants as const
 from S_integrator import Integrator
 
-
+'''
 class Thermostat:
     def __init__(self, params):
         self.integrator = Integrator(params)
@@ -32,39 +32,45 @@ class Thermostat:
     def update(self, ptcls, it):
         U = self.type(ptcls, it)
         return U
+'''
+def Berendsen(ptcls, params, it):
+    ''' Update particle velocity based on Berendsen thermostat.
 
-    def Berendsen(self, ptcls, it):
-        ''' Update particle velocity based on Berendsen thermostat.
-    
-        Parameters
-        ----------
-        ptlcs: particles data. See S_particles.py for the detailed information
-        it: timestep
+    Parameters
+    ----------
+    ptlcs: particles data. See S_particles.py for the detailed information
+    it: timestep
 
-        Returns
-        -------
-        U : float
-            Total potential energy
-        '''
-        T_desired = self.params.T_desired
-        U = self.integrator(ptcls)
+    Returns
+    -------
+    U : float
+        Total potential energy
+    '''
+    T_desired = params.T_desired
+    #U = Integrator(ptcls)
 
-        K = 0
-        species_start = 0
-        for i in range(self.params.num_species):
-            species_end = species_start + self.params.species[i].num
-            K += 0.5*self.params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
-            species_start = species_end
+    K, T = KineticTemperature(ptcls, params)
 
-        T = (2/3)*K/float(self.params.total_num_ptcls)/const.kb
+    N = 20.0 # hardcode
+    if it <= 1999: #hardcode
+        fact = np.sqrt(T_desired/T)
+        ptcls.vel = ptcls.vel*fact
 
-        N = 20.0 # hardcode
-        if it <= 1999: #hardcode
-            fact = np.sqrt(T_desired/T)
-            ptcls.vel = ptcls.vel*fact
+    else:
+        fact = np.sqrt((T_desired/T + N - 1.0)/N)
+        ptcls.vel = ptcls.vel*fact
 
-        else:
-            fact = np.sqrt((T_desired/T + N - 1.0)/N)
-            ptcls.vel = ptcls.vel*fact
+    return
 
-        return U
+
+def KineticTemperature(ptcls,params):
+    K = 0
+    species_start = 0
+    for i in range(params.num_species):
+        species_end = species_start + params.species[i].num
+        K += 0.5*params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
+        species_start = species_end
+
+    T = (2/3)*K/float(params.total_num_ptcls)/const.kb
+
+    return K, T
