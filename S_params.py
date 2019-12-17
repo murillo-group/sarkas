@@ -193,15 +193,6 @@ class Params:
                             if (key == "rc"):
                                 self.Potential.rc = float(value)
 
-                            if (key == "kappa"):
-                                self.Potential.kappa = float(value)
-
-                            if (key == "Gamma"):
-                                self.Potential.Gamma = float(value)
-
-                            if (key == "elec_temperature"):
-                                self.Te = float(value)
-
                 if (lkey == "Thermostat"):
                     self.Thermostat.on = 1
                     for keyword in dics[lkey]:
@@ -322,45 +313,67 @@ class Params:
         # Yukawa_matrix[1,0,0] : Gamma,
         # Yukawa_matrix[2,:,:] : ij matrix for foce & potential calc.
         Yukawa_matrix = np.zeros((3, self.num_species, self.num_species)) 
-
-        if not hasattr(self, "Te"):
-            print("Electron temperature is not defined. 1st species temperature ", self.species[0].temperature, \
-                    "will be used as the electron temperature.")
-            self.Te = self.species[0].temperature
-
-        # Using MKS relation to obtain kappa and Gamma
-        if (self.Control.units == "cgs"):
-            units.mks_units()
-
-        k = const.kb
-        e = const.elementary_charge
-        hbar = const.hbar
-        m_e = const.elec_mass
-        e_0 = const.epsilon_0
-
-        if (self.Control.units == "cgs"):
-            units.cgs_units() # back to the input nits.
-
-        Te  = self.Te
-        Ti = self.Ti
-
-        if (self.Control.units == "cgs"):
-            ne = self.ne*1.e6    # /cm^3 --> /m^3
-            ni = self.total_num_density*1.e6
-
-        if (self.Control.units == "mks"):
-            ne = self.ne    # /cm^3 --> /m^3
-            ni = self.total_num_density
-        fdint_fdk_vec = np.vectorize(fdint.fdk)
-        fdint_dfdk_vec = np.vectorize(fdint.dfdk)
-        fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
-        beta = 1./(k*Te)
-
-        eta = fdint_ifd1h_vec(np.pi**2*(beta*hbar**2/(m_e))**(3/2)/np.sqrt(2)*ne) #eq 4 inverted
-
-        lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) 
+        # open the input file to read Yukawa parameters
 
         ai = (3./(4*np.pi*ni))**(1./3)
+
+        with open(filename, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+            for lkey in dics:
+                if (lkey == "Potential"):
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if (key == "kappa"):
+                                self.Potential.kappa = float(value)
+
+                            if (key == "Gamma"):
+                                self.Potential.Gamma = float(value)
+
+                            if (key == "elec_temperature"):
+                                self.Te = float(value)
+
+        # if kappa is not given calculate it from the electron temperature
+        if hasattr(self, "kappa"):
+            Yukawa_matrix[0,:,:] = self.Potential.kappa/ai
+        else:
+            if not hasattr(self, "Te"):
+                print("Electron temperature is not defined. 1st species temperature ", self.species[0].temperature, \
+                        "will be used as the electron temperature.")
+                self.Te = self.species[0].temperature
+
+            # Using MKS relation to obtain kappa and Gamma
+            if (self.Control.units == "cgs"):
+                units.mks_units()
+
+            k = const.kb
+            e = const.elementary_charge
+            hbar = const.hbar
+            m_e = const.elec_mass
+            e_0 = const.epsilon_0
+
+            if (self.Control.units == "cgs"):
+                units.cgs_units() # back to the input nits.
+
+            Te  = self.Te
+            Ti = self.Ti
+
+            if (self.Control.units == "cgs"):
+                ne = self.ne*1.e6    # /cm^3 --> /m^3
+                ni = self.total_num_density*1.e6
+
+            if (self.Control.units == "mks"):
+                ne = self.ne    # /cm^3 --> /m^3
+                ni = self.total_num_density
+            fdint_fdk_vec = np.vectorize(fdint.fdk)
+            fdint_dfdk_vec = np.vectorize(fdint.dfdk)
+            fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
+            beta = 1./(k*Te)
+
+            eta = fdint_ifd1h_vec(np.pi**2*(beta*hbar**2/(m_e))**(3/2)/np.sqrt(2)*ne) #eq 4 inverted
+
+            lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) 
+
+            Yukawa_matrix[0, :, :] = 1./self.lambda_TF # kappa/ai
 
         for i in range(self.num_species):
             Zi = self.species[i].Z
@@ -374,7 +387,7 @@ class Params:
                 if (self.Control.units == "mks"):
                     Yukawa_matrix[2, i, j] = (Zi*Zj)*const.elementary_charge**2/(4*np.pi*const.epsilon_0)
             
-
+        # Calculate the plasma frequency
         if (self.Control.units == "cgs"):
             self.lambda_TF = lambda_TF*100  # meter to centimeter
             wp = np.sqrt(4*np.pi*self.species[0].charge**2*self.total_num_density/self.species[0].mass)
@@ -384,23 +397,6 @@ class Params:
             self.lambda_TF = lambda_TF
             wp = np.sqrt(self.species[0].charge**2*self.total_num_density/(self.species[0].mass*const.epsilon_0))
             self.wp = wp
-
-        Yukawa_matrix[0, :, :] = 1./self.lambda_TF # kappa/ai
-
-        self.L = self.ai*(4.0*np.pi*self.total_num_ptcls/3.0)**(1.0/3.0)      # box length
-        self.N = self.total_num_ptcls
-        L = self.L
-        self.Lx = L
-        self.Ly = L
-        self.Lz = L
-        self.Lv = np.array([L, L, L])              # box length vector
-        self.d = np.count_nonzero(self.Lv)              # no. of dimensions
-        self.Lmax_v = np.array([L, L, L])
-        self.Lmin_v = np.array([0.0, 0.0, 0.0])
-        self.dq = 2.*np.pi/self.L
-        self.q_max = 30/self.ai       # hardcode, wave vector
-        self.Nq = 3*int(self.q_max/self.dq)
-
 
         if (self.Potential.method == "PP"):
             self.force = Yukawa.Yukawa_force_PP

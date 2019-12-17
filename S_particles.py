@@ -40,9 +40,13 @@ class Particles:
         self.mass = np.zeros(self.N)
         self.charge = np.zeros(self.N)
 
-# initial whole particles loading.
-# Here numba does not help at all. In fact loading is slower with numba. 
     def load(self):
+        """Initialize the particles' position and velocities based on the load method. """
+
+        # Here numba does not help at all. In fact loading is slower with numba. 
+        # It could be made faster if we made load a function and not a method of Particles.
+        # but in that case we would have to pass all the parameters.
+
 
         N = self.N
         Lx = self.params.Lx
@@ -79,11 +83,10 @@ class Particles:
             self.load_from_file(f_input, N)
 
         else:
-
-            print('Assigning initial velocities from a Maxwell-Boltzmann distribution')
-
             two_pi = 2*np.pi 
 
+            # Particles Velocities Initialization
+            print('Assigning initial velocities from a Maxwell-Boltzmann distribution')
             potential_type = self.params.Potential.type
             units = self.params.Control.units
 
@@ -103,12 +106,11 @@ class Particles:
                 self.vel[species_start:species_end,1] = np.random.normal(0.0,Vsig,self.N)
                 self.vel[species_start:species_end,2] = np.random.normal(0.0,Vsig,self.N)
                 
-                #computing the mean of each velocity component to impose mean value of the velocity components to be zero
+                #Enforce zero total momentum
                 vx_mean = np.mean(self.vel[species_start:species_end, 0])
                 vy_mean = np.mean(self.vel[species_start:species_end, 1])
                 vz_mean = np.mean(self.vel[species_start:species_end, 2])
 
-                #mean value of the velocity components to be zero
                 self.vel[species_start:species_end, 0] -= vx_mean
                 self.vel[species_start:species_end, 1] -= vy_mean
                 self.vel[species_start:species_end, 2] -= vz_mean

@@ -19,8 +19,6 @@ import sys
 import os
 
 # Importing MD modules, non class
-import S_calc_force as calc_force 
-
 import S_constants as const
 import S_thermostat as thermostat
 import S_integrator as integrator
@@ -41,7 +39,7 @@ params = Params()
 params.setup(input_file)                # Read initial conditions and setup parameters
 verbose = Verbose(params)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
-calc_force = calc_force.force_pot
+
 ###
 Nt = params.Control.Nstep    # number of time steps
 
