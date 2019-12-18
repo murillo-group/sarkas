@@ -21,9 +21,9 @@ import os
 # Importing MD modules, non class
 import S_constants as const
 import S_thermostat as thermostat
-import S_integrator as integrator
-# import MD modules, class
 
+# import MD modules, class
+from S_integrator import Integrator, PotentialAcceleration
 from S_particles import Particles
 from S_verbose import Verbose
 from S_params import Params
@@ -39,7 +39,7 @@ params = Params()
 params.setup(input_file)                # Read initial conditions and setup parameters
 verbose = Verbose(params)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
-
+integrator = Integrator(params)
 ###
 Nt = params.Control.Nstep    # number of time steps
 
@@ -72,7 +72,7 @@ time_stamp[its] = time.time(); its += 1
 N = len(ptcls.pos[:, 0])
 
 # Calculate initial forces and potential energy
-U = integrator.PotentialAcceleration(ptcls,params)
+U = PotentialAcceleration(ptcls,params)
 # Calculate initial kinetic energy and temperature
 K, Tp = thermostat.KineticTemperature(ptcls, params)
         
@@ -85,7 +85,7 @@ if not (params.load_method == "restart"):
 #    print("\n------------- Equilibration -------------")
     for it in range(params.Control.Neq):
 
-        U = integrator.Verlet(ptcls,params)
+        U = integrator.update(ptcls,params)
 
         thermostat.Berendsen(ptcls,params,it)
 
@@ -112,7 +112,7 @@ else:
 
 
 for it in range(it_start, Nt):
-    U = integrator.Verlet(ptcls,params)
+    U = integrator.update(ptcls,params)
 
     K, Tp = thermostat.KineticTemperature(ptcls, params)
 

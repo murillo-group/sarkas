@@ -315,8 +315,6 @@ class Params:
         Yukawa_matrix = np.zeros((3, self.num_species, self.num_species)) 
         # open the input file to read Yukawa parameters
 
-        ai = (3./(4*np.pi*ni))**(1./3)
-
         with open(filename, 'r') as stream:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
             for lkey in dics:
@@ -364,6 +362,9 @@ class Params:
             if (self.Control.units == "mks"):
                 ne = self.ne    # /cm^3 --> /m^3
                 ni = self.total_num_density
+
+            ai = (3./(4*np.pi*ni))**(1./3)
+
             fdint_fdk_vec = np.vectorize(fdint.fdk)
             fdint_dfdk_vec = np.vectorize(fdint.dfdk)
             fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
@@ -373,7 +374,7 @@ class Params:
 
             lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) 
 
-            Yukawa_matrix[0, :, :] = 1./self.lambda_TF # kappa/ai
+            Yukawa_matrix[0, :, :] = 1./lambda_TF # kappa/ai
 
         for i in range(self.num_species):
             Zi = self.species[i].Z
