@@ -250,9 +250,9 @@ def PotentialAcceleration(ptcls,params):
     """
     
     if(params.Potential.LL_on):
-        U_short, acc_s_r = force_pp.update(ptcls, params)
+        U_short, acc_s_r = force_pp.update(ptcls,params)
     else:
-        U_short, acc_s_r = force_pp.update_0D(ptcls, params)
+        U_short, acc_s_r = force_pp.update_0D(ptcls,params)
     
     ptcls.acc = acc_s_r
 

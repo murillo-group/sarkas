@@ -31,18 +31,14 @@ class Thermostat:
         return U
 '''
 def Berendsen(ptcls, params, it):
-    ''' Update particle velocity based on Berendsen thermostat.
+    """ Update particle velocity based on Berendsen thermostat.
 
     Parameters
     ----------
     ptlcs: particles data. See S_particles.py for the detailed information
     it: timestep
 
-    Returns
-    -------
-    U : float
-        Total potential energy
-    '''
+    """
     T_desired = params.T_desired
     #U = Integrator(ptcls)
 

@@ -139,7 +139,6 @@ class Particles:
                 print('Incorrect particle placement scheme specified... Using "random_no_reject"')
                 self.random_no_reject(self.N)
 
-    
         return       
 
     def add(self):

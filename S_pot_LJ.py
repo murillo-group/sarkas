@@ -12,7 +12,7 @@ import sys
 import S_global_names as glb
 
 
-@nb.jit
+@nb.njit
 def potential_and_force(r, pot_matrix_ij):
     epsilon = pot_matrix_ij[0]
     sigma = pot_matrix_ij[1]

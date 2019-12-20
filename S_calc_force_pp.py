@@ -4,9 +4,9 @@ import numba as nb
 import math as mt
 import sys
 import time
-import S_global_names as glb
 
-@nb.jit()
+
+@nb.jit
 def update_0D(ptcls, params):
     '''
     Special case for rc = L/2
@@ -91,8 +91,8 @@ def update_0D(ptcls, params):
     return U_s_r, acc_s_r
 
 
-@nb.jit() # This will give a warning, but it is still faster than without it or in forceobj=True mode.
-def update(ptcls, params):
+@nb.jit # This will give a warning, but it is still faster than without it or in forceobj=True mode.
+def update(ptcls,params):
     """ Updates the force on the particles based on a linked cell-list (LCL) algorithm.
 
     
@@ -123,7 +123,7 @@ def update(ptcls, params):
     "Computer Simulation of Liquids by Allen and Tildesley" for more information.
     """
     pos = ptcls.pos
-    acc_s_r = np.zeros_like(ptcls.acc)
+    acc_s_r = np.zeros_like( pos)
 
     # Declare parameters 
     rc = params.Potential.rc # Cutoff-radius
@@ -143,9 +143,9 @@ def update(ptcls, params):
     ls = np.arange(N) # List of particle indices in a given cell
 
     # The number of cells in each dimension
-    Lxd = int(np.floor(Lx/rc))
-    Lyd = int(np.floor(Ly/rc))
-    Lzd = int(np.floor(Lz/rc))
+    Lxd = int(Lx/rc)
+    Lyd = int(Ly/rc)
+    Lzd = int(Lz/rc)
     # Width of each cell
     rc_x = Lx/Lxd
     rc_y = Ly/Lyd
@@ -158,8 +158,6 @@ def update(ptcls, params):
     head.fill(empty) # Make head list empty until population
 
     # Loop over all particles and place them in cells
-    #print(pos)
-#    print("hello....")
     for i in range(N):
     
         # Determine what cell, in each direction, the i-th particle is in

@@ -11,7 +11,7 @@ import sys
 import S_global_names as glb
 
 
-@nb.jit
+@nb.njit
 def Yukawa_force_PP(r, pot_matrix_ij):
     """ Calculates the Yukawa Force between two particles when 
         the PP algorithm is chosen

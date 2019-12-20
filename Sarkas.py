@@ -40,6 +40,7 @@ params.setup(input_file)                # Read initial conditions and setup para
 verbose = Verbose(params)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
 integrator = Integrator(params)
+
 ###
 Nt = params.Control.Nstep    # number of time steps
 
@@ -59,13 +60,15 @@ for iqv in range(0, params.Nq, 3):
 if(params.Control.verbose):
     verbose.sim_setting_summary()   # simulation setting summary
 
+print("rcut/a_ws = ", params.Potential.rc/params.ai )
 # array for temperature, total energy, kinetic energy, potential energy
-t_Tp_E_K_U2 = np.zeros((1, 5))
+t_Tp_E_K_U = np.zeros((1, 5))
 
 N = params.total_num_ptcls
 
 # Initializing particle positions and velocities
 ptcls = Particles(params)
+
 time_stamp[its] = time.time(); its += 1
 ptcls.load()
 time_stamp[its] = time.time(); its += 1
@@ -121,8 +124,7 @@ for it in range(it_start, Nt):
         print("Production: timestep, T, E, K, U = ", it, Tp, E, K, U)
 
 
-    t_Tp_E_K_U = np.array([params.Control.dt*it, Tp, E, K, U])
-    t_Tp_E_K_U2[:] = t_Tp_E_K_U
+    t_Tp_E_K_U = np.array([params.Control.dt*it, Tp, E, K, U]).reshape(1,5)
 
     # writing particle positions and velocities to file
     if ((it+1) % params.Control.dump_step == 0):
@@ -137,7 +139,7 @@ for it in range(it_start, Nt):
             n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 1]))
             n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 2]))
 
-    np.savetxt(f_output_E, t_Tp_E_K_U2)
+    np.savetxt(f_output_E, t_Tp_E_K_U)
 
     if params.Control.writexyz == 1:
         f_xyz.writelines("{0:d}\n".format(N))
