@@ -2,12 +2,11 @@ import numpy as np
 import numba as nb
 import sys
 import fdint
-
 import S_constants as const
 
 @nb.njit
-def EGS_force_PP(r,pot_matrix):
-    """ Calculate the PP force between particles using the EGS Potential
+def Moliere_force_PP(r,pot_matrix):
+    """ Calculate the PP force between particles using the Moliere Potential
     
     Parameters
     ----------
@@ -15,8 +14,9 @@ def EGS_force_PP(r,pot_matrix):
         particles' distance
 
     pot_matrix : array
-                 EGS potential parameters. See details below and 
-                 Stanton et al. PRE 91, 033104 (2015) for more info
+                 Moliere potential parameters according to
+                 Wilson et al. PRB 15, 2458 (1977) 
+
 
     Return
     ------
@@ -26,39 +26,32 @@ def EGS_force_PP(r,pot_matrix):
 
     fr : float
          force
-
     """
-    nu = pot_matrix[1]
-    if (nu <= 1):
-        #pot_matrix[2] = Charge factor
-        #pot_matrix[3] = 1 + alpha
-        #pot_matrix[4] = 1 - alpha
-        #pot_matrix[5] = lambda_minus
-        #pot_matrix[6] = lambda_plus
+    """
+    pot_matrix[0] = C_1
+    pot_matrix[1] = C_2
+    pot_matrix[2] = C_3
+    pot_matrix[3] = b_1
+    pot_matrix[4] = b_2
+    pot_matrix[5] = b_3
+    """
+    U = 0.0
+    force = 0.0
 
-        temp1 = pot_matrix[3]*np.exp(-r/pot_matrix[5])
-        temp2 = pot_matrix[4]*np.exp(-r/pot_matrix[6])
-        phi = (temp1 + temp2)*pot_matrix[2]/r
-        fr = phi/r + pot_matrix[2]*(temp1/pot_matrix[5] + temp2/pot_matrix[6]) 
-    else: 
-        #pot_matrix[2] = Charge factor
-        #pot_matrix[3] = 1.0
-        #pot_matrix[4] = alpha prime
-        #pot_matrix[5] = gamma_minus
-        #pot_matrix[6] = gamma_plus
-        cos = np.cos(r/pot_matrix[5])
-        sin = np.sin(r/pot_matrix[5])
-        exp = pot_matrix[2]*np.exp(-r/pot_matrix[6])
-        phi = (pot_matrix[3]*cos + pot_matrix[4]*sin)*exp/r
-        fr1 = phi/r   # derivative of 1/r
-        fr3 = phi/pot_matrix[6] # derivative of exp
-        fr2 = exp/(r*pot_matrix[5])*(sin - pot_matrix[4]*cos)
-        fr = fr1 + fr2 + fr3
+    for i in range(3):
 
-    return phi, fr
+        factor1 = r*pot_matrix[i + 3]
+        factor2 = pot_matrix[i]/r
+        U += factor2*np.exp(-factor1)
+        force += np.exp(-factor1)*(factor2)*(1.0/r + pot_matrix[i])
 
+    force = force*pot_matrix[6]
+    U = U*pot_matrix[6]
+    
+    return U, force
+    
 
-def EGS_force_P3M(pos,acc_s_r):
+def Moliere_force_P3M(pos,acc_s_r):
     pass
 
 

@@ -45,11 +45,12 @@ import sys
 import fdint
 
 import S_units as units
-import S_constants as const  # empty. 
+import S_constants as const 
 # force are here
 import S_pot_Yukawa as Yukawa
 import S_pot_LJ as LJ
 import S_pot_EGS as EGS
+import S_pot_Moliere as Moliere
 
 class Params:
     def __init__(self):
@@ -99,47 +100,6 @@ class Params:
         self.common_parser(filename)
 
         self.N = self.total_num_ptcls
-        self.num_species = len(self.species)
-        for ic in range(self.num_species):
-            self.species[ic].charge = const.elementary_charge
-            if hasattr(self.species[ic], "Z"):
-                self.species[ic].charge = const.elementary_charge*self.species[ic].Z
-
-        self.ai = 0.0
-        if (self.total_num_density > 0.):
-            self.ai = (3.0/(4.0*np.pi*self.total_num_density))**(1./3.)
-
-        self.ne = 0 # number of electron
-        for ic in range(self.num_species):
-            if hasattr(self.species[ic], "Z"):
-
-                self.ne += self.species[ic].Z*self.species[ic].num_density
-        nT = 0.
-        for i in range(self.num_species):
-            nT += self.species[i].num*self.species[i].temperature
-
-        self.Ti = nT/self.total_num_ptcls
-
-
-        self.L = self.ai*(4.0*np.pi*self.total_num_ptcls/3.0)**(1.0/3.0)      # box length
-        self.N = self.total_num_ptcls
-        L = self.L
-        self.Lx = L
-        self.Ly = L
-        self.Lz = L
-        self.Lv = np.array([L, L, L])              # box length vector
-        self.d = np.count_nonzero(self.Lv)              # no. of dimensions
-        self.Lmax_v = np.array([L, L, L])
-        self.Lmin_v = np.array([0.0, 0.0, 0.0])
-
-        self.dq = 2.0*np.pi
-        if (self.L > 0.):
-            self.dq = 2.*np.pi/self.L
-
-        self.q_max = 30                   # hardcode
-        if (self.ai > 0):
-            self.q_max = 30/self.ai       # hardcode, wave vector
-        self.Nq = 3*int(self.q_max/self.dq)
 
         # Yukawa potential
         if (self.Potential.type == "Yukawa"):
@@ -152,6 +112,10 @@ class Params:
         # Lennard-Jones potential
         if (self.Potential.type == "LJ"):
             self.LJ_setup(filename)
+
+        # Moliere potential
+        if (self.Potential.type == "Moliere"):
+            self.Moliere_setup(filename)
 
         self.Potential.LL_on = 1       # linked list on
         if not hasattr(self.Potential, "rc"):
@@ -307,7 +271,51 @@ class Params:
 
                             if (key =="output_dir"):
                                 self.Control.checkpoint_dir = value
-                                    
+        
+
+        self.num_species = len(self.species)
+        
+        for ic in range(self.num_species):
+            self.species[ic].charge = const.elementary_charge
+            if hasattr(self.species[ic], "Z"):
+                self.species[ic].charge = const.elementary_charge*self.species[ic].Z
+
+        self.ai = 0.0
+        if (self.total_num_density > 0.):
+            self.ai = (3.0/(4.0*np.pi*self.total_num_density))**(1./3.)
+
+        self.ne = 0 # number of electron
+        for ic in range(self.num_species):
+            if hasattr(self.species[ic], "Z"):
+
+                self.ne += self.species[ic].Z*self.species[ic].num_density
+        nT = 0.
+        for i in range(self.num_species):
+            nT += self.species[i].num*self.species[i].temperature
+
+        self.Ti = nT/self.total_num_ptcls
+
+
+        self.L = self.ai*(4.0*np.pi*self.total_num_ptcls/3.0)**(1.0/3.0)      # box length
+        self.N = self.total_num_ptcls
+        L = self.L
+        self.Lx = L
+        self.Ly = L
+        self.Lz = L
+        self.Lv = np.array([L, L, L])              # box length vector
+        self.d = np.count_nonzero(self.Lv)              # no. of dimensions
+        self.Lmax_v = np.array([L, L, L])
+        self.Lmin_v = np.array([0.0, 0.0, 0.0])
+
+        self.dq = 2.0*np.pi
+        if (self.L > 0.):
+            self.dq = 2.*np.pi/self.L
+
+        self.q_max = 30                   # hardcode
+        if (self.ai > 0):
+            self.q_max = 30/self.ai       # hardcode, wave vector
+        self.Nq = 3*int(self.q_max/self.dq)
+
         return
     
     # Yukawa potential
@@ -633,4 +641,38 @@ class Params:
             # Optimized Green's Function
             self.P3M.G_k, self.P3M.kx_v, self.P3M.ky_v, self.P3M.kz_v, self.P3M.A_pm = EGS.gf_opt(self)
 
+        return
+
+    def Moliere_setup(self, filename):
+        Moliere_matrix = np.zeros((7, self.num_species, self.num_species))
+
+        with open(filename, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+
+            for lkey in dics:
+                if (lkey == "Potential"):
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if (key == "C"):
+                                C_params = np.array(value)
+                                
+                            if (key == "b"):
+                                b_params = np.array(value)
+
+        for i in range(self.num_species):
+            Zi = self.species[i].Z
+            for j in range(self.num_species):
+                Zj = self.species[j].Z
+            
+                Moliere_matrix[0:3, i, j] =  C_params
+                Moliere_matrix[3:6, i, j] =  b_params
+
+                if (self.Control.units == "cgs"):
+                    Moliere_matrix[6, i, j] = (Zi*Zj)*const.elementary_charge**2
+
+                if (self.Control.units == "mks"):
+                    Moliere_matrix[6, i, j] = (Zi*Zj)*const.elementary_charge**2/(4.0*np.pi*const.epsilon_0)
+        
+        self.Potential.matrix = Moliere_matrix
+        self.force = Moliere.Moliere_force_PP
         return

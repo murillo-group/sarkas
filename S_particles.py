@@ -26,6 +26,7 @@ class Particles:
         
         self.params = params
         self.N = params.total_num_ptcls
+
         iseed = params.load_rand_seed
         np.random.seed(seed=iseed)
 
@@ -57,6 +58,7 @@ class Particles:
         
         ic_species = 0
         N_species = self.params.num_species
+
         for i in range(N_species): 
             species_start = species_end
             species_end += self.params.species[i].num
@@ -102,9 +104,9 @@ class Particles:
                 species_start = species_end
                 species_end = species_start + num_ptcls
 
-                self.vel[species_start:species_end,0] = np.random.normal(0.0,Vsig,self.N)
-                self.vel[species_start:species_end,1] = np.random.normal(0.0,Vsig,self.N)
-                self.vel[species_start:species_end,2] = np.random.normal(0.0,Vsig,self.N)
+                self.vel[species_start:species_end,0] = np.random.normal(0.0,Vsig,num_ptcls)
+                self.vel[species_start:species_end,1] = np.random.normal(0.0,Vsig,num_ptcls)
+                self.vel[species_start:species_end,2] = np.random.normal(0.0,Vsig,num_ptcls)
                 
                 #Enforce zero total momentum
                 vx_mean = np.mean(self.vel[species_start:species_end, 0])
