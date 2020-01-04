@@ -5,11 +5,9 @@ Optimized green's Function, potential and force calculation for Yukawa potential
 
 import numpy as np
 import numba as nb
+import math as mt
 import sys
-
-# MD modules
-import S_global_names as glb
-
+import scipy.constants as const
 
 @nb.njit
 def Yukawa_force_PP(r, pot_matrix_ij):
@@ -18,21 +16,21 @@ def Yukawa_force_PP(r, pot_matrix_ij):
 
     Parameters
     ----------
-    r : real
+    r : float
         distance between two particles
 
     pot_matrix_ij : array_like
                     it contains potential dependent variables
-                    pot_matrix_ij[0] = 1/lambda_TF (if Yukawa units, it is kappa)
-                    pot_matrix_ij[1] = Gamma
-                    pot_matrix_ij[2] = potential factor
+                    pot_matrix_ij[0,:,:] = 1/lambda_TF
+                    pot_matrix_ij[1,:,:] = Gamma_ij
+                    pot_matrix_ij[2,:,:] = q1*q2/(4*pi*eps0)
 
     Returns
     -------
-    U : real
-        Potential value
+    U : float
+        Potential
                 
-    force : real
+    force : float
             Force between two particles
     
     Notes
@@ -50,8 +48,8 @@ def Yukawa_force_PP(r, pot_matrix_ij):
 
     return U, force
 
-@nb.jit
-def Yukawa_force_P3M(U_s_r, r):
+@nb.njit
+def Yukawa_force_P3M(r, pot_matrix_ij):
     """ Calculates the Yukawa Force between two particles when 
         the P3M algorithm is chosen
 
@@ -65,29 +63,29 @@ def Yukawa_force_P3M(U_s_r, r):
 
     Returns
     -------
-    U_s_r : real
+    U_s_r : float
             Potential value
                 
-    fr : real
+    fr : float
          Force between two particles calculated using eq.(22) in 
          Dharuman et al. J Chem Phys 146, 024112 (2017)
     
     """
-    # Scale the screening parameter by the WS radius
-    kappa = glb.kappa/glb.ai
-    G = glb.G   # Ewald parameter alpha 
-    U_s_r = U_s_r + (0.5/r)*(np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G) + np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G))
-    f1 = (0.5/r**2)*np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G)*(1-kappa*r)
-    f2 = (0.5/r**2)*np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G)*(1+kappa*r)
+    kappa = pot_matrix_ij[0]
+
+    G = pot_matrix_ij[3]   # Ewald parameter alpha 
+
+    U_s_r = pot_matrix_ij[2]*(0.5/r)*(np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G) + np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G))
+    f1 = (0.5/r**2)*np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G)*(1.0 - kappa*r)
+    f2 = (0.5/r**2)*np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G)*(1.0 + kappa*r)
     f3 = (G/np.sqrt(np.pi)/r)*(np.exp(-(G*r + 0.5*kappa/G)**2)*np.exp(kappa*r) + np.exp(-(G*r - 0.5*kappa/G)**2)*np.exp(-kappa*r))
-    fr = f1+f2+f3
+    fr = pot_matrix_ij[2]*( f1 + f2 + f3 )
 
     return U_s_r, fr
 
 
-#Optimized Green's Function
-@nb.jit
-def gf_opt(params):
+@nb.njit
+def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut):
     """ Calculates the Optimized Green Function given by eq.(22) in
         Stern et al. J Chem Phys 128, 214006 (2008)
 
@@ -110,32 +108,43 @@ def gf_opt(params):
     kz_v : array_like
            array of reciprocal space vectors along the z-axis
 
-    A_pm : real
-           Second term in eq.(28) in Stern et al. J Chem Phys 128, 214006 (2008)
-           representing the mean-square error for reciprocal space differentiation
-           A_pm notation comes from Dharuman et al. J Chem Phys 146, 024112 (2017)
-           which btw has a mistake since the first G(k) should be squared
+    PM_err : float
+             Error in the force calculation due to the optimized Green's function
+             eq.(28) in Stern et al. J Chem Phys 128 214106 (2008)
 
-    """
-    kappa = params.kappa
-    Gew = glb.G_ew
-    p = glb.p
-    mx_max = glb.mx_max
-    my_max = glb.my_max
-    mz_max = glb.mz_max
-    Mx = glb.Mx
-    My = glb.My
-    Mz = glb.Mz
-    hx = glb.hx
-    hy = glb.hy
-    hz = glb.hz
-    Lx = glb.Lx
-    Ly = glb.Ly
-    Lz = glb.Lz
-   
-    kappa_sq = kappa**2
-    Gew_sq = Gew**2    
+    PP_err : float
+             Error in the force calculation due to the distance cutoff.
+             eq.(30) in Dharuman et al. J Chem Phys 146 024112 (2017)
+
+    DeltaF_tot : float
+                 Total force error. eq.(42) from Dharuman et al. J Chem Phys 146 024112 (2017)
     
+    """
+    kappa = pot_matrix[0,0,0] #params.Potential.matrix[0,0,0]
+    Gew = pot_matrix[3,0,0] #params.Potential.matrix[3,0,0]
+    #p = params.P3M.cao
+    rcut2 = rcut*rcut
+    mx_max = aliases[0] #params.P3M.mx_max
+    my_max = aliases[1] # params.P3M.my_max
+    mz_max = aliases[2] #params.P3M.mz_max
+    Mx = MGrid[0] #params.P3M.Mx
+    My = MGrid[1] #params.P3M.My
+    Mz = MGrid[2] #params.P3M.Mz
+    #hx = params.P3M.hx
+    #hy = params.P3M.hy
+    #hz = params.P3M.hz
+    Lx = BoxLv[0] #params.Lx
+    Ly = BoxLv[1] #params.Ly
+    Lz = BoxLv[2] #params.Lz
+    hx = Lx/float(Mx)
+    hy = Ly/float(My)
+    hz = Lz/float(Mz)
+
+    kappa_sq = kappa*kappa
+    Gew_sq = Gew*Gew
+    
+    epsilon = 1.0/(4.0*np.pi*const.epsilon_0)
+
     G_k = np.zeros((Mz,My,Mx))
     
     if np.mod(Mz,2) == 0:
@@ -157,25 +166,25 @@ def gf_opt(params):
     ny_v = np.arange(My).reshape((My,1))
     nz_v = np.arange(Mz).reshape((Mz,1,1))
     
-    kx_v = 2*np.pi*(nx_v - nx_mid)/Lx
-    ky_v = 2*np.pi*(ny_v - ny_mid)/Ly
-    kz_v = 2*np.pi*(nz_v - nz_mid)/Lz
+    kx_v = 2.0*np.pi*(nx_v - nx_mid)/Lx
+    ky_v = 2.0*np.pi*(ny_v - ny_mid)/Ly
+    kz_v = 2.0*np.pi*(nz_v - nz_mid)/Lz
     
     A_pm = 0.0
     
     for nz in range(Mz):
         nz_sh = nz-nz_mid
-        kz = 2*np.pi*nz_sh/Lz
+        kz = 2.0*np.pi*nz_sh/Lz
         
         for ny in range(My):
             ny_sh = ny-ny_mid
-            ky = 2*np.pi*ny_sh/Ly
+            ky = 2.0*np.pi*ny_sh/Ly
             
             for nx in range(Mx):
                 nx_sh = nx-nx_mid
-                kx = 2*np.pi*nx_sh/Lx
+                kx = 2.0*np.pi*nx_sh/Lx
                            
-                k_sq = kx**2 + ky**2 + kz**2
+                k_sq = kx*kx + ky*ky + kz*kz
                 
                 if k_sq != 0.0:
                 
@@ -189,17 +198,17 @@ def gf_opt(params):
                                 
                                 #if ((nx_sh != 0) or (mx != 0)) and ((ny_sh != 0) or (my != 0)) and ((nz_sh != 0) or (mz != 0)):
                                 
-                                kx_M = 2*np.pi*(nx_sh + mx*Mx)/Lx
-                                ky_M = 2*np.pi*(ny_sh + my*My)/Ly
-                                kz_M = 2*np.pi*(nz_sh + mz*Mz)/Lz
+                                kx_M = 2.0*np.pi*(nx_sh + mx*Mx)/Lx
+                                ky_M = 2.0*np.pi*(ny_sh + my*My)/Ly
+                                kz_M = 2.0*np.pi*(nz_sh + mz*Mz)/Lz
                             
                                 k_M_sq = kx_M**2 + ky_M**2 + kz_M**2
-                            
+                                
                                 if kx_M != 0.0:
                                     U_kx_M = np.sin(0.5*kx_M*hx)/(0.5*kx_M*hx)
                                 else:
                                     U_kx_M = 1.0
-                                    
+
                                 if ky_M != 0.0:
                                     U_ky_M = np.sin(0.5*ky_M*hy)/(0.5*ky_M*hy)
                                 else: 
@@ -209,22 +218,32 @@ def gf_opt(params):
                                     U_kz_M = np.sin(0.5*kz_M*hz)/(0.5*kz_M*hz)
                                 else:
                                     U_kz_M = 1.0
-                            
+                                
                                 U_k_M = (U_kx_M*U_ky_M*U_kz_M)**p
-                                U_k_M_sq = U_k_M**2
-                            
-                                G_k_M = 4*np.pi*np.exp(-0.25*(kappa_sq + k_M_sq)/Gew_sq) / (kappa_sq + k_M_sq)
-                            
+                                U_k_M_sq = U_k_M*U_k_M
+                                
+                                G_k_M = epsilon*np.exp(-0.25*(kappa_sq + k_M_sq)/Gew_sq)/(kappa_sq + k_M_sq)
+                                
                                 k_dot_k_M = kx*kx_M + ky*ky_M + kz*kz_M
-                            
+
+                                #print( (-0.25*(kappa_sq + k_M_sq)/Gew_sq))
+
                                 U_G_k += (U_k_M_sq * G_k_M * k_dot_k_M)
                                 U_k_sq += U_k_M_sq
-                            
-                    # eq.(31) of Dharuman et al. J Chem Phys 146, 024112 (2017)                                                 
+                                
+                    # eq.(31) of Dharuman et al. J Chem Phys 146, 024112 (2017)    
+                                                 
                     G_k[nz,ny,nx] = U_G_k/((U_k_sq**2)*k_sq)
-                    
+                    Gk_hat = epsilon*np.exp(-0.25*(kappa_sq + k_sq)/Gew_sq) / (kappa_sq + k_sq)       
+
                     # eq.(28) of Stern et al. J Chem Phys 128, 214006 (2008)
                     # eq.(32) of Dharuman et al. J Chem Phys 146, 024112 (2017)
-                    A_pm = A_pm + U_G_k**2/((U_k_sq**2)*k_sq)
-                       
-    return G_k, kx_v, ky_v, kz_v, A_pm
+                    A_pm = A_pm + Gk_hat*Gk_hat*k_sq - U_G_k**2/((U_k_sq**2)*k_sq)
+
+    PM_err = A_pm
+    PP_err = 2.0*np.exp(-0.25*kappa_sq/Gew_sq)*np.exp(-Gew_sq*rcut2)/np.sqrt(rcut)
+    
+
+    DeltaF_tot = np.sqrt(PM_err**2 + PP_err**2)*np.sqrt(N/(Lx*Ly*Lz))*pot_matrix[2,0,0]/epsilon
+
+    return G_k, kx_v, ky_v, kz_v, PM_err, PP_err, DeltaF_tot

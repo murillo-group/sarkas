@@ -60,7 +60,6 @@ for iqv in range(0, params.Nq, 3):
 if(params.Control.verbose):
     verbose.sim_setting_summary()   # simulation setting summary
 
-print("rcut/a_ws = ", params.Potential.rc/params.ai )
 # array for temperature, total energy, kinetic energy, potential energy
 t_Tp_E_K_U = np.zeros((1, 5))
 
@@ -70,8 +69,9 @@ N = params.total_num_ptcls
 ptcls = Particles(params)
 
 time_stamp[its] = time.time(); its += 1
+
 ptcls.load()
-time_stamp[its] = time.time(); its += 1
+
 N = len(ptcls.pos[:, 0])
 
 # Calculate initial forces and potential energy
@@ -80,12 +80,14 @@ U = PotentialAcceleration(ptcls,params)
 K, Tp = thermostat.KineticTemperature(ptcls, params)
         
 E = K + U
-P = np.ndarray.sum(ptcls.pos**2)
+# P = np.ndarray.sum(ptcls.pos**2)
 
-print("intial: T, E, K, U = ", Tp, E, K, U)
+print("\nInitial: T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(Tp, E, K, U) )
+
+time_stamp[its] = time.time(); its += 1
 
 if not (params.load_method == "restart"):
-#    print("\n------------- Equilibration -------------")
+    print("\n------------- Equilibration -------------")
     for it in range(params.Control.Neq):
 
         U = integrator.update(ptcls,params)
@@ -97,15 +99,18 @@ if not (params.load_method == "restart"):
     
             E = K + U
 
-            print("Equilibration: timestep, T, E, K, U = ", it, Tp, E, K, U)
+            print("Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U) )
 
 # saving the 0th step
 checkpoint.dump(ptcls, 0)
 time_stamp[its] = time.time(); its += 1
 
-#print("\n------------- Production -------------")
-# Opening files for writing particle positions, velcoities and forces
+print("\n------------- Production -------------")
+# Opening files for writing particle positions, velocities and forces
 f_output_E = open("t_T_totalE_kinE_potE.out", "w")
+
+f_pos = open("pos.out","w")
+
 f_xyz = open("p_v_a.xyz", "w")
 
 if (params.load_method == "restart"):
@@ -121,8 +126,7 @@ for it in range(it_start, Nt):
 
     E = K + U
     if (it % params.Control.dump_step == 0 and params.Control.verbose):
-        print("Production: timestep, T, E, K, U = ", it, Tp, E, K, U)
-
+        print("Production: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U) )
 
     t_Tp_E_K_U = np.array([params.Control.dt*it, Tp, E, K, U]).reshape(1,5)
 
@@ -132,26 +136,30 @@ for it in range(it_start, Nt):
 
     # Spatial Fourier transform
     # will be move to observable class
-    if (1):
-        for iqv in range(params.Nq):
-            q_p = qv[iqv]
-            n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 0]))
-            n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 1]))
-            n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 2]))
+    #if (0):
+    #    for iqv in range(params.Nq):
+    #        q_p = qv[iqv]
+    #        n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 0]))
+    #        n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 1]))
+    #        n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 2]))
 
     np.savetxt(f_output_E, t_Tp_E_K_U)
 
     if params.Control.writexyz == 1:
+        np.savetxt(f_pos,ptcls.pos/params.ai, fmt="%.6e %.6e %.6e")
+
         f_xyz.writelines("{0:d}\n".format(N))
-        f_xyz.writelines("x y z vx vy vz ax ay az\n")
-        np.savetxt(f_xyz, np.c_[ptcls.pos, ptcls.vel, ptcls.acc])
+        f_xyz.writelines("name x y z vx vy vz ax ay az\n")
+        np.savetxt(f_xyz, np.c_[ptcls.species_name, ptcls.pos, ptcls.vel, ptcls.acc], 
+            fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
 
 # will be moved to observable class
-np.save("n_qt", n_q_t)
+#np.save("n_qt", n_q_t)
 time_stamp[its] = time.time(); its += 1
 
 # closing output files
 f_output_E.close()
+f_pos.close()
 f_xyz.close()
 
 if (params.Control.verbose):

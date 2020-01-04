@@ -85,10 +85,10 @@ class Particles:
             self.load_from_file(f_input, N)
 
         else:
-            two_pi = 2*np.pi 
+            two_pi = 2.0*np.pi 
 
             # Particles Velocities Initialization
-            print('Assigning initial velocities from a Maxwell-Boltzmann distribution')
+            print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
             potential_type = self.params.Potential.type
             units = self.params.Control.units
 
@@ -238,18 +238,18 @@ class Particles:
         print('Initializing particles with maximum random perturbation of {} times the aattice spacing.'.format(perturb*0.5))
         
         # Determining number of particles per side of simple cubic lattice
-        part_per_side = (N)**(1/3) # Number of particles per side of cubic lattice
+        part_per_side = (N)**(1./3.) # Number of particles per side of cubic lattice
         
         # Check if total number of particles is a perfect cube, if not, place more than the requested amount
         if round(part_per_side)**3 != N:
         
-            part_per_side = np.ceil( N**(1/3) )
+            part_per_side = np.ceil( N**(1./3.) )
             print('Warning: Total number of particles requested is not a perfect cube. Initializing with {} particles.'.format( int(part_per_side**3) ))
 
         #L = (4 * np.pi * N/3)**(1/3) # Box length normalized by weigner-steitz radius
         L = self.params.L
 
-        d_lattice =  L/(N**(1/3)) # Lattice spacing
+        d_lattice =  L/(N**(1./3.)) # Lattice spacing
 
         # Start timer
         start = time.time()

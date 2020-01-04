@@ -32,11 +32,18 @@ class Thermostat:
 '''
 def Berendsen(ptcls, params, it):
     """ Update particle velocity based on Berendsen thermostat.
+        Berendsen et al. J Chem Phys 81 3684 (1984)
 
     Parameters
     ----------
-    ptlcs: particles data. See S_particles.py for the detailed information
-    it: timestep
+    ptlcs : class
+            particles data. See S_particles.py for the detailed information
+    
+    params : class
+             Simulation paramters. See S_params for detail information
+
+    it : int
+         timestep
 
     """
     T_desired = params.T_desired
@@ -44,15 +51,13 @@ def Berendsen(ptcls, params, it):
 
     K, T = KineticTemperature(ptcls, params)
 
-    N = 20.0 # hardcode
-    if it <= 1999: #hardcode
+    N = 10. # hardcode
+    if it >= 1: #hardcode
         fact = np.sqrt(T_desired/T)
         ptcls.vel = ptcls.vel*fact
-
     else:
-        fact = np.sqrt((T_desired/T + N - 1.0)/N)
+        fact = np.sqrt( 1.0 + (T_desired/T - 1.0)/N)  # eq.(11)
         ptcls.vel = ptcls.vel*fact
-
     return
 
 

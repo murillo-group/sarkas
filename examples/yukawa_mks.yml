@@ -15,8 +15,8 @@ Particles:
 Potential: 
     - type: Yukawa                  # potential type
     - method: PP                    # Linked-cell
-    - rc: 7.67300924e-9             # cut-off radius, meter
-    - elec_temperature: 1.e5
+    - rc: 4.67300924e-9             # cut-off radius, meter
+    - elec_temperature: 3.e5
 
 Integrator:
     - type: Verlet                  # velocity integrator type

@@ -62,8 +62,8 @@ class Integrator:
         ptcls : class
                 Particles' data. See S_particles for more information
 
-        Return
-        ------
+        Returns
+        -------
         U : float
             Potential Energy
 
@@ -82,7 +82,7 @@ class Integrator:
 
         sig = np.sqrt(2. * g*const.kb*self.params.T_desired/const.proton_mass)
         if(self.params.units == "Yukawa"):
-            sig = np.sqrt(2. * g/(3*Gamma))
+            sig = np.sqrt(2. * g/(3.0*Gamma))
 
         c1 = (1. - 0.5*g*dt)
         c2 = 1./(1. + 0.5*g*dt)
@@ -142,7 +142,8 @@ class Integrator:
     
         Parameters
         ----------
-        ptlcs: particles data. See S_particles.py for the detailed information
+        ptlcs: class
+               Particles data. See S_particles.py for the detailed information
 
         Returns
         -------
@@ -172,11 +173,14 @@ def Verlet(ptcls,params):
 
     Parameters
     ----------
-    ptlcs: particles data. See S_particles.py for the detailed information. 
+    ptlcs: class
+           Particles data. See S_particles.py for the detailed information. 
+    
     Returns
     -------
     U : float
         Total potential energy
+    
     """
     # Import global parameters (is there a better way to do this?)
 
@@ -186,6 +190,7 @@ def Verlet(ptcls,params):
 
     # Full step position update
     ptcls.pos = ptcls.pos + ptcls.vel*params.Control.dt
+
     # Periodic boundary condition
     if params.Control.PBC == 1:
         EnforcePBC(ptcls.pos,params.Lv)
@@ -249,8 +254,8 @@ def PotentialAcceleration(ptcls,params):
 
     """
     
-    if(params.Potential.LL_on):
-        U_short, acc_s_r = force_pp.update(ptcls,params)
+    if (params.Potential.LL_on):
+        U_short, acc_s_r = force_pp.update_brute(ptcls,params)
     else:
         U_short, acc_s_r = force_pp.update_0D(ptcls,params)
     
@@ -258,9 +263,9 @@ def PotentialAcceleration(ptcls,params):
 
     U = U_short
 
-    #if (params.P3M_flag):
-    #    U_long, acc_l_r = force_pm.update(ptcls,params)
-    #    U = U + U_long
-    #    ptcls.acc = ptcls.acc + acc_l_r
+    if (params.P3M.on):
+        U_long, acc_l_r = force_pm.update(ptcls,params)
+        U = U + U_long
+        ptcls.acc = ptcls.acc + acc_l_r
     
     return U

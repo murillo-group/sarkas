@@ -1,0 +1,45 @@
+# keywords: Carbon-Oxygen Mixture, Yukawa, P3M, mks, random_no_reject
+Particles:
+    - species:
+        name: e
+        number_density: 1.0e+30       # /m^3
+        mass: 9.109383e-31
+        num: 512                    # total number of particles of ion1 
+        Z: -1.0                        # degree of ionization
+        temperature_eV: 10.0 
+
+    - species:
+        name: p
+        number_density: 1.0e+30       # /m^3
+        mass: 1.67262719e-27               # kg, ptcl mass of ion1
+        num: 512                    # total number of particles of ion1 
+        Z: 1.0                       # degree of ionization
+        temperature_eV: 10.0
+
+    - load:
+        method: random_no_reject    # loading method
+        rand_seed: 123456789        # random seed
+
+Potential: 
+    - type: QSP                 # potential type
+    - method: PP                    # Linked-cell
+    - rc: 8.375005433093307e-11      # cut-off radius, meter
+    - kappa: 0.5
+
+Integrator:
+    - type: Verlet                  # velocity integrator type
+
+Thermostat:
+    - type: Berendsen               # thermostat type
+
+Control:
+    - units: mks                    # units
+    - dt: 8.757873789379083e-19            # sec
+    - Neq: 30000                      # number of timesteps for the equilibrium
+    - Nstep: 10000                    # number of timesteps afater the equilibrium
+    - BC: periodic                  # periodic boundary condition
+    - writexyz: yes                  # no xyz output
+    - dump_step: 100                # dump time step
+    - verbose: yes
+    - output_dir: yukawa_mks_p3m        # dir name to save data. The default is "Checkpoint"
+

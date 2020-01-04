@@ -51,6 +51,7 @@ import S_pot_Yukawa as Yukawa
 import S_pot_LJ as LJ
 import S_pot_EGS as EGS
 import S_pot_Moliere as Moliere
+import S_pot_QSP as QSP
 
 class Params:
     def __init__(self):
@@ -67,8 +68,7 @@ class Params:
 #            pass
 
     class P3M:
-        def __init__(self):
-            pass
+        on = False
 
     class Integrator:
         def __init__(self):
@@ -116,6 +116,10 @@ class Params:
         # Moliere potential
         if (self.Potential.type == "Moliere"):
             self.Moliere_setup(filename)
+
+        # QSP potential
+        if (self.Potential.type == "QSP"):
+            QSP.setup(self,filename)
 
         self.Potential.LL_on = 1       # linked list on
         if not hasattr(self.Potential, "rc"):
@@ -205,6 +209,25 @@ class Params:
                             if (key == "rc"):
                                 self.Potential.rc = float(value)
 
+                if (lkey == "P3M"):
+                    self.P3M.on = True
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if (key == 'MGrid'):
+                                self.P3M.MGrid = np.array(value)
+                                self.P3M.Mx = self.P3M.MGrid[0]
+                                self.P3M.My = self.P3M.MGrid[1]
+                                self.P3M.Mz = self.P3M.MGrid[2]
+                            if (key == 'cao'):
+                                self.P3M.cao = int(value)
+                            if (key == "aliases"):
+                                self.P3M.aliases = np.array(value,dtype=int)
+                                self.P3M.mx_max = self.P3M.aliases[0]
+                                self.P3M.my_max = self.P3M.aliases[1]
+                                self.P3M.mz_max = self.P3M.aliases[2]
+                            if (key == "alpha_ewald"):
+                                self.P3M.G_ew = float(value)
+                                
                 if (lkey == "Thermostat"):
                     self.Thermostat.on = 1
                     for keyword in dics[lkey]:
@@ -277,6 +300,8 @@ class Params:
         
         for ic in range(self.num_species):
             self.species[ic].charge = const.elementary_charge
+            self.species[ic].concentration = self.species[ic].num_density/self.total_num_density
+
             if hasattr(self.species[ic], "Z"):
                 self.species[ic].charge = const.elementary_charge*self.species[ic].Z
 
@@ -323,7 +348,10 @@ class Params:
         # Yukawa_matrix[0,0,0] : kappa,
         # Yukawa_matrix[1,0,0] : Gamma,
         # Yukawa_matrix[2,:,:] : ij matrix for foce & potential calc.
-        Yukawa_matrix = np.zeros((3, self.num_species, self.num_species)) 
+        if ( self.P3M.on):
+            Yukawa_matrix = np.zeros( (4, self.num_species, self.num_species) )
+        else:
+            Yukawa_matrix = np.zeros((3, self.num_species, self.num_species)) 
         # open the input file to read Yukawa parameters
 
         with open(filename, 'r') as stream:
@@ -345,10 +373,26 @@ class Params:
                                 T_eV = float(value)
                                 self.Te = const.eV2K*float(value)
 
+        if (self.Control.units == "cgs"):
+            units.cgs_units()
+        else:
+            units.mks_units()
 
         # if kappa is not given calculate it from the electron temperature
-        if hasattr(self, "kappa"):
-            Yukawa_matrix[0,:,:] = self.Potential.kappa/ai
+        if hasattr(self.Potential, "kappa"):
+            lambda_TF = self.ai/self.Potential.kappa
+
+            Yukawa_matrix[0,:,:] = 1.0/lambda_TF
+
+            units.mks_units()
+
+            k = const.kb
+            e = const.elementary_charge
+            hbar = const.hbar
+            m_e = const.elec_mass
+            e_0 = const.epsilon_0
+            Ti = self.Ti
+            ai = self.ai
         else:
             if not hasattr(self, "Te"):
                 print("Electron temperature is not defined. 1st species temperature ", self.species[0].temperature, \
@@ -379,7 +423,7 @@ class Params:
                 ne = self.ne    # /cm^3 --> /m^3
                 ni = self.total_num_density
 
-            ai = (3./(4*np.pi*ni))**(1./3)
+            ai = (3./(4.0*np.pi*ni))**(1./3)
 
             fdint_fdk_vec = np.vectorize(fdint.fdk)
             fdint_dfdk_vec = np.vectorize(fdint.dfdk)
@@ -388,31 +432,44 @@ class Params:
 
             eta = fdint_ifd1h_vec(np.pi**2*(beta*hbar**2/(m_e))**(3/2)/np.sqrt(2)*ne) #eq 4 inverted
 
-            lambda_TF = np.sqrt((4*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) 
+            lambda_TF = np.sqrt((4.0*np.pi**2*e_0*hbar**2)/(m_e*e**2)*np.sqrt(2*beta*hbar**2/m_e)/(4*fdint_fdk_vec(k=-0.5, phi=eta))) 
 
-            Yukawa_matrix[0, :, :] = 1./lambda_TF # kappa/ai
+            Yukawa_matrix[0, :, :] = 1.0/lambda_TF # kappa/ai
 
+        # Create the Potential Matrix
         for i in range(self.num_species):
             Zi = self.species[i].Z
+            Z53 = (self.species[i].Z)**(5./3.)*self.species[i].concentration
+            Z_avg = self.species[i].Z*self.species[i].concentration
+
             for j in range(self.num_species):
                 Zj = self.species[j].Z
-                Yukawa_matrix[1, i, j] = (Zi*Zj)*e**2/(4*np.pi*e_0*ai*k*Ti) # Gamma
+
+                Yukawa_matrix[1, i, j] = (Zi*Zj)*e*e/(4.0*np.pi*e_0*ai*k*Ti) # Gamma in mks units
 
                 if (self.Control.units == "cgs"):
                     Yukawa_matrix[2, i, j] = (Zi*Zj)*const.elementary_charge**2
 
                 if (self.Control.units == "mks"):
-                    Yukawa_matrix[2, i, j] = (Zi*Zj)*const.elementary_charge**2/(4*np.pi*const.epsilon_0)
-            
-        # Calculate the plasma frequency
+                    Yukawa_matrix[2, i, j] = (Zi*Zj)*const.elementary_charge**2/(4.0*np.pi*const.epsilon_0)
+
+        self.Potential.Gamma_eff = Z53*Z_avg**(1./3.)*e*e/(4.0*np.pi*e_0*ai*k*Ti)
+
+        self.Potential.matrix = Yukawa_matrix
+        
+        # Calculate the (total) plasma frequency
         if (self.Control.units == "cgs"):
             self.lambda_TF = lambda_TF*100  # meter to centimeter
-            wp = np.sqrt(4*np.pi*self.species[0].charge**2*self.total_num_density/self.species[0].mass)
+            for i in range(self.num_species):
+                wp2 += 4.0*np.pi*self.species[i].charge**2*self.species[i].num_density/self.species[i].mass
+            wp = np.sqrt(wp2)
             self.wp = wp
-
         elif (self.Control.units == "mks"):
             self.lambda_TF = lambda_TF
-            wp = np.sqrt(self.species[0].charge**2*self.total_num_density/(self.species[0].mass*const.epsilon_0))
+            wp2 = 0.0
+            for i in range(self.num_species):
+                wp2 += self.species[i].charge**2*self.species[i].num_density/(self.species[i].mass*const.epsilon_0)
+            wp = np.sqrt(wp2)
             self.wp = wp
 
         if (self.Potential.method == "PP"):
@@ -421,24 +478,13 @@ class Params:
         if (self.Potential.method == "P3M"):
             self.force = Yukawa.Yukawa_force_P3M
             # P3M parameters
-            self.P3M.Mx = 64     # hardcode
-            self.P3M.My = 64     # hardcode
-            self.P3M.Mz = 64     # hardcode
             self.P3M.hx = self.Lx/self.P3M.Mx
             self.P3M.hy = self.Ly/self.P3M.My
             self.P3M.hz = self.Lz/self.P3M.Mz
-            self.P3M.p = 6       # hardcode
-            self.P3M.mx_max = 3  # hardcode
-            self.P3M.my_max = 3  # hardcode
-            self.P3M.mz_max = 3  # hardcode
-            # Ewald parameters
-            self.P3M.G = 0.46/self.ai #hardcode
-            self.P3M.G_ew = self.P3M.G
-
+            self.Potential.matrix[3,:,:] = self.P3M.G_ew
             # Optimized Green's Function
-            self.P3M.G_k, self.P3M.kx_v, self.P3M.ky_v, self.P3M.kz_v, self.P3M.A_pm = Yukawa.gf_opt(self)
-
-        self.Potential.matrix = Yukawa_matrix
+            self.P3M.G_k, self.P3M.kx_v, self.P3M.ky_v, self.P3M.kz_v, self.P3M.Pm_err, self.P3M.PP_err, self.P3M.F_err = Yukawa.gf_opt(self.P3M.MGrid,\
+                self.P3M.aliases, self.Lv, self.P3M.cao, self.N, self.Potential.matrix, self.Potential.rc)
 
         return
 
@@ -623,20 +669,12 @@ class Params:
 
         if (self.Potential.method == "P3M"):
             self.force = EGS.EGS_force_P3M
-            # P3M parameters
-            self.P3M.Mx = 64     # hardcode
-            self.P3M.My = 64     # hardcode
-            self.P3M.Mz = 64     # hardcode
             self.P3M.hx = self.Lx/self.P3M.Mx
             self.P3M.hy = self.Ly/self.P3M.My
             self.P3M.hz = self.Lz/self.P3M.Mz
-            self.P3M.p = 6       # hardcode
-            self.P3M.mx_max = 3  # hardcode
-            self.P3M.my_max = 3  # hardcode
-            self.P3M.mz_max = 3  # hardcode
             # Ewald parameters
             self.P3M.G = 0.46/self.ai #hardcode
-            self.P3M.G_ew = self.P3M.G
+            #self.P3M.G_ew = self.P3M.G
 
             # Optimized Green's Function
             self.P3M.G_k, self.P3M.kx_v, self.P3M.ky_v, self.P3M.kz_v, self.P3M.A_pm = EGS.gf_opt(self)
