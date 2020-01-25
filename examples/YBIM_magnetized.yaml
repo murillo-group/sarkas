@@ -3,7 +3,7 @@ Particles:
     - species:
         name: C
         number_density: 1.0e+30       # /m^3
-        mass: 1.9926467e-26            # /kg
+        #mass: 1.9926467e-26            # /kg
         num: 1024                    # total number of particles of ion1 
         Z: 6.0                        # degree of ionization
         A: 12.011                      # atomic mass
@@ -12,7 +12,7 @@ Particles:
     - species:
         name: O
         number_density: 1.0e+30       # /m^3
-        mass: 2.6561982e-26               # kg, ptcl mass of ion1
+        #mass: 2.6561982e-26               # kg, ptcl mass of ion1
         num: 1024                    # total number of particles of ion1 
         Z: 8.0                      # degree of ionization
         A: 15.999                   # atomic mass
@@ -24,9 +24,9 @@ Particles:
 
 Potential: 
     - type: Yukawa                 # potential type
-    - method: P3M                    # Linked-cell
-    - rc: 2.954235e-10          # cut-off radius, meter
-    - kappa: 0.1
+    - method: P3M                  # 
+    - rc: 2.954235e-10             # cut-off radius, meter
+    - kappa: 0.1                   # 
 
 P3M:
     - MGrid: [64,64,64]
@@ -37,6 +37,11 @@ P3M:
 Integrator:
     - type: Verlet                  # velocity integrator type
 
+Magnetized:
+    - B_Gauss: 140.0e+10
+    - electrostatic_thermalization: 1
+    - Neq_mag: 30000
+
 Thermostat:
     - type: Berendsen               # thermostat type
     - tau: 10.0
@@ -45,12 +50,12 @@ Thermostat:
 Control:
     - units: mks                    # units
     - dt: 1.074182e-17            # sec
-    - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nstep: 20000                    # number of timesteps afater the equilibrium
+    - Neq: 10000                      # number of timesteps for the equilibrium
+    - Nstep: 30000                    # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
     - writexyz: yes                  # no xyz output
     - dump_step: 100                # dump time step
     - verbose: yes
-    - output_dir: YBIM_mks_P3M        # dir name to save data. The default is "Checkpoint"
-    - fname_app: YBIM_mks_P3M
+    - output_dir: YBIM_mks_mag        # dir name to save data. The default is "Checkpoint"
+    - fname_app: YBIM_mks_mag
 

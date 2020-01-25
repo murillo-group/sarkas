@@ -1,13 +1,18 @@
+"""
+S_calc_force_pp.py
+
+Module for handling the Particle-Particle interaction.
+
+"""
 
 import numpy as np
 import numba as nb
 import math as mt
+import sys
+import time
 
 from numba.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 import warnings
-
-import sys
-import time
 
 # These "ignore" should be only temporary until we figure out a way to speed up the update functions
 warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
@@ -16,8 +21,9 @@ warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
 @nb.jit
 def update_0D(ptcls, params):
-    """ Updates particles' accelerations when rc = L/2
-        For no sub-cell. All ptcls within rc (= L/2) participate for force calculation. Cost ~ O(N^2)
+    """
+    Updates particles' accelerations when rc = L/2
+    For no sub-cell. All ptcls within rc (= L/2) participate for force calculation. Cost ~ O(N^2)
 
     Parameters
     ----------
@@ -55,7 +61,7 @@ def update_0D(ptcls, params):
             dx = (pos[i,0] - pos[j,0])
             dy = (pos[i,1] - pos[j,1])
             dz = (pos[i,2] - pos[j,2])
-            if(1):
+            if (1):
                 if(dx >= Lh):
                     #dx -= Lh 
                     dx = L - dx
@@ -78,7 +84,7 @@ def update_0D(ptcls, params):
                     dz = L + dz
 
             # Compute distance between particles i and j
-            r = np.sqrt(dx**2 + dy**2 + dz**2)
+            r = np.sqrt(dx*dx + dy*dy + dz*dz)
             
             if (r < rc):
                 id_i = id_ij[i]
@@ -92,17 +98,14 @@ def update_0D(ptcls, params):
                 U_s_r += pot
 
                 # Update the acceleration for i particles in each dimension
-                rx = dx/r
-                ry = dy/r
-                rz = dz/r
 
-                acc_ix = rx*fr/mass_i
-                acc_iy = ry*fr/mass_i
-                acc_iz = rz*fr/mass_i
+                acc_ix = dx*fr/mass_i
+                acc_iy = dy*fr/mass_i
+                acc_iz = dz*fr/mass_i
 
-                acc_jx = rx*fr/mass_j
-                acc_jy = ry*fr/mass_j
-                acc_jz = rz*fr/mass_j
+                acc_jx = dx*fr/mass_j
+                acc_jy = dy*fr/mass_j
+                acc_jz = dz*fr/mass_j
 
                 acc_s_r[i,0] = acc_s_r[i,0] + acc_ix 
                 acc_s_r[i,1] = acc_s_r[i,1] + acc_iy
@@ -118,19 +121,16 @@ def update_0D(ptcls, params):
 
 @nb.jit # This will give a warning, but it is still faster than without it or in forceobj=True mode.
 def update(ptcls,params):
-    """ Updates the force on the particles based on a linked cell-list (LCL) algorithm.
-
-    
+    """ 
+    Update the force on the particles based on a linked cell-list (LCL) algorithm.
+  
     Parameters
     ----------
-    ptcls: class 
-        particles class
+    ptcls : class 
+        Particles's data. See S_particles.py for more info
 
-    pos : array_like
-        Positions of the particles in x, y, and z direction
-
-    acc_s_r : array_like
-        Short-ranged acceleration of the particles in the x, y, and z direction
+    params : class
+            Simulation's parameters. See S_params.py for more info
 
     Returns
     -------
@@ -287,17 +287,14 @@ def update(ptcls,params):
                                             U_s_r += pot
 
                                             # Update the acceleration for i particles in each dimension
-                                            rx = dx/r
-                                            ry = dy/r
-                                            rz = dz/r
 
-                                            acc_ix = rx*fr/mass_i
-                                            acc_iy = ry*fr/mass_i
-                                            acc_iz = rz*fr/mass_i
+                                            acc_ix = dx*fr/mass_i
+                                            acc_iy = dy*fr/mass_i
+                                            acc_iz = dz*fr/mass_i
 
-                                            acc_jx = rx*fr/mass_j
-                                            acc_jy = ry*fr/mass_j
-                                            acc_jz = rz*fr/mass_j
+                                            acc_jx = dx*fr/mass_j
+                                            acc_jy = dy*fr/mass_j
+                                            acc_jz = dz*fr/mass_j
 
                                             acc_s_r[i,0] = acc_s_r[i,0] + acc_ix
                                             acc_s_r[i,1] = acc_s_r[i,1] + acc_iy
@@ -315,101 +312,89 @@ def update(ptcls,params):
                                 i = ls[i]
     return U_s_r, acc_s_r
 
-    @nb.jit
-    def update_brute(ptcls,params):
-        """ Updates the force on the particles brutally.
+@nb.jit
+def update_brute(ptcls,params):
+    """ 
+    Update particles' accelerations via brute force calculation. Cost O(N^2)
 
-    
-        Parameters
-        ----------
-        ptcls: class 
-            particles class
+    Parameters
+    ----------
+    ptcls : class 
+        Particles's data. See S_particles.py for more info
 
-        pos : array_like
-            Positions of the particles in x, y, and z direction
+    params : class
+            Simulation's parameters. See S_params.py for more info
 
-        acc_s_r : array_like
-            Short-ranged acceleration of the particles in the x, y, and z direction
+    Returns
+    -------
+    U_s_r : float
+        Potential energy
 
-        Returns
-        -------
-        U_s_r : float
-            Short-ranged component of the potential energy of the system
+    acc_s_r : array_like
+        Particles' accelerations
 
-        acc_s_r : array_like
-            Short-ranged component of the acceleration for the particles
+    """
+    pos = ptcls.pos
+    acc_s_r = np.zeros_like(pos)
 
-        Notes
-        -----
-        Here the "short-ranged component" refers to the Ewald decomposition of the
-        short and long ranged interactions. See the wikipedia article:
-        https://en.wikipedia.org/wiki/Ewald_summation or
-        "Computer Simulation of Liquids by Allen and Tildesley" for more information.
-        """
-        pos = ptcls.pos
-        acc_s_r = np.zeros_like(pos)
+    # Declare parameters 
+    rc = params.Potential.rc # Cutoff-radius
+    N = params.N # Number of particles
+    d = params.d # Number of dimensions
+    rshift = np.zeros(d) # Shifts for array flattening
+    Lx = params.Lv[0] # X length of box
+    Ly = params.Lv[1] # Y length of box
+    Lz = params.Lv[2] # Z length of box
+    potential_matrix = params.Potential.matrix
+    id_ij = ptcls.species_id
+    mass_ij = ptcls.mass
+    force = params.force
 
-        # Declare parameters 
-        rc = params.Potential.rc # Cutoff-radius
-        N = params.N # Number of particles
-        d = params.d # Number of dimensions
-        rshift = np.zeros(d) # Shifts for array flattening
-        Lx = params.Lv[0] # X length of box
-        Ly = params.Lv[1] # Y length of box
-        Lz = params.Lv[2] # Z length of box
-        potential_matrix = params.Potential.matrix
-        id_ij = ptcls.species_id
-        mass_ij = ptcls.mass
-        force = params.force
+    # Initialize
+    U_s_r = 0.0 # Short-ranges potential energy accumulator
+  
+    # Only compute particles beyond i-th particle (Newton's 3rd Law)
+    for i in range( N):
+        for j in range(i + 1, N):
 
-        # Initialize
-        U_s_r = 0.0 # Short-ranges potential energy accumulator
-      
-        # Only compute particles beyond i-th particle (Newton's 3rd Law)
-        for i in range( N):
-            for j in range(i + 1, N):
+            # Compute the difference in positions for the i-th and j-th particles
+            dx = pos[i,0] - (pos[j,0] )
+            dy = pos[i,1] - (pos[j,1] )
+            dz = pos[i,2] - (pos[j,2] )
 
-                # Compute the difference in positions for the i-th and j-th particles
-                dx = pos[i,0] - (pos[j,0] )
-                dy = pos[i,1] - (pos[j,1] )
-                dz = pos[i,2] - (pos[j,2] )
+            # Compute distance between particles i and j
+            r = np.sqrt(dx*dx + dy*dy + dz*dz)
+            # If below the cutoff radius, compute the force
 
-                # Compute distance between particles i and j
-                r = np.sqrt(dx*dx + dy*dy + dz*dz)
-                # If below the cutoff radius, compute the force
+            id_i = id_ij[i]
+            id_j = id_ij[j]
+            mass_i = mass_ij[i]
+            mass_j = mass_ij[j]
+            p_matrix = potential_matrix[:, id_i, id_j]
 
-                id_i = id_ij[i]
-                id_j = id_ij[j]
-                mass_i = mass_ij[i]
-                mass_j = mass_ij[j]
-                p_matrix = potential_matrix[:, id_i, id_j]
+            # Compute the short-ranged force
+            pot, fr = force(r, p_matrix)
+            U_s_r += pot
 
-                # Compute the short-ranged force
-                pot, fr = force(r, p_matrix)
-                U_s_r += pot
+            # Update the acceleration for i particles in each dimension
 
-                # Update the acceleration for i particles in each dimension
-                rx = dx/r
-                ry = dy/r
-                rz = dz/r
+            acc_ix = dx*fr/mass_i
+            acc_iy = dy*fr/mass_i
+            acc_iz = dz*fr/mass_i
 
-                acc_ix = rx*fr/mass_i
-                acc_iy = ry*fr/mass_i
-                acc_iz = rz*fr/mass_i
+            acc_jx = dx*fr/mass_j
+            acc_jy = dy*fr/mass_j
+            acc_jz = dz*fr/mass_j
 
-                acc_jx = rx*fr/mass_j
-                acc_jy = ry*fr/mass_j
-                acc_jz = rz*fr/mass_j
+            acc_s_r[i,0] = acc_s_r[i,0] + acc_ix
+            acc_s_r[i,1] = acc_s_r[i,1] + acc_iy
+            acc_s_r[i,2] = acc_s_r[i,2] + acc_iz
+            
+            # Apply Newton's 3rd law to update acceleration on j particles
+            acc_s_r[j,0] = acc_s_r[j,0] - acc_jx
+            acc_s_r[j,1] = acc_s_r[j,1] - acc_jy
+            acc_s_r[j,2] = acc_s_r[j,2] - acc_jz
 
-                acc_s_r[i,0] = acc_s_r[i,0] + acc_ix
-                acc_s_r[i,1] = acc_s_r[i,1] + acc_iy
-                acc_s_r[i,2] = acc_s_r[i,2] + acc_iz
-                
-                # Apply Newton's 3rd law to update acceleration on j particles
-                acc_s_r[j,0] = acc_s_r[j,0] - acc_jx
-                acc_s_r[j,1] = acc_s_r[j,1] - acc_jy
-                acc_s_r[j,2] = acc_s_r[j,2] - acc_jz
-    
     return U_s_r, acc_s_r
 
-        
+    

@@ -144,9 +144,9 @@ def AssignChargesToMesh(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
         z = pos[ipart,2] - (iz + 0.5)*hz
         z = z/hz
 
-        wx = assgn_func(cao,x)
-        wy = assgn_func(cao,y)
-        wz = assgn_func(cao,z)
+        wx = AssignmentFunction(cao,x)
+        wy = AssignmentFunction(cao,y)
+        wz = AssignmentFunction(cao,z)
 
         izn = iz # min. index along z-axis
     
@@ -349,6 +349,7 @@ def AssignFieldToParticles(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz)
                         r_j = ixn - Mx
                     else:
                         r_j = ixn
+                        
                     ZM = Z[ipart]/Mass[ipart]
                     E_x_p[ipart] = E_x_p[ipart] + ZM*E_x_r[r_g,r_i,r_j]*wz[g]*wy[i]*wx[j]
                     E_y_p[ipart] = E_y_p[ipart] + ZM*E_y_r[r_g,r_i,r_j]*wz[g]*wy[i]*wx[j]

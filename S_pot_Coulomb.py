@@ -1,20 +1,15 @@
 """ 
-S_pot_Yukawa.py
+S_pot_Coulombg.py
 
-Module for handling Yukawa potential
+Module for handling Coulomb interaction
 """
 
 import numpy as np
 import numba as nb
 import math as mt
-
 import sys
-import scipy.constants as const
 
-import yaml   # IO
-import fdint  # Fermi integrals calculation
-
-def setup(params, filename):
+def setup(params):
     """
     Setup simulation's parameters for Yukawa interaction
 
@@ -23,106 +18,33 @@ def setup(params, filename):
     params : class
             Simulation's parameters. See S_params.py for more info.
 
-    filename : string
-                Input filename
-
     Returns
     -------
     none
 
     Notes
     -----
-    Yukawa_matrix[0,:,:] : kappa = 1.0/lambda_TF or given as input. Same value for all species.
-    Yukawa_matrix[1,i,j] : Gamma = qi qj/(4pi esp0*kb T), Coupling parameter between particles' species.
-    Yukawa_matrix[2,i,j] : qi qj/(4pi esp0) Force factor between two particles.
-    Yukawa_matrix[3,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
+    Coulomb_matrix[0,i,j] : Gamma = qi qj/(4pi esp0*kb T), Coupling parameter between particles' species.
+    Coulomb_matrix[1,i,j] : qi qj/(4pi esp0) Force factor between two particles.
+    Coulomb_matrix[2,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
     """
+
+    if ( params.P3M.on):
+        Coulomb_matrix = np.zeros( (3, params.num_species, params.num_species) )
+    else:
+        Coulomb_matrix = np.zeros( (2, params.num_species, params.num_species) ) 
     
     # constants and conversion factors    
     if (params.Control.units == "cgs"):
         fourpie0 = 1.0
     else:
         fourpie0 = 4.0*np.pi*params.eps0
-
     twopi = 2.0*np.pi
-    hbar2 = params.hbar*params.hbar        
     beta_i = 1.0/(params.kB*params.Ti)
 
-    # open the input file to read Yukawa parameters
-    with open(filename, 'r') as stream:
-        dics = yaml.load(stream, Loader=yaml.FullLoader)
-        for lkey in dics:
-            if (lkey == "Potential"):
-                for keyword in dics[lkey]:
-                    for key, value in keyword.items():
-                        if (key == "kappa"): # screening
-                            params.Potential.kappa = float(value)
-
-                        if (key == "Gamma"): # coupling
-                            params.Potential.Gamma = float(value)
-
-                        # electron temperature for screening parameter calculation
-                        if (key == "elec_temperature"):
-                            params.Te = float(value)
-
-                        if (key == "elec_temperature_eV"):
-                            T_eV = float(value)
-                            params.Te = eV2K*float(value)
-    
-    if (params.P3M.on):
-        Yukawa_matrix = np.zeros( (4, params.num_species, params.num_species) )
-    else:
-        Yukawa_matrix = np.zeros( (3, params.num_species, params.num_species) ) 
-        
-
-    if hasattr(params.Potential, "kappa"):
-        # Thomas-Fermi Length
-        lambda_TF = params.aws/params.Potential.kappa
-        Yukawa_matrix[0,:,:] = 1.0/lambda_TF
-
-    else: # if kappa is not given calculate it from the electron temperature
-        if not hasattr(params, "Te"):
-            print("\nElectron temperature is not defined. 1st species temperature ", params.species[0].temperature, \
-                    "will be used as the electron temperature.")
-            params.Te = params.species[0].temperature
-
-        # Use MKS units to calculate kappa and Gamma
-        k = const.Boltzmann
-        e = const.elementary_charge
-        h_bar = const.hbar
-        m_e = const.electron_mass
-        e_0 = const.epsilon_0
-
-        Te  = params.Te
-        Ti = params.Ti
-
-        if (params.Control.units == "cgs"):
-            ne = params.ne*1.e6    # /cm^3 --> /m^3
-            ni = params.total_num_density*1.e6
-
-        if (params.Control.units == "mks"):
-            ne = params.ne    # /cm^3 --> /m^3
-            ni = params.total_num_density
-
-        ai = (3./(4.0*np.pi*ni))**(1./3)
-
-        fdint_fdk_vec = np.vectorize(fdint.fdk)
-        fdint_dfdk_vec = np.vectorize(fdint.dfdk)
-        fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
-        beta = 1./(k*Te)
-
-        # chemical potential of electron gas/(kB T). See eq.(4) in Stanton and Murillo Phys Rev E 91 033104 (2017)
-        eta = fdint_ifd1h_vec(np.pi**2*(beta*h_bar**2/(m_e))**(3/2)/np.sqrt(2)*ne) #eq 4 inverted
-        # Thomas-Fermi length obtained from compressibility. See eq.(10) in Stanton and Murillo Phys Rev E 91 033104 (2017)
-        lambda_TF = np.sqrt((4.0*np.pi**2*e_0*h_bar**2)/(m_e*e**2)*np.sqrt(2*beta*h_bar**2/m_e)/(4.0*fdint_fdk_vec(k=-0.5, phi=eta))) 
-
-        Yukawa_matrix[0, :, :] = 1.0/lambda_TF # kappa/ai
-
-
-    # Calculate the Potential Matrix
+    # Create the Potential Matrix
     Z53 = 0.0
     Z_avg = 0.0
-    
     for i in range(params.num_species):
         if hasattr (params.species[i], "Z"):
             Zi = params.species[i].Z
@@ -137,19 +59,18 @@ def setup(params, filename):
                 Zj = params.species[j].Z
             else:
                 Zj = 1.0
-            
-            Yukawa_matrix[1, i, j] = (Zi*Zj)*params.qe**2*beta_i/(fourpie0*params.aws) # Gamma_ij
-            Yukawa_matrix[2, i, j] = (Zi*Zj)*params.qe**2/fourpie0
+
+            Coulomb_matrix[0, i, j] = Zi*qe*Zj*qe*beta_i/(fourpie0*params.aws)
+            Coulomb_matrix[1, i, j] = Zi*qe*Zj*qe/fourpie0
 
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)
     params.Potential.Gamma_eff = Z53*Z_avg**(1./3.)*params.qe**2*beta_i/(fourpie0*params.aws)
     params.QFactor = params.QFactor/fourpie0
-    params.Potential.matrix = Yukawa_matrix
+    params.Potential.matrix = Coulomb_matrix
     
     # Calculate the (total) plasma frequency
     if (params.Control.units == "cgs"):
-        params.lambda_TF = lambda_TF*100  # meter to centimeter
         wp_tot_sq = 0.0
         for i in range(params.num_species):
             wp2 = 4.0*np.pi*params.species[i].charge**2*params.species[i].num_density/params.species[i].mass
@@ -159,32 +80,26 @@ def setup(params, filename):
         params.wp = np.sqrt(wp_tot_sq)
 
     elif (params.Control.units == "mks"):
-        params.lambda_TF = lambda_TF
         wp_tot_sq = 0.0
         for i in range(params.num_species):
-            wp2 = params.species[i].charge**2*params.species[i].num_density/(params.species[i].mass*const.epsilon_0)
+            wp2 = params.species[i].charge**2*params.species[i].num_density/(params.species[i].mass*params.eps0)
             params.species[i].wp = np.sqrt(wp2)
             wp_tot_sq += wp2
 
         params.wp = np.sqrt(wp_tot_sq)
-
     if (params.Potential.method == "PP" or params.Potential.method == "brute"):
-        params.force = Yukawa_force_PP
-        # Force error calculated from eq.(43) in Dharuman et al. J Chem Phys 143 021142 (2017)
-        params.PP_err = params.QFactor*np.sqrt(twopi/params.lambda_TF)*np.exp(-params.Potential.rc/params.lambda_TF)/np.sqrt(params.N*params.box_volume)
-        # Renormalize
-        params.PP_err = params.PP_err*params.aws**2
+        params.force = Coulomb_force_PP
 
     if (params.Potential.method == "P3M"):
-        params.force = Yukawa_force_P3M
+        params.force = Coulomb_force_P3M
         # P3M parameters
         params.P3M.hx = params.Lx/params.P3M.Mx
         params.P3M.hy = params.Ly/params.P3M.My
         params.P3M.hz = params.Lz/params.P3M.Mz
-        params.Potential.matrix[3,:,:] = params.P3M.G_ew
+        params.Potential.matrix[2,:,:] = params.P3M.G_ew
         # Optimized Green's Function
         params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err, params.P3M.PP_err = gf_opt(params.P3M.MGrid,\
-            params.P3M.aliases, params.Lv, params.P3M.cao, params.N, params.Potential.matrix, params.Potential.rc, fourpie0)
+            params.P3M.aliases, params.Lv, params.P3M.cao, params.N, params.Potential.G_ew, params.Potential.rc, fourpie0)
 
         # Include the charges in the Force errors. Prefactor in eq.(29) of Dharuman et al J Chem Phys 146 024112 (2017)
         # Notice that the equation was derived for a single component plasma. 
@@ -192,12 +107,10 @@ def setup(params, filename):
         params.P3M.PP_err *= params.QFactor*fourpie0/np.sqrt(params.N)
         # Total Force Error 
         params.P3M.F_err = np.sqrt(params.P3M.PM_err**2 + params.P3M.PP_err**2)
-
     return
 
-
 @nb.njit
-def Yukawa_force_PP(r, pot_matrix_ij):
+def Coulomb_force_PP(r, pot_matrix_ij):
     """ 
     Calculate Potential and Force between two particles when the PP algorithm is chosen
 
@@ -208,7 +121,9 @@ def Yukawa_force_PP(r, pot_matrix_ij):
 
     pot_matrix_ij : array_like
                     it contains potential dependent variables
-                    
+                    pot_matrix_ij[0,:,:] = Gamma_ij
+                    pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)
+
     Returns
     -------
     U : float
@@ -219,56 +134,51 @@ def Yukawa_force_PP(r, pot_matrix_ij):
     
     Notes
     -----    
-    pot_matrix_ij[0,:,:] = 1/lambda_TF
-    pot_matrix_ij[1,i,j] = Gamma_ij
-    pot_matrix_ij[2,i,j] = q1*q2/(4*pi*eps0)
-
     """
     
-    U = pot_matrix[2]/r*np.exp(- pot_matrix[0]*r)
-    force = U*(1/r + pot_matrix_ij[0])/r
+    U = pot_matrix_ij[1]/r
+    force = U/r**2 
 
     return U, force
 
 @nb.njit
-def Yukawa_force_P3M(r, pot_matrix_ij):
+def Coulomb_force_P3M(r, pot_matrix_ij):
     """ 
-    Calculate Potential and Force between two particles when the P3M algorithm is chosen
+    Calculate Potential and Force between two particles when the P3M algorithm is chosen.
 
     Parameters
     ----------
-    r : float
-        Distance between two particles.
+    r : real
+        distance between two particles
 
-    pot_matrix_ij : array
-                    Potential matrix. See setup function above
-
+    pot_matrix_ij : array_like
+                    it contains potential dependent variables
+                    pot_matrix_ij[0,:,:] = Gamma_ij
+                    pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)
+                    pot_matrix_ij[2,:,:] = Ewald parameter alpha
     Returns
     -------
     U_s_r : float
             Potential value
                 
     fr : float
-         Force between two particles calculated using eq.(22) in Dharuman et al. J Chem Phys 146, 024112 (2017)
+         Force between two particles 
     
     """
-    kappa = pot_matrix_ij[0]
-
-    G = pot_matrix_ij[3]   # Ewald parameter alpha 
-
-    U_s_r = pot_matrix_ij[2]*(0.5/r)*(np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G) + np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G))
-    # Derivative of the exponential term and 1/r
-    f1 = (0.5/r**2)*np.exp(kappa*r)*mt.erfc(G*r + 0.5*kappa/G)*(1.0/r - kappa)
-    f2 = (0.5/r**2)*np.exp(-kappa*r)*mt.erfc(G*r - 0.5*kappa/G)*(1.0/r + kappa)
-    # Derivative of erfc(a r) = 2a/sqrt(pi) e^{-a^2 r^2}* (x/r)
-    f3 = (G/np.sqrt(np.pi)/r**2)*(np.exp(-(G*r + 0.5*kappa/G)**2)*np.exp(kappa*r) + np.exp(-(G*r - 0.5*kappa/G)**2)*np.exp(-kappa*r))
-    fr = pot_matrix_ij[2]*( f1 + f2 + f3 )
+    
+    alpha = pot_matrix_ij[2]   # Ewald parameter alpha
+    a2 = alpha*alpha 
+    r2 = r*r
+    U_s_r = pot_matrix_ij[1]*mt.erfc(alpha*r)/r
+    f1 = mt.erfc(alpha*r)/r2
+    f2 = (2.0*alpha/np.sqrt(np.pi)/r)*np.exp(- a2*r2 )
+    fr = pot_matrix_ij[1]*( f1 + f2 )
 
     return U_s_r, fr
 
 
 @nb.njit
-def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
+def gf_opt(MGrid, aliases, BoxLv, p, N, alpha ,rcut, fourpie0):
     """ 
     Calculate the Optimized Green Function given by eq.(22) in Stern et al. J Chem Phys 128, 214006 (2008)
 
@@ -289,8 +199,8 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
     N : int
         number of particles
 
-    pot_matrix : array
-                Potential matrix. It contains screening parameter and Ewald parameter. See potential matrix above.
+    alpha : float
+            Ewald parameter
 
     rcut : float
             Cutoff distance for the PP calculation
@@ -321,8 +231,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
              eq.(30) in Dharuman et al. J Chem Phys 146 024112 (2017)
   
     """
-    kappa = pot_matrix[0,0,0] #params.Potential.matrix[0,0,0]
-    Gew = pot_matrix[3,0,0] #params.Potential.matrix[3,0,0]
+    Gew = alpha #params.Potential.matrix[3,0,0]
     #p = params.P3M.cao
     rcut2 = rcut*rcut
     mx_max = aliases[0] #params.P3M.mx_max
@@ -338,10 +247,9 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
     hy = Ly/float(My)
     hz = Lz/float(Mz)
 
-    kappa_sq = kappa*kappa
     Gew_sq = Gew*Gew
     
-    CoulombFactor = 1.0/(fourpie0)
+    CoulombFactor = 1.0/fourpie0
 
     G_k = np.zeros((Mz,My,Mx))
     
@@ -420,7 +328,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
                                 U_k_M = (U_kx_M*U_ky_M*U_kz_M)**p
                                 U_k_M_sq = U_k_M*U_k_M
                                 
-                                G_k_M = CoulombFactor*np.exp(-0.25*(kappa_sq + k_M_sq)/Gew_sq)/(kappa_sq + k_M_sq)
+                                G_k_M = CoulombFactor*np.exp(-0.25*k_M_sq/Gew_sq)/k_M_sq
                                 
                                 k_dot_k_M = kx*kx_M + ky*ky_M + kz*kz_M
 
@@ -431,13 +339,13 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
                                 
                     # eq.(31) of Dharuman et al. J Chem Phys 146, 024112 (2017)                                        
                     G_k[nz,ny,nx] = U_G_k/((U_k_sq**2)*k_sq)
-                    Gk_hat = CoulombFactor*np.exp(-0.25*(kappa_sq + k_sq)/Gew_sq) / (kappa_sq + k_sq)       
+                    Gk_hat = CoulombFactor*np.exp(-0.25*k_sq/Gew_sq)/k_sq       
 
                     # eq.(28) of Stern et al. J Chem Phys 128, 214006 (2008)
                     # eq.(32) of Dharuman et al. J Chem Phys 146, 024112 (2017)
                     PM_err = PM_err + Gk_hat*Gk_hat*k_sq - U_G_k**2/((U_k_sq**2)*k_sq)
 
-    PP_err = 2.0*CoulombFactor/np.sqrt(Lx*Ly*Lz)*np.exp(-0.25*kappa_sq/Gew_sq)*np.exp(-Gew_sq*rcut2)/np.sqrt(rcut)
+    PP_err = 2.0*CoulombFactor/np.sqrt(Lx*Ly*Lz)*np.exp(-Gew_sq*rcut2)/np.sqrt(rcut)
     PM_err = PM_err/np.sqrt(Lx*Ly*Lz)
 
     return G_k, kx_v, ky_v, kz_v, PM_err, PP_err

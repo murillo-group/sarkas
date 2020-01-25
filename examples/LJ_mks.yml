@@ -29,13 +29,15 @@ Potential:
     - type: LJ
     - rc: 7.65e-10                  # meter
     - epsilon: [1.656e-21]          # = 120*k_B
-    - sigma: [3.4e-10]              # = 3.4 nm
+    - sigma: [3.4e-10]              # = 3.4 angstrom
 
 Integrator:
     - type: Verlet
 
 Thermostat:
     - type: Berendsen
+    - timestep: 2000
+    - tau: 10.0
 
 Control:
     - dt: 1.e-14                    # timestep, sec   

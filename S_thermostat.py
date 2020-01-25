@@ -6,7 +6,7 @@ N: strength of temperature relaxation after t > 2000th steps.
 '''
 import numpy as np
 import sys
-
+import scipy.constants as const
 '''
 class Thermostat:
     def __init__(self, params):
@@ -31,8 +31,9 @@ class Thermostat:
         return U
 '''
 def Berendsen(ptcls, params, it):
-    """ Update particle velocity based on Berendsen thermostat.
-        Berendsen et al. J Chem Phys 81 3684 (1984)
+    """ 
+    Update particle velocity based on Berendsen thermostat.
+    Berendsen et al. J Chem Phys 81 3684 (1984)
 
     Parameters
     ----------
@@ -44,32 +45,37 @@ def Berendsen(ptcls, params, it):
 
     it : int
          timestep
+    
+    Returns
+    -------
+    vel : array_like
+                Thermostated particles' velocities
+    
+    Notes
+    -----
 
     """
     T_desired = params.T_desired
-    #U = Integrator(ptcls)
 
     K, T = KineticTemperature(ptcls, params)
 
-    N = 10. # hardcode
-    if it >= 1: #hardcode
+    if (it <= params.Thermostat.timestep):
         fact = np.sqrt(T_desired/T)
         ptcls.vel = ptcls.vel*fact
     else:
-        fact = np.sqrt( 1.0 + (T_desired/T - 1.0)/N)  # eq.(11)
+        fact = np.sqrt( 1.0 + (T_desired/T - 1.0)/params.Thermostat.tau)  # eq.(11)
         ptcls.vel = ptcls.vel*fact
     return
 
-
 def KineticTemperature(ptcls,params):
     K = 0
-    kb = 1.38064852e-23  # Boltzmann Const
     species_start = 0
+    species_end = 0
     for i in range(params.num_species):
         species_end = species_start + params.species[i].num
         K += 0.5*params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
         species_start = species_end
 
-    T = (2/3)*K/float(params.total_num_ptcls)/kb
+    T = (2.0/3.0)*K/float(params.total_num_ptcls)/params.kB
 
     return K, T

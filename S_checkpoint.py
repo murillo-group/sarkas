@@ -8,13 +8,11 @@ import numpy as np
 from inspect import currentframe, getframeinfo
 import time
 import pickle
-import S_global_names as glb
 
 
 class Checkpoint:
     def __init__(self, params):
         self.params = params
-        #self.checkpoint_dir = "Checkpoint/"
         self.checkpoint_dir = self.params.Control.checkpoint_dir
         if not (os.path.exists(self.checkpoint_dir)):
             os.mkdir(self.checkpoint_dir)

@@ -1,4 +1,5 @@
-""" S_particles.py
+""" 
+S_particles.py
 species_name
 pos: position components
 vel: velocity components
@@ -10,8 +11,6 @@ import numpy as np
 from inspect import currentframe, getframeinfo
 import time
 import sys
-
-import S_constants as const
 
 DEBUG = 0
 
@@ -36,18 +35,29 @@ class Particles:
 
         #self.species_name = [None]*self.N
         self.species_name = np.empty(self.N, dtype='object')
-        self.species_id = np.zeros((self.N,), dtype=int)
+        self.species_id = np.zeros( (self.N,), dtype=int)
     
-        self.mass = np.zeros(self.N)
-        self.charge = np.zeros(self.N)
+        self.mass = np.zeros(self.N) # mass of each particle
+        self.charge = np.zeros(self.N) # charge of each particle
 
     def load(self):
-        """Initialize the particles' position and velocities based on the load method. """
+        """
+        Initialize particles' positions and velocities based on the load method. 
 
-        # Here numba does not help at all. In fact loading is slower with numba. 
-        # It could be made faster if we made load a function and not a method of Particles.
-        # but in that case we would have to pass all the parameters.
+        Parameters
+        ----------
+        self : class 
 
+        Returns
+        -------
+        none
+
+        Notes
+        -----
+        Here numba does not help at all. In fact loading is slower with numba. 
+        It could be made faster if we made load a function and not a method of Particles.
+        but in that case we would have to pass all the parameters.
+        """
 
         N = self.N
         Lx = self.params.Lx
@@ -62,10 +72,13 @@ class Particles:
         for i in range(N_species): 
             species_start = species_end
             species_end += self.params.species[i].num
-
+           
             self.species_name[species_start:species_end] = self.params.species[i].name
             self.mass[species_start:species_end] = self.params.species[i].mass
-            self.charge[species_start:species_end] = self.params.species[i].charge
+            if hasattr (self.params.species[i],'charge'):
+                self.charge[species_start:species_end] = self.params.species[i].charge
+            else:
+                self.charge[species_start:species_end] = 1.0
             self.species_id[species_start:species_end] = ic_species
             ic_species += 1
 
@@ -94,7 +107,7 @@ class Particles:
 
             Vsigma = np.zeros(N_species)
             for i in range(N_species):
-                    Vsigma[i] = np.sqrt(const.kb*self.params.Ti/self.params.species[i].mass)
+                Vsigma[i] = np.sqrt(self.params.kB*self.params.Ti/self.params.species[i].mass)
 
             species_start = 0
             species_end = 0
@@ -108,7 +121,7 @@ class Particles:
                 self.vel[species_start:species_end,1] = np.random.normal(0.0,Vsig,num_ptcls)
                 self.vel[species_start:species_end,2] = np.random.normal(0.0,Vsig,num_ptcls)
                 
-                #Enforce zero total momentum
+                # Enforce zero total momentum
                 vx_mean = np.mean(self.vel[species_start:species_end, 0])
                 vy_mean = np.mean(self.vel[species_start:species_end, 1])
                 vz_mean = np.mean(self.vel[species_start:species_end, 2])
@@ -118,11 +131,7 @@ class Particles:
                 self.vel[species_start:species_end, 2] -= vz_mean
 
             # Particles Position Initialization
-            if load_method == 'random_no_reject':
-                print('\nAssigning random initial positions {}'.format(load_method))
-
-            else:
-                print('\nAssigning initial positions according to {}'.format(load_method))
+            print('\nAssigning initial positions according to {}'.format(load_method))
 
             # position distribution. 
             if (load_method == 'lattice'):
@@ -138,29 +147,45 @@ class Particles:
                 self.random_no_reject(self.N)
 
             else:
-                print('Incorrect particle placement scheme specified... Using "random_no_reject"')
+                print('\nIncorrect particle placement scheme specified... Using "random_no_reject"')
                 self.random_no_reject(self.N)
 
         return       
 
     def add(self):
-        """ add more particles: specific species, and number of particles
+        """ 
+        Add more particles: specific species, and number of particles
         
         """
-
         pass
 
     def remove(self):
-        """ remove particles: need to specify particle id
+        """
+        Remove particles: need to specify particle id
 
         """
-
         pass
 
     def update(self):
         pass
 
     def load_from_restart(self, it):
+        """
+        Load particles' data from a checkpoint of a previous run
+
+        Parameters
+        ----------
+        it : int
+            Timestep
+
+        Returns
+        -------
+        none
+
+        Notes
+        -----
+
+        """
         file_name = self.params.Control.checkpoint_dir+"/"+"S_checkpoint_"+str(it)+".npz"
         data = np.load(file_name)
         self.species_id = data["species_id"]
@@ -170,7 +195,25 @@ class Particles:
         self.acc = data["acc"]
 
     def load_from_file(self, f_name, N):
-        
+        """
+        Load particles' data from a specific file
+
+        Parameters
+        ----------
+        f_name : string
+                Filename
+
+        N : int
+            Number of particles
+
+        Returns
+        -------
+        none
+
+        Notes
+        -----
+
+        """
         pv_data = np.loadtxt(f_name)
         if not (pv_data.shape[0] == N):
             print("Number of particles is not same between input file and initial p & v data file.")
@@ -186,7 +229,21 @@ class Particles:
         self.vel[:, 2] = pv_data[:, 5]
 
     def random_no_reject(self, N):
-        """Randomly distribute particles along each direction
+        """
+        Randomly distribute particles along each direction
+
+        Parameters
+        ----------
+        N : int
+            Number of particles.
+
+        Returns
+        -------
+        pos : array_like
+            Particles' positions.
+
+        Notes
+        -----
 
         """
 
@@ -197,8 +254,8 @@ class Particles:
         self.pos[:, 2] = self.params.Lz*np.random.random(N)
 
     def lattice(self, N, perturb, rand_seed):
-        """ Place particles in a simple cubic lattice with a slight perturbation
-            ranging from 0 to 0.5 times the lattice spacing.
+        """ 
+        Place particles in a simple cubic lattice with a slight perturbation ranging from 0 to 0.5 times the lattice spacing.
 
         Parameters
         ----------
@@ -222,6 +279,7 @@ class Particles:
             
         z : array_like
             Z positions for particles.
+
         Notes
         -----    
         Author: Luke Stanek
@@ -282,8 +340,9 @@ class Particles:
 
 
     def random_reject(self, N, r_reject, rand_seed):
-        """ Place particles by sampling a uniform distribution from 0 to L (the box length)
-            and uses a rejection radius to avoid placing particles to close to each other.
+        """ 
+        Place particles by sampling a uniform distribution from 0 to L (the box length)
+        and uses a rejection radius to avoid placing particles to close to each other.
         
         Parameters
         ----------
@@ -404,9 +463,9 @@ class Particles:
         print('Random Elapsed time: ', end - start)
 
     def halton_reject(self, N, bases, r_reject):
-
-        """ Place particles according to a Halton sequence from 0 to L (the box length)
-            and uses a rejection radius to avoid placing particles to close to each other.
+        """ 
+        Place particles according to a Halton sequence from 0 to L (the box length)
+        and uses a rejection radius to avoid placing particles to close to each other.
     
         Parameters
         ----------
