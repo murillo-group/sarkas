@@ -22,7 +22,7 @@ import os
 import S_thermostat as thermostat
 
 # import MD modules, class
-from S_integrator import Integrator, PotentialAcceleration
+from S_integrator import Integrator, calc_pot_acc
 from S_particles import Particles
 from S_verbose import Verbose
 from S_params import Params
@@ -44,6 +44,8 @@ checkpoint = Checkpoint(params)         # For restart and pva backups.
 #######################
 Nt = params.Control.Nstep    # number of time steps
 N = params.total_num_ptcls
+
+print('ok')
 
 #######################
 # Un-comment the following if you want to calculate n(q,t)
@@ -70,12 +72,15 @@ ptcls = Particles(params)
 ptcls.load()
 
 # Calculate initial forces and potential energy
-U = PotentialAcceleration(ptcls,params)
+U = calc_pot_acc(ptcls,params)
 # Calculate initial kinetic energy and temperature
-K, Tp = thermostat.KineticTemperature(ptcls, params)
-        
+Ks, Tps = thermostat.calc_kin_temp(ptcls, params)
+K = np.ndarray.sum(Ks)
+Tp = np.ndarray.sum(Tps)/params.num_species
+            
 E = K + U
 
+thermostat.remove_drift(ptcls,params)
 print("\nInitial: T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(Tp, E, K, U) )
 
 time_stamp[its] = time.time(); its += 1
@@ -93,7 +98,10 @@ if not (params.load_method == "restart"):
 
         # Print Energies and Temperature to screen
         if (it % params.Control.dump_step == 0 and params.Control.verbose):
-            K, Tp = thermostat.KineticTemperature(ptcls,params)
+            Ks, Tps = thermostat.calc_kin_temp(ptcls,params)
+            K = np.ndarray.sum(Ks)
+            Tp = np.ndarray.sum(Tps)/params.num_species
+            
             E = K + U
             print("Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U) )
 
@@ -103,9 +111,12 @@ if not (params.load_method == "restart"):
         #    f_xyz.writelines("name x y z vx vy vz ax ay az\n")
         #    np.savetxt(f_xyz, np.c_[ptcls.species_name, ptcls.pos/params.Lx, ptcls.vel, ptcls.acc], 
         #        fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+    thermostat.remove_drift(ptcls,params)
+
 checkpoint.dump(ptcls, 0)
 time_stamp[its] = time.time(); its += 1
 
+# Turn on magnetic field, if not on already, and thermalize
 if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
     params.Integrator.type == "Magnetic_Verlet"
     integrator = Integrator(params)
@@ -118,10 +129,14 @@ if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
 
         # Print Energies and Temperature to screen
         if (it % params.Control.dump_step == 0 and params.Control.verbose):
-            K, Tp = thermostat.KineticTemperature(ptcls,params)
+            Ks, Tps = thermostat.calc_kin_temp(ptcls,params)
+            K = np.ndarray.sum(Ks)
+            Tp = np.ndarray.sum(Tps)/params.num_species
+            
             E = K + U
             print("Magnetic Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U) )
 
+    thermostat.remove_drift(ptcls,params)
 # saving the 0th step
 checkpoint.dump(ptcls, 0)
 time_stamp[its] = time.time(); its += 1
@@ -151,8 +166,12 @@ print("\n------------- Production -------------")
 for it in range(it_start, Nt):
     # Move the particles and calculate the potential
     U = integrator.update(ptcls,params)
+
     # Calculate Kinetic Energy and Temperature
-    K, Tp = thermostat.KineticTemperature(ptcls, params)
+    Ks, Tps = thermostat.calc_kin_temp(ptcls, params)
+    K = np.ndarray.sum(Ks)
+    Tp = np.ndarray.sum(Tps)/params.num_species
+            
     # Calculate the total Energy
     E = K + U
 
@@ -182,8 +201,11 @@ for it in range(it_start, Nt):
 
         f_xyz.writelines("{0:d}\n".format(N))
         f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-        np.savetxt(f_xyz, np.c_[ptcls.species_name, ptcls.pos, ptcls.vel, ptcls.acc], 
-            fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+        np.savetxt(f_xyz, np.c_[ptcls.species_name, \
+                                ptcls.pos/params.aws, \
+                                ptcls.vel/(params.wp*params.aws), \
+                                ptcls.acc/(params.aws*params.wp**2)], 
+                                fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
 
 # np.save("n_qt", n_q_t)
 time_stamp[its] = time.time(); its += 1

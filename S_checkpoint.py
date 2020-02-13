@@ -5,8 +5,6 @@ handling restarting/checkpoint
 '''
 import os
 import numpy as np
-from inspect import currentframe, getframeinfo
-import time
 import pickle
 
 
@@ -17,9 +15,10 @@ class Checkpoint:
         if not (os.path.exists(self.checkpoint_dir)):
             os.mkdir(self.checkpoint_dir)
 
-        filename = self.checkpoint_dir+"/"+"S_parameters.pickle"
+        filename = self.checkpoint_dir + "/" + "S_parameters.pickle"
 
         save_file = open(filename, "wb")
+        print('opened')
         pickle.dump(self.params, save_file)
         save_file.close()
 

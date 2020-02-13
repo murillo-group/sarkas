@@ -9,10 +9,10 @@ import numba as nb
 import pyfftw
 
 @nb.njit
-def AssignmentFunction(cao, x):
-    """ Calculate the charge assignment functions from 
-    Deserno et al. J Chem Phys 108, 7678 (1998).
-
+def assgnmnt_func(cao, x):
+    """ 
+    Calculate the charge assignment function.
+    
     Parameters
     ----------
     cao : int
@@ -26,7 +26,11 @@ def AssignmentFunction(cao, x):
     ------
     W : array_like
         Charge Assignment Function
-
+    
+    References
+    ----------
+    [1] Deserno et al. J Chem Phys 108, 7678 (1998).
+ 
     """
     W = np.zeros( cao )
 
@@ -81,8 +85,9 @@ def AssignmentFunction(cao, x):
 
 
 @nb.njit
-def AssignChargesToMesh(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
-    """ Assign Charges to Mesh Points
+def calc_charge_dens(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
+    """ 
+    Assign Charges to Mesh Points
 
     Parameters
     ----------
@@ -144,11 +149,11 @@ def AssignChargesToMesh(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
         z = pos[ipart,2] - (iz + 0.5)*hz
         z = z/hz
 
-        wx = AssignmentFunction(cao,x)
-        wy = AssignmentFunction(cao,y)
-        wz = AssignmentFunction(cao,z)
+        wx = assgnmnt_func(cao,x)
+        wy = assgnmnt_func(cao,y)
+        wz = assgnmnt_func(cao,z)
 
-        izn = iz # min. index along z-axis
+        izn = iz - 2 # min. index along z-axis
     
         for g in range(cao):
     
@@ -159,7 +164,7 @@ def AssignChargesToMesh(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
             else:
                 r_g = izn
 
-            iyn = iy # min. index along y-axis
+            iyn = iy - 2# min. index along y-axis
 
             for i in range(cao):
     
@@ -170,7 +175,7 @@ def AssignChargesToMesh(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
                 else:
                     r_i = iyn
     
-                ixn = ix # min. index along x-axis
+                ixn = ix - 2# min. index along x-axis
     
                 for j in range(cao):
     
@@ -195,8 +200,9 @@ def AssignChargesToMesh(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
 
 
 @nb.njit
-def Efield_fourier(phi_k,kx_v,ky_v,kz_v):
-    """ Calculate the Electric field in Fourier space
+def calc_field(phi_k,kx_v,ky_v,kz_v):
+    """ 
+    Calculate the Electric field in Fourier space
 
     Parameters
     ----------
@@ -234,8 +240,9 @@ def Efield_fourier(phi_k,kx_v,ky_v,kz_v):
     
 
 @nb.njit
-def AssignFieldToParticles(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz):
-    """ Assign Field to Particles
+def calc_acc_pm(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz):
+    """ 
+    Calculate particles' accelerations due to E-field 
     
     Parameters
     ----------
@@ -311,13 +318,13 @@ def AssignFieldToParticles(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz)
         z = pos[ipart,2] - (iz + 0.5)*hz
         z = z/hz
 
-        wx = AssignmentFunction(cao,x)
-        wy = AssignmentFunction(cao,y)
-        wz = AssignmentFunction(cao,z)
+        wx = assgnmnt_func(cao,x)
+        wy = assgnmnt_func(cao,y)
+        wz = assgnmnt_func(cao,z)
 
         #print(w)
 
-        izn = iz # min. index along z-axis
+        izn = iz - 2# min. index along z-axis
     
         for g in range(cao):
     
@@ -328,7 +335,7 @@ def AssignFieldToParticles(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz)
             else:
                 r_g = izn
 
-            iyn = iy # min. index along y-axis
+            iyn = iy - 2# min. index along y-axis
 
             for i in range(cao):
     
@@ -339,7 +346,7 @@ def AssignFieldToParticles(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz)
                 else:
                     r_i = iyn
     
-                ixn = ix # min. index along x-axis
+                ixn = ix - 2# min. index along x-axis
     
                 for j in range(cao):
     
@@ -417,7 +424,7 @@ def update(ptcls, params):
     ky_v = params.P3M.ky_v
     kz_v = params.P3M.kz_v
 
-    rho_r = AssignChargesToMesh(pos, Z, N, params.P3M.cao, Mx, My, Mz, hx, hy, hz)
+    rho_r = calc_charge_dens(pos, Z, N, params.P3M.cao, Mx, My, Mz, hx, hy, hz)
 
     fftw_n = pyfftw.builders.fftn(rho_r)
     rho_k_fft = fftw_n()
@@ -431,7 +438,7 @@ def update(ptcls, params):
     
     U_f = 0.5*np.sum(rho_k_sq*G_k)/V
 
-    E_kx, E_ky, E_kz = Efield_fourier(phi_k, kx_v, ky_v, kz_v)
+    E_kx, E_ky, E_kz = calc_field(phi_k, kx_v, ky_v, kz_v)
     
     E_kx_unsh = np.fft.ifftshift(E_kx)
     E_ky_unsh = np.fft.ifftshift(E_ky)
@@ -452,6 +459,6 @@ def update(ptcls, params):
     E_y_r = np.real(E_y)
     E_z_r = np.real(E_z)
     
-    acc_f = AssignFieldToParticles(E_x_r,E_y_r,E_z_r,pos,Z,N,params.P3M.cao,Mass,Mx,My,Mz,hx,hy,hz)
+    acc_f = calc_acc_pm(E_x_r,E_y_r,E_z_r,pos,Z,N,params.P3M.cao,Mass,Mx,My,Mz,hx,hy,hz)
     
     return U_f, acc_f

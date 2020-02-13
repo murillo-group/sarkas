@@ -1,9 +1,31 @@
 '''
 S_params.py
 
-a code to read Sarkas input file with a YAML format.
+Module to read Sarkas input file with a YAML format.
 
-species - species to use in the simulation
+
+'''
+
+import yaml
+import numpy as np
+import sys
+
+import scipy.constants as const
+# force are here
+import S_pot_Coulomb as Coulomb
+import S_pot_Yukawa as Yukawa
+import S_pot_LJ as LJ
+import S_pot_EGS as EGS
+import S_pot_Moliere as Moliere
+import S_pot_QSP as QSP
+
+class Params:
+    """
+    Simulation's Parameters
+
+    Attributes
+    ----------
+    species - species to use in the simulation
     name: species name
     mass: species mass
     charge: species charge = e*Z
@@ -37,28 +59,39 @@ control - general setup values for the simulations
     BC: Boundary condition. periodic only
     units: cgs, mks
     dump_step: output step
-'''
-
-import yaml
-import numpy as np
-import sys
-
-import scipy.constants as const
-# force are here
-import S_pot_Coulomb as Coulomb
-import S_pot_Yukawa as Yukawa
-import S_pot_LJ as LJ
-import S_pot_EGS as EGS
-import S_pot_Moliere as Moliere
-import S_pot_QSP as QSP
-
-class Params:
+    """
     def __init__(self):
+        # Container of Species
         self.species = []
+        #
         self.load = []
+        # Magnetic Flag
         self.magnetized = False
 
     class Species:
+        """ 
+        Particle Species
+
+        Attributes
+        ---------
+        name : str
+            species' name
+
+        number_density :
+    
+        num : str
+
+        mass :
+
+        charge :
+
+        Z : 
+
+        atomic_weight :
+
+        num
+        """
+
         def __init__(self):
             pass
 
@@ -210,7 +243,6 @@ class Params:
                                     if (key == 'halton_bases'):
                                         self.load_halton_bases = np.array(value)
 
-
                 if (lkey == "Potential"):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
@@ -269,7 +301,8 @@ class Params:
                             if (key == "B_Gauss"):
                                 G2T = 1e-4
                                 self.BField = float(value)*G2T
-                            if (key == "BField"):
+
+                            if (key == "B_Tesla"):
                                 self.BField = float(value)
 
                             if (key == "electrostatic_thermalization"):
