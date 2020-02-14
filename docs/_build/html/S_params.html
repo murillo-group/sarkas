@@ -728,6 +728,95 @@
 <dt>
 <em class="property">class </em><code class="sig-name descname">Control</code><a class="reference internal" href="_modules/S_params.html#Params.Control"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>General simulation parameters</p>
+<dl class="attribute">
+<dt id="S_params.Params.Control.units">
+<code class="sig-name descname">units</code><a class="headerlink" href="#S_params.Params.Control.units" title="Permalink to this definition">¶</a></dt>
+<dd><p>cgs or mks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Control.dt">
+<code class="sig-name descname">dt</code><a class="headerlink" href="#S_params.Params.Control.dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>timestep. Same as <cite>Params.dt</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Control.Nstep">
+<code class="sig-name descname">Nstep</code><a class="headerlink" href="#S_params.Params.Control.Nstep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of simulation timesteps. Same as <cite>Params.Nt</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Control.BS">
+<code class="sig-name descname">BS</code><a class="headerlink" href="#S_params.Params.Control.BS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boundary Condition. ‘Periodic’ only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Control.dump_step">
+<code class="sig-name descname">dump_step</code><a class="headerlink" href="#S_params.Params.Control.dump_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Snapshot interval.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Control.writexyz">
+<code class="sig-name descname">writexyz</code><a class="headerlink" href="#S_params.Params.Control.writexyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for XYZ file for OVITO. “no” or “yes”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Control.verbose">
+<code class="sig-name descname">verbose</code><a class="headerlink" href="#S_params.Params.Control.verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for verbose screen output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Control.checkpoint_dir">
+<code class="sig-name descname">checkpoint_dir</code><a class="headerlink" href="#S_params.Params.Control.checkpoint_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Directory to store simulation’s output files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="S_params.Params.Control.BC">
 <code class="sig-name descname">BC</code><em class="property"> = 'periodic'</em><a class="headerlink" href="#S_params.Params.Control.BC" title="Permalink to this definition">¶</a></dt>
@@ -739,38 +828,38 @@
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.Nstep">
-<code class="sig-name descname">Nstep</code><em class="property"> = None</em><a class="headerlink" href="#S_params.Params.Control.Nstep" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">Nstep</code><em class="property"> = None</em></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.checkpoint_dir">
-<code class="sig-name descname">checkpoint_dir</code><em class="property"> = 'Checkpoint'</em><a class="headerlink" href="#S_params.Params.Control.checkpoint_dir" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">checkpoint_dir</code><em class="property"> = 'Checkpoint'</em></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.dt">
-<code class="sig-name descname">dt</code><em class="property"> = None</em><a class="headerlink" href="#S_params.Params.Control.dt" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">dt</code><em class="property"> = None</em></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.dump_step">
-<code class="sig-name descname">dump_step</code><em class="property"> = 1</em><a class="headerlink" href="#S_params.Params.Control.dump_step" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">dump_step</code><em class="property"> = 1</em></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.units">
-<code class="sig-name descname">units</code><em class="property"> = None</em><a class="headerlink" href="#S_params.Params.Control.units" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">units</code><em class="property"> = None</em></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.verbose">
-<code class="sig-name descname">verbose</code><em class="property"> = 'yes'</em><a class="headerlink" href="#S_params.Params.Control.verbose" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">verbose</code><em class="property"> = 'yes'</em></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.writexyz">
-<code class="sig-name descname">writexyz</code><em class="property"> = 'no'</em><a class="headerlink" href="#S_params.Params.Control.writexyz" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">writexyz</code><em class="property"> = 'no'</em></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -785,9 +874,43 @@
 <dt>
 <em class="property">class </em><code class="sig-name descname">Langevin</code><a class="reference internal" href="_modules/S_params.html#Params.Langevin"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parameters for Langevin Dynamics</p>
 <dl class="attribute">
 <dt id="S_params.Params.Langevin.on">
-<code class="sig-name descname">on</code><em class="property"> = 0</em><a class="headerlink" href="#S_params.Params.Langevin.on" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">on</code><a class="headerlink" href="#S_params.Params.Langevin.on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag. 0 = False, 1 = True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Langevin.type">
+<code class="sig-name descname">type</code><a class="headerlink" href="#S_params.Params.Langevin.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type of Langevin</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Langevin.gamma">
+<code class="sig-name descname">gamma</code><a class="headerlink" href="#S_params.Params.Langevin.gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Langeving gamma</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">on</code><em class="property"> = 0</em></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -796,20 +919,40 @@
 <dt id="S_params.Params.Magnetic">
 <em class="property">class </em><code class="sig-name descname">Magnetic</code><a class="reference internal" href="_modules/S_params.html#Params.Magnetic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.Magnetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parameters for a plasma in a constant magnetic field</p>
 <dl class="attribute">
-<dt id="S_params.Params.Magnetic.Neq_mag">
-<code class="sig-name descname">Neq_mag</code><em class="property"> = 0</em><a class="headerlink" href="#S_params.Params.Magnetic.Neq_mag" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="S_params.Params.Magnetic.on">
+<code class="sig-name descname">on</code><a class="headerlink" href="#S_params.Params.Magnetic.on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for magnetized plasma.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="S_params.Params.Magnetic.elec_therm">
-<code class="sig-name descname">elec_therm</code><em class="property"> = 0</em><a class="headerlink" href="#S_params.Params.Magnetic.elec_therm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">elec_therm</code><a class="headerlink" href="#S_params.Params.Magnetic.elec_therm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thermalize electrostatic forces first?
+0 = False, 1 = True (default).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Magnetic.on">
-<code class="sig-name descname">on</code><em class="property"> = 1</em><a class="headerlink" href="#S_params.Params.Magnetic.on" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="S_params.Params.Magnetic.Neq_mag">
+<code class="sig-name descname">Neq_mag</code><a class="headerlink" href="#S_params.Params.Magnetic.Neq_mag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of equilibration steps with magnetic field on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -817,10 +960,127 @@
 <dt>
 <em class="property">class </em><code class="sig-name descname">P3M</code><a class="reference internal" href="_modules/S_params.html#Params.P3M"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>P3M Algorithm parameters</p>
+<dl class="attribute">
+<dt id="S_params.Params.P3M.aliases">
+<code class="sig-name descname">aliases</code><a class="headerlink" href="#S_params.Params.P3M.aliases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of aliases in each direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array, shape(3)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.cao">
+<code class="sig-name descname">cao</code><a class="headerlink" href="#S_params.Params.P3M.cao" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge assignment order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="S_params.Params.P3M.on">
-<code class="sig-name descname">on</code><em class="property"> = False</em><a class="headerlink" href="#S_params.Params.P3M.on" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">on</code><a class="headerlink" href="#S_params.Params.P3M.on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.MGrid">
+<code class="sig-name descname">MGrid</code><a class="headerlink" href="#S_params.Params.P3M.MGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of mesh point in each direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array, shape(3), int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.Mx">
+<code class="sig-name descname">Mx</code><a class="headerlink" href="#S_params.Params.P3M.Mx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of mesh point along the <span class="math notranslate nohighlight">\(x\)</span> axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.My">
+<code class="sig-name descname">My</code><a class="headerlink" href="#S_params.Params.P3M.My" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of mesh point along the <span class="math notranslate nohighlight">\(y\)</span> axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.Mz">
+<code class="sig-name descname">Mz</code><a class="headerlink" href="#S_params.Params.P3M.Mz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of mesh point along the <span class="math notranslate nohighlight">\(z\)</span> axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.mx_max">
+<code class="sig-name descname">mx_max</code><a class="headerlink" href="#S_params.Params.P3M.mx_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of aliases along the reciprocal <span class="math notranslate nohighlight">\(x\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.my_max">
+<code class="sig-name descname">my_max</code><a class="headerlink" href="#S_params.Params.P3M.my_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of aliases along the reciprocal <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.mz_max">
+<code class="sig-name descname">mz_max</code><a class="headerlink" href="#S_params.Params.P3M.mz_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of aliases along the reciprocal <span class="math notranslate nohighlight">\(z\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.P3M.G_ew">
+<code class="sig-name descname">G_ew</code><a class="headerlink" href="#S_params.Params.P3M.G_ew" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ewald parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -828,10 +1088,52 @@
 <dt>
 <em class="property">class </em><code class="sig-name descname">Potential</code><a class="reference internal" href="_modules/S_params.html#Params.Potential"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parameters specific to potential choice.</p>
+<dl class="attribute">
+<dt id="S_params.Params.Potential.matrix">
+<code class="sig-name descname">matrix</code><a class="headerlink" href="#S_params.Params.Potential.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Potential’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="S_params.Params.Potential.method">
-<code class="sig-name descname">method</code><em class="property"> = 'PP'</em><a class="headerlink" href="#S_params.Params.Potential.method" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">method</code><a class="headerlink" href="#S_params.Params.Potential.method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Algorithm to use for force calculations.
+“PP” = Linked Cell List (default).
+“P3M” = Particle-Particle Particle-Mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Potential.rc">
+<code class="sig-name descname">rc</code><a class="headerlink" href="#S_params.Params.Potential.rc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cutoff radius.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Potential.type">
+<code class="sig-name descname">type</code><a class="headerlink" href="#S_params.Params.Potential.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -923,9 +1225,60 @@
 <dt>
 <em class="property">class </em><code class="sig-name descname">Thermostat</code><a class="reference internal" href="_modules/S_params.html#Params.Thermostat"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Thermostat’s parameters</p>
 <dl class="attribute">
 <dt id="S_params.Params.Thermostat.on">
-<code class="sig-name descname">on</code><em class="property"> = 0</em><a class="headerlink" href="#S_params.Params.Thermostat.on" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">on</code><a class="headerlink" href="#S_params.Params.Thermostat.on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag. 1 = True, 0 = False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Thermostat.type">
+<code class="sig-name descname">type</code><a class="headerlink" href="#S_params.Params.Thermostat.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Berendsen only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Thermostat.tau">
+<code class="sig-name descname">tau</code><a class="headerlink" href="#S_params.Params.Thermostat.tau" title="Permalink to this definition">¶</a></dt>
+<dd><p>Berendsen parameter :math:`     au`.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Thermostat.timestep">
+<code class="sig-name descname">timestep</code><a class="headerlink" href="#S_params.Params.Thermostat.timestep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of timesteps to wait before turning on Berendsen.
+(default) = 0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">on</code><em class="property"> = 0</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">timestep</code><em class="property"> = 0</em></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -210,29 +210,166 @@ class Params:
             pass
 
     class Magnetic:
-        on = 1
-        elec_therm = 0
-        Neq_mag = 0
+        """ 
+        Parameters for a plasma in a constant magnetic field
+
+        Attributes
+        ----------
+            on : bool
+                Flag for magnetized plasma. 
+
+            elec_therm : int
+                Thermalize electrostatic forces first? 
+                0 = False, 1 = True (default).
+            
+            Neq_mag : int
+                Number of equilibration steps with magnetic field on.
+        """
+        def __init__(self):
+            self.on = 1
+            self.elec_therm = 0
+            self.Neq_mag = 0
 
     class Potential:
-        method = "PP"
-#        def __init__(self):
-#            pass
+        """
+        Parameters specific to potential choice.
+
+        Attributes
+        ----------
+            matrix : array
+                Potential's parameters.
+
+            method : str
+                Algorithm to use for force calculations.
+                "PP" = Linked Cell List (default).
+                "P3M" = Particle-Particle Particle-Mesh.
+            
+            rc : float
+                Cutoff radius.
+            
+            type : str
+                Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.
+
+        """
+        def __init__(self):
+            self.method = "PP"
 
     class P3M:
-        on = False
+        """ 
+        P3M Algorithm parameters
+
+        Attributes
+        ----------
+            aliases : array, shape(3)
+                Number of aliases in each direction.
+
+            cao : int
+                Charge assignment order. 
+
+            on : bool
+                Flag. 
+
+            MGrid : array, shape(3), int
+                Number of mesh point in each direction.
+
+            Mx : int
+                Number of mesh point along the :math:`x` axis.
+
+            My : int
+                Number of mesh point along the :math:`y` axis.
+
+            Mz : int
+                Number of mesh point along the :math:`z` axis.
+            
+            mx_max : int 
+                Number of aliases along the reciprocal :math:`x` direction.
+
+            my_max : int 
+                Number of aliases along the reciprocal :math:`y` direction.
+            
+            mz_max : int 
+                Number of aliases along the reciprocal :math:`z` direction.
+            
+            G_ew : float
+                Ewald parameter.
+        """
+        def __init__(self):
+            self.on = False
 
     class Integrator:
         def __init__(self):
             pass
 
     class Thermostat:
-            on = 0
+        """
+        Thermostat's parameters
+
+        Attributes
+        ----------
+            on : int
+                Flag. 1 = True, 0 = False
+
+            type : int
+                Berendsen only.
+
+            tau : float
+                Berendsen parameter :math:`\tau`.
+
+            timestep : int
+                Number of timesteps to wait before turning on Berendsen.
+                (default) = 0
+        """
+        on = 0
+
+        timestep = 0
 
     class Langevin:
-            on = 0
+        """
+        Parameters for Langevin Dynamics
+
+        Attributes
+        ----------
+            on : int
+                Flag. 0 = False, 1 = True
+
+            type : str
+                Type of Langevin 
+
+            gamma : float
+                Langeving gamma
+        """
+        on = 0
 
     class Control:
+        """
+        General simulation parameters
+
+        Attributes
+        ----------
+            units : str
+                cgs or mks.
+
+            dt : float
+                timestep. Same as `Params.dt`.
+
+            Nstep : int
+                Number of simulation timesteps. Same as `Params.Nt`.
+
+            BS : str
+                Boundary Condition. 'Periodic' only.
+
+            dump_step : int
+                Snapshot interval.
+
+            writexyz : str
+                Flag for XYZ file for OVITO. "no" or "yes".
+
+            verbose : str
+                Flag for verbose screen output.
+            
+            checkpoint_dir : str
+                Directory to store simulation's output files.
+        """
         units = None
         dt = None
         Nstep = None

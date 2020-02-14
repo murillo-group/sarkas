@@ -169,6 +169,24 @@
 <span class="kn">import</span> <span class="nn">S_calc_force_pm</span> <span class="k">as</span> <span class="nn">force_pm</span>
 
 <div class="viewcode-block" id="Integrator"><a class="viewcode-back" href="../S_integrator.html#S_integrator.Integrator">[docs]</a><span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assign integrator type.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        params : class</span>
+<span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">        calc_force : func</span>
+<span class="sd">            Link to function for potential and accelerations calculation.</span>
+
+<span class="sd">        update : func</span>
+<span class="sd">            Integrator choice. &#39;Verlet&#39; or &#39;Magnetic_Verlet&#39;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span> <span class="o">=</span> <span class="n">calc_pot_acc</span>
@@ -203,7 +221,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="n">Verlet</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Magnetic_Verlet&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="n">Magnetic_Verlet</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only Verlet integrator is supported. Check your input file, integrator part.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only Verlet integrator is supported. Check your input file, integrator part 2.&quot;</span><span class="p">)</span>
         
@@ -312,7 +329,7 @@
 <div class="viewcode-block" id="Magnetic_Verlet"><a class="viewcode-back" href="../S_integrator.html#S_integrator.Magnetic_Verlet">[docs]</a><span class="k">def</span> <span class="nf">Magnetic_Verlet</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update particles&#39; positions and velocities based on velocity verlet method in the case of a </span>
-<span class="sd">    constant magnetic field. B = (0, 0, B0). For more info see Ref. [1]</span>
+<span class="sd">    constant magnetic field along the :math:`z` axis. For more info see Ref. [1]</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -325,11 +342,11 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    U : float</span>
-<span class="sd">        Total potential energy</span>
+<span class="sd">        Total potential energy.</span>
 <span class="sd">    </span>
 <span class="sd">    References</span>
-<span class="sd">    ---------</span>
-<span class="sd">    [1] Spreiter &amp; Walter Journal of Computational Physics 152, 102–119 (1999) </span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] `Q. Spreiter and M. Walter, Journal of Computational Physics 152, 102–119 (1999) &lt;https://doi.org/10.1006/jcph.1999.6237&gt;`_</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -430,10 +447,10 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ptlcs: class</span>
-<span class="sd">           Particles data. See S_particles.py for more info.</span>
+<span class="sd">        Particles data. See ``S_particles.py`` for more info.</span>
 <span class="sd">    </span>
 <span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See S_params.py for more info.</span>
+<span class="sd">        Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
 <span class="sd">            </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -493,21 +510,16 @@
 <div class="viewcode-block" id="enforce_pbc"><a class="viewcode-back" href="../S_integrator.html#S_integrator.enforce_pbc">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">enforce_pbc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">BoxVector</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Enforce Periodic Boundary Conditions. </span>
+<span class="sd">    Enforce Periodic Boundary conditions. </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    pos : array_like</span>
-<span class="sd">          particles&#39; positions. See S_particles.py for more info.</span>
+<span class="sd">    pos : array</span>
+<span class="sd">        particles&#39; positions. See ``S_particles.py`` for more info.</span>
 
-<span class="sd">    BoxVector : array_like</span>
-<span class="sd">                Box Dimensions</span>
+<span class="sd">    BoxVector : array</span>
+<span class="sd">        Box Dimensions.</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pos : array_like</span>
-<span class="sd">        updated particles&#39; positions</span>
-<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Loop over all particles</span>
@@ -527,24 +539,24 @@
 <div class="viewcode-block" id="calc_dipole"><a class="viewcode-back" href="../S_integrator.html#S_integrator.calc_dipole">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">calc_dipole</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span><span class="n">charge</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate the dipole due to all charges.</span>
+<span class="sd">    Calculate the dipole due to all charges. See Ref.[2] for explanation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    pos : array_like</span>
-<span class="sd">          particles&#39; positions. See S_particles.py for more info.</span>
+<span class="sd">    pos : array</span>
+<span class="sd">        Particles&#39; positions. See ``S_particles.py`` for more info.</span>
 
-<span class="sd">    charge : array_like</span>
-<span class="sd">            particles&#39; charges. See S_particles.py for more info.</span>
+<span class="sd">    charge : array</span>
+<span class="sd">        Array containing the charge of each particle. See ``S_particles.py`` for more info.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    dipole : array_like</span>
-<span class="sd">            dipole</span>
+<span class="sd">    dipole : array</span>
+<span class="sd">        Net dipole</span>
 <span class="sd">    </span>
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
-<span class="sd">    [1] Caillol J Chem Phys 101 6080 (1994).</span>
+<span class="sd">    .. [2] `JM. Caillol, J Chem Phys 101 6080 (1994) &lt;https://doi.org/10.1063/1.468422&gt;`_</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dipole</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="mi">3</span> <span class="p">)</span>
@@ -560,15 +572,15 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ptcls : class</span>
-<span class="sd">            Particles&#39; data. See S_particles for more information</span>
+<span class="sd">        Particles&#39; data. See ``S_particles.py`` for more information.</span>
 
 <span class="sd">    params : class</span>
-<span class="sd">            Simulations data. See S_params for more information</span>
+<span class="sd">        Simulation&#39;s parameters. See ``S_params.py`` for more information.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    U : float</span>
-<span class="sd">        Potential</span>
+<span class="sd">        Total Potential.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     

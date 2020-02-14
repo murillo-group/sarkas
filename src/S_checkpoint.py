@@ -9,8 +9,28 @@ import pickle
 
 
 class Checkpoint:
+    """
+    Class to handle restart dumps.
+
+    Attributes
+    ----------
+        params : class
+            Simulation's parameters. see ``S_params.py`` module for more info.
+        
+        checkpoint_dir : str
+            Output directory. 
+    """
     def __init__(self, params):
+        """
+        Save simulation's parameters to a binary file using pickle.
+
+        Parameters
+        ----------
+        params : class
+            Simulation's parameters.
+        """
         self.params = params
+        # redundancy for the sake of shortness
         self.checkpoint_dir = self.params.Control.checkpoint_dir
         if not (os.path.exists(self.checkpoint_dir)):
             os.mkdir(self.checkpoint_dir)
@@ -23,6 +43,17 @@ class Checkpoint:
         save_file.close()
 
     def dump(self, ptcls, it):
+        """
+        Save particles' data for future restart to a binary file.
+
+        Parameters
+        ----------
+            ptcls : class
+                Particles' data. See ``S_particles.py`` for more info.
+
+            it : int
+                Timestep number.
+        """
         species_id = ptcls.species_id
         species_name = ptcls.species_name
         pos = ptcls.pos

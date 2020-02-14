@@ -367,29 +367,166 @@
             <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Params.Magnetic"><a class="viewcode-back" href="../S_params.html#S_params.Params.Magnetic">[docs]</a>    <span class="k">class</span> <span class="nc">Magnetic</span><span class="p">:</span>
-        <span class="n">on</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">elec_therm</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">Neq_mag</span> <span class="o">=</span> <span class="mi">0</span></div>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Parameters for a plasma in a constant magnetic field</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">            on : bool</span>
+<span class="sd">                Flag for magnetized plasma. </span>
+
+<span class="sd">            elec_therm : int</span>
+<span class="sd">                Thermalize electrostatic forces first? </span>
+<span class="sd">                0 = False, 1 = True (default).</span>
+<span class="sd">            </span>
+<span class="sd">            Neq_mag : int</span>
+<span class="sd">                Number of equilibration steps with magnetic field on.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elec_therm</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Neq_mag</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="Params.Potential"><a class="viewcode-back" href="../S_params.html#S_params.Params.Potential">[docs]</a>    <span class="k">class</span> <span class="nc">Potential</span><span class="p">:</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;PP&quot;</span></div>
-<span class="c1">#        def __init__(self):</span>
-<span class="c1">#            pass</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters specific to potential choice.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">            matrix : array</span>
+<span class="sd">                Potential&#39;s parameters.</span>
+
+<span class="sd">            method : str</span>
+<span class="sd">                Algorithm to use for force calculations.</span>
+<span class="sd">                &quot;PP&quot; = Linked Cell List (default).</span>
+<span class="sd">                &quot;P3M&quot; = Particle-Particle Particle-Mesh.</span>
+<span class="sd">            </span>
+<span class="sd">            rc : float</span>
+<span class="sd">                Cutoff radius.</span>
+<span class="sd">            </span>
+<span class="sd">            type : str</span>
+<span class="sd">                Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;PP&quot;</span></div>
 
 <div class="viewcode-block" id="Params.P3M"><a class="viewcode-back" href="../S_params.html#S_params.Params.P3M">[docs]</a>    <span class="k">class</span> <span class="nc">P3M</span><span class="p">:</span>
-        <span class="n">on</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        P3M Algorithm parameters</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">            aliases : array, shape(3)</span>
+<span class="sd">                Number of aliases in each direction.</span>
+
+<span class="sd">            cao : int</span>
+<span class="sd">                Charge assignment order. </span>
+
+<span class="sd">            on : bool</span>
+<span class="sd">                Flag. </span>
+
+<span class="sd">            MGrid : array, shape(3), int</span>
+<span class="sd">                Number of mesh point in each direction.</span>
+
+<span class="sd">            Mx : int</span>
+<span class="sd">                Number of mesh point along the :math:`x` axis.</span>
+
+<span class="sd">            My : int</span>
+<span class="sd">                Number of mesh point along the :math:`y` axis.</span>
+
+<span class="sd">            Mz : int</span>
+<span class="sd">                Number of mesh point along the :math:`z` axis.</span>
+<span class="sd">            </span>
+<span class="sd">            mx_max : int </span>
+<span class="sd">                Number of aliases along the reciprocal :math:`x` direction.</span>
+
+<span class="sd">            my_max : int </span>
+<span class="sd">                Number of aliases along the reciprocal :math:`y` direction.</span>
+<span class="sd">            </span>
+<span class="sd">            mz_max : int </span>
+<span class="sd">                Number of aliases along the reciprocal :math:`z` direction.</span>
+<span class="sd">            </span>
+<span class="sd">            G_ew : float</span>
+<span class="sd">                Ewald parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Params.Integrator"><a class="viewcode-back" href="../S_params.html#S_params.Params.Integrator">[docs]</a>    <span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Params.Thermostat"><a class="viewcode-back" href="../S_params.html#S_params.Params.Thermostat">[docs]</a>    <span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
-            <span class="n">on</span> <span class="o">=</span> <span class="mi">0</span></div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Thermostat&#39;s parameters</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">            on : int</span>
+<span class="sd">                Flag. 1 = True, 0 = False</span>
+
+<span class="sd">            type : int</span>
+<span class="sd">                Berendsen only.</span>
+
+<span class="sd">            tau : float</span>
+<span class="sd">                Berendsen parameter :math:`\tau`.</span>
+
+<span class="sd">            timestep : int</span>
+<span class="sd">                Number of timesteps to wait before turning on Berendsen.</span>
+<span class="sd">                (default) = 0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">on</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">timestep</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="Params.Langevin"><a class="viewcode-back" href="../S_params.html#S_params.Params.Langevin">[docs]</a>    <span class="k">class</span> <span class="nc">Langevin</span><span class="p">:</span>
-            <span class="n">on</span> <span class="o">=</span> <span class="mi">0</span></div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters for Langevin Dynamics</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">            on : int</span>
+<span class="sd">                Flag. 0 = False, 1 = True</span>
+
+<span class="sd">            type : str</span>
+<span class="sd">                Type of Langevin </span>
+
+<span class="sd">            gamma : float</span>
+<span class="sd">                Langeving gamma</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">on</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="Params.Control"><a class="viewcode-back" href="../S_params.html#S_params.Params.Control">[docs]</a>    <span class="k">class</span> <span class="nc">Control</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        General simulation parameters</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">            units : str</span>
+<span class="sd">                cgs or mks.</span>
+
+<span class="sd">            dt : float</span>
+<span class="sd">                timestep. Same as `Params.dt`.</span>
+
+<span class="sd">            Nstep : int</span>
+<span class="sd">                Number of simulation timesteps. Same as `Params.Nt`.</span>
+
+<span class="sd">            BS : str</span>
+<span class="sd">                Boundary Condition. &#39;Periodic&#39; only.</span>
+
+<span class="sd">            dump_step : int</span>
+<span class="sd">                Snapshot interval.</span>
+
+<span class="sd">            writexyz : str</span>
+<span class="sd">                Flag for XYZ file for OVITO. &quot;no&quot; or &quot;yes&quot;.</span>
+
+<span class="sd">            verbose : str</span>
+<span class="sd">                Flag for verbose screen output.</span>
+<span class="sd">            </span>
+<span class="sd">            checkpoint_dir : str</span>
+<span class="sd">                Directory to store simulation&#39;s output files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">units</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">Nstep</span> <span class="o">=</span> <span class="kc">None</span>

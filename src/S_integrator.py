@@ -12,6 +12,24 @@ import S_calc_force_pp as force_pp
 import S_calc_force_pm as force_pm
 
 class Integrator:
+    """
+    Assign integrator type.
+
+    Parameters
+    ----------
+        params : class
+            Simulation's parameters.
+
+    Attributes
+    ----------
+        calc_force : func
+            Link to function for potential and accelerations calculation.
+
+        update : func
+            Integrator choice. 'Verlet' or 'Magnetic_Verlet'.
+
+    """
+
     def __init__(self, params):
 
         self.calc_force = calc_pot_acc
@@ -46,7 +64,6 @@ class Integrator:
                 self.update = Verlet
         elif (params.Integrator.type == "Magnetic_Verlet"):
             self.update = Magnetic_Verlet
-            print("Only Verlet integrator is supported. Check your input file, integrator part.")
         else:
             print("Only Verlet integrator is supported. Check your input file, integrator part 2.")
         
@@ -155,7 +172,7 @@ def Verlet(ptcls,params):
 def Magnetic_Verlet(ptcls,params):
     """
     Update particles' positions and velocities based on velocity verlet method in the case of a 
-    constant magnetic field. B = (0, 0, B0). For more info see Ref. [1]
+    constant magnetic field along the :math:`z` axis. For more info see Ref. [1]
     
     Parameters
     ----------
@@ -168,11 +185,11 @@ def Magnetic_Verlet(ptcls,params):
     Returns
     -------
     U : float
-        Total potential energy
+        Total potential energy.
     
     References
-    ---------
-    [1] Spreiter & Walter Journal of Computational Physics 152, 102–119 (1999) 
+    ----------
+    .. [1] `Q. Spreiter and M. Walter, Journal of Computational Physics 152, 102–119 (1999) <https://doi.org/10.1006/jcph.1999.6237>`_
     
     """
 
@@ -273,10 +290,10 @@ def Verlet_with_Langevin(ptcls, params):
     Parameters
     ----------
     ptlcs: class
-           Particles data. See S_particles.py for more info.
+        Particles data. See ``S_particles.py`` for more info.
     
     params : class
-            Simulation's parameters. See S_params.py for more info.
+        Simulation's parameters. See ``S_params.py`` for more info.
             
     Returns
     -------
@@ -336,21 +353,16 @@ def Verlet_with_Langevin(ptcls, params):
 @nb.njit
 def enforce_pbc(pos, BoxVector):
     """ 
-    Enforce Periodic Boundary Conditions. 
+    Enforce Periodic Boundary conditions. 
 
     Parameters
     ----------
-    pos : array_like
-          particles' positions. See S_particles.py for more info.
+    pos : array
+        particles' positions. See ``S_particles.py`` for more info.
 
-    BoxVector : array_like
-                Box Dimensions
+    BoxVector : array
+        Box Dimensions.
 
-    Returns
-    -------
-    pos : array_like
-        updated particles' positions
-    
     """
 
     # Loop over all particles
@@ -370,24 +382,24 @@ def enforce_pbc(pos, BoxVector):
 @nb.njit
 def calc_dipole(pos,charge):
     """ 
-    Calculate the dipole due to all charges.
+    Calculate the dipole due to all charges. See Ref.[2] for explanation.
 
     Parameters
     ----------
-    pos : array_like
-          particles' positions. See S_particles.py for more info.
+    pos : array
+        Particles' positions. See ``S_particles.py`` for more info.
 
-    charge : array_like
-            particles' charges. See S_particles.py for more info.
+    charge : array
+        Array containing the charge of each particle. See ``S_particles.py`` for more info.
     
     Returns
     -------
-    dipole : array_like
-            dipole
+    dipole : array
+        Net dipole
     
     References
     ----------
-    [1] Caillol J Chem Phys 101 6080 (1994).
+    .. [2] `J-M. Caillol, J Chem Phys 101 6080 (1994) <https://doi.org/10.1063/1.468422>`_
 
     """
     dipole = np.zeros( 3 )
@@ -403,15 +415,15 @@ def calc_pot_acc(ptcls,params):
     Parameters
     ----------
     ptcls : class
-            Particles' data. See S_particles for more information
+        Particles' data. See ``S_particles.py`` for more information.
 
     params : class
-            Simulations data. See S_params for more information
+        Simulation's parameters. See ``S_params.py`` for more information.
 
     Returns
     -------
     U : float
-        Potential
+        Total Potential.
 
     """
     
