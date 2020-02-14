@@ -1,0 +1,44 @@
+# J.P. Hansen and I.R. McDonald Phys Rev A 23 2041 (1981)
+Particles:
+    - species:
+        name: e
+        number_density: 1.6e+30       # /m^3
+        mass: 9.1093837015e-31
+        num: 512                    # total number of particles of ion1 
+        Z: -1.0                        # degree of ionization
+        temperature: 6.32e+5 
+
+    - species:
+        name: p
+        number_density: 1.6e+30       # /m^3
+        mass: 1.67262192369e-27         # kg, ptcl mass of ion1
+        num: 512                   # total number of particles of ion1 
+        Z: 1.0                       # degree of ionization
+        temperature: 6.32e+5
+
+    - load:
+        method: random_no_reject    # loading method
+        rand_seed: 123456789        # random seed
+
+Potential: 
+    - type: QSP                 # potential type
+    - method: PP                    # Linked-cell
+    - rc: 2.7500e-10      # cut-off radius, meter
+
+Integrator:
+    - type: Verlet                  # velocity integrator type
+
+Thermostat:
+    - type: Berendsen               # thermostat type
+
+Control:
+    - units: mks                    # units
+    - dt: 3.16e-19            # sec
+    - Neq: 500                      # number of timesteps for the equilibrium
+    - Nstep: 1                    # number of timesteps afater the equilibrium
+    - BC: periodic                  # periodic boundary condition
+    - writexyz: yes                  # no xyz output
+    - dump_step: 100                # dump time step
+    - verbose: yes
+    - output_dir: QSP_PP        # dir name to save data. The default is "Checkpoint"
+    - fname_app: QSP_PP

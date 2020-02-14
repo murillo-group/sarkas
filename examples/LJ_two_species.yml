@@ -35,6 +35,8 @@ Integrator:
 
 Thermostat:
     - type: Berendsen
+    - tau: 10.
+    - timestep: 2000
 
 Control:
     - dt: 5.4e-15                  # timestep, sec   
@@ -46,4 +48,5 @@ Control:
     - writexyz: no
     - verbose: yes
     - output_dir: LJ_03         # dir name to save data. Default is "Checkpoint"
+    - fname_app: LJ_03
 

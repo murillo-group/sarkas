@@ -2,11 +2,11 @@
 Particles:
     - species:
         name: ion1
-        number_density: 1.e26       # /m^3
+        number_density: 1.e+26       # /m^3
         mass: 1.e-30                # kg, ptcl mass of ion1
-        num: 100                    # total number of particles of ion1 
+        num: 1000                    # total number of particles of ion1 
         Z: 4                        # degree of ionization
-        temperature: 1.e3
+        temperature: 1.e+3
 
     - load:
         method: random_no_reject    # loading method
@@ -15,19 +15,21 @@ Particles:
 Potential: 
     - type: Yukawa                  # potential type
     - method: PP                    # Linked-cell
-    - rc: 2.67300924e-9             # cut-off radius, meter
-    - elec_temperature: 1.e5
+    - rc: 4.67300924e-9             # cut-off radius, meter
+    - elec_temperature: 3.e+5
 
 Integrator:
     - type: Verlet                  # velocity integrator type
 
 Thermostat:
     - type: Berendsen               # thermostat type
-
+    - timestep: 2000
+    - tau: 10.0
+    
 Control:
     - units: mks                    # units
     - dt: 4.64305707e-18            # sec
-    - Neq: 3000                      # number of timesteps for the equilibrium
+    - Neq: 20000                      # number of timesteps for the equilibrium
     - Nstep: 10000                    # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
     - writexyz: no                  # no xyz output
