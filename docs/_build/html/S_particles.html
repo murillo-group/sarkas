@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S_particles module &mdash; sarkas  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="S_pot_Coulomb module" href="S_pot_Coulomb.html" />
+    <link rel="prev" title="S_params module" href="S_params.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pm.html">S_calc_force_pm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pp.html">S_calc_force_pp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_checkpoint.html">S_checkpoint module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_QSP.html">S_pot_QSP module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">src</a> &raquo;</li>
+        
+      <li>S_particles module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/S_particles.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-S_particles">
+<span id="s-particles-module"></span><h1>S_particles module<a class="headerlink" href="#module-S_particles" title="Permalink to this headline">¶</a></h1>
+<p>S_particles.py
+species_name
+pos: position components
+vel: velocity components
+acc: acc. components
+charge
+mass</p>
+<dl class="class">
+<dt id="S_particles.Particles">
+<em class="property">class </em><code class="sig-prename descclassname">S_particles.</code><code class="sig-name descname">Particles</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>load –</p>
+<dl class="method">
+<dt id="S_particles.Particles.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add more particles: specific species, and number of particles</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.halton_reject">
+<code class="sig-name descname">halton_reject</code><span class="sig-paren">(</span><em class="sig-param">N</em>, <em class="sig-param">bases</em>, <em class="sig-param">r_reject</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.halton_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.halton_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place particles according to a Halton sequence from 0 to L (the box length)
+and uses a rejection radius to avoid placing particles to close to each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – Total number of particles to place.</p></li>
+<li><p><strong>bases</strong> (<em>array_like</em>) – Array of 3 ints each of which is a base for the Halton sequence.
+Defualt: bases = np.array([2,3,5])</p></li>
+<li><p><strong>r_reject</strong> (<em>float</em>) – Value of rejection radius.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>x</strong> (<em>array_like</em>) – X positions for particles.</p></li>
+<li><p><strong>y</strong> (<em>array_like</em>) – Y positions for particles.</p></li>
+<li><p><strong>z</strong> (<em>array_like</em>) – Z positions for particles.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Author: Luke Stanek
+Date Created: 5/6/19
+Date Updated: N/A
+Updates: N/A</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.lattice">
+<code class="sig-name descname">lattice</code><span class="sig-paren">(</span><em class="sig-param">N</em>, <em class="sig-param">perturb</em>, <em class="sig-param">rand_seed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place particles in a simple cubic lattice with a slight perturbation ranging from 0 to 0.5 times the lattice spacing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N_particles</strong> (<em>int</em>) – Number of particles to be placed.</p></li>
+<li><p><strong>perturb</strong> (<em>float</em>) – Value of perturbation, p, such that 0 &lt;= p &lt;= 1.</p></li>
+<li><p><strong>rand_seed</strong> (<em>int</em>) – Seed for random number generator.
+Default: 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>x</strong> (<em>array_like</em>) – X positions for particles.</p></li>
+<li><p><strong>y</strong> (<em>array_like</em>) – Y positions for particles.</p></li>
+<li><p><strong>z</strong> (<em>array_like</em>) – Z positions for particles.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Author: Luke Stanek
+Date Created: 5/6/19
+Date Updated: 6/2/19
+Updates: Added to S_init_schemes.py for Sarkas import</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize particles’ positions and velocities based on the load method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>self</strong> (<em>class</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>none</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Here numba does not help at all. In fact loading is slower with numba.
+It could be made faster if we made load a function and not a method of Particles.
+but in that case we would have to pass all the parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.load_from_file">
+<code class="sig-name descname">load_from_file</code><span class="sig-paren">(</span><em class="sig-param">f_name</em>, <em class="sig-param">N</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.load_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.load_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load particles’ data from a specific file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f_name</strong> (<em>string</em>) – Filename</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Number of particles</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>none</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.load_from_restart">
+<code class="sig-name descname">load_from_restart</code><span class="sig-paren">(</span><em class="sig-param">it</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.load_from_restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.load_from_restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load particles’ data from a checkpoint of a previous run</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>it</strong> (<em>int</em>) – Timestep</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>none</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.random_no_reject">
+<code class="sig-name descname">random_no_reject</code><span class="sig-paren">(</span><em class="sig-param">N</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.random_no_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.random_no_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Randomly distribute particles along each direction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>N</strong> (<em>int</em>) – Number of particles.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>pos</strong> – Particles’ positions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.random_reject">
+<code class="sig-name descname">random_reject</code><span class="sig-paren">(</span><em class="sig-param">N</em>, <em class="sig-param">r_reject</em>, <em class="sig-param">rand_seed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.random_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.random_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place particles by sampling a uniform distribution from 0 to L (the box length)
+and uses a rejection radius to avoid placing particles to close to each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – Total number of particles to place.</p></li>
+<li><p><strong>r_reject</strong> (<em>float</em>) – Value of rejection radius.</p></li>
+<li><p><strong>rand_seed</strong> (<em>int</em>) – Seed for random number generator.
+Default: 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>x</strong> (<em>array_like</em>) – X positions for particles.</p></li>
+<li><p><strong>y</strong> (<em>array_like</em>) – Y positions for particles.</p></li>
+<li><p><strong>z</strong> (<em>array_like</em>) – Z positions for particles.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Author: Luke Stanek
+Date Created: 5/6/19
+Date Updated: N/A
+Updates: N/A</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.remove">
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove particles: need to specify particle id</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="S_particles.Particles.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="S_pot_Coulomb.html" class="btn btn-neutral float-right" title="S_pot_Coulomb module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="S_params.html" class="btn btn-neutral float-left" title="S_params module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Feb, 14, 2020.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>
