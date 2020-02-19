@@ -14,11 +14,11 @@ class Checkpoint:
 
     Attributes
     ----------
-        params : class
-            Simulation's parameters. see ``S_params.py`` module for more info.
-        
-        checkpoint_dir : str
-            Output directory. 
+    params : class
+        Simulation's parameters. see ``S_params.py`` module for more info.
+    
+    checkpoint_dir : str
+        Output directory. 
     """
     def __init__(self, params):
         """
@@ -38,21 +38,20 @@ class Checkpoint:
         filename = self.checkpoint_dir + "/" + "S_parameters.pickle"
 
         save_file = open(filename, "wb")
-        print('opened')
         pickle.dump(self.params, save_file)
         save_file.close()
 
     def dump(self, ptcls, it):
         """
-        Save particles' data for future restart to a binary file.
+        Save particles' data to binary file for future restart.
 
         Parameters
         ----------
-            ptcls : class
-                Particles' data. See ``S_particles.py`` for more info.
+        ptcls : class
+            Particles' data. See ``S_particles.py`` for more info.
 
-            it : int
-                Timestep number.
+        it : int
+            Timestep number.
         """
         species_id = ptcls.species_id
         species_name = ptcls.species_name

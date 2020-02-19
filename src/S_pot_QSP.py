@@ -1,9 +1,22 @@
-""" 
-S_pot_QSP.py
+""" Module for handling the Quantum Statistical Potential as given by Ref [1]_
 
-Module for handling the Quantum Statistical Potential of Hansen & McDonald Phys Rev A 23 2041 (1981).
+Note
+----
+Notice that in Ref. [1] the DeBroglie wavelength is defined as
+
+.. math::
+   \lambda_{ee} = \dfrac{\hbar}{\sqrt{2 \pi \mu_{ee} k_{B} T} },
+
+while in statistical physics textbooks and Ref. [2]_ is defined as
+
+.. math::
+   \lambda_{ee} = \dfrac{h}{\sqrt{2 \pi \mu_{ee} k_{B} T} },
+
+References
+----------
+.. [1] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) <https://doi.org/10.1103/PhysRevA.23.2041>`_
+.. [2] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) <https://doi.org/10.1103/PhysRevE.78.025401>`_
 """
-
 import numpy as np
 import numba as nb
 import math as mt
@@ -11,30 +24,25 @@ import sys
 import scipy.constants as const
 
 def setup(params):
-    """
-    Setup the parameters of a QSP potential. 
+    """ 
+    Update the ``params`` class with QSP Potential parameters. 
+    The QSP Potential is given by eq.(5) in Ref. [2]_ .
 
     Parameters
     ----------
     params : class
-            Simulation parameters. See S_params.py for more info
+        Simulation parameters. See ``S_params.py`` for more info.
 
-    Returns
-    -------
-    params : class
-           QSP parameters. 
-
-    Notes
-    -----
-    See Glosli et al. Phys Rev E 78 025401(R) (2008) for more info and a description of the potential's parameters.
+    """
+    """
+    Dev Notes
+    for more info and a description of the potential's parameters.
     QSP_matrix[0,:,:] = de Broglie wavelengths,
     QSP_matrix[1,:,:] = qi*qj/4*pi*eps0
     QSP_matrix[2,:,:] = 2pi/deBroglie
     QSP_matrix[3,:,:] = e-e term factor
     QSP_matrix[4,:,:] = e-e exp factor 4pi/deBroglie/ln(2)
-    
     """
-
     if ( params.P3M.on):
         QSP_matrix = np.zeros( (6, params.num_species, params.num_species) )
     else:
@@ -128,7 +136,8 @@ def setup(params):
 
     params.ai = ( 3.0/(4.0*np.pi*params.ni) )**(1.0/3.0) # Ion WS
     
-    params.L = params.aws*(4.0*np.pi*params.total_num_ptcls/3.0)**(1.0/3.0)      # box length
+    # Rescale all the Lengths by the ion's WS Radius instead of the total WS radius. 
+    params.L = params.ai*(4.0*np.pi*params.total_num_ptcls/3.0)**(1.0/3.0)      # box length
     
     params.N = params.total_num_ptcls
     L = params.L
@@ -137,6 +146,8 @@ def setup(params):
     params.Lz = L
     params.Lv = np.array([L, L, L])              # box length vector
     params.d = np.count_nonzero(params.Lv)              # no. of dimensions
+
+    params.box_volume = L*L*L
     params.Lmax_v = np.array([L, L, L])
     params.Lmin_v = np.array([0.0, 0.0, 0.0])
 
@@ -165,8 +176,8 @@ def setup(params):
         params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err, params.P3M.PP_err = gf_opt(params.P3M.MGrid,\
             params.P3M.aliases, params.Lv, params.P3M.cao, params.Potential.matrix, params.Potential.rc, fourpie0)
         
-        params.P3M.PP_err *=np.sqrt(params.N)*params.aws**2*fourpie0
-        params.P3M.PM_err *=np.sqrt(params.N)*params.aws**2*fourpie0/(params.box_volume**(2./3.))
+        params.P3M.PP_err *=np.sqrt(params.N)*params.ai**2*fourpie0
+        params.P3M.PM_err *=np.sqrt(params.N)*params.ai**2*fourpie0/(params.box_volume**(2./3.))
         params.P3M.F_err = np.sqrt(params.P3M.PM_err**2 + params.P3M.PP_err**2)
 
     return
@@ -174,35 +185,32 @@ def setup(params):
 
 @nb.njit
 def QSP_force_PP(r, pot_matrix_ij):
-    """ Calculates the Yukawa Force between two particles when 
-        the PP algorithm is chosen
+    """ 
+    Calculates the force between two particles when the PP algorithm is chosen.
 
     Parameters
     ----------
     r : float
-        distance between two particles
+        Distance between two particles.
 
-    pot_matrix_ij : array_like
-                    it contains potential dependent variables
-                    pot_matrix[0] = de Broglies wavelengths,
-                    pot_matrix[1] = qi*qj/4*pi*eps0
-                    pot_matrix[2] = 2pi/deBroglie
-                    pot_matrix[3] = e-e term factor
-                    pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)
+    pot_matrix_ij : array
+        It contains potential dependent variables.
+
     Returns
     -------
     U : float
-        Potential
+        Potential.
                 
     force : float
-            Force between two particles
+        Force between two particles..
     
-    Notes
-    -----    
-    Author: Luciano Silvestri
-    Date Created: 1/10/20
-    Date Updated: 
-    Updates: 
+    """
+    """
+    pot_matrix[0] = de Broglies wavelength,
+    pot_matrix[1] = qi*qj/4*pi*eps0
+    pot_matrix[2] = 2pi/deBroglie
+    pot_matrix[3] = e-e term factor
+    pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)
     """
     A = pot_matrix_ij[1]
     C = pot_matrix_ij[2]
@@ -224,31 +232,32 @@ def QSP_force_PP(r, pot_matrix_ij):
 
 @nb.njit
 def QSP_force_P3M(r, pot_matrix):
-    """ Calculates the QSP Force between two particles when 
-        the P3M algorithm is chosen
+    """ 
+    Calculates the QSP Force between two particles when the P3M algorithm is chosen.
 
     Parameters
     ----------
-    r : real
-        distance between two particles
+    r : float
+        Distance between two particles.
 
-    pot_matrix_ij : array_like
-                    it contains potential dependent variables
-                    pot_matrix[0] = de Broglies wavelengths,
-                    pot_matrix[1] = qi*qj/4*pi*eps0
-                    pot_matrix[2] = 2pi/deBroglie
-                    pot_matrix[3] = e-e term factor
-                    pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)
-                    pot_matrix[5] = Ewald parameter alpha
+    pot_matrix_ij : array
+        It contains potential dependent variables.
 
     Returns
     -------
-    U_s_r : float
-            Potential value
+    U : float
+        Potential.
                 
-    fr : float
-         Force between two particles 
+    force : float
+        Force between two particles.
     
+    """
+    """
+    pot_matrix[0] = de Broglies wavelength,
+    pot_matrix[1] = qi*qj/4*pi*eps0
+    pot_matrix[2] = 2pi/deBroglie
+    pot_matrix[3] = e-e term factor
+    pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)
     """
 
     # Ewald force corresponding to the 1/r term of the potential
@@ -285,43 +294,69 @@ def QSP_force_P3M(r, pot_matrix):
 
 @nb.njit
 def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
-    """ Calculates the Optimized Green Function given by eq.(22) in
-        Stern et al. J Chem Phys 128, 214006 (2008)
+    """
+    Calculates the Optimized Green Function given by eq.(22) of Ref.[3]_ .
 
     Parameters
     ----------
-    params : class
+    MGrid : array
+        number of mesh points in x,y,z.
+
+    aliases : array
+        number of aliases in each direction.
+
+    BoxLv : array
+        Length of simulation's box in each direction.
+
+    p : int
+        charge assignment order (CAO).
+
+    N : int
+        number of particles.
+
+    pot_matrix : array
+        Potential matrix. It contains screening parameter and Ewald parameter. See potential matrix above.
+
+    rcut : float
+        Cutoff distance for the PP calculation.
+
+    fourpie0 : float
+        Potential factor.
 
     Returns
     -------
+    G_k : array
+        optimal Green Function.
 
-    G_k : array_like
-          optimal Green Function
+    kx_v : array
+       array of reciprocal space vectors along the x-axis.
 
-    kx_v : array_like
-           array of reciprocal space vectors along the x-axis
+    ky_v : array
+       array of reciprocal space vectors along the y-axis.
 
-    ky_v : array_like
-           array of reciprocal space vectors along the y-axis
-
-    kz_v : array_like
-           array of reciprocal space vectors along the z-axis
+    kz_v : array
+       array of reciprocal space vectors along the z-axis.
 
     PM_err : float
-             Error in the force calculation due to the optimized Green's function
-             eq.(28) in Stern et al. J Chem Phys 128 214106 (2008)
+        Error in the force calculation due to the optimized Green's function. eq.(28) of Ref.[3]_ .
 
     PP_err : float
-             Error in the force calculation due to the distance cutoff.
-             eq.(30) in Dharuman et al. J Chem Phys 146 024112 (2017)
+        Error in the e-e force calculation due to the distance cutoff see eq.(30) of Ref.[4]_ .
+   
+    References
+    ----------
+    .. [3] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) <https://doi.org/10.1063/1.2932253>`_
+    .. [4] `G. Dharuman et al. J Chem Phys 146 024112 (2017) <https://doi.org/10.1063/1.4973842>`_
 
-    DeltaF_tot : float
-                 Total force error. eq.(42) from Dharuman et al. J Chem Phys 146 024112 (2017)
-    
     """
     
+    # Grab the e-e interaction parameters only. 
+    C = pot_matrix[2,0,0] 
+    D = pot_matrix[3,0,0]
+    F = pot_matrix[4,0,0]
+
     Gew = pot_matrix[-1,0,0] #params.Potential.matrix[5,0,0]
-    #p = params.P3M.cao
+
     rcut2 = rcut*rcut
     mx_max = aliases[0] #params.P3M.mx_max
     my_max = aliases[1] # params.P3M.my_max
@@ -425,16 +460,27 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
                                 U_G_k += (U_k_M_sq * G_k_M * k_dot_k_M)
                                 U_k_sq += U_k_M_sq
                                 
-                    # eq.(22) of Stern et al. J Chem Phys 128, 214006 (2008)                                                   
+                    # eq.(22) of Ref. [3]_                                                  
                     G_k[nz,ny,nx] = U_G_k/((U_k_sq**2)*k_sq)
 
-                    # eq. (9) of Stern et al. J Chem Phys 128, 214006 (2008)                                                   
+                    # eq. (9) of Ref. [3]_
                     Gk_hat = k_mks*np.exp(-0.25*k_sq/Gew_sq) / k_sq       
 
-                    # eq.(28) of Stern et al. J Chem Phys 128, 214006 (2008)
+                    # eq.(28) of Ref. [3]_
                     PM_err = PM_err + Gk_hat*Gk_hat*k_sq - U_G_k**2/((U_k_sq**2)*k_sq)
 
-    PP_err = 2.0*k_mks/np.sqrt(Lx*Ly*Lz)*np.exp(-Gew_sq*rcut2)/np.sqrt(rcut)
-    PM_err = np.sqrt(PM_err)/Lx  # This corresponds to \chi_F in Dharuman
+    # Calculate the PP error for the e-e interaction only. 
+    # This is because the electron's DeBroglie wavelength is much shorter than the ion's, hence longer-range force.     
+    PP_err_exp = 2.0*np.pi*np.exp( - 2.0*C*rcut)*(C*rcut + 2)/rcut
 
-    return G_k, kx_v, ky_v, kz_v, PM_err, PP_err
+    PP_err_ee = -np.pi/4.*( 3*np.sqrt(2.0*np.pi/F)*mt.erf( np.sqrt(2.0*F*rcut2) ) \
+        + 4.0*rcut*np.exp(-2.0*F*rcut2)*(4.0*F*rcut2 + 3) )
+    
+    PP_err_ee *= D**2/(k_mks**2)
+    
+    PP_err_Ew = 4.0*np.exp(-2.0*Gew_sq*rcut2)/rcut
+    PP_err_tot = np.sqrt( PP_err_Ew + PP_err_ee + PP_err_exp )*k_mks/np.sqrt(Lx*Ly*Lz)
+
+    PM_err_tot = np.sqrt(PM_err)/Lx  
+
+    return G_k, kx_v, ky_v, kz_v, PM_err_tot, PP_err_tot

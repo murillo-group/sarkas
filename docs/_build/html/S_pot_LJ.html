@@ -178,48 +178,38 @@
             
   <div class="section" id="module-S_pot_LJ">
 <span id="s-pot-lj-module"></span><h1>S_pot_LJ module<a class="headerlink" href="#module-S_pot_LJ" title="Permalink to this headline">¶</a></h1>
-<p>S_pot_LJ.py</p>
 <p>Module for handling Lennard-Jones interaction</p>
 <dl class="function">
 <dt id="S_pot_LJ.LJ_force_PP">
 <code class="sig-prename descclassname">S_pot_LJ.</code><code class="sig-name descname">LJ_force_PP</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix_ij</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_LJ.html#LJ_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_LJ.LJ_force_PP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the PP force between particles using Lennard-Jones Potential.</p>
+<dd><p>Calculates the PP force between particles using Lennard-Jones Potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>float</em>) – particles’ distance</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – Moliere potential parameters according to Wilson et al. PRB 15, 2458 (1977)</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Particles’ distance.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – LJ potential parameters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U</strong> (<em>float</em>) – potential</p></li>
-<li><p><strong>force</strong> (<em>float</em>) – force</p></li>
+<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
+<li><p><strong>force</strong> (<em>float</em>) – Force.</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>pot_matrix[0] = epsilon
-pot_matrix[1] = sigma</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="S_pot_LJ.LJ_setup">
 <code class="sig-prename descclassname">S_pot_LJ.</code><code class="sig-name descname">LJ_setup</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_LJ.html#LJ_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_LJ.LJ_setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup simulation’s parameters for Moliere-like potential</p>
+<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with LJ potential paramters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info.</p></li>
-<li><p><strong>filename</strong> (<em>string</em>) – Input filename</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
+<li><p><strong>filename</strong> (<em>string</em>) – Input filename.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>none</p>
 </dd>
 </dl>
 </dd></dl>
@@ -248,7 +238,7 @@ pot_matrix[1] = sigma</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

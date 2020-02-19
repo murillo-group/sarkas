@@ -1,7 +1,9 @@
 """
-S_pot_Moliere.py
+Module for handling Moliere Potential as given by Ref. [1]_
 
-Module for handling Moliere Potentials
+References
+----------
+.. [1] `W.D. Wilson et al., Phys Rev B 15, 2458 (1977) <https://doi.org/10.1103/PhysRevB.15.2458>`_
 """
 import numpy as np
 import numba as nb
@@ -10,23 +12,16 @@ import yaml
 
 def Moliere_setup(params, filename):
     """
-    Setup simulation's parameters for Moliere-like potential
+    Updates ``params`` class with Moliere potential paramters.
 
     Parameters
     ----------
     params : class
-            Simulation's parameters. See S_params.py for more info.
+        Simulation's parameters. See ``S_params.py`` for more info.
 
     filename : string
-                Input filename
+        Input filename.
 
-    Returns
-    -------
-    none
-
-    Notes
-    -----
-    Reference Wilson et al. PRB 15, 2458 (1977)
     """
 
     # constants and conversion factors    
@@ -114,25 +109,26 @@ def Moliere_setup(params, filename):
 @nb.njit
 def Moliere_force_PP(r,pot_matrix):
     """ 
-    Calculate the PP force between particles using the Moliere Potential.
+    Calculates the PP force between particles using the Moliere Potential.
     
     Parameters
     ----------
     r : float
-        particles' distance
+        Particles' distance.
 
     pot_matrix : array
-                Moliere potential parameters according to Wilson et al. PRB 15, 2458 (1977) 
+        Moliere potential parameters. 
 
 
     Returns
     -------
     phi : float
-          potential
+        Potential
 
     fr : float
-         force
-    
+        Force
+    """
+    """
     Notes
     -----
     See Wilson et al. PRB 15 2458 (1977) for parameters' details

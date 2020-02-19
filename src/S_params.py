@@ -1,16 +1,7 @@
-'''
-S_params.py
-
-Module to read Sarkas input file with a YAML format.
-
-'''
-
 import yaml
 import numpy as np
 import sys
-
 import scipy.constants as const
-# force are here
 import S_pot_Coulomb as Coulomb
 import S_pot_Yukawa as Yukawa
 import S_pot_LJ as LJ
@@ -20,27 +11,27 @@ import S_pot_QSP as QSP
 
 class Params:
     """
-    Simulation's Parameters
+    Simulation's Parameters.
     
     Attributes
     ----------
         aws : float
-            Wigner-Seitz radius. Calculated from the ``total_num_density``
-    
+            Wigner-Seitz radius. Calculated from the ``total_num_density`` .
+
         box_volume : float
-            Box volume
+            Box volume.
 
         d : int
-            Number of non-zero dimensions
+            Number of non-zero dimensions.
         
         dq : float
-            Minimum wavenumber defined as :math:`2\pi/L`
+            Minimum wavenumber defined as :math:`2\pi/L` .
         
         dt : int
-            Timestep
+            Timestep.
 
         dump_step : int
-            Snapshot interval
+            Snapshot interval.
 
         species : list
             List of Species objects with species' information.
@@ -62,7 +53,7 @@ class Params:
 
         load_halton_bases : array, shape(3)
             Array of 3 ints each of which is a base for the Halton sequence.
-    
+
         num_species : int
             Number of species.
 
@@ -93,23 +84,8 @@ class Params:
         J2erg : float
             Conversion factor from Joules to erg. Needed for cgs units.
 
-        Potential : class 
-            Interaction potential. 
-
-        Thermostat : class
-            Thermalization method. Berendsen only is supported for now.
-            
-        Integrator : class
-            Intergrator algorithm.
-
-        Langevin : class
-            Langevin thermostat
-
-        Control : class
-            Simulation's parameters independent of the choice of interaction potential.
-    
         QFactor : float
-            Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2`.
+            Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2` .
         
         L : float
             Box length.
@@ -122,42 +98,42 @@ class Params:
 
         Lz : float
             Box length in the :math:`z` direction.
-    
+
         Lv : array, shape(3)
             Box length in each direction.
 
         Lmax_v : array, shape(3)
-            Maximum box length in each direction
+            Maximum box length in each direction.
 
         Lmin_v : array, shape(3)
-            Minimum box length in each direction
+            Minimum box length in each direction.
         
         N : int
-            Total number of particles same as `tot_num_ptcls`
+            Total number of particles same as ``tot_num_ptcls``.
         
         Neq : int
-            Total number of equilibration steps
+            Total number of equilibration steps.
 
         Nq : int
-            Number of wavenumbers
+            Number of wavenumbers.
         
         Nt : int
-            Number of production time steps
+            Number of production time steps.
         
         P3M : class
-            P3M algorithm's parameters
+            P3M algorithm's parameters.
 
         q_max : int
-            Maximum wavenumber
+            Maximum wavenumber.
         
         Te : float
-            Equilibrium electron temperature. Defined in Potential module
+            Equilibrium electron temperature. Defined in Potential module.
 
         Ti : float
-            Total Equilibrium Ion temperature
+            Total Equilibrium Ion temperature.
 
         T_desired : float
-            Equilibrium temperature
+            Equilibrium temperature.
 
         tot_net_charge : float
             Total charge in the system.
@@ -169,40 +145,55 @@ class Params:
             Total number of particles. Calculated from the sum of ``Species.num``.
         
         units : str
-            Choice of units mks or cgs
+            Choice of units mks or cgs.
+
+        wq : float
+            Total Plasma frequency.
+
+        force : func
+            Function for force calculation.
     """
+
     def __init__(self):
         # Container of Species
         self.species = []
         #
         self.load = []
+        self.P3M = self.P3M()
+        self.Magnetic = self.Magnetic()
+        self.Potential = self.Potential()
+        self.Integrator = self.Integrator()
+        self.Control = self.Control()
+        self.Thermostat = self.Thermostat()
+        self.Langevin = self.Langevin()
+
 
     class Species:
         """ 
-        Particle Species
+        Particle Species.
 
         Attributes
         ----------
-        name : str
-            Species' name.
+            name : str
+                Species' name.
 
-        number_density : float
-            Species number density in appropriate units.
+            number_density : float
+                Species number density in appropriate units.
 
-        num : int
-            Number of particles of Species.
+            num : int
+                Number of particles of Species.
 
-        mass : float
-            Species' mass.
+            mass : float
+                Species' mass.
 
-        charge : float
-            Species' charge.
+            charge : float
+                Species' charge.
 
-        Z : float
-            Species charge number.
-        
-        atomic_weight : float
-            Species atomic weight.
+            Z : float
+                Species charge number.
+            
+            atomic_weight : float
+                Species atomic weight.
 
         """
 
@@ -226,9 +217,9 @@ class Params:
                 Number of equilibration steps with magnetic field on.
         """
         def __init__(self):
-            self.on = 1
-            self.elec_therm = 0
-            self.Neq_mag = 0
+            self.on = False
+            self.elec_therm = True
+            self.Neq_mag = 10000
 
     class Potential:
         """
@@ -256,7 +247,7 @@ class Params:
 
     class P3M:
         """ 
-        P3M Algorithm parameters
+        P3M Algorithm parameters.
 
         Attributes
         ----------
@@ -292,11 +283,50 @@ class Params:
             
             G_ew : float
                 Ewald parameter.
+
+            G_k : array
+                Optimized Green's function.
+
+            hx : float
+                Mesh spacing in :math:`x` direction.
+
+            hy : float
+                Mesh spacing in :math:`y` direction.
+
+            hz : float
+                Mesh spacing in :math:`z` direction.
+            
+            PP_err : float
+                Force error due to short range cutoff.
+
+            PM_err : float
+                Force error due to long range cutoff.
+
+            F_err : float
+                Total force error.
+
+            kx_v : array
+                Array of :math:`k_x` values.
+
+            ky_v : array
+                Array of :math:`k_y` values.
+
+            kz_v : array
+                Array of :math:`k_z` values.
+
         """
         def __init__(self):
             self.on = False
 
     class Integrator:
+        """
+        Integrator's parameters.
+
+        Attributes
+        ----------
+            type : str
+                Integrator type. 
+        """
         def __init__(self):
             pass
 
@@ -307,7 +337,7 @@ class Params:
         Attributes
         ----------
             on : int
-                Flag. 1 = True, 0 = False
+                Flag. 1 = True, 0 = False.
 
             type : int
                 Berendsen only.
@@ -319,26 +349,27 @@ class Params:
                 Number of timesteps to wait before turning on Berendsen.
                 (default) = 0
         """
-        on = 0
-
-        timestep = 0
+        def __init__(self):
+            self.on = 1
+            self.timestep = 0
 
     class Langevin:
         """
-        Parameters for Langevin Dynamics
+        Parameters for Langevin Dynamics.
 
         Attributes
         ----------
             on : int
-                Flag. 0 = False, 1 = True
+                Flag. 0 = False, 1 = True.
 
             type : str
-                Type of Langevin 
+                Type of Langevin. 
 
             gamma : float
-                Langeving gamma
+                Langeving gamma.
         """
-        on = 0
+        def __init__(self):
+            self.on = 0
 
     class Control:
         """
@@ -350,10 +381,10 @@ class Params:
                 cgs or mks.
 
             dt : float
-                timestep. Same as `Params.dt`.
+                timestep. Same as ``Params.dt``.
 
             Nstep : int
-                Number of simulation timesteps. Same as `Params.Nt`.
+                Number of simulation timesteps. Same as ``Params.Nt``.
 
             BS : str
                 Boundary Condition. 'Periodic' only.
@@ -370,15 +401,16 @@ class Params:
             checkpoint_dir : str
                 Directory to store simulation's output files.
         """
-        units = None
-        dt = None
-        Nstep = None
-        Neq = None
-        BC = "periodic"
-        dump_step = 1
-        writexyz = "no"
-        verbose = "yes"
-        checkpoint_dir = "Checkpoint"
+        def __init__(self):
+            self.units = None
+            self.dt = None
+            self.Nstep = None
+            self.Neq = None
+            self.BC = "periodic"
+            self.dump_step = 1
+            self.writexyz = "no"
+            self.verbose = "yes"
+            self.checkpoint_dir = "Checkpoint"
 
     def setup(self, filename):
         """
@@ -386,8 +418,8 @@ class Params:
 
         Parameters
         ----------
-        filename : string
-            Input file's name
+        filename : str
+            Input file's name.
 
         """
 
@@ -445,11 +477,11 @@ class Params:
 
         Parameters
         ----------
-        filename : string
-            Input file's name
+        filename : str
+            Input file's name.
 
         """
-        with open(filename, 'r') as stream:
+        with open( filename, 'r') as stream:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
 
             for lkey in dics:
@@ -563,7 +595,7 @@ class Params:
                                 self.Thermostat.timestep = int(value)
                 
                 if (lkey == "Magnetized"):
-                    self.Magnetic.on = 1
+                    self.Magnetic.on = True
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if (key == "B_Gauss"):
@@ -726,7 +758,7 @@ class Params:
                 if hasattr(self.species[ic], "Z"):
                     self.species[ic].charge *= self.species[ic].Z
 
-                if (self.magnetized):
+                if (self.Magnetic.on):
                     if (self.Control.units == "cgs"):
                         self.species[ic].omega_c = self.species[ic].charge*self.BField/self.species[ic].mass
                         self.species[ic].omega_c = self.species[ic].omega_c/const.physical_constants["speed of light in vacuum"][0]

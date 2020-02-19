@@ -178,8 +178,7 @@
             
   <div class="section" id="module-S_thermostat">
 <span id="s-thermostat-module"></span><h1>S_thermostat module<a class="headerlink" href="#module-S_thermostat" title="Permalink to this headline">¶</a></h1>
-<p>S_thermostat.py</p>
-<p>Berendsen only.</p>
+<p>Module containing various thermostat. Berendsen only for now.</p>
 <dl class="function">
 <dt id="S_thermostat.Berendsen">
 <code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">Berendsen</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em>, <em class="sig-param">it</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#Berendsen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.Berendsen" title="Permalink to this definition">¶</a></dt>
@@ -187,61 +186,54 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles’s data. See S_particles.py for the detailed information</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation parameters. See S_params for detail information</p></li>
-<li><p><strong>it</strong> (<em>int</em>) – timestep</p></li>
+<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles’s data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more information.</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more information.</p></li>
+<li><p><strong>it</strong> (<em>int</em>) – Timestep.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">References</p>
-<p>[1] Berendsen et al. J Chem Phys 81 3684 (1984)</p>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1063/1.448118">H.J.C. Berendsen et al., J Chem Phys 81 3684 (1984)</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="S_thermostat.calc_kin_temp">
-<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">calc_kin_temp</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#calc_kin_temp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.calc_kin_temp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the kinetic energy and temperature</p>
+<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">calc_kin_temp</code><span class="sig-paren">(</span><em class="sig-param">vel</em>, <em class="sig-param">nums</em>, <em class="sig-param">masses</em>, <em class="sig-param">kB</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#calc_kin_temp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.calc_kin_temp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the kinetic energy and temperature.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles’s data. See S_particles.py for the detailed information</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params for detail information</p></li>
+<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles’s data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more information.</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more information.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>K</strong> (<em>array_like</em>) – Kinetic energy of each species</p></li>
-<li><p><strong>T</strong> (<em>array_like</em>) – Temperature of each species</p></li>
+<li><p><strong>K</strong> (<em>array</em>) – Kinetic energy of each species.</p></li>
+<li><p><strong>T</strong> (<em>array</em>) – Temperature of each species.</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>askfask</p>
-</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="S_thermostat.remove_drift">
-<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">remove_drift</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#remove_drift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.remove_drift" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enforce conservation of total linear momentum</p>
+<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">remove_drift</code><span class="sig-paren">(</span><em class="sig-param">vel</em>, <em class="sig-param">nums</em>, <em class="sig-param">masses</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#remove_drift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.remove_drift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enforce conservation of total linear momentum. Updates <code class="docutils literal notranslate"><span class="pre">ptcls.vel</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vel</strong> (<em>array_like</em>) – Particles’ velocities</p></li>
-<li><p><strong>nums</strong> (<em>array_like</em>) – Number of particles for each species</p></li>
-<li><p><strong>masses</strong> (<em>array_like</em>) – Mass of each species</p></li>
+<li><p><strong>vel</strong> (<em>array</em>) – Particles’ velocities.</p></li>
+<li><p><strong>nums</strong> (<em>array</em>) – Number of particles for each species.</p></li>
+<li><p><strong>masses</strong> (<em>array</em>) – Mass of each species.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>vel</strong> – Particles’ velocities</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>array_like</p>
-</dd>
 </dl>
-<p class="rubric">Notes</p>
 </dd></dl>
 
 </div>
@@ -268,7 +260,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

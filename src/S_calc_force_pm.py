@@ -1,36 +1,42 @@
-""" S_calc_force_pm.py
-
-* Calculate force and potential based on PM algorithm.
+"""
+Module for handling the Particle-Mesh part of the force and potential calculation.
 
 """
 
 import numpy as np
 import numba as nb
 import pyfftw
+from numba.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import warnings
+
+# These "ignore" are needed because numba does not support pyfftw yet
+warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaWarning)
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+
 
 @nb.njit
 def assgnmnt_func(cao, x):
     """ 
-    Calculate the charge assignment function.
+    Calculate the charge assignment function as given in Ref. [1]_ .
     
     Parameters
     ----------
     cao : int
-        charge assignment order
+        Charge assignment order.
 
     x : float
-        distance to the mid-point between mesh points if cao is even
-        distance to closes mesh point if cao is even
+        Distance to closest mesh point if cao is even.
     
     Returns
     ------
     W : array
-        Charge Assignment Function
-    
+        Charge Assignment Function. 
+
     References
     ----------
     .. [1] `M. Deserno and C. Holm J Chem Phys 108, 7678 (1998) <https://doi.org/10.1063/1.477414>`_
- 
+
     """
     W = np.zeros( cao )
 
@@ -87,45 +93,44 @@ def assgnmnt_func(cao, x):
 @nb.njit
 def calc_charge_dens(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
     """ 
-    Assign Charges to Mesh Points
+    Assigns Charges to Mesh Points.
 
     Parameters
     ----------
     pos : array
-          particles' positions
+        Particles' positions.
     
     Z : array
-        particles' charges
+        Particles' charges.
     
     N : int
-        number of particles
+        Number of particles.
 
     cao : int
-          charge assignment order
+        Charge assignment order.
 
     Mx : int
-         number of mesh points along x-axis
+        Number of mesh points along x-axis.
 
     My : int
-         number of mesh points along y-axis
+        Number of mesh points along y-axis.
 
     Mz : int
-         number of mesh points along z-axis
+        Number of mesh points along z-axis.
 
     hx : int
-         distance between mesh points along x-axis
+        Distance between mesh points along x-axis.
 
     hy : int
-         distance between mesh points along y-axis
+        Distance between mesh points along y-axis.
 
     hz : int
-         distance between mesh points along z-axis
+        Distance between mesh points along z-axis.
 
     Returns
     -------
-
     rho_r : array
-            charge density distributed on mesh
+        Charge density distributed on mesh.
 
     """
 
@@ -186,8 +191,6 @@ def calc_charge_dens(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
                     else:
                         r_j = ixn
         
-                    #print([r_g,r_i,r_j], [wz[g],wy[i],wx[j]])
-    
                     rho_r[r_g,r_i,r_j] = rho_r[r_g,r_i,r_j] + Z[ipart]*wz[g]*wy[i]*wx[j]
     
                     ixn += 1
@@ -202,33 +205,32 @@ def calc_charge_dens(pos,Z,N,cao,Mx,My,Mz,hx,hy,hz):
 @nb.njit
 def calc_field(phi_k,kx_v,ky_v,kz_v):
     """ 
-    Calculate the Electric field in Fourier space
+    Calculates the Electric field in Fourier space.
 
     Parameters
     ----------
     phi_k : array
-        3D array of the Potential 
+        3D array of the Potential.
 
     kx_v : array
-        3D array containing the values of kx 
+        3D array containing the values of kx.
 
     ky_v : array
-        3D array containing the values of ky 
-    
+        3D array containing the values of ky.
+
     kz_v : array
-        3D array containing the values of kz 
+        3D array containing the values of kz.
     
     Returns
     -------
-
     E_kx : array 
-           Electric Field along kx-axis
+       Electric Field along kx-axis.
 
     E_ky : array
-           Electric Field along ky-axis
+       Electric Field along ky-axis.
 
     E_kz : array
-           Electric Field along kz-axis
+       Electric Field along kz-axis.
     
     """
 
@@ -242,57 +244,57 @@ def calc_field(phi_k,kx_v,ky_v,kz_v):
 @nb.njit
 def calc_acc_pm(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz):
     """ 
-    Calculate particles' accelerations due to E-field 
+    Calculates the long range part of particles' accelerations. 
     
     Parameters
     ----------
     E_x_r : array
-            Electric field along x-axis
+        Electric field along x-axis.
 
     E_y_r : array
-            Electric field along y-axis
+        Electric field along y-axis.
     
     E_z_r : array
-            Electric field along z-axis
+        Electric field along z-axis.
     
     pos : array
-          particles' positions
+        Particles' positions.
     
     Z : array
-        particles' charges
+        Particles' charges.
     
     N : int
-        number of particles
+        Number of particles.
 
     cao : int
-          charge assignment order
+        Charge assignment order.
     
     Mass : array
-           particles' masses
+        Particles' masses.
 
     Mx : int
-         number of mesh points along x-axis
+        Number of mesh points along x-axis.
 
     My : int
-         number of mesh points along y-axis
+        Number of mesh points along y-axis.
 
     Mz : int
-         number of mesh points along z-axis
+        Number of mesh points along z-axis.
 
     hx : int
-         distance between mesh points along x-axis
+        Distance between mesh points along x-axis.
 
     hy : int
-         distance between mesh points along y-axis
+        Distance between mesh points along y-axis.
 
     hz : int
-         distance between mesh points along z-axis
+        Distance between mesh points along z-axis.
 
     Returns
     -------
 
     acc : array
-          acceleration from Electric Field
+          Acceleration from Electric Field.
 
     """
     E_x_p = np.zeros(N)
@@ -376,57 +378,71 @@ def calc_acc_pm(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz):
     return acc
     
 ## FFTW version
-def update(ptcls, params):
+@nb.jit # Numba does not support pyfftw yet, however, this decorator speeds up the function still.
+def update(pos, Z, Mass, MGrid, Lv, G_k, kx_v, ky_v, kz_v, cao):
     """ 
-    Calculate the long range part of particles' accelerations
+    Calculate the long range part of particles' accelerations.
 
     Parameters
     ----------
+    pos : array
+        Particles' positions.
 
-    ptcls : class
-        Particles' class. See S_particles module for more info
+    Z : array
+        Particles' charges, it corresponds to ``ptcls.charge``.
 
-    params : class
-        Simulation Parameters. See S_params module for more info
+    Mass : array
+        Particles' masses, it corresponds to ``ptcls.mass``. 
+
+    MGrid : array
+        Mesh grid points.
+
+    Lv : array
+        Box length in each direction.
+
+    G_k : array
+        Optimized Green's function.
+
+    kx_v : array
+        Array of kx values.
+
+    ky_v : array
+        Array of ky values.
+
+    kz_v : array
+        Array of kz values.
+    
+    cao : int
+        Charge order parameter.
 
     Returns
     -------
-
     U_f : float
-        Long range part of the potential
+        Long range part of the potential.
 
     acc_f : array
-        Long range part of particles' accelerations
+        Long range part of particles' accelerations.
 
     """
 
-    pos = ptcls.pos
     N = pos.shape[0]
 
-    Z = ptcls.charge
-    Mass = ptcls.mass
+    Lx = Lv[0]
+    Ly = Lv[1]
+    Lz = Lv[2]
 
-    Lx = params.Lx
-    Ly = params.Ly
-    Lz = params.Lz
+    Mx = MGrid[0]
+    My = MGrid[1]
+    Mz = MGrid[2]
 
-    Mx = params.P3M.Mx
-    My = params.P3M.My
-    Mz = params.P3M.Mz
-
-    hx = params.P3M.hx
-    hy = params.P3M.hy
-    hz = params.P3M.hz
+    hx = Lx/float(Mx)
+    hy = Ly/float(My)
+    hz = Lz/float(Mz)
     
     V = Lx*Ly*Lz
     M_V = Mx*My*Mz
-    
-    G_k = params.P3M.G_k
-    kx_v = params.P3M.kx_v
-    ky_v = params.P3M.ky_v
-    kz_v = params.P3M.kz_v
 
-    rho_r = calc_charge_dens(pos, Z, N, params.P3M.cao, Mx, My, Mz, hx, hy, hz)
+    rho_r = calc_charge_dens(pos, Z, N, cao, Mx, My, Mz, hx, hy, hz)
 
     fftw_n = pyfftw.builders.fftn(rho_r)
     rho_k_fft = fftw_n()
@@ -461,6 +477,6 @@ def update(ptcls, params):
     E_y_r = np.real(E_y)
     E_z_r = np.real(E_z)
     
-    acc_f = calc_acc_pm(E_x_r,E_y_r,E_z_r,pos,Z,N,params.P3M.cao,Mass,Mx,My,Mz,hx,hy,hz)
+    acc_f = calc_acc_pm(E_x_r,E_y_r,E_z_r,pos,Z,N,cao,Mass,Mx,My,Mz,hx,hy,hz)
     
     return U_f, acc_f

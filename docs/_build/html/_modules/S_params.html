@@ -155,19 +155,10 @@
            <div itemprop="articleBody">
             
   <h1>Source code for S_params</h1><div class="highlight"><pre>
-<span></span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">S_params.py</span>
-
-<span class="sd">Module to read Sarkas input file with a YAML format.</span>
-
-<span class="sd">&#39;&#39;&#39;</span>
-
-<span class="kn">import</span> <span class="nn">yaml</span>
+<span></span><span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
-<span class="c1"># force are here</span>
 <span class="kn">import</span> <span class="nn">S_pot_Coulomb</span> <span class="k">as</span> <span class="nn">Coulomb</span>
 <span class="kn">import</span> <span class="nn">S_pot_Yukawa</span> <span class="k">as</span> <span class="nn">Yukawa</span>
 <span class="kn">import</span> <span class="nn">S_pot_LJ</span> <span class="k">as</span> <span class="nn">LJ</span>
@@ -177,27 +168,27 @@
 
 <div class="viewcode-block" id="Params"><a class="viewcode-back" href="../S_params.html#S_params.Params">[docs]</a><span class="k">class</span> <span class="nc">Params</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Simulation&#39;s Parameters</span>
+<span class="sd">    Simulation&#39;s Parameters.</span>
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">        aws : float</span>
-<span class="sd">            Wigner-Seitz radius. Calculated from the ``total_num_density``</span>
-<span class="sd">    </span>
+<span class="sd">            Wigner-Seitz radius. Calculated from the ``total_num_density`` .</span>
+
 <span class="sd">        box_volume : float</span>
-<span class="sd">            Box volume</span>
+<span class="sd">            Box volume.</span>
 
 <span class="sd">        d : int</span>
-<span class="sd">            Number of non-zero dimensions</span>
+<span class="sd">            Number of non-zero dimensions.</span>
 <span class="sd">        </span>
 <span class="sd">        dq : float</span>
-<span class="sd">            Minimum wavenumber defined as :math:`2\pi/L`</span>
+<span class="sd">            Minimum wavenumber defined as :math:`2\pi/L` .</span>
 <span class="sd">        </span>
 <span class="sd">        dt : int</span>
-<span class="sd">            Timestep</span>
+<span class="sd">            Timestep.</span>
 
 <span class="sd">        dump_step : int</span>
-<span class="sd">            Snapshot interval</span>
+<span class="sd">            Snapshot interval.</span>
 
 <span class="sd">        species : list</span>
 <span class="sd">            List of Species objects with species&#39; information.</span>
@@ -219,7 +210,7 @@
 
 <span class="sd">        load_halton_bases : array, shape(3)</span>
 <span class="sd">            Array of 3 ints each of which is a base for the Halton sequence.</span>
-<span class="sd">    </span>
+
 <span class="sd">        num_species : int</span>
 <span class="sd">            Number of species.</span>
 
@@ -250,23 +241,8 @@
 <span class="sd">        J2erg : float</span>
 <span class="sd">            Conversion factor from Joules to erg. Needed for cgs units.</span>
 
-<span class="sd">        Potential : class </span>
-<span class="sd">            Interaction potential. </span>
-
-<span class="sd">        Thermostat : class</span>
-<span class="sd">            Thermalization method. Berendsen only is supported for now.</span>
-<span class="sd">            </span>
-<span class="sd">        Integrator : class</span>
-<span class="sd">            Intergrator algorithm.</span>
-
-<span class="sd">        Langevin : class</span>
-<span class="sd">            Langevin thermostat</span>
-
-<span class="sd">        Control : class</span>
-<span class="sd">            Simulation&#39;s parameters independent of the choice of interaction potential.</span>
-<span class="sd">    </span>
 <span class="sd">        QFactor : float</span>
-<span class="sd">            Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2`.</span>
+<span class="sd">            Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2` .</span>
 <span class="sd">        </span>
 <span class="sd">        L : float</span>
 <span class="sd">            Box length.</span>
@@ -279,42 +255,42 @@
 
 <span class="sd">        Lz : float</span>
 <span class="sd">            Box length in the :math:`z` direction.</span>
-<span class="sd">    </span>
+
 <span class="sd">        Lv : array, shape(3)</span>
 <span class="sd">            Box length in each direction.</span>
 
 <span class="sd">        Lmax_v : array, shape(3)</span>
-<span class="sd">            Maximum box length in each direction</span>
+<span class="sd">            Maximum box length in each direction.</span>
 
 <span class="sd">        Lmin_v : array, shape(3)</span>
-<span class="sd">            Minimum box length in each direction</span>
+<span class="sd">            Minimum box length in each direction.</span>
 <span class="sd">        </span>
 <span class="sd">        N : int</span>
-<span class="sd">            Total number of particles same as `tot_num_ptcls`</span>
+<span class="sd">            Total number of particles same as ``tot_num_ptcls``.</span>
 <span class="sd">        </span>
 <span class="sd">        Neq : int</span>
-<span class="sd">            Total number of equilibration steps</span>
+<span class="sd">            Total number of equilibration steps.</span>
 
 <span class="sd">        Nq : int</span>
-<span class="sd">            Number of wavenumbers</span>
+<span class="sd">            Number of wavenumbers.</span>
 <span class="sd">        </span>
 <span class="sd">        Nt : int</span>
-<span class="sd">            Number of production time steps</span>
+<span class="sd">            Number of production time steps.</span>
 <span class="sd">        </span>
 <span class="sd">        P3M : class</span>
-<span class="sd">            P3M algorithm&#39;s parameters</span>
+<span class="sd">            P3M algorithm&#39;s parameters.</span>
 
 <span class="sd">        q_max : int</span>
-<span class="sd">            Maximum wavenumber</span>
+<span class="sd">            Maximum wavenumber.</span>
 <span class="sd">        </span>
 <span class="sd">        Te : float</span>
-<span class="sd">            Equilibrium electron temperature. Defined in Potential module</span>
+<span class="sd">            Equilibrium electron temperature. Defined in Potential module.</span>
 
 <span class="sd">        Ti : float</span>
-<span class="sd">            Total Equilibrium Ion temperature</span>
+<span class="sd">            Total Equilibrium Ion temperature.</span>
 
 <span class="sd">        T_desired : float</span>
-<span class="sd">            Equilibrium temperature</span>
+<span class="sd">            Equilibrium temperature.</span>
 
 <span class="sd">        tot_net_charge : float</span>
 <span class="sd">            Total charge in the system.</span>
@@ -326,44 +302,59 @@
 <span class="sd">            Total number of particles. Calculated from the sum of ``Species.num``.</span>
 <span class="sd">        </span>
 <span class="sd">        units : str</span>
-<span class="sd">            Choice of units mks or cgs</span>
+<span class="sd">            Choice of units mks or cgs.</span>
+
+<span class="sd">        wq : float</span>
+<span class="sd">            Total Plasma frequency.</span>
+
+<span class="sd">        force : func</span>
+<span class="sd">            Function for force calculation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Container of Species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1">#</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P3M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">P3M</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Control</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Langevin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Langevin</span><span class="p">()</span>
+
 
 <div class="viewcode-block" id="Params.Species"><a class="viewcode-back" href="../S_params.html#S_params.Params.Species">[docs]</a>    <span class="k">class</span> <span class="nc">Species</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Particle Species</span>
+<span class="sd">        Particle Species.</span>
 
 <span class="sd">        Attributes</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
-<span class="sd">            Species&#39; name.</span>
+<span class="sd">            name : str</span>
+<span class="sd">                Species&#39; name.</span>
 
-<span class="sd">        number_density : float</span>
-<span class="sd">            Species number density in appropriate units.</span>
+<span class="sd">            number_density : float</span>
+<span class="sd">                Species number density in appropriate units.</span>
 
-<span class="sd">        num : int</span>
-<span class="sd">            Number of particles of Species.</span>
+<span class="sd">            num : int</span>
+<span class="sd">                Number of particles of Species.</span>
 
-<span class="sd">        mass : float</span>
-<span class="sd">            Species&#39; mass.</span>
+<span class="sd">            mass : float</span>
+<span class="sd">                Species&#39; mass.</span>
 
-<span class="sd">        charge : float</span>
-<span class="sd">            Species&#39; charge.</span>
+<span class="sd">            charge : float</span>
+<span class="sd">                Species&#39; charge.</span>
 
-<span class="sd">        Z : float</span>
-<span class="sd">            Species charge number.</span>
-<span class="sd">        </span>
-<span class="sd">        atomic_weight : float</span>
-<span class="sd">            Species atomic weight.</span>
+<span class="sd">            Z : float</span>
+<span class="sd">                Species charge number.</span>
+<span class="sd">            </span>
+<span class="sd">            atomic_weight : float</span>
+<span class="sd">                Species atomic weight.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Params.Magnetic"><a class="viewcode-back" href="../S_params.html#S_params.Params.Magnetic">[docs]</a>    <span class="k">class</span> <span class="nc">Magnetic</span><span class="p">:</span>
@@ -382,10 +373,10 @@
 <span class="sd">            Neq_mag : int</span>
 <span class="sd">                Number of equilibration steps with magnetic field on.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elec_therm</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Neq_mag</span> <span class="o">=</span> <span class="mi">0</span></div>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elec_therm</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Neq_mag</span> <span class="o">=</span> <span class="mi">10000</span></div>
 
 <div class="viewcode-block" id="Params.Potential"><a class="viewcode-back" href="../S_params.html#S_params.Params.Potential">[docs]</a>    <span class="k">class</span> <span class="nc">Potential</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -408,12 +399,12 @@
 <span class="sd">                Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;PP&quot;</span></div>
 
 <div class="viewcode-block" id="Params.P3M"><a class="viewcode-back" href="../S_params.html#S_params.Params.P3M">[docs]</a>    <span class="k">class</span> <span class="nc">P3M</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        P3M Algorithm parameters</span>
+<span class="sd">        P3M Algorithm parameters.</span>
 
 <span class="sd">        Attributes</span>
 <span class="sd">        ----------</span>
@@ -449,12 +440,51 @@
 <span class="sd">            </span>
 <span class="sd">            G_ew : float</span>
 <span class="sd">                Ewald parameter.</span>
+
+<span class="sd">            G_k : array</span>
+<span class="sd">                Optimized Green&#39;s function.</span>
+
+<span class="sd">            hx : float</span>
+<span class="sd">                Mesh spacing in :math:`x` direction.</span>
+
+<span class="sd">            hy : float</span>
+<span class="sd">                Mesh spacing in :math:`y` direction.</span>
+
+<span class="sd">            hz : float</span>
+<span class="sd">                Mesh spacing in :math:`z` direction.</span>
+<span class="sd">            </span>
+<span class="sd">            PP_err : float</span>
+<span class="sd">                Force error due to short range cutoff.</span>
+
+<span class="sd">            PM_err : float</span>
+<span class="sd">                Force error due to long range cutoff.</span>
+
+<span class="sd">            F_err : float</span>
+<span class="sd">                Total force error.</span>
+
+<span class="sd">            kx_v : array</span>
+<span class="sd">                Array of :math:`k_x` values.</span>
+
+<span class="sd">            ky_v : array</span>
+<span class="sd">                Array of :math:`k_y` values.</span>
+
+<span class="sd">            kz_v : array</span>
+<span class="sd">                Array of :math:`k_z` values.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Params.Integrator"><a class="viewcode-back" href="../S_params.html#S_params.Params.Integrator">[docs]</a>    <span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Integrator&#39;s parameters.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">            type : str</span>
+<span class="sd">                Integrator type. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Params.Thermostat"><a class="viewcode-back" href="../S_params.html#S_params.Params.Thermostat">[docs]</a>    <span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
@@ -464,7 +494,7 @@
 <span class="sd">        Attributes</span>
 <span class="sd">        ----------</span>
 <span class="sd">            on : int</span>
-<span class="sd">                Flag. 1 = True, 0 = False</span>
+<span class="sd">                Flag. 1 = True, 0 = False.</span>
 
 <span class="sd">            type : int</span>
 <span class="sd">                Berendsen only.</span>
@@ -476,26 +506,27 @@
 <span class="sd">                Number of timesteps to wait before turning on Berendsen.</span>
 <span class="sd">                (default) = 0</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">on</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="n">timestep</span> <span class="o">=</span> <span class="mi">0</span></div>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timestep</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="Params.Langevin"><a class="viewcode-back" href="../S_params.html#S_params.Params.Langevin">[docs]</a>    <span class="k">class</span> <span class="nc">Langevin</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parameters for Langevin Dynamics</span>
+<span class="sd">        Parameters for Langevin Dynamics.</span>
 
 <span class="sd">        Attributes</span>
 <span class="sd">        ----------</span>
 <span class="sd">            on : int</span>
-<span class="sd">                Flag. 0 = False, 1 = True</span>
+<span class="sd">                Flag. 0 = False, 1 = True.</span>
 
 <span class="sd">            type : str</span>
-<span class="sd">                Type of Langevin </span>
+<span class="sd">                Type of Langevin. </span>
 
 <span class="sd">            gamma : float</span>
-<span class="sd">                Langeving gamma</span>
+<span class="sd">                Langeving gamma.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">on</span> <span class="o">=</span> <span class="mi">0</span></div>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="Params.Control"><a class="viewcode-back" href="../S_params.html#S_params.Params.Control">[docs]</a>    <span class="k">class</span> <span class="nc">Control</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -507,10 +538,10 @@
 <span class="sd">                cgs or mks.</span>
 
 <span class="sd">            dt : float</span>
-<span class="sd">                timestep. Same as `Params.dt`.</span>
+<span class="sd">                timestep. Same as ``Params.dt``.</span>
 
 <span class="sd">            Nstep : int</span>
-<span class="sd">                Number of simulation timesteps. Same as `Params.Nt`.</span>
+<span class="sd">                Number of simulation timesteps. Same as ``Params.Nt``.</span>
 
 <span class="sd">            BS : str</span>
 <span class="sd">                Boundary Condition. &#39;Periodic&#39; only.</span>
@@ -527,15 +558,16 @@
 <span class="sd">            checkpoint_dir : str</span>
 <span class="sd">                Directory to store simulation&#39;s output files.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">units</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">Nstep</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">Neq</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">BC</span> <span class="o">=</span> <span class="s2">&quot;periodic&quot;</span>
-        <span class="n">dump_step</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">writexyz</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span>
-        <span class="n">verbose</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span>
-        <span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="s2">&quot;Checkpoint&quot;</span></div>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Nstep</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Neq</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BC</span> <span class="o">=</span> <span class="s2">&quot;periodic&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writexyz</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="s2">&quot;Checkpoint&quot;</span></div>
 
 <div class="viewcode-block" id="Params.setup"><a class="viewcode-back" href="../S_params.html#S_params.Params.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -543,8 +575,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        filename : string</span>
-<span class="sd">            Input file&#39;s name</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            Input file&#39;s name.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -602,11 +634,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        filename : string</span>
-<span class="sd">            Input file&#39;s name</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            Input file&#39;s name.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
             <span class="n">dics</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">lkey</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">:</span>
@@ -720,7 +752,7 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">timestep</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                 
                 <span class="k">if</span> <span class="p">(</span><span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Magnetized&quot;</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">]:</span>
                         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                             <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;B_Gauss&quot;</span><span class="p">):</span>
@@ -883,7 +915,7 @@
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">],</span> <span class="s2">&quot;Z&quot;</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">Z</span>
 
-                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span><span class="p">):</span>
                     <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">BField</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;speed of light in vacuum&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -945,7 +977,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

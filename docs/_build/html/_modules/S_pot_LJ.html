@@ -156,8 +156,6 @@
             
   <h1>Source code for S_pot_LJ</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">S_pot_LJ.py</span>
-
 <span class="sd">Module for handling Lennard-Jones interaction</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -168,19 +166,15 @@
 
 <div class="viewcode-block" id="LJ_setup"><a class="viewcode-back" href="../S_pot_LJ.html#S_pot_LJ.LJ_setup">[docs]</a><span class="k">def</span> <span class="nf">LJ_setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Setup simulation&#39;s parameters for Moliere-like potential</span>
+<span class="sd">    Updates ``params`` class with LJ potential paramters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See S_params.py for more info.</span>
+<span class="sd">        Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
 
 <span class="sd">    filename : string</span>
-<span class="sd">                Input filename</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    none</span>
+<span class="sd">        Input filename.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">LJ_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
@@ -213,28 +207,28 @@
 <div class="viewcode-block" id="LJ_force_PP"><a class="viewcode-back" href="../S_pot_LJ.html#S_pot_LJ.LJ_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">LJ_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix_ij</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate the PP force between particles using Lennard-Jones Potential.</span>
+<span class="sd">    Calculates the PP force between particles using Lennard-Jones Potential.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    r : float</span>
-<span class="sd">        particles&#39; distance</span>
+<span class="sd">        Particles&#39; distance.</span>
 
 <span class="sd">    pot_matrix : array</span>
-<span class="sd">                Moliere potential parameters according to Wilson et al. PRB 15, 2458 (1977) </span>
+<span class="sd">        LJ potential parameters. </span>
 
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    U : float</span>
-<span class="sd">          potential</span>
+<span class="sd">        Potential.</span>
 
 <span class="sd">    force : float</span>
-<span class="sd">         force</span>
-<span class="sd">    </span>
+<span class="sd">        Force.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    </span>
 <span class="sd">    pot_matrix[0] = epsilon</span>
 <span class="sd">    pot_matrix[1] = sigma</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -263,7 +257,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

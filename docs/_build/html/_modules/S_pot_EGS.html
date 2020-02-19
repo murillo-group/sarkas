@@ -155,7 +155,15 @@
            <div itemprop="articleBody">
             
   <h1>Source code for S_pot_EGS</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for handling EGS Potential as described in Ref. [1]_</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">.. [1] `Stanton and Murillo Phys Rev E 91 033104 (2015) &lt;https://doi.org/10.1103/PhysRevE.91.033104&gt;`_</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">fdint</span>
@@ -164,24 +172,18 @@
 
 <div class="viewcode-block" id="EGS_setup"><a class="viewcode-back" href="../S_pot_EGS.html#S_pot_EGS.EGS_setup">[docs]</a><span class="k">def</span> <span class="nf">EGS_setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Setup simulation&#39;s parameters for Yukawa interaction</span>
+<span class="sd">    Updates ``params`` class with EGS potential parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See S_params.py for more info.</span>
+<span class="sd">        Simulation&#39;s parameters. See S_params.py for more info.</span>
 
-<span class="sd">    filename : string</span>
-<span class="sd">                Input filename</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Input filename.</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    none</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    Reference Stanton and Murillo Phys Rev E 91 033104 (2015)</span>
-
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    EGS_matrix[0,i,j] : kappa = 1.0/lambda_TF or given as input. Same value for all species.</span>
 <span class="sd">    EGS_matrix[1,i,j] : nu = eq.(14) of Ref</span>
 <span class="sd">    EGS_matrix[2,i,j] : qi qj/(4 pi esp0) Force factor between two particles.</span>
@@ -258,28 +260,28 @@
     <span class="n">fdint_ifd1h_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">ifd1h</span><span class="p">)</span>
 
     <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="n">kb</span><span class="o">*</span><span class="n">Te</span><span class="p">)</span>
-    <span class="c1"># eq.(4) from Stanton et al. PRE 91 033104 (2015)</span>
+    <span class="c1"># eq.(4) of Ref. [1]_</span>
     <span class="n">eta</span> <span class="o">=</span> <span class="n">fdint_ifd1h_vec</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">beta</span><span class="o">*</span><span class="n">h_bar</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="n">m_e</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">ne</span><span class="p">)</span>
-    <span class="c1"># eq.(10) from Stanton et al. PRE 91 033104 (2015)</span>
+    <span class="c1"># eq.(10) of Ref. [1]_</span>
     <span class="n">lambda_TF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="mf">4.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">e_0</span><span class="o">*</span><span class="n">h_bar</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">m_e</span><span class="o">*</span><span class="n">e</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">beta</span><span class="o">*</span><span class="n">h_bar</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">m_e</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">fdint_fdk_vec</span><span class="p">(</span><span class="n">k</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="n">eta</span><span class="p">)))</span> 
-    <span class="c1"># eq. (14) from Stanton et al. PRE 91 033104 (2015)</span>
+    <span class="c1"># eq. (14) of Ref. [1]_</span>
     <span class="n">nu</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_e</span><span class="o">*</span><span class="n">e</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">e_0</span><span class="o">*</span><span class="n">h_bar</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">8.0</span><span class="o">*</span><span class="n">beta</span><span class="o">*</span><span class="n">h_bar</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">m_e</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">3.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="n">lmbda</span><span class="o">*</span><span class="n">fdint_dfdk_vec</span><span class="p">(</span><span class="n">k</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="n">eta</span><span class="p">)</span>
     <span class="c1"># Fermi Energy</span>
     <span class="n">E_F</span> <span class="o">=</span> <span class="p">(</span><span class="n">hbar</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">m_e</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="mf">3.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">ne</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
     <span class="c1"># Degeneracy Parameter</span>
     <span class="n">theta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="n">beta</span><span class="o">*</span><span class="n">E_F</span><span class="p">)</span>
-    <span class="c1"># eq. (33) from Stanton et al. PRE 91 033104 (2015)</span>
+    <span class="c1"># eq. (33) of Ref. [1]_</span>
     <span class="n">Ntheta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.8343</span><span class="o">*</span><span class="n">theta</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">0.2151</span><span class="o">*</span><span class="n">theta</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">5.2759</span><span class="o">*</span><span class="n">theta</span><span class="o">**</span><span class="mi">4</span>
-    <span class="c1"># eq. (34) from Stanton et al. PRE 91 033104 (2015)        </span>
+    <span class="c1"># eq. (34) of Ref. [1]_</span>
     <span class="n">Dtheta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">3.9431</span><span class="o">*</span><span class="n">theta</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">7.9138</span><span class="o">*</span><span class="n">theta</span><span class="o">**</span><span class="mi">4</span>
-    <span class="c1"># eq. (32) from Stanton et al. PRE 91 033104 (2015)</span>
+    <span class="c1"># eq. (32) of Ref. [1]_</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">Ntheta</span><span class="o">/</span><span class="n">Dtheta</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">theta</span><span class="p">)</span>
     <span class="c1"># grad h(x)</span>
     <span class="n">gradh</span> <span class="o">=</span> <span class="p">(</span> <span class="o">-</span><span class="p">(</span><span class="n">Ntheta</span><span class="o">/</span><span class="n">Dtheta</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">theta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="n">theta</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># derivative of tanh(1/x) </span>
             <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">theta</span><span class="p">)</span><span class="o">*</span><span class="p">(</span> <span class="n">Ntheta</span><span class="o">*</span><span class="p">(</span><span class="mf">7.8862</span><span class="o">*</span><span class="n">theta</span> <span class="o">+</span> <span class="mf">31.6552</span><span class="o">*</span><span class="n">theta</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="n">Dtheta</span><span class="o">**</span><span class="mi">2</span> <span class="c1"># derivative of 1/Dtheta</span>
             <span class="o">+</span> <span class="p">(</span><span class="mf">5.6686</span><span class="o">*</span><span class="n">theta</span> <span class="o">-</span> <span class="mf">0.6453</span><span class="o">*</span><span class="n">theta</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">21.1036</span><span class="o">*</span><span class="n">theta</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="n">Dtheta</span> <span class="p">)</span>     <span class="p">)</span>       <span class="c1"># derivative of Ntheta</span>
 
-    <span class="c1">#eq.(31) from Stanton et al. PRE 91 033104 (2015)</span>
+    <span class="c1">#eq.(31) of Ref. [1]_</span>
     <span class="n">b</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">8.0</span><span class="o">*</span><span class="n">beta</span><span class="o">*</span><span class="n">theta</span><span class="o">*</span><span class="p">(</span><span class="n">h</span> <span class="o">-</span><span class="mf">2.0</span><span class="o">*</span><span class="n">theta</span><span class="o">*</span><span class="p">(</span><span class="n">gradh</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">hbar</span><span class="o">/</span><span class="n">lambda_TF</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="n">m_e</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">):</span>
@@ -288,14 +290,14 @@
     <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">=</span> <span class="n">lambda_TF</span>
     <span class="c1"># Monotonic decay</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">nu</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="c1">#eq. (29) from Stanton et al. PRE 91 033104 (2015)</span>
+        <span class="c1">#eq. (29) of Ref. [1]_</span>
         <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">lambda_p</span> <span class="o">=</span> <span class="n">lambda_TF</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">b</span> <span class="o">+</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nu</span><span class="p">)))</span>
         <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">lambda_m</span> <span class="o">=</span> <span class="n">lambda_TF</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">b</span> <span class="o">-</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nu</span><span class="p">)))</span>
         <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">b</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">nu</span><span class="p">)</span>
     
     <span class="c1"># Oscillatory behavior</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">nu</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="c1">#eq. (29) from Stanton et al. PRE 91 033104 (2015)</span>
+        <span class="c1">#eq. (29) of Ref. [1]_</span>
         <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">gamma_m</span> <span class="o">=</span> <span class="n">lambda_TF</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="o">-</span> <span class="n">b</span><span class="p">))</span>
         <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">gamma_p</span> <span class="o">=</span> <span class="n">lambda_TF</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">))</span>
         <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">alphap</span> <span class="o">=</span> <span class="n">b</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="o">-</span><span class="n">b</span><span class="p">)</span>
@@ -394,24 +396,24 @@
 <div class="viewcode-block" id="EGS_force_PP"><a class="viewcode-back" href="../S_pot_EGS.html#S_pot_EGS.EGS_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">EGS_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate Potential and force between particles using the EGS Potential.</span>
+<span class="sd">    Calculates Potential and force between particles using the EGS Potential.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    r : float</span>
-<span class="sd">        particles&#39; distance</span>
+<span class="sd">        Particles&#39; distance.</span>
 
 <span class="sd">    pot_matrix : array</span>
-<span class="sd">                EGS potential parameters. See details below and Stanton et al. PRE 91, 033104 (2015) for more info</span>
+<span class="sd">        EGS potential parameters. </span>
 
 <span class="sd">    Return</span>
 <span class="sd">    ------</span>
 
 <span class="sd">    U : float</span>
-<span class="sd">        potential</span>
+<span class="sd">        Potential.</span>
 
 <span class="sd">    fr : float</span>
-<span class="sd">        force</span>
+<span class="sd">        Force.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nu</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -442,15 +444,6 @@
         <span class="n">fr</span> <span class="o">=</span> <span class="n">fr1</span> <span class="o">+</span> <span class="n">fr2</span> <span class="o">+</span> <span class="n">fr3</span>
 
     <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">fr</span></div>
-
-<div class="viewcode-block" id="EGS_force_P3M"><a class="viewcode-back" href="../S_pot_EGS.html#S_pot_EGS.EGS_force_P3M">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
-<span class="k">def</span> <span class="nf">EGS_force_P3M</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span><span class="n">acc_s_r</span><span class="p">):</span>
-    <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="gf_opt"><a class="viewcode-back" href="../S_pot_EGS.html#S_pot_EGS.gf_opt">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
-<span class="k">def</span> <span class="nf">gf_opt</span><span class="p">(</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">aliases</span><span class="p">,</span> <span class="n">BoxLv</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">,</span><span class="n">rcut</span><span class="p">,</span> <span class="n">fourpie0</span><span class="p">):</span>
-    <span class="k">pass</span></div>
 </pre></div>
 
            </div>
@@ -465,7 +458,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

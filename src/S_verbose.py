@@ -3,13 +3,23 @@ from inspect import currentframe, getframeinfo
 import time
 
 class Verbose:
-    """ Stuff
+    """ 
+    Class to handle verbose output to screen.
+
+    Parameters
+    ----------
+    params : class
+        Simulation's parameters
+
     """
     def __init__(self, params):
         print("Sarkas Ver. 1.0")
         self.params = params
 
     def sim_setting_summary(self):
+        """
+        Print out to screen a summary of simulation's parameters.
+        """
         params = self.params
         print('\n\n----------- Molecular Dynamics Simulation ----------------------')
         print('No. of particles = ', params.total_num_ptcls)
@@ -44,7 +54,7 @@ class Verbose:
             print("e-i Coupling Parameter = {:3.3f} ".format(abs(params.Potential.matrix[1,0,1])/(params.ai*params.kB*params.Ti) ) )
             print("rs Coupling Parameter = {:3.3f} ".format(params.rs) )
 
-        if (params.magnetized):
+        if (params.Magnetic.on):
             print('\nMagnetized Plasma')
             for ic in range(params.num_species):
                 print('Cyclotron frequency of Species {:2} = {:2.6e}'.format( ic + 1, params.species[ic].omega_c) )
@@ -55,13 +65,16 @@ class Verbose:
             print('Ewald_parameter * a_ws = {:2.6e}'.format(params.Potential.matrix[-1,0,0]*params.aws) )
             print('Grid_size * Ewald_parameter (h * alpha) = {:2.6e}'.format(params.P3M.hx*params.P3M.G_ew) )
             print('rcut/a_ws = {:2.6e}'.format(params.Potential.rc/params.aws) )
+            print('Mesh = ', params.P3M.MGrid)
             print('PM Force Error = {:2.6e}'.format(params.P3M.PM_err) )
+            print('No. of cells per dimension = {:2}'.format( int(params.L/params.Potential.rc) ) ) 
+            print('No. of neighbors per particle = {:6}'.format( int(params.total_num_ptcls*(params.Potential.rc/params.L)**(3.0)  ) ) )
             print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err) )
             print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err) )
         else:
             print('rcut/a_ws = {:2.6e}'.format(params.Potential.rc/params.aws) )
             print('No. of cells per dimension = {:2}'.format( int(params.L/params.Potential.rc) ) ) 
-            print('No. of neighbors per particle = {:6}'.format( int(params.total_num_ptcls*(params.Potential.rc/params.L)**(1.0/3.0)  ) ) )
+            print('No. of neighbors per particle = {:6}'.format( int(params.total_num_ptcls*(params.Potential.rc/params.L)**(3.0)  ) ) )
             print('PP Force Error = {:2.6e}'.format(params.PP_err) )
 
         print('\ntime step = {:2.6e} [s]'.format(params.Control.dt ) )
@@ -85,6 +98,15 @@ class Verbose:
         print('\nSmallest interval in Fourier space for S(q,w): qa_min = {:2.6e}'.format( 2.0*np.pi*params.aws/params.Lx) )
 
     def time_stamp(self, time_stamp):
+        """
+        Print out to screen elapsed times.
+
+        Parameters
+        ----------
+        time_stamp : array
+            Array of time stamps.
+
+        """
         t = time_stamp
         #t[1] - t[0] is the time to read params
         init_hrs = int( (t[2] - t[0])/3600 )
@@ -96,14 +118,32 @@ class Verbose:
         eq_min = int( (t[3] - t[2] - eq_hrs*3600)/60 )
         eq_sec = int( (t[3] - t[2] - eq_hrs*3600 - eq_min*60) )
         print('Time for equilibration = {} hrs {} mins {} secs'.format( eq_hrs, eq_min, eq_sec ) )
+        if (self.params.Magnetic.on and self.params.Magnetic.elec_therm):
+            mag_eq_hrs = int( (t[4] - t[3])/3600 )
+            mag_eq_min = int( (t[4] - t[3] - mag_eq_hrs*3600)/60 )
+            mag_eq_sec = int( (t[4] - t[3] - mag_eq_hrs*3600 - mag_eq_min*60) )
+            print('Time for magnetic equilibration = {} hrs {} mins {} secs'.format( mag_eq_hrs, mag_eq_min, mag_eq_sec ) )
+
+            prod_hrs = int( (t[5] - t[4])/3600 )
+            prod_min = int( (t[5] - t[4] - prod_hrs*3600)/60 )
+            prod_sec = int( (t[5] - t[4] - prod_hrs*3600 - prod_min*60) )
+            print('Time for production = {} hrs {} mins {} secs'.format( prod_hrs, prod_min, prod_sec ) )
+            
+            tot_hrs = int( (t[6] - t[0])/3600 )
+            tot_min = int( (t[6] - t[0] - tot_hrs*3600)/60 )
+            tot_sec = int( (t[6] - t[0] - tot_hrs*3600 - tot_min*60) )
+            
+            print('Total elapsed time = {} hrs {} mins {} secs'.format( tot_hrs, tot_min, tot_sec ) )
         
-        prod_hrs = int( (t[4] - t[3])/3600 )
-        prod_min = int( (t[4] - t[3] - prod_hrs*3600)/60 )
-        prod_sec = int( (t[4] - t[3] - prod_hrs*3600 - prod_min*60) )
-        print('Time for production = {} hrs {} mins {} secs'.format( prod_hrs, prod_min, prod_sec ) )
-        
-        tot_hrs = int( (t[4] - t[0])/3600 )
-        tot_min = int( (t[4] - t[0] - tot_hrs*3600)/60 )
-        tot_sec = int( (t[4] - t[0] - tot_hrs*3600 - tot_min*60) )
-        
-        print('Total elapsed time = {} hrs {} mins {} secs'.format( tot_hrs, tot_min, tot_sec ) )
+        else:
+
+            prod_hrs = int( (t[4] - t[3])/3600 )
+            prod_min = int( (t[4] - t[3] - prod_hrs*3600)/60 )
+            prod_sec = int( (t[4] - t[3] - prod_hrs*3600 - prod_min*60) )
+            print('Time for production = {} hrs {} mins {} secs'.format( prod_hrs, prod_min, prod_sec ) )
+            
+            tot_hrs = int( (t[4] - t[0])/3600 )
+            tot_min = int( (t[4] - t[0] - tot_hrs*3600)/60 )
+            tot_sec = int( (t[4] - t[0] - tot_hrs*3600 - tot_min*60) )
+            
+            print('Total elapsed time = {} hrs {} mins {} secs'.format( tot_hrs, tot_min, tot_sec ) )

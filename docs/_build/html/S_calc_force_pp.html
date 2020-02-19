@@ -178,23 +178,22 @@
             
   <div class="section" id="module-S_calc_force_pp">
 <span id="s-calc-force-pp-module"></span><h1>S_calc_force_pp module<a class="headerlink" href="#module-S_calc_force_pp" title="Permalink to this headline">¶</a></h1>
-<p>S_calc_force_pp.py</p>
-<p>Module for handling the Particle-Particle interaction.</p>
+<p>Module for handling Particle-Particle interaction.</p>
 <dl class="function">
 <dt id="S_calc_force_pp.update">
-<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">id_ij</em>, <em class="sig-param">mass_ij</em>, <em class="sig-param">Lv</em>, <em class="sig-param">rc</em>, <em class="sig-param">potential_matrix</em>, <em class="sig-param">force</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the force on the particles based on a linked cell-list (LCL) algorithm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’s data. See S_particles.py for more info</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info</p></li>
+<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’s data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U_s_r</strong> (<em>float</em>) – Short-ranged component of the potential energy of the system</p></li>
-<li><p><strong>acc_s_r</strong> (<em>array_like</em>) – Short-ranged component of the acceleration for the particles</p></li>
+<li><p><strong>U_s_r</strong> (<em>float</em>) – Short-ranged component of the potential energy of the system.</p></li>
+<li><p><strong>acc_s_r</strong> (<em>array</em>) – Short-ranged component of the acceleration for the particles.</p></li>
 </ul>
 </p>
 </dd>
@@ -208,20 +207,20 @@ short and long ranged interactions. See the wikipedia article:
 
 <dl class="function">
 <dt id="S_calc_force_pp.update_0D">
-<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update_0D</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update_0D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update_0D" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates particles’ accelerations when rc = L/2
-For no sub-cell. All ptcls within rc (= L/2) participate for force calculation. Cost ~ O(N^2)</p>
+<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update_0D</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">id_ij</em>, <em class="sig-param">mass_ij</em>, <em class="sig-param">Lv</em>, <em class="sig-param">rc</em>, <em class="sig-param">potential_matrix</em>, <em class="sig-param">force</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update_0D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update_0D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates particles’ accelerations when the cutoff radius :math: <cite>r_c</cite> is half the box’s length, :math: <cite>r_c = L/2</cite>
+For no sub-cell. All ptcls within :math: <cite>r_c = L/2</cite> participate for force calculation. Cost ~ O(N^2)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’ class. See S_Particles for more info</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation Parameters. See S_Params for more info</p></li>
+<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’ class. See <code class="docutils literal notranslate"><span class="pre">S_Particles.py</span></code> for more info.</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation Parameters. See <code class="docutils literal notranslate"><span class="pre">S_Params.py</span></code> for more info.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U_s_r</strong> (<em>array</em>) – Potential</p></li>
-<li><p><strong>acc_s_r</strong> (<em>array</em>) – Particles’ accelerations</p></li>
+<li><p><strong>U_s_r</strong> (<em>array</em>) – Potential.</p></li>
+<li><p><strong>acc_s_r</strong> (<em>array</em>) – Particles’ accelerations.</p></li>
 </ul>
 </p>
 </dd>
@@ -273,7 +272,7 @@ For no sub-cell. All ptcls within rc (= L/2) participate for force calculation. 
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

@@ -156,10 +156,7 @@
             
   <h1>Source code for S_calc_force_pp</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">S_calc_force_pp.py</span>
-
-<span class="sd">Module for handling the Particle-Particle interaction.</span>
-
+<span class="sd">Module for handling Particle-Particle interaction.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -168,7 +165,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">numba.errors</span> <span class="k">import</span> <span class="n">NumbaWarning</span><span class="p">,</span> <span class="n">NumbaDeprecationWarning</span><span class="p">,</span> <span class="n">NumbaPendingDeprecationWarning</span>
+<span class="kn">from</span> <span class="nn">numba.errors</span> <span class="kn">import</span> <span class="n">NumbaWarning</span><span class="p">,</span> <span class="n">NumbaDeprecationWarning</span><span class="p">,</span> <span class="n">NumbaPendingDeprecationWarning</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="c1"># These &quot;ignore&quot; should be only temporary until we figure out a way to speed up the update functions</span>
@@ -176,42 +173,42 @@
 <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaWarning</span><span class="p">)</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaPendingDeprecationWarning</span><span class="p">)</span>
 
-<div class="viewcode-block" id="update_0D"><a class="viewcode-back" href="../S_calc_force_pp.html#S_calc_force_pp.update_0D">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>
-<span class="k">def</span> <span class="nf">update_0D</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="update_0D"><a class="viewcode-back" href="../S_calc_force_pp.html#S_calc_force_pp.update_0D">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<span class="k">def</span> <span class="nf">update_0D</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">id_ij</span><span class="p">,</span> <span class="n">mass_ij</span><span class="p">,</span> <span class="n">Lv</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">,</span> <span class="n">force</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Updates particles&#39; accelerations when rc = L/2</span>
-<span class="sd">    For no sub-cell. All ptcls within rc (= L/2) participate for force calculation. Cost ~ O(N^2)</span>
+<span class="sd">    Updates particles&#39; accelerations when the cutoff radius :math: `r_c` is half the box&#39;s length, :math: `r_c = L/2`</span>
+<span class="sd">    For no sub-cell. All ptcls within :math: `r_c = L/2` participate for force calculation. Cost ~ O(N^2)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ptcls : class</span>
-<span class="sd">            Particles&#39; class. See S_Particles for more info</span>
+<span class="sd">        Particles&#39; class. See ``S_Particles.py`` for more info.</span>
 
 <span class="sd">    params : class</span>
-<span class="sd">             Simulation Parameters. See S_Params for more info</span>
+<span class="sd">        Simulation Parameters. See ``S_Params.py`` for more info.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    U_s_r : array</span>
-<span class="sd">            Potential</span>
+<span class="sd">        Potential.</span>
 
 <span class="sd">    acc_s_r : array</span>
-<span class="sd">              Particles&#39; accelerations</span>
+<span class="sd">        Particles&#39; accelerations.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span>
-    <span class="n">rc</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span>
-    <span class="n">L</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">L</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">Lh</span> <span class="o">=</span> <span class="n">L</span><span class="o">/</span><span class="mf">2.</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">N</span> <span class="c1"># Number of particles</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># Number of particles</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="n">potential_matrix</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span>
-    <span class="n">id_ij</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span>
-    <span class="n">mass_ij</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span>
-    <span class="n">force</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">force</span>
+    <span class="c1"># potential_matrix = params.Potential.matrix</span>
+    <span class="c1"># id_ij = ptcls.species_id</span>
+    <span class="c1"># mass_ij = ptcls.mass</span>
+    <span class="c1"># force = params.force</span>
     
     <span class="n">U_s_r</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># Short-ranges potential energy accumulator</span>
-    <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">d</span><span class="p">)</span> <span class="p">)</span> <span class="c1"># Vector of accelerations</span>
+    <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span> <span class="n">pos</span><span class="p">)</span> <span class="c1"># Vector of accelerations</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
@@ -276,26 +273,26 @@
     <span class="k">return</span> <span class="n">U_s_r</span><span class="p">,</span> <span class="n">acc_s_r</span></div>
 
 
-<div class="viewcode-block" id="update"><a class="viewcode-back" href="../S_calc_force_pp.html#S_calc_force_pp.update">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span> <span class="c1"># This will give a warning, but it is still faster than without it or in forceobj=True mode.</span>
-<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="update"><a class="viewcode-back" href="../S_calc_force_pp.html#S_calc_force_pp.update">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span> <span class="c1"># This will give a warning, but it is still faster than without it or in forceobj=True mode.</span>
+<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">id_ij</span><span class="p">,</span> <span class="n">mass_ij</span><span class="p">,</span> <span class="n">Lv</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">,</span> <span class="n">force</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Update the force on the particles based on a linked cell-list (LCL) algorithm.</span>
 <span class="sd">  </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ptcls : class </span>
-<span class="sd">        Particles&#39;s data. See S_particles.py for more info</span>
+<span class="sd">        Particles&#39;s data. See ``S_particles.py`` for more info.</span>
 
 <span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See S_params.py for more info</span>
+<span class="sd">        Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    U_s_r : float</span>
-<span class="sd">        Short-ranged component of the potential energy of the system</span>
+<span class="sd">        Short-ranged component of the potential energy of the system.</span>
 
-<span class="sd">    acc_s_r : array_like</span>
-<span class="sd">        Short-ranged component of the acceleration for the particles</span>
+<span class="sd">    acc_s_r : array</span>
+<span class="sd">        Short-ranged component of the acceleration for the particles.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -304,22 +301,17 @@
 <span class="sd">    https://en.wikipedia.org/wiki/Ewald_summation or</span>
 <span class="sd">    &quot;Computer Simulation of Liquids by Allen and Tildesley&quot; for more information.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span>
     <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
 
     <span class="c1"># Declare parameters </span>
-    <span class="n">rc</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="c1"># Cutoff-radius</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">N</span> <span class="c1"># Number of particles</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">d</span> <span class="c1"># Number of dimensions</span>
+    <span class="c1"># rc = params.Potential.rc # Cutoff-radius</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># Number of particles</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Number of dimensions</span>
     <span class="n">rshift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="c1"># Shifts for array flattening</span>
-    <span class="n">Lx</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># X length of box</span>
-    <span class="n">Ly</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Y length of box</span>
-    <span class="n">Lz</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># Z length of box</span>
-    <span class="n">potential_matrix</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span>
-    <span class="n">id_ij</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span>
-    <span class="n">mass_ij</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span>
-    <span class="n">force</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">force</span>
-
+    <span class="n">Lx</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># X length of box</span>
+    <span class="n">Ly</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Y length of box</span>
+    <span class="n">Lz</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># Z length of box</span>
+    
     <span class="c1"># Initialize</span>
     <span class="n">U_s_r</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># Short-ranges potential energy accumulator</span>
     <span class="n">ls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="c1"># List of particle indices in a given cell</span>
@@ -569,7 +561,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

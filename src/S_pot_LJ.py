@@ -1,6 +1,4 @@
 """
-S_pot_LJ.py
-
 Module for handling Lennard-Jones interaction
 """
 
@@ -11,19 +9,15 @@ import yaml
 
 def LJ_setup(params, filename):
     """
-    Setup simulation's parameters for Moliere-like potential
+    Updates ``params`` class with LJ potential paramters.
 
     Parameters
     ----------
     params : class
-            Simulation's parameters. See S_params.py for more info.
+        Simulation's parameters. See ``S_params.py`` for more info.
 
     filename : string
-                Input filename
-
-    Returns
-    -------
-    none
+        Input filename.
 
     """
     LJ_matrix = np.zeros((2, params.num_species, params.num_species))
@@ -56,28 +50,28 @@ def LJ_setup(params, filename):
 @nb.njit
 def LJ_force_PP(r, pot_matrix_ij):
     """ 
-    Calculate the PP force between particles using Lennard-Jones Potential.
+    Calculates the PP force between particles using Lennard-Jones Potential.
     
     Parameters
     ----------
     r : float
-        particles' distance
+        Particles' distance.
 
     pot_matrix : array
-                Moliere potential parameters according to Wilson et al. PRB 15, 2458 (1977) 
+        LJ potential parameters. 
 
 
     Returns
     -------
     U : float
-          potential
+        Potential.
 
     force : float
-         force
-    
+        Force.
+    """
+    """
     Notes
     -----
-    
     pot_matrix[0] = epsilon
     pot_matrix[1] = sigma
     """

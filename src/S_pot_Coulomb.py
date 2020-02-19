@@ -1,6 +1,4 @@
 """ 
-S_pot_Coulombg.py
-
 Module for handling Coulomb interaction
 """
 
@@ -11,18 +9,16 @@ import sys
 
 def setup(params):
     """
-    Setup simulation's parameters for Yukawa interaction
+    Update ``params`` class with Coulomb's parameters.
 
     Parameters
     ----------
     params : class
-            Simulation's parameters. See S_params.py for more info.
+        Simulation's parameters. See ``S_params.py`` for more info.
 
-    Returns
-    -------
-    none
-
-    Notes
+    """
+    """
+    Dev Notes:
     -----
     Coulomb_matrix[0,i,j] : Gamma = qi qj/(4pi esp0*kb T), Coupling parameter between particles' species.
     Coulomb_matrix[1,i,j] : qi qj/(4pi esp0) Force factor between two particles.
@@ -64,7 +60,7 @@ def setup(params):
             Coulomb_matrix[1, i, j] = Zi*qe*Zj*qe/fourpie0
 
     # Effective Coupling Parameter in case of multi-species
-    # see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)
+    # see eq.(3) of T. Haxhimali et al. Phys Rev E 90 023104 (2014) <https://doi.org/10.1103/PhysRevE.90.023104>
     params.Potential.Gamma_eff = Z53*Z_avg**(1./3.)*params.qe**2*beta_i/(fourpie0*params.aws)
     params.QFactor = params.QFactor/fourpie0
     params.Potential.matrix = Coulomb_matrix
@@ -101,39 +97,33 @@ def setup(params):
         params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err, params.P3M.PP_err = gf_opt(params.P3M.MGrid,\
             params.P3M.aliases, params.Lv, params.P3M.cao, params.N, params.Potential.G_ew, params.Potential.rc, fourpie0)
 
-        # Include the charges in the Force errors. Prefactor in eq.(29) of Dharuman et al J Chem Phys 146 024112 (2017)
         # Notice that the equation was derived for a single component plasma. 
-        params.P3M.PM_err *= params.QFactor*fourpie0/np.sqrt(params.N) # the multiplication of fourpie0 is needed to avoid double division.
-        params.P3M.PP_err *= params.QFactor*fourpie0/np.sqrt(params.N)
-        # Total Force Error 
+        params.P3M.PP_err *= np.sqrt(params.N)*params.aws**2*fourpie0
+        params.P3M.PM_err *= np.sqrt(params.N)*params.aws**2*fourpie0/params.box_volume**(2./3.)
+        # Total Force Error
         params.P3M.F_err = np.sqrt(params.P3M.PM_err**2 + params.P3M.PP_err**2)
     return
 
 @nb.njit
 def Coulomb_force_PP(r, pot_matrix_ij):
     """ 
-    Calculate Potential and Force between two particles when the PP algorithm is chosen
+    Calculate Potential and Force between two particles when the PP algorithm is chosen.
 
     Parameters
     ----------
     r : float
-        distance between two particles
+        distance between two particles.
 
-    pot_matrix_ij : array_like
-                    it contains potential dependent variables
-                    pot_matrix_ij[0,:,:] = Gamma_ij
-                    pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)
+    pot_matrix_ij : array
+        it contains potential dependent variables.
 
     Returns
     -------
     U : float
-        Potential
+        Potential.
                 
     force : float
-            Force between two particles
-    
-    Notes
-    -----    
+        Force between two particles.
     """
     
     U = pot_matrix_ij[1]/r
@@ -149,23 +139,26 @@ def Coulomb_force_P3M(r, pot_matrix_ij):
     Parameters
     ----------
     r : real
-        distance between two particles
+        Distance between two particles.
 
-    pot_matrix_ij : array_like
-                    it contains potential dependent variables
-                    pot_matrix_ij[0,:,:] = Gamma_ij
-                    pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)
-                    pot_matrix_ij[2,:,:] = Ewald parameter alpha
+    pot_matrix_ij : array
+        It contains potential dependent variables.
+                    
     Returns
     -------
     U_s_r : float
-            Potential value
+        Potential value.
                 
     fr : float
-         Force between two particles 
+        Force between two particles. 
     
     """
     
+    """
+    pot_matrix_ij[0,:,:] = Gamma_ij
+    pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)
+    pot_matrix_ij[2,:,:] = Ewald parameter alpha
+    """
     alpha = pot_matrix_ij[2]   # Ewald parameter alpha
     a2 = alpha*alpha 
     r2 = r*r
@@ -180,56 +173,57 @@ def Coulomb_force_P3M(r, pot_matrix_ij):
 @nb.njit
 def gf_opt(MGrid, aliases, BoxLv, p, N, alpha ,rcut, fourpie0):
     """ 
-    Calculate the Optimized Green Function given by eq.(22) in Stern et al. J Chem Phys 128, 214006 (2008)
+    Calculate the Optimized Green Function given by eq.(22) of Ref. [1]_ . 
 
     Parameters
     ----------
     MGrid : array
-            number of mesh points in x,y,z
+            number of mesh points in x,y,z.
 
     aliases : array
-            number of aliases in each direction
+            number of aliases in each direction.
 
     BoxLv : array
-            Length of simulation's box in each direction
+            Length of simulation's box in each direction.
 
     p : int
-        charge assignment order (CAO)
+        charge assignment order (CAO).
 
     N : int
-        number of particles
+        number of particles.
 
     alpha : float
-            Ewald parameter
+        Ewald parameter.
 
     rcut : float
-            Cutoff distance for the PP calculation
+        Cutoff distance for the PP calculation.
 
     fourpie0 : float
-            Potential factor.
+        Potential factor.
 
     Returns
     -------
     G_k : array_like
-          optimal Green Function
+        optimal Green Function.
 
     kx_v : array_like
-           array of reciprocal space vectors along the x-axis
+        array of reciprocal space vectors along the x-axis.
 
     ky_v : array_like
-           array of reciprocal space vectors along the y-axis
+        array of reciprocal space vectors along the y-axis.
 
     kz_v : array_like
-           array of reciprocal space vectors along the z-axis
+        array of reciprocal space vectors along the z-axis.
 
     PM_err : float
-             Error in the force calculation due to the optimized Green's function
-             eq.(28) in Stern et al. J Chem Phys 128 214106 (2008)
+        Error in the force calculation due to the optimized Green's function.
 
     PP_err : float
-             Error in the force calculation due to the distance cutoff.
-             eq.(30) in Dharuman et al. J Chem Phys 146 024112 (2017)
-  
+        Error in the force calculation due to the distance cutoff.
+    
+    References
+    ----------
+    .. [1] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) <https://doi.org/10.1063/1.2932253>`_
     """
     Gew = alpha #params.Potential.matrix[3,0,0]
     #p = params.P3M.cao
@@ -301,9 +295,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, alpha ,rcut, fourpie0):
                     for mz in range(-mz_max,mz_max+1):
                         for my in range(-my_max,my_max+1):
                             for mx in range(-mx_max,mx_max+1):
-                                
-                                #if ((nx_sh != 0) or (mx != 0)) and ((ny_sh != 0) or (my != 0)) and ((nz_sh != 0) or (mz != 0)):
-                                
+                                                                
                                 kx_M = 2.0*np.pi*(nx_sh + mx*Mx)/Lx
                                 ky_M = 2.0*np.pi*(ny_sh + my*My)/Ly
                                 kz_M = 2.0*np.pi*(nz_sh + mz*Mz)/Lz
@@ -332,20 +324,17 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, alpha ,rcut, fourpie0):
                                 
                                 k_dot_k_M = kx*kx_M + ky*ky_M + kz*kz_M
 
-                                #print( (-0.25*(kappa_sq + k_M_sq)/Gew_sq))
-
                                 U_G_k += (U_k_M_sq * G_k_M * k_dot_k_M)
                                 U_k_sq += U_k_M_sq
                                 
-                    # eq.(31) of Dharuman et al. J Chem Phys 146, 024112 (2017)                                        
+                    # eq.(22) of Ref. [1]_
                     G_k[nz,ny,nx] = U_G_k/((U_k_sq**2)*k_sq)
                     Gk_hat = CoulombFactor*np.exp(-0.25*k_sq/Gew_sq)/k_sq       
 
-                    # eq.(28) of Stern et al. J Chem Phys 128, 214006 (2008)
-                    # eq.(32) of Dharuman et al. J Chem Phys 146, 024112 (2017)
+                    # eq.(28) of Ref. [1]_ 
                     PM_err = PM_err + Gk_hat*Gk_hat*k_sq - U_G_k**2/((U_k_sq**2)*k_sq)
 
     PP_err = 2.0*CoulombFactor/np.sqrt(Lx*Ly*Lz)*np.exp(-Gew_sq*rcut2)/np.sqrt(rcut)
-    PM_err = PM_err/np.sqrt(Lx*Ly*Lz)
+    PM_err = np.sqrt(PM_err)/Lz
 
     return G_k, kx_v, ky_v, kz_v, PM_err, PP_err

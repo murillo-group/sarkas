@@ -178,7 +178,6 @@
             
   <div class="section" id="module-S_integrator">
 <span id="s-integrator-module"></span><h1>S_integrator module<a class="headerlink" href="#module-S_integrator" title="Permalink to this headline">¶</a></h1>
-<p>S_integrator.py</p>
 <p>Module of various types of integrators</p>
 <dl class="class">
 <dt id="S_integrator.Integrator">
@@ -187,7 +186,10 @@
 <p>Assign integrator type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>class</em>) – </p></li>
+<li><p><strong>parameters.</strong> (<em>Simulation's</em>) – </p></li>
+</ul>
 </dd>
 </dl>
 <dl class="attribute">
@@ -270,12 +272,12 @@ or on the Sarkas website.</p>
 <dt id="S_integrator.Magnetic_Verlet">
 <code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Magnetic_Verlet</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Magnetic_Verlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Magnetic_Verlet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ positions and velocities based on velocity verlet method in the case of a
-constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see Ref. [1]</p>
+constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles data. See S_particles.py for more info.</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info.</p></li>
+<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -287,7 +289,7 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </dl>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1006/jcph.1999.6237">Q. Spreiter and M. Walter, Journal of Computational Physics 152, 102–119 (1999)</a></p>
 </dd>
 </dl>
@@ -302,8 +304,8 @@ or on the Sarkas website.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles data. See S_particles.py for more info.</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info.</p></li>
+<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -338,7 +340,7 @@ or on the Sarkas website.</p>
 <dl class="function">
 <dt id="S_integrator.calc_dipole">
 <code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">calc_dipole</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">charge</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#calc_dipole"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.calc_dipole" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the dipole due to all charges. See Ref.[2] for explanation.</p>
+<dd><p>Calculate the dipole due to all charges. See Ref. <a class="footnote-reference brackets" href="#id4" id="id3">2</a> for explanation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -355,8 +357,8 @@ or on the Sarkas website.</p>
 </dl>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets">2</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1063/1.468422">JM. Caillol, J Chem Phys 101 6080 (1994)</a></p>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1063/1.468422">J-M. Caillol, J Chem Phys 101 6080 (1994)</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -419,7 +421,7 @@ or on the Sarkas website.</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

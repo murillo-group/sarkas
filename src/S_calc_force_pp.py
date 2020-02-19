@@ -1,8 +1,5 @@
 """
-S_calc_force_pp.py
-
-Module for handling the Particle-Particle interaction.
-
+Module for handling Particle-Particle interaction.
 """
 
 import numpy as np
@@ -19,42 +16,42 @@ warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaWarning)
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
-@nb.jit
-def update_0D(ptcls, params):
+@nb.njit
+def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
     """
-    Updates particles' accelerations when rc = L/2
-    For no sub-cell. All ptcls within rc (= L/2) participate for force calculation. Cost ~ O(N^2)
+    Updates particles' accelerations when the cutoff radius :math: `r_c` is half the box's length, :math: `r_c = L/2`
+    For no sub-cell. All ptcls within :math: `r_c = L/2` participate for force calculation. Cost ~ O(N^2)
 
     Parameters
     ----------
     ptcls : class
-            Particles' class. See S_Particles for more info
+        Particles' class. See ``S_Particles.py`` for more info.
 
     params : class
-             Simulation Parameters. See S_Params for more info
+        Simulation Parameters. See ``S_Params.py`` for more info.
 
     Returns
     -------
     U_s_r : array
-            Potential
+        Potential.
 
     acc_s_r : array
-              Particles' accelerations
+        Particles' accelerations.
 
     """
     pos = ptcls.pos
-    rc = params.Potential.rc
-    L = params.L
+    L = Lv[0]
     Lh = L/2.
-    N = params.N # Number of particles
+    N = pos.shape[0] # Number of particles
+    d = pos.shape[1]
 
-    potential_matrix = params.Potential.matrix
-    id_ij = ptcls.species_id
-    mass_ij = ptcls.mass
-    force = params.force
+    # potential_matrix = params.Potential.matrix
+    # id_ij = ptcls.species_id
+    # mass_ij = ptcls.mass
+    # force = params.force
     
     U_s_r = 0.0 # Short-ranges potential energy accumulator
-    acc_s_r = np.zeros( (params.N, params.d) ) # Vector of accelerations
+    acc_s_r = np.zeros_like( pos) # Vector of accelerations
 
     for i in range(N):
         for j in range(i+1, N):
@@ -119,26 +116,26 @@ def update_0D(ptcls, params):
     return U_s_r, acc_s_r
 
 
-@nb.jit # This will give a warning, but it is still faster than without it or in forceobj=True mode.
-def update(ptcls,params):
+@nb.njit # This will give a warning, but it is still faster than without it or in forceobj=True mode.
+def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
     """ 
     Update the force on the particles based on a linked cell-list (LCL) algorithm.
   
     Parameters
     ----------
     ptcls : class 
-        Particles's data. See S_particles.py for more info
+        Particles's data. See ``S_particles.py`` for more info.
 
     params : class
-            Simulation's parameters. See S_params.py for more info
+        Simulation's parameters. See ``S_params.py`` for more info.
 
     Returns
     -------
     U_s_r : float
-        Short-ranged component of the potential energy of the system
+        Short-ranged component of the potential energy of the system.
 
-    acc_s_r : array_like
-        Short-ranged component of the acceleration for the particles
+    acc_s_r : array
+        Short-ranged component of the acceleration for the particles.
 
     Notes
     -----
@@ -147,22 +144,17 @@ def update(ptcls,params):
     https://en.wikipedia.org/wiki/Ewald_summation or
     "Computer Simulation of Liquids by Allen and Tildesley" for more information.
     """
-    pos = ptcls.pos
     acc_s_r = np.zeros_like(pos)
 
     # Declare parameters 
-    rc = params.Potential.rc # Cutoff-radius
-    N = params.N # Number of particles
-    d = params.d # Number of dimensions
+    # rc = params.Potential.rc # Cutoff-radius
+    N = pos.shape[0] # Number of particles
+    d = pos.shape[1] # Number of dimensions
     rshift = np.zeros(d) # Shifts for array flattening
-    Lx = params.Lv[0] # X length of box
-    Ly = params.Lv[1] # Y length of box
-    Lz = params.Lv[2] # Z length of box
-    potential_matrix = params.Potential.matrix
-    id_ij = ptcls.species_id
-    mass_ij = ptcls.mass
-    force = params.force
-
+    Lx = Lv[0] # X length of box
+    Ly = Lv[1] # Y length of box
+    Lz = Lv[2] # Z length of box
+    
     # Initialize
     U_s_r = 0.0 # Short-ranges potential energy accumulator
     ls = np.arange(N) # List of particle indices in a given cell

@@ -178,18 +178,127 @@
             
   <div class="section" id="module-S_particles">
 <span id="s-particles-module"></span><h1>S_particles module<a class="headerlink" href="#module-S_particles" title="Permalink to this headline">¶</a></h1>
-<p>S_particles.py
-species_name
-pos: position components
-vel: velocity components
-acc: acc. components
-charge
-mass</p>
+<p>Module to handle particles’ class.</p>
 <dl class="class">
 <dt id="S_particles.Particles">
 <em class="property">class </em><code class="sig-prename descclassname">S_particles.</code><code class="sig-name descname">Particles</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>load –</p>
+<p>Particles class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="S_particles.Particles.pos">
+<code class="sig-name descname">pos</code><a class="headerlink" href="#S_particles.Particles.pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Particles’ positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.vel">
+<code class="sig-name descname">vel</code><a class="headerlink" href="#S_particles.Particles.vel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Particles’ velocities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.acc">
+<code class="sig-name descname">acc</code><a class="headerlink" href="#S_particles.Particles.acc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Particles’ accelerations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.params">
+<code class="sig-name descname">params</code><a class="headerlink" href="#S_particles.Particles.params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.N">
+<code class="sig-name descname">N</code><a class="headerlink" href="#S_particles.Particles.N" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of particles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.mass">
+<code class="sig-name descname">mass</code><a class="headerlink" href="#S_particles.Particles.mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mass of each particle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.charge">
+<code class="sig-name descname">charge</code><a class="headerlink" href="#S_particles.Particles.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge of each particle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.species_id">
+<code class="sig-name descname">species_id</code><a class="headerlink" href="#S_particles.Particles.species_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species identifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array, shape(N,)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.species_name">
+<code class="sig-name descname">species_name</code><a class="headerlink" href="#S_particles.Particles.species_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species’ names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_particles.Particles.species_num">
+<code class="sig-name descname">species_num</code><a class="headerlink" href="#S_particles.Particles.species_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of particles of each species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="S_particles.Particles.add">
 <code class="sig-name descname">add</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.add" title="Permalink to this definition">¶</a></dt>
@@ -205,18 +314,10 @@ and uses a rejection radius to avoid placing particles to close to each other.</
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>N</strong> (<em>int</em>) – Total number of particles to place.</p></li>
-<li><p><strong>bases</strong> (<em>array_like</em>) – Array of 3 ints each of which is a base for the Halton sequence.
+<li><p><strong>bases</strong> (<em>array</em>) – Array of 3 ints each of which is a base for the Halton sequence.
 Defualt: bases = np.array([2,3,5])</p></li>
 <li><p><strong>r_reject</strong> (<em>float</em>) – Value of rejection radius.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>x</strong> (<em>array_like</em>) – X positions for particles.</p></li>
-<li><p><strong>y</strong> (<em>array_like</em>) – Y positions for particles.</p></li>
-<li><p><strong>z</strong> (<em>array_like</em>) – Z positions for particles.</p></li>
-</ul>
-</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -239,14 +340,6 @@ Updates: N/A</p>
 Default: 1.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>x</strong> (<em>array_like</em>) – X positions for particles.</p></li>
-<li><p><strong>y</strong> (<em>array_like</em>) – Y positions for particles.</p></li>
-<li><p><strong>z</strong> (<em>array_like</em>) – Z positions for particles.</p></li>
-</ul>
-</p>
-</dd>
 </dl>
 <p class="rubric">Notes</p>
 <p>Author: Luke Stanek
@@ -258,43 +351,23 @@ Updates: Added to S_init_schemes.py for Sarkas import</p>
 <dl class="method">
 <dt id="S_particles.Particles.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize particles’ positions and velocities based on the load method.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>self</strong> (<em>class</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>none</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>Here numba does not help at all. In fact loading is slower with numba.
-It could be made faster if we made load a function and not a method of Particles.
-but in that case we would have to pass all the parameters.</p>
+<dd><p>Initialize particles’ positions and velocities.
+Positions are initilized based on the load method while velocities are chosen
+from a Maxwell-Boltzmann distribution.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="S_particles.Particles.load_from_file">
 <code class="sig-name descname">load_from_file</code><span class="sig-paren">(</span><em class="sig-param">f_name</em>, <em class="sig-param">N</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.load_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.load_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load particles’ data from a specific file</p>
+<dd><p>Load particles’ data from a specific file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>f_name</strong> (<em>string</em>) – Filename</p></li>
+<li><p><strong>f_name</strong> (<em>str</em>) – Filename</p></li>
 <li><p><strong>N</strong> (<em>int</em>) – Number of particles</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>none</p>
-</dd>
 </dl>
-<p class="rubric">Notes</p>
 </dd></dl>
 
 <dl class="method">
@@ -305,20 +378,13 @@ but in that case we would have to pass all the parameters.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>it</strong> (<em>int</em>) – Timestep</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>none</p>
-</dd>
 </dl>
-<p class="rubric">Notes</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="S_particles.Particles.random_no_reject">
 <code class="sig-name descname">random_no_reject</code><span class="sig-paren">(</span><em class="sig-param">N</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.random_no_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.random_no_reject" title="Permalink to this definition">¶</a></dt>
-<dd><p>Randomly distribute particles along each direction</p>
+<dd><p>Randomly distribute particles along each direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>N</strong> (<em>int</em>) – Number of particles.</p>
@@ -327,10 +393,9 @@ but in that case we would have to pass all the parameters.</p>
 <dd class="field-even"><p><strong>pos</strong> – Particles’ positions.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>array_like</p>
+<dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
 </dd></dl>
 
 <dl class="method">
@@ -346,14 +411,6 @@ and uses a rejection radius to avoid placing particles to close to each other.</
 <li><p><strong>rand_seed</strong> (<em>int</em>) – Seed for random number generator.
 Default: 1.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>x</strong> (<em>array_like</em>) – X positions for particles.</p></li>
-<li><p><strong>y</strong> (<em>array_like</em>) – Y positions for particles.</p></li>
-<li><p><strong>z</strong> (<em>array_like</em>) – Z positions for particles.</p></li>
-</ul>
-</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -400,7 +457,7 @@ Updates: N/A</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

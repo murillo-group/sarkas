@@ -155,39 +155,45 @@
            <div itemprop="articleBody">
             
   <h1>Source code for S_calc_force_pm</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; S_calc_force_pm.py</span>
-
-<span class="sd">* Calculate force and potential based on PM algorithm.</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for handling the Particle-Mesh part of the force and potential calculation.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 <span class="kn">import</span> <span class="nn">pyfftw</span>
+<span class="kn">from</span> <span class="nn">numba.errors</span> <span class="kn">import</span> <span class="n">NumbaWarning</span><span class="p">,</span> <span class="n">NumbaDeprecationWarning</span><span class="p">,</span> <span class="n">NumbaPendingDeprecationWarning</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># These &quot;ignore&quot; are needed because numba does not support pyfftw yet</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaDeprecationWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaPendingDeprecationWarning</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="assgnmnt_func"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.assgnmnt_func">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate the charge assignment function.</span>
+<span class="sd">    Calculate the charge assignment function as given in Ref. [1]_ .</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    cao : int</span>
-<span class="sd">        charge assignment order</span>
+<span class="sd">        Charge assignment order.</span>
 
 <span class="sd">    x : float</span>
-<span class="sd">        distance to the mid-point between mesh points if cao is even</span>
-<span class="sd">        distance to closes mesh point if cao is even</span>
+<span class="sd">        Distance to closest mesh point if cao is even.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    ------</span>
 <span class="sd">    W : array</span>
-<span class="sd">        Charge Assignment Function</span>
-<span class="sd">    </span>
+<span class="sd">        Charge Assignment Function. </span>
+
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
 <span class="sd">    .. [1] `M. Deserno and C. Holm J Chem Phys 108, 7678 (1998) &lt;https://doi.org/10.1063/1.477414&gt;`_</span>
-<span class="sd"> </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="n">cao</span> <span class="p">)</span>
 
@@ -244,45 +250,44 @@
 <div class="viewcode-block" id="calc_charge_dens"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_charge_dens">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">calc_charge_dens</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">cao</span><span class="p">,</span><span class="n">Mx</span><span class="p">,</span><span class="n">My</span><span class="p">,</span><span class="n">Mz</span><span class="p">,</span><span class="n">hx</span><span class="p">,</span><span class="n">hy</span><span class="p">,</span><span class="n">hz</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Assign Charges to Mesh Points</span>
+<span class="sd">    Assigns Charges to Mesh Points.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pos : array</span>
-<span class="sd">          particles&#39; positions</span>
+<span class="sd">        Particles&#39; positions.</span>
 <span class="sd">    </span>
 <span class="sd">    Z : array</span>
-<span class="sd">        particles&#39; charges</span>
+<span class="sd">        Particles&#39; charges.</span>
 <span class="sd">    </span>
 <span class="sd">    N : int</span>
-<span class="sd">        number of particles</span>
+<span class="sd">        Number of particles.</span>
 
 <span class="sd">    cao : int</span>
-<span class="sd">          charge assignment order</span>
+<span class="sd">        Charge assignment order.</span>
 
 <span class="sd">    Mx : int</span>
-<span class="sd">         number of mesh points along x-axis</span>
+<span class="sd">        Number of mesh points along x-axis.</span>
 
 <span class="sd">    My : int</span>
-<span class="sd">         number of mesh points along y-axis</span>
+<span class="sd">        Number of mesh points along y-axis.</span>
 
 <span class="sd">    Mz : int</span>
-<span class="sd">         number of mesh points along z-axis</span>
+<span class="sd">        Number of mesh points along z-axis.</span>
 
 <span class="sd">    hx : int</span>
-<span class="sd">         distance between mesh points along x-axis</span>
+<span class="sd">        Distance between mesh points along x-axis.</span>
 
 <span class="sd">    hy : int</span>
-<span class="sd">         distance between mesh points along y-axis</span>
+<span class="sd">        Distance between mesh points along y-axis.</span>
 
 <span class="sd">    hz : int</span>
-<span class="sd">         distance between mesh points along z-axis</span>
+<span class="sd">        Distance between mesh points along z-axis.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-
 <span class="sd">    rho_r : array</span>
-<span class="sd">            charge density distributed on mesh</span>
+<span class="sd">        Charge density distributed on mesh.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -343,8 +348,6 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span>
         
-                    <span class="c1">#print([r_g,r_i,r_j], [wz[g],wy[i],wx[j]])</span>
-    
                     <span class="n">rho_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">]</span> <span class="o">+</span> <span class="n">Z</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span><span class="o">*</span><span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span><span class="o">*</span><span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
     
                     <span class="n">ixn</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -359,33 +362,32 @@
 <div class="viewcode-block" id="calc_field"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_field">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">calc_field</span><span class="p">(</span><span class="n">phi_k</span><span class="p">,</span><span class="n">kx_v</span><span class="p">,</span><span class="n">ky_v</span><span class="p">,</span><span class="n">kz_v</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate the Electric field in Fourier space</span>
+<span class="sd">    Calculates the Electric field in Fourier space.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    phi_k : array</span>
-<span class="sd">        3D array of the Potential </span>
+<span class="sd">        3D array of the Potential.</span>
 
 <span class="sd">    kx_v : array</span>
-<span class="sd">        3D array containing the values of kx </span>
+<span class="sd">        3D array containing the values of kx.</span>
 
 <span class="sd">    ky_v : array</span>
-<span class="sd">        3D array containing the values of ky </span>
-<span class="sd">    </span>
+<span class="sd">        3D array containing the values of ky.</span>
+
 <span class="sd">    kz_v : array</span>
-<span class="sd">        3D array containing the values of kz </span>
+<span class="sd">        3D array containing the values of kz.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-
 <span class="sd">    E_kx : array </span>
-<span class="sd">           Electric Field along kx-axis</span>
+<span class="sd">       Electric Field along kx-axis.</span>
 
 <span class="sd">    E_ky : array</span>
-<span class="sd">           Electric Field along ky-axis</span>
+<span class="sd">       Electric Field along ky-axis.</span>
 
 <span class="sd">    E_kz : array</span>
-<span class="sd">           Electric Field along kz-axis</span>
+<span class="sd">       Electric Field along kz-axis.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -399,57 +401,57 @@
 <div class="viewcode-block" id="calc_acc_pm"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_acc_pm">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">calc_acc_pm</span><span class="p">(</span><span class="n">E_x_r</span><span class="p">,</span><span class="n">E_y_r</span><span class="p">,</span><span class="n">E_z_r</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">cao</span><span class="p">,</span><span class="n">Mass</span><span class="p">,</span><span class="n">Mx</span><span class="p">,</span><span class="n">My</span><span class="p">,</span><span class="n">Mz</span><span class="p">,</span><span class="n">hx</span><span class="p">,</span><span class="n">hy</span><span class="p">,</span><span class="n">hz</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate particles&#39; accelerations due to E-field </span>
+<span class="sd">    Calculates the long range part of particles&#39; accelerations. </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    E_x_r : array</span>
-<span class="sd">            Electric field along x-axis</span>
+<span class="sd">        Electric field along x-axis.</span>
 
 <span class="sd">    E_y_r : array</span>
-<span class="sd">            Electric field along y-axis</span>
+<span class="sd">        Electric field along y-axis.</span>
 <span class="sd">    </span>
 <span class="sd">    E_z_r : array</span>
-<span class="sd">            Electric field along z-axis</span>
+<span class="sd">        Electric field along z-axis.</span>
 <span class="sd">    </span>
 <span class="sd">    pos : array</span>
-<span class="sd">          particles&#39; positions</span>
+<span class="sd">        Particles&#39; positions.</span>
 <span class="sd">    </span>
 <span class="sd">    Z : array</span>
-<span class="sd">        particles&#39; charges</span>
+<span class="sd">        Particles&#39; charges.</span>
 <span class="sd">    </span>
 <span class="sd">    N : int</span>
-<span class="sd">        number of particles</span>
+<span class="sd">        Number of particles.</span>
 
 <span class="sd">    cao : int</span>
-<span class="sd">          charge assignment order</span>
+<span class="sd">        Charge assignment order.</span>
 <span class="sd">    </span>
 <span class="sd">    Mass : array</span>
-<span class="sd">           particles&#39; masses</span>
+<span class="sd">        Particles&#39; masses.</span>
 
 <span class="sd">    Mx : int</span>
-<span class="sd">         number of mesh points along x-axis</span>
+<span class="sd">        Number of mesh points along x-axis.</span>
 
 <span class="sd">    My : int</span>
-<span class="sd">         number of mesh points along y-axis</span>
+<span class="sd">        Number of mesh points along y-axis.</span>
 
 <span class="sd">    Mz : int</span>
-<span class="sd">         number of mesh points along z-axis</span>
+<span class="sd">        Number of mesh points along z-axis.</span>
 
 <span class="sd">    hx : int</span>
-<span class="sd">         distance between mesh points along x-axis</span>
+<span class="sd">        Distance between mesh points along x-axis.</span>
 
 <span class="sd">    hy : int</span>
-<span class="sd">         distance between mesh points along y-axis</span>
+<span class="sd">        Distance between mesh points along y-axis.</span>
 
 <span class="sd">    hz : int</span>
-<span class="sd">         distance between mesh points along z-axis</span>
+<span class="sd">        Distance between mesh points along z-axis.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 
 <span class="sd">    acc : array</span>
-<span class="sd">          acceleration from Electric Field</span>
+<span class="sd">          Acceleration from Electric Field.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">E_x_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
@@ -533,57 +535,71 @@
     <span class="k">return</span> <span class="n">acc</span></div>
     
 <span class="c1">## FFTW version</span>
-<div class="viewcode-block" id="update"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.update">[docs]</a><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="update"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.update">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span> <span class="c1"># Numba does not support pyfftw yet, however, this decorator speeds up the function still.</span>
+<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">MGrid</span><span class="p">,</span> <span class="n">Lv</span><span class="p">,</span> <span class="n">G_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">,</span> <span class="n">cao</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate the long range part of particles&#39; accelerations</span>
+<span class="sd">    Calculate the long range part of particles&#39; accelerations.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    pos : array</span>
+<span class="sd">        Particles&#39; positions.</span>
 
-<span class="sd">    ptcls : class</span>
-<span class="sd">        Particles&#39; class. See S_particles module for more info</span>
+<span class="sd">    Z : array</span>
+<span class="sd">        Particles&#39; charges, it corresponds to ``ptcls.charge``.</span>
 
-<span class="sd">    params : class</span>
-<span class="sd">        Simulation Parameters. See S_params module for more info</span>
+<span class="sd">    Mass : array</span>
+<span class="sd">        Particles&#39; masses, it corresponds to ``ptcls.mass``. </span>
+
+<span class="sd">    MGrid : array</span>
+<span class="sd">        Mesh grid points.</span>
+
+<span class="sd">    Lv : array</span>
+<span class="sd">        Box length in each direction.</span>
+
+<span class="sd">    G_k : array</span>
+<span class="sd">        Optimized Green&#39;s function.</span>
+
+<span class="sd">    kx_v : array</span>
+<span class="sd">        Array of kx values.</span>
+
+<span class="sd">    ky_v : array</span>
+<span class="sd">        Array of ky values.</span>
+
+<span class="sd">    kz_v : array</span>
+<span class="sd">        Array of kz values.</span>
+<span class="sd">    </span>
+<span class="sd">    cao : int</span>
+<span class="sd">        Charge order parameter.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-
 <span class="sd">    U_f : float</span>
-<span class="sd">        Long range part of the potential</span>
+<span class="sd">        Long range part of the potential.</span>
 
 <span class="sd">    acc_f : array</span>
-<span class="sd">        Long range part of particles&#39; accelerations</span>
+<span class="sd">        Long range part of particles&#39; accelerations.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="n">Z</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">charge</span>
-    <span class="n">Mass</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span>
+    <span class="n">Lx</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Ly</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">Lz</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-    <span class="n">Lx</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lx</span>
-    <span class="n">Ly</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Ly</span>
-    <span class="n">Lz</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lz</span>
+    <span class="n">Mx</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">My</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">Mz</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-    <span class="n">Mx</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">Mx</span>
-    <span class="n">My</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">My</span>
-    <span class="n">Mz</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">Mz</span>
-
-    <span class="n">hx</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hx</span>
-    <span class="n">hy</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hy</span>
-    <span class="n">hz</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hz</span>
+    <span class="n">hx</span> <span class="o">=</span> <span class="n">Lx</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">Mx</span><span class="p">)</span>
+    <span class="n">hy</span> <span class="o">=</span> <span class="n">Ly</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">My</span><span class="p">)</span>
+    <span class="n">hz</span> <span class="o">=</span> <span class="n">Lz</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">Mz</span><span class="p">)</span>
     
     <span class="n">V</span> <span class="o">=</span> <span class="n">Lx</span><span class="o">*</span><span class="n">Ly</span><span class="o">*</span><span class="n">Lz</span>
     <span class="n">M_V</span> <span class="o">=</span> <span class="n">Mx</span><span class="o">*</span><span class="n">My</span><span class="o">*</span><span class="n">Mz</span>
-    
-    <span class="n">G_k</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_k</span>
-    <span class="n">kx_v</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kx_v</span>
-    <span class="n">ky_v</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">ky_v</span>
-    <span class="n">kz_v</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kz_v</span>
 
-    <span class="n">rho_r</span> <span class="o">=</span> <span class="n">calc_charge_dens</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">cao</span><span class="p">,</span> <span class="n">Mx</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mz</span><span class="p">,</span> <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span><span class="p">)</span>
+    <span class="n">rho_r</span> <span class="o">=</span> <span class="n">calc_charge_dens</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cao</span><span class="p">,</span> <span class="n">Mx</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mz</span><span class="p">,</span> <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span><span class="p">)</span>
 
     <span class="n">fftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">rho_r</span><span class="p">)</span>
     <span class="n">rho_k_fft</span> <span class="o">=</span> <span class="n">fftw_n</span><span class="p">()</span>
@@ -618,7 +634,7 @@
     <span class="n">E_y_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">E_y</span><span class="p">)</span>
     <span class="n">E_z_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">E_z</span><span class="p">)</span>
     
-    <span class="n">acc_f</span> <span class="o">=</span> <span class="n">calc_acc_pm</span><span class="p">(</span><span class="n">E_x_r</span><span class="p">,</span><span class="n">E_y_r</span><span class="p">,</span><span class="n">E_z_r</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">cao</span><span class="p">,</span><span class="n">Mass</span><span class="p">,</span><span class="n">Mx</span><span class="p">,</span><span class="n">My</span><span class="p">,</span><span class="n">Mz</span><span class="p">,</span><span class="n">hx</span><span class="p">,</span><span class="n">hy</span><span class="p">,</span><span class="n">hz</span><span class="p">)</span>
+    <span class="n">acc_f</span> <span class="o">=</span> <span class="n">calc_acc_pm</span><span class="p">(</span><span class="n">E_x_r</span><span class="p">,</span><span class="n">E_y_r</span><span class="p">,</span><span class="n">E_z_r</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">cao</span><span class="p">,</span><span class="n">Mass</span><span class="p">,</span><span class="n">Mx</span><span class="p">,</span><span class="n">My</span><span class="p">,</span><span class="n">Mz</span><span class="p">,</span><span class="n">hx</span><span class="p">,</span><span class="n">hy</span><span class="p">,</span><span class="n">hz</span><span class="p">)</span>
     
     <span class="k">return</span> <span class="n">U_f</span><span class="p">,</span> <span class="n">acc_f</span></div>
 </pre></div>
@@ -635,7 +651,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

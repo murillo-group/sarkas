@@ -178,24 +178,20 @@
             
   <div class="section" id="module-S_calc_force_pm">
 <span id="s-calc-force-pm-module"></span><h1>S_calc_force_pm module<a class="headerlink" href="#module-S_calc_force_pm" title="Permalink to this headline">¶</a></h1>
-<p>S_calc_force_pm.py</p>
-<ul class="simple">
-<li><p>Calculate force and potential based on PM algorithm.</p></li>
-</ul>
+<p>Module for handling the Particle-Mesh part of the force and potential calculation.</p>
 <dl class="function">
 <dt id="S_calc_force_pm.assgnmnt_func">
 <code class="sig-prename descclassname">S_calc_force_pm.</code><code class="sig-name descname">assgnmnt_func</code><span class="sig-paren">(</span><em class="sig-param">cao</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pm.html#assgnmnt_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pm.assgnmnt_func" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the charge assignment function.</p>
+<dd><p>Calculate the charge assignment function as given in Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a> .</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cao</strong> (<em>int</em>) – charge assignment order</p></li>
-<li><p><strong>x</strong> (<em>float</em>) – distance to the mid-point between mesh points if cao is even
-distance to closes mesh point if cao is even</p></li>
+<li><p><strong>cao</strong> (<em>int</em>) – Charge assignment order.</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Distance to closest mesh point if cao is even.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>W</strong> – Charge Assignment Function</p>
+<dd class="field-even"><p><strong>W</strong> – Charge Assignment Function.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>array</p>
@@ -203,7 +199,7 @@ distance to closes mesh point if cao is even</p></li>
 </dl>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1063/1.477414">M. Deserno and C. Holm J Chem Phys 108, 7678 (1998)</a></p>
 </dd>
 </dl>
@@ -212,28 +208,28 @@ distance to closes mesh point if cao is even</p></li>
 <dl class="function">
 <dt id="S_calc_force_pm.calc_acc_pm">
 <code class="sig-prename descclassname">S_calc_force_pm.</code><code class="sig-name descname">calc_acc_pm</code><span class="sig-paren">(</span><em class="sig-param">E_x_r</em>, <em class="sig-param">E_y_r</em>, <em class="sig-param">E_z_r</em>, <em class="sig-param">pos</em>, <em class="sig-param">Z</em>, <em class="sig-param">N</em>, <em class="sig-param">cao</em>, <em class="sig-param">Mass</em>, <em class="sig-param">Mx</em>, <em class="sig-param">My</em>, <em class="sig-param">Mz</em>, <em class="sig-param">hx</em>, <em class="sig-param">hy</em>, <em class="sig-param">hz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pm.html#calc_acc_pm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pm.calc_acc_pm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate particles’ accelerations due to E-field</p>
+<dd><p>Calculates the long range part of particles’ accelerations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>E_x_r</strong> (<em>array</em>) – Electric field along x-axis</p></li>
-<li><p><strong>E_y_r</strong> (<em>array</em>) – Electric field along y-axis</p></li>
-<li><p><strong>E_z_r</strong> (<em>array</em>) – Electric field along z-axis</p></li>
-<li><p><strong>pos</strong> (<em>array</em>) – particles’ positions</p></li>
-<li><p><strong>Z</strong> (<em>array</em>) – particles’ charges</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – number of particles</p></li>
-<li><p><strong>cao</strong> (<em>int</em>) – charge assignment order</p></li>
-<li><p><strong>Mass</strong> (<em>array</em>) – particles’ masses</p></li>
-<li><p><strong>Mx</strong> (<em>int</em>) – number of mesh points along x-axis</p></li>
-<li><p><strong>My</strong> (<em>int</em>) – number of mesh points along y-axis</p></li>
-<li><p><strong>Mz</strong> (<em>int</em>) – number of mesh points along z-axis</p></li>
-<li><p><strong>hx</strong> (<em>int</em>) – distance between mesh points along x-axis</p></li>
-<li><p><strong>hy</strong> (<em>int</em>) – distance between mesh points along y-axis</p></li>
-<li><p><strong>hz</strong> (<em>int</em>) – distance between mesh points along z-axis</p></li>
+<li><p><strong>E_x_r</strong> (<em>array</em>) – Electric field along x-axis.</p></li>
+<li><p><strong>E_y_r</strong> (<em>array</em>) – Electric field along y-axis.</p></li>
+<li><p><strong>E_z_r</strong> (<em>array</em>) – Electric field along z-axis.</p></li>
+<li><p><strong>pos</strong> (<em>array</em>) – Particles’ positions.</p></li>
+<li><p><strong>Z</strong> (<em>array</em>) – Particles’ charges.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Number of particles.</p></li>
+<li><p><strong>cao</strong> (<em>int</em>) – Charge assignment order.</p></li>
+<li><p><strong>Mass</strong> (<em>array</em>) – Particles’ masses.</p></li>
+<li><p><strong>Mx</strong> (<em>int</em>) – Number of mesh points along x-axis.</p></li>
+<li><p><strong>My</strong> (<em>int</em>) – Number of mesh points along y-axis.</p></li>
+<li><p><strong>Mz</strong> (<em>int</em>) – Number of mesh points along z-axis.</p></li>
+<li><p><strong>hx</strong> (<em>int</em>) – Distance between mesh points along x-axis.</p></li>
+<li><p><strong>hy</strong> (<em>int</em>) – Distance between mesh points along y-axis.</p></li>
+<li><p><strong>hz</strong> (<em>int</em>) – Distance between mesh points along z-axis.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>acc</strong> – acceleration from Electric Field</p>
+<dd class="field-even"><p><strong>acc</strong> – Acceleration from Electric Field.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>array</p>
@@ -244,24 +240,24 @@ distance to closes mesh point if cao is even</p></li>
 <dl class="function">
 <dt id="S_calc_force_pm.calc_charge_dens">
 <code class="sig-prename descclassname">S_calc_force_pm.</code><code class="sig-name descname">calc_charge_dens</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">Z</em>, <em class="sig-param">N</em>, <em class="sig-param">cao</em>, <em class="sig-param">Mx</em>, <em class="sig-param">My</em>, <em class="sig-param">Mz</em>, <em class="sig-param">hx</em>, <em class="sig-param">hy</em>, <em class="sig-param">hz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pm.html#calc_charge_dens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pm.calc_charge_dens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assign Charges to Mesh Points</p>
+<dd><p>Assigns Charges to Mesh Points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> (<em>array</em>) – particles’ positions</p></li>
-<li><p><strong>Z</strong> (<em>array</em>) – particles’ charges</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – number of particles</p></li>
-<li><p><strong>cao</strong> (<em>int</em>) – charge assignment order</p></li>
-<li><p><strong>Mx</strong> (<em>int</em>) – number of mesh points along x-axis</p></li>
-<li><p><strong>My</strong> (<em>int</em>) – number of mesh points along y-axis</p></li>
-<li><p><strong>Mz</strong> (<em>int</em>) – number of mesh points along z-axis</p></li>
-<li><p><strong>hx</strong> (<em>int</em>) – distance between mesh points along x-axis</p></li>
-<li><p><strong>hy</strong> (<em>int</em>) – distance between mesh points along y-axis</p></li>
-<li><p><strong>hz</strong> (<em>int</em>) – distance between mesh points along z-axis</p></li>
+<li><p><strong>pos</strong> (<em>array</em>) – Particles’ positions.</p></li>
+<li><p><strong>Z</strong> (<em>array</em>) – Particles’ charges.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Number of particles.</p></li>
+<li><p><strong>cao</strong> (<em>int</em>) – Charge assignment order.</p></li>
+<li><p><strong>Mx</strong> (<em>int</em>) – Number of mesh points along x-axis.</p></li>
+<li><p><strong>My</strong> (<em>int</em>) – Number of mesh points along y-axis.</p></li>
+<li><p><strong>Mz</strong> (<em>int</em>) – Number of mesh points along z-axis.</p></li>
+<li><p><strong>hx</strong> (<em>int</em>) – Distance between mesh points along x-axis.</p></li>
+<li><p><strong>hy</strong> (<em>int</em>) – Distance between mesh points along y-axis.</p></li>
+<li><p><strong>hz</strong> (<em>int</em>) – Distance between mesh points along z-axis.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>rho_r</strong> – charge density distributed on mesh</p>
+<dd class="field-even"><p><strong>rho_r</strong> – Charge density distributed on mesh.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>array</p>
@@ -272,21 +268,21 @@ distance to closes mesh point if cao is even</p></li>
 <dl class="function">
 <dt id="S_calc_force_pm.calc_field">
 <code class="sig-prename descclassname">S_calc_force_pm.</code><code class="sig-name descname">calc_field</code><span class="sig-paren">(</span><em class="sig-param">phi_k</em>, <em class="sig-param">kx_v</em>, <em class="sig-param">ky_v</em>, <em class="sig-param">kz_v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pm.html#calc_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pm.calc_field" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Electric field in Fourier space</p>
+<dd><p>Calculates the Electric field in Fourier space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phi_k</strong> (<em>array</em>) – 3D array of the Potential</p></li>
-<li><p><strong>kx_v</strong> (<em>array</em>) – 3D array containing the values of kx</p></li>
-<li><p><strong>ky_v</strong> (<em>array</em>) – 3D array containing the values of ky</p></li>
-<li><p><strong>kz_v</strong> (<em>array</em>) – 3D array containing the values of kz</p></li>
+<li><p><strong>phi_k</strong> (<em>array</em>) – 3D array of the Potential.</p></li>
+<li><p><strong>kx_v</strong> (<em>array</em>) – 3D array containing the values of kx.</p></li>
+<li><p><strong>ky_v</strong> (<em>array</em>) – 3D array containing the values of ky.</p></li>
+<li><p><strong>kz_v</strong> (<em>array</em>) – 3D array containing the values of kz.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>E_kx</strong> (<em>array</em>) – Electric Field along kx-axis</p></li>
-<li><p><strong>E_ky</strong> (<em>array</em>) – Electric Field along ky-axis</p></li>
-<li><p><strong>E_kz</strong> (<em>array</em>) – Electric Field along kz-axis</p></li>
+<li><p><strong>E_kx</strong> (<em>array</em>) – Electric Field along kx-axis.</p></li>
+<li><p><strong>E_ky</strong> (<em>array</em>) – Electric Field along ky-axis.</p></li>
+<li><p><strong>E_kz</strong> (<em>array</em>) – Electric Field along kz-axis.</p></li>
 </ul>
 </p>
 </dd>
@@ -295,19 +291,27 @@ distance to closes mesh point if cao is even</p></li>
 
 <dl class="function">
 <dt id="S_calc_force_pm.update">
-<code class="sig-prename descclassname">S_calc_force_pm.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pm.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pm.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the long range part of particles’ accelerations</p>
+<code class="sig-prename descclassname">S_calc_force_pm.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">Z</em>, <em class="sig-param">Mass</em>, <em class="sig-param">MGrid</em>, <em class="sig-param">Lv</em>, <em class="sig-param">G_k</em>, <em class="sig-param">kx_v</em>, <em class="sig-param">ky_v</em>, <em class="sig-param">kz_v</em>, <em class="sig-param">cao</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pm.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pm.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the long range part of particles’ accelerations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’ class. See S_particles module for more info</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation Parameters. See S_params module for more info</p></li>
+<li><p><strong>pos</strong> (<em>array</em>) – Particles’ positions.</p></li>
+<li><p><strong>Z</strong> (<em>array</em>) – Particles’ charges, it corresponds to <code class="docutils literal notranslate"><span class="pre">ptcls.charge</span></code>.</p></li>
+<li><p><strong>Mass</strong> (<em>array</em>) – Particles’ masses, it corresponds to <code class="docutils literal notranslate"><span class="pre">ptcls.mass</span></code>.</p></li>
+<li><p><strong>MGrid</strong> (<em>array</em>) – Mesh grid points.</p></li>
+<li><p><strong>Lv</strong> (<em>array</em>) – Box length in each direction.</p></li>
+<li><p><strong>G_k</strong> (<em>array</em>) – Optimized Green’s function.</p></li>
+<li><p><strong>kx_v</strong> (<em>array</em>) – Array of kx values.</p></li>
+<li><p><strong>ky_v</strong> (<em>array</em>) – Array of ky values.</p></li>
+<li><p><strong>kz_v</strong> (<em>array</em>) – Array of kz values.</p></li>
+<li><p><strong>cao</strong> (<em>int</em>) – Charge order parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U_f</strong> (<em>float</em>) – Long range part of the potential</p></li>
-<li><p><strong>acc_f</strong> (<em>array</em>) – Long range part of particles’ accelerations</p></li>
+<li><p><strong>U_f</strong> (<em>float</em>) – Long range part of the potential.</p></li>
+<li><p><strong>acc_f</strong> (<em>array</em>) – Long range part of particles’ accelerations.</p></li>
 </ul>
 </p>
 </dd>
@@ -338,7 +342,7 @@ distance to closes mesh point if cao is even</p></li>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

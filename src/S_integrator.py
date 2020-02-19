@@ -1,8 +1,5 @@
 """
-S_integrator.py
-
 Module of various types of integrators 
-
 """
 
 import numpy as np
@@ -18,7 +15,7 @@ class Integrator:
     Parameters
     ----------
         params : class
-            Simulation's parameters.
+        Simulation's parameters.
 
     Attributes
     ----------
@@ -139,10 +136,10 @@ def Verlet(ptcls,params):
     Parameters
     ----------
     ptlcs: class
-           Particles data. See S_particles.py for more info.
+        Particles data. See ``S_particles.py`` for more info.
     
     params : class
-            Simulation's parameters. See S_params.py for more info.
+        Simulation's parameters. See ``S_params.py`` for more info.
 
     Returns
     -------
@@ -172,15 +169,15 @@ def Verlet(ptcls,params):
 def Magnetic_Verlet(ptcls,params):
     """
     Update particles' positions and velocities based on velocity verlet method in the case of a 
-    constant magnetic field along the :math:`z` axis. For more info see Ref. [1]
+    constant magnetic field along the :math:`z` axis. For more info see Ref. [1]_
     
     Parameters
     ----------
     ptlcs: class
-           Particles data. See S_particles.py for more info.
+           Particles data. See ``S_particles.py`` for more info.
     
     params : class
-            Simulation's parameters. See S_params.py for more info.
+            Simulation's parameters. See ``S_params.py`` for more info.
             
     Returns
     -------
@@ -382,7 +379,7 @@ def enforce_pbc(pos, BoxVector):
 @nb.njit
 def calc_dipole(pos,charge):
     """ 
-    Calculate the dipole due to all charges. See Ref.[2] for explanation.
+    Calculate the dipole due to all charges. See Ref. [2]_ for explanation.
 
     Parameters
     ----------
@@ -427,21 +424,25 @@ def calc_pot_acc(ptcls,params):
 
     """
     
+    
     if (params.Potential.method == 'brute'):
         U, acc = force_pp.update_brute(ptcls,params)
         ptcls.acc = acc
     else:
         if (params.Potential.LL_on):
-            U_short, acc_s_r = force_pp.update(ptcls,params)
+            U_short, acc_s_r = force_pp.update(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv, \
+                params.Potential.rc, params.Potential.matrix, params.force)
         else:
-            U_short, acc_s_r = force_pp.update_0D(ptcls,params)
+            U_short, acc_s_r = force_pp.update_0D(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv, \
+                params.Potential.rc, params.Potential.matrix, params.force)
     
         ptcls.acc = acc_s_r
 
         U = U_short
 
         if (params.P3M.on):
-            U_long, acc_l_r = force_pm.update(ptcls,params)
+            U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charge, ptcls.mass,\
+                params.P3M.MGrid, params.Lv, params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v,params.P3M.cao)
             # Ewald Self-energy
             U_Ew_self = params.QFactor*params.P3M.G_ew/np.sqrt(np.pi)
             # Neutrality condition

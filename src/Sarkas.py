@@ -40,12 +40,9 @@ verbose = Verbose(params)
 integrator = Integrator(params)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
 
-
 #######################
 Nt = params.Control.Nstep    # number of time steps
 N = params.total_num_ptcls
-
-print('ok')
 
 #######################
 # Un-comment the following if you want to calculate n(q,t)
@@ -74,13 +71,13 @@ ptcls.load()
 # Calculate initial forces and potential energy
 U = calc_pot_acc(ptcls,params)
 # Calculate initial kinetic energy and temperature
-Ks, Tps = thermostat.calc_kin_temp(ptcls, params)
+Ks, Tps = thermostat.calc_kin_temp(ptcls.vel,ptcls.species_num,ptcls.species_mass,params.kB)
 K = np.ndarray.sum(Ks)
 Tp = np.ndarray.sum(Tps)/params.num_species
             
 E = K + U
 
-thermostat.remove_drift(ptcls,params)
+thermostat.remove_drift(ptcls.vel,ptcls.species_num, ptcls.species_mass)
 print("\nInitial: T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(Tp, E, K, U) )
 
 time_stamp[its] = time.time(); its += 1
@@ -98,7 +95,7 @@ if not (params.load_method == "restart"):
 
         # Print Energies and Temperature to screen
         if (it % params.Control.dump_step == 0 and params.Control.verbose):
-            Ks, Tps = thermostat.calc_kin_temp(ptcls,params)
+            Ks, Tps = thermostat.calc_kin_temp(ptcls.vel,ptcls.species_num,ptcls.species_mass,params.kB)
             K = np.ndarray.sum(Ks)
             Tp = np.ndarray.sum(Tps)/params.num_species
             
@@ -111,7 +108,7 @@ if not (params.load_method == "restart"):
         #    f_xyz.writelines("name x y z vx vy vz ax ay az\n")
         #    np.savetxt(f_xyz, np.c_[ptcls.species_name, ptcls.pos/params.Lx, ptcls.vel, ptcls.acc], 
         #        fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
-    thermostat.remove_drift(ptcls,params)
+    thermostat.remove_drift(ptcls.vel,ptcls.species_num, ptcls.species_mass)
 
 checkpoint.dump(ptcls, 0)
 time_stamp[its] = time.time(); its += 1
@@ -129,17 +126,18 @@ if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
 
         # Print Energies and Temperature to screen
         if (it % params.Control.dump_step == 0 and params.Control.verbose):
-            Ks, Tps = thermostat.calc_kin_temp(ptcls,params)
+            Ks, Tps = thermostat.calc_kin_temp(ptcls.vel,ptcls.species_num,ptcls.species_mass,params.kB)
+
             K = np.ndarray.sum(Ks)
             Tp = np.ndarray.sum(Tps)/params.num_species
             
             E = K + U
             print("Magnetic Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U) )
 
-    thermostat.remove_drift(ptcls,params)
-# saving the 0th step
-checkpoint.dump(ptcls, 0)
-time_stamp[its] = time.time(); its += 1
+    thermostat.remove_drift(ptcls.vel,ptcls.species_num, ptcls.species_mass)
+    # saving the 0th step
+    checkpoint.dump(ptcls, 0)
+    time_stamp[its] = time.time(); its += 1
 
 # Close thermalization files. Un-comment if you want to save Thermalization data for debugging
 #f_output_E.close()
@@ -168,7 +166,8 @@ for it in range(it_start, Nt):
     U = integrator.update(ptcls,params)
 
     # Calculate Kinetic Energy and Temperature
-    Ks, Tps = thermostat.calc_kin_temp(ptcls, params)
+    Ks, Tps = thermostat.calc_kin_temp(ptcls.vel,ptcls.species_num,ptcls.species_mass,params.kB)
+
     K = np.ndarray.sum(Ks)
     Tp = np.ndarray.sum(Tps)/params.num_species
             

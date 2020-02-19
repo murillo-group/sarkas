@@ -178,7 +178,6 @@
             
   <div class="section" id="module-S_pot_Coulomb">
 <span id="s-pot-coulomb-module"></span><h1>S_pot_Coulomb module<a class="headerlink" href="#module-S_pot_Coulomb" title="Permalink to this headline">¶</a></h1>
-<p>S_pot_Coulombg.py</p>
 <p>Module for handling Coulomb interaction</p>
 <dl class="function">
 <dt id="S_pot_Coulomb.Coulomb_force_P3M">
@@ -187,17 +186,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>real</em>) – distance between two particles</p></li>
-<li><p><strong>pot_matrix_ij</strong> (<em>array_like</em>) – it contains potential dependent variables
-pot_matrix_ij[0,:,:] = Gamma_ij
-pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)
-pot_matrix_ij[2,:,:] = Ewald parameter alpha</p></li>
+<li><p><strong>r</strong> (<em>real</em>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U_s_r</strong> (<em>float</em>) – Potential value</p></li>
-<li><p><strong>fr</strong> (<em>float</em>) – Force between two particles</p></li>
+<li><p><strong>U_s_r</strong> (<em>float</em>) – Potential value.</p></li>
+<li><p><strong>fr</strong> (<em>float</em>) – Force between two particles.</p></li>
 </ul>
 </p>
 </dd>
@@ -207,56 +203,57 @@ pot_matrix_ij[2,:,:] = Ewald parameter alpha</p></li>
 <dl class="function">
 <dt id="S_pot_Coulomb.Coulomb_force_PP">
 <code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">Coulomb_force_PP</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix_ij</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#Coulomb_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.Coulomb_force_PP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate Potential and Force between two particles when the PP algorithm is chosen</p>
+<dd><p>Calculate Potential and Force between two particles when the PP algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>float</em>) – distance between two particles</p></li>
-<li><p><strong>pot_matrix_ij</strong> (<em>array_like</em>) – it contains potential dependent variables
-pot_matrix_ij[0,:,:] = Gamma_ij
-pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – distance between two particles.</p></li>
+<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – it contains potential dependent variables.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U</strong> (<em>float</em>) – Potential</p></li>
-<li><p><strong>force</strong> (<em>float</em>) – Force between two particles</p></li>
+<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
+<li><p><strong>force</strong> (<em>float</em>) – Force between two particles.</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="S_pot_Coulomb.gf_opt">
 <code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param">MGrid</em>, <em class="sig-param">aliases</em>, <em class="sig-param">BoxLv</em>, <em class="sig-param">p</em>, <em class="sig-param">N</em>, <em class="sig-param">alpha</em>, <em class="sig-param">rcut</em>, <em class="sig-param">fourpie0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.gf_opt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Optimized Green Function given by eq.(22) in Stern et al. J Chem Phys 128, 214006 (2008)</p>
+<dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a> .</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>MGrid</strong> (<em>array</em>) – number of mesh points in x,y,z</p></li>
-<li><p><strong>aliases</strong> (<em>array</em>) – number of aliases in each direction</p></li>
-<li><p><strong>BoxLv</strong> (<em>array</em>) – Length of simulation’s box in each direction</p></li>
-<li><p><strong>p</strong> (<em>int</em>) – charge assignment order (CAO)</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – number of particles</p></li>
-<li><p><strong>alpha</strong> (<em>float</em>) – Ewald parameter</p></li>
-<li><p><strong>rcut</strong> (<em>float</em>) – Cutoff distance for the PP calculation</p></li>
+<li><p><strong>MGrid</strong> (<em>array</em>) – number of mesh points in x,y,z.</p></li>
+<li><p><strong>aliases</strong> (<em>array</em>) – number of aliases in each direction.</p></li>
+<li><p><strong>BoxLv</strong> (<em>array</em>) – Length of simulation’s box in each direction.</p></li>
+<li><p><strong>p</strong> (<em>int</em>) – charge assignment order (CAO).</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – number of particles.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Ewald parameter.</p></li>
+<li><p><strong>rcut</strong> (<em>float</em>) – Cutoff distance for the PP calculation.</p></li>
 <li><p><strong>fourpie0</strong> (<em>float</em>) – Potential factor.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>G_k</strong> (<em>array_like</em>) – optimal Green Function</p></li>
-<li><p><strong>kx_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the x-axis</p></li>
-<li><p><strong>ky_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the y-axis</p></li>
-<li><p><strong>kz_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the z-axis</p></li>
-<li><p><strong>PM_err</strong> (<em>float</em>) – Error in the force calculation due to the optimized Green’s function
-eq.(28) in Stern et al. J Chem Phys 128 214106 (2008)</p></li>
-<li><p><strong>PP_err</strong> (<em>float</em>) – Error in the force calculation due to the distance cutoff.
-eq.(30) in Dharuman et al. J Chem Phys 146 024112 (2017)</p></li>
+<li><p><strong>G_k</strong> (<em>array_like</em>) – optimal Green Function.</p></li>
+<li><p><strong>kx_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the x-axis.</p></li>
+<li><p><strong>ky_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the y-axis.</p></li>
+<li><p><strong>kz_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the z-axis.</p></li>
+<li><p><strong>PM_err</strong> (<em>float</em>) – Error in the force calculation due to the optimized Green’s function.</p></li>
+<li><p><strong>PP_err</strong> (<em>float</em>) – Error in the force calculation due to the distance cutoff.</p></li>
 </ul>
 </p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1063/1.2932253">H.A. Stern et al. J Chem Phys 128, 214006 (2008)</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -264,22 +261,12 @@ eq.(30) in Dharuman et al. J Chem Phys 146 024112 (2017)</p></li>
 <dl class="function">
 <dt id="S_pot_Coulomb.setup">
 <code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup simulation’s parameters for Yukawa interaction</p>
+<dd><p>Update <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Coulomb’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>none</p>
+<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>Coulomb_matrix[0,i,j] : Gamma = qi qj/(4pi esp0*kb T), Coupling parameter between particles’ species.
-Coulomb_matrix[1,i,j] : qi qj/(4pi esp0) Force factor between two particles.
-Coulomb_matrix[2,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species</p>
 </dd></dl>
 
 </div>
@@ -306,7 +293,7 @@ Coulomb_matrix[2,i,j] : Ewald parameter in the case of P3M Algorithm. Same value
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

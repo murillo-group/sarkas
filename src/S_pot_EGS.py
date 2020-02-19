@@ -1,3 +1,11 @@
+"""
+Module for handling EGS Potential as described in Ref. [1]_
+
+References
+----------
+.. [1] `Stanton and Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
+
+"""
 import numpy as np
 import numba as nb
 import sys
@@ -7,24 +15,18 @@ import yaml
 
 def EGS_setup(params, filename):
     """
-    Setup simulation's parameters for Yukawa interaction
+    Updates ``params`` class with EGS potential parameters.
 
     Parameters
     ----------
     params : class
-            Simulation's parameters. See S_params.py for more info.
+        Simulation's parameters. See S_params.py for more info.
 
-    filename : string
-                Input filename
+    filename : str
+        Input filename.
 
-    Returns
-    -------
-    none
-
-    Notes
-    -----
-    Reference Stanton and Murillo Phys Rev E 91 033104 (2015)
-
+    """
+    """
     EGS_matrix[0,i,j] : kappa = 1.0/lambda_TF or given as input. Same value for all species.
     EGS_matrix[1,i,j] : nu = eq.(14) of Ref
     EGS_matrix[2,i,j] : qi qj/(4 pi esp0) Force factor between two particles.
@@ -101,28 +103,28 @@ def EGS_setup(params, filename):
     fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
 
     beta = 1.0/(kb*Te)
-    # eq.(4) from Stanton et al. PRE 91 033104 (2015)
+    # eq.(4) of Ref. [1]_
     eta = fdint_ifd1h_vec(np.pi**2*(beta*h_bar**2/(m_e))**(3/2)/np.sqrt(2)*ne)
-    # eq.(10) from Stanton et al. PRE 91 033104 (2015)
+    # eq.(10) of Ref. [1]_
     lambda_TF = np.sqrt((4.0*np.pi**2*e_0*h_bar**2)/(m_e*e**2)*np.sqrt(2*beta*h_bar**2/m_e)/(4.0*fdint_fdk_vec(k=-0.5, phi=eta))) 
-    # eq. (14) from Stanton et al. PRE 91 033104 (2015)
+    # eq. (14) of Ref. [1]_
     nu = (m_e*e**2)/(4.0*np.pi*e_0*h_bar**2)*np.sqrt(8.0*beta*h_bar**2/m_e)/(3.0*np.pi)*lmbda*fdint_dfdk_vec(k=-0.5, phi=eta)
     # Fermi Energy
     E_F = (hbar**2/(2.0*m_e))*(3.0*np.pi**2*ne)**(2./3.)
     # Degeneracy Parameter
     theta = 1.0/(beta*E_F)
-    # eq. (33) from Stanton et al. PRE 91 033104 (2015)
+    # eq. (33) of Ref. [1]_
     Ntheta = 1.0 + 2.8343*theta**2 - 0.2151*theta**3 + 5.2759*theta**4
-    # eq. (34) from Stanton et al. PRE 91 033104 (2015)        
+    # eq. (34) of Ref. [1]_
     Dtheta = 1.0 + 3.9431*theta**2 + 7.9138*theta**4
-    # eq. (32) from Stanton et al. PRE 91 033104 (2015)
+    # eq. (32) of Ref. [1]_
     h = Ntheta/Dtheta*np.tanh(1.0/theta)
     # grad h(x)
     gradh = ( -(Ntheta/Dtheta)/np.cosh(1/theta)**2/(theta**2)  # derivative of tanh(1/x) 
             - np.tanh(1.0/theta)*( Ntheta*(7.8862*theta + 31.6552*theta**3)/Dtheta**2 # derivative of 1/Dtheta
             + (5.6686*theta - 0.6453*theta**2 + 21.1036*theta**3)/Dtheta )     )       # derivative of Ntheta
 
-    #eq.(31) from Stanton et al. PRE 91 033104 (2015)
+    #eq.(31) of Ref. [1]_
     b = 1.0 -1.0/8.0*beta*theta*(h -2.0*theta*(gradh))*(hbar/lambda_TF)**2/(m_e)
     
     if (params.Control.units == "cgs"):
@@ -131,14 +133,14 @@ def EGS_setup(params, filename):
     params.lambda_TF = lambda_TF
     # Monotonic decay
     if (nu <= 1):
-        #eq. (29) from Stanton et al. PRE 91 033104 (2015)
+        #eq. (29) of Ref. [1]_
         params.Potential.lambda_p = lambda_TF*np.sqrt(nu/(2.0*b + 2.0*np.sqrt(b**2-nu)))
         params.Potential.lambda_m = lambda_TF*np.sqrt(nu/(2.0*b - 2.0*np.sqrt(b**2-nu)))
         params.Potential.alpha = b/np.sqrt(b-nu)
     
     # Oscillatory behavior
     if (nu > 1):
-        #eq. (29) from Stanton et al. PRE 91 033104 (2015)
+        #eq. (29) of Ref. [1]_
         params.Potential.gamma_m = lambda_TF*np.sqrt(nu/(np.sqrt(nu) - b))
         params.Potential.gamma_p = lambda_TF*np.sqrt(nu/(np.sqrt(nu) + b))
         params.Potential.alphap = b/np.sqrt(nu-b)
@@ -237,24 +239,24 @@ def EGS_setup(params, filename):
 @nb.njit
 def EGS_force_PP(r,pot_matrix):
     """ 
-    Calculate Potential and force between particles using the EGS Potential.
+    Calculates Potential and force between particles using the EGS Potential.
     
     Parameters
     ----------
     r : float
-        particles' distance
+        Particles' distance.
 
     pot_matrix : array
-                EGS potential parameters. See details below and Stanton et al. PRE 91, 033104 (2015) for more info
+        EGS potential parameters. 
 
     Return
     ------
 
     U : float
-        potential
+        Potential.
 
     fr : float
-        force
+        Force.
 
     """
     nu = pot_matrix[1]
@@ -285,12 +287,3 @@ def EGS_force_PP(r,pot_matrix):
         fr = fr1 + fr2 + fr3
 
     return U, fr
-
-@nb.njit
-def EGS_force_P3M(pos,acc_s_r):
-    pass
-
-
-@nb.njit
-def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
-    pass

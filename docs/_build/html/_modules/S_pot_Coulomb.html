@@ -156,8 +156,6 @@
             
   <h1>Source code for S_pot_Coulomb</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">S_pot_Coulombg.py</span>
-
 <span class="sd">Module for handling Coulomb interaction</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -168,18 +166,16 @@
 
 <div class="viewcode-block" id="setup"><a class="viewcode-back" href="../S_pot_Coulomb.html#S_pot_Coulomb.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Setup simulation&#39;s parameters for Yukawa interaction</span>
+<span class="sd">    Update ``params`` class with Coulomb&#39;s parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See S_params.py for more info.</span>
+<span class="sd">        Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    none</span>
-
-<span class="sd">    Notes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dev Notes:</span>
 <span class="sd">    -----</span>
 <span class="sd">    Coulomb_matrix[0,i,j] : Gamma = qi qj/(4pi esp0*kb T), Coupling parameter between particles&#39; species.</span>
 <span class="sd">    Coulomb_matrix[1,i,j] : qi qj/(4pi esp0) Force factor between two particles.</span>
@@ -221,7 +217,7 @@
             <span class="n">Coulomb_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Zi</span><span class="o">*</span><span class="n">qe</span><span class="o">*</span><span class="n">Zj</span><span class="o">*</span><span class="n">qe</span><span class="o">/</span><span class="n">fourpie0</span>
 
     <span class="c1"># Effective Coupling Parameter in case of multi-species</span>
-    <span class="c1"># see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)</span>
+    <span class="c1"># see eq.(3) of T. Haxhimali et al. Phys Rev E 90 023104 (2014) &lt;https://doi.org/10.1103/PhysRevE.90.023104&gt;</span>
     <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="n">Z53</span><span class="o">*</span><span class="n">Z_avg</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">qe</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">beta_i</span><span class="o">/</span><span class="p">(</span><span class="n">fourpie0</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">aws</span><span class="p">)</span>
     <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span><span class="o">/</span><span class="n">fourpie0</span>
     <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">Coulomb_matrix</span>
@@ -258,39 +254,33 @@
         <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_k</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kx_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">ky_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kz_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">gf_opt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">MGrid</span><span class="p">,</span>\
             <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">aliases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">cao</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">G_ew</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">fourpie0</span><span class="p">)</span>
 
-        <span class="c1"># Include the charges in the Force errors. Prefactor in eq.(29) of Dharuman et al J Chem Phys 146 024112 (2017)</span>
         <span class="c1"># Notice that the equation was derived for a single component plasma. </span>
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span><span class="o">*</span><span class="n">fourpie0</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="c1"># the multiplication of fourpie0 is needed to avoid double division.</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span><span class="o">*</span><span class="n">fourpie0</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
-        <span class="c1"># Total Force Error </span>
+        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">)</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">aws</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">fourpie0</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">)</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">aws</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">fourpie0</span><span class="o">/</span><span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="o">**</span><span class="p">(</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
+        <span class="c1"># Total Force Error</span>
         <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">F_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span></div>
 
 <div class="viewcode-block" id="Coulomb_force_PP"><a class="viewcode-back" href="../S_pot_Coulomb.html#S_pot_Coulomb.Coulomb_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">Coulomb_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix_ij</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate Potential and Force between two particles when the PP algorithm is chosen</span>
+<span class="sd">    Calculate Potential and Force between two particles when the PP algorithm is chosen.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    r : float</span>
-<span class="sd">        distance between two particles</span>
+<span class="sd">        distance between two particles.</span>
 
-<span class="sd">    pot_matrix_ij : array_like</span>
-<span class="sd">                    it contains potential dependent variables</span>
-<span class="sd">                    pot_matrix_ij[0,:,:] = Gamma_ij</span>
-<span class="sd">                    pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)</span>
+<span class="sd">    pot_matrix_ij : array</span>
+<span class="sd">        it contains potential dependent variables.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    U : float</span>
-<span class="sd">        Potential</span>
+<span class="sd">        Potential.</span>
 <span class="sd">                </span>
 <span class="sd">    force : float</span>
-<span class="sd">            Force between two particles</span>
-<span class="sd">    </span>
-<span class="sd">    Notes</span>
-<span class="sd">    -----    </span>
+<span class="sd">        Force between two particles.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="n">U</span> <span class="o">=</span> <span class="n">pot_matrix_ij</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">r</span>
@@ -306,23 +296,26 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    r : real</span>
-<span class="sd">        distance between two particles</span>
+<span class="sd">        Distance between two particles.</span>
 
-<span class="sd">    pot_matrix_ij : array_like</span>
-<span class="sd">                    it contains potential dependent variables</span>
-<span class="sd">                    pot_matrix_ij[0,:,:] = Gamma_ij</span>
-<span class="sd">                    pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)</span>
-<span class="sd">                    pot_matrix_ij[2,:,:] = Ewald parameter alpha</span>
+<span class="sd">    pot_matrix_ij : array</span>
+<span class="sd">        It contains potential dependent variables.</span>
+<span class="sd">                    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    U_s_r : float</span>
-<span class="sd">            Potential value</span>
+<span class="sd">        Potential value.</span>
 <span class="sd">                </span>
 <span class="sd">    fr : float</span>
-<span class="sd">         Force between two particles </span>
+<span class="sd">        Force between two particles. </span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    pot_matrix_ij[0,:,:] = Gamma_ij</span>
+<span class="sd">    pot_matrix_ij[1,:,:] = q1*q2/(4*pi*eps0)</span>
+<span class="sd">    pot_matrix_ij[2,:,:] = Ewald parameter alpha</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix_ij</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>   <span class="c1"># Ewald parameter alpha</span>
     <span class="n">a2</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">*</span><span class="n">alpha</span> 
     <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="n">r</span>
@@ -337,56 +330,57 @@
 <div class="viewcode-block" id="gf_opt"><a class="viewcode-back" href="../S_pot_Coulomb.html#S_pot_Coulomb.gf_opt">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">gf_opt</span><span class="p">(</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">aliases</span><span class="p">,</span> <span class="n">BoxLv</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">alpha</span> <span class="p">,</span><span class="n">rcut</span><span class="p">,</span> <span class="n">fourpie0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate the Optimized Green Function given by eq.(22) in Stern et al. J Chem Phys 128, 214006 (2008)</span>
+<span class="sd">    Calculate the Optimized Green Function given by eq.(22) of Ref. [1]_ . </span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MGrid : array</span>
-<span class="sd">            number of mesh points in x,y,z</span>
+<span class="sd">            number of mesh points in x,y,z.</span>
 
 <span class="sd">    aliases : array</span>
-<span class="sd">            number of aliases in each direction</span>
+<span class="sd">            number of aliases in each direction.</span>
 
 <span class="sd">    BoxLv : array</span>
-<span class="sd">            Length of simulation&#39;s box in each direction</span>
+<span class="sd">            Length of simulation&#39;s box in each direction.</span>
 
 <span class="sd">    p : int</span>
-<span class="sd">        charge assignment order (CAO)</span>
+<span class="sd">        charge assignment order (CAO).</span>
 
 <span class="sd">    N : int</span>
-<span class="sd">        number of particles</span>
+<span class="sd">        number of particles.</span>
 
 <span class="sd">    alpha : float</span>
-<span class="sd">            Ewald parameter</span>
+<span class="sd">        Ewald parameter.</span>
 
 <span class="sd">    rcut : float</span>
-<span class="sd">            Cutoff distance for the PP calculation</span>
+<span class="sd">        Cutoff distance for the PP calculation.</span>
 
 <span class="sd">    fourpie0 : float</span>
-<span class="sd">            Potential factor.</span>
+<span class="sd">        Potential factor.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    G_k : array_like</span>
-<span class="sd">          optimal Green Function</span>
+<span class="sd">        optimal Green Function.</span>
 
 <span class="sd">    kx_v : array_like</span>
-<span class="sd">           array of reciprocal space vectors along the x-axis</span>
+<span class="sd">        array of reciprocal space vectors along the x-axis.</span>
 
 <span class="sd">    ky_v : array_like</span>
-<span class="sd">           array of reciprocal space vectors along the y-axis</span>
+<span class="sd">        array of reciprocal space vectors along the y-axis.</span>
 
 <span class="sd">    kz_v : array_like</span>
-<span class="sd">           array of reciprocal space vectors along the z-axis</span>
+<span class="sd">        array of reciprocal space vectors along the z-axis.</span>
 
 <span class="sd">    PM_err : float</span>
-<span class="sd">             Error in the force calculation due to the optimized Green&#39;s function</span>
-<span class="sd">             eq.(28) in Stern et al. J Chem Phys 128 214106 (2008)</span>
+<span class="sd">        Error in the force calculation due to the optimized Green&#39;s function.</span>
 
 <span class="sd">    PP_err : float</span>
-<span class="sd">             Error in the force calculation due to the distance cutoff.</span>
-<span class="sd">             eq.(30) in Dharuman et al. J Chem Phys 146 024112 (2017)</span>
-<span class="sd">  </span>
+<span class="sd">        Error in the force calculation due to the distance cutoff.</span>
+<span class="sd">    </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) &lt;https://doi.org/10.1063/1.2932253&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Gew</span> <span class="o">=</span> <span class="n">alpha</span> <span class="c1">#params.Potential.matrix[3,0,0]</span>
     <span class="c1">#p = params.P3M.cao</span>
@@ -458,9 +452,7 @@
                     <span class="k">for</span> <span class="n">mz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">mz_max</span><span class="p">,</span><span class="n">mz_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">my</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">my_max</span><span class="p">,</span><span class="n">my_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
                             <span class="k">for</span> <span class="n">mx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">mx_max</span><span class="p">,</span><span class="n">mx_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
-                                
-                                <span class="c1">#if ((nx_sh != 0) or (mx != 0)) and ((ny_sh != 0) or (my != 0)) and ((nz_sh != 0) or (mz != 0)):</span>
-                                
+                                                                
                                 <span class="n">kx_M</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">nx_sh</span> <span class="o">+</span> <span class="n">mx</span><span class="o">*</span><span class="n">Mx</span><span class="p">)</span><span class="o">/</span><span class="n">Lx</span>
                                 <span class="n">ky_M</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">ny_sh</span> <span class="o">+</span> <span class="n">my</span><span class="o">*</span><span class="n">My</span><span class="p">)</span><span class="o">/</span><span class="n">Ly</span>
                                 <span class="n">kz_M</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">nz_sh</span> <span class="o">+</span> <span class="n">mz</span><span class="o">*</span><span class="n">Mz</span><span class="p">)</span><span class="o">/</span><span class="n">Lz</span>
@@ -489,21 +481,18 @@
                                 
                                 <span class="n">k_dot_k_M</span> <span class="o">=</span> <span class="n">kx</span><span class="o">*</span><span class="n">kx_M</span> <span class="o">+</span> <span class="n">ky</span><span class="o">*</span><span class="n">ky_M</span> <span class="o">+</span> <span class="n">kz</span><span class="o">*</span><span class="n">kz_M</span>
 
-                                <span class="c1">#print( (-0.25*(kappa_sq + k_M_sq)/Gew_sq))</span>
-
                                 <span class="n">U_G_k</span> <span class="o">+=</span> <span class="p">(</span><span class="n">U_k_M_sq</span> <span class="o">*</span> <span class="n">G_k_M</span> <span class="o">*</span> <span class="n">k_dot_k_M</span><span class="p">)</span>
                                 <span class="n">U_k_sq</span> <span class="o">+=</span> <span class="n">U_k_M_sq</span>
                                 
-                    <span class="c1"># eq.(31) of Dharuman et al. J Chem Phys 146, 024112 (2017)                                        </span>
+                    <span class="c1"># eq.(22) of Ref. [1]_</span>
                     <span class="n">G_k</span><span class="p">[</span><span class="n">nz</span><span class="p">,</span><span class="n">ny</span><span class="p">,</span><span class="n">nx</span><span class="p">]</span> <span class="o">=</span> <span class="n">U_G_k</span><span class="o">/</span><span class="p">((</span><span class="n">U_k_sq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">k_sq</span><span class="p">)</span>
                     <span class="n">Gk_hat</span> <span class="o">=</span> <span class="n">CoulombFactor</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="o">*</span><span class="n">k_sq</span><span class="o">/</span><span class="n">Gew_sq</span><span class="p">)</span><span class="o">/</span><span class="n">k_sq</span>       
 
-                    <span class="c1"># eq.(28) of Stern et al. J Chem Phys 128, 214006 (2008)</span>
-                    <span class="c1"># eq.(32) of Dharuman et al. J Chem Phys 146, 024112 (2017)</span>
+                    <span class="c1"># eq.(28) of Ref. [1]_ </span>
                     <span class="n">PM_err</span> <span class="o">=</span> <span class="n">PM_err</span> <span class="o">+</span> <span class="n">Gk_hat</span><span class="o">*</span><span class="n">Gk_hat</span><span class="o">*</span><span class="n">k_sq</span> <span class="o">-</span> <span class="n">U_G_k</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">((</span><span class="n">U_k_sq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">k_sq</span><span class="p">)</span>
 
     <span class="n">PP_err</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">CoulombFactor</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Lx</span><span class="o">*</span><span class="n">Ly</span><span class="o">*</span><span class="n">Lz</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Gew_sq</span><span class="o">*</span><span class="n">rcut2</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rcut</span><span class="p">)</span>
-    <span class="n">PM_err</span> <span class="o">=</span> <span class="n">PM_err</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Lx</span><span class="o">*</span><span class="n">Ly</span><span class="o">*</span><span class="n">Lz</span><span class="p">)</span>
+    <span class="n">PM_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PM_err</span><span class="p">)</span><span class="o">/</span><span class="n">Lz</span>
 
     <span class="k">return</span> <span class="n">G_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">,</span> <span class="n">PM_err</span><span class="p">,</span> <span class="n">PP_err</span></div>
 </pre></div>
@@ -520,7 +509,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

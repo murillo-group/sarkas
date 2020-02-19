@@ -156,9 +156,11 @@
             
   <h1>Source code for S_pot_Moliere</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">S_pot_Moliere.py</span>
+<span class="sd">Module for handling Moliere Potential as given by Ref. [1]_</span>
 
-<span class="sd">Module for handling Moliere Potentials</span>
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">.. [1] `W.D. Wilson et al., Phys Rev B 15, 2458 (1977) &lt;https://doi.org/10.1103/PhysRevB.15.2458&gt;`_</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
@@ -167,23 +169,16 @@
 
 <div class="viewcode-block" id="Moliere_setup"><a class="viewcode-back" href="../S_pot_Moliere.html#S_pot_Moliere.Moliere_setup">[docs]</a><span class="k">def</span> <span class="nf">Moliere_setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Setup simulation&#39;s parameters for Moliere-like potential</span>
+<span class="sd">    Updates ``params`` class with Moliere potential paramters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See S_params.py for more info.</span>
+<span class="sd">        Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
 
 <span class="sd">    filename : string</span>
-<span class="sd">                Input filename</span>
+<span class="sd">        Input filename.</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    none</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    Reference Wilson et al. PRB 15, 2458 (1977)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># constants and conversion factors    </span>
@@ -271,25 +266,26 @@
 <div class="viewcode-block" id="Moliere_force_PP"><a class="viewcode-back" href="../S_pot_Moliere.html#S_pot_Moliere.Moliere_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">Moliere_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate the PP force between particles using the Moliere Potential.</span>
+<span class="sd">    Calculates the PP force between particles using the Moliere Potential.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    r : float</span>
-<span class="sd">        particles&#39; distance</span>
+<span class="sd">        Particles&#39; distance.</span>
 
 <span class="sd">    pot_matrix : array</span>
-<span class="sd">                Moliere potential parameters according to Wilson et al. PRB 15, 2458 (1977) </span>
+<span class="sd">        Moliere potential parameters. </span>
 
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    phi : float</span>
-<span class="sd">          potential</span>
+<span class="sd">        Potential</span>
 
 <span class="sd">    fr : float</span>
-<span class="sd">         force</span>
-<span class="sd">    </span>
+<span class="sd">        Force</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    See Wilson et al. PRB 15 2458 (1977) for parameters&#39; details</span>
@@ -330,7 +326,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

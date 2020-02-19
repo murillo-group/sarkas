@@ -178,23 +178,30 @@
             
   <div class="section" id="module-S_pot_Yukawa">
 <span id="s-pot-yukawa-module"></span><h1>S_pot_Yukawa module<a class="headerlink" href="#module-S_pot_Yukawa" title="Permalink to this headline">¶</a></h1>
+<p>Module for handling Yukawa interaction</p>
 <dl class="function">
 <dt id="S_pot_Yukawa.Yukawa_force_P3M">
 <code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">Yukawa_force_P3M</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix_ij</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#Yukawa_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.Yukawa_force_P3M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate Potential and Force between two particles when the P3M algorithm is chosen</p>
+<dd><p>Calculates Potential and Force between two particles when the P3M algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<em>float</em>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – Potential matrix. See setup function above</p></li>
+<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – Potential matrix. See setup function above.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>U_s_r</strong> (<em>float</em>) – Potential value</p></li>
-<li><p><strong>fr</strong> (<em>float</em>) – Force between two particles calculated using eq.(22) in Dharuman et al. J Chem Phys 146, 024112 (2017)</p></li>
+<li><p><strong>fr</strong> (<em>float</em>) – Force between two particles calculated using eq.(22) in Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a></p></li>
 </ul>
 </p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id5">2</a>)</span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1063/1.4973842">G. Dharuman et al. J Chem Phys 146 024112 (2017)</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -202,32 +209,28 @@
 <dl class="function">
 <dt id="S_pot_Yukawa.Yukawa_force_PP">
 <code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">Yukawa_force_PP</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix_ij</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#Yukawa_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.Yukawa_force_PP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate Potential and Force between two particles when the PP algorithm is chosen</p>
+<dd><p>Calculates Potential and Force between two particles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>float</em>) – distance between two particles</p></li>
-<li><p><strong>pot_matrix_ij</strong> (<em>array_like</em>) – it contains potential dependent variables</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U</strong> (<em>float</em>) – Potential</p></li>
-<li><p><strong>force</strong> (<em>float</em>) – Force between two particles</p></li>
+<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
+<li><p><strong>force</strong> (<em>float</em>) – Force between two particles.</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>pot_matrix_ij[0,:,:] = 1/lambda_TF
-pot_matrix_ij[1,i,j] = Gamma_ij
-pot_matrix_ij[2,i,j] = q1*q2/(4*pi*eps0)</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="S_pot_Yukawa.gf_opt">
 <code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param">MGrid</em>, <em class="sig-param">aliases</em>, <em class="sig-param">BoxLv</em>, <em class="sig-param">p</em>, <em class="sig-param">N</em>, <em class="sig-param">pot_matrix</em>, <em class="sig-param">rcut</em>, <em class="sig-param">fourpie0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.gf_opt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref.[1]</p>
+<dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. <a class="footnote-reference brackets" href="#id6" id="id3">2</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -247,19 +250,16 @@ pot_matrix_ij[2,i,j] = q1*q2/(4*pi*eps0)</p>
 <li><p><strong>kx_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the x-axis</p></li>
 <li><p><strong>ky_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the y-axis</p></li>
 <li><p><strong>kz_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the z-axis</p></li>
-<li><p><strong>PM_err</strong> (<em>float</em>) – Error in the force calculation due to the optimized Green’s function. eq.(28) of Ref.[1]</p></li>
-<li><p><strong>PP_err</strong> (<em>float</em>) – Error in the force calculation due to the distance cutoff. eq.(30) of Ref.[2]</p></li>
+<li><p><strong>PM_err</strong> (<em>float</em>) – Error in the force calculation due to the optimized Green’s function. eq.(28) of Ref. <a class="footnote-reference brackets" href="#id6" id="id4">2</a></p></li>
+<li><p><strong>PP_err</strong> (<em>float</em>) – Error in the force calculation due to the distance cutoff. eq.(30) of Ref. <a class="footnote-reference brackets" href="#id2" id="id5">1</a></p></li>
 </ul>
 </p>
 </dd>
 </dl>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dt class="label" id="id6"><span class="brackets">2</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id4">2</a>)</span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1063/1.2932253">H.A. Stern et al. J Chem Phys 128, 214006 (2008)</a></p>
-</dd>
-<dt class="label" id="id2"><span class="brackets">2</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1063/1.4973842">G. Dharuman et al. J Chem Phys 146 024112 (2017)</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -267,40 +267,22 @@ pot_matrix_ij[2,i,j] = q1*q2/(4*pi*eps0)</p>
 <dl class="function">
 <dt id="S_pot_Yukawa.setup">
 <code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup simulation’s parameters for Yukawa interaction</p>
+<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Yukawa’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info.</p></li>
-<li><p><strong>filename</strong> (<em>string</em>) – Input filename</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Input filename.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>params</strong> – Simulation’s parameters updated</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>class</p>
-</dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Yukawa_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:]</span> <span class="p">:</span> <span class="n">kappa</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">lambda_TF</span> <span class="ow">or</span> <span class="n">given</span> <span class="k">as</span> <span class="nb">input</span><span class="o">.</span> <span class="n">Same</span> <span class="n">value</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">species</span><span class="o">.</span>
-<span class="n">Yukawa_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">Gamma</span> <span class="o">=</span> <span class="n">qi</span> <span class="n">qj</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="n">pi</span> <span class="n">esp0</span> <span class="n">kb</span> <span class="n">T</span><span class="p">),</span> <span class="n">Coupling</span> <span class="n">parameter</span> <span class="n">between</span> <span class="n">particles</span><span class="s1">&#39; species.</span>
-<span class="n">Yukawa_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">qi</span> <span class="n">qj</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="n">pi</span> <span class="n">esp0</span><span class="p">)</span> <span class="n">Force</span> <span class="n">factor</span> <span class="n">between</span> <span class="n">two</span> <span class="n">particles</span><span class="o">.</span>
-<span class="n">Yukawa_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">Ewald</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">case</span> <span class="n">of</span> <span class="n">P3M</span> <span class="n">Algorithm</span><span class="o">.</span> <span class="n">Same</span> <span class="n">value</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">species</span>
-</pre></div>
-</div>
-</div>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id3"><span class="brackets">1</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.93.043203">L. Stanton and M. Murillo Phys Rev E 91 033104 (2017)</a></p>
+<dt class="label" id="id7"><span class="brackets">3</span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.91.033104">Stanton and Murillo Phys Rev E 91 033104 (2015)</a></p>
 </dd>
-<dt class="label" id="id4"><span class="brackets">2</span></dt>
+<dt class="label" id="id8"><span class="brackets">4</span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.90.023104">T. Haxhimali et al. Phys Rev E 90 023104 (2014)</a></p>
-</dd>
-<dt class="label" id="id5"><span class="brackets">3</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1063/1.4973842">G. Dharuman et al. J Chem Phys 146 024112 (2017)</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -329,7 +311,7 @@ pot_matrix_ij[2,i,j] = q1*q2/(4*pi*eps0)</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

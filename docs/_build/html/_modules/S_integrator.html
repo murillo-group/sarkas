@@ -156,10 +156,7 @@
             
   <h1>Source code for S_integrator</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">S_integrator.py</span>
-
 <span class="sd">Module of various types of integrators </span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -175,7 +172,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">        params : class</span>
-<span class="sd">            Simulation&#39;s parameters.</span>
+<span class="sd">        Simulation&#39;s parameters.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -187,7 +184,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span> <span class="o">=</span> <span class="n">calc_pot_acc</span>
 
@@ -296,10 +293,10 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ptlcs: class</span>
-<span class="sd">           Particles data. See S_particles.py for more info.</span>
+<span class="sd">        Particles data. See ``S_particles.py`` for more info.</span>
 <span class="sd">    </span>
 <span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See S_params.py for more info.</span>
+<span class="sd">        Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -329,15 +326,15 @@
 <div class="viewcode-block" id="Magnetic_Verlet"><a class="viewcode-back" href="../S_integrator.html#S_integrator.Magnetic_Verlet">[docs]</a><span class="k">def</span> <span class="nf">Magnetic_Verlet</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update particles&#39; positions and velocities based on velocity verlet method in the case of a </span>
-<span class="sd">    constant magnetic field along the :math:`z` axis. For more info see Ref. [1]</span>
+<span class="sd">    constant magnetic field along the :math:`z` axis. For more info see Ref. [1]_</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ptlcs: class</span>
-<span class="sd">           Particles data. See S_particles.py for more info.</span>
+<span class="sd">           Particles data. See ``S_particles.py`` for more info.</span>
 <span class="sd">    </span>
 <span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See S_params.py for more info.</span>
+<span class="sd">            Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
 <span class="sd">            </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -539,7 +536,7 @@
 <div class="viewcode-block" id="calc_dipole"><a class="viewcode-back" href="../S_integrator.html#S_integrator.calc_dipole">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">calc_dipole</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span><span class="n">charge</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculate the dipole due to all charges. See Ref.[2] for explanation.</span>
+<span class="sd">    Calculate the dipole due to all charges. See Ref. [2]_ for explanation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -556,7 +553,7 @@
 <span class="sd">    </span>
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
-<span class="sd">    .. [2] `JM. Caillol, J Chem Phys 101 6080 (1994) &lt;https://doi.org/10.1063/1.468422&gt;`_</span>
+<span class="sd">    .. [2] `J-M. Caillol, J Chem Phys 101 6080 (1994) &lt;https://doi.org/10.1063/1.468422&gt;`_</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dipole</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="mi">3</span> <span class="p">)</span>
@@ -584,21 +581,25 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     
+    
     <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;brute&#39;</span><span class="p">):</span>
         <span class="n">U</span><span class="p">,</span> <span class="n">acc</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update_brute</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">acc</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span><span class="p">):</span>
-            <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> \
+                <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update_0D</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update_0D</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> \
+                <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
     
         <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">acc_s_r</span>
 
         <span class="n">U</span> <span class="o">=</span> <span class="n">U_short</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">on</span><span class="p">):</span>
-            <span class="n">U_long</span><span class="p">,</span> <span class="n">acc_l_r</span> <span class="o">=</span> <span class="n">force_pm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">U_long</span><span class="p">,</span> <span class="n">acc_l_r</span> <span class="o">=</span> <span class="n">force_pm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>\
+                <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_k</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kx_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">ky_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kz_v</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">cao</span><span class="p">)</span>
             <span class="c1"># Ewald Self-energy</span>
             <span class="n">U_Ew_self</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_ew</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
             <span class="c1"># Neutrality condition</span>
@@ -629,7 +630,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on Feb, 19, 2020.
       </span>
 
     </p>

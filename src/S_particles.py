@@ -1,11 +1,5 @@
 """ 
-S_particles.py
-species_name
-pos: position components
-vel: velocity components
-acc: acc. components
-charge
-mass
+Module to handle particles' class.
 """
 import numpy as np
 from inspect import currentframe, getframeinfo
@@ -15,14 +9,51 @@ import sys
 DEBUG = 0
 
 class Particles:
-    """Particles
+    """
+    Particles class.
 
-    load --
+    Parameters
+    ----------
+    params : class
+        Simulation's parameters. See ``S_params.py`` for more info.
 
+    Attributes
+    ----------
+    pos : array
+        Particles' positions.
+
+    vel : array
+        Particles' velocities.
+
+    acc : array
+        Particles' accelerations.
+    
+    params : class
+        Simulation's parameters. 
+
+    N : int
+        Total number of particles.
+
+    mass : array
+        Mass of each particle.
+
+    charge : array
+        Charge of each particle.
+
+    species_id : array, shape(N,)
+        Species identifier.
+
+    species_name : list
+        Species' names.
+    
+    species_num : array
+        Number of particles of each species.
     """
 
     def __init__(self, params):
-        
+        """ 
+        Initialize the attributes
+        """
         self.params = params
         self.N = params.total_num_ptcls
 
@@ -33,32 +64,26 @@ class Particles:
         self.vel = np.zeros((self.N, 3)) 
         self.acc = np.zeros((self.N, 3)) 
 
-        #self.species_name = [None]*self.N
         self.species_name = np.empty(self.N, dtype='object')
         self.species_id = np.zeros( (self.N,), dtype=int)
-    
+        self.species_num = np.zeros( self.params.num_species, dtype=int )
+
         self.mass = np.zeros(self.N) # mass of each particle
         self.charge = np.zeros(self.N) # charge of each particle
-
+    
     def load(self):
         """
-        Initialize particles' positions and velocities based on the load method. 
+        Initialize particles' positions and velocities.
+        Positions are initilized based on the load method while velocities are chosen 
+        from a Maxwell-Boltzmann distribution.
 
-        Parameters
-        ----------
-        self : class 
-
-        Returns
-        -------
-        none
-
-        Notes
-        -----
-        Here numba does not help at all. In fact loading is slower with numba. 
+        """
+        
+        """
+        Dev Notes: Here numba does not help at all. In fact loading is slower with numba. 
         It could be made faster if we made load a function and not a method of Particles.
         but in that case we would have to pass all the parameters.
         """
-
         N = self.N
         Lx = self.params.Lx
         Ly = self.params.Ly
@@ -69,10 +94,15 @@ class Particles:
         ic_species = 0
         N_species = self.params.num_species
 
+        self.species_mass = np.zeros( N_species )
+
         for i in range(N_species): 
             species_start = species_end
             species_end += self.params.species[i].num
            
+            self.species_num[i] = self.params.species[i].num
+            self.species_mass[i] = self.params.species[i].mass
+
             self.species_name[species_start:species_end] = self.params.species[i].name
             self.mass[species_start:species_end] = self.params.species[i].mass
             if hasattr (self.params.species[i],'charge'):
@@ -178,13 +208,6 @@ class Particles:
         it : int
             Timestep
 
-        Returns
-        -------
-        none
-
-        Notes
-        -----
-
         """
         file_name = self.params.Control.checkpoint_dir+"/"+"S_checkpoint_"+str(it)+".npz"
         data = np.load(file_name)
@@ -196,22 +219,15 @@ class Particles:
 
     def load_from_file(self, f_name, N):
         """
-        Load particles' data from a specific file
+        Load particles' data from a specific file.
 
         Parameters
         ----------
-        f_name : string
-                Filename
+        f_name : str
+            Filename
 
         N : int
             Number of particles
-
-        Returns
-        -------
-        none
-
-        Notes
-        -----
 
         """
         pv_data = np.loadtxt(f_name)
@@ -230,7 +246,7 @@ class Particles:
 
     def random_no_reject(self, N):
         """
-        Randomly distribute particles along each direction
+        Randomly distribute particles along each direction.
 
         Parameters
         ----------
@@ -239,11 +255,8 @@ class Particles:
 
         Returns
         -------
-        pos : array_like
+        pos : array
             Particles' positions.
-
-        Notes
-        -----
 
         """
 
@@ -268,17 +281,6 @@ class Particles:
         rand_seed : int
             Seed for random number generator. 
             Default: 1.
-
-        Returns
-        -------
-        x : array_like
-            X positions for particles.
-                
-        y : array_like
-            Y positions for particles.
-            
-        z : array_like
-            Z positions for particles.
 
         Notes
         -----    
@@ -355,17 +357,6 @@ class Particles:
         rand_seed : int
             Seed for random number generator. 
             Default: 1.
-
-        Returns
-        -------
-        x : array_like
-            X positions for particles.
-            
-        y : array_like
-            Y positions for particles.
-        
-        z : array_like
-            Z positions for particles.
 
         Notes
         -----    
@@ -472,23 +463,12 @@ class Particles:
         N : int
             Total number of particles to place.
 
-        bases : array_like
+        bases : array
             Array of 3 ints each of which is a base for the Halton sequence.
             Defualt: bases = np.array([2,3,5])
 
         r_reject : float
             Value of rejection radius.
-
-        Returns
-        -------
-        x : array_like
-            X positions for particles.
-            
-        y : array_like
-            Y positions for particles.
-        
-        z : array_like
-            Z positions for particles.
 
         Notes
         -----    
