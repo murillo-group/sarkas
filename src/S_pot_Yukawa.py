@@ -304,9 +304,6 @@ def setup(params, filename):
                         if (key == "kappa"): # screening
                             params.Potential.kappa = float(value)
 
-                        if (key == "Gamma"): # coupling
-                            params.Potential.Gamma = float(value)
-
                         # electron temperature for screening parameter calculation
                         if (key == "elec_temperature"):
                             params.Te = float(value)
@@ -320,6 +317,8 @@ def setup(params, filename):
     else:
         Yukawa_matrix = np.zeros( (3, params.num_species, params.num_species) ) 
         
+    if hasattr(params.Potential, "kappa") and hasattr(params.Potential, "Te"):
+        print("\nWARNING: You have provided both kappa and Te while only one is needed. kappa will be used to calculate the screening parameter.")
 
     if hasattr(params.Potential, "kappa"):
         # Thomas-Fermi Length

@@ -400,6 +400,12 @@ class Params:
             
             checkpoint_dir : str
                 Directory to store simulation's output files.
+
+            screen_output : bool
+                Flag to print to screen. default = False.
+
+            log_file : str
+                File name for log output.
         """
         def __init__(self):
             self.units = None
@@ -408,9 +414,11 @@ class Params:
             self.Neq = None
             self.BC = "periodic"
             self.dump_step = 1
+            self.screen_output = False
             self.writexyz = "no"
             self.verbose = "yes"
             self.checkpoint_dir = "Checkpoint"
+            self.log_file = self.checkpoint_dir + "/log.out"
 
     def setup(self, filename):
         """
@@ -682,6 +690,9 @@ class Params:
                             if (key =="output_dir"):
                                 self.Control.checkpoint_dir = value
                             
+                            if (key == "screen_output" ):
+                                self.Control.screen_output = True
+
                             # Filenames appendix 
                             if (key =="fname_app"):
                                 self.Control.fname_app = value

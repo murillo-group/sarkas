@@ -237,7 +237,7 @@ def Magnetic_Verlet(ptcls,params):
             + inv_omc*( ptcls.acc[sp_start:sp_end,1]*sdt + ptcls.acc[sp_start:sp_end,0]*ccodt ) \
             + inv_omc_sq*( ptcls.acc[sp_start:sp_end,1]*ccodt - ptcls.acc[sp_start:sp_end,0]*ssodt)/dt
         
-        ptcls.vel[sp_start:sp_end,2] = ptcls.vel[sp_start:sp_end,2] + 0.0*half_dt*ptcls.acc[sp_start:sp_end,2]
+        ptcls.vel[sp_start:sp_end,2] = ptcls.vel[sp_start:sp_end,2] + half_dt*ptcls.acc[sp_start:sp_end,2]
 
         sp_start = sp_end
     
@@ -274,7 +274,7 @@ def Magnetic_Verlet(ptcls,params):
         ptcls.vel[sp_start:sp_end,1] = v_temp[sp_start:sp_end,1] \
             - inv_omc_sq*( ptcls.acc[sp_start:sp_end,1]*ccodt - ptcls.acc[sp_start:sp_end,0]*ssodt )/dt 
 
-        ptcls.vel[sp_start:sp_end,2] = ptcls.vel[sp_start:sp_end,2] + 0.0*half_dt*ptcls.acc[sp_start:sp_end,2]
+        ptcls.vel[sp_start:sp_end,2] = ptcls.vel[sp_start:sp_end,2] + half_dt*ptcls.acc[sp_start:sp_end,2]
         
         sp_start = sp_end
 

@@ -36,10 +36,11 @@ input_file = sys.argv[1]
 
 params = Params()
 params.setup(input_file)                # Read initial conditions and setup parameters
-verbose = Verbose(params)
+
 integrator = Integrator(params)
 checkpoint = Checkpoint(params)         # For restart and pva backups.
 
+verbose = Verbose(params)
 #######################
 Nt = params.Control.Nstep    # number of time steps
 N = params.total_num_ptcls
@@ -78,7 +79,8 @@ Tp = np.ndarray.sum(Tps)/params.num_species
 E = K + U
 
 thermostat.remove_drift(ptcls.vel,ptcls.species_num, ptcls.species_mass)
-print("\nInitial: T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(Tp, E, K, U) )
+if ( params.Control.screen_output):
+    print("\nInitial: T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(Tp, E, K, U) )
 
 time_stamp[its] = time.time(); its += 1
 
@@ -86,7 +88,8 @@ time_stamp[its] = time.time(); its += 1
 #f_output_E = open(params.Control.checkpoint_dir+"/"+"ThermEnergy_"+params.Control.fname_app + ".out", "w")
 #f_xyz = open(params.Control.checkpoint_dir+"/"+"ThermPVA_"+params.Control.fname_app + ".xyz", "w")
 if not (params.load_method == "restart"):
-    print("\n------------- Equilibration -------------")
+    if ( params.Control.screen_output):
+        print("\n------------- Equilibration -------------")
     for it in range(params.Control.Neq):
         # Calculate the Potential energy and update particles' data
         U = integrator.update(ptcls,params)
@@ -94,13 +97,14 @@ if not (params.load_method == "restart"):
         thermostat.Berendsen(ptcls,params,it)
 
         # Print Energies and Temperature to screen
-        if (it % params.Control.dump_step == 0 and params.Control.verbose):
+        if (it % params.Control.dump_step == 0 and params.Control.screen_output):
             Ks, Tps = thermostat.calc_kin_temp(ptcls.vel,ptcls.species_num,ptcls.species_mass,params.kB)
             K = np.ndarray.sum(Ks)
             Tp = np.ndarray.sum(Tps)/params.num_species
             
             E = K + U
-            print("Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U) )
+            if ( (it% params.Control.dump_step) == 0 and params.Control.screen_output):
+                print("Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U) )
 
         # Un-comment the following if-statement if you want to save Thermalization data for debugging    
         #if params.Control.writexyz == 1:
@@ -117,7 +121,10 @@ time_stamp[its] = time.time(); its += 1
 if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
     params.Integrator.type == "Magnetic_Verlet"
     integrator = Integrator(params)
-    print("\n------------- Magnetic Equilibration -------------")
+
+    if ( params.Control.screen_output):
+        print("\n------------- Magnetic Equilibration -------------")
+    
     for it in range(params.Magnetic.Neq_mag):
         # Calculate the Potential energy and update particles' data
         U = integrator.update(ptcls,params)
@@ -125,7 +132,7 @@ if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
         thermostat.Berendsen(ptcls,params,it)
 
         # Print Energies and Temperature to screen
-        if (it % params.Control.dump_step == 0 and params.Control.verbose):
+        if ( (it% params.Control.dump_step) == 0 and params.Control.screen_output):
             Ks, Tps = thermostat.calc_kin_temp(ptcls.vel,ptcls.species_num,ptcls.species_mass,params.kB)
 
             K = np.ndarray.sum(Ks)
@@ -145,22 +152,32 @@ if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
 
 # Open output files
 
-# Temperature and Energies
-f_output_E = open(params.Control.checkpoint_dir+"/"+"Energy_" + params.Control.fname_app + ".out", "w")
-
-# Particles' positions scaled by Wigner-Seitz radius for Radial Distribution Function calculation
-f_pos = open(params.Control.checkpoint_dir+"/"+"pos_" + params.Control.fname_app + ".out","w")
-
-if (params.Control.writexyz == 1):
-    # Particles' positions, velocities, accelerations for OVITO
-    f_xyz = open(params.Control.checkpoint_dir+"/"+"pva_" + params.Control.fname_app + ".xyz", "w")
 
 if (params.load_method == "restart"):
     it_start = params.load_restart_step + 0
+    f_output_E = open(params.Control.checkpoint_dir+"/"+"Energy_" + params.Control.fname_app + ".out", "a+")
+    
+    # Particles' positions scaled by Wigner-Seitz radius for Radial Distribution Function calculation
+    #f_pos = open(params.Control.checkpoint_dir+"/"+"pos_" + params.Control.fname_app + ".out","a+")
+
+    if (params.Control.writexyz == 1):
+        # Particles' positions, velocities, accelerations for OVITO
+        f_xyz = open(params.Control.checkpoint_dir+"/"+"pva_" + params.Control.fname_app + ".xyz", "a+")
+
 else:
     it_start = 0
+    f_output_E = open(params.Control.checkpoint_dir+"/"+"Energy_" + params.Control.fname_app + ".out", "w+")
+    # Particles' positions scaled by Wigner-Seitz radius for Radial Distribution Function calculation
+    #f_pos = open(params.Control.checkpoint_dir+"/"+"pos_" + params.Control.fname_app + ".out","w+")
 
-print("\n------------- Production -------------")
+    if (params.Control.writexyz == 1):
+        # Particles' positions, velocities, accelerations for OVITO
+        f_xyz = open(params.Control.checkpoint_dir+"/"+"pva_" + params.Control.fname_app + ".xyz", "w+")
+
+
+if ( params.Control.screen_output):
+    print("\n------------- Production -------------")
+
 for it in range(it_start, Nt):
     # Move the particles and calculate the potential
     U = integrator.update(ptcls,params)
@@ -175,7 +192,7 @@ for it in range(it_start, Nt):
     E = K + U
 
     # Print progress to screen
-    if (it % params.Control.dump_step == 0 and params.Control.verbose):
+    if (it % params.Control.dump_step == 0 and params.Control.screen_output):
         print("Production: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U) )
 
     # Write Energies and Temperature to file
@@ -196,7 +213,7 @@ for it in range(it_start, Nt):
     
     # Write particles' data to XYZ file for OVITO Visualization 
     if params.Control.writexyz == 1:
-        np.savetxt(f_pos,ptcls.pos/params.aws, fmt="%.6e %.6e %.6e")
+        #np.savetxt(f_pos,ptcls.pos/params.aws, fmt="%.6e %.6e %.6e")
 
         f_xyz.writelines("{0:d}\n".format(N))
         f_xyz.writelines("name x y z vx vy vz ax ay az\n")
@@ -211,7 +228,7 @@ time_stamp[its] = time.time(); its += 1
 
 # close output files
 f_output_E.close()
-f_pos.close()
+#f_pos.close()
 
 if (params.Control.writexyz):
     f_xyz.close()

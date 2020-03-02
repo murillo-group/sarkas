@@ -122,7 +122,8 @@ class Particles:
             self.load_from_restart(timestep)
 
         elif (load_method == 'file'):
-            print('\nReading initial particle positions and velocities from file...')
+            if ( self.params.Control.screen_output):
+                print('\nReading initial particle positions and velocities from file...')
             
             f_input = 'init.out'           # name of input file
             self.load_from_file(f_input, N)
@@ -131,7 +132,8 @@ class Particles:
             two_pi = 2.0*np.pi 
 
             # Particles Velocities Initialization
-            print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
+            if ( self.params.Control.screen_output):
+                print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
             potential_type = self.params.Potential.type
             units = self.params.Control.units
 
@@ -161,7 +163,8 @@ class Particles:
                 self.vel[species_start:species_end, 2] -= vz_mean
 
             # Particles Position Initialization
-            print('\nAssigning initial positions according to {}'.format(load_method))
+            if ( self.params.Control.screen_output):
+                print('\nAssigning initial positions according to {}'.format(load_method))
 
             # position distribution. 
             if (load_method == 'lattice'):
@@ -177,7 +180,8 @@ class Particles:
                 self.random_no_reject(self.N)
 
             else:
-                print('\nIncorrect particle placement scheme specified... Using "random_no_reject"')
+                if (params.Control.verbose):
+                    print('\nIncorrect particle placement scheme specified... Using "random_no_reject"')
                 self.random_no_reject(self.N)
 
         return       
@@ -323,7 +327,8 @@ class Particles:
         X, Y, Z = np.meshgrid(x,y,z)
 
         # Random seed
-        print('Random number generator using rand_seed = {}'.format(rand_seed))
+        if ( self.params.Control.screen_output):
+            print('Random number generator using rand_seed = {}'.format(rand_seed))
         np.random.seed(rand_seed) # Seed for random number generator
         
         # Perturb lattice
