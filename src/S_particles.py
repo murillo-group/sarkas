@@ -109,6 +109,7 @@ class Particles:
                 self.charge[species_start:species_end] = self.params.species[i].charge
             else:
                 self.charge[species_start:species_end] = 1.0
+            
             self.species_id[species_start:species_end] = ic_species
             ic_species += 1
 

@@ -291,7 +291,6 @@ def setup(params, filename):
         fourpie0 = 4.0*np.pi*params.eps0
 
     twopi = 2.0*np.pi
-    hbar2 = params.hbar*params.hbar        
     beta_i = 1.0/(params.kB*params.Ti)
 
     # open the input file to read Yukawa parameters
@@ -361,9 +360,6 @@ def setup(params, filename):
         # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
         lambda_TF = np.sqrt((4.0*np.pi**2*e_0*h_bar**2)/(m_e*e**2)*np.sqrt(2*beta*h_bar**2/m_e)/(4.0*fdint_fdk_vec(k=-0.5, phi=eta))) 
 
-        Yukawa_matrix[0, :, :] = 1.0/lambda_TF # kappa/ai
-
-
     # Calculate the Potential Matrix
     Z53 = 0.0
     Z_avg = 0.0
@@ -395,6 +391,7 @@ def setup(params, filename):
     # Calculate the (total) plasma frequency
     if (params.Control.units == "cgs"):
         params.lambda_TF = lambda_TF*100.  # meter to centimeter
+        Yukawa_matrix[0, :, :] = 1.0/params.lambda_TF # kappa/ai
         wp_tot_sq = 0.0
         for i in range(params.num_species):
             wp2 = 4.0*np.pi*params.species[i].charge**2*params.species[i].num_density/params.species[i].mass
@@ -405,6 +402,7 @@ def setup(params, filename):
 
     elif (params.Control.units == "mks"):
         params.lambda_TF = lambda_TF
+        Yukawa_matrix[0, :, :] = 1.0/params.lambda_TF # kappa/ai
         wp_tot_sq = 0.0
         for i in range(params.num_species):
             wp2 = params.species[i].charge**2*params.species[i].num_density/(params.species[i].mass*const.epsilon_0)
@@ -429,7 +427,7 @@ def setup(params, filename):
         params.Potential.matrix[-1,:,:] = params.P3M.G_ew
         # Optimized Green's Function
         params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err, params.P3M.PP_err = gf_opt(params.P3M.MGrid,\
-            params.P3M.aliases, params.Lv, params.P3M.cao, params.N, params.Potential.matrix, params.Potential.rc, fourpie0)
+            params.P3M.aliases, params.Lv, params.P3M.cao, params.N, params.Potential.matrix, params.Potential.rc, params.fourpie0)
 
         # Include the charges in the Force errors. Prefactor in eq.(29) Ref.[1]_
         # Notice that the equation was derived for a single component plasma. 

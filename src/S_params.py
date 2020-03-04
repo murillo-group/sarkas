@@ -708,25 +708,25 @@ class Params:
             self.c0 = const.physical_constants["speed of light in vacuum"][0]
             if not (self.Potential.type=="LJ"):
                 # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
-                C2statC = 1.0/(10.0*self.c0)
+                C2statC = 10.0*self.c0
                 self.hbar = self.J2erg*const.hbar
                 self.hbar2 = self.hbar**2
                 self.qe = C2statC*const.physical_constants["elementary charge"][0]
                 self.me = 1.0e3*const.physical_constants["electron mass"][0] # grams   
                 self.eps0 = 1.0
+                self.fourpie0 = 1.0
 
         elif (self.Control.units == "mks"):
             self.kB = const.Boltzmann
             self.eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
             self.c0 = const.physical_constants["speed of light in vacuum"][0]
             if not (self.Potential.type=="LJ"):
-                # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
                 self.hbar = const.hbar
                 self.hbar2 = self.hbar**2
                 self.qe = const.physical_constants["elementary charge"][0]
                 self.me = const.physical_constants["electron mass"][0]
                 self.eps0 = const.epsilon_0
-
+                self.fourpie0 = 4.0*np.pi*self.eps0
         # Charge systems' parameters.
         self.QFactor = 0.0
         self.tot_net_charge = 0.0
@@ -757,13 +757,7 @@ class Params:
         if not (self.Potential.type == "LJ"):
             for ic in range(self.num_species):
 
-                if (self.Control.units == "cgs"):
-                    C2statC = 1.0/(10.0*const.physical_constants["speed of light in vacuum"][0])
-                    qe = C2statC*const.physical_constants["elementary charge"][0]
-                elif (self.Control.units == "mks"):
-                    qe = const.physical_constants["elementary charge"][0]
-
-                self.species[ic].charge = qe
+                self.species[ic].charge = self.qe
                 
 
                 if hasattr(self.species[ic], "Z"):

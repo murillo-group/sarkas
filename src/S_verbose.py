@@ -47,7 +47,7 @@ class Verbose:
             if (len(params.species) > 1):
                 print('Gamma_eff = {:4.2f}'.format( params.Potential.Gamma_eff) , file=f_log)
             else:
-                print('Gamma = {:4.2f}'.format( params.Potential.matrix[1, 0, 0]) , file=f_log)
+                print('Gamma = {:4.2e}'.format( params.Potential.matrix[1, 0, 0]) , file=f_log)
 
         if (params.Potential.type == 'LJ'):
             print('epsilon = {:2.6e}'.format( params.Potential.matrix[0, 0, 0]) , file=f_log)

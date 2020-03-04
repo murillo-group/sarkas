@@ -454,7 +454,7 @@ def calc_pot_acc(ptcls,params):
     if not (params.Potential.type == "LJ"):
         # Mie Energy of charged systems
         dipole = calc_dipole(ptcls.pos,ptcls.charge)
-        U_MIE = 2.0*np.pi*(dipole[0]**2 + dipole[1]**2 + dipole[2]**2)/(3.0*params.box_volume)
+        U_MIE = 2.0*np.pi*(dipole[0]**2 + dipole[1]**2 + dipole[2]**2)/(3.0*params.box_volume*params.fourpie0)
 
         U = U + U_MIE
 

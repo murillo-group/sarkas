@@ -23,7 +23,7 @@ import math as mt
 import sys
 import scipy.constants as const
 
-def setup(params):
+def setup(params, filename):
     """ 
     Update the ``params`` class with QSP Potential parameters. 
     The QSP Potential is given by eq.(5) in Ref. [2]_ .
@@ -43,6 +43,16 @@ def setup(params):
     QSP_matrix[3,:,:] = e-e term factor
     QSP_matrix[4,:,:] = e-e exp factor 4pi/deBroglie/ln(2)
     """
+    # open the input file to read Yukawa parameters
+    with open(filename, 'r') as stream:
+        dics = yaml.load(stream, Loader=yaml.FullLoader)
+        for lkey in dics:
+            if (lkey == "Potential"):
+                for keyword in dics[lkey]:
+                    for key, value in keyword.items():
+                        if (key == "QSP_type"): # screening
+                            params.Potential.QSP_type = value
+
     if ( params.P3M.on):
         QSP_matrix = np.zeros( (6, params.num_species, params.num_species) )
     else:
@@ -165,7 +175,10 @@ def setup(params):
         params.force = QSP_force_PP
 
     if (params.Potential.method == "P3M"):
-        params.force = QSP_force_P3M
+        if (params.Potential.QSP_type == "Deutsch"):
+            params.force = Deutsch_force_P3M
+        elif (params.Potential.QSP_type == "Kelbg"):
+            params.force = Kelbg_force_P3M
         # P3M parameters
         params.P3M.hx = params.Lx/params.P3M.Mx
         params.P3M.hy = params.Ly/params.P3M.My
@@ -231,7 +244,7 @@ def QSP_force_PP(r, pot_matrix_ij):
     return U, force
 
 @nb.njit
-def QSP_force_P3M(r, pot_matrix):
+def Deutsch_force_P3M(r, pot_matrix):
     """ 
     Calculates the QSP Force between two particles when the P3M algorithm is chosen.
 
@@ -290,6 +303,68 @@ def QSP_force_P3M(r, pot_matrix):
 
     return U, force
 
+@nb.njit
+def Kelbg_force_P3M(r, pot_matrix):
+    """ 
+    Calculates the QSP Force between two particles when the P3M algorithm is chosen.
+
+    Parameters
+    ----------
+    r : float
+        Distance between two particles.
+
+    pot_matrix_ij : array
+        It contains potential dependent variables.
+
+    Returns
+    -------
+    U : float
+        Potential.
+                
+    force : float
+        Force between two particles.
+    
+    """
+    """
+    pot_matrix[0] = de Broglies wavelength,
+    pot_matrix[1] = qi*qj/4*pi*eps0
+    pot_matrix[2] = 2pi/deBroglie
+    pot_matrix[3] = e-e term factor
+    pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)
+    """
+
+    # Ewald force corresponding to the 1/r term of the potential
+
+    A = pot_matrix[1]
+    C = pot_matrix[2] 
+    C2 = C*C
+    D = pot_matrix[3]
+    F = pot_matrix[4]
+    alpha = pot_matrix[5]   # Ewald parameter alpha
+
+    # Ewald short-range force and potential
+    a2 = alpha*alpha 
+    r2 = r*r
+    U_s_r = A*mt.erfc(alpha*r)/r
+
+    f1 = mt.erfc(alpha*r)/r2/r
+    f2 = (2.0*alpha/np.sqrt(np.pi)/r2)*np.exp(- a2*r2 )
+    fterm1 = A*( f1 + f2 )
+
+    # Exponential terms of the potential and force
+    U_pp = -A*np.exp(-C2*r2/np.pi)/r
+    U_pp2 = + A*C*mt.erfc(C*r/np.sqrt(pi))
+    ee_pot_term = D*np.exp(-F*r2)
+
+    fterm_pp = -A*(2.0*C2*r2 + np.pi)*np.exp(- C2*r2/np.pi)/(np.pi*r*r2)
+    #erfc derivative
+    fterm_pp2 = 2.0*A*C2*np.exp(- C2*r2/np.pi)/r/np.pi
+    fterm_ee = 2.0*D*F*np.exp(-F*r2)
+
+    U = U_s_r + U_pp + U_pp2 + ee_pot_term
+    force = fterm1 + fterm_pp + fterm_pp2 + fterm_ee
+
+    return U, force
 
 
 @nb.njit
