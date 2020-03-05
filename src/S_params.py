@@ -436,7 +436,8 @@ class Params:
 
         # Parse parameters from input file
         self.common_parser(filename)
-
+        self.assign_attributes()
+        
         self.N = self.total_num_ptcls
 
         # Coulomb potential
@@ -698,6 +699,10 @@ class Params:
                                 self.Control.fname_app = value
                             else:
                                 self.Control.fname_app = self.Control.checkpoint_dir
+        return
+
+    def assign_attributes(self):
+        """ Assign the parsed parameters"""
 
         self.num_species = len(self.species)
         # Physical constants

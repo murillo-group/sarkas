@@ -68,6 +68,7 @@ t_Tp_E_K_U = np.zeros((1, 5))
 time_stamp[its] = time.time(); its += 1
 ptcls = Particles(params)
 ptcls.load()
+ptcls.assign_attributes(params)
 
 # Calculate initial forces and potential energy
 U = calc_pot_acc(ptcls,params)

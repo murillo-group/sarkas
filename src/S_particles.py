@@ -70,7 +70,41 @@ class Particles:
 
         self.mass = np.zeros(self.N) # mass of each particle
         self.charge = np.zeros(self.N) # charge of each particle
-    
+        return
+
+    def assign_attributes(self,params):
+        """ Assign particles attributes """
+
+        self.species_name = np.empty(self.N, dtype='object')
+        self.species_id = np.zeros( (self.N,), dtype=int)
+        self.species_num = np.zeros( self.params.num_species, dtype=int )
+        self.species_mass = np.zeros( self.params.num_species )
+
+        self.mass = np.zeros(self.N) # mass of each particle
+        self.charge = np.zeros(self.N) # charge of each particle
+        
+        species_start = 0
+        species_end = 0
+        
+        ic_species = 0
+        for i in range(params.num_species): 
+            species_start = species_end
+            species_end += self.params.species[i].num
+           
+            self.species_num[i] = self.params.species[i].num
+            self.species_mass[i] = self.params.species[i].mass
+
+            self.species_name[species_start:species_end] = self.params.species[i].name
+            self.mass[species_start:species_end] = self.params.species[i].mass
+
+            if hasattr (self.params.species[i],'charge'):
+                self.charge[species_start:species_end] = self.params.species[i].charge
+            else:
+                self.charge[species_start:species_end] = 1.0
+            
+            self.species_id[species_start:species_end] = ic_species
+            ic_species += 1
+
     def load(self):
         """
         Initialize particles' positions and velocities.
@@ -88,30 +122,8 @@ class Particles:
         Lx = self.params.Lx
         Ly = self.params.Ly
         Lz = self.params.Lz
-        species_start = 0
-        species_end = 0
         
-        ic_species = 0
         N_species = self.params.num_species
-
-        self.species_mass = np.zeros( N_species )
-
-        for i in range(N_species): 
-            species_start = species_end
-            species_end += self.params.species[i].num
-           
-            self.species_num[i] = self.params.species[i].num
-            self.species_mass[i] = self.params.species[i].mass
-
-            self.species_name[species_start:species_end] = self.params.species[i].name
-            self.mass[species_start:species_end] = self.params.species[i].mass
-            if hasattr (self.params.species[i],'charge'):
-                self.charge[species_start:species_end] = self.params.species[i].charge
-            else:
-                self.charge[species_start:species_end] = 1.0
-            
-            self.species_id[species_start:species_end] = ic_species
-            ic_species += 1
 
         load_method = self.params.load_method
         if (load_method == 'restart'):
@@ -215,7 +227,7 @@ class Particles:
 
         """
         file_name = self.params.Control.checkpoint_dir+"/"+"S_checkpoint_"+str(it)+".npz"
-        data = np.load(file_name)
+        data = np.load(file_name,allow_pickle=True)
         self.species_id = data["species_id"]
         self.species_name = data["species_name"]
         self.pos = data["pos"]
