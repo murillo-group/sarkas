@@ -33,6 +33,9 @@ class Params:
         dump_step : int
             Snapshot interval.
 
+        fourpie0: float
+            Electrostatic constant :math: `4\pi \espilon_0`.
+
         species : list
             List of Species objects with species' information.
 

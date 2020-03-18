@@ -4,10 +4,6 @@ Module for handling Yukawa interaction
 import numpy as np
 import numba as nb
 import math as mt
-
-import sys
-import scipy.constants as const
-
 import yaml   # IO
 import fdint  # Fermi integrals calculation
 
@@ -330,36 +326,19 @@ def setup(params, filename):
                     "will be used as the electron temperature.")
             params.Te = params.species[0].temperature
 
-        # Use MKS units to calculate kappa and Gamma
-        k = const.Boltzmann
-        e = const.elementary_charge
-        h_bar = const.hbar
-        m_e = const.electron_mass
-        e_0 = const.epsilon_0
-
         Te  = params.Te
         Ti = params.Ti
-
-        if (params.Control.units == "cgs"):
-            ne = params.ne*1.e6    # /cm^3 --> /m^3
-            ni = params.total_num_density*1.e6
-
-        if (params.Control.units == "mks"):
-            ne = params.ne    # /cm^3 --> /m^3
-            ni = params.total_num_density
-
-        ai = (3./(4.0*np.pi*ni))**(1./3)
 
         fdint_fdk_vec = np.vectorize(fdint.fdk)
         fdint_dfdk_vec = np.vectorize(fdint.dfdk)
         fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
-        beta = 1./(k*Te)
-
+        beta = 1./(params.kB*params.Te)
+        thermal_wavelength = np.sqrt( 2.0*np.pi*params.hbar2*beta/params.me)
+        lambda3 = thermal_wavelength**3
         # chemical potential of electron gas/(kB T). See eq.(4) in Ref.[3]_
-        eta = fdint_ifd1h_vec(np.pi**2*(beta*h_bar**2/(m_e))**(3/2)/np.sqrt(2)*ne) #eq 4 inverted
+        eta = fdint_ifd1h_vec(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
         # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
-        lambda_TF = np.sqrt((4.0*np.pi**2*e_0*h_bar**2)/(m_e*e**2)*np.sqrt(2*beta*h_bar**2/m_e)/(4.0*fdint_fdk_vec(k=-0.5, phi=eta))) 
-
+        lambda_TF = np.sqrt( params.fourpie0*np.sqrt(np.pi)*lambda3/(8.0*np.pi*params.qe**2*beta*fdint_fdk_vec(k = -0.5, phi = eta)))
     # Calculate the Potential Matrix
     Z53 = 0.0
     Z_avg = 0.0
@@ -390,7 +369,7 @@ def setup(params, filename):
     
     # Calculate the (total) plasma frequency
     if (params.Control.units == "cgs"):
-        params.lambda_TF = lambda_TF*100.  # meter to centimeter
+        params.lambda_TF = lambda_TF  # meter to centimeter
         Yukawa_matrix[0, :, :] = 1.0/params.lambda_TF # kappa/ai
         wp_tot_sq = 0.0
         for i in range(params.num_species):
@@ -405,7 +384,7 @@ def setup(params, filename):
         Yukawa_matrix[0, :, :] = 1.0/params.lambda_TF # kappa/ai
         wp_tot_sq = 0.0
         for i in range(params.num_species):
-            wp2 = params.species[i].charge**2*params.species[i].num_density/(params.species[i].mass*const.epsilon_0)
+            wp2 = params.species[i].charge**2*params.species[i].num_density/(params.species[i].mass*params.eps0)
             params.species[i].wp = np.sqrt(wp2)
             wp_tot_sq += wp2
 

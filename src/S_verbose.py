@@ -43,7 +43,8 @@ class Verbose:
         print('\nPotential: ', params.Potential.type, file = f_log)
 
         if (params.Potential.type == 'Yukawa'):
-            print('kappa = {:2.2f}'.format( params.Potential.matrix[0, 0, 0]*params.aws) , file=f_log)
+            print('kappa = {:1.4e}'.format( params.Potential.matrix[0, 0, 0]*params.aws) , file=f_log)
+            print('lambda_TF = {:1.4e}'.format( params.lambda_TF), file=f_log )
             if (len(params.species) > 1):
                 print('Gamma_eff = {:4.2f}'.format( params.Potential.Gamma_eff) , file=f_log)
             else:
