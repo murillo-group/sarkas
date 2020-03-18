@@ -2,7 +2,7 @@
 Particles:
     - species:
         name: ion1
-        number_density: 1.e+26       # /m^3
+        number_density: 1.00e+26       # /m^3
         mass: 1.e-30                # kg, ptcl mass of ion1
         num: 1000                    # total number of particles of ion1 
         Z: 4                        # degree of ionization
@@ -35,6 +35,5 @@ Control:
     - writexyz: no                  # no xyz output
     - dump_step: 100                # dump time step
     - verbose: yes
-    - screen_output: True
     - output_dir: yukawa_mks        # dir name to save data. The default is "Checkpoint"
 

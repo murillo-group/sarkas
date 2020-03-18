@@ -5,18 +5,8 @@ Module for handling Particle-Particle interaction.
 import numpy as np
 import numba as nb
 import math as mt
-import sys
-import time
 
-from numba.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
-import warnings
-
-# These "ignore" should be only temporary until we figure out a way to speed up the update functions
-warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
-warnings.simplefilter('ignore', category=NumbaWarning)
-warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
-
-@nb.njit
+@nb.njit # This will give a warning, but it is still faster than without it or in forceobj=True mode.
 def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
     """
     Updates particles' accelerations when the cutoff radius :math: `r_c` is half the box's length, :math: `r_c = L/2`
@@ -39,11 +29,9 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
         Particles' accelerations.
 
     """
-    pos = ptcls.pos
     L = Lv[0]
     Lh = L/2.
     N = pos.shape[0] # Number of particles
-    d = pos.shape[1]
 
     # potential_matrix = params.Potential.matrix
     # id_ij = ptcls.species_id
@@ -116,7 +104,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
     return U_s_r, acc_s_r
 
 
-@nb.njit # This will give a warning, but it is still faster than without it or in forceobj=True mode.
+@nb.njit
 def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
     """ 
     Update the force on the particles based on a linked cell-list (LCL) algorithm.

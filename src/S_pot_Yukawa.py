@@ -102,7 +102,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
         Length of simulation's box in each direction
 
     p : int
-        charge assignment order (CAO)
+        Charge assignment order (CAO)
 
     N : int
         number of particles
@@ -249,7 +249,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, pot_matrix,rcut, fourpie0):
                     PM_err = PM_err + Gk_hat*Gk_hat*k_sq - U_G_k**2/((U_k_sq**2)*k_sq)
 
     PP_err = 2.0/np.sqrt(Lx*Ly*Lz)*np.exp(-0.25*kappa_sq/Gew_sq)*np.exp(-Gew_sq*rcut2)/np.sqrt(rcut)/fourpie0
-    PM_err = np.sqrt(PM_err)/Lx
+    PM_err = np.sqrt(PM_err)/(Lx*Ly*Lz)**(1./3.)
 
     return G_k, kx_v, ky_v, kz_v, PM_err, PP_err
 

@@ -6,10 +6,10 @@ Module for handling the Particle-Mesh part of the force and potential calculatio
 import numpy as np
 import numba as nb
 import pyfftw
-from numba.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
-import warnings
 
 # These "ignore" are needed because numba does not support pyfftw yet
+from numba.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import warnings
 warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaWarning)
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)

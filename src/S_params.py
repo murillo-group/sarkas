@@ -126,6 +126,9 @@ class Params:
         P3M : class
             P3M algorithm's parameters.
 
+        ptcls_input_file : str
+            User defined input file containing particles' data.
+
         q_max : int
             Maximum wavenumber.
         
@@ -404,9 +407,6 @@ class Params:
             checkpoint_dir : str
                 Directory to store simulation's output files.
 
-            screen_output : bool
-                Flag to print to screen. default = False.
-
             log_file : str
                 File name for log output.
         """
@@ -441,8 +441,6 @@ class Params:
         self.common_parser(filename)
         self.assign_attributes()
         
-        self.N = self.total_num_ptcls
-
         # Coulomb potential
         if (self.Potential.type == "Coulomb"):
             Coulomb.setup(self)
@@ -457,7 +455,7 @@ class Params:
 
         # Lennard-Jones potential
         if (self.Potential.type == "LJ"):
-            LJ.LJ_setup(self,filename)
+            LJ.setup(self,filename)
 
         # Moliere potential
         if (self.Potential.type == "Moliere"):
@@ -469,12 +467,12 @@ class Params:
 
         self.Potential.LL_on = 1       # linked list on
         if not hasattr(self.Potential, "rc"):
-            print("The cut-off radius is not defined. L/2 = ", self.L/2, "will be used as rc")
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.L/2, "will be used as rc")
             self.Potential.rc = self.L/2.
             self.Potential.LL_on = 0       # linked list off
 
         if (self.Potential.method == "PP" and self.Potential.rc > self.L/2.):
-            print("The cut-off radius is > L/2. L/2 = ", self.L/2, "will be used as rc")
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.L/2, "will be used as rc")
             self.Potential.rc = self.L/2.
             self.Potential.LL_on = 0       # linked list off
 
@@ -555,6 +553,9 @@ class Params:
 
                                     if (key == 'halton_bases'):
                                         self.load_halton_bases = np.array(value)
+
+                                    if (key == 'particle_input_file'):
+                                        self.ptcls_input_file = value
 
                 if (lkey == "Potential"):
                     for keyword in dics[lkey]:
@@ -693,11 +694,8 @@ class Params:
                             # Directory where to store Checkpoint files
                             if (key =="output_dir"):
                                 self.Control.checkpoint_dir = value
-                            
-                            if (key == "screen_output" ):
-                                self.Control.screen_output = True
 
-                            # Filenames appendix 
+                            # Filenames appendix
                             if (key =="fname_app"):
                                 self.Control.fname_app = value
                             else:
@@ -800,12 +798,16 @@ class Params:
         self.Ly = L
         self.Lz = L
         self.Lv = np.array([L, L, L])              # box length vector
-        
-        self.box_volume = self.Lx*self.Ly*self.Lz
-
+        self.box_volume = self.Lx * self.Ly * self.Lz
         self.d = np.count_nonzero(self.Lv)              # no. of dimensions
         self.Lmax_v = np.array([L, L, L])
         self.Lmin_v = np.array([0.0, 0.0, 0.0])
+
+        # Dev Note: The following are useful for future geometries
+        # self.e1 = np.array([L, 0.0, 0.0])
+        # self.e2 = np.array([0.0, L, 0.0])
+        # self.e3 = np.array([0.0, 0.0, L])
+        # self.box_volume2 = abs( np.dot( np.cross(self.e1, self.e2), self.e3)  )
 
         # lowest wavenumber for S(q) and S(q,w)
         self.dq = 2.0*np.pi

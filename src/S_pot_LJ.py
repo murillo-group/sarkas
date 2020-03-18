@@ -7,7 +7,7 @@ import numba as nb
 import sys
 import yaml
 
-def LJ_setup(params, filename):
+def setup(params, filename):
     """
     Updates ``params`` class with LJ potential paramters.
 
@@ -44,6 +44,26 @@ def LJ_setup(params, filename):
 
     params.Potential.matrix = LJ_matrix
     params.force = LJ_force_PP
+
+    # Calculate the (total) plasma frequency
+    wp_tot_sq = 0.0
+    sigma2 = 0.0
+    epsilon_tot = 0.0
+    for i in range(params.num_species):
+        params.species[i].epsilon = lj_m1[i]
+        params.species[j].sigma = lj_m2[i]
+
+        wp2 = 48.0*params.species[i].epsilon/params.species[i].sigma**2
+        params.species[i].wp = np.sqrt(wp2)
+        sigma2 += params.species[i].sigma
+        epsilon_tot += params.species[i].epsilon
+        wp_tot_sq += wp2
+
+    params.wp = np.sqrt(wp_tot_sq)
+
+    params.PP_err = np.sqrt(np.pi*sigma2**(12)/(13.0*params.Potential.rc**(13) )  )
+    params.PP_err *= np.sqrt(params.N/params.box_volume)*params.aws**2
+
     return
 
 

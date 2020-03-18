@@ -128,24 +128,28 @@ class Particles:
         load_method = self.params.load_method
         if (load_method == 'restart'):
             timestep = self.params.load_restart_step
-            if(timestep == None):
-                print("restart_step is not defined!!!")
+            if (timestep == None):
+                print("\nERROR: restart_step not defined. Bye")
                 sys.exit()
             
             self.load_from_restart(timestep)
 
         elif (load_method == 'file'):
-            if ( self.params.Control.screen_output):
+            if (self.ptcls_input_file):
+                print('\nERROR: particle_input_file not defined. Bye')
+                sys.exit()
+
+            if (self.params.Control.verbose):
                 print('\nReading initial particle positions and velocities from file...')
-            
-            f_input = 'init.out'           # name of input file
+
+            f_input = self.ptcls_input_file          # name of input file
             self.load_from_file(f_input, N)
 
         else:
             two_pi = 2.0*np.pi 
 
             # Particles Velocities Initialization
-            if ( self.params.Control.screen_output):
+            if ( self.params.Control.verbose):
                 print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
             potential_type = self.params.Potential.type
             units = self.params.Control.units
@@ -176,7 +180,7 @@ class Particles:
                 self.vel[species_start:species_end, 2] -= vz_mean
 
             # Particles Position Initialization
-            if ( self.params.Control.screen_output):
+            if ( self.params.Control.verbose):
                 print('\nAssigning initial positions according to {}'.format(load_method))
 
             # position distribution. 
@@ -194,7 +198,7 @@ class Particles:
 
             else:
                 if (params.Control.verbose):
-                    print('\nIncorrect particle placement scheme specified... Using "random_no_reject"')
+                    print('\nWARNING: Incorrect particle placement scheme specified... Using "random_no_reject"')
                 self.random_no_reject(self.N)
 
         return       
@@ -340,7 +344,7 @@ class Particles:
         X, Y, Z = np.meshgrid(x,y,z)
 
         # Random seed
-        if ( self.params.Control.screen_output):
+        if ( self.params.Control.verbose):
             print('Random number generator using rand_seed = {}'.format(rand_seed))
         np.random.seed(rand_seed) # Seed for random number generator
         

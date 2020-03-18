@@ -35,5 +35,4 @@ Control:
     - writexyz: no                  # no xyz output
     - dump_step: 100                # dump time step
     - verbose: yes
-    - screen_output: True
     - output_dir: yukawa_cgs        # dir name to save data. The default is "Checkpoint"

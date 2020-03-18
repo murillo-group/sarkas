@@ -22,7 +22,7 @@ Particles:
 
     - load:
         method: random_reject
-        r_reject: 3e-10             # meter
+        r_reject: 3.0e-10             # meter
         rand_seed: 123
 
 Potential: 

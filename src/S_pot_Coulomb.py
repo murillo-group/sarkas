@@ -25,16 +25,11 @@ def setup(params):
     Coulomb_matrix[2,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
     """
 
-    if ( params.P3M.on):
+    if (params.P3M.on):
         Coulomb_matrix = np.zeros( (3, params.num_species, params.num_species) )
     else:
         Coulomb_matrix = np.zeros( (2, params.num_species, params.num_species) ) 
-    
-    # constants and conversion factors    
-    if (params.Control.units == "cgs"):
-        fourpie0 = 1.0
-    else:
-        fourpie0 = 4.0*np.pi*params.eps0
+
     twopi = 2.0*np.pi
     beta_i = 1.0/(params.kB*params.Ti)
 
@@ -56,35 +51,28 @@ def setup(params):
             else:
                 Zj = 1.0
 
-            Coulomb_matrix[0, i, j] = Zi*qe*Zj*qe*beta_i/(fourpie0*params.aws)
-            Coulomb_matrix[1, i, j] = Zi*qe*Zj*qe/fourpie0
+            Coulomb_matrix[0, i, j] = Zi*Zj*params.qe**2*beta_i/(params.fourpie0*params.aws)
+            Coulomb_matrix[1, i, j] = Zi*Zj*params.qe**2/params.fourpie0
 
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) of T. Haxhimali et al. Phys Rev E 90 023104 (2014) <https://doi.org/10.1103/PhysRevE.90.023104>
-    params.Potential.Gamma_eff = Z53*Z_avg**(1./3.)*params.qe**2*beta_i/(fourpie0*params.aws)
-    params.QFactor = params.QFactor/fourpie0
+    params.Potential.Gamma_eff = Z53*Z_avg**(1./3.)*params.qe**2*beta_i/(params.fourpie0*params.aws)
+    params.QFactor = params.QFactor/params.fourpie0
     params.Potential.matrix = Coulomb_matrix
     
     # Calculate the (total) plasma frequency
-    if (params.Control.units == "cgs"):
-        wp_tot_sq = 0.0
-        for i in range(params.num_species):
-            wp2 = 4.0*np.pi*params.species[i].charge**2*params.species[i].num_density/params.species[i].mass
-            params.species[i].wp = np.sqrt(wp2)
-            wp_tot_sq += wp2
+    wp_tot_sq = 0.0
+    for i in range(params.num_species):
+        wp2 = 4.0*np.pi*params.species[i].charge**2*params.species[i].num_density/(params.species[i].mass*params.fourpie0)
+        params.species[i].wp = np.sqrt(wp2)
+        wp_tot_sq += wp2
 
-        params.wp = np.sqrt(wp_tot_sq)
+    params.wp = np.sqrt(wp_tot_sq)
 
-    elif (params.Control.units == "mks"):
-        wp_tot_sq = 0.0
-        for i in range(params.num_species):
-            wp2 = params.species[i].charge**2*params.species[i].num_density/(params.species[i].mass*params.eps0)
-            params.species[i].wp = np.sqrt(wp2)
-            wp_tot_sq += wp2
 
-        params.wp = np.sqrt(wp_tot_sq)
     if (params.Potential.method == "PP" or params.Potential.method == "brute"):
-        params.force = Coulomb_force_PP
+        print('\nERROR: Coulomb interaction cannot be implemented using LCL algorithm. Please choose P3M')
+        sys.exit()
 
     if (params.Potential.method == "P3M"):
         params.force = Coulomb_force_P3M
@@ -95,41 +83,14 @@ def setup(params):
         params.Potential.matrix[2,:,:] = params.P3M.G_ew
         # Optimized Green's Function
         params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err, params.P3M.PP_err = gf_opt(params.P3M.MGrid,\
-            params.P3M.aliases, params.Lv, params.P3M.cao, params.N, params.Potential.G_ew, params.Potential.rc, fourpie0)
+            params.P3M.aliases, params.Lv, params.P3M.cao, params.N, params.P3M.G_ew, params.Potential.rc, params.fourpie0)
 
         # Notice that the equation was derived for a single component plasma. 
-        params.P3M.PP_err *= np.sqrt(params.N)*params.aws**2*fourpie0
-        params.P3M.PM_err *= np.sqrt(params.N)*params.aws**2*fourpie0/params.box_volume**(2./3.)
+        params.P3M.PP_err *= np.sqrt(params.N)*params.aws**2*params.fourpie0
+        params.P3M.PM_err *= np.sqrt(params.N)*params.aws**2*params.fourpie0/params.box_volume**(2./3.)
         # Total Force Error
         params.P3M.F_err = np.sqrt(params.P3M.PM_err**2 + params.P3M.PP_err**2)
     return
-
-@nb.njit
-def Coulomb_force_PP(r, pot_matrix_ij):
-    """ 
-    Calculate Potential and Force between two particles when the PP algorithm is chosen.
-
-    Parameters
-    ----------
-    r : float
-        distance between two particles.
-
-    pot_matrix_ij : array
-        it contains potential dependent variables.
-
-    Returns
-    -------
-    U : float
-        Potential.
-                
-    force : float
-        Force between two particles.
-    """
-    
-    U = pot_matrix_ij[1]/r
-    force = U/r**2 
-
-    return U, force
 
 @nb.njit
 def Coulomb_force_P3M(r, pot_matrix_ij):
@@ -335,6 +296,6 @@ def gf_opt(MGrid, aliases, BoxLv, p, N, alpha ,rcut, fourpie0):
                     PM_err = PM_err + Gk_hat*Gk_hat*k_sq - U_G_k**2/((U_k_sq**2)*k_sq)
 
     PP_err = 2.0*CoulombFactor/np.sqrt(Lx*Ly*Lz)*np.exp(-Gew_sq*rcut2)/np.sqrt(rcut)
-    PM_err = np.sqrt(PM_err)/Lz
+    PM_err = np.sqrt(PM_err)/(Lx*Ly*Lz)**(1./3.)
 
     return G_k, kx_v, ky_v, kz_v, PM_err, PP_err

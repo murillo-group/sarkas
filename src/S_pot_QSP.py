@@ -556,6 +556,6 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
     PP_err_Ew = 4.0*np.exp(-2.0*Gew_sq*rcut2)/rcut
     PP_err_tot = np.sqrt( PP_err_Ew + PP_err_ee + PP_err_exp )*k_mks/np.sqrt(Lx*Ly*Lz)
 
-    PM_err_tot = np.sqrt(PM_err)/Lx  
+    PM_err_tot = np.sqrt(PM_err)/(Lx*Ly*Lz)**(1./3.)
 
     return G_k, kx_v, ky_v, kz_v, PM_err_tot, PP_err_tot
