@@ -1,11 +1,9 @@
-'''
+"""
 Module containing various thermostat. Berendsen only for now.
-'''
+"""
 import numpy as np
 import numba as nb
 
-import sys
-import scipy.constants as const
 '''
 class Thermostat:
     def __init__(self, params):
@@ -29,13 +27,15 @@ class Thermostat:
         U = self.type(ptcls, it)
         return U
 '''
+
+
 def Berendsen(ptcls, params, it):
     """ 
     Update particle velocity based on Berendsen thermostat.
     
     Parameters
     ----------
-    ptlcs : class
+    ptcls : class
         Particles's data. See ``S_particles.py`` for more information.
     
     params : class
@@ -50,21 +50,22 @@ def Berendsen(ptcls, params, it):
 
     """
     # Dev Notes: this could be Numba'd
-    K, T = calc_kin_temp(ptcls.vel,ptcls.species_num,ptcls.species_mass,params.kB)
+    K, T = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
     species_start = 0
     species_end = 0
     for i in range(params.num_species):
         species_end = species_start + params.species[i].num
-        
-        if (it <= params.Thermostat.timestep):
-            fact = np.sqrt(params.T_desired/T[i])
-        else:
-            fact = np.sqrt( 1.0 + (params.T_desired/T[i] - 1.0)/params.Thermostat.tau)  # eq.(11)
 
-        ptcls.vel[species_start:species_end,:] = ptcls.vel[species_start:species_end,:]*fact
+        if it <= params.Thermostat.timestep:
+            fact = np.sqrt(params.T_desired / T[i])
+        else:
+            fact = np.sqrt(1.0 + (params.T_desired / T[i] - 1.0) / params.Thermostat.tau)  # eq.(11)
+
+        ptcls.vel[species_start:species_end, :] *= fact
         species_start = species_end
 
     return
+
 
 @nb.njit
 def calc_kin_temp(vel, nums, masses, kB):
@@ -73,11 +74,17 @@ def calc_kin_temp(vel, nums, masses, kB):
 
     Parameters
     ----------
-    ptlcs : class
-        Particles's data. See ``S_particles.py`` for more information.
-    
-    params : class
-        Simulation's parameters. See ``S_params.py`` for more information.
+    kB: float
+        Boltzmann constant in chosen units.
+
+    masses: array
+        Mass of each species.
+
+    nums: array
+        Number of particles of each species.
+
+    vel: array
+        Particles' velocities.
 
     Returns
     -------
@@ -90,18 +97,19 @@ def calc_kin_temp(vel, nums, masses, kB):
 
     num_species = len(masses)
 
-    K = np.zeros( num_species)
-    T = np.zeros( num_species)
+    K = np.zeros(num_species)
+    T = np.zeros(num_species)
 
     species_start = 0
     species_end = 0
     for i in range(num_species):
         species_end = species_start + nums[i]
-        K[i] = 0.5*masses[i]*np.sum( vel[species_start:species_end, :]**2)
-        T[i] = (2.0/3.0)*K[i]/kB/nums[i]
+        K[i] = 0.5 * masses[i] * np.sum(vel[species_start:species_end, :] ** 2)
+        T[i] = (2.0 / 3.0) * K[i] / kB / nums[i]
         species_start = species_end
 
     return K, T
+
 
 @nb.njit
 def remove_drift(vel, nums, masses):
@@ -114,30 +122,28 @@ def remove_drift(vel, nums, masses):
         Particles' velocities.
 
     nums: array
-        Number of particles for each species.
+        Number of particles of each species.
 
     masses: array
         Mass of each species.
 
     """
-    P = np.zeros( ( len(nums) , vel.shape[1] ) )
+    P = np.zeros((len(nums), vel.shape[1]))
 
     species_start = 0
     species_end = 0
 
-    for ic in range( len(nums) ):
+    for ic in range(len(nums)):
         species_end = species_start + nums[ic]
-        #print("First Loop: ", species_start, species_end)
-        P[ic,:] = np.sum( vel[species_start:species_end,:], axis = 0 )*masses[ic]
+        P[ic, :] = np.sum(vel[species_start:species_end, :], axis=0) * masses[ic]
         species_start = species_end
 
-    #print( np.sum(P[:,0]),  np.sum(P[:,1]), np.sum(P[:,2]) )
-    if ( np.sum(P[:,0]) > 1e-40 or np.sum(P[:,1]) > 1e-40 or np.sum(P[:,2]) > 1e-40 ) : 
+    if np.sum(P[:, 0]) > 1e-40 or np.sum(P[:, 1]) > 1e-40 or np.sum(P[:, 2]) > 1e-40:
         # Remove tot momentum
         species_start = 0
-        for ic in range( len( nums) ):
+        for ic in range(len(nums)):
             species_end = species_start + nums[ic]
-            vel[species_start:species_end,:] -= P[ic,:]/(float(nums[ic])*masses[ic] )
+            vel[species_start:species_end, :] -= P[ic, :] / (float(nums[ic]) * masses[ic])
             species_start = species_end
-    
+
     return

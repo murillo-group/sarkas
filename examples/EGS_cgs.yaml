@@ -3,8 +3,8 @@
 Particles:
     - species:
         name: Al
-        number_density: 1.0e+28       # /m^3
-        mass: 4.512991e-26             # kg, proton mass * Al mass number
+        number_density: 1.0e+22       # /cc^3
+        mass: 4.512991e-23             # g, proton mass * Al mass number
         num: 3000                   # total number of particles of ion1 
         Z: 3                        # degree of ionization
         temperature_eV: 0.5         # eV Temperature
@@ -16,7 +16,7 @@ Particles:
 Potential: 
     - type: EGS                     # potential type
     - method: PP                    # Linked-cell
-    - rc: 1.3471e-09             # cut-off radius, meter
+    - rc: 2.3471e-07             # cut-off radius, cm
     - elec_temperature_eV: 0.5
 
 Integrator:
@@ -28,7 +28,7 @@ Thermostat:
     - timestep: 2000
 
 Control:
-    - units: mks                    # units
+    - units: cgs                    # units
     - dt: 6.64305707e-16            # sec
     - Neq: 30000                     # number of timesteps for the equilibrium
     - Nstep: 30000                  # number of timesteps afater the equilibrium
@@ -36,5 +36,5 @@ Control:
     - writexyz: no                  # no xyz output
     - dump_step: 100                # dump time step
     - verbose: yes
-    - output_dir: EGS_mks        # dir name to save data. The default is "Checkpoint"
+    - output_dir: EGS_cgs        # dir name to save data. The default is "Checkpoint"
 

@@ -1,8 +1,6 @@
-'''
-S_checkpoint.py
-
-handling restarting/checkpoint
-'''
+"""
+Module handling restarting/checkpoint
+"""
 import os
 import numpy as np
 import pickle
@@ -58,5 +56,6 @@ class Checkpoint:
         pos = ptcls.pos
         vel = ptcls.vel
         acc = ptcls.acc
+        cntr = ptcls.pbc_cntr
         file_name = self.checkpoint_dir+"/"+"S_checkpoint_"+str(it)
-        np.savez(file_name, species_id=species_id, species_name=species_name, pos=pos, vel=vel, acc=acc)
+        np.savez(file_name, species_id=species_id, species_name=species_name, pos=pos, vel=vel, acc=acc, cntr = cntr)
