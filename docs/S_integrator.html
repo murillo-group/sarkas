@@ -95,6 +95,8 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -179,6 +181,33 @@
   <div class="section" id="module-S_integrator">
 <span id="s-integrator-module"></span><h1>S_integrator module<a class="headerlink" href="#module-S_integrator" title="Permalink to this headline">¶</a></h1>
 <p>Module of various types of integrators</p>
+<dl class="function">
+<dt id="S_integrator.Boris_Magnetic_integrator">
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Boris_Magnetic_integrator</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Boris_Magnetic_integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Boris_Magnetic_integrator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update particles’ positions and velocities using the Boris algorithm in the case of a
+constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <a href="#id8"><span class="problematic" id="id1">[1]_</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>U</strong> – Total potential energy.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets">1</span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.77.066401">Chin Phys Rev E 77, 066401 (2008)</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="class">
 <dt id="S_integrator.Integrator">
 <em class="property">class </em><code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Integrator</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator" title="Permalink to this definition">¶</a></dt>
@@ -192,17 +221,6 @@
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
-<dt id="S_integrator.Integrator.calc_force">
-<code class="sig-name descname">calc_force</code><a class="headerlink" href="#S_integrator.Integrator.calc_force" title="Permalink to this definition">¶</a></dt>
-<dd><p>Link to function for potential and accelerations calculation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>func</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="S_integrator.Integrator.update">
 <code class="sig-name descname">update</code><a class="headerlink" href="#S_integrator.Integrator.update" title="Permalink to this definition">¶</a></dt>
@@ -269,10 +287,10 @@ or on the Sarkas website.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="S_integrator.Magnetic_Verlet">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Magnetic_Verlet</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Magnetic_Verlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Magnetic_Verlet" title="Permalink to this definition">¶</a></dt>
+<dt id="S_integrator.Magnetic_integrator">
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Magnetic_integrator</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Magnetic_integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Magnetic_integrator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ positions and velocities based on velocity verlet method in the case of a
-constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a></p>
+constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <a href="#id9"><span class="problematic" id="id3">[1]_</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -289,8 +307,8 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </dl>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1006/jcph.1999.6237">Q. Spreiter and M. Walter, Journal of Computational Physics 152, 102–119 (1999)</a></p>
+<dt class="label" id="id4"><span class="brackets">1</span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.77.066401">Chin Phys Rev E 77, 066401 (2008)</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -304,7 +322,7 @@ or on the Sarkas website.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
+<li><p><strong>ptcls</strong> (<em>class</em>) – Particles data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
 <li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
 </ul>
 </dd>
@@ -340,7 +358,7 @@ or on the Sarkas website.</p>
 <dl class="function">
 <dt id="S_integrator.calc_dipole">
 <code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">calc_dipole</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">charge</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#calc_dipole"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.calc_dipole" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the dipole due to all charges. See Ref. <a class="footnote-reference brackets" href="#id4" id="id3">2</a> for explanation.</p>
+<dd><p>Calculate the dipole due to all charges. See Ref. <a class="footnote-reference brackets" href="#id7" id="id6">2</a> for explanation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -357,7 +375,7 @@ or on the Sarkas website.</p>
 </dl>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id6">2</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1063/1.468422">J-M. Caillol, J Chem Phys 101 6080 (1994)</a></p>
 </dd>
 </dl>
@@ -385,12 +403,13 @@ or on the Sarkas website.</p>
 
 <dl class="function">
 <dt id="S_integrator.enforce_pbc">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">enforce_pbc</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">BoxVector</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#enforce_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.enforce_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">enforce_pbc</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">cntr</em>, <em class="sig-param">BoxVector</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#enforce_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.enforce_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enforce Periodic Boundary conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pos</strong> (<em>array</em>) – particles’ positions. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
+<li><p><strong>cntr</strong> (<em>array</em>) – Counter for the number of times each particle get folded back into the main simulation box</p></li>
 <li><p><strong>BoxVector</strong> (<em>array</em>) – Box Dimensions.</p></li>
 </ul>
 </dd>
@@ -421,7 +440,7 @@ or on the Sarkas website.</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -186,7 +188,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles’s data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more information.</p></li>
+<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’s data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more information.</p></li>
 <li><p><strong>params</strong> (<em>class</em>) – Simulation parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more information.</p></li>
 <li><p><strong>it</strong> (<em>int</em>) – Timestep.</p></li>
 </ul>
@@ -207,8 +209,10 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptlcs</strong> (<em>class</em>) – Particles’s data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more information.</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more information.</p></li>
+<li><p><strong>kB</strong> (<em>float</em>) – Boltzmann constant in chosen units.</p></li>
+<li><p><strong>masses</strong> (<em>array</em>) – Mass of each species.</p></li>
+<li><p><strong>nums</strong> (<em>array</em>) – Number of particles of each species.</p></li>
+<li><p><strong>vel</strong> (<em>array</em>) – Particles’ velocities.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -229,7 +233,7 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vel</strong> (<em>array</em>) – Particles’ velocities.</p></li>
-<li><p><strong>nums</strong> (<em>array</em>) – Number of particles for each species.</p></li>
+<li><p><strong>nums</strong> (<em>array</em>) – Number of particles of each species.</p></li>
 <li><p><strong>masses</strong> (<em>array</em>) – Mass of each species.</p></li>
 </ul>
 </dd>
@@ -260,7 +264,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

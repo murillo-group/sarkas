@@ -176,9 +176,6 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">        calc_force : func</span>
-<span class="sd">            Link to function for potential and accelerations calculation.</span>
-
 <span class="sd">        update : func</span>
 <span class="sd">            Integrator choice. &#39;Verlet&#39; or &#39;Magnetic_Verlet&#39;.</span>
 
@@ -186,38 +183,19 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">calc_force</span> <span class="o">=</span> <span class="n">calc_pot_acc</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">half_dt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">N</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">d</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">PBC</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Lmax_v</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lmax_v</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Lmin_v</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lmin_v</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">N_species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Ti</span>
-
-        <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Verlet&quot;</span><span class="p">):</span>
-            <span class="k">if</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">on</span><span class="p">):</span>
-                <span class="k">if</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;BBK&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Verlet&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;BBK&quot;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Verlet_with_Langevin</span>     <span class="c1"># currently only BBK.</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No such Langevin type.&quot;</span><span class="p">)</span>
                     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">gamma</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">c1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">c2</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sqrt_dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
-
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="n">Verlet</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Magnetic_Verlet&quot;</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Magnetic_Verlet&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="n">Magnetic_Verlet</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Magnetic_Boris&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="n">Boris_Magnetic_integrator</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only Verlet integrator is supported. Check your input file, integrator part 2.&quot;</span><span class="p">)</span>
         
@@ -242,7 +220,7 @@
 <span class="sd">            Total potential energy</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Import global parameters (is there a better way to do this?)</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
         <span class="n">half_dt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span>
         <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">N</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">d</span>
@@ -271,7 +249,7 @@
 
         <span class="c1"># Import global parameters (is there a better way to do this?)</span>
         <span class="c1"># Yes use self.params or just pass params</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
         <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">N</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">d</span>
         <span class="n">Lv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Lv</span>
@@ -292,7 +270,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ptlcs: class</span>
+<span class="sd">    ptcls: class</span>
 <span class="sd">        Particles data. See ``S_particles.py`` for more info.</span>
 <span class="sd">    </span>
 <span class="sd">    params : class</span>
@@ -306,139 +284,196 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c1"># First half step velocity update</span>
-    <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+    <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
 
     <span class="c1"># Full step position update</span>
-    <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+    <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
 
     <span class="c1"># Periodic boundary condition</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>
+        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>
         
-    <span class="c1"># Compute total potential energy and accleration for second half step velocity update                 </span>
+    <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
     <span class="n">U</span> <span class="o">=</span> <span class="n">calc_pot_acc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
     
     <span class="c1">#Second half step velocity update</span>
-    <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+    <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
 
     <span class="k">return</span> <span class="n">U</span></div>
 
-<div class="viewcode-block" id="Magnetic_Verlet"><a class="viewcode-back" href="../S_integrator.html#S_integrator.Magnetic_Verlet">[docs]</a><span class="k">def</span> <span class="nf">Magnetic_Verlet</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Magnetic_integrator"><a class="viewcode-back" href="../S_integrator.html#S_integrator.Magnetic_integrator">[docs]</a><span class="k">def</span> <span class="nf">Magnetic_integrator</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update particles&#39; positions and velocities based on velocity verlet method in the case of a </span>
-<span class="sd">    constant magnetic field along the :math:`z` axis. For more info see Ref. [1]_</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ptlcs: class</span>
-<span class="sd">           Particles data. See ``S_particles.py`` for more info.</span>
-<span class="sd">    </span>
-<span class="sd">    params : class</span>
-<span class="sd">            Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
-<span class="sd">            </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    U : float</span>
-<span class="sd">        Total potential energy.</span>
-<span class="sd">    </span>
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-<span class="sd">    .. [1] `Q. Spreiter and M. Walter, Journal of Computational Physics 152, 102–119 (1999) &lt;https://doi.org/10.1006/jcph.1999.6237&gt;`_</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">     Update particles&#39; positions and velocities based on velocity verlet method in the case of a</span>
+<span class="sd">     constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [1]_</span>
 
+<span class="sd">     Parameters</span>
+<span class="sd">     ----------</span>
+<span class="sd">     ptlcs: class</span>
+<span class="sd">            Particles data. See ``S_particles.py`` for more info.</span>
+
+<span class="sd">     params : class</span>
+<span class="sd">             Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
+
+<span class="sd">     Returns</span>
+<span class="sd">     -------</span>
+<span class="sd">     U : float</span>
+<span class="sd">         Total potential energy.</span>
+
+<span class="sd">     References</span>
+<span class="sd">     ----------</span>
+<span class="sd">     .. [1] `Chin Phys Rev E 77, 066401 (2008) &lt;https://doi.org/10.1103/PhysRevE.77.066401&gt;`_</span>
+
+<span class="sd">     &quot;&quot;&quot;</span>
     <span class="c1"># Time step</span>
-    <span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">dt</span>
-    <span class="n">dt_sq</span> <span class="o">=</span> <span class="n">dt</span><span class="o">*</span><span class="n">dt</span>
-    <span class="n">half_dt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+    <span class="n">half_dt</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dt</span>
 
-    <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># start index for species loop</span>
-    <span class="n">sp_end</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># end index for species loop</span>
+    <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># start index for species loop</span>
 
     <span class="c1"># array to temporary store velocities</span>
-    <span class="n">v_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">d</span><span class="p">)</span> <span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span> <span class="p">):</span>
-        <span class="c1"># Cyclotron frequency</span>
-        <span class="n">omega_c</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span>
-
-        <span class="n">inv_omc</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="n">omega_c</span><span class="p">)</span>
-        <span class="n">inv_omc_sq</span> <span class="o">=</span> <span class="n">inv_omc</span><span class="o">*</span><span class="n">inv_omc</span>
-        <span class="n">omc_dt</span> <span class="o">=</span> <span class="n">omega_c</span><span class="o">*</span><span class="n">dt</span>
-        <span class="c1"># See eqs.(31)-(32) in Ref.[1]</span>
-        <span class="n">sdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span> <span class="n">omc_dt</span> <span class="p">)</span>
-        <span class="n">cdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span> <span class="n">omc_dt</span> <span class="p">)</span>
-        <span class="n">ccodt</span> <span class="o">=</span> <span class="n">cdt</span> <span class="o">-</span> <span class="mf">1.0</span>
-        <span class="n">ssodt</span> <span class="o">=</span> <span class="n">sdt</span> <span class="o">-</span> <span class="n">omc_dt</span>
-
-        <span class="n">sp_end</span> <span class="o">=</span> <span class="n">sp_start</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
-        <span class="c1"># First half step of Verlet position update</span>
-        <span class="c1"># eq.(28)-(30) in Ref.[1] </span>
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> \
-            <span class="o">+</span> <span class="n">inv_omc</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">sdt</span> <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span><span class="p">)</span> \
-            <span class="o">-</span> <span class="n">inv_omc_sq</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ssodt</span> <span class="p">)</span>
-        
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> \
-            <span class="o">+</span> <span class="n">inv_omc</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">sdt</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span><span class="p">)</span> \
-            <span class="o">-</span> <span class="n">inv_omc_sq</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span> <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ssodt</span> <span class="p">)</span>
-
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">dt</span> \
-            <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">dt_sq</span>
-
-        <span class="c1"># eq.(33)-(35) Spreiter &amp; Walter Journal of Computational Physics 152, 102–119 (1999) </span>
-        <span class="n">v_temp</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">cdt</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">sdt</span> \
-            <span class="o">+</span> <span class="n">inv_omc</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">sdt</span> <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span> <span class="p">)</span> \
-            <span class="o">+</span> <span class="n">inv_omc_sq</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ssodt</span><span class="p">)</span><span class="o">/</span><span class="n">dt</span>
-
-        <span class="n">v_temp</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">cdt</span> <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">sdt</span> \
-            <span class="o">+</span> <span class="n">inv_omc</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">sdt</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span> <span class="p">)</span> \
-            <span class="o">+</span> <span class="n">inv_omc_sq</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span> <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ssodt</span><span class="p">)</span><span class="o">/</span><span class="n">dt</span>
-        
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.0</span><span class="o">*</span><span class="n">half_dt</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
-
-        <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
-    
-    <span class="c1"># Periodic boundary condition</span>
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>
-        
-    <span class="c1"># Compute total potential energy and acceleration for second half step velocity update                 </span>
-    <span class="n">U</span> <span class="o">=</span> <span class="n">calc_pot_acc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
-
-    <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">sp_end</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">v_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">d</span><span class="p">))</span>
+    <span class="n">v_F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">d</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="c1"># Cyclotron frequency</span>
+        <span class="n">omega_c</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span>
+        <span class="n">omc_dt</span> <span class="o">=</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">half_dt</span>
 
+        <span class="n">sdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">omc_dt</span><span class="p">)</span>
+        <span class="n">cdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">omc_dt</span><span class="p">)</span>
+        <span class="n">ccodt</span> <span class="o">=</span> <span class="n">cdt</span> <span class="o">-</span> <span class="mf">1.0</span>
+
+        <span class="n">sp_end</span> <span class="o">=</span> <span class="n">sp_start</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+        <span class="c1"># First half step of velocity update</span>
+        <span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cdt</span> <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sdt</span>
+        <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">ccodt</span> <span class="o">/</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> \
+                                  <span class="o">+</span> <span class="n">sdt</span> <span class="o">/</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">cdt</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sdt</span>
+        <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ccodt</span> <span class="o">/</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> \
+                                  <span class="o">+</span> <span class="n">sdt</span> <span class="o">/</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">half_dt</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># Position update</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">dt</span>
+
+        <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
+
+    <span class="c1"># Periodic boundary condition</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>
+
+    <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">calc_pot_acc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
         <span class="n">omega_c</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span>
 
-        <span class="n">inv_omc</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="n">omega_c</span><span class="p">)</span>
-        <span class="n">inv_omc_sq</span> <span class="o">=</span> <span class="n">inv_omc</span><span class="o">*</span><span class="n">inv_omc</span>
-        <span class="n">omc_dt</span> <span class="o">=</span> <span class="n">omega_c</span><span class="o">*</span><span class="n">dt</span>
-        <span class="n">sdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span> <span class="n">omc_dt</span> <span class="p">)</span>
-        <span class="n">cdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span> <span class="n">omc_dt</span> <span class="p">)</span>
+        <span class="n">omc_dt</span> <span class="o">=</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">sdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">omc_dt</span><span class="p">)</span>
+        <span class="n">cdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">omc_dt</span><span class="p">)</span>
 
         <span class="n">ccodt</span> <span class="o">=</span> <span class="n">cdt</span> <span class="o">-</span> <span class="mf">1.0</span>
-        <span class="n">ssodt</span> <span class="o">=</span> <span class="n">sdt</span> <span class="o">-</span> <span class="n">omc_dt</span>
 
         <span class="n">sp_end</span> <span class="o">=</span> <span class="n">sp_start</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
 
         <span class="c1"># Second half step velocity update</span>
-        <span class="c1"># eq.(28)-(30) in Ref.[1]</span>
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_temp</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> \
-            <span class="o">-</span> <span class="n">inv_omc_sq</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ssodt</span> <span class="p">)</span><span class="o">/</span><span class="n">dt</span> 
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">cdt</span> \
+                                       <span class="o">-</span> <span class="p">(</span><span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">sdt</span> \
+                                       <span class="o">-</span> <span class="n">ccodt</span> <span class="o">/</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> \
+                                       <span class="o">+</span> <span class="n">sdt</span> <span class="o">/</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_temp</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> \
-            <span class="o">-</span> <span class="n">inv_omc_sq</span><span class="o">*</span><span class="p">(</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ccodt</span> <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ssodt</span> <span class="p">)</span><span class="o">/</span><span class="n">dt</span> 
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">cdt</span> \
+                                  <span class="o">+</span> <span class="p">(</span><span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_F</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">sdt</span> \
+                                  <span class="o">+</span> <span class="n">ccodt</span> <span class="o">/</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> \
+                                  <span class="o">+</span> <span class="n">sdt</span> <span class="o">/</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.0</span><span class="o">*</span><span class="n">half_dt</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
-        
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">half_dt</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
         <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
 
     <span class="k">return</span> <span class="n">U</span></div>
 
+<div class="viewcode-block" id="Boris_Magnetic_integrator"><a class="viewcode-back" href="../S_integrator.html#S_integrator.Boris_Magnetic_integrator">[docs]</a><span class="k">def</span> <span class="nf">Boris_Magnetic_integrator</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     Update particles&#39; positions and velocities using the Boris algorithm in the case of a</span>
+<span class="sd">     constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. [1]_</span>
+
+<span class="sd">     Parameters</span>
+<span class="sd">     ----------</span>
+<span class="sd">     ptlcs: class</span>
+<span class="sd">            Particles data. See ``S_particles.py`` for more info.</span>
+
+<span class="sd">     params : class</span>
+<span class="sd">             Simulation&#39;s parameters. See ``S_params.py`` for more info.</span>
+
+<span class="sd">     Returns</span>
+<span class="sd">     -------</span>
+<span class="sd">     U : float</span>
+<span class="sd">         Total potential energy.</span>
+
+<span class="sd">     References</span>
+<span class="sd">     ----------</span>
+<span class="sd">     .. [1] `Chin Phys Rev E 77, 066401 (2008) &lt;https://doi.org/10.1103/PhysRevE.77.066401&gt;`_</span>
+
+<span class="sd">     &quot;&quot;&quot;</span>
+    <span class="c1"># Time step</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+    <span class="n">half_dt</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dt</span>
+
+    <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># start index for species loop</span>
+
+    <span class="c1"># array to temporary store velocities</span>
+    <span class="n">v_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">d</span><span class="p">))</span>
+    <span class="n">v_F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">d</span><span class="p">))</span>
+
+    <span class="c1"># First step update velocities</span>
+    <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+
+    <span class="c1"># Rotate velocities</span>
+    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="c1"># Cyclotron frequency</span>
+        <span class="n">omega_c</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span>
+        <span class="n">omc_dt</span> <span class="o">=</span> <span class="n">omega_c</span> <span class="o">*</span> <span class="n">half_dt</span>
+
+        <span class="n">sdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">omc_dt</span><span class="p">)</span>
+        <span class="n">cdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">omc_dt</span><span class="p">)</span>
+
+        <span class="n">sp_end</span> <span class="o">=</span> <span class="n">sp_start</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+        <span class="c1"># First half step of velocity update</span>
+        <span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cdt</span> <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sdt</span>
+
+        <span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">cdt</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sdt</span>
+
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_B</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
+
+    <span class="c1"># Second step update velocities</span>
+    <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+
+    <span class="c1"># Full step position update</span>
+    <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+
+    <span class="c1"># Periodic boundary condition</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>
+
+    <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">calc_pot_acc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">U</span></div>
+
 <div class="viewcode-block" id="Verlet_with_Langevin"><a class="viewcode-back" href="../S_integrator.html#S_integrator.Verlet_with_Langevin">[docs]</a><span class="k">def</span> <span class="nf">Verlet_with_Langevin</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate particles dynamics using the Velocity Verlet algorithm and Langevin damping.</span>
 
 <span class="sd">    Parameters</span>
@@ -455,9 +490,8 @@
 <span class="sd">        Total potential energy</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">dt</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">gamma</span>
-    <span class="n">Gamma</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">Gamma</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">rtdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
@@ -472,17 +506,17 @@
         <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">g</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">T_desired</span><span class="o">/</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
     
         <span class="n">c1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">g</span><span class="o">*</span><span class="n">dt</span><span class="p">)</span>
-        <span class="n">c2</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">g</span><span class="o">*</span><span class="n">dt</span><span class="p">)</span>
+        <span class="c1"># c2 = 1./(1. + 0.5*g*dt)</span>
         
         <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
         <span class="n">sp_end</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
 
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">c1</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,:]</span>\
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,:]</span> <span class="o">+=</span> <span class="n">c1</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,:]</span>\
                     <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">dt</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,:]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">sig</span><span class="o">*</span><span class="n">dt</span><span class="o">**</span><span class="mf">1.5</span><span class="o">*</span><span class="n">beta</span>
 
     <span class="c1"># Periodic boundary condition</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>
+        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>
 
     <span class="n">acc_old</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span>
     <span class="n">U</span> <span class="o">=</span> <span class="n">calc_pot_acc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
@@ -505,7 +539,7 @@
     <span class="k">return</span> <span class="n">U</span></div>
 
 <div class="viewcode-block" id="enforce_pbc"><a class="viewcode-back" href="../S_integrator.html#S_integrator.enforce_pbc">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
-<span class="k">def</span> <span class="nf">enforce_pbc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">BoxVector</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">enforce_pbc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">cntr</span><span class="p">,</span> <span class="n">BoxVector</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Enforce Periodic Boundary conditions. </span>
 
@@ -514,23 +548,26 @@
 <span class="sd">    pos : array</span>
 <span class="sd">        particles&#39; positions. See ``S_particles.py`` for more info.</span>
 
+<span class="sd">    cntr: array</span>
+<span class="sd">        Counter for the number of times each particle get folded back into the main simulation box</span>
+
 <span class="sd">    BoxVector : array</span>
 <span class="sd">        Box Dimensions.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Loop over all particles</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             
             <span class="c1"># If particle is outside of box in positive direction, wrap to negative side</span>
-            <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
-                <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
-            
+            <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">d</span><span class="p">]:</span>
+                <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">-=</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+                <span class="n">cntr</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="c1"># If particle is outside of box in negative direction, wrap to positive side</span>
-            <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-                <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">+</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
-
+            <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">+=</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+                <span class="n">cntr</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
     <span class="k">return</span></div>
 
 <div class="viewcode-block" id="calc_dipole"><a class="viewcode-back" href="../S_integrator.html#S_integrator.calc_dipole">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
@@ -580,40 +617,34 @@
 <span class="sd">        Total Potential.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    
-    <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;brute&#39;</span><span class="p">):</span>
-        <span class="n">U</span><span class="p">,</span> <span class="n">acc</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update_brute</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">acc</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span><span class="p">):</span>
+        <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> \
+            <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">measure</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span><span class="p">):</span>
-            <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> \
-                <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update_0D</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> \
-                <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
-    
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">acc_s_r</span>
+        <span class="n">U_short</span><span class="p">,</span> <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update_0D</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> \
+            <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">measure</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span><span class="p">)</span>
 
-        <span class="n">U</span> <span class="o">=</span> <span class="n">U_short</span>
+    <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">acc_s_r</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">on</span><span class="p">):</span>
-            <span class="n">U_long</span><span class="p">,</span> <span class="n">acc_l_r</span> <span class="o">=</span> <span class="n">force_pm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>\
-                <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_k</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kx_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">ky_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kz_v</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">cao</span><span class="p">)</span>
-            <span class="c1"># Ewald Self-energy</span>
-            <span class="n">U_Ew_self</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_ew</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-            <span class="c1"># Neutrality condition</span>
-            <span class="n">U_neutr</span> <span class="o">=</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">tot_net_charge</span><span class="o">**</span><span class="mf">2.0</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_ew</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U_short</span>
 
-            <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">+</span> <span class="n">U_long</span> <span class="o">-</span> <span class="n">U_Ew_self</span> <span class="o">+</span> <span class="n">U_neutr</span>
-            <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">+</span> <span class="n">acc_l_r</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">on</span><span class="p">):</span>
+        <span class="n">U_long</span><span class="p">,</span> <span class="n">acc_l_r</span> <span class="o">=</span> <span class="n">force_pm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>\
+            <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_k</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kx_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">ky_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kz_v</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">cao</span><span class="p">)</span>
+        <span class="c1"># Ewald Self-energy</span>
+        <span class="n">U_Ew_self</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_ew</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="c1"># Neutrality condition</span>
+        <span class="n">U_neutr</span> <span class="o">=</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">tot_net_charge</span><span class="o">**</span><span class="mf">2.0</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_ew</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">U</span> <span class="o">+=</span> <span class="n">U_long</span> <span class="o">-</span> <span class="n">U_Ew_self</span> <span class="o">+</span> <span class="n">U_neutr</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">+=</span> <span class="n">acc_l_r</span>
         
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;LJ&quot;</span><span class="p">):</span>
         <span class="c1"># Mie Energy of charged systems</span>
         <span class="n">dipole</span> <span class="o">=</span> <span class="n">calc_dipole</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span><span class="n">ptcls</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
-        <span class="n">U_MIE</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">dipole</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dipole</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dipole</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">3.0</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
+        <span class="n">U_MIE</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">dipole</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dipole</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dipole</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">3.0</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
 
-        <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">+</span> <span class="n">U_MIE</span>
+        <span class="n">U</span> <span class="o">+=</span> <span class="n">U_MIE</span>
 
     <span class="k">return</span> <span class="n">U</span></div>
 </pre></div>
@@ -630,7 +661,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -229,7 +231,7 @@
 
 <dl class="function">
 <dt id="S_pot_Yukawa.gf_opt">
-<code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param">MGrid</em>, <em class="sig-param">aliases</em>, <em class="sig-param">BoxLv</em>, <em class="sig-param">p</em>, <em class="sig-param">N</em>, <em class="sig-param">pot_matrix</em>, <em class="sig-param">rcut</em>, <em class="sig-param">fourpie0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.gf_opt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param">MGrid</em>, <em class="sig-param">aliases</em>, <em class="sig-param">BoxLv</em>, <em class="sig-param">p</em>, <em class="sig-param">pot_matrix</em>, <em class="sig-param">rcut</em>, <em class="sig-param">fourpie0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.gf_opt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. <a class="footnote-reference brackets" href="#id6" id="id3">2</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -237,8 +239,7 @@
 <li><p><strong>MGrid</strong> (<em>array</em>) – number of mesh points in x,y,z</p></li>
 <li><p><strong>aliases</strong> (<em>array</em>) – number of aliases in each direction</p></li>
 <li><p><strong>BoxLv</strong> (<em>array</em>) – Length of simulation’s box in each direction</p></li>
-<li><p><strong>p</strong> (<em>int</em>) – charge assignment order (CAO)</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – number of particles</p></li>
+<li><p><strong>p</strong> (<em>int</em>) – Charge assignment order (CAO)</p></li>
 <li><p><strong>pot_matrix</strong> (<em>array</em>) – Potential matrix. It contains screening parameter and Ewald parameter. See potential matrix above.</p></li>
 <li><p><strong>rcut</strong> (<em>float</em>) – Cutoff distance for the PP calculation</p></li>
 <li><p><strong>fourpie0</strong> (<em>float</em>) – Potential factor.</p></li>
@@ -311,7 +312,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

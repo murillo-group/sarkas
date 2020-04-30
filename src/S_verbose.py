@@ -141,7 +141,7 @@ class Verbose:
             print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp), file=f_log)
 
         print('\nNo. of equilibration steps = ', params.Control.Neq, file=f_log)
-        print('No. of post-equilibration steps = ', params.Control.Nt, file=f_log)
+        print('No. of post-equilibration steps = ', params.Control.Nsteps, file=f_log)
         print('snapshot interval = ', params.Control.dump_step, file=f_log)
         print('Periodic boundary condition {1=yes, 0=no} =', params.Control.PBC, file=f_log)
 

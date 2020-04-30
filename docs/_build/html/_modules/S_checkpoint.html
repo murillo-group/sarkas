@@ -155,11 +155,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for S_checkpoint</h1><div class="highlight"><pre>
-<span></span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">S_checkpoint.py</span>
-
-<span class="sd">handling restarting/checkpoint</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module handling restarting/checkpoint</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
@@ -215,8 +213,18 @@
         <span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span>
         <span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span>
         <span class="n">acc</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span>
+        <span class="n">cntr</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span>
+        <span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span>
         <span class="n">file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="o">+</span><span class="s2">&quot;S_checkpoint_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">species_id</span><span class="o">=</span><span class="n">species_id</span><span class="p">,</span> <span class="n">species_name</span><span class="o">=</span><span class="n">species_name</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="o">=</span><span class="n">vel</span><span class="p">,</span> <span class="n">acc</span><span class="o">=</span><span class="n">acc</span><span class="p">)</span></div></div>
+        <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span>
+                 <span class="n">species_id</span><span class="o">=</span><span class="n">species_id</span><span class="p">,</span>
+                 <span class="n">species_name</span><span class="o">=</span><span class="n">species_name</span><span class="p">,</span>
+                 <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
+                 <span class="n">vel</span><span class="o">=</span><span class="n">vel</span><span class="p">,</span>
+                 <span class="n">acc</span><span class="o">=</span><span class="n">acc</span><span class="p">,</span>
+                 <span class="n">cntr</span> <span class="o">=</span> <span class="n">cntr</span><span class="p">,</span>
+                 <span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">rdf_hist</span>
+                 <span class="p">)</span></div></div>
 </pre></div>
 
            </div>
@@ -231,7 +239,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

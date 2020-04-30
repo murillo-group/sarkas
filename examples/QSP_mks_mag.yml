@@ -1,59 +1,59 @@
-# J.P. Hansen and I.R. McDonald Phys Rev A 23 2041 (1981)
 Particles:
     - species:
         name: e
-        number_density: 1.6e+30       # /m^3
-        mass: 9.1093837015e-31
-        num: 512                    # total number of particles of ion1 
+        number_density: 2.5e+31       # /m^3
+        mass: 9.11e-31
+        num: 512                    # total number of particles of ion1
         Z: -1.0                        # degree of ionization
-        temperature: 6.32e+5 
+        temperature: 1.58e+6
 
     - species:
         name: p
-        number_density: 1.6e+30       # /m^3
-        mass: 1.67262192369e-27         # kg, ptcl mass of ion1
-        num: 512                  # total number of particles of ion1 
+        number_density: 2.5e+31       # /m^3
+        mass: 1.67e-27         # kg, ptcl mass of ion1
+        num: 512                  # total number of particles of ion1
         Z: 1.0                       # degree of ionization
-        temperature: 6.32e+5
+        temperature: 1.58e+6
 
     - load:
         method: random_no_reject    # loading method
-        rand_seed: 123456789        # random seed
+        rand_seed: 554843217        # random seed
 
-Potential: 
+Potential:
     - type: QSP                 # potential type
-    - method: P3M                    # Linked-cell
-    - rc: 2.691278e-10     # cut-off radius, meter
+    - QSP_type: Deutsch
+    - method: P3M
+    - rc: 1.566862e-10     # cut-off radius, meter
 
 P3M:
-    - MGrid: [32,32,32]
-    - aliases: [2,2,2]
+    - MGrid: [16,16,16]
+    - aliases: [3,3,3]
     - cao: 6
-    - alpha_ewald: 1.359709e+10
-
-Integrator:
-    - type: Verlet                  # velocity integrator type
-    - tau: 10.
-    - timestep: 2000
+    - alpha_ewald: 2.238909e+10
 
 Magnetized:
-    - B_Gauss: 140.0e+8   
+    - B_Tesla: 405723.46
     - electrostatic_thermalization: 1
     - Neq_mag: 50000
 
+Integrator:
+    - type: Verlet                  # velocity integrator type
+
 Thermostat:
     - type: Berendsen               # thermostat type
-    - timestep: 2000
-    - tau: 10.0
+    - timestep: 0
+    - tau: 5.0
 
 Control:
     - units: mks                    # units
-    - dt: 3.16e-19            # sec
+    - dt: 1.772108e-20            # sec
     - Neq: 50000                      # number of timesteps for the equilibrium
-    - Nstep: 50000                   # number of timesteps after the equilibrium
+    - Nsteps: 400000                   # number of timesteps after the equilibrium
     - BC: periodic                  # periodic boundary condition
     - writexyz: yes                  # no xyz output
-    - dump_step: 100                # dump time step
+    - dump_step: 10000                # dump time step
     - verbose: yes
-    - output_dir: QSP_mag       # dir name to save data. The default is "Checkpoint"
-    - fname_app: QSP_mag
+    - output_dir: MagQSP_N1024_G05_rs04      # dir name to save data. The default is "Checkpoint"
+
+PostProcessing:
+    - rdf_nbins: 100

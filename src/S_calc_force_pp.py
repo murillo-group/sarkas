@@ -7,7 +7,7 @@ import numba as nb
 
 
 @nb.njit
-def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
+def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hist):
     """
     Updates particles' accelerations when the cutoff radius :math: `r_c` is half the box's length, :math: `r_c = L/2`
     For no sub-cell. All ptcls within :math: `r_c = L/2` participate for force calculation. Cost ~ O(N^2)
@@ -35,6 +35,12 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
     pos: array
         Particles' positions.
 
+    measure : bool
+        Boolean for rdf calculation.
+
+    rdf_hist : array
+        Radial Distribution function array.
+
     Returns
     -------
     U_s_r : array
@@ -50,6 +56,10 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
 
     U_s_r = 0.0  # Short-ranges potential energy accumulator
     acc_s_r = np.zeros_like(pos)  # Vector of accelerations
+
+    rdf_nbins = rdf_hist.shape[0]
+    num_species = id_ij[-1] + 1
+    dr_rdf = L/float(2.0*rdf_nbins)
 
     for i in range(N):
         for j in range(i + 1, N):
@@ -75,6 +85,9 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
 
             # Compute distance between particles i and j
             r = np.sqrt(dx * dx + dy * dy + dz * dz)
+            if measure and int(r / dr_rdf) < rdf_nbins:
+                gr_ij = int((num_species - 1) * id_ij[i] + id_ij[j])
+                rdf_hist[int(r / dr_rdf), gr_ij] += 1
 
             if r < rc:
                 id_i = id_ij[i]
@@ -110,7 +123,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
 
 
 @nb.njit
-def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
+def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hist):
     """ 
     Update the force on the particles based on a linked cell-list (LCL) algorithm.
   
@@ -136,6 +149,12 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
 
     pos: array
         Particles' positions.
+
+    measure : bool
+        Boolean for rdf calculation.
+
+    rdf_hist : array
+        Radial Distribution function array.
 
     Returns
     -------
@@ -181,6 +200,10 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
     head = np.arange(Ncell)  # List of head particles
     empty = -50  # value for empty list and head arrays
     head.fill(empty)  # Make head list empty until population
+
+    rdf_nbins = rdf_hist.shape[0]
+    num_species = id_ij[-1] + 1
+    dr_rdf = rc/float(rdf_nbins)
 
     # Loop over all particles and place them in cells
     for i in range(N):
@@ -272,6 +295,11 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force):
 
                                         # Compute distance between particles i and j
                                         r = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+
+                                        if measure and int(r/dr_rdf) < rdf_nbins:
+                                            gr_ij = int ((num_species - 1)*id_ij[i] + id_ij[j])
+                                            rdf_hist[int(r/dr_rdf), gr_ij] += 1
+
                                         # If below the cutoff radius, compute the force
                                         if r < rc:
                                             id_i = id_ij[i]

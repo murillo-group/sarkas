@@ -19,6 +19,7 @@ References
 """
 import numpy as np
 import numba as nb
+import yaml
 import math as mt
 import scipy.constants as const
 
@@ -182,65 +183,16 @@ def setup(params, filename):
         params.P3M.hy = params.Ly / params.P3M.My
         params.P3M.hz = params.Lz / params.P3M.Mz
         params.Potential.matrix[5, :, :] = params.P3M.G_ew
-
         # Optimized Green's Function
         params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err, params.P3M.PP_err = gf_opt(
             params.P3M.MGrid, params.P3M.aliases, params.Lv, params.P3M.cao, params.Potential.matrix,
             params.Potential.rc, params.fourpie0)
 
-        params.P3M.PP_err *= np.sqrt(params.N) * params.ai ** 2 * params.fourpie0
-        params.P3M.PM_err *= np.sqrt(params.N) * params.ai ** 2 * params.fourpie0 / (params.box_volume ** (2. / 3.))
+        params.P3M.PP_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0
+        params.P3M.PM_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0 / (params.box_volume ** (2. / 3.))
         params.P3M.F_err = np.sqrt(params.P3M.PM_err ** 2 + params.P3M.PP_err ** 2)
 
     return
-
-
-@nb.njit
-def QSP_force_PP(r, pot_matrix_ij):
-    """ 
-    Calculates the force between two particles when the PP algorithm is chosen.
-
-    Parameters
-    ----------
-    r : float
-        Distance between two particles.
-
-    pot_matrix_ij : array
-        It contains potential dependent variables.
-
-    Returns
-    -------
-    U : float
-        Potential.
-                
-    force : float
-        Force between two particles..
-    
-    """
-    """
-    pot_matrix[0] = de Broglies wavelength,
-    pot_matrix[1] = qi*qj/4*pi*eps0
-    pot_matrix[2] = 2pi/deBroglie
-    pot_matrix[3] = e-e term factor
-    pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)
-    """
-    A = pot_matrix_ij[1]
-    C = pot_matrix_ij[2]
-    D = pot_matrix_ij[3]
-    F = pot_matrix_ij[4]
-
-    r2 = r * r
-    pot_term1 = A * (1.0 - np.exp(-C * r)) / r
-    ee_pot_term = D * np.exp(- F * r2)
-
-    fterm1 = pot_term1 / r2
-    fterm2 = -A * C * np.exp(-C * r) / r2
-    fterm3 = 2.0 * D * F * np.exp(-F * r2)
-
-    U = pot_term1 + ee_pot_term
-    force = fterm1 + fterm2 + fterm3
-
-    return U, force
 
 
 @nb.njit
@@ -272,9 +224,6 @@ def Deutsch_force_P3M(r, pot_matrix):
     pot_matrix[3] = e-e term factor
     pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)
     """
-
-    # Ewald force corresponding to the 1/r term of the potential
-
     A = pot_matrix[1]
     C = pot_matrix[2]
     D = pot_matrix[3]
@@ -286,6 +235,7 @@ def Deutsch_force_P3M(r, pot_matrix):
     r2 = r * r
     U_s_r = A * mt.erfc(alpha * r) / r
 
+    # Diffraction term
     f1 = mt.erfc(alpha * r) / r2 / r
     f2 = (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(- a2 * r2)
     fterm1 = A * (f1 + f2)
@@ -352,9 +302,11 @@ def Kelbg_force_P3M(r, pot_matrix):
     f2 = (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(- a2 * r2)
     fterm1 = A * (f1 + f2)
 
-    # Exponential terms of the potential and force
+    # Diffraction terms of the potential and force
     U_pp = -A * np.exp(-C2 * r2 / np.pi) / r
     U_pp2 = + A * C * mt.erfc(C * r / np.sqrt(pi))
+
+    # Pauli Term
     ee_pot_term = D * np.exp(-F * r2)
 
     fterm_pp = -A * (2.0 * C2 * r2 + np.pi) * np.exp(- C2 * r2 / np.pi) / (np.pi * r * r2)
@@ -366,7 +318,6 @@ def Kelbg_force_P3M(r, pot_matrix):
     force = fterm1 + fterm_pp + fterm_pp2 + fterm_ee
 
     return U, force
-
 
 @nb.njit
 def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):

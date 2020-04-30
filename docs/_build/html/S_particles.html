@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="S_pot_Coulomb module" href="S_pot_Coulomb.html" />
+    <link rel="next" title="S_plots module" href="S_plots.html" />
     <link rel="prev" title="S_params module" href="S_params.html" /> 
 </head>
 
@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -306,6 +308,12 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="S_particles.Particles.assign_attributes">
+<code class="sig-name descname">assign_attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.assign_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.assign_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign particles attributes</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="S_particles.Particles.halton_reject">
 <code class="sig-name descname">halton_reject</code><span class="sig-paren">(</span><em class="sig-param">N</em>, <em class="sig-param">bases</em>, <em class="sig-param">r_reject</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_particles.html#Particles.halton_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_particles.Particles.halton_reject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Place particles according to a Halton sequence from 0 to L (the box length)
@@ -334,7 +342,7 @@ Updates: N/A</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>N_particles</strong> (<em>int</em>) – Number of particles to be placed.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Number of particles to be placed.</p></li>
 <li><p><strong>perturb</strong> (<em>float</em>) – Value of perturbation, p, such that 0 &lt;= p &lt;= 1.</p></li>
 <li><p><strong>rand_seed</strong> (<em>int</em>) – Seed for random number generator.
 Default: 1.</p></li>
@@ -376,7 +384,7 @@ from a Maxwell-Boltzmann distribution.</p>
 <dd><p>Load particles’ data from a checkpoint of a previous run</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>it</strong> (<em>int</em>) – Timestep</p>
+<dd class="field-odd"><p><strong>it</strong> (<em>int</em>) – Timestep.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -443,7 +451,7 @@ Updates: N/A</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="S_pot_Coulomb.html" class="btn btn-neutral float-right" title="S_pot_Coulomb module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="S_plots.html" class="btn btn-neutral float-right" title="S_plots module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="S_params.html" class="btn btn-neutral float-left" title="S_params module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -457,7 +465,7 @@ Updates: N/A</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_pot_LJ module</a></li>
@@ -186,8 +188,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – LJ potential parameters.</p></li>
 <li><p><strong>r</strong> (<em>float</em>) – Particles’ distance.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – LJ potential parameters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -201,14 +203,14 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="S_pot_LJ.LJ_setup">
-<code class="sig-prename descclassname">S_pot_LJ.</code><code class="sig-name descname">LJ_setup</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_LJ.html#LJ_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_LJ.LJ_setup" title="Permalink to this definition">¶</a></dt>
+<dt id="S_pot_LJ.setup">
+<code class="sig-prename descclassname">S_pot_LJ.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_LJ.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_LJ.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with LJ potential paramters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
-<li><p><strong>filename</strong> (<em>string</em>) – Input filename.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Input filename.</p></li>
 </ul>
 </dd>
 </dl>
@@ -238,7 +240,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

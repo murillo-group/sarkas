@@ -39,10 +39,12 @@ Control:
     - units: mks                    # units
     - dt: 6.64305707e-14            # sec
     - Neq: 30000                     # number of timesteps for the equilibrium
-    - Nstep: 30000                  # number of timesteps afater the equilibrium
+    - Nsteps: 30000                  # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
     - writexyz: yes                  # no xyz output
     - dump_step: 100                # dump time step
     - verbose: yes
     - output_dir: Moliere_mks        # dir name to save data. The default is "Checkpoint"
 
+PostProcessing:
+    - rdf_nbins: 100

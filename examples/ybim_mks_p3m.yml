@@ -4,7 +4,7 @@ Particles:
         name: C
         number_density: 1.0e+30       # /m^3
         mass: 1.9926467e-26            # /kg
-        num: 1024                    # total number of particles of ion1 
+        num: 5000                    # total number of particles of ion1 
         Z: 6.0                        # degree of ionization
         A: 12.011                      # atomic mass
         temperature: 1.0e+5 
@@ -13,7 +13,7 @@ Particles:
         name: O
         number_density: 1.0e+30       # /m^3
         mass: 2.6561982e-26               # kg, ptcl mass of ion1
-        num: 1024                    # total number of particles of ion1 
+        num: 5000
         Z: 8.0                      # degree of ionization
         A: 15.999                   # atomic mass
         temperature: 1.0e+5
@@ -46,11 +46,13 @@ Control:
     - units: mks                    # units
     - dt: 1.074182e-17            # sec
     - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nstep: 20000                    # number of timesteps afater the equilibrium
+    - Nsteps: 30000                    # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
-    - writexyz: yes                  # no xyz output
-    - dump_step: 100                # dump time step
+    - writexyz: no                  # no xyz output
+    - dump_step: 30                # dump time step
     - verbose: yes
-    - output_dir: YBIM_mks_P3M        # dir name to save data. The default is "Checkpoint"
-    - fname_app: YBIM_mks_P3M
+    - output_dir: ybim_mks_p3m        # dir name to save data. The default is "Checkpoint"
+    - fname_app: ybim_mks_p3m
 
+PostProcessing:
+    - rdf_nbins: 100

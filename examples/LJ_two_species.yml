@@ -41,7 +41,7 @@ Thermostat:
 Control:
     - dt: 5.4e-15                  # timestep, sec   
     - Neq: 10000
-    - Nstep: 10000
+    - Nsteps: 10000
     - dump_step: 100
     - BC: periodic
     - units: cgs 
@@ -50,3 +50,5 @@ Control:
     - output_dir: LJ_03         # dir name to save data. Default is "Checkpoint"
     - fname_app: LJ_03
 
+PostProcessing:
+    - rdf_nbins: 100

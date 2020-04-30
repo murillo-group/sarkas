@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -178,6 +180,7 @@
             
   <div class="section" id="module-S_params">
 <span id="s-params-module"></span><h1>S_params module<a class="headerlink" href="#module-S_params" title="Permalink to this headline">¶</a></h1>
+<p>Module for handling Params class</p>
 <dl class="class">
 <dt id="S_params.Params">
 <em class="property">class </em><code class="sig-prename descclassname">S_params.</code><code class="sig-name descname">Params</code><a class="reference internal" href="_modules/S_params.html#Params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params" title="Permalink to this definition">¶</a></dt>
@@ -245,6 +248,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.fourpie0">
+<code class="sig-name descname">fourpie0</code><a class="headerlink" href="#S_params.Params.fourpie0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Electrostatic constant :math: <cite>4pi espilon_0</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -558,23 +572,23 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Nt">
-<code class="sig-name descname">Nt</code><a class="headerlink" href="#S_params.Params.Nt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of production time steps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="S_params.Params.P3M">
 <code class="sig-name descname">P3M</code><a class="reference internal" href="_modules/S_params.html#Params.P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.P3M" title="Permalink to this definition">¶</a></dt>
 <dd><p>P3M algorithm’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.ptcls_input_file">
+<code class="sig-name descname">ptcls_input_file</code><a class="headerlink" href="#S_params.Params.ptcls_input_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>User defined input file containing particles’ data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -717,9 +731,9 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.Nstep">
-<code class="sig-name descname">Nstep</code><a class="headerlink" href="#S_params.Params.Control.Nstep" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of simulation timesteps. Same as <code class="docutils literal notranslate"><span class="pre">Params.Nt</span></code>.</p>
+<dt id="S_params.Params.Control.Nsteps">
+<code class="sig-name descname">Nsteps</code><a class="headerlink" href="#S_params.Params.Control.Nsteps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of simulation timesteps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>int</p>
@@ -728,8 +742,8 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="S_params.Params.Control.BS">
-<code class="sig-name descname">BS</code><a class="headerlink" href="#S_params.Params.Control.BS" title="Permalink to this definition">¶</a></dt>
+<dt id="S_params.Params.Control.BC">
+<code class="sig-name descname">BC</code><a class="headerlink" href="#S_params.Params.Control.BC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Boundary Condition. ‘Periodic’ only.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -775,6 +789,17 @@
 <dt id="S_params.Params.Control.checkpoint_dir">
 <code class="sig-name descname">checkpoint_dir</code><a class="headerlink" href="#S_params.Params.Control.checkpoint_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Directory to store simulation’s output files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="S_params.Params.Control.log_file">
+<code class="sig-name descname">log_file</code><a class="headerlink" href="#S_params.Params.Control.log_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>File name for log output.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -1122,6 +1147,12 @@
 </dd></dl>
 
 <dl class="class">
+<dt id="S_params.Params.PostProcessing">
+<em class="property">class </em><code class="sig-name descname">PostProcessing</code><a class="reference internal" href="_modules/S_params.html#Params.PostProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.PostProcessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="class">
 <dt id="S_params.Params.Potential">
 <em class="property">class </em><code class="sig-name descname">Potential</code><a class="reference internal" href="_modules/S_params.html#Params.Potential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.Potential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -1311,6 +1342,12 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="S_params.Params.assign_attributes">
+<code class="sig-name descname">assign_attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_params.html#Params.assign_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.assign_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign the parsed parameters</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="S_params.Params.common_parser">
 <code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_params.html#Params.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.common_parser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse common parameters from input file</p>
@@ -1358,7 +1395,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

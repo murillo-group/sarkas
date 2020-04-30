@@ -148,25 +148,40 @@ def calc_charge_dens(pos, Z, N, cao, Mx, My, Mz, hx, hy, hz):
 
     rho_r = np.zeros((Mz, My, Mz))
 
+    #Mid point calculation
+    if cao% 2 == 0:
+        # Choose the midpoint between the two closest mesh point to the particle's position
+        mid = 0.5
+        pshift = int( cao/2 - 1)
+    else:
+        # Choose the mesh point closes to the particle
+        mid = 0.0
+        pshift = int( cao/float(2.0) )
+
     for ipart in range(N):
 
+        # ix = x-coord of the (left) closest mesh point
+        # (ix + 0.5)*hx = midpoint between the two mesh points closest to the particle
+        # x = the difference between the particle's position and the midpoint
+        # Rescale
+
         ix = int(pos[ipart, 0] / hx)
-        x = pos[ipart, 0] - (ix + 0.5) * hx
+        x = pos[ipart, 0] - (ix + mid) * hx
         x = x / hx
 
         iy = int(pos[ipart, 1] / hy)
-        y = pos[ipart, 1] - (iy + 0.5) * hy
+        y = pos[ipart, 1] - (iy + mid) * hy
         y = y / hy
 
         iz = int(pos[ipart, 2] / hz)
-        z = pos[ipart, 2] - (iz + 0.5) * hz
+        z = pos[ipart, 2] - (iz + mid) * hz
         z = z / hz
 
         wx = assgnmnt_func(cao, x)
         wy = assgnmnt_func(cao, y)
         wz = assgnmnt_func(cao, z)
 
-        izn = iz - 2  # min. index along z-axis
+        izn = iz - pshift  # min. index along z-axis
 
         for g in range(cao):
 
@@ -177,7 +192,7 @@ def calc_charge_dens(pos, Z, N, cao, Mx, My, Mz, hx, hy, hz):
             else:
                 r_g = izn
 
-            iyn = iy - 2  # min. index along y-axis
+            iyn = iy - pshift  # min. index along y-axis
 
             for i in range(cao):
 
@@ -188,7 +203,7 @@ def calc_charge_dens(pos, Z, N, cao, Mx, My, Mz, hx, hy, hz):
                 else:
                     r_i = iyn
 
-                ixn = ix - 2  # min. index along x-axis
+                ixn = ix - pshift  # min. index along x-axis
 
                 for j in range(cao):
 
@@ -311,25 +326,37 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, Z, N, cao, Mass, Mx, My, Mz, hx, hy, h
 
     acc = np.zeros((N, 3))
 
+    # Mid point calculation
+    if cao % 2 == 0:
+        # Choose the midpoint between the two closest mesh point to the particle's position
+        mid = 0.5
+        # Number of points to the left of the chosen one
+        pshift = int(cao / 2 - 1)
+    else:
+        # Choose the mesh point closes to the particle
+        mid = 0.0
+        # Number of points to the left of the chosen one
+        pshift = int(cao / float(2.0))
+
     for ipart in range(N):
 
         ix = int(pos[ipart, 0] / hx)
-        x = pos[ipart, 0] - (ix + 0.5) * hx
+        x = pos[ipart, 0] - (ix + mid) * hx
         x = x / hx
 
         iy = int(pos[ipart, 1] / hy)
-        y = pos[ipart, 1] - (iy + 0.5) * hy
+        y = pos[ipart, 1] - (iy + mid) * hy
         y = y / hy
 
         iz = int(pos[ipart, 2] / hz)
-        z = pos[ipart, 2] - (iz + 0.5) * hz
+        z = pos[ipart, 2] - (iz + mid) * hz
         z = z / hz
 
         wx = assgnmnt_func(cao, x)
         wy = assgnmnt_func(cao, y)
         wz = assgnmnt_func(cao, z)
 
-        izn = iz - 2  # min. index along z-axis
+        izn = iz - pshift  # min. index along z-axis
 
         for g in range(cao):
 
@@ -340,7 +367,7 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, Z, N, cao, Mass, Mx, My, Mz, hx, hy, h
             else:
                 r_g = izn
 
-            iyn = iy - 2  # min. index along y-axis
+            iyn = iy - pshift  # min. index along y-axis
 
             for i in range(cao):
 
@@ -351,7 +378,7 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, Z, N, cao, Mass, Mx, My, Mz, hx, hy, h
                 else:
                     r_i = iyn
 
-                ixn = ix - 2  # min. index along x-axis
+                ixn = ix - pshift  # min. index along x-axis
 
                 for j in range(cao):
 

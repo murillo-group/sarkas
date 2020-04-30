@@ -166,9 +166,10 @@ class Params:
         self.ne = 0.0
         self.L = 0.0
         self.J2erg = 1.0e+7  # erg/J
+        self.hbar = 1.0
         self.hbar2 = self.hbar ** 2
-        self.fourpie0 = 4.0 * np.pi * self.eps0
         self.eps0 = const.epsilon_0
+        self.fourpie0 = 4.0 * np.pi * self.eps0
         self.me = const.physical_constants["electron mass"][0]
         self.qe = const.physical_constants["elementary charge"][0]
         self.hbar = const.hbar
@@ -193,6 +194,7 @@ class Params:
         self.Control = self.Control()
         self.Thermostat = self.Thermostat()
         self.Langevin = self.Langevin()
+        self.PostProcessing = self.PostProcessing()
 
     class Species:
         """ 
@@ -417,7 +419,7 @@ class Params:
             dt : float
                 timestep. Same as ``Params.dt``.
 
-            Nstep : int
+            Nsteps : int
                 Number of simulation timesteps.
 
             BC : str
@@ -441,8 +443,9 @@ class Params:
 
         def __init__(self):
             self.units = None
+            self.measure = False
             self.dt = None
-            self.Nstep = None
+            self.Nsteps = None
             self.Neq = None
             self.BC = "periodic"
             self.dump_step = 1
@@ -451,6 +454,11 @@ class Params:
             self.verbose = "yes"
             self.checkpoint_dir = "Checkpoint"
             self.log_file = self.checkpoint_dir + "/log.out"
+
+    class PostProcessing:
+
+        def __init__(self):
+            self.rdf_nbins = 100
 
     def setup(self, filename):
         """
@@ -489,7 +497,7 @@ class Params:
 
         # QSP potential
         if self.Potential.type == "QSP":
-            QSP.setup(self)
+            QSP.setup(self, filename)
 
         self.Potential.LL_on = 1  # linked list on
         if not hasattr(self.Potential, "rc"):
@@ -655,6 +663,9 @@ class Params:
                         for key, value in keyword.items():
                             if key == 'type':
                                 self.Integrator.type = value
+                                if self.Magnetic.on == True and self.Magnetic.elec_therm == 1:
+                                    self.Integrator.mag_type = value
+                                    self.Integrator.type = 'Verlet'
 
                 if lkey == "Langevin":
                     self.Langevin.on = 1
@@ -664,6 +675,12 @@ class Params:
                                 self.Langevin.type = value
                             if key == 'gamma':
                                 self.Langevin.gamma = float(value)
+
+                if lkey == "PostProcessing":
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if key == 'rdf_nbins':
+                                self.PostProcessing.rdf_nbins = int(value)
 
                 if lkey == "Control":
                     for keyword in dics[lkey]:
@@ -677,8 +694,8 @@ class Params:
                                 self.Control.dt = float(value)
 
                             # Number of simulation timesteps    
-                            if key == "Nstep":
-                                self.Control.Nstep = int(value)
+                            if key == "Nsteps":
+                                self.Control.Nsteps = int(value)
 
                             # Number of equilibration timesteps
                             if key == "Neq":
@@ -802,10 +819,10 @@ class Params:
         self.Lmin_v = np.array([0.0, 0.0, 0.0])
 
         # Dev Note: The following are useful for future geometries
-        # self.e1 = np.array([L, 0.0, 0.0])
-        # self.e2 = np.array([0.0, L, 0.0])
-        # self.e3 = np.array([0.0, 0.0, L])
-        # self.box_volume2 = abs( np.dot( np.cross(self.e1, self.e2), self.e3)  )
+        self.e1 = np.array([L, 0.0, 0.0])
+        self.e2 = np.array([0.0, L, 0.0])
+        self.e3 = np.array([0.0, 0.0, L])
+        self.box_volume2 = abs( np.dot( np.cross(self.e1, self.e2), self.e3)  )
 
         # lowest wavenumber for S(q) and S(q,w)
         self.dq = 2.0 * np.pi
@@ -816,5 +833,5 @@ class Params:
         if self.aws > 0:
             self.q_max = 30.0 / self.aws  # hardcode, wave vector
         self.Nq = 3.0 * int(self.q_max / self.dq)
-
+        self.T_desired = self.Ti
         return

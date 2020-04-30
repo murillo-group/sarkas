@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -198,14 +200,14 @@
 </dd>
 </dl>
 <dl class="function">
-<dt id="S_pot_QSP.QSP_force_P3M">
-<code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">QSP_force_P3M</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#QSP_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.QSP_force_P3M" title="Permalink to this definition">¶</a></dt>
+<dt id="S_pot_QSP.Deutsch_force_P3M">
+<code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">Deutsch_force_P3M</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#Deutsch_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.Deutsch_force_P3M" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the QSP Force between two particles when the P3M algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<em>float</em>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -219,20 +221,20 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="S_pot_QSP.QSP_force_PP">
-<code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">QSP_force_PP</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix_ij</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#QSP_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.QSP_force_PP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the force between two particles when the PP algorithm is chosen.</p>
+<dt id="S_pot_QSP.Kelbg_force_P3M">
+<code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">Kelbg_force_P3M</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#Kelbg_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.Kelbg_force_P3M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the QSP Force between two particles when the P3M algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<em>float</em>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
-<li><p><strong>force</strong> (<em>float</em>) – Force between two particles..</p></li>
+<li><p><strong>force</strong> (<em>float</em>) – Force between two particles.</p></li>
 </ul>
 </p>
 </dd>
@@ -250,7 +252,6 @@
 <li><p><strong>aliases</strong> (<em>array</em>) – number of aliases in each direction.</p></li>
 <li><p><strong>BoxLv</strong> (<em>array</em>) – Length of simulation’s box in each direction.</p></li>
 <li><p><strong>p</strong> (<em>int</em>) – charge assignment order (CAO).</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – number of particles.</p></li>
 <li><p><strong>pot_matrix</strong> (<em>array</em>) – Potential matrix. It contains screening parameter and Ewald parameter. See potential matrix above.</p></li>
 <li><p><strong>rcut</strong> (<em>float</em>) – Cutoff distance for the PP calculation.</p></li>
 <li><p><strong>fourpie0</strong> (<em>float</em>) – Potential factor.</p></li>
@@ -281,12 +282,15 @@
 
 <dl class="function">
 <dt id="S_pot_QSP.setup">
-<code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the <code class="docutils literal notranslate"><span class="pre">params</span></code> class with QSP Potential parameters.
 The QSP Potential is given by eq.(5) in Ref. <a class="footnote-reference brackets" href="#id4" id="id7">2</a> .</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Input file’s name.</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -315,7 +319,7 @@ The QSP Potential is given by eq.(5) in Ref. <a class="footnote-reference bracke
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

@@ -4,7 +4,7 @@ Particles:
         name: H
         number_density: 1.62e+30       # /m^3
         mass: 1.673e-27                # kg, ptcl mass of ion1
-        num: 1024                    # total number of particles of ion1 
+        num: 2000                    # total number of particles of ion1 
         Z: 1.0                        # degree of ionization
         temperature: 2.244712e+03
     
@@ -14,8 +14,8 @@ Particles:
 
 Potential: 
     - type: Yukawa                  # potential type
-    - rc: 4.196866e-10             # cut-off radius, meter
-    - kappa: 1.5
+    - rc: 3.296866e-10             # cut-off radius, meter
+    - kappa: 2.0
 
 Integrator:
     - type: Verlet                  # velocity integrator type
@@ -29,10 +29,12 @@ Control:
     - units: mks                    # units
     - dt: 1.519123e-17            # sec
     - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nstep: 30000                    # number of timesteps afater the equilibrium
+    - Nsteps: 50000                    # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
-    - writexyz: yes                  # no xyz output
-    - dump_step: 1000                # dump time step
+    - writexyz: no                  # no xyz output
+    - dump_step: 10                # dump time step
     - verbose: yes
     - output_dir: YOCP_mks_pp        # dir name to save data. The default is "Checkpoint"
 
+PostProcessing:
+    - rdf_nbins: 100

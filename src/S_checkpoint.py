@@ -57,5 +57,14 @@ class Checkpoint:
         vel = ptcls.vel
         acc = ptcls.acc
         cntr = ptcls.pbc_cntr
+        rdf_hist = ptcls.rdf_hist
         file_name = self.checkpoint_dir+"/"+"S_checkpoint_"+str(it)
-        np.savez(file_name, species_id=species_id, species_name=species_name, pos=pos, vel=vel, acc=acc, cntr = cntr)
+        np.savez(file_name,
+                 species_id=species_id,
+                 species_name=species_name,
+                 pos=pos,
+                 vel=vel,
+                 acc=acc,
+                 cntr = cntr,
+                 rdf_hist = rdf_hist
+                 )

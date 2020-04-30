@@ -45,10 +45,13 @@ Thermostat:
 Control:
     - dt: 1.e-14                    # timestep, sec   
     - Neq: 10000
-    - Nstep: 10000
+    - Nsteps: 10000
     - dump_step: 100
     - BC: periodic
     - units: cgs 
     - writexyz: no
     - verbose: yes
     - output_dir: LJ_cgs          # dir name to save data. Default is "Checkpoint"
+
+PostProcessing:
+    - rdf_nbins: 100

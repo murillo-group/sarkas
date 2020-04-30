@@ -68,18 +68,20 @@ class Particles:
         self.species_name = np.empty(self.N, dtype='object')
         self.species_id = np.zeros((self.N,), dtype=int)
         self.species_num = np.zeros(self.params.num_species, dtype=int)
+        self.species_mass = np.zeros(self.params.num_species)
 
         self.mass = np.zeros(self.N)  # mass of each particle
         self.charge = np.zeros(self.N)  # charge of each particle
+
+        # No. of independent rdf
+        self.no_grs = int(params.num_species * (params.num_species + 1) / 2)
+        self.rdf_nbins = params.PostProcessing.rdf_nbins
+        self.rdf_hist = np.zeros((self.rdf_nbins, self.no_grs))
+
         return
 
     def assign_attributes(self):
         """ Assign particles attributes """
-
-        self.species_name = np.empty(self.N, dtype='object')
-        self.species_id = np.zeros((self.N,), dtype=int)
-        self.species_num = np.zeros(self.params.num_species, dtype=int)
-        self.species_mass = np.zeros(self.params.num_species)
 
         self.mass = np.zeros(self.N)  # mass of each particle
         self.charge = np.zeros(self.N)  # charge of each particle
@@ -232,6 +234,7 @@ class Particles:
         self.vel = data["vel"]
         self.acc = data["acc"]
         self.pbc_cntr = data["cntr"]
+        self.rdf_hist = data["rdf_hist"]
 
     def load_from_file(self, f_name, N):
         """

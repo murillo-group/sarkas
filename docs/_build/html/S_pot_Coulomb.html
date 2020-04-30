@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="S_pot_EGS module" href="S_pot_EGS.html" />
-    <link rel="prev" title="S_particles module" href="S_particles.html" /> 
+    <link rel="prev" title="S_postprocessing module" href="S_postprocessing.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -201,29 +203,8 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="S_pot_Coulomb.Coulomb_force_PP">
-<code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">Coulomb_force_PP</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix_ij</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#Coulomb_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.Coulomb_force_PP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate Potential and Force between two particles when the PP algorithm is chosen.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>float</em>) – distance between two particles.</p></li>
-<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – it contains potential dependent variables.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
-<li><p><strong>force</strong> (<em>float</em>) – Force between two particles.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="S_pot_Coulomb.gf_opt">
-<code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param">MGrid</em>, <em class="sig-param">aliases</em>, <em class="sig-param">BoxLv</em>, <em class="sig-param">p</em>, <em class="sig-param">N</em>, <em class="sig-param">alpha</em>, <em class="sig-param">rcut</em>, <em class="sig-param">fourpie0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.gf_opt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param">MGrid</em>, <em class="sig-param">aliases</em>, <em class="sig-param">BoxLv</em>, <em class="sig-param">p</em>, <em class="sig-param">alpha</em>, <em class="sig-param">rcut</em>, <em class="sig-param">fourpie0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.gf_opt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a> .</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -232,7 +213,6 @@
 <li><p><strong>aliases</strong> (<em>array</em>) – number of aliases in each direction.</p></li>
 <li><p><strong>BoxLv</strong> (<em>array</em>) – Length of simulation’s box in each direction.</p></li>
 <li><p><strong>p</strong> (<em>int</em>) – charge assignment order (CAO).</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – number of particles.</p></li>
 <li><p><strong>alpha</strong> (<em>float</em>) – Ewald parameter.</p></li>
 <li><p><strong>rcut</strong> (<em>float</em>) – Cutoff distance for the PP calculation.</p></li>
 <li><p><strong>fourpie0</strong> (<em>float</em>) – Potential factor.</p></li>
@@ -282,7 +262,7 @@
         <a href="S_pot_EGS.html" class="btn btn-neutral float-right" title="S_pot_EGS module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="S_particles.html" class="btn btn-neutral float-left" title="S_particles module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="S_postprocessing.html" class="btn btn-neutral float-left" title="S_postprocessing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -293,7 +273,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

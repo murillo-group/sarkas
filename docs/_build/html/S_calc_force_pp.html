@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -181,13 +183,20 @@
 <p>Module for handling Particle-Particle interaction.</p>
 <dl class="function">
 <dt id="S_calc_force_pp.update">
-<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">id_ij</em>, <em class="sig-param">mass_ij</em>, <em class="sig-param">Lv</em>, <em class="sig-param">rc</em>, <em class="sig-param">potential_matrix</em>, <em class="sig-param">force</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">id_ij</em>, <em class="sig-param">mass_ij</em>, <em class="sig-param">Lv</em>, <em class="sig-param">rc</em>, <em class="sig-param">potential_matrix</em>, <em class="sig-param">force</em>, <em class="sig-param">measure</em>, <em class="sig-param">rdf_hist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the force on the particles based on a linked cell-list (LCL) algorithm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’s data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
+<li><p><strong>force</strong> (<em>func</em>) – Force function.</p></li>
+<li><p><strong>potential_matrix</strong> (<em>array</em>) – Potential parameters.</p></li>
+<li><p><strong>rc</strong> (<em>float</em>) – Cut-off radius.</p></li>
+<li><p><strong>Lv</strong> (<em>array</em>) – Array of box sides’ lentgh.</p></li>
+<li><p><strong>mass_ij</strong> (<em>array</em>) – Mass of each particle.</p></li>
+<li><p><strong>id_ij</strong> (<em>array</em>) – Id of each particle</p></li>
+<li><p><strong>pos</strong> (<em>array</em>) – Particles’ positions.</p></li>
+<li><p><strong>measure</strong> (<em>bool</em>) – Boolean for rdf calculation.</p></li>
+<li><p><strong>rdf_hist</strong> (<em>array</em>) – Radial Distribution function array.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -207,41 +216,27 @@ short and long ranged interactions. See the wikipedia article:
 
 <dl class="function">
 <dt id="S_calc_force_pp.update_0D">
-<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update_0D</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">id_ij</em>, <em class="sig-param">mass_ij</em>, <em class="sig-param">Lv</em>, <em class="sig-param">rc</em>, <em class="sig-param">potential_matrix</em>, <em class="sig-param">force</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update_0D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update_0D" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update_0D</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">id_ij</em>, <em class="sig-param">mass_ij</em>, <em class="sig-param">Lv</em>, <em class="sig-param">rc</em>, <em class="sig-param">potential_matrix</em>, <em class="sig-param">force</em>, <em class="sig-param">measure</em>, <em class="sig-param">rdf_hist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update_0D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update_0D" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates particles’ accelerations when the cutoff radius :math: <cite>r_c</cite> is half the box’s length, :math: <cite>r_c = L/2</cite>
 For no sub-cell. All ptcls within :math: <cite>r_c = L/2</cite> participate for force calculation. Cost ~ O(N^2)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’ class. See <code class="docutils literal notranslate"><span class="pre">S_Particles.py</span></code> for more info.</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation Parameters. See <code class="docutils literal notranslate"><span class="pre">S_Params.py</span></code> for more info.</p></li>
+<li><p><strong>force</strong> (<em>func</em>) – Force function.</p></li>
+<li><p><strong>potential_matrix</strong> (<em>array</em>) – Potential parameters.</p></li>
+<li><p><strong>rc</strong> (<em>float</em>) – Cut-off radius.</p></li>
+<li><p><strong>Lv</strong> (<em>array</em>) – Array of box sides’ lentgh.</p></li>
+<li><p><strong>mass_ij</strong> (<em>array</em>) – Mass of each particle.</p></li>
+<li><p><strong>id_ij</strong> (<em>array</em>) – Id of each particle</p></li>
+<li><p><strong>pos</strong> (<em>array</em>) – Particles’ positions.</p></li>
+<li><p><strong>measure</strong> (<em>bool</em>) – Boolean for rdf calculation.</p></li>
+<li><p><strong>rdf_hist</strong> (<em>array</em>) – Radial Distribution function array.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>U_s_r</strong> (<em>array</em>) – Potential.</p></li>
 <li><p><strong>acc_s_r</strong> (<em>array</em>) – Particles’ accelerations.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="S_calc_force_pp.update_brute">
-<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update_brute</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update_brute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update_brute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update particles’ accelerations via brute force calculation. Cost O(N^2)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<em>class</em>) – Particles’s data. See S_particles.py for more info</p></li>
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>U_s_r</strong> (<em>float</em>) – Potential energy</p></li>
-<li><p><strong>acc_s_r</strong> (<em>array_like</em>) – Particles’ accelerations</p></li>
 </ul>
 </p>
 </dd>
@@ -272,7 +267,7 @@ For no sub-cell. All ptcls within :math: <cite>r_c = L/2</cite> participate for 
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

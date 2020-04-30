@@ -155,14 +155,12 @@
            <div itemprop="articleBody">
             
   <h1>Source code for S_thermostat</h1><div class="highlight"><pre>
-<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module containing various thermostat. Berendsen only for now.</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">class Thermostat:</span>
 <span class="sd">    def __init__(self, params):</span>
@@ -186,13 +184,15 @@
 <span class="sd">        U = self.type(ptcls, it)</span>
 <span class="sd">        return U</span>
 <span class="sd">&#39;&#39;&#39;</span>
+
+
 <div class="viewcode-block" id="Berendsen"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Berendsen">[docs]</a><span class="k">def</span> <span class="nf">Berendsen</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Update particle velocity based on Berendsen thermostat.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ptlcs : class</span>
+<span class="sd">    ptcls : class</span>
 <span class="sd">        Particles&#39;s data. See ``S_particles.py`` for more information.</span>
 <span class="sd">    </span>
 <span class="sd">    params : class</span>
@@ -207,21 +207,22 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Dev Notes: this could be Numba&#39;d</span>
-    <span class="n">K</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span><span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span><span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+    <span class="n">K</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
     <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
         <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
-        
-        <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">&lt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">timestep</span><span class="p">):</span>
-            <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">T_desired</span><span class="o">/</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">T_desired</span><span class="o">/</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">/</span><span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">tau</span><span class="p">)</span>  <span class="c1"># eq.(11)</span>
 
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,:]</span><span class="o">*</span><span class="n">fact</span>
+        <span class="k">if</span> <span class="n">it</span> <span class="o">&lt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">timestep</span><span class="p">:</span>
+            <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">/</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">/</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">tau</span><span class="p">)</span>  <span class="c1"># eq.(11)</span>
+
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">fact</span>
         <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
 
     <span class="k">return</span></div>
+
 
 <div class="viewcode-block" id="calc_kin_temp"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.calc_kin_temp">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">calc_kin_temp</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="n">masses</span><span class="p">,</span> <span class="n">kB</span><span class="p">):</span>
@@ -230,11 +231,17 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ptlcs : class</span>
-<span class="sd">        Particles&#39;s data. See ``S_particles.py`` for more information.</span>
-<span class="sd">    </span>
-<span class="sd">    params : class</span>
-<span class="sd">        Simulation&#39;s parameters. See ``S_params.py`` for more information.</span>
+<span class="sd">    kB: float</span>
+<span class="sd">        Boltzmann constant in chosen units.</span>
+
+<span class="sd">    masses: array</span>
+<span class="sd">        Mass of each species.</span>
+
+<span class="sd">    nums: array</span>
+<span class="sd">        Number of particles of each species.</span>
+
+<span class="sd">    vel: array</span>
+<span class="sd">        Particles&#39; velocities.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -247,18 +254,19 @@
 
     <span class="n">num_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">masses</span><span class="p">)</span>
 
-    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="n">num_species</span><span class="p">)</span>
-    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="n">num_species</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_species</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_species</span><span class="p">)</span>
 
     <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_species</span><span class="p">):</span>
         <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span><span class="o">*</span><span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">kB</span><span class="o">/</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">kB</span> <span class="o">/</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
 
     <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">T</span></div>
+
 
 <div class="viewcode-block" id="remove_drift"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.remove_drift">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">remove_drift</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="n">masses</span><span class="p">):</span>
@@ -271,32 +279,30 @@
 <span class="sd">        Particles&#39; velocities.</span>
 
 <span class="sd">    nums: array</span>
-<span class="sd">        Number of particles for each species.</span>
+<span class="sd">        Number of particles of each species.</span>
 
 <span class="sd">    masses: array</span>
 <span class="sd">        Mass of each species.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span> <span class="p">,</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">),</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
     <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span> <span class="p">):</span>
+    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)):</span>
         <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
-        <span class="c1">#print(&quot;First Loop: &quot;, species_start, species_end)</span>
-        <span class="n">P</span><span class="p">[</span><span class="n">ic</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,:],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">)</span><span class="o">*</span><span class="n">masses</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">masses</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
         <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
 
-    <span class="c1">#print( np.sum(P[:,0]),  np.sum(P[:,1]), np.sum(P[:,2]) )</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1e-40</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1e-40</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1e-40</span> <span class="p">)</span> <span class="p">:</span> 
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1e-40</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1e-40</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1e-40</span><span class="p">:</span>
         <span class="c1"># Remove tot momentum</span>
         <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">nums</span><span class="p">)</span> <span class="p">):</span>
+        <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)):</span>
             <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
-            <span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,:]</span> <span class="o">-=</span> <span class="n">P</span><span class="p">[</span><span class="n">ic</span><span class="p">,:]</span><span class="o">/</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span><span class="o">*</span><span class="n">masses</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="p">)</span>
+            <span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-=</span> <span class="n">P</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span> <span class="o">*</span> <span class="n">masses</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span>
             <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
-    
+
     <span class="k">return</span></div>
 </pre></div>
 
@@ -312,7 +318,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 19, 2020.
+        Last updated on Apr, 29, 2020.
       </span>
 
     </p>

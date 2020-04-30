@@ -16,7 +16,6 @@ Michigan State University
 import numpy as np
 import time
 import sys
-import os
 
 # Importing MD modules, non class
 import S_thermostat as thermostat
@@ -27,6 +26,7 @@ from S_particles import Particles
 from S_verbose import Verbose
 from S_params import Params
 from S_checkpoint import Checkpoint
+from S_postprocessing import RadialDistributionFunction
 
 time_stamp = np.zeros(10)
 its = 0
@@ -48,8 +48,9 @@ checkpoint = Checkpoint(params)  # For restart and pva backups.
 
 verbose = Verbose(params)
 #######################
-Nt = params.Control.Nstep  # number of time steps
+Nt = params.Control.Nsteps  # number of time steps
 N = params.total_num_ptcls
+
 
 #######################
 # Un-comment the following if you want to calculate n(q,t)
@@ -76,7 +77,7 @@ its += 1
 
 ptcls = Particles(params)
 ptcls.load()
-ptcls.assign_attributes(params)
+ptcls.assign_attributes()
 
 if params.Control.verbose:
     print('\nParticles initialized.')
@@ -134,7 +135,7 @@ its += 1
 
 # Turn on magnetic field, if not on already, and thermalize
 if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
-    params.Integrator.type == "Magnetic_Verlet"
+    params.Integrator.type == params.Integrator.mag_type
     integrator = Integrator(params)
 
     if (params.Control.verbose):
@@ -154,6 +155,7 @@ if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
             Tp = np.ndarray.sum(Tps) / params.num_species
 
             E = K + U
+
             print("Magnetic Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it,
                                                                                                                      Tp,
                                                                                                                      E,
@@ -192,6 +194,8 @@ else:
 if params.Control.verbose:
     print("\n------------- Production -------------")
 
+vscale = params.aws*params.wp
+params.Control.measure = True
 for it in range(it_start, Nt):
     # Move the particles and calculate the potential
     U = integrator.update(ptcls, params)
@@ -245,7 +249,10 @@ f_output_E.close()
 if params.Control.writexyz:
     f_xyz.close()
 
+rdf = RadialDistributionFunction(params)
+rdf.save(ptcls.rdf_hist)
+rdf.plot()
+
 # Print elapsed times to screen
 verbose.time_stamp(time_stamp)
-
 # end of the code
