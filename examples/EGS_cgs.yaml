@@ -3,20 +3,20 @@
 Particles:
     - species:
         name: Al
-        number_density: 1.0e+22       # /cc^3
+        number_density: 6.0e+22       # /cc^3
         mass: 4.512991e-23             # g, proton mass * Al mass number
-        num: 10000                   # total number of particles of ion1
+        num: 500                   # total number of particles of ion1
         Z: 3                        # degree of ionization
         temperature_eV: 0.5         # eV Temperature
 
     - load:
-        method: random_no_reject    # loading method
+        method: restart    # loading method
         rand_seed: 13546565              # random seed
-
+        restart_step: 0
 Potential: 
     - type: EGS                     # potential type
     - method: PP                    # Linked-cell
-    - rc: 2.3471e-07             # cut-off radius, cm
+    - rc: 9.3471e-08             # cut-off radius, cm
     - elec_temperature_eV: 0.5
 
 Integrator:
@@ -33,10 +33,11 @@ Control:
     - Neq: 30000                     # number of timesteps for the equilibrium
     - Nsteps: 30000                  # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
-    - writexyz: no                  # no xyz output
-    - dump_step: 30                # dump time step
-    - verbose: no
+    - writexyz: yes                  # no xyz output
+    - dump_step: 1                # dump time step
+    - verbose: yes
     - output_dir: EGS_cgs        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 100
+    - rdf_nbins: 500
+    - ssf_no_ka_values: 30

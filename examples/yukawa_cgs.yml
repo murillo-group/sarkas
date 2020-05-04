@@ -2,7 +2,7 @@
 Particles:
     - species:
         name: ion1
-        number_density: 1.e20       # /cm^3
+        number_density: 1.e+20       # /cm^3
         mass: 1.e-27                # gram, ptcl mass of ion1
         num: 1000                    # total number of particles of ion1 
         Z: 4                        # degree of ionization
@@ -29,11 +29,11 @@ Thermostat:
 Control:
     - units: cgs                    # units
     - dt: 4.64305707e-18            # sec
-    - Neq: 1000                      # number of timesteps for the equilibrium
-    - Nsteps: 1000                    # number of timesteps afater the equilibrium
+    - Neq: 10000                      # number of timesteps for the equilibrium
+    - Nsteps: 10000                    # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
     - writexyz: no                  # no xyz output
-    - dump_step: 100                # dump time step
+    - dump_step: 10                # dump time step
     - verbose: yes
     - output_dir: yukawa_cgs        # dir name to save data. The default is "Checkpoint"
 

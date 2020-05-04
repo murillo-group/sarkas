@@ -53,11 +53,11 @@ Control:
     - Neq: 30000                      # number of timesteps for the equilibrium
     - Nsteps: 50000                    # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
-    - writexyz: yes                  # no xyz output
+    - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
-    - verbose: no
+    - verbose: yes
     - output_dir: ybim_mks_mag        # dir name to save data. The default is "Checkpoint"
-    - fname_app: ybim_mks_mag
 
 PostProcessing:
     - rdf_nbins: 100
+    - ssf_no_ka_values: 60

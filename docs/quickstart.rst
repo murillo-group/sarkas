@@ -1,7 +1,7 @@
 Quickstart
 ==========
 Before you can begin working with Sarkas, you will need to have python3 installed. A useful python 
-distribution that has many of the necessary packages for Sarkas is Anaconda which an be downloaded here_.
+distribution that has many of the necessary packages for Sarkas is Anaconda which can be downloaded here_.
 
 .. _here: https://www.anaconda.com
 
@@ -47,43 +47,82 @@ To install fdint
 Using Sarkas
 ------------
 
-Input files
+Input file
 ~~~~~~~~~~~
-Unless adding new features to Sarkas such as new integrators, thermostats, potentials, etc, the only thing you will  need to modify is the `input.yaml` file. This file is responsible for specifying the simulation parameters such as the number of particles, number of timesteps, and initialization type for example. 
+This file is responsible for specifying the simulation's parameters such as the number of particles, number of timesteps, and initialization. Examples of input files can be found in the examples folder. There are several examples aimed at demonstrating the various capabilities of Sarkas. The names of each example file indicate the interacting potential used, the number of species, the system of units, and the force calculation algorithm, and whether the system is magnetized or not. In the following we will describe one of the example files. 
 
-Using the input file
-~~~~~~~~~~~~~~~~~~~~
-To specify you simulation parameters, open the `input.yaml` file in your text editor and alter the values to
-the right of the keywords. Below is a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: `https://learn.getgrav.org/16/advanced/yaml`.
+Running Sarkas
+--------------
+Once you have created your input file, say `input.yaml', you can run Sarkas by simply typing the command, e.g.
 
+.. code-block:: bash
+   
+   $ python3 src/Sarkas.py input.yaml
 
-.. csv-table:: Table for "Load" section key and value pairs in the input.yaml file
+Let us open `ybim_mks_p3m_mag.yaml` file in a text editor. This file contains parameters for a simulation of a Carbon-Oxygen mixture interacting via a Yukawa potential and under the influence of a constant Magnetic field. The first thing to notice is that there are eight sections each of which contains a set of parameters. Each section corresponds to a subclass of the `Params` class. The order is relatively important since some section parameters might depend on a previous section. For example: the Magnetized section must come after the Integrator section since the option electrostatic_thermalization, if chosen to be True, it modifies the integrator type. Below we present a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: `https://learn.getgrav.org/16/advanced/yaml`.
+
+.. csv-table:: Table for "Particles - species" section key and value pairs in the input file
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
-   "species_name", "string", "Name for particle species (e.g. ion1, C, etc.)"
-   "Num", "int", "Number of particles for desired species (eg. 500)"
-   "method", "string", "Particle position initialization schemes"
+   "name", "string", "Name for particle species (e.g. ion1, C, etc.)."
+   "number_density", "float", "Number density of species."
+   "mass", "float", "Mass of each particle of species."
+   "num", "int", "Number of simulation particles for desired species."
+   "Z", "float", "Charge number of species."
+   "A", "float", "Atomic mass. Note that if the keyword `mass` is present `A` would not be used for calculating the mass of each particle."
+   "temperature", "float", "Desired temperature of the system."
+
+.. csv-table:: Table for "Particles - load" section key and value pairs in the input file
+   :header: "key", "Value Data Type", "Description"
+   :widths: auto
+
+   "method", "string", "Particle position initialization schemes. Options are 'random_reject, random_no_reject, restart'"
    "rand_seed", "int", "Random seed for random_reject and lattice initialization schemes"
    "r_reject", "float", "Rejection radius for 'random_reject' and 'halton' initilization schemes. (e.g, 0.1, 1e-2, 1, etc.)"
    "perturb", "float", "Perturbation for particle at lattice point for 'lattice' initialization scheme. Must be between 0 and 1."
    "halton_bases", "python list", "List of 3 numbers to be used as the 'bases' for the 'halton_reject' initialization scheme."
-
-.. csv-table:: Table for "Potential" section key and value pairs in the input.yaml file
+   "restart_step", "int", "Step number from which to restart the simulation"
+   
+.. csv-table:: Table for "Potential" section key and value pairs in the input file
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
-   "type", "string", "Name of desired potential. See <link to potentials page> for a list of supported potentials"
-   "algorithm", "string", "Specify algorithm used. See <link to algorithms page> for a list of supported algorithms"
-   "kappa", "float", "Electron screening length. See 'Units' section below for more detail"
-   "gamma", "float", "Coulomb coupling parameter for system. See 'Units' section below for more detail"
-   "rc", "float", "Potential cutoff radius. Contributions to force beyond this distance ignored"
+   "type", "string", "Name of desired potential. See <link to potentials page> for a list of supported potentials."
+   "method", "string", "Specify algorithm used (P3M or PP). See <link to algorithms page> for a list of supported algorithms."
+   "rc", "float", "Short-range Potential cutoff radius. Contributions to force beyond this distance are ignored."
+
+.. csv-table:: Table for "P3M" section key and value pairs in the input file
+   :header: "Key", "Value Data Type", "Description"
+   :widths: auto
+
+   "MGrid", "Int Array", "Number of mesh points in each of the cartesian direction [x,y,z]"
+   "aliases", "int array", "Number of aliases to sum over"
+   "cao", "int", "Charge order parameter aka order of the B-Spline charge approximation"
+   "alpha_ewald", "float", "Alpha parameter for Ewald decomposition See <link to P3M page> for more information"
+
+.. csv-table:: Table for "Integrator" section key and value pairs in the input file
+   :header: "Key", "Value Data Type", "Description"
+   :widths: auto
+
+   "type", "string", "Type of integrator to be used"
+
+.. csv-table:: Table for "Magnetized" section key and value pairs in the input file
+   :header: "Key", :Value Data Type", "Description"
+   :widths: auto
+
+   "B_Gauss", "float", "Magnitude of the magnetic field in Gauss units"
+   "B_Tesla", "float", "Magnitude of the magnetic field in Tesla units"
+   "electrostatic_thermalization", "int", "Flag for magnetic thermalization. If 1 (True) the system will be first thermalized without magnetic field and then thermalized again with the magnetic field"
+   "Neq_mag", "int", "Number of thermalization steps with a constant magnetic field"
 
 .. csv-table:: Table for "Thermostat" section key and value pairs in the input.yaml file
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
    "type", "string", "Name of desired thermostat to be used during equilibration phase. See <link to initilization/equlibration page> for a list of supported thermostats"
+   "tau", "float", "Berendsen parameter. It should be a positive number greater than zero. See <link to Berendesen page> for more information"
+   "timestep", "int", "Number of timesteps to wait before turning on the Berendsen thermostat. It should be less than the Neq"
 
 .. csv-table:: Table for "Langevin" section key and value pairs in the input.yaml file
    :header: "Key", "Value Data Type", "Description"
@@ -96,17 +135,17 @@ the right of the keywords. Below is a description of what each keyword is used f
    :header: "Key", "Value Data Type", "Description"
    :widths: auto
 
+   "units", "string", "Unit system to use. 'cgs' or 'mks'"
    "dt", "float", "Size of timestep used in both equilibration and production phases (e.g. 0.1)"
    "Neq", "int", "Number of equilibration steps (e.g. 1000)"
-   "Nstep", "int", "Number of production steps (e.g. 5000)"
+   "Nsteps", "int", "Number of production steps (e.g. 5000)"
    "BC", "string", "Type of boundary conditions on all edges of simulation cell. Currently, 'periodic' is only supported boundary condition"
-   "ptcls_init", "string (deprecated)", "Just leave as `init` and ignore"
-   "writeout", "string", "Determines if .out file will be generated with positions, velocities, and accelerations for each particle during the extent of the simulation. Options are: 'yes or no'"
-   "writexyz", "string", "Determines if .xyz file, following the 'xyz' formatting standarsds, will be generated during the extent of the simulation. Options are: 'yes or no'"
+   "writexyz", "string", "Determines if .xyz file, following the 'xyz' formatting standards, will be generated during the extent of the simulation. Options are: 'yes or no'"
    "dump_step", "int", "Number of steps between saving particle data"
-   "random_seed", "int (deprecated)", "Just leave as '1' and ignore"
-   "restart", "int", "Restarts the simulation using information from a previous run or from a text file. Options: 1 (yes) or 0 (no)"
-   "verbose", "string", "Writes simulation information to standard output. Options are yes or no"
+   "random_seed", "int", "Seed of random number generator"
+   "verbose", "string", "Flag for printing simulation information to screen. Options are 'yes' or 'no'"
+   "output_dir", "string", "Directory where to store checkpoint files for restart and post processing."
+   "fname_app", "string", "Appendix to filenames. Default = output_dir"
 
 
 * lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that `Num` must be a perfect cube if using this method.
@@ -115,37 +154,4 @@ the right of the keywords. Below is a description of what each keyword is used f
 * random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.
 
 
-Units
-~~~~~
-Currently, Sarkas uses Yukawa units to specify the system the user wants to simulate. For example,
-the user might want to model strongly coupled plasmas for a specific ion species and would need to
-supply the corresponding `coulomb coupling paramters`, :math:`\Gamma`, and `electron screening parameter`
-:math:`\kappa`. The coulomb coupling parameter between species :math:`i` and :math:`j` is defined as
 
-.. math::
-   \Gamma_{ij} = \frac{Z_i Z_j e^2}{a_{ij} T_{ij}},
-
-where :math:`Z_s` is the effective charge for species :math:`s`, :math:`a_{ij} = (4 \pi n/3)^{-1/3}`
-is the 
-ion-sphere radius, :math:`n = n_i + n_j` is the total particle number density, :math:`e` is the elementary 
-charge, and :math:`T_{ij} = (T_i + T_j)/2` is the temperature of the system. 
-
-Additionally, the non-dimensional electron screening parameter is defined as
-
-.. math::
-   \kappa = \frac{a_{ij}}{\lambda_e},
-
-where :math:`\lambda_e` is the electron screening length defined as
-
-.. math::
-   \lambda_e^2 = \frac{\sqrt{ T_{ij}^2 + \left(\frac{2}{3} E_F \right)^2 }}{4\pi n_e e^2}.
-
-In the above expression, :math:`E_F` is the Fermi energy, and :math:`n_e` is the electron number density.
-
-Running Sarkas
---------------
-To run Sarkas once you have edited the input.yaml file, simply type the command
-
-.. code-block:: bash
-   
-   $ python3 Sarkas.py input.yaml

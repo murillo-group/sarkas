@@ -55,7 +55,6 @@ def setup(params, filename):
                             params.Te = float(value)
 
                         if key == "elec_temperature_eV":
-                            T_eV = float(value)
                             params.Te = params.eV2K * float(value)
 
     if not hasattr(params, "Te"):
@@ -66,17 +65,6 @@ def setup(params, filename):
     # lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi
     lmbda = 1.0 / 9.0
     params.Potential.lmbda = lmbda
-
-    Te = params.Te
-    Ti = params.Ti
-
-    if params.Control.units == "cgs":
-        ne = params.ne * 1.e6  # /cm^3 --> /m^3
-        ni = params.total_num_density * 1.e6
-
-    if params.Control.units == "mks":
-        ne = params.ne  # /cm^3 --> /m^3
-        ni = params.total_num_density
 
     fdint_fdk_vec = np.vectorize(fdint.fdk)
     fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
@@ -237,7 +225,8 @@ def EGS_force_PP(r, pot_matrix):
         temp1 = pot_matrix[3] * np.exp(-r / pot_matrix[5])
         temp2 = pot_matrix[4] * np.exp(-r / pot_matrix[6])
         U = (temp1 + temp2) * pot_matrix[2] / r
-        fr = U / r + pot_matrix[2] * (temp1 / pot_matrix[5] + temp2 / pot_matrix[6])
+        fr = U / r + pot_matrix[2] * (temp1 / pot_matrix[5] + temp2 / pot_matrix[6])/r
+        fr /= r
     else:
         # pot_matrix[2] = Charge factor
         # pot_matrix[3] = 1.0
@@ -248,9 +237,9 @@ def EGS_force_PP(r, pot_matrix):
         sin = np.sin(r / pot_matrix[5])
         exp = pot_matrix[2] * np.exp(-r / pot_matrix[6])
         U = (pot_matrix[3] * cos + pot_matrix[4] * sin) * exp / r
-        fr1 = U / r  # derivative of 1/r
-        fr3 = U / pot_matrix[6]  # derivative of exp
-        fr2 = exp / (r * pot_matrix[5]) * (sin - pot_matrix[4] * cos)
-        fr = fr1 + fr2 + fr3
+        fr1 = U / r   # derivative of 1/r
+        fr3 = U / pot_matrix[6]   # derivative of exp
+        fr2 = (sin - pot_matrix[4] * cos) * exp / (r * pot_matrix[5])
+        fr = (fr1 + fr2 + fr3)/r
 
     return U, fr

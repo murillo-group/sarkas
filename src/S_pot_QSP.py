@@ -21,7 +21,7 @@ import numpy as np
 import numba as nb
 import yaml
 import math as mt
-import scipy.constants as const
+import sys
 
 
 def setup(params, filename):
@@ -44,9 +44,12 @@ def setup(params, filename):
     QSP_matrix[0,:,:] = de Broglie wavelengths,
     QSP_matrix[1,:,:] = qi*qj/4*pi*eps0
     QSP_matrix[2,:,:] = 2pi/deBroglie
-    QSP_matrix[3,:,:] = e-e term factor
-    QSP_matrix[4,:,:] = e-e exp factor 4pi/deBroglie/ln(2)
+    QSP_matrix[3,:,:] = e-e Hansen-Pauli factor term factor
+    QSP_matrix[4,:,:] = e-e exp factor 4pi/deBroglie/ln(2) 
     """
+    # Default attributes
+    params.Potential.QSP_type = 'Deutsch'
+    params.Potential.QSP_Pauli = True
     # open the input file to read Yukawa parameters
     with open(filename, 'r') as stream:
         dics = yaml.load(stream, Loader=yaml.FullLoader)
@@ -56,6 +59,8 @@ def setup(params, filename):
                     for key, value in keyword.items():
                         if key == "QSP_type":  # screening
                             params.Potential.QSP_type = value
+                        if key == "QSP_Pauli":
+                            params.Potential.QSP_Pauli = value
 
     if params.P3M.on:
         QSP_matrix = np.zeros((6, params.num_species, params.num_species))
@@ -65,16 +70,11 @@ def setup(params, filename):
 
     if params.Control.units == "cgs":
         # constants and conversion factors
-        params.a0 = const.physical_constants["Bohr radius"][0] * 1.0e2  # cm
-
         params.ne = params.species[0].num_density
         params.ae = (3.0 / (4.0 * np.pi * params.ne)) ** (1.0 / 3.0)  # e WS
         params.rs = params.ae / params.a0  # e coupling parameter
 
     else:
-        # Physical constants
-        params.a0 = const.physical_constants["Bohr radius"][0]
-
         # e,i simulation parameters
         params.ne = params.species[0].num_density
         params.ae = (3.0 / (4.0 * np.pi * params.ne)) ** (1.0 / 3.0)  # e WS
@@ -116,27 +116,21 @@ def setup(params, filename):
             QSP_matrix[2, i, j] = twopi / Lambda_dB
 
     params.QFactor = params.QFactor / params.fourpie0
+    if params.Potential.QSP_Pauli == 0:
+        QSP_matrix[3,:,:] = 0.0
+
     params.Potential.matrix = QSP_matrix
 
     # Calculate the (total) plasma frequency
-    if params.Control.units == "cgs":
-        wp_tot_sq = 0.0
-        for i in range(params.num_species):
-            wp2 = 4.0 * np.pi * params.species[i].charge ** 2 * params.species[i].num_density / params.species[i].mass
-            params.species[i].wp = np.sqrt(wp2)
-            wp_tot_sq += wp2
+    wp_tot_sq = 0.0
+    for i in range(params.num_species):
+        wp2 = 4.0 * np.pi * params.species[i].charge ** 2 * params.species[i].num_density / (
+                params.species[i].mass * params.fourpie0)
+        params.species[i].wp = np.sqrt(wp2)
+        wp_tot_sq += wp2
 
-        params.wp = np.sqrt(wp_tot_sq)
+    params.wp = np.sqrt(wp_tot_sq)
 
-    elif params.Control.units == "mks":
-        wp_tot_sq = 0.0
-        for i in range(params.num_species):
-            wp2 = params.species[i].charge ** 2 * params.species[i].num_density / (
-                        params.species[i].mass * const.epsilon_0)
-            params.species[i].wp = np.sqrt(wp2)
-            wp_tot_sq += wp2
-
-        params.wp = np.sqrt(wp_tot_sq)
     # Calculate the Wigner-Seitz Radius
     params.aws = (3.0 / (4.0 * np.pi * params.total_num_density)) ** (1. / 3.)
 
@@ -148,8 +142,6 @@ def setup(params, filename):
 
     # Rescale all the Lengths by the ion's WS Radius instead of the total WS radius. 
     params.L = params.ai * (4.0 * np.pi * params.total_num_ptcls / 3.0) ** (1.0 / 3.0)  # box length
-
-    params.N = params.total_num_ptcls
     L = params.L
     params.Lx = L
     params.Ly = L
@@ -165,13 +157,10 @@ def setup(params, filename):
     if params.L > 0.:
         params.dq = 2. * np.pi / params.L
 
-    params.q_max = 30  # hardcode
-    if params.ai > 0:
-        params.q_max = 30 / params.ai  # hardcode, wave vector
-    params.Nq = 3 * int(params.q_max / params.dq)
 
     if params.Potential.method == "PP" or params.Potential.method == "brute":
-        params.force = QSP_force_PP
+        print('WARNING! QSP interaction can only be calculated using P3M algorithm. Bye.')
+        sys.exit()
 
     if params.Potential.method == "P3M":
         if params.Potential.QSP_type == "Deutsch":
@@ -198,7 +187,7 @@ def setup(params, filename):
 @nb.njit
 def Deutsch_force_P3M(r, pot_matrix):
     """ 
-    Calculates the QSP Force between two particles when the P3M algorithm is chosen.
+    Calculates the Deutsch QSP Force between two particles.
 
     Parameters
     ----------

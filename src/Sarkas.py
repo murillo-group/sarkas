@@ -196,10 +196,10 @@ if params.Control.verbose:
 
 vscale = params.aws*params.wp
 params.Control.measure = True
+
 for it in range(it_start, Nt):
     # Move the particles and calculate the potential
     U = integrator.update(ptcls, params)
-
     if (it + 1) % params.Control.dump_step == 0:
         # Save particles' data for restart
         checkpoint.dump(ptcls, it + 1)

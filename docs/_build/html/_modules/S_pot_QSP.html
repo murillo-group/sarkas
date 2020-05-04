@@ -178,7 +178,7 @@
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
-<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 
 <div class="viewcode-block" id="setup"><a class="viewcode-back" href="../S_pot_QSP.html#S_pot_QSP.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -201,9 +201,12 @@
 <span class="sd">    QSP_matrix[0,:,:] = de Broglie wavelengths,</span>
 <span class="sd">    QSP_matrix[1,:,:] = qi*qj/4*pi*eps0</span>
 <span class="sd">    QSP_matrix[2,:,:] = 2pi/deBroglie</span>
-<span class="sd">    QSP_matrix[3,:,:] = e-e term factor</span>
-<span class="sd">    QSP_matrix[4,:,:] = e-e exp factor 4pi/deBroglie/ln(2)</span>
+<span class="sd">    QSP_matrix[3,:,:] = e-e Hansen-Pauli factor term factor</span>
+<span class="sd">    QSP_matrix[4,:,:] = e-e exp factor 4pi/deBroglie/ln(2) </span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Default attributes</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">=</span> <span class="s1">&#39;Deutsch&#39;</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_Pauli</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="c1"># open the input file to read Yukawa parameters</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
         <span class="n">dics</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
@@ -213,6 +216,8 @@
                     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;QSP_type&quot;</span><span class="p">:</span>  <span class="c1"># screening</span>
                             <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">=</span> <span class="n">value</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;QSP_Pauli&quot;</span><span class="p">:</span>
+                            <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_Pauli</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
         <span class="n">QSP_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
@@ -222,16 +227,11 @@
 
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
         <span class="c1"># constants and conversion factors</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">a0</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;Bohr radius&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.0e2</span>  <span class="c1"># cm</span>
-
         <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
         <span class="n">params</span><span class="o">.</span><span class="n">ae</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># e WS</span>
         <span class="n">params</span><span class="o">.</span><span class="n">rs</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ae</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">a0</span>  <span class="c1"># e coupling parameter</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Physical constants</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">a0</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;Bohr radius&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-
         <span class="c1"># e,i simulation parameters</span>
         <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
         <span class="n">params</span><span class="o">.</span><span class="n">ae</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># e WS</span>
@@ -273,27 +273,21 @@
             <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">twopi</span> <span class="o">/</span> <span class="n">Lambda_dB</span>
 
     <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_Pauli</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
     <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">QSP_matrix</span>
 
     <span class="c1"># Calculate the (total) plasma frequency</span>
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
-        <span class="n">wp_tot_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
-            <span class="n">wp2</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp2</span><span class="p">)</span>
-            <span class="n">wp_tot_sq</span> <span class="o">+=</span> <span class="n">wp2</span>
+    <span class="n">wp_tot_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="n">wp2</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp2</span><span class="p">)</span>
+        <span class="n">wp_tot_sq</span> <span class="o">+=</span> <span class="n">wp2</span>
 
-        <span class="n">params</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
 
-    <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;mks&quot;</span><span class="p">:</span>
-        <span class="n">wp_tot_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
-            <span class="n">wp2</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span> <span class="o">/</span> <span class="p">(</span>
-                        <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">epsilon_0</span><span class="p">)</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp2</span><span class="p">)</span>
-            <span class="n">wp_tot_sq</span> <span class="o">+=</span> <span class="n">wp2</span>
-
-        <span class="n">params</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
     <span class="c1"># Calculate the Wigner-Seitz Radius</span>
     <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
 
@@ -305,8 +299,6 @@
 
     <span class="c1"># Rescale all the Lengths by the ion&#39;s WS Radius instead of the total WS radius. </span>
     <span class="n">params</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ai</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># box length</span>
-
-    <span class="n">params</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span>
     <span class="n">L</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">L</span>
     <span class="n">params</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="n">L</span>
     <span class="n">params</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="n">L</span>
@@ -322,13 +314,10 @@
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">L</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
         <span class="n">params</span><span class="o">.</span><span class="n">dq</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">L</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">q_max</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># hardcode</span>
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">ai</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">q_max</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">ai</span>  <span class="c1"># hardcode, wave vector</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Nq</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">q_max</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">dq</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;brute&quot;</span><span class="p">:</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">QSP_force_PP</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING! QSP interaction can only be calculated using P3M algorithm. Bye.&#39;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">==</span> <span class="s2">&quot;Deutsch&quot;</span><span class="p">:</span>
@@ -355,7 +344,7 @@
 <div class="viewcode-block" id="Deutsch_force_P3M"><a class="viewcode-back" href="../S_pot_QSP.html#S_pot_QSP.Deutsch_force_P3M">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">Deutsch_force_P3M</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculates the QSP Force between two particles when the P3M algorithm is chosen.</span>
+<span class="sd">    Calculates the Deutsch QSP Force between two particles.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -679,7 +668,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Apr, 29, 2020.
+        Last updated on May, 04, 2020.
       </span>
 
     </p>

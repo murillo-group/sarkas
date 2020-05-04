@@ -73,6 +73,9 @@ class Params:
         hbar2 : float
             Square of reduced Planck's constant.
 
+        a0 : float
+            Bohr Radius.
+
         c0 : float
             Speed of light.
 
@@ -175,6 +178,7 @@ class Params:
         self.hbar = const.hbar
         self.c0 = const.physical_constants["speed of light in vacuum"][0]
         self.eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
+        self.a0 = const.physical_constants["Bohr radius"][0]
         self.kB = const.Boltzmann
         self.aws = 0.0
         self.tot_net_charge = 0.0
@@ -459,6 +463,7 @@ class Params:
 
         def __init__(self):
             self.rdf_nbins = 100
+            self.no_ka_values = 30
 
     def setup(self, filename):
         """
@@ -628,7 +633,6 @@ class Params:
                                 self.Thermostat.type = value
                             # If Berendsen
                             if key == 'tau':
-                                # Notice tau_t should be a number between 0 (not included) and 1
                                 if float(value) > 0.0:
                                     self.Thermostat.tau = float(value)
                                 else:
@@ -663,9 +667,6 @@ class Params:
                         for key, value in keyword.items():
                             if key == 'type':
                                 self.Integrator.type = value
-                                if self.Magnetic.on == True and self.Magnetic.elec_therm == 1:
-                                    self.Integrator.mag_type = value
-                                    self.Integrator.type = 'Verlet'
 
                 if lkey == "Langevin":
                     self.Langevin.on = 1
@@ -681,6 +682,8 @@ class Params:
                         for key, value in keyword.items():
                             if key == 'rdf_nbins':
                                 self.PostProcessing.rdf_nbins = int(value)
+                            if key == 'ssf_no_ka_values':
+                                self.PostProcessing.no_ka_values = int(value)
 
                 if lkey == "Control":
                     for keyword in dics[lkey]:
@@ -735,6 +738,12 @@ class Params:
                                 self.Control.fname_app = value
                             else:
                                 self.Control.fname_app = self.Control.checkpoint_dir
+
+        # Check for conflicts in case of magnetic field
+        if self.Magnetic.on == True and self.Magnetic.elec_therm == 1:
+            self.Integrator.mag_type = value
+            self.Integrator.type = 'Verlet'
+
         return
 
     def assign_attributes(self):
@@ -753,6 +762,7 @@ class Params:
                 self.me *= 1.0e3
                 self.eps0 = 1.0
                 self.fourpie0 = 1.0
+                self.a0 *= 1e2
 
         # Check mass input
         for ic in range(self.num_species):
@@ -829,9 +839,6 @@ class Params:
         if self.L > 0.:
             self.dq = 2. * np.pi / self.L
         # Max wavenumber for S(q) and S(q,w)
-        self.q_max = 30  # hardcode
-        if self.aws > 0:
-            self.q_max = 30.0 / self.aws  # hardcode, wave vector
-        self.Nq = 3.0 * int(self.q_max / self.dq)
+        self.Nq = self.PostProcessing.no_ka_values  #3.0 * int(self.q_max / self.dq)
         self.T_desired = self.Ti
         return

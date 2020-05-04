@@ -12,10 +12,14 @@ params.setup(input_file)
 
 E = Observable.EnergyTemperature(params)
 E.plot('energy',True)
-# E.plot('temperature',False)
+E.plot('temperature',False)
+E.plot('Gamma',False)
 
-SSF = Observable.StaticStructureFactor(params)
-SSF.plot()
+# SSF = Observable.StaticStructureFactor(params)
+# SSF.plot()
 
-rdf = Observable.RadialDistributionFunction(params)
-rdf.plot()
+# rdf = Observable.RadialDistributionFunction(params)
+# rdf.plot()
+
+# J = Observable.ElectricCurrentACF(params, dump_skip=1)
+# J.plot()

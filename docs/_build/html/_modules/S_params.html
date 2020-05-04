@@ -230,6 +230,9 @@
 <span class="sd">        hbar2 : float</span>
 <span class="sd">            Square of reduced Planck&#39;s constant.</span>
 
+<span class="sd">        a0 : float</span>
+<span class="sd">            Bohr Radius.</span>
+
 <span class="sd">        c0 : float</span>
 <span class="sd">            Speed of light.</span>
 
@@ -332,6 +335,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hbar</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">hbar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">c0</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;speed of light in vacuum&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;electron volt-kelvin relationship&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a0</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;Bohr radius&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">Boltzmann</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tot_net_charge</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -615,7 +619,8 @@
 <div class="viewcode-block" id="Params.PostProcessing"><a class="viewcode-back" href="../S_params.html#S_params.Params.PostProcessing">[docs]</a>    <span class="k">class</span> <span class="nc">PostProcessing</span><span class="p">:</span>
 
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rdf_nbins</span> <span class="o">=</span> <span class="mi">100</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rdf_nbins</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_ka_values</span> <span class="o">=</span> <span class="mi">30</span></div>
 
 <div class="viewcode-block" id="Params.setup"><a class="viewcode-back" href="../S_params.html#S_params.Params.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -785,7 +790,6 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">value</span>
                             <span class="c1"># If Berendsen</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;tau&#39;</span><span class="p">:</span>
-                                <span class="c1"># Notice tau_t should be a number between 0 (not included) and 1</span>
                                 <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">tau</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                                 <span class="k">else</span><span class="p">:</span>
@@ -820,9 +824,6 @@
                         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">value</span>
-                                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">elec_therm</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">mag_type</span> <span class="o">=</span> <span class="n">value</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s1">&#39;Verlet&#39;</span>
 
                 <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Langevin&quot;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="mi">1</span>
@@ -838,6 +839,8 @@
                         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;rdf_nbins&#39;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">PostProcessing</span><span class="o">.</span><span class="n">rdf_nbins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;ssf_no_ka_values&#39;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">PostProcessing</span><span class="o">.</span><span class="n">no_ka_values</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Control&quot;</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">]:</span>
@@ -892,6 +895,12 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">=</span> <span class="n">value</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span>
+
+        <span class="c1"># Check for conflicts in case of magnetic field</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">elec_therm</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">mag_type</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s1">&#39;Verlet&#39;</span>
+
         <span class="k">return</span></div>
 
 <div class="viewcode-block" id="Params.assign_attributes"><a class="viewcode-back" href="../S_params.html#S_params.Params.assign_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">assign_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -910,6 +919,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">me</span> <span class="o">*=</span> <span class="mf">1.0e3</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eps0</span> <span class="o">=</span> <span class="mf">1.0</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">=</span> <span class="mf">1.0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">a0</span> <span class="o">*=</span> <span class="mf">1e2</span>
 
         <span class="c1"># Check mass input</span>
         <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
@@ -986,10 +996,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dq</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span>
         <span class="c1"># Max wavenumber for S(q) and S(q,w)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">q_max</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># hardcode</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">q_max</span> <span class="o">=</span> <span class="mf">30.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span>  <span class="c1"># hardcode, wave vector</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Nq</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_max</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dq</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Nq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PostProcessing</span><span class="o">.</span><span class="n">no_ka_values</span>  <span class="c1">#3.0 * int(self.q_max / self.dq)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ti</span>
         <span class="k">return</span></div></div>
 </pre></div>
@@ -1006,7 +1013,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Apr, 29, 2020.
+        Last updated on May, 04, 2020.
       </span>
 
     </p>

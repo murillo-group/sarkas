@@ -212,7 +212,6 @@
                             <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
                         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;elec_temperature_eV&quot;</span><span class="p">:</span>
-                            <span class="n">T_eV</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                             <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;Te&quot;</span><span class="p">):</span>
@@ -223,17 +222,6 @@
     <span class="c1"># lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi</span>
     <span class="n">lmbda</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">9.0</span>
     <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">lmbda</span> <span class="o">=</span> <span class="n">lmbda</span>
-
-    <span class="n">Te</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Te</span>
-    <span class="n">Ti</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Ti</span>
-
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
-        <span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">*</span> <span class="mf">1.e6</span>  <span class="c1"># /cm^3 --&gt; /m^3</span>
-        <span class="n">ni</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">*</span> <span class="mf">1.e6</span>
-
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;mks&quot;</span><span class="p">:</span>
-        <span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span>  <span class="c1"># /cm^3 --&gt; /m^3</span>
-        <span class="n">ni</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span>
 
     <span class="n">fdint_fdk_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">fdk</span><span class="p">)</span>
     <span class="n">fdint_ifd1h_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">ifd1h</span><span class="p">)</span>
@@ -394,7 +382,8 @@
         <span class="n">temp1</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
         <span class="n">temp2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
         <span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp1</span> <span class="o">+</span> <span class="n">temp2</span><span class="p">)</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span>
-        <span class="n">fr</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp1</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp2</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+        <span class="n">fr</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp1</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp2</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span><span class="o">/</span><span class="n">r</span>
+        <span class="n">fr</span> <span class="o">/=</span> <span class="n">r</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># pot_matrix[2] = Charge factor</span>
         <span class="c1"># pot_matrix[3] = 1.0</span>
@@ -405,10 +394,10 @@
         <span class="n">sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
         <span class="n">exp</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
         <span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">/</span> <span class="n">r</span>
-        <span class="n">fr1</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span>  <span class="c1"># derivative of 1/r</span>
-        <span class="n">fr3</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>  <span class="c1"># derivative of exp</span>
-        <span class="n">fr2</span> <span class="o">=</span> <span class="n">exp</span> <span class="o">/</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">sin</span> <span class="o">-</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">)</span>
-        <span class="n">fr</span> <span class="o">=</span> <span class="n">fr1</span> <span class="o">+</span> <span class="n">fr2</span> <span class="o">+</span> <span class="n">fr3</span>
+        <span class="n">fr1</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span>   <span class="c1"># derivative of 1/r</span>
+        <span class="n">fr3</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>   <span class="c1"># derivative of exp</span>
+        <span class="n">fr2</span> <span class="o">=</span> <span class="p">(</span><span class="n">sin</span> <span class="o">-</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">/</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">fr</span> <span class="o">=</span> <span class="p">(</span><span class="n">fr1</span> <span class="o">+</span> <span class="n">fr2</span> <span class="o">+</span> <span class="n">fr3</span><span class="p">)</span><span class="o">/</span><span class="n">r</span>
 
     <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">fr</span></div>
 </pre></div>
@@ -425,7 +414,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Apr, 29, 2020.
+        Last updated on May, 04, 2020.
       </span>
 
     </p>

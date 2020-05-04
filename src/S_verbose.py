@@ -57,7 +57,7 @@ class Verbose:
             print('kappa = {:1.4e}'.format(params.Potential.matrix[0, 0, 0] * params.aws), file=f_log)
             print('nu = {:1.4e}'.format(params.Potential.nu), file=f_log)
             if params.Potential.nu < 1:
-                print('Exponential decay')
+                print('Exponential decay', file=f_log)
                 print('lambda_p = {:1.4e}'.format(params.Potential.lambda_p), file=f_log)
                 print('lambda_m = {:1.4e}'.format(params.Potential.lambda_m), file=f_log)
                 print('alpha = {:1.4e}'.format(params.Potential.alpha), file=f_log)
@@ -65,7 +65,7 @@ class Verbose:
                 print('b = {:1.4e}'.format(params.Potential.b), file=f_log)
 
             else:
-                print('Oscillatory potential')
+                print('Oscillatory potential', file=f_log)
                 print('gamma_p = {:1.4e}'.format(params.Potential.gamma_p), file=f_log)
                 print('gamma_m = {:1.4e}'.format(params.Potential.gamma_m), file=f_log)
                 print('alpha = {:1.4e}'.format(params.Potential.alphap), file=f_log)
@@ -135,7 +135,7 @@ class Verbose:
         elif params.Potential.type == 'QSP':
             print('e plasma frequency = {:2.6e} [Hz]'.format(params.species[0].wp), file=f_log)
             print('ion plasma frequency = {:2.6e} [Hz]'.format(params.species[1].wp), file=f_log)
-            print('wp dt = {:2.4f}'.format(params.Control.dt * params.species[0].wp), file=f_log)
+            print('w_pe dt = {:2.4f}'.format(params.Control.dt * params.species[0].wp), file=f_log)
         elif params.Potential.type == 'LJ':
             print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(params.wp), file=f_log)
             print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp), file=f_log)
