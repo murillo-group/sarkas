@@ -1,11 +1,9 @@
-'''
-S_thermostat.py
-
-Berendsen only.
-'''
+"""
+Module containing various thermostat. Berendsen only for now.
+"""
 import numpy as np
-import sys
-import scipy.constants as const
+import numba as nb
+
 '''
 class Thermostat:
     def __init__(self, params):
@@ -29,121 +27,123 @@ class Thermostat:
         U = self.type(ptcls, it)
         return U
 '''
+
+
 def Berendsen(ptcls, params, it):
     """ 
     Update particle velocity based on Berendsen thermostat.
     
     Parameters
     ----------
-    ptlcs : class
-        Particles's data. See S_particles.py for the detailed information
+    ptcls : class
+        Particles's data. See ``S_particles.py`` for more information.
     
     params : class
-        Simulation parameters. See S_params for detail information
+        Simulation parameters. See ``S_params.py`` for more information.
 
     it : int
-        timestep
+        Timestep.
     
     References
     ----------
-    [1] Berendsen et al. J Chem Phys 81 3684 (1984)
+    .. [1] `H.J.C. Berendsen et al., J Chem Phys 81 3684 (1984) <https://doi.org/10.1063/1.448118>`_ 
 
     """
-    K, T = calc_kin_temp(ptcls, params)
+    # Dev Notes: this could be Numba'd
+    K, T = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
     species_start = 0
     species_end = 0
     for i in range(params.num_species):
         species_end = species_start + params.species[i].num
-        
-        if (it <= params.Thermostat.timestep):
-            fact = np.sqrt(params.T_desired/T[i])
-        else:
-            fact = np.sqrt( 1.0 + (params.T_desired/T[i] - 1.0)/params.Thermostat.tau)  # eq.(11)
 
-        ptcls.vel[species_start:species_end,:] = ptcls.vel[species_start:species_end,:]*fact
+        if it <= params.Thermostat.timestep:
+            fact = np.sqrt(params.T_desired / T[i])
+        else:
+            fact = np.sqrt(1.0 + (params.T_desired / T[i] - 1.0) / params.Thermostat.tau)  # eq.(11)
+
+        ptcls.vel[species_start:species_end, :] *= fact
         species_start = species_end
 
     return
 
-def calc_kin_temp(ptcls,params):
+
+@nb.njit
+def calc_kin_temp(vel, nums, masses, kB):
     """ 
-    Calculate the kinetic energy and temperature
+    Calculates the kinetic energy and temperature.
 
     Parameters
     ----------
-    ptlcs : class
-        Particles's data. See S_particles.py for the detailed information
-    
-    params : class
-        Simulation's parameters. See S_params for detail information
+    kB: float
+        Boltzmann constant in chosen units.
+
+    masses: array
+        Mass of each species.
+
+    nums: array
+        Number of particles of each species.
+
+    vel: array
+        Particles' velocities.
 
     Returns
     -------
-    K : array_like
-        Kinetic energy of each species
+    K : array
+        Kinetic energy of each species.
 
-    T : array_like
-        Temperature of each species
-
-    Note
-    ----
-    askfask
+    T : array
+        Temperature of each species.
     """
 
-    K = np.zeros( params.num_species)
-    T = np.zeros( params.num_species)
+    num_species = len(masses)
+
+    K = np.zeros(num_species)
+    T = np.zeros(num_species)
 
     species_start = 0
     species_end = 0
-    for i in range(params.num_species):
-        species_end = species_start + params.species[i].num
-        K[i] = 0.5*params.species[i].mass*np.ndarray.sum(ptcls.vel[species_start:species_end, :]**2)
-        T[i] = (2.0/3.0)*K[i]/params.kB/params.species[i].num
+    for i in range(num_species):
+        species_end = species_start + nums[i]
+        K[i] = 0.5 * masses[i] * np.sum(vel[species_start:species_end, :] ** 2)
+        T[i] = (2.0 / 3.0) * K[i] / kB / nums[i]
         species_start = species_end
 
     return K, T
 
-def remove_drift(ptcls, params):
+
+@nb.njit
+def remove_drift(vel, nums, masses):
     """
-    Enforce conservation of total linear momentum
+    Enforce conservation of total linear momentum. Updates ``ptcls.vel``
 
     Parameters
     ----------
-    vel: array_like
-        Particles' velocities
+    vel: array
+        Particles' velocities.
 
-    nums: array_like
-        Number of particles for each species
+    nums: array
+        Number of particles of each species.
 
-    masses: array_like
-        Mass of each species
-
-    Returns
-    -------
-    vel: array_like
-        Particles' velocities
-
-    Notes
-    -----
+    masses: array
+        Mass of each species.
 
     """
-    P = np.zeros( ( params.N , params.d ) )
+    P = np.zeros((len(nums), vel.shape[1]))
 
     species_start = 0
     species_end = 0
 
-    # Calculate total linear momentum
-    for ic in range( params.num_species ):
-        species_end = species_start + params.species[ic].num
-        P[ic,:] = np.sum( ptcls.vel[species_start:species_end,:], axis = 0 )*params.species[ic].mass
+    for ic in range(len(nums)):
+        species_end = species_start + nums[ic]
+        P[ic, :] = np.sum(vel[species_start:species_end, :], axis=0) * masses[ic]
         species_start = species_end
 
-    if ( np.sum(P[:,0]) > 1e-39 or np.sum(P[:,1]) > 1e-39 or np.sum(P[:,2]) > 1e-39 ) : 
+    if np.sum(P[:, 0]) > 1e-40 or np.sum(P[:, 1]) > 1e-40 or np.sum(P[:, 2]) > 1e-40:
         # Remove tot momentum
         species_start = 0
-        for ic in range( params.num_species ):
-            species_end = species_start + params.species[ic].num
-            ptcls.vel[species_start:species_end,:] -= P[ic,:]/(float(params.species[ic].num)*params.species[ic].mass )
+        for ic in range(len(nums)):
+            species_end = species_start + nums[ic]
+            vel[species_start:species_end, :] -= P[ic, :] / (float(nums[ic]) * masses[ic])
             species_start = species_end
-    
+
     return

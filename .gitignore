@@ -7,5 +7,6 @@
 *.swp
 *.npy
 *.npz
+*.idea
 Checkpoint
 .DS_Store

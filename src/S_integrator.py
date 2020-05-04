@@ -1,8 +1,5 @@
 """
-S_integrator.py
-
 Module of various types of integrators 
-
 """
 
 import numpy as np
@@ -12,41 +9,36 @@ import S_calc_force_pp as force_pp
 import S_calc_force_pm as force_pm
 
 class Integrator:
+    """
+    Assign integrator type.
+
+    Parameters
+    ----------
+        params : class
+        Simulation's parameters.
+
+    Attributes
+    ----------
+        update : func
+            Integrator choice. 'Verlet' or 'Magnetic_Verlet'.
+
+    """
+
     def __init__(self, params):
 
-        self.calc_force = calc_pot_acc
-
-        self.params = params
-
-        self.dt = params.Control.dt
-        self.half_dt = 0.5*self.dt
-        self.N = params.N
-        self.d = params.d
-        self.Lv = params.Lv
-        self.PBC = params.Control.PBC
-        self.Lmax_v = params.Lmax_v
-        self.Lmin_v = params.Lmin_v
-        self.N_species = self.params.num_species
-        self.T = self.params.Ti
-
-        if (params.Integrator.type == "Verlet"):
-            if(params.Langevin.on):
-                if(params.Langevin.type == "BBK"):
+        if params.Integrator.type == "Verlet":
+            if params.Langevin.on:
+                if params.Langevin.type == "BBK":
                     self.update = self.Verlet_with_Langevin     # currently only BBK.
                 else:
                     print("No such Langevin type.")
                     sys.exit()
-
-                self.g = self.params.Langevin.gamma
-                self.c1 = (1. - 0.5*self.g*self.dt)
-                self.c2 = 1./(1. + 0.5*self.g*self.dt)
-                self.sqrt_dt = np.sqrt(self.dt)
-
             else:
                 self.update = Verlet
-        elif (params.Integrator.type == "Magnetic_Verlet"):
+        elif params.Integrator.type == "Magnetic_Verlet":
             self.update = Magnetic_Verlet
-            print("Only Verlet integrator is supported. Check your input file, integrator part.")
+        elif params.Integrator.type == "Magnetic_Boris":
+            self.update = Boris_Magnetic_integrator
         else:
             print("Only Verlet integrator is supported. Check your input file, integrator part 2.")
         
@@ -71,7 +63,7 @@ class Integrator:
             Total potential energy
         """
         # Import global parameters (is there a better way to do this?)
-        dt = self.params.dt
+        dt = self.params.Control.dt
         half_dt = 0.5*dt
         N = self.params.N
         d = self.params.d
@@ -100,7 +92,7 @@ class Integrator:
 
         # Import global parameters (is there a better way to do this?)
         # Yes use self.params or just pass params
-        dt = self.params.dt
+        dt = self.params.Control.dt
         N = self.params.N
         d = self.params.d
         Lv = self.params.Lv
@@ -121,11 +113,11 @@ def Verlet(ptcls,params):
 
     Parameters
     ----------
-    ptlcs: class
-           Particles data. See S_particles.py for more info.
+    ptcls: class
+        Particles data. See ``S_particles.py`` for more info.
     
     params : class
-            Simulation's parameters. See S_params.py for more info.
+        Simulation's parameters. See ``S_params.py`` for more info.
 
     Returns
     -------
@@ -135,148 +127,205 @@ def Verlet(ptcls,params):
     """
     
     # First half step velocity update
-    ptcls.vel = ptcls.vel + 0.5*ptcls.acc*params.Control.dt
+    ptcls.vel += 0.5*ptcls.acc*params.Control.dt
 
     # Full step position update
-    ptcls.pos = ptcls.pos + ptcls.vel*params.Control.dt
+    ptcls.pos += ptcls.vel*params.Control.dt
 
     # Periodic boundary condition
     if params.Control.PBC == 1:
-        enforce_pbc(ptcls.pos,params.Lv)
+        enforce_pbc(ptcls.pos,ptcls.pbc_cntr,params.Lv)
         
-    # Compute total potential energy and accleration for second half step velocity update                 
+    # Compute total potential energy and acceleration for second half step velocity update
     U = calc_pot_acc(ptcls,params)
     
     #Second half step velocity update
-    ptcls.vel = ptcls.vel + 0.5*ptcls.acc*params.Control.dt
+    ptcls.vel += 0.5*ptcls.acc*params.Control.dt
 
     return U
 
-def Magnetic_Verlet(ptcls,params):
+def Magnetic_integrator(ptcls, params):
     """
-    Update particles' positions and velocities based on velocity verlet method in the case of a 
-    constant magnetic field. B = (0, 0, B0). For more info see Ref. [1]
-    
-    Parameters
-    ----------
-    ptlcs: class
-           Particles data. See S_particles.py for more info.
-    
-    params : class
-            Simulation's parameters. See S_params.py for more info.
-            
-    Returns
-    -------
-    U : float
-        Total potential energy
-    
-    References
-    ---------
-    [1] Spreiter & Walter Journal of Computational Physics 152, 102–119 (1999) 
-    
-    """
+     Update particles' positions and velocities based on velocity verlet method in the case of a
+     constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [1]_
 
+     Parameters
+     ----------
+     ptlcs: class
+            Particles data. See ``S_particles.py`` for more info.
+
+     params : class
+             Simulation's parameters. See ``S_params.py`` for more info.
+
+     Returns
+     -------
+     U : float
+         Total potential energy.
+
+     References
+     ----------
+     .. [1] `Chin Phys Rev E 77, 066401 (2008) <https://doi.org/10.1103/PhysRevE.77.066401>`_
+
+     """
     # Time step
-    dt = params.dt
-    dt_sq = dt*dt
-    half_dt = 0.5*dt
+    dt = params.Control.dt
+    half_dt = 0.5 * dt
 
-    sp_start = 0 # start index for species loop
-    sp_end = 0 # end index for species loop
+    sp_start = 0  # start index for species loop
 
     # array to temporary store velocities
-    v_temp = np.zeros( (params.N, params.d) )
-
-    for ic in range( params.num_species ):
-        # Cyclotron frequency
-        omega_c = params.species[ic].omega_c
-
-        inv_omc = 1.0/(omega_c)
-        inv_omc_sq = inv_omc*inv_omc
-        omc_dt = omega_c*dt
-        # See eqs.(31)-(32) in Ref.[1]
-        sdt = np.sin( omc_dt )
-        cdt = np.cos( omc_dt )
-        ccodt = cdt - 1.0
-        ssodt = sdt - omc_dt
-
-        sp_end = sp_start + params.species[ic].num
-        # First half step of Verlet position update
-        # eq.(28)-(30) in Ref.[1] 
-        ptcls.pos[sp_start:sp_end,0] = ptcls.pos[sp_start:sp_end,0] \
-            + inv_omc*( ptcls.vel[sp_start:sp_end,0]*sdt - ptcls.vel[sp_start:sp_end,1]*ccodt) \
-            - inv_omc_sq*( ptcls.acc[sp_start:sp_end,0]*ccodt + ptcls.acc[sp_start:sp_end,1]*ssodt )
-        
-        ptcls.pos[sp_start:sp_end,1] = ptcls.pos[sp_start:sp_end,1] \
-            + inv_omc*( ptcls.vel[sp_start:sp_end,1]*sdt + ptcls.vel[sp_start:sp_end,0]*ccodt) \
-            - inv_omc_sq*( ptcls.acc[sp_start:sp_end,1]*ccodt - ptcls.acc[sp_start:sp_end,0]*ssodt )
-
-        ptcls.pos[sp_start:sp_end,2] = ptcls.pos[sp_start:sp_end,2] + ptcls.vel[sp_start:sp_end,2]*dt \
-            + 0.5*ptcls.acc[sp_start:sp_end,2]*dt_sq
-
-        # eq.(33)-(35) Spreiter & Walter Journal of Computational Physics 152, 102–119 (1999) 
-        v_temp[sp_start:sp_end,0] = ptcls.vel[sp_start:sp_end,0]*cdt + ptcls.vel[sp_start:sp_end,1]*sdt \
-            + inv_omc*( ptcls.acc[sp_start:sp_end,0]*sdt - ptcls.acc[sp_start:sp_end,1]*ccodt ) \
-            + inv_omc_sq*( ptcls.acc[sp_start:sp_end,0]*ccodt + ptcls.acc[sp_start:sp_end,1]*ssodt)/dt
-
-        v_temp[sp_start:sp_end,1] = ptcls.vel[sp_start:sp_end,1]*cdt - ptcls.vel[sp_start:sp_end,0]*sdt \
-            + inv_omc*( ptcls.acc[sp_start:sp_end,1]*sdt + ptcls.acc[sp_start:sp_end,0]*ccodt ) \
-            + inv_omc_sq*( ptcls.acc[sp_start:sp_end,1]*ccodt - ptcls.acc[sp_start:sp_end,0]*ssodt)/dt
-        
-        ptcls.vel[sp_start:sp_end,2] = ptcls.vel[sp_start:sp_end,2] + 0.0*half_dt*ptcls.acc[sp_start:sp_end,2]
-
-        sp_start = sp_end
-    
-    # Periodic boundary condition
-    if params.Control.PBC == 1:
-        enforce_pbc(ptcls.pos,params.Lv)
-        
-    # Compute total potential energy and acceleration for second half step velocity update                 
-    U = calc_pot_acc(ptcls,params)
-
-    sp_start = 0
-    sp_end = 0
+    v_B = np.zeros((params.N, params.d))
+    v_F = np.zeros((params.N, params.d))
 
     for ic in range(params.num_species):
+        # Cyclotron frequency
+        omega_c = params.species[ic].omega_c
+        omc_dt = omega_c * half_dt
 
+        sdt = np.sin(omc_dt)
+        cdt = np.cos(omc_dt)
+        ccodt = cdt - 1.0
+
+        sp_end = sp_start + params.species[ic].num
+        # First half step of velocity update
+        v_B[sp_start:sp_end, 0] = ptcls.vel[sp_start:sp_end, 0] * cdt - ptcls.vel[sp_start:sp_end, 1] * sdt
+        v_F[sp_start:sp_end, 0] = - ccodt / omega_c * ptcls.acc[sp_start:sp_end,1] \
+                                  + sdt / omega_c * ptcls.acc[sp_start:sp_end, 0]
+
+        v_B[sp_start:sp_end, 1] = ptcls.vel[sp_start:sp_end, 1] * cdt + ptcls.vel[sp_start:sp_end, 0] * sdt
+        v_F[sp_start:sp_end, 1] = ccodt / omega_c * ptcls.acc[sp_start:sp_end, 0] \
+                                  + sdt / omega_c * ptcls.acc[sp_start:sp_end, 1]
+
+        ptcls.vel[sp_start:sp_end, 0] = v_B[sp_start:sp_end, 0] + v_F[sp_start:sp_end, 0]
+        ptcls.vel[sp_start:sp_end, 1] = v_B[sp_start:sp_end, 1] + v_F[sp_start:sp_end, 1]
+        ptcls.vel[sp_start:sp_end, 2] += half_dt * ptcls.acc[sp_start:sp_end, 2]
+
+        # Position update
+        ptcls.pos[sp_start:sp_end, 0] += (v_B[sp_start:sp_end, 0] + v_F[sp_start:sp_end, 0])*dt
+        ptcls.pos[sp_start:sp_end, 1] += (v_B[sp_start:sp_end, 1] + v_F[sp_start:sp_end, 1])*dt
+        ptcls.pos[sp_start:sp_end, 2] += ptcls.vel[sp_start:sp_end, 2]*dt
+
+        sp_start = sp_end
+
+    # Periodic boundary condition
+    if params.Control.PBC == 1:
+        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
+
+    # Compute total potential energy and acceleration for second half step velocity update
+    U = calc_pot_acc(ptcls, params)
+
+    sp_start = 0
+
+    for ic in range(params.num_species):
         omega_c = params.species[ic].omega_c
 
-        inv_omc = 1.0/(omega_c)
-        inv_omc_sq = inv_omc*inv_omc
-        omc_dt = omega_c*dt
-        sdt = np.sin( omc_dt )
-        cdt = np.cos( omc_dt )
+        omc_dt = omega_c * dt
+        sdt = np.sin(omc_dt)
+        cdt = np.cos(omc_dt)
 
         ccodt = cdt - 1.0
-        ssodt = sdt - omc_dt
 
         sp_end = sp_start + params.species[ic].num
 
         # Second half step velocity update
-        # eq.(28)-(30) in Ref.[1]
-        ptcls.vel[sp_start:sp_end,0] = v_temp[sp_start:sp_end,0] \
-            - inv_omc_sq*( ptcls.acc[sp_start:sp_end,0]*ccodt + ptcls.acc[sp_start:sp_end,1]*ssodt )/dt 
+        ptcls.vel[sp_start:sp_end, 0] = (v_B[sp_start:sp_end, 0] + v_F[sp_start:sp_end, 0]) * cdt \
+                                       - (v_B[sp_start:sp_end, 1] + v_F[sp_start:sp_end, 1]) * sdt \
+                                       - ccodt / omega_c * ptcls.acc[sp_start:sp_end, 1] \
+                                       + sdt / omega_c * ptcls.acc[sp_start:sp_end, 0]
 
-        ptcls.vel[sp_start:sp_end,1] = v_temp[sp_start:sp_end,1] \
-            - inv_omc_sq*( ptcls.acc[sp_start:sp_end,1]*ccodt - ptcls.acc[sp_start:sp_end,0]*ssodt )/dt 
+        ptcls.vel[sp_start:sp_end, 1] = (v_B[sp_start:sp_end, 1] + v_F[sp_start:sp_end, 1]) * cdt \
+                                  + (v_B[sp_start:sp_end, 0] + v_F[sp_start:sp_end, 0]) * sdt \
+                                  + ccodt / omega_c * ptcls.acc[sp_start:sp_end, 0] \
+                                  + sdt / omega_c * ptcls.acc[sp_start:sp_end, 1]
 
-        ptcls.vel[sp_start:sp_end,2] = ptcls.vel[sp_start:sp_end,2] + 0.0*half_dt*ptcls.acc[sp_start:sp_end,2]
-        
+        ptcls.vel[sp_start:sp_end, 2] += half_dt * ptcls.acc[sp_start:sp_end, 2]
+
         sp_start = sp_end
 
     return U
 
+def Boris_Magnetic_integrator(ptcls, params):
+    """
+     Update particles' positions and velocities using the Boris algorithm in the case of a
+     constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. [1]_
+
+     Parameters
+     ----------
+     ptlcs: class
+            Particles data. See ``S_particles.py`` for more info.
+
+     params : class
+             Simulation's parameters. See ``S_params.py`` for more info.
+
+     Returns
+     -------
+     U : float
+         Total potential energy.
+
+     References
+     ----------
+     .. [1] `Chin Phys Rev E 77, 066401 (2008) <https://doi.org/10.1103/PhysRevE.77.066401>`_
+
+     """
+    # Time step
+    dt = params.Control.dt
+    half_dt = 0.5 * dt
+
+    sp_start = 0  # start index for species loop
+
+    # array to temporary store velocities
+    v_B = np.zeros((params.N, params.d))
+    v_F = np.zeros((params.N, params.d))
+
+    # First step update velocities
+    ptcls.vel += 0.5*ptcls.acc*params.Control.dt
+
+    # Rotate velocities
+    for ic in range(params.num_species):
+        # Cyclotron frequency
+        omega_c = params.species[ic].omega_c
+        omc_dt = omega_c * half_dt
+
+        sdt = np.sin(omc_dt)
+        cdt = np.cos(omc_dt)
+
+        sp_end = sp_start + params.species[ic].num
+        # First half step of velocity update
+        v_B[sp_start:sp_end, 0] = ptcls.vel[sp_start:sp_end, 0] * cdt - ptcls.vel[sp_start:sp_end, 1] * sdt
+
+        v_B[sp_start:sp_end, 1] = ptcls.vel[sp_start:sp_end, 1] * cdt + ptcls.vel[sp_start:sp_end, 0] * sdt
+
+        ptcls.vel[sp_start:sp_end, 0] = v_B[sp_start:sp_end, 0]
+        ptcls.vel[sp_start:sp_end, 1] = v_B[sp_start:sp_end, 1]
+
+        sp_start = sp_end
+
+    # Second step update velocities
+    ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
+
+    # Full step position update
+    ptcls.pos += ptcls.vel * params.Control.dt
+
+    # Periodic boundary condition
+    if params.Control.PBC == 1:
+        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
+
+    # Compute total potential energy and acceleration for second half step velocity update
+    U = calc_pot_acc(ptcls, params)
+
+    return U
+
 def Verlet_with_Langevin(ptcls, params):
-    """ 
+    """
     Calculate particles dynamics using the Velocity Verlet algorithm and Langevin damping.
 
     Parameters
     ----------
     ptlcs: class
-           Particles data. See S_particles.py for more info.
+        Particles data. See ``S_particles.py`` for more info.
     
     params : class
-            Simulation's parameters. See S_params.py for more info.
+        Simulation's parameters. See ``S_params.py`` for more info.
             
     Returns
     -------
@@ -284,9 +333,8 @@ def Verlet_with_Langevin(ptcls, params):
         Total potential energy
     """
 
-    dt = params.dt
+    dt = params.Control.dt
     g = params.Langevin.gamma
-    Gamma = params.Potential.Gamma
     N = ptcls.pos.shape[0]
 
     rtdt = np.sqrt(dt)
@@ -301,17 +349,17 @@ def Verlet_with_Langevin(ptcls, params):
         sig = np.sqrt(2. * g*params.kB*params.T_desired/params.species[ic].mass)
     
         c1 = (1. - 0.5*g*dt)
-        c2 = 1./(1. + 0.5*g*dt)
+        # c2 = 1./(1. + 0.5*g*dt)
         
         sp_start = sp_end
         sp_end += params.species[ic].num
 
-        ptcls.pos[sp_start:sp_end,:] = ptcls.pos[sp_start:sp_end,:] + c1*dt*ptcls.vel[sp_start:sp_end,:]\
+        ptcls.pos[sp_start:sp_end,:] += c1*dt*ptcls.vel[sp_start:sp_end,:]\
                     + 0.5*dt**2*ptcls.acc[sp_start:sp_end,:] + 0.5*sig*dt**1.5*beta
 
     # Periodic boundary condition
     if params.Control.PBC == 1:
-        enforce_pbc(ptcls.pos,params.Lv)
+        enforce_pbc(ptcls.pos,ptcls.pbc_cntr,params.Lv)
 
     acc_old = ptcls.acc
     U = calc_pot_acc(ptcls,params)
@@ -334,60 +382,58 @@ def Verlet_with_Langevin(ptcls, params):
     return U
 
 @nb.njit
-def enforce_pbc(pos, BoxVector):
+def enforce_pbc(pos, cntr, BoxVector):
     """ 
-    Enforce Periodic Boundary Conditions. 
+    Enforce Periodic Boundary conditions. 
 
     Parameters
     ----------
-    pos : array_like
-          particles' positions. See S_particles.py for more info.
+    pos : array
+        particles' positions. See ``S_particles.py`` for more info.
 
-    BoxVector : array_like
-                Box Dimensions
+    cntr: array
+        Counter for the number of times each particle get folded back into the main simulation box
 
-    Returns
-    -------
-    pos : array_like
-        updated particles' positions
-    
+    BoxVector : array
+        Box Dimensions.
+
     """
 
     # Loop over all particles
-    for i in np.arange(pos.shape[0]):
-        for p in np.arange(pos.shape[1]):
+    for p in np.arange(pos.shape[0]):
+        for d in np.arange(pos.shape[1]):
             
             # If particle is outside of box in positive direction, wrap to negative side
-            if pos[i, p] > BoxVector[p]:
-                pos[i, p] = pos[i, p] - BoxVector[p]
-            
+            if pos[p, d] > BoxVector[d]:
+                pos[p, d] -= BoxVector[d]
+                cntr[p, d] += 1
             # If particle is outside of box in negative direction, wrap to positive side
-            if pos[i, p] < 0.0:
-                pos[i, p] = pos[i, p] + BoxVector[p]
-
+            if pos[p, d] < 0.0:
+                pos[p, d] += BoxVector[d]
+                cntr[p, d] -= 1
     return
 
 @nb.njit
 def calc_dipole(pos,charge):
     """ 
-    Calculate the dipole due to all charges.
+    Calculate the dipole due to all charges. See Ref. [2]_ for explanation.
 
     Parameters
     ----------
-    pos : array_like
-          particles' positions. See S_particles.py for more info.
+    pos : array
+        Particles' positions. See ``S_particles.py`` for more info.
 
-    charge : array_like
-            particles' charges. See S_particles.py for more info.
+    charge : array
+        Array containing the charge of each particle. See ``S_particles.py`` for more info.
     
     Returns
     -------
-    dipole : array_like
-            dipole
+    dipole : array
+        Net dipole
     
     References
     ----------
-    [1] Caillol J Chem Phys 101 6080 (1994).
+    .. [2] `J-M. Caillol, J Chem Phys 101 6080 (1994) <https://doi.org/10.1063/1.468422>`_
 
     """
     dipole = np.zeros( 3 )
@@ -403,46 +449,44 @@ def calc_pot_acc(ptcls,params):
     Parameters
     ----------
     ptcls : class
-            Particles' data. See S_particles for more information
+        Particles' data. See ``S_particles.py`` for more information.
 
     params : class
-            Simulations data. See S_params for more information
+        Simulation's parameters. See ``S_params.py`` for more information.
 
     Returns
     -------
     U : float
-        Potential
+        Total Potential.
 
     """
-    
-    if (params.Potential.method == 'brute'):
-        U, acc = force_pp.update_brute(ptcls,params)
-        ptcls.acc = acc
+    if (params.Potential.LL_on):
+        U_short, acc_s_r = force_pp.update(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv, \
+            params.Potential.rc, params.Potential.matrix, params.force, params.Control.measure, ptcls.rdf_hist)
     else:
-        if (params.Potential.LL_on):
-            U_short, acc_s_r = force_pp.update(ptcls,params)
-        else:
-            U_short, acc_s_r = force_pp.update_0D(ptcls,params)
-    
-        ptcls.acc = acc_s_r
+        U_short, acc_s_r = force_pp.update_0D(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv, \
+            params.Potential.rc, params.Potential.matrix, params.force, params.Control.measure, ptcls.rdf_hist)
 
-        U = U_short
+    ptcls.acc = acc_s_r
 
-        if (params.P3M.on):
-            U_long, acc_l_r = force_pm.update(ptcls,params)
-            # Ewald Self-energy
-            U_Ew_self = params.QFactor*params.P3M.G_ew/np.sqrt(np.pi)
-            # Neutrality condition
-            U_neutr = - np.pi*params.tot_net_charge**2.0/(2.0*params.box_volume*params.P3M.G_ew**2)
+    U = U_short
 
-            U = U + U_long - U_Ew_self + U_neutr
-            ptcls.acc = ptcls.acc + acc_l_r
+    if (params.P3M.on):
+        U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charge, ptcls.mass,\
+            params.P3M.MGrid, params.Lv, params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v,params.P3M.cao)
+        # Ewald Self-energy
+        U_Ew_self = params.QFactor*params.P3M.G_ew/np.sqrt(np.pi)
+        # Neutrality condition
+        U_neutr = - np.pi*params.tot_net_charge**2.0/(2.0*params.box_volume*params.P3M.G_ew**2)
+
+        U += U_long - U_Ew_self + U_neutr
+        ptcls.acc += acc_l_r
         
     if not (params.Potential.type == "LJ"):
         # Mie Energy of charged systems
         dipole = calc_dipole(ptcls.pos,ptcls.charge)
-        U_MIE = 2.0*np.pi*(dipole[0]**2 + dipole[1]**2 + dipole[2]**2)/(3.0*params.box_volume)
+        U_MIE = 2.0*np.pi*(dipole[0]**2 + dipole[1]**2 + dipole[2]**2)/(3.0*params.box_volume*params.fourpie0)
 
-        U = U + U_MIE
+        U += U_MIE
 
     return U

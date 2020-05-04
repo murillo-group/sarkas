@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -178,26 +180,28 @@
             
   <div class="section" id="module-S_pot_EGS">
 <span id="s-pot-egs-module"></span><h1>S_pot_EGS module<a class="headerlink" href="#module-S_pot_EGS" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="S_pot_EGS.EGS_force_P3M">
-<code class="sig-prename descclassname">S_pot_EGS.</code><code class="sig-name descname">EGS_force_P3M</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">acc_s_r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_EGS.html#EGS_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_EGS.EGS_force_P3M" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Module for handling EGS Potential as described in Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a></p>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.91.033104">Stanton and Murillo Phys Rev E 91 033104 (2015)</a></p>
+</dd>
+</dl>
 <dl class="function">
 <dt id="S_pot_EGS.EGS_force_PP">
 <code class="sig-prename descclassname">S_pot_EGS.</code><code class="sig-name descname">EGS_force_PP</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_EGS.html#EGS_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_EGS.EGS_force_PP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate Potential and force between particles using the EGS Potential.</p>
+<dd><p>Calculates Potential and force between particles using the EGS Potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>float</em>) – particles’ distance</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – EGS potential parameters. See details below and Stanton et al. PRE 91, 033104 (2015) for more info</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Particles’ distance.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – EGS potential parameters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U</strong> (<em>float</em>) – potential</p></li>
-<li><p><strong>fr</strong> (<em>float</em>) – force</p></li>
+<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
+<li><p><strong>fr</strong> (<em>float</em>) – Force.</p></li>
 </ul>
 </p>
 </dd>
@@ -205,36 +209,18 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="S_pot_EGS.EGS_setup">
-<code class="sig-prename descclassname">S_pot_EGS.</code><code class="sig-name descname">EGS_setup</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_EGS.html#EGS_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_EGS.EGS_setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup simulation’s parameters for Yukawa interaction</p>
+<dt id="S_pot_EGS.setup">
+<code class="sig-prename descclassname">S_pot_EGS.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_EGS.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_EGS.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with EGS potential parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info.</p></li>
-<li><p><strong>filename</strong> (<em>string</em>) – Input filename</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Input filename.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>none</p>
-</dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>Reference Stanton and Murillo Phys Rev E 91 033104 (2015)</p>
-<p>EGS_matrix[0,i,j] : kappa = 1.0/lambda_TF or given as input. Same value for all species.
-EGS_matrix[1,i,j] : nu = eq.(14) of Ref
-EGS_matrix[2,i,j] : qi qj/(4 pi esp0) Force factor between two particles.
-EGS_matrix[3:6,i,j] : other parameters see below.
-EGS_matrix[7,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species</p>
 </dd></dl>
-
-<dl class="function">
-<dt id="S_pot_EGS.gf_opt">
-<code class="sig-prename descclassname">S_pot_EGS.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param">MGrid</em>, <em class="sig-param">aliases</em>, <em class="sig-param">BoxLv</em>, <em class="sig-param">p</em>, <em class="sig-param">N</em>, <em class="sig-param">pot_matrix</em>, <em class="sig-param">rcut</em>, <em class="sig-param">fourpie0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_EGS.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_EGS.gf_opt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 
@@ -260,7 +246,7 @@ EGS_matrix[7,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on May, 04, 2020.
       </span>
 
     </p>

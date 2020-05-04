@@ -1,22 +1,22 @@
-# keywords: OCP, Yukawa, PP, mks, random_no_reject
+# keywords: OCP, Yukawa, P3M, mks, random_no_reject
 Particles:
     - species:
-        name: ion1
-        number_density: 1.e+26       # /m^3
-        mass: 1.e-30                # kg, ptcl mass of ion1
-        num: 1000                    # total number of particles of ion1 
-        Z: 4                        # degree of ionization
-        temperature: 1.e+3
-
+        name: H
+        number_density: 1.62e+30       # /m^3
+        mass: 1.673e-27                # kg, ptcl mass of ion1
+        num: 2000                    # total number of particles of ion1 
+        Z: 1.0                        # degree of ionization
+        temperature: 2.244712e+03
+    
     - load:
         method: random_no_reject    # loading method
-        rand_seed: 123              # random seed
+        rand_seed: 123456789        # random seed
 
 Potential: 
     - type: Yukawa                  # potential type
-    - method: PP                    # Linked-cell
-    - rc: 4.67300924e-9             # cut-off radius, meter
-    - elec_temperature: 3.e+5
+    - method: PP
+    - rc: 3.296866e-10             # cut-off radius, meter
+    - kappa: 2.0
 
 Integrator:
     - type: Verlet                  # velocity integrator type
@@ -24,16 +24,18 @@ Integrator:
 Thermostat:
     - type: Berendsen               # thermostat type
     - timestep: 2000
-    - tau: 10.0
-    
+    - tau: 5.0
+
 Control:
     - units: mks                    # units
-    - dt: 4.64305707e-18            # sec
-    - Neq: 20000                      # number of timesteps for the equilibrium
-    - Nstep: 10000                    # number of timesteps afater the equilibrium
+    - dt: 1.519123e-17            # sec
+    - Neq: 30000                      # number of timesteps for the equilibrium
+    - Nsteps: 50000                    # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
     - writexyz: no                  # no xyz output
-    - dump_step: 100                # dump time step
+    - dump_step: 10                # dump time step
     - verbose: yes
-    - output_dir: yukawa_mks        # dir name to save data. The default is "Checkpoint"
+    - output_dir: YOCP_mks_pp        # dir name to save data. The default is "Checkpoint"
 
+PostProcessing:
+    - rdf_nbins: 100

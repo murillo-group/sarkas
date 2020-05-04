@@ -22,6 +22,7 @@ Particles:
 
 Potential: 
     - type: QSP                 # potential type
+    - QSP_type: Deutsch
     - method: P3M                    # Linked-cell
     - rc: 2.691278e-10     # cut-off radius, meter
 
@@ -36,15 +37,19 @@ Integrator:
 
 Thermostat:
     - type: Berendsen               # thermostat type
+    - tau: 10.
+    - timestep: 2000
 
 Control:
     - units: mks                    # units
     - dt: 3.16e-19            # sec
     - Neq: 50000                      # number of timesteps for the equilibrium
-    - Nstep: 10000                   # number of timesteps after the equilibrium
+    - Nsteps: 50000                   # number of timesteps after the equilibrium
     - BC: periodic                  # periodic boundary condition
     - writexyz: yes                  # no xyz output
-    - dump_step: 100                # dump time step
-    - verbose: yes
-    - output_dir: QSP_P3M2       # dir name to save data. The default is "Checkpoint"
-    - fname_app: QSP_P3M2
+    - dump_step: 50                # dump time step
+    - verbose: no
+    - output_dir: QSP_mks       # dir name to save data. The default is "Checkpoint"
+
+PostProcessing:
+    - rdf_nbins: 100

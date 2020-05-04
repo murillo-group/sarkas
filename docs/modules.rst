@@ -10,6 +10,8 @@ src
    S_integrator
    S_params
    S_particles
+   S_plots
+   S_postprocessing
    S_pot_Coulomb
    S_pot_EGS
    S_pot_LJ

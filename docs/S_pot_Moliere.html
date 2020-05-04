@@ -95,6 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
@@ -178,57 +180,46 @@
             
   <div class="section" id="module-S_pot_Moliere">
 <span id="s-pot-moliere-module"></span><h1>S_pot_Moliere module<a class="headerlink" href="#module-S_pot_Moliere" title="Permalink to this headline">¶</a></h1>
-<p>S_pot_Moliere.py</p>
-<p>Module for handling Moliere Potentials</p>
+<p>Module for handling Moliere Potential as given by Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a></p>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevB.15.2458">W.D. Wilson et al., Phys Rev B 15, 2458 (1977)</a></p>
+</dd>
+</dl>
 <dl class="function">
 <dt id="S_pot_Moliere.Moliere_force_PP">
 <code class="sig-prename descclassname">S_pot_Moliere.</code><code class="sig-name descname">Moliere_force_PP</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">pot_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Moliere.html#Moliere_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Moliere.Moliere_force_PP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the PP force between particles using the Moliere Potential.</p>
+<dd><p>Calculates the PP force between particles using the Moliere Potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>float</em>) – particles’ distance</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – Moliere potential parameters according to Wilson et al. PRB 15, 2458 (1977)</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Particles’ distance.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – Moliere potential parameters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>phi</strong> (<em>float</em>) – potential</p></li>
-<li><p><strong>fr</strong> (<em>float</em>) – force</p></li>
+<li><p><strong>phi</strong> (<em>float</em>) – Potential</p></li>
+<li><p><strong>fr</strong> (<em>float</em>) – Force</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>See Wilson et al. PRB 15 2458 (1977) for parameters’ details
-pot_matrix[0] = C_1
-pot_matrix[1] = C_2
-pot_matrix[2] = C_3
-pot_matrix[3] = b_1
-pot_matrix[4] = b_2
-pot_matrix[5] = b_3</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="S_pot_Moliere.Moliere_setup">
 <code class="sig-prename descclassname">S_pot_Moliere.</code><code class="sig-name descname">Moliere_setup</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Moliere.html#Moliere_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Moliere.Moliere_setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup simulation’s parameters for Moliere-like potential</p>
+<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Moliere potential paramters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info.</p></li>
-<li><p><strong>filename</strong> (<em>string</em>) – Input filename</p></li>
+<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See <code class="docutils literal notranslate"><span class="pre">S_params.py</span></code> for more info.</p></li>
+<li><p><strong>filename</strong> (<em>string</em>) – Input filename.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>none</p>
-</dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>Reference Wilson et al. PRB 15, 2458 (1977)</p>
 </dd></dl>
 
 </div>
@@ -255,7 +246,7 @@ pot_matrix[5] = b_3</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 14, 2020.
+        Last updated on May, 04, 2020.
       </span>
 
     </p>
