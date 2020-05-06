@@ -150,7 +150,7 @@ def Moliere_force_PP(r, pot_matrix):
         factor1 = r * pot_matrix[i + 3]
         factor2 = pot_matrix[i] / r
         U += factor2 * np.exp(-factor1)
-        force += np.exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i])
+        force += np.exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i])/r
 
     force = force * pot_matrix[6]
     U = U * pot_matrix[6]

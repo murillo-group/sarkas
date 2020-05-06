@@ -3,7 +3,7 @@ Particles:
     - species:
         name: e
         number_density: 1.6e+24       # /cc
-        mass: 9.1093837015e-27              
+        mass: 9.1093837015e-28
         num: 512                    # total number of particles of ion1 
         Z: -1.0                        # degree of ionization
         temperature: 6.32e+5 

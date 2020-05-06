@@ -195,6 +195,7 @@ if params.Control.verbose:
     print("\n------------- Production -------------")
 
 vscale = params.aws*params.wp
+ascale = params.aws*params.wp**2
 params.Control.measure = True
 
 for it in range(it_start, Nt):
@@ -227,8 +228,8 @@ for it in range(it_start, Nt):
             f_xyz.writelines("name x y z vx vy vz ax ay az\n")
             np.savetxt(f_xyz, np.c_[ptcls.species_name, \
                                     ptcls.pos / params.aws, \
-                                    ptcls.vel / (params.wp * params.aws), \
-                                    ptcls.acc / (params.aws * params.wp ** 2)],
+                                    ptcls.vel / vscale, \
+                                    ptcls.acc / ascale],
                        fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
 
     # Un-comment for n(q,t) calculation
