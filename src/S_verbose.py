@@ -89,8 +89,7 @@ class Verbose:
                   file=f_log)
             print("ion de Broglie wavelength / a_ws = {:2.6e} ".format(
                 params.Potential.matrix[0, 1, 1] / np.sqrt(2.0) / params.ai), file=f_log)
-            print("e-i Coupling Parameter = {:3.3f} ".format(
-                abs(params.Potential.matrix[1, 0, 1]) / (params.ai * params.kB * params.Ti)), file=f_log)
+            print("e-i Coupling Parameter = {:3.3f} ".format(params.Potential.Gamma_eff), file=f_log)
             print("rs Coupling Parameter = {:3.3f} ".format(params.rs), file=f_log)
 
         if params.Magnetic.on:

@@ -76,15 +76,12 @@ class Particles:
         # No. of independent rdf
         self.no_grs = int(params.num_species * (params.num_species + 1) / 2)
         self.rdf_nbins = params.PostProcessing.rdf_nbins
-        self.rdf_hist = np.zeros((self.rdf_nbins, self.no_grs))
+        self.rdf_hist = np.zeros((self.rdf_nbins, self.params.num_species, self.params.num_species))
 
         return
 
     def assign_attributes(self):
         """ Assign particles attributes """
-
-        self.mass = np.zeros(self.N)  # mass of each particle
-        self.charge = np.zeros(self.N)  # charge of each particle
 
         species_start = 0
         species_end = 0

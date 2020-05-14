@@ -83,8 +83,8 @@
             
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
@@ -181,9 +181,9 @@
   <div class="section" id="module-S_thermostat">
 <span id="s-thermostat-module"></span><h1>S_thermostat module<a class="headerlink" href="#module-S_thermostat" title="Permalink to this headline">¶</a></h1>
 <p>Module containing various thermostat. Berendsen only for now.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="S_thermostat.Berendsen">
-<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">Berendsen</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em>, <em class="sig-param">it</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#Berendsen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.Berendsen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">Berendsen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#Berendsen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.Berendsen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particle velocity based on Berendsen thermostat.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -202,9 +202,9 @@
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_thermostat.calc_kin_temp">
-<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">calc_kin_temp</code><span class="sig-paren">(</span><em class="sig-param">vel</em>, <em class="sig-param">nums</em>, <em class="sig-param">masses</em>, <em class="sig-param">kB</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#calc_kin_temp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.calc_kin_temp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">calc_kin_temp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vel</span></em>, <em class="sig-param"><span class="n">nums</span></em>, <em class="sig-param"><span class="n">masses</span></em>, <em class="sig-param"><span class="n">kB</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#calc_kin_temp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.calc_kin_temp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the kinetic energy and temperature.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -225,9 +225,9 @@
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_thermostat.remove_drift">
-<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">remove_drift</code><span class="sig-paren">(</span><em class="sig-param">vel</em>, <em class="sig-param">nums</em>, <em class="sig-param">masses</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#remove_drift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.remove_drift" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">remove_drift</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vel</span></em>, <em class="sig-param"><span class="n">nums</span></em>, <em class="sig-param"><span class="n">masses</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#remove_drift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.remove_drift" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enforce conservation of total linear momentum. Updates <code class="docutils literal notranslate"><span class="pre">ptcls.vel</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -264,7 +264,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 04, 2020.
+        Last updated on May, 13, 2020.
       </span>
 
     </p>

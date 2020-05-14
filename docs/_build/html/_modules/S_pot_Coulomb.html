@@ -81,8 +81,8 @@
             
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -285,7 +285,7 @@
     <span class="n">U_s_r</span> <span class="o">=</span> <span class="n">pot_matrix_ij</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
     <span class="n">f1</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span>
     <span class="n">f2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
-    <span class="n">fr</span> <span class="o">=</span> <span class="n">pot_matrix_ij</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span><span class="p">)</span>
+    <span class="n">fr</span> <span class="o">=</span> <span class="n">pot_matrix_ij</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span><span class="p">)</span><span class="o">/</span><span class="n">r</span>
 
     <span class="k">return</span> <span class="n">U_s_r</span><span class="p">,</span> <span class="n">fr</span></div>
 
@@ -469,7 +469,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 04, 2020.
+        Last updated on May, 13, 2020.
       </span>
 
     </p>

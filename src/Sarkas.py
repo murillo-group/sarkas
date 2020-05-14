@@ -51,7 +51,6 @@ verbose = Verbose(params)
 Nt = params.Control.Nsteps  # number of time steps
 N = params.total_num_ptcls
 
-
 #######################
 # Un-comment the following if you want to calculate n(q,t)
 # n_q_t = np.zeros((params.Control.Nt, params.Nq, 3), dtype="complex128")
@@ -194,9 +193,12 @@ else:
 if params.Control.verbose:
     print("\n------------- Production -------------")
 
-vscale = params.aws*params.wp
-ascale = params.aws*params.wp**2
+vscale = params.aws * params.wp
+ascale = params.aws * params.wp ** 2
+# Update measurement flag for rdf
 params.Control.measure = True
+# Restart the pbc counter
+ptcls.pbc_cntr = np.zeros((params.total_num_ptcls, params.d))
 
 for it in range(it_start, Nt):
     # Move the particles and calculate the potential

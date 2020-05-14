@@ -83,8 +83,8 @@
             
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#coulomb-potential">Coulomb Potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#yukawa-potential">Yukawa Potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quantum-statistical-potential">Quantum Statistical Potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
@@ -165,13 +166,13 @@
            <div itemprop="articleBody">
             
   <div class="section" id="potentials">
-<h1>Potentials<a class="headerlink" href="#potentials" title="Permalink to this headline">¶</a></h1>
-<p>Sarkas aims to support a variety of potentials both built-in and user defined. Currently the potential functions that are implemented include</p>
+<span id="id1"></span><h1>Potentials<a class="headerlink" href="#potentials" title="Permalink to this headline">¶</a></h1>
+<p>Sarkas supports a variety of potentials both built-in and user defined. Currently the potential functions that are implemented include</p>
 <ul class="simple">
 <li><p>Coulomb</p></li>
 <li><p>Yukawa</p></li>
-<li><p>Exact Gradient-corrected Screened Yukawa (EGS)</p></li>
-<li><p>Quantum Statistical Potential (QSP)</p></li>
+<li><p>Exact Gradient-corrected Screened Yukawa</p></li>
+<li><p>Quantum Statistical Potential</p></li>
 <li><p>Moliere</p></li>
 <li><p>Lennard Jones</p></li>
 </ul>
@@ -191,7 +192,7 @@ All the equations will be given in cgs units, however, for easy conversion, we d
 <h2>Yukawa Potential<a class="headerlink" href="#yukawa-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Yukawa potential, or screened Coulomb potential, is widely used in the plasma community to describe the interactions of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two ions of charge number <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> is given by</p>
 <div class="math notranslate nohighlight">
-\[V(r) = \frac{Z_{a}Z_b\bar{e}^2}{r}e^{-\kappa r},\]</div>
+\[V(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{-\kappa r},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\kappa = 1/\lambda_{\text{TF}}\)</span> is the screening parameter. In Sarkas this can be either given as an input or it can be calculated from the Thomas-Fermi formula</p>
 <div class="math notranslate nohighlight">
 \[\frac{1}{\lambda_{TF}^2} = \frac{4 \sqrt{\pi} \bar{e}^2 \beta}{\Lambda_e^3}\frac{\mathcal I_{-1/2}(\eta)}{2},\]</div>
@@ -203,19 +204,19 @@ Notice that when <span class="math notranslate nohighlight">\(\kappa = 0\)</span
 </div>
 <div class="section" id="exact-gradient-corrected-screened-yukawa-potential">
 <h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
-<p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo <a class="footnote-reference brackets" href="#id2" id="id1">1</a>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
+<p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo <a href="#id3"><span class="problematic" id="id2">[1]_</span></a>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[\nu = - 3 \lambda \frac{4\pi \bar{e}^2 \beta }{ 4 \pi \Lambda_{e}} \mathcal I_{-3/2}(\eta),\]</div>
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a correction factor; <span class="math notranslate nohighlight">\(\lambda = 1/9\)</span> for the true gradient corrected Thomas-Fermi model and <span class="math notranslate nohighlight">\(\lambda = 1\)</span> for the traditional  von Weissaecker model. In the case <span class="math notranslate nohighlight">\(\nu &lt; 1\)</span> the EGS potential takes the form</p>
 <div class="math notranslate nohighlight">
-\[V(r) = \frac{Z_aZ_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],\]</div>
+\[V(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],\]</div>
 <p>with</p>
 <div class="math notranslate nohighlight">
 \[\lambda_\pm^2 = \frac{\nu \lambda_{\textrm{TF}}^2}{2b \pm 2b\sqrt{1 - \nu}}, \quad \alpha = \frac{b}{\sqrt{b - \nu}},\]</div>
 <p>where the parameter <span class="math notranslate nohighlight">\(b\)</span> arises from exchange-correlation contributions, see below.
 On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</span>, the pair potential has the form</p>
 <div class="math notranslate nohighlight">
-\[V(r) = \frac{Z_aZ_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}\]</div>
+\[V(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}\]</div>
 <p>with</p>
 <div class="math notranslate nohighlight">
 \[\gamma_\pm^2 = \frac{\nu\lambda_{\textrm{TF}}^2}{\sqrt{\nu} \pm b}, \quad \alpha' = \frac{b}{\sqrt{\nu - b}}.\]</div>
@@ -230,13 +231,25 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 <div class="math notranslate nohighlight">
 \[D \left ( \Theta \right ) = 1 + 3.9431\Theta^2 + 7.9138\Theta^4.\]</div>
 </div>
+<div class="section" id="quantum-statistical-potential">
+<h2>Quantum Statistical Potential<a class="headerlink" href="#quantum-statistical-potential" title="Permalink to this headline">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\phi_{QSP}(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left ( 1 - e^{ - 2\pi r/\Lambda_{ab}}\right ) + \delta_{ae} \delta_{be} k_BT \ln(2) \exp \left \{ - \frac{4 \pi r^2}{\Lambda_{ab}^2 \ln (2)} \right \}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}},\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\mu_{ab} = \frac{m_a m_b}{m_a + m_b}\]</div>
+<p>is the thermal de Broglie wavelength between particles :math: <cite>a</cite> and :math: <cite>b</cite>. The last term, present only in the interaction between two electrons, accounts for spin-averaged effects. The choice of this potential is due to its widespread use in the High Energy Density Physics community.</p>
+</div>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.93.043203">L. Stanton and M. Murillo Phys Rev E 91 033104 (2017)</a></p>
+<dl class="citation">
+<dt class="label" id="stanton2015"><span class="brackets">Stanton2015</span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.91.033104">L. Stanton and M. Murillo Phys Rev E 91 033104 (2015)</a></p>
 </dd>
-<dt class="label" id="id3"><span class="brackets">2</span></dt>
+<dt class="label" id="dharuman2017"><span class="brackets">Dharuman2017</span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1063/1.4973842">G. Dharuman et al. J Chem Phys 146 024112 (2017)</a></p>
 </dd>
 </dl>
@@ -265,7 +278,7 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 04, 2020.
+        Last updated on May, 11, 2020.
       </span>
 
     </p>

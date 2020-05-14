@@ -565,6 +565,9 @@ class Params:
                                     if key == "A":
                                         self.species[ic].atomic_weight = float(value)
 
+                                    if key == "mass_density":
+                                        self.species[ic].mass_density = float(value)
+
                                     if key == "temperature_eV":
                                         # Conversion factor from eV to Kelvin
                                         eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
@@ -776,6 +779,10 @@ class Params:
                 elif self.Control.units == "mks":
                     self.species[ic].mass = mp * self.species[ic].atomic_weight
 
+            if hasattr(self.species[ic], "mass_density"):
+                Av = const.physical_constants["Avogadro constant"][0]
+                self.species[ic].num_density = self.species[ic].mass_density*Av/self.species[ic].atomic_weight
+                self.total_num_density += self.species[ic].num_density
         # Concentrations arrays and ions' total temperature
         nT = 0.
         for ic in range(self.num_species):
@@ -829,9 +836,9 @@ class Params:
         self.Lmin_v = np.array([0.0, 0.0, 0.0])
 
         # Dev Note: The following are useful for future geometries
-        self.e1 = np.array([L, 0.0, 0.0])
-        self.e2 = np.array([0.0, L, 0.0])
-        self.e3 = np.array([0.0, 0.0, L])
+        self.e1 = np.array([self.Lx, 0.0, 0.0])
+        self.e2 = np.array([0.0, self.Ly, 0.0])
+        self.e3 = np.array([0.0, 0.0, self.Lz])
         self.box_volume2 = abs( np.dot( np.cross(self.e1, self.e2), self.e3)  )
 
         # lowest wavenumber for S(q) and S(q,w)

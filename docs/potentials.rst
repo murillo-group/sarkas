@@ -1,12 +1,13 @@
+.. _potentials:
+
 Potentials
 ==========
-
-Sarkas aims to support a variety of potentials both built-in and user defined. Currently the potential functions that are implemented include
+Sarkas supports a variety of potentials both built-in and user defined. Currently the potential functions that are implemented include
 
 - Coulomb
 - Yukawa
-- Exact Gradient-corrected Screened Yukawa (EGS)
-- Quantum Statistical Potential (QSP)
+- Exact Gradient-corrected Screened Yukawa
+- Quantum Statistical Potential
 - Moliere 
 - Lennard Jones
 
@@ -28,11 +29,11 @@ Two charged particle with charge numbers :math:`Z_a` and :math:`Z_b` interact wi
 where :math:`r` is the distance between ions, :math:`e` is the elementary charge.
 
 Yukawa Potential 
------------------
+----------------
 The Yukawa potential, or screened Coulomb potential, is widely used in the plasma community to describe the interactions of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two ions of charge number :math:`Z_a` and :math:`Z_b` is given by
 
 .. math::
-   V(r) = \frac{Z_{a}Z_b\bar{e}^2}{r}e^{-\kappa r},
+   V(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{-\kappa r},
 
 where :math:`\kappa = 1/\lambda_{\text{TF}}` is the screening parameter. In Sarkas this can be either given as an input or it can be calculated from the Thomas-Fermi formula 
 
@@ -57,7 +58,7 @@ The Yukawa potential is derived on the assumption that the electron gas behaves 
 where :math:`\lambda` is a correction factor; :math:`\lambda = 1/9` for the true gradient corrected Thomas-Fermi model and :math:`\lambda = 1` for the traditional  von Weissaecker model. In the case :math:`\nu < 1` the EGS potential takes the form
 
 .. math::
-   V(r) = \frac{Z_aZ_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],
+   V(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],
    
 with 
 
@@ -68,7 +69,7 @@ where the parameter :math:`b` arises from exchange-correlation contributions, se
 On the other hand :math:`\nu > 1`, the pair potential has the form
 
 .. math::
-   V(r) = \frac{Z_aZ_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}
+   V(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}
     
 with 
 
@@ -90,10 +91,28 @@ where :math:`\Theta = (\beta E_F)^{-1}` and
 
 .. math::
    D \left ( \Theta \right ) = 1 + 3.9431\Theta^2 + 7.9138\Theta^4.
-   
+
+
+Quantum Statistical Potential
+-----------------------------
+.. math::
+   \phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left ( 1 - e^{ - 2\pi r/\Lambda_{ab}}\right ) + \delta_{ae} \delta_{be} k_BT \ln(2) \exp \left \{ - \frac{4 \pi r^2}{\Lambda_{ab}^2 \ln (2)} \right \}
+
+where
+
+.. math::
+   \Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}},
+
+and
+
+.. math::
+   \mu_{ab} = \frac{m_a m_b}{m_a + m_b}
+
+is the thermal de Broglie wavelength between particles :math:`a` and :math:`b`. The last term, present only in the interaction between two electrons, accounts for spin-averaged effects. The choice of this potential is due to its widespread use in the High Energy Density Physics community.
+
 References
 ----------
-.. [1] `L. Stanton and M. Murillo Phys Rev E 91 033104 (2017) <https://doi.org/10.1103/PhysRevE.93.043203>`_
-.. [2] `G. Dharuman et al. J Chem Phys 146 024112 (2017) <https://doi.org/10.1063/1.4973842>`_
+.. [Stanton2015] `L. Stanton and M. Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
+.. [Dharuman2017] `G. Dharuman et al. J Chem Phys 146 024112 (2017) <https://doi.org/10.1063/1.4973842>`_
     
 

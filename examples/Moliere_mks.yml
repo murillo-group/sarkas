@@ -1,20 +1,12 @@
-# keywords: Moliere, PP, mks, random_no_reject
+# Vorberger HEDP 9 178 (2013) Fig. 8 parameters
 Particles:
     - species:
-        name: ion1
-        number_density: 1.e30       # /m^3
-        mass: 4.5129912e-26           # kg, ptcl mass of ion1
-        num: 3000                   # total number of particles of ion1 
-        Z: 13                        # degree of ionization
-        temperature_eV: 1.0
-
-    - species:
-        name: ion2
-        number_density: 1.e30       # /m^3
-        mass: 4.5129912e-26           # kg, ptcl mass of ion2
-        num: 3000                   # total number of particles of ion1 
-        Z: 13                        # degree of ionization
-        temperature_eV: 1.0
+        name: Be
+        mass_density: 1.848e+06       # /m^3
+        A: 9.012182           # kg, ptcl mass of ion1
+        num: 10000                   # total number of particles of ion1
+        Z: 4                        # degree of ionization
+        temperature_eV: 12.0
 
     - load:
         method: random_no_reject    # loading method
@@ -23,9 +15,9 @@ Particles:
 Potential: 
     - type: Moliere                  # potential type
     - method: PP                    # Linked-cell
-    - rc: 1.67300924e-7             # cut-off radius, meter
-    - C: [0.259466, 0.697444, 0.043090]
-    - b: [0.321063, 0.931563, 9.845565]
+    - rc: 8.629755e-10           # cut-off radius, meter
+    - C: [0.5, -0.5, 1.0]
+    - b: [1.6667e+10, 6.7690e+10, 6.7690e+10]
 
 Integrator:
     - type: Verlet                  # velocity integrator type
@@ -33,18 +25,18 @@ Integrator:
 Thermostat:
     - type: Berendsen               # thermostat type
     - tau: 10.
-    - timestep: 2000
+    - timestep: 200
 
 Control:
     - units: mks                    # units
-    - dt: 6.64305707e-14            # sec
+    - dt: 3.244415e-17            # sec
     - Neq: 30000                     # number of timesteps for the equilibrium
     - Nsteps: 30000                  # number of timesteps afater the equilibrium
     - BC: periodic                  # periodic boundary condition
-    - writexyz: yes                  # no xyz output
-    - dump_step: 100                # dump time step
-    - verbose: yes
+    - writexyz: no                  # no xyz output
+    - dump_step: 10                # dump time step
+    - verbose: no
     - output_dir: Moliere_mks        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 100
+    - rdf_nbins: 500
