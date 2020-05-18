@@ -7,9 +7,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import time as tme
 
-from matplotlib import rc
-
-rc('text', usetex=True)
+# from matplotlib import rc
+# rc('text', usetex=True)
 
 lw = 2
 fsz = 14
@@ -103,7 +102,7 @@ class Thermodynamics:
         data = {}
         output_data = np.loadtxt(self.filename_output + '.out')
         self.time = output_data[:, 0]
-        data["time"] = output_data[:, 0]
+        data["Time"] = output_data[:, 0]
         data["Temperature"] = output_data[:, 1]
         data["Total Energy"] = output_data[:, 2]
         data["Kinetic Energy"] = output_data[:, 3]
@@ -177,12 +176,13 @@ class Thermodynamics:
 
         return
 
-    def plot(self, quantity="Total Energy", delta=True):
+    def plot(self, quantity="Total Energy", delta=True, show=False):
         """
         Plot `quantity` vs time and save the figure with appropriate name.
 
         Parameters
         ----------
+        show
         quantity : str
             Quantity to plot. Default = Total Energy.
 
@@ -200,40 +200,45 @@ class Thermodynamics:
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
         lbl = ['xx', 'xy', 'xz', 'yx', 'yy', 'yz', 'zx', 'zy', 'zz']
         ylbl = {}
-        ylbl["Total Energy"] = r"$E_{\textrm{tot}}(t)$"
-        ylbl["Kinetic Energy"] = r"$K_{\textrm{tot}}(t)$"
-        ylbl["Potential Energy"] = r"$U_{\textrm{tot}}(t)$"
+        ylbl["Total Energy"] = r"$E_{tot}(t)$"
+        ylbl["Kinetic Energy"] = r"$K_{tot}(t)$"
+        ylbl["Potential Energy"] = r"$U_{tot}(t)$"
         ylbl["Temperature"] = r"$T(t)$"
         ylbl[
-            "Pressure Tensor ACF"] = r'$\mathcal P_{\alpha\beta} = \langle P_{\alpha\beta}(0)P_{\alpha\beta}(t)\rangle$'
+            "Pressure Tensor ACF"] = r'$P_{\alpha\beta} = \langle P_{\alpha\beta}(0)P_{\alpha\beta}(t)\rangle$'
         ylbl["Pressure Tensor"] = r"$P_{\alpha\beta} (t)$"
         ylbl["Gamma"] = r"$\Gamma (t)$"
         ylbl["Pressure"] = r"$P(t)$"
-        if quantity[:-3] == "Pressure Tensor ACF":
-            for i in range(self.no_dim * self.no_dim):
-                ax.plot(self.time * self.wp, self.dataframe[quantity][:, i], lw=lw,
-                        label=r'$\mathcal P_{' + lbl[i] + '} (t)$')
+        if self.no_dim == 3:
+            dim_lbl = ['X', 'Y', 'Z']
+
+        if quantity == "Pressure Tensor ACF":
+            for i in range(self.no_dim):
+                for j in range(self.no_dim):
+                    ax.plot(self.time * self.wp,
+                            self.dataframe["Pressure Tensor ACF {}{}".format(dim_lbl[i], dim_lbl[j])],
+                            lw=lw, label=r'$P_{' + dim_lbl[i] + dim_lbl[j] + '} (t)$')
             ax.set_xscale('log')
-            ax.legend(loc='upper right', ncol=3, fontsize=fsz)
+            ax.legend(loc='best', ncol=3, fontsize=fsz)
             ax.set_ylim(-1, 1.5)
 
-        elif quantity[:-3] == "Pressure Tensor":
-            for i in range(self.no_dim * self.no_dim):
-                ax.plot(self.time * self.wp, self.dataframe[quantity][:, i], lw=lw, label=r'$P_{' + lbl[i] + '} (t)$')
+        elif quantity == "Pressure Tensor":
+            for i in range(self.no_dim):
+                for j in range(self.no_dim):
+                    ax.plot(self.time * self.wp,
+                            self.dataframe["Pressure Tensor {}{}".format(dim_lbl[i], dim_lbl[j])],
+                            lw=lw, label=r'$P_{' + dim_lbl[i] + dim_lbl[j] + '} (t)$')
             ax.set_xscale('log')
-            ax.legend(loc='upper right', ncol=3, fontsize=fsz)
+            ax.legend(loc='best', ncol=3, fontsize=fsz)
 
         else:
             if delta:
                 delta = (self.dataframe[quantity] - self.dataframe[quantity][0])
                 ax.plot(self.time * self.wp, delta, lw=lw)
                 ylbl[quantity] = r"$\Delta$" + ylbl[quantity]
-                # ax.set_title(r"Relative $\Delta$ " + quantity, fontsize=fsz)
+                ax.set_ylabel(ylbl[quantity], fontsize=fsz)
             else:
                 ax.plot(self.time * self.wp, self.dataframe[quantity], lw=lw)
-                # ax.set_title(quantity, fontsize=fsz)
-
-            # ax.axhline(mean, ls='--', lw=lw, color='k')
 
         ax.grid(True, alpha=0.3)
         ax.tick_params(labelsize=fsz)
@@ -241,6 +246,8 @@ class Thermodynamics:
         ax.set_xlabel(r'$\omega_p t$', fontsize=fsz)
         fig.tight_layout()
         fig.savefig(self.fldr + quantity + '_' + self.fname_app + '.png')
+        if show:
+            fig.show()
 
 
 class ElectricCurrent:
@@ -376,14 +383,14 @@ class ElectricCurrent:
 
         return
 
-    def plot(self):
+    def plot(self, show=False):
         """
         Plot the electric current autocorrelation function and save the figure.
         """
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
         ax.plot(self.dataframe["Time"] * self.wp, self.dataframe["Total Current ACF"], lw=lw,
-                label=r'$J_{\textrm{tot}} (t)$')
+                label=r'$J_{tot} (t)$')
 
         if self.no_species > 1:
             for i in range(self.no_species):
@@ -399,6 +406,8 @@ class ElectricCurrent:
         ax.set_xscale('log')
         fig.tight_layout()
         fig.savefig(self.fldr + 'TotalCurrentACF_' + self.fname_app + '.png')
+        if show:
+            fig.show()
 
 
 class XYZFile:
@@ -526,7 +535,7 @@ class StaticStructureFactor:
         """
 
     def __init__(self, params):
-        self.no_ka = params.PostProcessing.no_ka_values  # number of ka values
+        self.no_ka = params.PostProcessing.ssf_no_ka_values  # number of ka values
         self.fldr = params.Control.checkpoint_dir + '/'
         self.fname_app = params.Control.fname_app
         self.filename_csv = self.fldr + "StaticStructureFunction_" + self.fname_app + ".csv"
@@ -568,9 +577,6 @@ class StaticStructureFactor:
             else:
                 calculate = calc_Sk_single
                 ka_list, ka_counts, ka_unique = kspace_setup(self.no_ka)
-                # print(ka_list)
-                # print(ka_list.shape)
-                # print(ka_unique)
         else:
             if principal_axis:
                 calculate = calc_Sk_multi_pa
@@ -578,9 +584,6 @@ class StaticStructureFactor:
             else:
                 calculate = calc_Sk_multi
                 ka_list, ka_counts, ka_unique = kspace_setup(self.no_ka)
-                # print(ka_list)
-                # print(ka_list.shape)
-                # print(ka_unique)
 
         ka_values = ka_unique * self.ka_min
         data = {"ka values": ka_values}
@@ -609,7 +612,6 @@ class StaticStructureFactor:
         Sk_err = np.std(Sk_all, axis=-1)
 
         if self.no_species > 1:
-
             for i in range(self.no_species):
                 for j in range(i, self.no_species):
                     self.dataframe['{}-{} SSF'.format(self.species_names[i], self.species_names[j])] = Sk[:, i, j]
@@ -668,191 +670,166 @@ class StaticStructureFactor:
             fig.show()
 
 
-# class DynamicStructureFactor:
-#     """ Dynamic Structure factor.
-#
-#     Attributes
-#     ----------
-#         a_ws : float
-#             Wigner-Seitz radius.
-#
-#         dump_step : int
-#             Dump step frequency.
-#
-#         filename: str
-#             Name of output files.
-#
-#         fldr : str
-#             Folder containing dumps.
-#
-#         ka_min : float
-#             Smallest possible (non-dimensional) wavenumber :math:`ka = 2\pi/L`.
-#
-#         ka_max : float
-#             Largest possible (non-dimensional) wavenumber = ``no_ka * ka_min``
-#
-#         no_dumps : int
-#             Number of dumps.
-#
-#         no_ka : int
-#             Number of integer multiples of minimum :math:`ka` value
-#
-#         no_species : int
-#             Number of species.
-#
-#         species_np: array
-#             Array of integers with the number of particles for each species.
-#
-#         dt : float
-#             Timestep's value normalized by the total plasma frequency.
-#
-#         sp_names : list
-#             Names of particle species.
-#
-#         tot_no_ptcls : int
-#             Total number of particles.
-#
-#         """
-#
-#     def __init__(self, params):
-#         self.no_ka = params.PostProcessing.no_ka_values  # number of ka values
-#         self.ka_values = np.zeros(self.no_ka)
-#         self.fldr = params.Control.checkpoint_dir + '/'
-#         self.fname_app = params.Control.fname_app
-#         self.filename_csv = self.fldr + "DynamicStructureFactor_" + self.fname_app + '.csv'
-#         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])'
-#         self.dump_step = params.Control.dump_step
-#         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
-#         self.no_species = len(params.species)
-#         self.tot_no_ptcls = params.total_num_ptcls
-#
-#
-#         self.ka_min = 2.0 * np.pi * self.a_ws / params.Lx
-#         self.species_np = np.zeros(self.no_species)
-#         self.species_names = []
-#         for i in range(self.no_species):
-#             self.species_np[i] = params.species[i].num
-#             self.species_names.append(params.species[i].name)
-#
-#         self.Nsteps = params.Control.Nsteps
-#         self.dt = params.Control.dt * params.wp
-#         self.no_Skw = int(self.no_species * (self.no_species + 1) / 2)
-#         self.a_ws = params.aws
-#         self.wp = params.wp
-#
-#     def compute(self, principal_axis=True):
-#         """
-#         Compute :math: `S_{ij}(k,\omega)' and the array of :math: `\omega/\omega_p` values.
-#         ``self.Skw``. Shape = (``no_ws``, ``no_Sij``)
-#         """
-#         if self.no_species == 1:
-#             if principal_axis:
-#                 calculate = calc_nkt_single_pa
-#                 ka_unique = np.arange(1, self.no_ka + 1)
-#             else:
-#                 calculate = calc_nkt_single()
-#                 ka_list, ka_counts, ka_unique = kspace_setup(self.no_ka)
-#                 # print(ka_list)
-#                 # print(ka_list.shape)
-#                 # print(ka_unique)
-#         else:
-#             if principal_axis:
-#                 calculate = calc_nkt_multi_pa
-#                 ka_unique = np.arange(1, self.no_ka + 1)
-#             else:
-#                 calculate = calc_nkt_multi
-#                 ka_list, ka_counts, ka_unique = kspace_setup(self.no_ka)
-#                 # print(ka_list)
-#                 # print(ka_list.shape)
-#                 # print(ka_unique)
-#
-#         ka_values = ka_unique * self.ka_min
-#
-#         tot_time = self.dt * self.dump_step * self.no_dumps
-#         w_min = 2.0 * np.pi / tot_time
-#         data = {"Frequencies": np.fft.fftfreq(self.no_dumps, w_min)}
-#
-#         # Parse the particles from the dump files
-#         pos = np.zeros((self.no_dumps, 3, self.tot_no_ptcls))
-#
-#         for it in range(self.no_dumps):
-#             dump = int(it * self.dump_step)
-#             data = load_from_restart(self.fldr, dump)
-#             pos[it, 0, :] = data["pos"][:, 0] / self.box_lengths[0]
-#             pos[it, 1, :] = data["pos"][:, 1] / self.box_lengths[1]
-#             pos[it, 2, :] = data["pos"][:, 2] / self.box_lengths[2]
-#
-#         start = tme.time()
-#         if principal_axis:
-#             print("Calculating n(k,t) along principal axis only ...")
-#             nkt_all = calculate(pos, ka_values * self.a_ws, self.species_np, self.no_dumps)
-#             for i in range( self.no_species):
-#                 nkx_w_i = (np.fft.fft(nkt_all[i][ik, 0, :])) * self.dt * self.dump_step
-#                 nky_w_i = (np.fft.fft(nkt_all[i][ik, 1, :])) * self.dt * self.dump_step
-#                 nkz_w_i = (np.fft.fft(nkt_all[i][ik, 2, :])) * self.dt * self.dump_step
-#
-#                 for j in range(i, self.no_species):
-#                     self.dataframe = pd.DataFrame(data)
-#
-#
-#                     for ik in range(self.no_ka):
-#
-#
-#                         Skx_w = np.abs(nkx_w) ** 2 / tot_time
-#                         Sky_w = np.abs(nky_w) ** 2 / tot_time
-#                         Skz_w = np.abs(nkz_w) ** 2 / tot_time
-#                         column = "{}-{} DSF ka = {} ka_min".format(self.species_names[0], self.species_names[0], ik)
-#                         self.dataframe[column] = (Skx_w + Sky_w + Skz_w) / 3.0
-#         else:
-#             print("Calculating n(k,t) ...")
-#             nkt_all = calculate(pos, ka_list, ka_counts, self.species_np, self.no_dumps)
-#
-#             for ik in range(self.no_ka):
-#                 nkw_i = (np.fft.fft(nkt_all[ik, :])) * self.dt * self.dump_step
-#                 column = "{}-{} DSF ka = {} ka_min".format(self.species_names[0], self.species_names[0], ik)
-#
-#                 self.dataframe[column] = np.real(nkw_i * np.conj(nkw_i) ) / tot_time
-#
-#         end = tme.time()
-#         print('Elapsed time = ', (end - start))
-#
-#
-#
-#
-#
-#         datafile = open(self.filename + '.out', "w")
-#         np.savetxt(datafile, np.c_[self.w_array, self.Skw])
-#         datafile.close()
-#
-#         return
-#
-#     def plot(self):
-#         """
-#         Plot :math: `S(k,\omega)` and save the figure.
-#         """
-#         try:
-#             data = np.loadtxt(self.filename + '.out')
-#             for ik in range(self.no_ka):
-#                 self.ka_values[ik] = (ik + 1) * self.ka_min
-#             self.w_array = data[:, 0]
-#             self.Skw = data[:, 1:]
-#         except OSError:
-#             self.compute()
-#
-#         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-#         for ik in range(1):
-#             ax.plot(np.fft.fftshift(self.w_array), np.fft.fftshift(self.Skw[:, ik]), lw=lw,
-#                     label=r'$ka = {:1.4f}$'.format(self.ka_values[ik]))
-#
-#         ax.grid(True, alpha=0.3)
-#         ax.legend(loc='best', ncol=3, fontsize=fsz)
-#         ax.tick_params(labelsize=fsz)
-#         ax.set_yscale('log')
-#         ax.set_xlim(-10, 10)
-#         ax.set_ylabel(r'$S(k,\omega)$', fontsize=fsz)
-#         ax.set_xlabel(r'$\omega/\omega_p$', fontsize=fsz)
-#         fig.tight_layout()
-#         fig.savefig(self.filename + '.png')
+class DynamicStructureFactor:
+    """ Dynamic Structure factor.
+
+    Attributes
+    ----------
+        a_ws : float
+            Wigner-Seitz radius.
+
+        dump_step : int
+            Dump step frequency.
+
+        filename: str
+            Name of output files.
+
+        fldr : str
+            Folder containing dumps.
+
+        ka_min : float
+            Smallest possible (non-dimensional) wavenumber :math:`ka = 2\pi/L`.
+
+        ka_max : float
+            Largest possible (non-dimensional) wavenumber = ``no_ka * ka_min``
+
+        no_dumps : int
+            Number of dumps.
+
+        no_ka : int
+            Number of integer multiples of minimum :math:`ka` value
+
+        no_species : int
+            Number of species.
+
+        species_np: array
+            Array of integers with the number of particles for each species.
+
+        dt : float
+            Timestep's value normalized by the total plasma frequency.
+
+        sp_names : list
+            Names of particle species.
+
+        tot_no_ptcls : int
+            Total number of particles.
+
+        """
+
+    def __init__(self, params):
+        self.no_ka = params.PostProcessing.dsf_no_ka_values  # number of ka values
+        self.ka_values = np.zeros(self.no_ka)
+        self.fldr = params.Control.checkpoint_dir + '/'
+        self.fname_app = params.Control.fname_app
+        self.filename_csv = self.fldr + "DynamicStructureFactor_" + self.fname_app + '.csv'
+        self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
+        self.dump_step = params.Control.dump_step
+        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_species = len(params.species)
+        self.tot_no_ptcls = params.total_num_ptcls
+
+        self.species_np = np.zeros(self.no_species, dtype=int)
+        self.species_names = []
+        for i in range(self.no_species):
+            self.species_np[i] = int(params.species[i].num)
+            self.species_names.append(params.species[i].name)
+
+        self.Nsteps = params.Control.Nsteps
+        self.dt = params.Control.dt
+        self.no_Skw = int(self.no_species * (self.no_species + 1) / 2)
+        self.a_ws = params.aws
+        self.wp = params.wp
+        self.ka_min = 2.0 * np.pi * self.a_ws / params.Lx
+        self.ka_list, self.ka_counts, self.ka_unique = kspace_setup(self.no_ka)
+
+        self.ka_values = self.ka_unique * self.ka_min
+
+    def parse(self):
+        """
+        Read the Radial distribution function from the saved csv file.
+        """
+        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+        return
+
+    def compute(self):
+        """
+        Compute :math: `S_{ij}(k,\omega)' and the array of :math: `\omega/\omega_p` values.
+        ``self.Skw``. Shape = (``no_ws``, ``no_Sij``)
+        """
+        calculate = calc_nkw_multi
+
+        tot_time = self.dt * self.dump_step * self.no_dumps
+        w_min = 2.0 * np.pi / tot_time
+        data = {"Frequencies": np.fft.fftfreq(self.no_dumps, w_min)}
+
+        self.dataframe = pd.DataFrame(data)
+
+        # Parse the particles from the dump files
+        pos = np.zeros((self.no_dumps, 3, self.tot_no_ptcls))
+        # Read particles' position for all times
+        for it in range(self.no_dumps):
+            dump = int(it * self.dump_step)
+            data = load_from_restart(self.fldr, dump)
+            pos[it, 0, :] = data["pos"][:, 0] / self.box_lengths[0]
+            pos[it, 1, :] = data["pos"][:, 1] / self.box_lengths[1]
+            pos[it, 2, :] = data["pos"][:, 2] / self.box_lengths[2]
+
+        start = tme.time()
+        print("Calculating n(k,w) ...")
+        nkw = calculate(pos, self.ka_list, self.ka_counts, self.species_np, self.no_dumps)
+        print("Saving S(k,w)")
+        for ik in range(len(self.ka_counts)):
+            for sp_i in range(self.no_species):
+                for sp_j in range(sp_i, self.no_species):
+                    Skw_ij = np.real(nkw[ik, sp_i, :] * np.conj(nkw[ik, sp_j, :]))
+                    if ik == 0:
+                        column = "{}-{} DSF ka_min".format(self.species_names[sp_i],
+                                                           self.species_names[sp_j])
+                    else:
+                        column = "{}-{} DSF {} ka_min".format(self.species_names[sp_i],
+                                                              self.species_names[sp_j], ik + 1)
+                    self.dataframe[column] = Skw_ij
+
+        end = tme.time()
+        print('Elapsed time = ', (end - start))
+
+        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+
+        return
+
+    def plot(self, show=False):
+        """
+        Plot :math: `S(k,\omega)` and save the figure.
+        """
+        try:
+            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+        except FileNotFoundError:
+            self.compute()
+
+        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+        for sp_i in range(self.no_species):
+            for sp_j in range(sp_i, self.no_species):
+                column = "{}-{} DSF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
+                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) * self.wp,
+                        np.fft.fftshift(self.dataframe[column]), lw=lw,
+                        label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
+                for i in range(1, 5):
+                    column = "{}-{} DSF {} ka_min".format(self.species_names[sp_i], self.species_names[sp_j], i + 1)
+                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) * self.wp,
+                            np.fft.fftshift(self.dataframe[column]), lw=lw,
+                            label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
+
+        ax.grid(True, alpha=0.3)
+        ax.legend(loc='best', ncol=3, fontsize=fsz)
+        ax.tick_params(labelsize=fsz)
+        ax.set_yscale('log')
+        ax.set_xlim(-3, 3)
+        ax.set_ylabel(r'$S(k,\omega)$', fontsize=fsz)
+        ax.set_xlabel(r'$\omega/\omega_p$', fontsize=fsz)
+        fig.tight_layout()
+        fig.savefig(self.fldr + 'Skw_' + self.fname_app + '.png')
+        if show:
+            fig.show()
 
 
 class RadialDistributionFunction:
@@ -867,11 +844,17 @@ class RadialDistributionFunction:
         box_lengths : array
             Length of each side of the box.
 
+        dataframe : dataframe
+            Pandas dataframe containing the radial distribution functions.
+
         dump_step : int
             Dump step frequency.
 
-        filename: str
-            Name of output files.
+        filename_csv: str
+            Name of csv file containing the radial distribution functions.
+
+        fname_app: str
+            Appendix of file names.
 
         fldr : str
             Folder containing dumps.
@@ -888,26 +871,22 @@ class RadialDistributionFunction:
         no_species : int
             Number of species.
 
-        ra_values : array
-            Array of particles' pairs distances normalized by Wigner-Seitz radius.
-
         species_np: array
             Array of integers with the number of particles for each species.
 
-        sp_names : list
+        species_names : list
             Names of particle species.
 
         tot_no_ptcls : int
             Total number of particles.
 
-        gr : ndarray
-            Radial Pair distribution functions. Shape=(no_bins, no_grs)
     """
 
     def __init__(self, params):
         self.no_bins = params.PostProcessing.rdf_nbins  # number of ka values
         self.fldr = params.Control.checkpoint_dir + '/'
-        self.filename = self.fldr + "pdf_" + params.Control.fname_app
+        self.fname_app = params.Control.fname_app
+        self.filename_csv = self.fldr + "RadialDistributionFunction_" + params.Control.fname_app + ".csv"
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
         self.no_species = len(params.species)
@@ -920,13 +899,11 @@ class RadialDistributionFunction:
         self.box_volume = params.box_volume / self.a_ws ** 3
         self.box_lengths = np.array([params.Lx / params.aws, params.Ly / params.aws, params.Lz / params.aws])
         self.species_np = np.zeros(self.no_species)  # Number of particles of each species
-        self.sp_names = []
-        self.gr = np.zeros((self.no_bins, self.no_grs))
-        self.ra_values = np.zeros(self.no_bins)
+        self.species_names = []
 
         for i in range(self.no_species):
             self.species_np[i] = params.species[i].num
-            self.sp_names.append(params.species[i].name)
+            self.species_names.append(params.species[i].name)
 
     def save(self, rdf_hist):
         """
@@ -937,8 +914,10 @@ class RadialDistributionFunction:
 
         """
         # Initialize all the workhorse arrays
+        ra_values = np.zeros(self.no_bins)
         bin_vol = np.zeros(self.no_bins)
         pair_density = np.zeros((self.no_species, self.no_species))
+        gr = np.zeros((self.no_bins, self.no_grs))
 
         # No. of pairs per volume
         for i in range(self.no_species):
@@ -952,39 +931,49 @@ class RadialDistributionFunction:
             r1 = ir * self.dr_rdf
             r2 = (ir + 1) * self.dr_rdf
             bin_vol[ir] = sphere_shell_const * (r2 ** 3 - r1 ** 3)
-            self.ra_values[ir] = (ir + 0.5) * self.dr_rdf
+            ra_values[ir] = (ir + 0.5) * self.dr_rdf
+
+        data = {"ra values": ra_values}
+        self.dataframe = pd.DataFrame(data)
 
         gr_ij = 0
         for i in range(self.no_species):
             for j in range(i, self.no_species):
                 if j == i:
                     pair_density[i, j] *= 2.0
-                for bin in range(self.no_bins):
-                    self.gr[bin, gr_ij] = (rdf_hist[bin, i, j] + rdf_hist[bin, j, i]) / (bin_vol[bin]
-                                                                                         * pair_density[i, j]
-                                                                                         * self.no_steps)
+                for ibin in range(self.no_bins):
+                    gr[ibin, gr_ij] = (rdf_hist[ibin, i, j] + rdf_hist[ibin, j, i]) / (bin_vol[ibin]
+                                                                                       * pair_density[i, j]
+                                                                                       * self.no_steps)
+
+                self.dataframe['{}-{} RDF'.format(self.species_names[i], self.species_names[j])] = gr[:, gr_ij]
                 gr_ij += 1
 
-        # Save the rdf data to file.
-        datafile = open(self.filename + '.out', "w")
-        np.savetxt(datafile, np.c_[self.ra_values, self.gr])
-        datafile.close()
+        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
         return
 
-    def plot(self):
+    def parse(self):
+        """
+        Read the Radial distribution function from the saved csv file.
+        """
+        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+        return
+
+    def plot(self, show=False):
         """
         Plot :math: `g_{ij}(r)` and save the figure.
         """
-        data = np.loadtxt(self.filename + '.out')
-        self.ra_values = data[:, 0]
-        self.gr = data[:, 1:]
+        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+
         indx = 0
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
         for i in range(self.no_species):
             for j in range(i, self.no_species):
-                subscript = self.sp_names[i] + self.sp_names[j]
-                ax.plot(self.ra_values, self.gr[:, indx], lw=lw, label=r'$g_{ ' + subscript + '} (r)$')
+                subscript = self.species_names[i] + self.species_names[j]
+                ax.plot(self.dataframe["ra values"],
+                        self.dataframe["{}-{} RDF".format(self.species_names[i], self.species_names[j])],
+                        lw=lw, label=r'$g_{ ' + subscript + '} (r)$')
                 indx += 1
         ax.grid(True, alpha=0.3)
         if self.no_species > 2:
@@ -997,47 +986,55 @@ class RadialDistributionFunction:
         ax.set_xlabel(r'$r/a$', fontsize=fsz)
         # ax.set_ylim(0, 5)
         fig.tight_layout()
-        fig.savefig(self.filename + '.png')
-
+        fig.savefig(self.fldr + 'RDF_' + self.fname_app + '.png')
+        if show:
+            fig.show()
         return
 
 
-# class TransportCoefficients:
-#
-#     def __init__(self, params, quantity="Electrical Conductivity"):
-#         self.fldr = params.Control.checkpoint_dir + '/'
-#         self.fname_app = params.Control.fname_app
-#
-#         self.dump_step = params.Control.dump_step
-#         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
-#         self.no_species = len(params.species)
-#         self.species_np = np.zeros(self.no_species, dtype=int)
-#         self.species_names = []
-#         self.species_charge = np.zeros(self.no_species)
-#         for i in range(self.no_species):
-#             self.species_np[i] = int(params.species[i].num)
-#             self.species_charge[i] = params.species[i].charge
-#             self.species_names.append(params.species[i].name)
-#
-#         self.tot_no_ptcls = params.total_num_ptcls
-#         self.wp = params.wp
-#         self.a_ws = params.aws
-#         self.dt = params.Control.dt
-#
-#         self.data = {}
-#
-#     def compute(self, quantity):
-#
-#         if quantity == "Electrical Conductivity":
-#             J = ElectricCurrent(params)
-#             J.plot()
-#             self.data = {"Electrical Conductivity", np.trapz(J.dataframe["Total Current ACF"], x=J.dataframe["Time"])}
-#
-#         if quantity == "Diffusion":
-#             VACF = VelocityCurrent(params)
-#             whatever = np.trapz( VACF.dataframe["Total Velocity ACF"], x = VACF.dataframe["Time"])
-#
-#         return whatever
+class TransportCoefficients:
+    """
+    Transport Coefficients class
+
+    Attributes
+    ----------
+    params : class
+        Simulation parameters.
+    """
+
+    def __init__(self, params):
+        self.params = params
+        return
+
+    def compute(self, quantity="Electrical Conductivity", tau=-1):
+        """
+        Calculate the desired transport coefficient
+
+        Parameters
+        ----------
+        quantity: str
+            Desired transport coefficient to calculate.
+
+        tau: float
+            Upper limit of time integration.
+
+        Returns
+        -------
+
+        trp_coeff : float
+            Desired tranport coefficient value scaled by appropriate units
+
+        """
+        if quantity == "Electrical Conductivity":
+            J = ElectricCurrent(self.params)
+            J.plot(show=True)
+            integrand = np.array(J.dataframe["Total Current ACF"])
+            time = np.array(J.dataframe["Time"]) * self.params.wp
+            if tau != -1:
+                tau = np.where(time > tau)[0][0] - 1
+            trp_coeff = np.trapz(integrand[:tau], x=time[:tau]) / (4.0 * np.pi)
+            print("Electrical Conductivity = {:1.4e}/w_p".format(trp_coeff))
+        return trp_coeff
 
 
 def load_from_restart(fldr, it):
@@ -1086,8 +1083,8 @@ def kspace_setup(no_ka):
 
     # Add index to k_array
     k_arr = np.concatenate((k_arr[1:, :], k_index), 1)
-    k_nparr = np.array(k_arr)
-    return k_nparr, k_counts, k_unique
+    # k_nparr = np.array(k_arr)
+    return k_arr, k_counts, k_unique
 
 
 @nb.njit
@@ -1609,23 +1606,59 @@ def calc_nkt_single(pos_data, ka_list, ka_counts, species_np, no_dumps):
                     + ka_list[ik][2] * pos_data[it, 2, :]) * 2.0 * np.pi
 
             indx = int(ka_list[ik][-1])
-            nkt[indx, it] += np.sum(np.exp(-1j * kr_i)) / (np.sqrt(ka_counts[indx] * species_np[0]) )
+            nkt[indx, it] += np.sum(np.exp(-1j * kr_i)) / (np.sqrt(ka_counts[indx] * species_np[0]))
 
     return nkt
 
 
-@nb.njit
-def calc_nkt_multi(stuff, stuhh, sana):
+def calc_nkw_multi(pos_data, ka_list, ka_counts, species_np, no_dumps):
     """
+    Calculate :math:`n(k,w)` of all species.
 
     Parameters
     ----------
-    stuff
-    stuhh
-    sana
+    pos_data : ndarray
+        Particles' position scaled by the box lengths. Shape = ( `no_dumps`, 3, `tot_no_ptcls')
+
+    ka_list : list
+        List of :math:`k` indices in each direction with corresponding magnitude and index of `ka_counts`.
+        Shape=(`no_ka_values`, 5)
+
+    ka_counts : array
+        Number of times each :math:`k` magnitude appears.
+
+    species_np : array
+        Array with one element giving number of particles.
+
+    no_dumps : int
+        Number of dumps.
 
     Returns
     -------
-
+    nkw : ndarray
+        Array containing the Fourier transform of :math:`n(k,t)` of each species.
+        :math:`n(k,\omega)`. Shape=(`no_ka_values`,`no_species`, `no_dumps`)
     """
-    pass
+    num_ka_values = len(ka_counts)
+    num_species = len(species_np)
+    nkt = np.zeros((num_ka_values, num_species, no_dumps), dtype=np.complex128)
+    nkw = np.zeros((num_ka_values, num_species, no_dumps), dtype=np.complex128)
+    norm = 1.0 / float(no_dumps)
+    for ik in range(num_ka_values):
+        kr_i = (ka_list[ik][0] * pos_data[:, 0, :]
+                + ka_list[ik][1] * pos_data[:, 1, :]
+                + ka_list[ik][2] * pos_data[:, 2, :]) * 2.0 * np.pi
+        indx = int(ka_list[ik][-1])
+        sp_start = 0
+        for sp in range(num_species):
+            sp_end = sp_start + species_np[sp]
+            nkt[indx, sp, :] += np.sum(np.exp(-1j * kr_i[:, sp_start:sp_end]), axis=1) / (
+                        ka_counts[indx] * np.sqrt(species_np[0]))
+
+            sp_start = sp_end
+    for ik in range(num_ka_values):
+        indx = int(ka_list[ik][-1])
+        for sp in range(num_species):
+            nkw[indx, sp, :] += np.fft.fft(nkt[ik, sp, :]) * norm
+
+    return nkw

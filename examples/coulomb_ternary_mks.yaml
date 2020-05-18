@@ -64,4 +64,4 @@ Control:
  
 PostProcessing:
     - rdf_nbins: 500
-    - ssf_no_ka_values: 30
+    - ssf_no_ka_values: 10

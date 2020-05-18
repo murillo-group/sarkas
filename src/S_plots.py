@@ -10,18 +10,17 @@ input_file = sys.argv[1]
 params = Params()
 params.setup(input_file)
 
-params.PostProcessing.no_ka_values = 15
+# params.PostProcessing.no_ka_values = 15
 E = Observable.Thermodynamics(params)
-E.plot('Total Energy', True)
-E.plot('Temperature', False)
-E.plot('Gamma', False)
-# E.plot('Pressure', False)
+# E.plot('Total Energy', True)
+# E.plot('Temperature', False)
+# E.plot('Gamma', False)
+# E.plot('Pressure Tensor ACF', False, True)
+#
+# K = E.dataframe["Kinetic Energy"]  # pandas df
 
-# K = E.dataframe["Kinetic Energy"]
-
-SSF = Observable.StaticStructureFactor(params)
-SSF.compute(False)
-SSF.plot()
+DSF = Observable.DynamicStructureFactor(params)
+DSF.plot(True)
 # #
 # rdf = Observable.RadialDistributionFunction(params)
 # rdf.plot()
@@ -30,6 +29,8 @@ SSF.plot()
 # #J.dataframe["Total Electrical Current"]
 # J.plot()
 
+# sigma = Observable.TransportCoefficients(params)
+# sigma.compute("Electrical Conductivity")
 # P = Observable.PressureTensor(params)
 # P.plot(True)
 
