@@ -157,7 +157,7 @@ class Params:
         units : str
             Choice of units mks or cgs.
 
-        wq : float
+        wp : float
             Total Plasma frequency.
 
         force : func
@@ -166,16 +166,16 @@ class Params:
 
     def __init__(self):
         # Container of Species
+        self.N = 0
         self.ne = 0.0
         self.L = 0.0
         self.J2erg = 1.0e+7  # erg/J
-        self.hbar = 1.0
-        self.hbar2 = self.hbar ** 2
         self.eps0 = const.epsilon_0
         self.fourpie0 = 4.0 * np.pi * self.eps0
         self.me = const.physical_constants["electron mass"][0]
         self.qe = const.physical_constants["elementary charge"][0]
         self.hbar = const.hbar
+        self.hbar2 = self.hbar ** 2
         self.c0 = const.physical_constants["speed of light in vacuum"][0]
         self.eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
         self.a0 = const.physical_constants["Bohr radius"][0]
@@ -431,6 +431,9 @@ class Params:
             dump_step : int
                 Snapshot interval.
 
+            np_per_boxlength : array
+                Number of particles per box length. Note that :math: `N_x x N_y x N_z = N_{tot}`
+
             writexyz : str
                 Flag for XYZ file for OVITO. "no" or "yes".
 
@@ -463,8 +466,8 @@ class Params:
 
         def __init__(self):
             self.rdf_nbins = 100
-            self.ssf_no_ka_values = 30
-            self.dsf_no_ka_values = 15
+            self.ssf_no_ka_values = np.array([5, 5, 5], dtype=int)
+            self.dsf_no_ka_values = np.array([5, 5, 5], dtype=int)
 
     def setup(self, filename):
         """
@@ -507,13 +510,13 @@ class Params:
 
         self.Potential.LL_on = 1  # linked list on
         if not hasattr(self.Potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.L / 2, "will be used as rc")
-            self.Potential.rc = self.L / 2.
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.Lv.min() / 2, "will be used as rc")
+            self.Potential.rc = self.Lv.min() / 2.
             self.Potential.LL_on = 0  # linked list off
 
-        if self.Potential.method == "PP" and self.Potential.rc > self.L / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.L / 2, "will be used as rc")
-            self.Potential.rc = self.L / 2.
+        if self.Potential.method == "PP" and self.Potential.rc > self.Lv.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.Lv.min() / 2, "will be used as rc")
+            self.Potential.rc = self.Lv.min()/ 2.
             self.Potential.LL_on = 0  # linked list off
 
         return
@@ -687,9 +690,9 @@ class Params:
                             if key == 'rdf_nbins':
                                 self.PostProcessing.rdf_nbins = int(value)
                             if key == 'ssf_no_ka_values':
-                                self.PostProcessing.ssf_no_ka_values = int(value)
+                                self.PostProcessing.ssf_no_ka_values = value
                             if key == 'dsf_no_ka_values':
-                                self.PostProcessing.dsf_no_ka_values = int(value)
+                                self.PostProcessing.dsf_no_ka_values = value
 
                 if lkey == "BoundaryCondition":
                     for keyword in dics[lkey]:
@@ -843,37 +846,49 @@ class Params:
 
         # Simulation Box Parameters
         self.N = self.total_num_ptcls
-        self.Lx = self.aws * (4.0 * np.pi * self.Control.np_per_boxlength[0] / 3.0) ** (1.0 / 3.0)
-        self.Ly = self.aws * (4.0 * np.pi * self.Control.np_per_boxlength[1] / 3.0) ** (1.0 / 3.0)
-        self.Lz = self.aws * (4.0 * np.pi * self.Control.np_per_boxlength[2] / 3.0) ** (1.0 / 3.0)
+        if len(self.Control.np_per_boxlength) != 0:
+            if int(np.prod(self.Control.np_per_boxlength)) != self.total_num_ptcls:
+                raise ValueError("Number of particles per dimension does not match total number of particles.")
+
+            self.Lx = self.aws * self.Control.np_per_boxlength[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.aws * self.Control.np_per_boxlength[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.aws * self.Control.np_per_boxlength[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+        else:
+            self.Lx = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+
         self.Lv = np.array([self.Lx, self.Ly, self.Lz])  # box length vector
+
         # Dev Note: The following are useful for future geometries
         self.e1 = np.array([self.Lx, 0.0, 0.0])
         self.e2 = np.array([0.0, self.Ly, 0.0])
         self.e3 = np.array([0.0, 0.0, self.Lz])
+
         self.box_volume = abs(np.dot(np.cross(self.e1, self.e2), self.e3))
-        self.d = np.count_nonzero(self.Lv)  # no. of dimensions
+
+        self.dimensions = np.count_nonzero(self.Lv)  # no. of dimensions
 
         self.T_desired = self.Ti
 
-        # boundary Conditions
-        if hasattr(self.BC, "pbc_axes"):
-            for (ij,bc) in enumerate(self.BC.pbc_axes):
-                if bc == "x":
-                    self.BC.pbc_axes_indx[ij] = 0
-                elif bc == "y":
-                    self.BC.pbc_axes_indx[ij] = 1
-                elif bc == "z":
-                    self.BC.pbc_axes_indx[ij] = 2
-
-        if hasattr(self.BC, "mm_axes"):
-            self.BC.mm_axes_indx = np.zeros( len(self.BC.mm_axes), dtype=np.int)
-            for (ij,bc) in enumerate(self.BC.mm_axes):
-                if bc == "x":
-                    self.BC.mm_axes_indx[ij] = 0
-                elif bc == "y":
-                    self.BC.mm_axes_indx[ij] = 1
-                elif bc == "z":
-                    self.BC.mm_axes_indx[ij] = 2
+        # # boundary Conditions
+        # if hasattr(self.BC, "pbc_axes"):
+        #     for (ij,bc) in enumerate(self.BC.pbc_axes):
+        #         if bc == "x":
+        #             self.BC.pbc_axes_indx[ij] = 0
+        #         elif bc == "y":
+        #             self.BC.pbc_axes_indx[ij] = 1
+        #         elif bc == "z":
+        #             self.BC.pbc_axes_indx[ij] = 2
+        #
+        # if hasattr(self.BC, "mm_axes"):
+        #     self.BC.mm_axes_indx = np.zeros( len(self.BC.mm_axes), dtype=np.int)
+        #     for (ij,bc) in enumerate(self.BC.mm_axes):
+        #         if bc == "x":
+        #             self.BC.mm_axes_indx[ij] = 0
+        #         elif bc == "y":
+        #             self.BC.mm_axes_indx[ij] = 1
+        #         elif bc == "z":
+        #             self.BC.mm_axes_indx[ij] = 2
 
         return

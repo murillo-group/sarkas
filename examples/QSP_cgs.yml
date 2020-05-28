@@ -2,7 +2,7 @@
 Particles:
     - species:
         name: e
-        number_density: 1.6e+24       # /cc
+        number_density: 1.6e+24       # N/cc
         mass: 9.1093837015e-28
         num: 512                    # total number of particles of ion1 
         Z: -1.0                        # degree of ionization
@@ -10,17 +10,15 @@ Particles:
 
     - species:
         name: p
-        number_density: 1.6e+24       # /m^3
-        mass: 1.67262192369e-24         # kg, ptcl mass of ion1
+        number_density: 1.6e+24       # N/cc
+        mass: 1.67262192369e-24         # g, ptcl mass of ion1
         num: 512                  # total number of particles of ion1 
         Z: 1.0                       # degree of ionization
         temperature: 6.32e+5
 
     - load:
-        method: restart
-        # method: random_no_reject    # loading method
+        method: random_no_reject    # loading method
         rand_seed: 123456789        # random seed
-        restart_step: 0
 
 Potential: 
     - type: QSP                 # potential type

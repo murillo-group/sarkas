@@ -8,5 +8,9 @@
 *.npy
 *.npz
 *.idea
+*.ipynb
+*.png
+*.prof
+nohup.out
 Checkpoint
 .DS_Store

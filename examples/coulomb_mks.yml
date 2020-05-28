@@ -35,7 +35,7 @@ Control:
     - units: mks                    # units
     - dt: 1.193536e-17            # sec
     - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nsteps: 50000                    # number of timesteps afater the equilibrium
+    - Nsteps: 50000                    # number of timesteps after the equilibrium
     - BC: periodic                  # periodic boundary condition
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
@@ -44,4 +44,5 @@ Control:
 
 PostProcessing:
     - rdf_nbins: 100
-    - dsf_no_ka_values: 15
+    - dsf_no_ka_values: [10, 10, 10]
+    - ssf_no_ka_values: [10, 10, 10]

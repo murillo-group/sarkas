@@ -66,7 +66,7 @@ class Integrator:
         # Import global parameters (is there a better way to do this?)
         dt = self.params.Control.dt
         half_dt = 0.5 * dt
-        N = self.params.N
+        N = self.params.tot_num_ptcls
         d = self.params.d
         Lv = self.params.Lv
 
@@ -94,7 +94,7 @@ class Integrator:
         # Import global parameters (is there a better way to do this?)
         # Yes use self.params or just pass params
         dt = self.params.Control.dt
-        N = self.params.N
+        N = self.params.tot_num_ptcls
         d = self.params.d
         Lv = self.params.Lv
         PBC = self.params.PBC
@@ -129,13 +129,11 @@ def Verlet(ptcls, params):
 
     # First half step velocity update
     ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
-
     # Full step position update
     ptcls.pos += ptcls.vel * params.Control.dt
 
     # Periodic boundary condition
-    if params.Control.PBC == 1:
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
+    enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
 
     # Compute total potential energy and acceleration for second half step velocity update
     U = calc_pot_acc(ptcls, params)
@@ -176,8 +174,8 @@ def Magnetic_integrator(ptcls, params):
     sp_start = 0  # start index for species loop
 
     # array to temporary store velocities
-    v_B = np.zeros((params.N, params.d))
-    v_F = np.zeros((params.N, params.d))
+    v_B = np.zeros((params.total_num_ptcls, params.dimensions))
+    v_F = np.zeros((params.total_num_ptcls, params.dimensions))
 
     for ic in range(params.num_species):
         # Cyclotron frequency
@@ -210,8 +208,7 @@ def Magnetic_integrator(ptcls, params):
         sp_start = sp_end
 
     # Periodic boundary condition
-    if params.Control.PBC == 1:
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
+    enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
 
     # Compute total potential energy and acceleration for second half step velocity update
     U = calc_pot_acc(ptcls, params)
@@ -277,8 +274,8 @@ def Boris_Magnetic_integrator(ptcls, params):
     sp_start = 0  # start index for species loop
 
     # array to temporary store velocities
-    v_B = np.zeros((params.N, params.d))
-    v_F = np.zeros((params.N, params.d))
+    v_B = np.zeros((params.tot_num_ptcls, params.dimensions))
+    v_F = np.zeros((params.tot_num_ptcls, params.dimensions))
 
     # First step update velocities
     ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
@@ -310,79 +307,10 @@ def Boris_Magnetic_integrator(ptcls, params):
     ptcls.pos += ptcls.vel * params.Control.dt
 
     # Periodic boundary condition
-    if params.Control.PBC == 1:
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
+    enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
 
     # Compute total potential energy and acceleration for second half step velocity update
     U = calc_pot_acc(ptcls, params)
-
-    return U
-
-
-def Verlet_with_Langevin(ptcls, params):
-    """
-    Calculate particles dynamics using the Velocity Verlet algorithm and Langevin damping.
-
-    Parameters
-    ----------
-    ptlcs: class
-        Particles data. See ``S_particles.py`` for more info.
-    
-    params : class
-        Simulation's parameters. See ``S_params.py`` for more info.
-            
-    Returns
-    -------
-    U : float
-        Total potential energy
-    """
-
-    dt = params.Control.dt
-    g = params.Langevin.gamma
-    N = ptcls.pos.shape[0]
-
-    rtdt = np.sqrt(dt)
-
-    sp_start = 0  # start index for species loop
-    sp_end = 0  # end index for species loop
-
-    beta = np.random.normal(0., 1., 3 * N).reshape(N, 3)
-
-    for ic in range(params.num_species):
-        # sigma
-        sig = np.sqrt(2. * g * params.kB * params.T_desired / params.species[ic].mass)
-
-        c1 = (1. - 0.5 * g * dt)
-        # c2 = 1./(1. + 0.5*g*dt)
-
-        sp_start = sp_end
-        sp_end += params.species[ic].num
-
-        ptcls.pos[sp_start:sp_end, :] += c1 * dt * ptcls.vel[sp_start:sp_end, :] \
-                                         + 0.5 * dt ** 2 * ptcls.acc[sp_start:sp_end, :] + 0.5 * sig * dt ** 1.5 * beta
-
-    # Periodic boundary condition
-    if params.Control.PBC == 1:
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
-
-    acc_old = ptcls.acc
-    U = calc_pot_acc(ptcls, params)
-
-    acc_new = ptcls.acc
-
-    for ic in range(params.num_species):
-        # sigma
-        sig = np.sqrt(2. * g * params.kB * params.T_desired / params.species[ic].mass)
-
-        c1 = (1. - 0.5 * g * dt)
-        c2 = 1. / (1. + 0.5 * g * dt)
-
-        sp_start = sp_end
-        sp_end += params.species[ic].num
-
-    ptcls.vel[sp_start:sp_end, :] = c1 * c2 * ptcls.vel[sp_start:sp_end, :] \
-                                    + 0.5 * dt * (acc_new[sp_start:sp_end, :] + acc_old[sp_start:sp_end,
-                                                                                :]) * c2 + c2 * sig * rtdt * beta
 
     return U
 
@@ -486,19 +414,18 @@ def calc_pot_acc(ptcls, params):
                                           params.P3M.MGrid, params.Lv, params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v,
                                           params.P3M.kz_v, params.P3M.cao)
         # Ewald Self-energy
-        U_Ew_self = params.QFactor * params.P3M.G_ew / np.sqrt(np.pi)
+        U_long += params.QFactor * params.P3M.G_ew / np.sqrt(np.pi)
         # Neutrality condition
-        U_neutr = - np.pi * params.tot_net_charge ** 2.0 / (2.0 * params.box_volume * params.P3M.G_ew ** 2)
+        U_long += - np.pi * params.tot_net_charge ** 2.0 / (2.0 * params.box_volume * params.P3M.G_ew ** 2)
 
-        U += U_long - U_Ew_self + U_neutr
+        U += U_long
+
         ptcls.acc += acc_l_r
 
     if not (params.Potential.type == "LJ"):
         # Mie Energy of charged systems
         dipole = calc_dipole(ptcls.pos, ptcls.charge)
-        U_MIE = 2.0 * np.pi * (dipole[0] ** 2 + dipole[1] ** 2 + dipole[2] ** 2) / (
+        U += 2.0 * np.pi * (dipole[0] ** 2 + dipole[1] ** 2 + dipole[2] ** 2) / (
                     3.0 * params.box_volume * params.fourpie0)
-
-        U += U_MIE
 
     return U
