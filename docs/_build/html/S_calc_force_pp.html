@@ -181,9 +181,9 @@
   <div class="section" id="module-S_calc_force_pp">
 <span id="s-calc-force-pp-module"></span><h1>S_calc_force_pp module<a class="headerlink" href="#module-S_calc_force_pp" title="Permalink to this headline">¶</a></h1>
 <p>Module for handling Particle-Particle interaction.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="S_calc_force_pp.update">
-<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">id_ij</em>, <em class="sig-param">mass_ij</em>, <em class="sig-param">Lv</em>, <em class="sig-param">rc</em>, <em class="sig-param">potential_matrix</em>, <em class="sig-param">force</em>, <em class="sig-param">measure</em>, <em class="sig-param">rdf_hist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">id_ij</span></em>, <em class="sig-param"><span class="n">mass_ij</span></em>, <em class="sig-param"><span class="n">Lv</span></em>, <em class="sig-param"><span class="n">rc</span></em>, <em class="sig-param"><span class="n">potential_matrix</span></em>, <em class="sig-param"><span class="n">force</span></em>, <em class="sig-param"><span class="n">measure</span></em>, <em class="sig-param"><span class="n">rdf_hist</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the force on the particles based on a linked cell-list (LCL) algorithm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -214,9 +214,9 @@ short and long ranged interactions. See the wikipedia article:
 “Computer Simulation of Liquids by Allen and Tildesley” for more information.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_calc_force_pp.update_0D">
-<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update_0D</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">id_ij</em>, <em class="sig-param">mass_ij</em>, <em class="sig-param">Lv</em>, <em class="sig-param">rc</em>, <em class="sig-param">potential_matrix</em>, <em class="sig-param">force</em>, <em class="sig-param">measure</em>, <em class="sig-param">rdf_hist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update_0D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update_0D" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_calc_force_pp.</code><code class="sig-name descname">update_0D</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">id_ij</span></em>, <em class="sig-param"><span class="n">mass_ij</span></em>, <em class="sig-param"><span class="n">Lv</span></em>, <em class="sig-param"><span class="n">rc</span></em>, <em class="sig-param"><span class="n">potential_matrix</span></em>, <em class="sig-param"><span class="n">force</span></em>, <em class="sig-param"><span class="n">measure</span></em>, <em class="sig-param"><span class="n">rdf_hist</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_calc_force_pp.html#update_0D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_calc_force_pp.update_0D" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates particles’ accelerations when the cutoff radius :math: <cite>r_c</cite> is half the box’s length, :math: <cite>r_c = L/2</cite>
 For no sub-cell. All ptcls within :math: <cite>r_c = L/2</cite> participate for force calculation. Cost ~ O(N^2)</p>
 <dl class="field-list simple">
@@ -267,7 +267,7 @@ For no sub-cell. All ptcls within :math: <cite>r_c = L/2</cite> participate for 
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 04, 2020.
+        Last updated on May, 29, 2020.
       </span>
 
     </p>

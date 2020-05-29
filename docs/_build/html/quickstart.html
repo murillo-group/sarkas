@@ -88,6 +88,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#preliminary-packages">Preliminary Packages</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#installation-using-docker">Installation using Docker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-sarkas">Using Sarkas</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#input-file">Input file</a></li>
 </ul>
@@ -177,6 +178,9 @@ distribution that has many of the necessary packages for Sarkas is Anaconda whic
 <h2>Obtaining Sarkas<a class="headerlink" href="#obtaining-sarkas" title="Permalink to this headline">¶</a></h2>
 <p>Sarkas is undergoing heavy development but the most recent version can be found on <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">GitHub</a>, which
 can then be cloned.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/murillo-group/sarkas.git
+</pre></div>
+</div>
 <div class="section" id="preliminary-packages">
 <h3>Preliminary Packages<a class="headerlink" href="#preliminary-packages" title="Permalink to this headline">¶</a></h3>
 <p>If you already have a version of python3 installed, you may still need to download additional packages
@@ -197,6 +201,20 @@ you can install these packages, by simply opening a terminal and running the fol
 </div>
 </div>
 </div>
+<div class="section" id="installation-using-docker">
+<h2>Installation using Docker<a class="headerlink" href="#installation-using-docker" title="Permalink to this headline">¶</a></h2>
+<p>Alternatively, you can install a whole Sarkas package including all dependencies/preliminary-packages using <a class="reference external" href="https://www.docker.com/products/docker-desktop">Docker</a>.
+To install Sarkas using Docker, run the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/murillo-group/sarkas.git
+$ <span class="nb">cd</span> sarkas
+$ docker build -t sarkas -f Docker/Dockerfile .
+</pre></div>
+</div>
+<p>Once you install Sarkas using Docker, you can go inside the Docker container by running the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker run -u <span class="m">0</span> -it sarkas bash
+</pre></div>
+</div>
+</div>
 <div class="section" id="using-sarkas">
 <h2>Using Sarkas<a class="headerlink" href="#using-sarkas" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="input-file">
@@ -206,13 +224,13 @@ you can install these packages, by simply opening a terminal and running the fol
 </div>
 <div class="section" id="running-sarkas">
 <h2>Running Sarkas<a class="headerlink" href="#running-sarkas" title="Permalink to this headline">¶</a></h2>
-<p>Once you have created your input file, say <a href="#id1"><span class="problematic" id="id2">`</span></a>input.yaml’, you can run Sarkas by simply typing the command, e.g.</p>
+<p>Once you have created your input file, say <cite>input.yaml</cite>, you can run Sarkas by simply typing the command, e.g.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 src/Sarkas.py input.yaml
 </pre></div>
 </div>
 <p>Let us open <cite>ybim_mks_p3m_mag.yaml</cite> file in a text editor. This file contains parameters for a simulation of a Carbon-Oxygen mixture interacting via a Yukawa potential and under the influence of a constant Magnetic field. The first thing to notice is that there are eight sections each of which contains a set of parameters. Each section corresponds to a subclass of the <cite>Params</cite> class. The order is relatively important since some section parameters might depend on a previous section. For example: the Magnetized section must come after the Integrator section since the option electrostatic_thermalization, if chosen to be True, it modifies the integrator type. Below we present a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: <cite>https://learn.getgrav.org/16/advanced/yaml</cite>.</p>
-<table class="colwidths-auto docutils align-default" id="id3">
-<caption><span class="caption-text">Table for “Particles - species” section key and value pairs in the input file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id1">
+<caption><span class="caption-text">Table for “Particles - species” section key and value pairs in the input file</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -250,8 +268,8 @@ you can install these packages, by simply opening a terminal and running the fol
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id4">
-<caption><span class="caption-text">Table for “Particles - load” section key and value pairs in the input file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id2">
+<caption><span class="caption-text">Table for “Particles - load” section key and value pairs in the input file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -285,8 +303,8 @@ you can install these packages, by simply opening a terminal and running the fol
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id5">
-<caption><span class="caption-text">Table for “Potential” section key and value pairs in the input file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id3">
+<caption><span class="caption-text">Table for “Potential” section key and value pairs in the input file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -308,8 +326,8 @@ you can install these packages, by simply opening a terminal and running the fol
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id6">
-<caption><span class="caption-text">Table for “P3M” section key and value pairs in the input file</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id4">
+<caption><span class="caption-text">Table for “P3M” section key and value pairs in the input file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -335,8 +353,8 @@ you can install these packages, by simply opening a terminal and running the fol
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id7">
-<caption><span class="caption-text">Table for “Integrator” section key and value pairs in the input file</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id5">
+<caption><span class="caption-text">Table for “Integrator” section key and value pairs in the input file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -350,8 +368,8 @@ you can install these packages, by simply opening a terminal and running the fol
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id8">
-<caption><span class="caption-text">Table for “Magnetized” section key and value pairs in the input file</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id6">
+<caption><span class="caption-text">Table for “Magnetized” section key and value pairs in the input file</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>:Value Data Type”</p></th>
@@ -377,8 +395,8 @@ you can install these packages, by simply opening a terminal and running the fol
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id9">
-<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id7">
+<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -400,8 +418,8 @@ you can install these packages, by simply opening a terminal and running the fol
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id10">
-<caption><span class="caption-text">Table for “Langevin” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id10" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id8">
+<caption><span class="caption-text">Table for “Langevin” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -419,8 +437,8 @@ you can install these packages, by simply opening a terminal and running the fol
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id11">
-<caption><span class="caption-text">Table for “Control” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id11" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id9">
+<caption><span class="caption-text">Table for “Control” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -505,7 +523,7 @@ you can install these packages, by simply opening a terminal and running the fol
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 04, 2020.
+        Last updated on May, 29, 2020.
       </span>
 
     </p>

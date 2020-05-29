@@ -10,6 +10,10 @@ Obtaining Sarkas
 Sarkas is undergoing heavy development but the most recent version can be found on GitHub_, which 
 can then be cloned.
 
+.. code-block:: bash
+
+   $ git clone https://github.com/murillo-group/sarkas.git
+
 .. _GitHub: https://github.com/murillo-group/sarkas-repo
 
 
@@ -43,6 +47,24 @@ To install fdint
 .. _numba: https://numba.pydata.org
 .. _pip: https://pip.pypa.io/en/stable/
 
+Installation using Docker
+-------------------------
+Alternatively, you can install a whole Sarkas package including all dependencies/preliminary-packages using Docker_.
+To install Sarkas using Docker, run the following commands: 
+
+.. code-block:: bash
+
+   $ git clone https://github.com/murillo-group/sarkas.git
+   $ cd sarkas
+   $ docker build -t sarkas -f Docker/Dockerfile .
+
+Once you install Sarkas using Docker, you can go inside the Docker container by running the following: 
+
+.. code-block:: bash
+
+   $ docker run -u 0 -it sarkas bash
+
+.. _Docker: https://www.docker.com/products/docker-desktop
 
 Using Sarkas
 ------------
@@ -53,7 +75,8 @@ This file is responsible for specifying the simulation's parameters such as the 
 
 Running Sarkas
 --------------
-Once you have created your input file, say `input.yaml', you can run Sarkas by simply typing the command, e.g.
+
+Once you have created your input file, say `input.yaml`, you can run Sarkas by simply typing the command, e.g.
 
 .. code-block:: bash
    
