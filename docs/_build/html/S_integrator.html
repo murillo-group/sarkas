@@ -181,9 +181,9 @@
   <div class="section" id="module-S_integrator">
 <span id="s-integrator-module"></span><h1>S_integrator module<a class="headerlink" href="#module-S_integrator" title="Permalink to this headline">¶</a></h1>
 <p>Module of various types of integrators</p>
-<dl class="function">
+<dl class="py function">
 <dt id="S_integrator.Boris_Magnetic_integrator">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Boris_Magnetic_integrator</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Boris_Magnetic_integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Boris_Magnetic_integrator" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Boris_Magnetic_integrator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Boris_Magnetic_integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Boris_Magnetic_integrator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ positions and velocities using the Boris algorithm in the case of a
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <a href="#id8"><span class="problematic" id="id1">[1]_</span></a></p>
 <dl class="field-list simple">
@@ -208,9 +208,9 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="S_integrator.Integrator">
-<em class="property">class </em><code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Integrator</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Integrator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Assign integrator type.</p>
 <dl class="field-list simple">
@@ -221,7 +221,7 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="S_integrator.Integrator.update">
 <code class="sig-name descname">update</code><a class="headerlink" href="#S_integrator.Integrator.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrator choice. ‘Verlet’ or ‘Magnetic_Verlet’.</p>
@@ -232,9 +232,9 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="S_integrator.Integrator.RK">
-<code class="sig-name descname">RK</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator.RK"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator.RK" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RK</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator.RK"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator.RK" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particle position and velocity based on the 4th order Runge-Kutta method
 More information can be found here:
 <a class="reference external" href="https://en.wikipedia.org/wiki/Runge">https://en.wikipedia.org/wiki/Runge</a>–Kutta_methods
@@ -258,9 +258,9 @@ or on the Sarkas website.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="S_integrator.Integrator.RK45">
-<code class="sig-name descname">RK45</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator.RK45"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator.RK45" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RK45</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator.RK45"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator.RK45" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particle position and velocity based on Explicit Runge-Kutta method of order 5(4).
 More information can be found here:
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK45.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK45.html</a>
@@ -279,16 +279,16 @@ or on the Sarkas website.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="S_integrator.Integrator.RK45_with_Langevin">
-<code class="sig-name descname">RK45_with_Langevin</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator.RK45_with_Langevin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator.RK45_with_Langevin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RK45_with_Langevin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Integrator.RK45_with_Langevin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Integrator.RK45_with_Langevin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_integrator.Magnetic_integrator">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Magnetic_integrator</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Magnetic_integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Magnetic_integrator" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Magnetic_integrator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Magnetic_integrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Magnetic_integrator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ positions and velocities based on velocity verlet method in the case of a
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <a href="#id9"><span class="problematic" id="id3">[1]_</span></a></p>
 <dl class="field-list simple">
@@ -313,9 +313,9 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_integrator.Verlet">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Verlet</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Verlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Verlet" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Verlet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Verlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Verlet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particle position and velocity based on velocity verlet method.
 More information can be found here: <a class="reference external" href="https://en.wikipedia.org/wiki/Verlet_integration">https://en.wikipedia.org/wiki/Verlet_integration</a>
 or on the Sarkas website.</p>
@@ -335,9 +335,9 @@ or on the Sarkas website.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_integrator.Verlet_with_Langevin">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Verlet_with_Langevin</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Verlet_with_Langevin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Verlet_with_Langevin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">Verlet_with_Langevin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#Verlet_with_Langevin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.Verlet_with_Langevin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate particles dynamics using the Velocity Verlet algorithm and Langevin damping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -355,9 +355,9 @@ or on the Sarkas website.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_integrator.calc_dipole">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">calc_dipole</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">charge</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#calc_dipole"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.calc_dipole" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">calc_dipole</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">charge</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#calc_dipole"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.calc_dipole" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the dipole due to all charges. See Ref. <a class="footnote-reference brackets" href="#id7" id="id6">2</a> for explanation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -381,9 +381,9 @@ or on the Sarkas website.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_integrator.calc_pot_acc">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">calc_pot_acc</code><span class="sig-paren">(</span><em class="sig-param">ptcls</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#calc_pot_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.calc_pot_acc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">calc_pot_acc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#calc_pot_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.calc_pot_acc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Potential and update particles’ accelerations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -401,9 +401,9 @@ or on the Sarkas website.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="S_integrator.enforce_pbc">
-<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">enforce_pbc</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">cntr</em>, <em class="sig-param">BoxVector</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#enforce_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.enforce_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">S_integrator.</code><code class="sig-name descname">enforce_pbc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">cntr</span></em>, <em class="sig-param"><span class="n">BoxVector</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_integrator.html#enforce_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_integrator.enforce_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enforce Periodic Boundary conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -440,7 +440,7 @@ or on the Sarkas website.</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 04, 2020.
+        Last updated on May, 28, 2020.
       </span>
 
     </p>
