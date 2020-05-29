@@ -76,7 +76,7 @@ f_log.close()
 if not (params.load_method == "restart"):
     if params.Control.verbose:
         print("\n------------- Equilibration -------------")
-    for it in tqdm(range(params.Control.Neq)):
+    for it in tqdm(range(params.Control.Neq), disable=not(params.Control.verbose)):
         # Calculate the Potential energy and update particles' data
         U_therm = integrator.update(ptcls, params)
         # Thermostate
@@ -95,7 +95,7 @@ if params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1:
     if params.Control.verbose:
         print("\n------------- Magnetic Equilibration -------------")
 
-    for it in range(params.Magnetic.Neq_mag):
+    for it in tqdm(range(params.Magnetic.Neq_mag), disable=(not params.Control.verbose)):
         # Calculate the Potential energy and update particles' data
         U_therm = integrator.update(ptcls, params)
         # Thermostate
@@ -147,7 +147,7 @@ U[0] = U_therm
 E[0] = K[0] + U[0]
 Time[0] = 0.0
 dump_indx = 0
-for it in tqdm(range(it_start, Nt)):
+for it in tqdm(range(it_start, Nt), disable=(not params.Control.verbose)):
     # Move the particles and calculate the potential
     U_prod = integrator.update(ptcls, params)
     if (it + 1) % params.Control.dump_step == 0:

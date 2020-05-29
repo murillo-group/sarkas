@@ -11,7 +11,8 @@ distribution that has many of the necessary packages for Sarkas is Anaconda whic
 
 Requirements
 ------------
-If you already have a version of python3 installed, you may still need to download additional packages such as pyfftw_, fdint_, and numba_. If you have the most recent version of Anaconda installed, you should already have numba, installed. 
+If you already have a version of python3 installed, you may still need to download additional packages
+such as pyfftw_, fdint_, tqdm_, and numba_. If you have the most recent version of Anaconda installed, you should already have numba, installed.
 Sarkas requires the following packages: numba_ which allows it to run as fast (if not faster) than C++ or Fortran,
 pyfftw_, to perform Fourier transforms, and fdint_ to calculate Fermi-Dirac integrals.
 
@@ -30,6 +31,13 @@ To install pyfftw
 
    $ conda install -c conda-forge pyfftw
 
+To install tqdm
+
+.. code-block:: bash
+
+   $ conda install -c conda-forge tqdm
+
+
 We highly recommend to use conda since it will install FFTW package,
 if not already installed, and it can prevent compatibility errors between old versions.
 To install fdint
@@ -42,6 +50,7 @@ To install fdint
 .. _fdint: https://pypi.org/project/fdint/
 .. _numba: https://numba.pydata.org
 .. _pip: https://pip.pypa.io/en/stable/
+.. _tqdm: https://tqdm.github.io/
 
 Obtaining Sarkas
 ----------------

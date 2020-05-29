@@ -84,6 +84,7 @@ class Thermodynamics:
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
         self.no_dim = params.dimensions
+        self.box_lengths = params.Lv
         self.box_volume = params.box_volume
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -91,11 +92,12 @@ class Thermodynamics:
         self.species_np = np.zeros(self.no_species)
         self.species_names = []
         self.species_masses = np.zeros(self.no_species)
+        self.species_dens = np.zeros(self.no_species)
         for i in range(self.no_species):
             self.species_np[i] = params.species[i].num
             self.species_names.append(params.species[i].name)
             self.species_masses[i] = params.species[i].mass
-
+            self.species_dens[i] = params.species[i].num_density
         # Output file with Energy and Temperature
         self.filename_csv = self.fldr + "Thermodynamics_" + self.fname_app + '.csv'
         # Constants
@@ -103,6 +105,7 @@ class Thermodynamics:
         self.kB = params.kB
         self.eV2K = params.eV2K
         self.a_ws = params.aws
+        self.T = params.T_desired
 
     def compute_pressure_quantities(self):
         """
@@ -152,6 +155,47 @@ class Thermodynamics:
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
         return
+
+    def compute_pressure_from_rdf(self, r, gr, potential, potential_matrix):
+        """
+        Calculate the Pressure using the radial distribution function
+
+        Parameters
+        ----------
+        r : array
+            Particles' distances.
+
+        gr : array
+            Pair distribution function.
+
+        Returns
+        -------
+        pressure : float
+            Pressure divided by :math:`k_BT`.
+        """
+        r *= self.a_ws
+        r2 = r*r
+        r3 = r2*r
+
+        if potential == "Coulomb":
+            dv_dr = - 1.0/r2
+            # Check for finiteness of first element when r[0] = 0.0
+            if not np.isfinite(dv_dr[0]):
+                dv_dr[0] = dv_dr[1]
+        elif potential == "Yukawa":
+            pass
+        elif potential == "QSP":
+            pass
+        else:
+            raise ValueError('Unknown potential')
+
+        # No. of independent g(r)
+        T = np.mean(self.dataframe["Temperature"])
+        pressure = self.kB * T - 2.0 / 3.0 * np.pi * self.species_dens[0] \
+                   * potential_matrix[1, 0, 0] * np.trapz(dv_dr*r3*gr, x=r)
+        pressure *= self.species_dens[0]
+
+        return pressure
 
     def plot(self, quantity="Total Energy", delta=True, show=False):
         """
@@ -752,7 +796,9 @@ class DynamicStructureFactor:
         try:
             self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
         except FileNotFoundError:
-            print("\nError: {} not found!".format(self.filename_csv))
+            print("\nFile {} not found!".format(self.filename_csv))
+            print("\nComputing DSF now")
+            self.compute()
         return
 
     def compute(self):
@@ -1455,7 +1501,7 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
     for sp in range(len(species_np)):
         sp_end = sp_start + species_np[sp]
         vel[:, sp_start: sp_end] *= np.sqrt(species_mass[sp])
-        acc[:, sp_start: sp_end] /= species_mass[sp]
+        acc[:, sp_start: sp_end] *= species_mass[sp]  #force
         sp_start = sp_end
 
     pressure = 0.0
@@ -1729,6 +1775,6 @@ def calc_Skw_single(pos_data, ka_list, ka_counts, species_np, no_dumps):
         nkt = np.sum(np.exp(-1j * kr_i), axis=1)
         nkw = np.fft.fft(nkt) * norm
 
-        Skw[indx, 0, :] += np.abs(nkw) ** 2 / (ka_counts[indx] * species_np[0])
+        Skw[indx, 0, :] += np.real(np.conj(nkw) * nkw) / (ka_counts[indx] * species_np[0])
 
     return Skw
