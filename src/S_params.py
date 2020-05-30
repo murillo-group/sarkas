@@ -388,7 +388,7 @@ class Params:
         """
 
         def __init__(self):
-            self.on = 1
+            self.on = 0
             self.timestep = 0
 
     class Langevin:

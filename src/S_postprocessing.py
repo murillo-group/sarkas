@@ -781,11 +781,11 @@ class DynamicStructureFactor:
 
         # Create the lists of k vectors
         if len(params.PostProcessing.dsf_no_ka_values) == 0:
-            self.no_ka = np.array([params.PostProcessing.ssf_no_ka_values,
-                                   params.PostProcessing.ssf_no_ka_values,
-                                   params.PostProcessing.ssf_no_ka_values], dtype=int)
+            self.no_ka = np.array([params.PostProcessing.dsf_no_ka_values,
+                                   params.PostProcessing.dsf_no_ka_values,
+                                   params.PostProcessing.dsf_no_ka_values], dtype=int)
         else:
-            self.no_ka = params.PostProcessing.ssf_no_ka_values  # number of ka values
+            self.no_ka = params.PostProcessing.dsf_no_ka_values  # number of ka values
         self.k_list, self.k_counts, self.k_unique = kspace_setup(self.no_ka, self.box_lengths)
         self.ka_values = 2.0 * np.pi * self.k_unique * self.a_ws
 
@@ -1434,6 +1434,7 @@ def calc_elec_current(vel, sp_charge, sp_num):
             sp_start = sp_end
 
     return Js, Jtot
+
 
 
 @nb.njit

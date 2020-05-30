@@ -7,22 +7,25 @@ import numba as nb
 
 class Thermostat:
     def __init__(self, params):
-        self.kB = params.kB
-        self.no_species = len(params.species)
-        self.species_np = np.zeros(self.no_species)
-        self.species_masses = np.zeros(self.no_species)
-        self.therm_timestep = params.Thermostat.timestep
-        self.therm_tau = params.Thermostat.tau
-        self.T_desired = params.T_desired
+        if params.Thermostat.on:
+            self.kB = params.kB
+            self.no_species = len(params.species)
+            self.species_np = np.zeros(self.no_species)
+            self.species_masses = np.zeros(self.no_species)
+            self.therm_timestep = params.Thermostat.timestep
+            self.therm_tau = params.Thermostat.tau
+            self.T_desired = params.T_desired
 
-        for i in range(self.no_species):
-            self.species_np[i] = params.species[i].num
-            self.species_masses[i] = params.species[i].mass
+            for i in range(self.no_species):
+                self.species_np[i] = params.species[i].num
+                self.species_masses[i] = params.species[i].mass
 
-        if params.Thermostat.type == "Berendsen":
-            self.type = Berendsen
+            if params.Thermostat.type == "Berendsen":
+                self.type = Berendsen
+            else:
+                raise AttributeError("Only Berendsen thermostat is supported. Check your input file, thermostat part.")
         else:
-            raise AttributeError("Only Berendsen thermostat is supported. Check your input file, thermostat part.")
+            pass
 
     def update(self, vel, it):
         K, T = calc_kin_temp(vel, self.species_np, self.species_masses, self.kB)
