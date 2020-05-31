@@ -134,7 +134,7 @@ class Verbose:
         if params.Potential.type == 'Yukawa' or params.Potential.type == 'EGS':
             print('(total) ion plasma frequency = {:1.6e} [Hz]'.format(params.wp), file=f_log)
             print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp), file=f_log)
-        elif params.Potential.type == 'Coulomb':
+        elif params.Potential.type == 'Coulomb' or params.Potential.type == 'Moliere':
             print('(total) plasma frequency = {:1.6e} [Hz]'.format(params.wp), file=f_log)
             print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp), file=f_log)
         elif params.Potential.type == 'QSP':
