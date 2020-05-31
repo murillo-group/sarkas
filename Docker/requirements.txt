@@ -1,0 +1,6 @@
+tqdm
+scipy
+fdint
+pyFFTW
+PyYAML
+numba

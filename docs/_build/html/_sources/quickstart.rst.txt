@@ -6,10 +6,43 @@ Sarkas, like any other code, requires an input file containing all the simulatio
 Examples of input files can be found in the `example` folder.
 More information on the input files can be found below inputfile_
 
+<<<<<<< HEAD
 Running Sarkas
 --------------
 Once you have created your input file, say `yukawa_mks.yaml`, you can run Sarkas by simply typing the command
 (in the sarkas directory)
+=======
+.. _here: https://www.anaconda.com
+
+Obtaining Sarkas
+----------------
+Sarkas is undergoing heavy development but the most recent version can be found on GitHub_, which 
+can then be cloned.
+
+.. code-block:: bash
+
+   $ git clone https://github.com/murillo-group/sarkas.git
+
+.. _GitHub: https://github.com/murillo-group/sarkas-repo
+
+
+Preliminary Packages
+~~~~~~~~~~~~~~~~~~~~
+If you already have a version of python3 installed, you may still need to download additional packages
+such as pyfftw_, fdint_, and numba_. If you have the most recent version of Anaconda installed, 
+you should already have numba, installed. If you have the python package manager pip_ installed,
+you can install these packages, by simply opening a terminal and running the following commands:
+
+To install pyfftw
+
+.. code-block:: bash
+
+   $ pip install pyfftw
+
+To install numba
+
+.. code-block:: bash
+>>>>>>> 646033d9dab34ced52782aa06bdf049a89954960
 
 .. warning::
 
@@ -22,16 +55,51 @@ Once you have created your input file, say `yukawa_mks.yaml`, you can run Sarkas
 Depending on the option `Control: verbose` in the input file, information about the state of the simulations are printed to screen.
 In this example case `Control: verbose: yes`.
 
+<<<<<<< HEAD
 Simulation's data is stored in the folder given in `Control:output_dir:` option of the input file.
 In this example case `Control:output_dir:YOCP_mks_pp`. In this folder you can find a
 log file, containing simulations' parameters, physical constants, and run times; a series of checkpoint files
 containing particles' data needed for restarting the simulation; a file containing the radial distribution function,
 and a plot of the radial distribution function saved as a `.png`.
+=======
+Installation using Docker
+-------------------------
+Alternatively, you can install a whole Sarkas package including all dependencies/preliminary-packages using Docker_.
+To install Sarkas using Docker, run the following commands: 
+
+.. code-block:: bash
+
+   $ git clone https://github.com/murillo-group/sarkas.git
+   $ cd sarkas
+   $ docker build -t sarkas -f Docker/Dockerfile .
+
+Once you install Sarkas using Docker, you can go inside the Docker container by running the following: 
+
+.. code-block:: bash
+
+   $ docker run -u 0 -it sarkas bash
+
+.. _Docker: https://www.docker.com/products/docker-desktop
+>>>>>>> 646033d9dab34ced52782aa06bdf049a89954960
 
 .. _inputfile:
 
 Input file
 ~~~~~~~~~~~
+<<<<<<< HEAD
+=======
+This file is responsible for specifying the simulation's parameters such as the number of particles, number of timesteps, and initialization. Examples of input files can be found in the examples folder. There are several examples aimed at demonstrating the various capabilities of Sarkas. The names of each example file indicate the interacting potential used, the number of species, the system of units, and the force calculation algorithm, and whether the system is magnetized or not. In the following we will describe one of the example files. 
+
+Running Sarkas
+--------------
+
+Once you have created your input file, say `input.yaml`, you can run Sarkas by simply typing the command, e.g.
+
+.. code-block:: bash
+   
+   $ python3 src/Sarkas.py input.yaml
+
+>>>>>>> 646033d9dab34ced52782aa06bdf049a89954960
 Let us open `ybim_mks_p3m_mag.yaml` file in a text editor. This file contains parameters for a simulation of a Carbon-Oxygen mixture interacting via a Yukawa potential and under the influence of a constant Magnetic field. The first thing to notice is that there are eight sections each of which contains a set of parameters. Each section corresponds to a subclass of the `Params` class. The order is relatively important since some section parameters might depend on a previous section. For example: the Magnetized section must come after the Integrator section since the option electrostatic_thermalization, if chosen to be True, it modifies the integrator type. Below we present a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: `https://learn.getgrav.org/16/advanced/yaml`.
 
 .. csv-table:: Table for "Particles - species" section key and value pairs in the input file
