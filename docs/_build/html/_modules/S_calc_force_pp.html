@@ -215,7 +215,6 @@
     <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>  <span class="c1"># Vector of accelerations</span>
 
     <span class="n">rdf_nbins</span> <span class="o">=</span> <span class="n">rdf_hist</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">num_species</span> <span class="o">=</span> <span class="n">id_ij</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">dr_rdf</span> <span class="o">=</span> <span class="n">L</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">rdf_nbins</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
@@ -243,8 +242,7 @@
             <span class="c1"># Compute distance between particles i and j</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">dy</span> <span class="o">+</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">dz</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">measure</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">dr_rdf</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">rdf_nbins</span><span class="p">:</span>
-                <span class="n">gr_ij</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">num_species</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-                <span class="n">rdf_hist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">dr_rdf</span><span class="p">),</span> <span class="n">gr_ij</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">rdf_hist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">dr_rdf</span><span class="p">),</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">rc</span><span class="p">:</span>
                 <span class="n">id_i</span> <span class="o">=</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -359,7 +357,6 @@
     <span class="n">head</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>  <span class="c1"># Make head list empty until population</span>
 
     <span class="n">rdf_nbins</span> <span class="o">=</span> <span class="n">rdf_hist</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">num_species</span> <span class="o">=</span> <span class="n">id_ij</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">dr_rdf</span> <span class="o">=</span> <span class="n">rc</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">rdf_nbins</span><span class="p">)</span>
 
     <span class="c1"># Loop over all particles and place them in cells</span>
@@ -507,11 +504,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-<<<<<<< HEAD
-        Last updated on May, 13, 2020.
-=======
-        Last updated on May, 29, 2020.
->>>>>>> 646033d9dab34ced52782aa06bdf049a89954960
+        Last updated on May, 31, 2020.
       </span>
 
     </p>

@@ -84,10 +84,10 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#obtaining-sarkas">Obtaining Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation-using-anaconda">Installation using Anaconda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation-using-something-else">Installation using something else</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#option-1-github-repository">Option 1: GitHub Repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#option-2-pip-install">Option 2: Pip  Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#option-3-docker-image">Option 3: Docker Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
@@ -166,6 +166,41 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>To  install Sarkas, choose one of the three methods below, then verify you have all necessary prerequisites.</p>
+<div class="section" id="option-1-github-repository">
+<h2>Option 1: GitHub Repository<a class="headerlink" href="#option-1-github-repository" title="Permalink to this headline">¶</a></h2>
+<p>Sarkas is undergoing heavy development. The most recent version can be found on <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">GitHub</a>.</p>
+</div>
+<div class="section" id="option-2-pip-install">
+<h2>Option 2: Pip  Install<a class="headerlink" href="#option-2-pip-install" title="Permalink to this headline">¶</a></h2>
+<p>Instruction on how to install Sarkas using Anaconda. This will be done once setup.py is complete</p>
+</div>
+<div class="section" id="option-3-docker-image">
+<h2>Option 3: Docker Image<a class="headerlink" href="#option-3-docker-image" title="Permalink to this headline">¶</a></h2>
+<p>Alternatively, you can install a whole Sarkas package including all dependencies/preliminary-packages using <a class="reference external" href="https://www.docker.com/products/docker-desktop">Docker</a>.
+To install Sarkas using Docker, run the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/murillo-group/sarkas.git
+$ <span class="nb">cd</span> sarkas
+$ docker build -t sarkas -f Docker/Dockerfile .
+</pre></div>
+</div>
+<p>Once you install Sarkas using Docker, you can go inside the Docker container by running the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker run -u <span class="m">0</span> -it sarkas bash
+</pre></div>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Required</p>
+<ul>
+<li><p>Python &gt;= 3.6</p></li>
+<li><p>Numba &gt;= 0.49.1</p></li>
+<li><p>pyfftw &gt;= 0.12.0</p></li>
+<li><p>tqdm &gt;= 4.46.0</p></li>
+</ul>
+</li>
+</ul>
 <p>Before you can begin working with Sarkas, you will need to have python3 installed. A useful python
 distribution that has many of the necessary packages for Sarkas is Anaconda which can be downloaded <a class="reference external" href="https://www.anaconda.com">here</a>.</p>
 <div class="admonition note">
@@ -173,9 +208,8 @@ distribution that has many of the necessary packages for Sarkas is Anaconda whic
 <p>We strongly recommend to install SARKAS using Anaconda since this will prevent any incompatibility between
 packages’ versions.</p>
 </div>
-<div class="section" id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
-<p>If you already have a version of python3 installed, you may still need to download additional packages such as <a class="reference external" href="https://pypi.org/project/pyFFTW/">pyfftw</a>, <a class="reference external" href="https://pypi.org/project/fdint/">fdint</a>, and <a class="reference external" href="https://numba.pydata.org">numba</a>. If you have the most recent version of Anaconda installed, you should already have numba, installed.
+<p>If you already have a version of python3 installed, you may still need to download additional packages
+such as <a class="reference external" href="https://pypi.org/project/pyFFTW/">pyfftw</a>, <a class="reference external" href="https://pypi.org/project/fdint/">fdint</a>, <a class="reference external" href="https://tqdm.github.io/">tqdm</a>, and <a class="reference external" href="https://numba.pydata.org">numba</a>. If you have the most recent version of Anaconda installed, you should already have numba, installed.
 Sarkas requires the following packages: <a class="reference external" href="https://numba.pydata.org">numba</a> which allows it to run as fast (if not faster) than C++ or Fortran,
 <a class="reference external" href="https://pypi.org/project/pyFFTW/">pyfftw</a>, to perform Fourier transforms, and <a class="reference external" href="https://pypi.org/project/fdint/">fdint</a> to calculate Fermi-Dirac integrals.</p>
 <p>If you have the python package manager <a class="reference external" href="https://pip.pypa.io/en/stable/">pip</a> installed,
@@ -188,25 +222,16 @@ you can install these packages, by simply opening a terminal and running the fol
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda install -c conda-forge pyfftw
 </pre></div>
 </div>
+<p>To install tqdm</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda install -c conda-forge tqdm
+</pre></div>
+</div>
 <p>We highly recommend to use conda since it will install FFTW package,
 if not already installed, and it can prevent compatibility errors between old versions.
 To install fdint</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install fdint
 </pre></div>
 </div>
-</div>
-<div class="section" id="obtaining-sarkas">
-<h2>Obtaining Sarkas<a class="headerlink" href="#obtaining-sarkas" title="Permalink to this headline">¶</a></h2>
-<p>Sarkas is undergoing heavy development but the most recent version can be found on <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">GitHub</a>, which
-can then be cloned.</p>
-</div>
-<div class="section" id="installation-using-anaconda">
-<h2>Installation using Anaconda<a class="headerlink" href="#installation-using-anaconda" title="Permalink to this headline">¶</a></h2>
-<p>Instruction on how to install Sarkas using Anaconda. This will be done once setup.py is complete</p>
-</div>
-<div class="section" id="installation-using-something-else">
-<h2>Installation using something else<a class="headerlink" href="#installation-using-something-else" title="Permalink to this headline">¶</a></h2>
-<p>No instructions. You should install it with Anaconda otherwise go get LAMMPS.</p>
 </div>
 </div>
 
@@ -232,7 +257,7 @@ can then be cloned.</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 11, 2020.
+        Last updated on May, 31, 2020.
       </span>
 
     </p>

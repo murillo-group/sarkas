@@ -11,7 +11,7 @@ pure-python construction allows users to quickly add their own features to model
 their choosing. 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Getting Started:
    
    installation

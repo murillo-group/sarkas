@@ -165,7 +165,7 @@
 <span class="kn">import</span> <span class="nn">pyfftw</span>
 
 <span class="c1"># These &quot;ignore&quot; are needed because numba does not support pyfftw yet</span>
-<span class="kn">from</span> <span class="nn">numba.errors</span> <span class="kn">import</span> <span class="n">NumbaWarning</span><span class="p">,</span> <span class="n">NumbaDeprecationWarning</span><span class="p">,</span> <span class="n">NumbaPendingDeprecationWarning</span>
+<span class="kn">from</span> <span class="nn">numba.core.errors</span> <span class="kn">import</span> <span class="n">NumbaWarning</span><span class="p">,</span> <span class="n">NumbaDeprecationWarning</span><span class="p">,</span> <span class="n">NumbaPendingDeprecationWarning</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaDeprecationWarning</span><span class="p">)</span>
@@ -681,11 +681,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-<<<<<<< HEAD
-        Last updated on May, 13, 2020.
-=======
-        Last updated on May, 29, 2020.
->>>>>>> 646033d9dab34ced52782aa06bdf049a89954960
+        Last updated on May, 31, 2020.
       </span>
 
     </p>
