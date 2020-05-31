@@ -19,7 +19,7 @@ Potential:
     - kappa: 2.0
 
 Integrator:
-    - type: Verlet                  # velocity integrator type
+    - type: Verlet       # velocity integrator type
 
 Thermostat:
     - type: Berendsen               # thermostat type
@@ -34,7 +34,7 @@ Control:
     - BC: periodic                  # periodic boundary condition
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
-    - verbose: yes
+    - verbose: no
     - output_dir: YOCP_mks_pp        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:

@@ -25,12 +25,6 @@ def Moliere_setup(params, filename):
 
     """
 
-    # constants and conversion factors    
-    if params.Control.units == "cgs":
-        fourpie0 = 1.0
-    elif params.Control.units == "mks":
-        fourpie0 = 4.0 * np.pi * params.epsilon_0
-
     twopi = 2.0 * np.pi
     beta_i = 1.0 / (params.kB * params.Ti)
 
@@ -46,26 +40,6 @@ def Moliere_setup(params, filename):
 
                         if key == "b":
                             b_params = np.array(value)
-
-    # Calculate the (total) plasma frequency
-    if params.Control.units == "cgs":
-        wp_tot_sq = 0.0
-        for i in range(params.num_species):
-            wp2 = 4.0 * np.pi * params.species[i].charge ** 2 * params.species[i].num_density / params.species[i].mass
-            params.species[i].wp = np.sqrt(wp2)
-            wp_tot_sq += wp2
-
-        params.wp = np.sqrt(wp_tot_sq)
-
-    elif params.Control.units == "mks":
-        wp_tot_sq = 0.0
-        for i in range(params.num_species):
-            wp2 = params.species[i].charge ** 2 * params.species[i].num_density / (
-                    params.species[i].mass * params.epsilon_0)
-            params.species[i].wp = np.sqrt(wp2)
-            wp_tot_sq += wp2
-
-        params.wp = np.sqrt(wp_tot_sq)
 
     if params.P3M.on:
         Moliere_matrix = np.zeros((7, params.num_species, params.num_species))
@@ -99,8 +73,22 @@ def Moliere_setup(params, filename):
     params.QFactor = params.QFactor / params.fourpie0
     params.Potential.matrix = Moliere_matrix
 
+    wp_tot_sq = 0.0
+    for i in range(params.num_species):
+        wp2 = 4.0 * np.pi * params.species[i].charge ** 2 * params.species[i].num_density / (
+                params.species[i].mass * params.fourpie0)
+        params.species[i].wp = np.sqrt(wp2)
+        wp_tot_sq += wp2
+
+    params.wp = np.sqrt(wp_tot_sq)
+
     if params.Potential.method == "PP":
         params.force = Moliere_force_PP
+
+        # Force error calculated from eq.(43) in Ref.[1]_
+        params.PP_err = np.sqrt(twopi / b_params.min() ) * np.exp(-params.Potential.rc / b_params.min())
+        # Renormalize
+        params.PP_err = params.PP_err * params.aws ** 2 * np.sqrt(params.N / params.box_volume)
 
     if params.Potential.method == "P3M":
         print("\nP3M Algorithm not implemented yet. Good Bye!")
@@ -150,7 +138,7 @@ def Moliere_force_PP(r, pot_matrix):
         factor1 = r * pot_matrix[i + 3]
         factor2 = pot_matrix[i] / r
         U += factor2 * np.exp(-factor1)
-        force += np.exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i])
+        force += np.exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i])/r
 
     force = force * pot_matrix[6]
     U = U * pot_matrix[6]

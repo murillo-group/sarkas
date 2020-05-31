@@ -62,7 +62,7 @@ def setup(params, filename):
 
     params.PP_err = np.sqrt(np.pi * sigma2 ** 12 / (13.0 * params.Potential.rc ** 13))
     params.PP_err *= np.sqrt(params.N / params.box_volume) * params.aws ** 2
-
+    params.Potential.Gamma_eff = epsilon_tot/(params.kB*params.T_desired)
     return
 
 

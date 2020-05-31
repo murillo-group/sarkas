@@ -139,7 +139,7 @@ def setup(params, filename):
         params.ni += params.species[j + 1].num_density
 
     params.ai = (3.0 / (4.0 * np.pi * params.ni)) ** (1.0 / 3.0)  # Ion WS
-
+    params.Potential.Gamma_eff = abs(params.Potential.matrix[1, 0, 1]) / (params.ai * params.kB * params.Ti)
     # Rescale all the Lengths by the ion's WS Radius instead of the total WS radius. 
     params.L = params.ai * (4.0 * np.pi * params.total_num_ptcls / 3.0) ** (1.0 / 3.0)  # box length
     L = params.L

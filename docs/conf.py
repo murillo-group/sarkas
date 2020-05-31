@@ -49,7 +49,7 @@ napoleon_use_param = True
 napoleon_use_rtype = True
 
 autodoc_mock_imports = ['numpy', 'yaml','fdint', 'numba', 'scipy','time',
-                        'sys', 'pyfftw', 'Sarkas']
+                        'sys', 'pyfftw', 'pandas','Sarkas']
 #                        'S_integrator',  
 #                        'S_particles',
 #                        'S_verbose' ,

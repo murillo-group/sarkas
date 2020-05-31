@@ -8,7 +8,7 @@ import numba as nb
 import pyfftw
 
 # These "ignore" are needed because numba does not support pyfftw yet
-from numba.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+from numba.core.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 import warnings
 
 warnings.simplefilter('ignore', category=NumbaDeprecationWarning)

@@ -157,7 +157,7 @@ class Params:
         units : str
             Choice of units mks or cgs.
 
-        wq : float
+        wp : float
             Total Plasma frequency.
 
         force : func
@@ -166,16 +166,16 @@ class Params:
 
     def __init__(self):
         # Container of Species
+        self.N = 0
         self.ne = 0.0
         self.L = 0.0
         self.J2erg = 1.0e+7  # erg/J
-        self.hbar = 1.0
-        self.hbar2 = self.hbar ** 2
         self.eps0 = const.epsilon_0
         self.fourpie0 = 4.0 * np.pi * self.eps0
         self.me = const.physical_constants["electron mass"][0]
         self.qe = const.physical_constants["elementary charge"][0]
         self.hbar = const.hbar
+        self.hbar2 = self.hbar ** 2
         self.c0 = const.physical_constants["speed of light in vacuum"][0]
         self.eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
         self.a0 = const.physical_constants["Bohr radius"][0]
@@ -254,7 +254,6 @@ class Params:
             self.elec_therm = True
             self.Neq_mag = 10000
             self.BField = 0.0
-
 
     class Potential:
         """
@@ -389,7 +388,7 @@ class Params:
         """
 
         def __init__(self):
-            self.on = 1
+            self.on = 0
             self.timestep = 0
 
     class Langevin:
@@ -432,6 +431,9 @@ class Params:
             dump_step : int
                 Snapshot interval.
 
+            np_per_boxlength : array
+                Number of particles per box length. Note that :math: `N_x x N_y x N_z = N_{tot}`
+
             writexyz : str
                 Flag for XYZ file for OVITO. "no" or "yes".
 
@@ -458,12 +460,14 @@ class Params:
             self.verbose = "yes"
             self.checkpoint_dir = "Checkpoint"
             self.log_file = self.checkpoint_dir + "/log.out"
+            self.np_per_boxlength = []
 
     class PostProcessing:
 
         def __init__(self):
             self.rdf_nbins = 100
-            self.no_ka_values = 30
+            self.ssf_no_ka_values = np.array([5, 5, 5], dtype=int)
+            self.dsf_no_ka_values = np.array([5, 5, 5], dtype=int)
 
     def setup(self, filename):
         """
@@ -506,13 +510,13 @@ class Params:
 
         self.Potential.LL_on = 1  # linked list on
         if not hasattr(self.Potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.L / 2, "will be used as rc")
-            self.Potential.rc = self.L / 2.
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.Lv.min() / 2, "will be used as rc")
+            self.Potential.rc = self.Lv.min() / 2.
             self.Potential.LL_on = 0  # linked list off
 
-        if self.Potential.method == "PP" and self.Potential.rc > self.L / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.L / 2, "will be used as rc")
-            self.Potential.rc = self.L / 2.
+        if self.Potential.method == "PP" and self.Potential.rc > self.Lv.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.Lv.min() / 2, "will be used as rc")
+            self.Potential.rc = self.Lv.min()/ 2.
             self.Potential.LL_on = 0  # linked list off
 
         return
@@ -564,6 +568,9 @@ class Params:
 
                                     if key == "A":
                                         self.species[ic].atomic_weight = float(value)
+
+                                    if key == "mass_density":
+                                        self.species[ic].mass_density = float(value)
 
                                     if key == "temperature_eV":
                                         # Conversion factor from eV to Kelvin
@@ -683,7 +690,19 @@ class Params:
                             if key == 'rdf_nbins':
                                 self.PostProcessing.rdf_nbins = int(value)
                             if key == 'ssf_no_ka_values':
-                                self.PostProcessing.no_ka_values = int(value)
+                                self.PostProcessing.ssf_no_ka_values = value
+                            if key == 'dsf_no_ka_values':
+                                self.PostProcessing.dsf_no_ka_values = value
+
+                if lkey == "BoundaryCondition":
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            # Type
+                            if key == "periodic":
+                                self.BC.pbc_axes = value
+
+                            if key == "momentum_mirror":
+                                self.BC.mm_axes = value
 
                 if lkey == "Control":
                     for keyword in dics[lkey]:
@@ -711,6 +730,10 @@ class Params:
                                     self.Control.PBC = 1
                                 else:
                                     self.Control.PBC = 0
+
+                            if key == "Np_per_boxlength":
+                                self.Control.np_per_boxlength = np.array(value, dtype=int)
+
                             # Saving interval
                             if key == "dump_step":
                                 self.Control.dump_step = int(value)
@@ -755,7 +778,7 @@ class Params:
             self.c0 *= 1e2  # cm/s
             if not (self.Potential.type == "LJ"):
                 # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
-                C2statC = 1.0e-01*self.c0
+                C2statC = 1.0e-01 * self.c0
                 self.hbar = self.J2erg * self.hbar
                 self.hbar2 = self.hbar ** 2
                 self.qe *= C2statC
@@ -776,6 +799,10 @@ class Params:
                 elif self.Control.units == "mks":
                     self.species[ic].mass = mp * self.species[ic].atomic_weight
 
+            if hasattr(self.species[ic], "mass_density"):
+                Av = const.physical_constants["Avogadro constant"][0]
+                self.species[ic].num_density = self.species[ic].mass_density * Av / self.species[ic].atomic_weight
+                self.total_num_density += self.species[ic].num_density
         # Concentrations arrays and ions' total temperature
         nT = 0.
         for ic in range(self.num_species):
@@ -798,10 +825,12 @@ class Params:
                 if self.Magnetic.on:
                     if self.Control.units == "cgs":
                         #  See https://en.wikipedia.org/wiki/Lorentz_force
-                        self.species[ic].omega_c = self.species[ic].charge * self.Magnetic.BField / self.species[ic].mass
+                        self.species[ic].omega_c = self.species[ic].charge * self.Magnetic.BField / self.species[
+                            ic].mass
                         self.species[ic].omega_c = self.species[ic].omega_c / self.c0
                     elif self.Control.units == "mks":
-                        self.species[ic].omega_c = self.species[ic].charge * self.Magnetic.BField / self.species[ic].mass
+                        self.species[ic].omega_c = self.species[ic].charge * self.Magnetic.BField / self.species[
+                            ic].mass
 
                 # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008)
                 self.species[ic].QFactor = self.species[ic].num * self.species[ic].charge ** 2
@@ -816,29 +845,50 @@ class Params:
                     self.ne += self.species[ic].Z * self.species[ic].num_density
 
         # Simulation Box Parameters
-        self.L = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)  # box length
         self.N = self.total_num_ptcls
-        L = self.L
-        self.Lx = L
-        self.Ly = L
-        self.Lz = L
-        self.Lv = np.array([L, L, L])  # box length vector
-        self.box_volume = self.Lx * self.Ly * self.Lz
-        self.d = np.count_nonzero(self.Lv)  # no. of dimensions
-        self.Lmax_v = np.array([L, L, L])
-        self.Lmin_v = np.array([0.0, 0.0, 0.0])
+        if len(self.Control.np_per_boxlength) != 0:
+            if int(np.prod(self.Control.np_per_boxlength)) != self.total_num_ptcls:
+                raise ValueError("Number of particles per dimension does not match total number of particles.")
+
+            self.Lx = self.aws * self.Control.np_per_boxlength[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.aws * self.Control.np_per_boxlength[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.aws * self.Control.np_per_boxlength[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+        else:
+            self.Lx = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+
+        self.Lv = np.array([self.Lx, self.Ly, self.Lz])  # box length vector
 
         # Dev Note: The following are useful for future geometries
-        self.e1 = np.array([L, 0.0, 0.0])
-        self.e2 = np.array([0.0, L, 0.0])
-        self.e3 = np.array([0.0, 0.0, L])
-        self.box_volume2 = abs( np.dot( np.cross(self.e1, self.e2), self.e3)  )
+        self.e1 = np.array([self.Lx, 0.0, 0.0])
+        self.e2 = np.array([0.0, self.Ly, 0.0])
+        self.e3 = np.array([0.0, 0.0, self.Lz])
 
-        # lowest wavenumber for S(q) and S(q,w)
-        self.dq = 2.0 * np.pi
-        if self.L > 0.:
-            self.dq = 2. * np.pi / self.L
-        # Max wavenumber for S(q) and S(q,w)
-        self.Nq = self.PostProcessing.no_ka_values  #3.0 * int(self.q_max / self.dq)
+        self.box_volume = abs(np.dot(np.cross(self.e1, self.e2), self.e3))
+
+        self.dimensions = np.count_nonzero(self.Lv)  # no. of dimensions
+
         self.T_desired = self.Ti
+
+        # # boundary Conditions
+        # if hasattr(self.BC, "pbc_axes"):
+        #     for (ij,bc) in enumerate(self.BC.pbc_axes):
+        #         if bc == "x":
+        #             self.BC.pbc_axes_indx[ij] = 0
+        #         elif bc == "y":
+        #             self.BC.pbc_axes_indx[ij] = 1
+        #         elif bc == "z":
+        #             self.BC.pbc_axes_indx[ij] = 2
+        #
+        # if hasattr(self.BC, "mm_axes"):
+        #     self.BC.mm_axes_indx = np.zeros( len(self.BC.mm_axes), dtype=np.int)
+        #     for (ij,bc) in enumerate(self.BC.mm_axes):
+        #         if bc == "x":
+        #             self.BC.mm_axes_indx[ij] = 0
+        #         elif bc == "y":
+        #             self.BC.mm_axes_indx[ij] = 1
+        #         elif bc == "z":
+        #             self.BC.mm_axes_indx[ij] = 2
+
         return

@@ -4,64 +4,79 @@ Module containing various thermostat. Berendsen only for now.
 import numpy as np
 import numba as nb
 
-'''
+
 class Thermostat:
     def __init__(self, params):
-        self.integrator = Integrator(params)
+        if params.Thermostat.on:
+            self.kB = params.kB
+            self.no_species = len(params.species)
+            self.species_np = np.zeros(self.no_species)
+            self.species_masses = np.zeros(self.no_species)
+            self.therm_timestep = params.Thermostat.timestep
+            self.therm_tau = params.Thermostat.tau
+            self.T_desired = params.T_desired
 
-        self.params = params
+            for i in range(self.no_species):
+                self.species_np[i] = params.species[i].num
+                self.species_masses[i] = params.species[i].mass
 
-        if(params.Thermostat.type == "Berendsen"):
-            self.type = self.Berendsen
+            if params.Thermostat.type == "Berendsen":
+                self.type = Berendsen
+            else:
+                raise AttributeError("Only Berendsen thermostat is supported. Check your input file, thermostat part.")
         else:
-            print("Only Berendsen thermostat is supported. Check your input file, thermostat part.")
-            sys.exit()
+            pass
 
-        if(params.Integrator.type == "Verlet"):
-            self.integrator = self.integrator.Verlet
-        else:
-            print("Only Verlet integrator is supported. Check your input file, integrator part.")
-            sys.exit()
-
-    def update(self, ptcls, it):
-        U = self.type(ptcls, it)
-        return U
-'''
+    def update(self, vel, it):
+        K, T = calc_kin_temp(vel, self.species_np, self.species_masses, self.kB)
+        self.type(vel, self.T_desired, T, self.species_np, self.therm_timestep, self.therm_tau, it)
+        return
 
 
-def Berendsen(ptcls, params, it):
-    """ 
+@nb.njit
+def Berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
+    """
     Update particle velocity based on Berendsen thermostat.
-    
+
     Parameters
     ----------
-    ptcls : class
-        Particles's data. See ``S_particles.py`` for more information.
-    
-    params : class
-        Simulation parameters. See ``S_params.py`` for more information.
+    T : array
+        Temperature of each species.
+
+    vel : array
+        Particles' velocities to rescale.
+
+    T_desired : float
+        Target temperature.
+
+    tau : float
+        Scale factor.
+
+    therm_timestep : int
+        Timestep at which to turn on the thermostat.
+
+    species_np : array
+        Number of each species.
 
     it : int
-        Timestep.
-    
+        Current timestep.
+
     References
     ----------
-    .. [1] `H.J.C. Berendsen et al., J Chem Phys 81 3684 (1984) <https://doi.org/10.1063/1.448118>`_ 
+    .. [Berendsen1984] `H.J.C. Berendsen et al., J Chem Phys 81 3684 (1984) <https://doi.org/10.1063/1.448118>`_
 
     """
     # Dev Notes: this could be Numba'd
-    K, T = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
     species_start = 0
-    species_end = 0
-    for i in range(params.num_species):
-        species_end = species_start + params.species[i].num
+    for i in range(len(species_np)):
+        species_end = species_start + species_np[i]
 
-        if it <= params.Thermostat.timestep:
-            fact = np.sqrt(params.T_desired / T[i])
+        if it <= therm_timestep:
+            fact = np.sqrt(T_desired / T[i])
         else:
-            fact = np.sqrt(1.0 + (params.T_desired / T[i] - 1.0) / params.Thermostat.tau)  # eq.(11)
+            fact = np.sqrt(1.0 + (T_desired / T[i] - 1.0) / tau)  # eq.(11)
 
-        ptcls.vel[species_start:species_end, :] *= fact
+        vel[species_start:species_end, :] *= fact
         species_start = species_end
 
     return
@@ -69,7 +84,7 @@ def Berendsen(ptcls, params, it):
 
 @nb.njit
 def calc_kin_temp(vel, nums, masses, kB):
-    """ 
+    """
     Calculates the kinetic energy and temperature.
 
     Parameters
@@ -101,7 +116,6 @@ def calc_kin_temp(vel, nums, masses, kB):
     T = np.zeros(num_species)
 
     species_start = 0
-    species_end = 0
     for i in range(num_species):
         species_end = species_start + nums[i]
         K[i] = 0.5 * masses[i] * np.sum(vel[species_start:species_end, :] ** 2)
@@ -131,8 +145,6 @@ def remove_drift(vel, nums, masses):
     P = np.zeros((len(nums), vel.shape[1]))
 
     species_start = 0
-    species_end = 0
-
     for ic in range(len(nums)):
         species_end = species_start + nums[ic]
         P[ic, :] = np.sum(vel[species_start:species_end, :], axis=0) * masses[ic]

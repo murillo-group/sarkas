@@ -16,25 +16,20 @@ Michigan State University
 import numpy as np
 import time
 import sys
-
-# Importing MD modules, non class
-import S_thermostat as thermostat
+from tqdm import tqdm
 
 # import MD modules, class
+from S_thermostat import Thermostat, calc_kin_temp, remove_drift
 from S_integrator import Integrator, calc_pot_acc
 from S_particles import Particles
 from S_verbose import Verbose
 from S_params import Params
 from S_checkpoint import Checkpoint
-from S_postprocessing import RadialDistributionFunction
+from S_postprocessing import Thermodynamics, RadialDistributionFunction
 
-time_stamp = np.zeros(10)
-its = 0
-time_stamp[its] = time.time()
-its += 1
+time0 = time.time()
 
 input_file = sys.argv[1]
-
 params = Params()
 params.setup(input_file)  # Read initial conditions and setup parameters
 
@@ -45,214 +40,162 @@ if params.Control.verbose:
 
 integrator = Integrator(params)
 checkpoint = Checkpoint(params)  # For restart and pva backups.
-
+thermostat = Thermostat(params)
 verbose = Verbose(params)
 #######################
 Nt = params.Control.Nsteps  # number of time steps
 N = params.total_num_ptcls
-
-
-#######################
-# Un-comment the following if you want to calculate n(q,t)
-# n_q_t = np.zeros((params.Control.Nt, params.Nq, 3), dtype="complex128")
-# initializing the wave vector vector qv
-# qv = np.zeros(params.Nq)
-# for iqv in range(0, params.Nq, 3):
-#    iq = iqv/3.
-#    qv[iqv] = (iq+1.)*params.dq
-#    qv[iqv+1] = (iq+1.)*np.sqrt(2.)*params.dq
-#    qv[iqv+2] = (iq+1.)*np.sqrt(3.)*params.dq
 
 ########################
 verbose.sim_setting_summary()  # simulation setting summary
 if params.Control.verbose:
     print('\nLog file created.')
 
-# array for temperature, total energy, kinetic energy, potential energy
-t_Tp_E_K_U = np.zeros((1, 5))
-
-# Initializing particle positions and velocities
-time_stamp[its] = time.time()
-its += 1
-
 ptcls = Particles(params)
-ptcls.load()
-ptcls.assign_attributes()
+ptcls.load(params)
 
 if params.Control.verbose:
     print('\nParticles initialized.')
 
 # Calculate initial forces and potential energy
-U = calc_pot_acc(ptcls, params)
+U_init = calc_pot_acc(ptcls, params)
 # Calculate initial kinetic energy and temperature
-Ks, Tps = thermostat.calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
-K = np.ndarray.sum(Ks)
-Tp = np.ndarray.sum(Tps) / params.num_species
+Ks_init, Tps_init = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
+K_init = np.ndarray.sum(Ks_init)
+Tp_init = np.ndarray.sum(Tps_init) / params.num_species
+E_init = K_init + U_init
+remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
+#
+time_init = time.time()
+verbose.time_stamp("Initialization", time_init - time0)
+#
+f_log = open(params.Control.log_file, 'a+')
+print("\nInitial: T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(Tp_init, E_init, K_init, U_init), file=f_log)
+f_log.close()
 
-E = K + U
-
-thermostat.remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
-if params.Control.verbose:
-    print("\nInitial: T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(Tp, E, K, U))
-
-time_stamp[its] = time.time()
-its += 1
-
-# Un-comment the two following lines if you want to save Thermalization data for debugging
-# f_output_E = open(params.Control.checkpoint_dir+"/"+"ThermEnergy_"+params.Control.fname_app + ".out", "w")
-# f_xyz = open(params.Control.checkpoint_dir+"/"+"ThermPVA_"+params.Control.fname_app + ".xyz", "w")
 if not (params.load_method == "restart"):
     if params.Control.verbose:
         print("\n------------- Equilibration -------------")
-    for it in range(params.Control.Neq):
+    for it in tqdm(range(params.Control.Neq), disable=not(params.Control.verbose)):
         # Calculate the Potential energy and update particles' data
-        U = integrator.update(ptcls, params)
+        U_therm = integrator.update(ptcls, params)
         # Thermostate
-        thermostat.Berendsen(ptcls, params, it)
+        thermostat.update(ptcls.vel, it)
 
-        # Print Energies and Temperature to screen
-        if it % params.Control.dump_step == 0 and params.Control.verbose:
-            Ks, Tps = thermostat.calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
-            K = np.ndarray.sum(Ks)
-            Tp = np.ndarray.sum(Tps) / params.num_species
-
-            E = K + U
-            print(
-                "Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K,
-                                                                                                          U))
-
-        # Un-comment the following if-statement if you want to save Thermalization data for debugging    
-        # if params.Control.writexyz == 1:
-        #    f_xyz.writelines("{0:d}\n".format(N))
-        #    f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-        #    np.savetxt(f_xyz, np.c_[ptcls.species_name, ptcls.pos/params.Lx, ptcls.vel, ptcls.acc], 
-        #        fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
-    thermostat.remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
+    remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
 
 checkpoint.dump(ptcls, 0)
-time_stamp[its] = time.time()
-its += 1
-
+time_eq = time.time()
+verbose.time_stamp("Equilibration", time_eq - time_init)
 # Turn on magnetic field, if not on already, and thermalize
-if (params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1):
-    params.Integrator.type == params.Integrator.mag_type
+if params.Magnetic.on == 1 and params.Magnetic.elec_therm == 1:
+    params.Integrator.type = params.Integrator.mag_type
     integrator = Integrator(params)
 
-    if (params.Control.verbose):
+    if params.Control.verbose:
         print("\n------------- Magnetic Equilibration -------------")
 
-    for it in range(params.Magnetic.Neq_mag):
+    for it in tqdm(range(params.Magnetic.Neq_mag), disable=(not params.Control.verbose)):
         # Calculate the Potential energy and update particles' data
-        U = integrator.update(ptcls, params)
+        U_therm = integrator.update(ptcls, params)
         # Thermostate
-        thermostat.Berendsen(ptcls, params, it)
+        thermostat.update(ptcls.vel, it)
 
-        # Print Energies and Temperature to screen
-        if (it % params.Control.dump_step) == 0 and params.Control.verbose:
-            Ks, Tps = thermostat.calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
-
-            K = np.ndarray.sum(Ks)
-            Tp = np.ndarray.sum(Tps) / params.num_species
-
-            E = K + U
-
-            print("Magnetic Equilibration: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it,
-                                                                                                                     Tp,
-                                                                                                                     E,
-                                                                                                                     K,
-                                                                                                                     U))
-
-    thermostat.remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
+    remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
     # saving the 0th step
     checkpoint.dump(ptcls, 0)
-    time_stamp[its] = time.time()
-    its += 1
-
-# Close thermalization files. Un-comment if you want to save Thermalization data for debugging
-# f_output_E.close()
-# f_xyz.close()
+    time_mag = time.time()
+    verbose.time_stamp("Magnetic Equilibration", time_mag - time_eq)
+    time_eq = time_mag
 
 # Open output files
-
-
 if params.load_method == "restart":
-    it_start = params.load_restart_step + 0
-    f_output_E = open(params.Control.checkpoint_dir + "/" + "Energy_" + params.Control.fname_app + ".out", "a+")
-
-    if params.Control.writexyz == 1:
+    it_start = params.load_restart_step
+    if params.Control.writexyz:
         # Particles' positions, velocities, accelerations for OVITO
         f_xyz = open(params.Control.checkpoint_dir + "/" + "pva_" + params.Control.fname_app + ".xyz", "a+")
 
 else:
     it_start = 0
-    f_output_E = open(params.Control.checkpoint_dir + "/" + "Energy_" + params.Control.fname_app + ".out", "w+")
-
-    if params.Control.writexyz == 1:
+    if params.Control.writexyz:
         # Particles' positions, velocities, accelerations for OVITO
         f_xyz = open(params.Control.checkpoint_dir + "/" + "pva_" + params.Control.fname_app + ".xyz", "w+")
 
 if params.Control.verbose:
     print("\n------------- Production -------------")
 
-vscale = params.aws*params.wp
-params.Control.measure = True
+pscale = 1.0 / params.aws
+vscale = 1.0 / (params.aws * params.wp)
+ascale = 1.0 / (params.aws * params.wp ** 2)
 
-for it in range(it_start, Nt):
+# Update measurement flag for rdf
+params.Control.measure = True
+# Restart the pbc counter
+ptcls.pbc_cntr.fill(0.0)
+
+Ndumps = int(params.Control.Nsteps/params.Control.dump_step) + 1
+K = np.zeros(Ndumps)
+U = np.zeros(Ndumps)
+E = np.zeros(Ndumps)
+Ks = np.zeros((Ndumps, params.num_species))
+Tps = np.zeros((Ndumps, params.num_species))
+Time = np.zeros(Ndumps)
+# Save the initial Thermodynamics
+Ks[0, :], Tps[0, :] = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
+K[0] = np.ndarray.sum(Ks[0, :])
+U[0] = U_therm
+E[0] = K[0] + U[0]
+Time[0] = 0.0
+dump_indx = 0
+for it in tqdm(range(it_start, Nt), disable=(not params.Control.verbose)):
     # Move the particles and calculate the potential
-    U = integrator.update(ptcls, params)
+    U_prod = integrator.update(ptcls, params)
     if (it + 1) % params.Control.dump_step == 0:
         # Save particles' data for restart
         checkpoint.dump(ptcls, it + 1)
-
+        dump_indx += 1
         # Calculate Kinetic Energy and Temperature
-        Ks, Tps = thermostat.calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
-
-        K = np.ndarray.sum(Ks)
-        Tp = np.ndarray.sum(Tps) / params.num_species
-
-        # Calculate the total Energy
-        E = K + U
-        # Write Energies and Temperature to file
-        t_Tp_E_K_U = np.array([params.Control.dt * it, Tp, E, K, U]).reshape(1, 5)
-        np.savetxt(f_output_E, t_Tp_E_K_U)
-
-        # Print progress to screen
-        if params.Control.verbose:
-            print(
-                "Production: timestep {:6}, T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(it, Tp, E, K, U))
-
+        Ks[dump_indx, :], Tps[dump_indx, :] = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
+        K[dump_indx] = np.ndarray.sum(Ks[dump_indx, :])
+        U[dump_indx] = U_prod
+        E[dump_indx] = K[dump_indx] + U_prod
+        Time[dump_indx] = it * params.Control.dt
         # Write particles' data to XYZ file for OVITO Visualization
-        if params.Control.writexyz == 1:
+        if params.Control.writexyz:
             f_xyz.writelines("{0:d}\n".format(N))
             f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-            np.savetxt(f_xyz, np.c_[ptcls.species_name, \
-                                    ptcls.pos / params.aws, \
-                                    ptcls.vel / (params.wp * params.aws), \
-                                    ptcls.acc / (params.aws * params.wp ** 2)],
+            np.savetxt(f_xyz,
+                       np.c_[ptcls.species_name, ptcls.pos * pscale, ptcls.vel * vscale, ptcls.acc * ascale],
                        fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
-
-    # Un-comment for n(q,t) calculation
-    # Spatial Fourier transform for (Dynamic) Structure Factor
-    # for iqv in range(params.Nq):
-    #   q_p = qv[iqv]
-    #   n_q_t[it, iqv, 0] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 0]))
-    #   n_q_t[it, iqv, 1] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 1]))
-    #   n_q_t[it, iqv, 2] = np.sum(np.exp(-1j*q_p*ptcls.pos[:, 2]))
-
-# np.save("n_qt", n_q_t)
-time_stamp[its] = time.time()
-its += 1
-
-# close output file
-f_output_E.close()
-
+time_prod = time.time()
+verbose.time_stamp("Production", time_prod - time_eq)
 if params.Control.writexyz:
     f_xyz.close()
+
+# Make a dictionary for PostProcessing
+data = {"Time": Time, "Total Energy": E, "Kinetic Energy": K, "Potential Energy": U}
+if params.num_species > 1:
+    Tot_Temp = np.zeros(Ndumps)
+    for sp in range(params.num_species):
+        Tot_Temp[:] += params.species[sp].concentration*Tps[:, sp]
+        data["{} Temperature".format(params.species[sp].name)] = Tps[:, sp]
+        data["{} Kinetic Energy".format(params.species[sp].name)] = Ks[:, sp]
+    data["Temperature"] = Tot_Temp
+    data["Gamma"] = params.Potential.Gamma_eff * params.T_desired / Tot_Temp
+else:
+    data["Temperature"] = Tps[:, 0]
+    data["Gamma"] = params.Potential.Gamma_eff * params.T_desired / Tps[:, 0]
+
+Boltzmann = Thermodynamics(params)
+Boltzmann.save(data)
+Boltzmann.plot('Total Energy', True)
+Boltzmann.plot('Temperature', True)
 
 rdf = RadialDistributionFunction(params)
 rdf.save(ptcls.rdf_hist)
 rdf.plot()
 
 # Print elapsed times to screen
-verbose.time_stamp(time_stamp)
+time_tot = time.time()
+verbose.time_stamp("Total", time_tot - time0)
 # end of the code

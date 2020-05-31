@@ -31,8 +31,11 @@ class Particles:
     params : class
         Simulation's parameters. 
 
-    N : int
+    tot_num_ptcls: int
         Total number of particles.
+
+    box_lengths : array
+        Box sides' lengths.
 
     mass : array
         Mass of each particle.
@@ -48,6 +51,15 @@ class Particles:
     
     species_num : array
         Number of particles of each species.
+
+    rdf_nbins : int
+        Number of bins for radial pair distribution.
+
+    no_grs : int
+        Number of independent :math:`g_{ij}(r)`.
+
+    rdf_hist : array
+        Histogram array for the radial pair distribution function.
     """
 
     def __init__(self, params):
@@ -55,60 +67,53 @@ class Particles:
         Initialize the attributes
         """
         self.params = params
-        self.N = params.total_num_ptcls
+        self.box_lengths = params.Lv
+        self.tot_num_ptcls = params.total_num_ptcls
+        self.num_species = params.num_species
 
         iseed = params.load_rand_seed
         np.random.seed(seed=iseed)
 
-        self.pos = np.zeros((self.N, 3))
-        self.vel = np.zeros((self.N, 3))
-        self.acc = np.zeros((self.N, 3))
-        self.pbc_cntr = np.zeros((self.N, 3))
+        self.pos = np.zeros((self.tot_num_ptcls, 3))
+        self.vel = np.zeros((self.tot_num_ptcls, 3))
+        self.acc = np.zeros((self.tot_num_ptcls, 3))
+        self.pbc_cntr = np.zeros((self.tot_num_ptcls, 3))
 
-        self.species_name = np.empty(self.N, dtype='object')
-        self.species_id = np.zeros((self.N,), dtype=int)
+        self.species_name = np.empty(self.tot_num_ptcls, dtype='object')
+        self.species_id = np.zeros((self.tot_num_ptcls,), dtype=int)
         self.species_num = np.zeros(self.params.num_species, dtype=int)
         self.species_mass = np.zeros(self.params.num_species)
 
-        self.mass = np.zeros(self.N)  # mass of each particle
-        self.charge = np.zeros(self.N)  # charge of each particle
+        self.mass = np.zeros(self.tot_num_ptcls)  # mass of each particle
+        self.charge = np.zeros(self.tot_num_ptcls)  # charge of each particle
 
         # No. of independent rdf
-        self.no_grs = int(params.num_species * (params.num_species + 1) / 2)
+        self.no_grs = int(self.num_species * (self.num_species + 1) / 2)
         self.rdf_nbins = params.PostProcessing.rdf_nbins
-        self.rdf_hist = np.zeros((self.rdf_nbins, self.no_grs))
+        self.rdf_hist = np.zeros((self.rdf_nbins, self.num_species, self.num_species))
 
-        return
-
-    def assign_attributes(self):
-        """ Assign particles attributes """
-
-        self.mass = np.zeros(self.N)  # mass of each particle
-        self.charge = np.zeros(self.N)  # charge of each particle
-
-        species_start = 0
+        # Assign particles attributes
         species_end = 0
-
         ic_species = 0
-        for i in range(self.params.num_species):
+        for i in range(params.num_species):
             species_start = species_end
-            species_end += self.params.species[i].num
+            species_end += params.species[i].num
 
-            self.species_num[i] = self.params.species[i].num
-            self.species_mass[i] = self.params.species[i].mass
+            self.species_num[i] = params.species[i].num
+            self.species_mass[i] = params.species[i].mass
 
-            self.species_name[species_start:species_end] = self.params.species[i].name
-            self.mass[species_start:species_end] = self.params.species[i].mass
+            self.species_name[species_start:species_end] = params.species[i].name
+            self.mass[species_start:species_end] = params.species[i].mass
 
-            if hasattr(self.params.species[i], 'charge'):
-                self.charge[species_start:species_end] = self.params.species[i].charge
+            if hasattr(params.species[i], 'charge'):
+                self.charge[species_start:species_end] = params.species[i].charge
             else:
                 self.charge[species_start:species_end] = 1.0
 
             self.species_id[species_start:species_end] = ic_species
             ic_species += 1
 
-    def load(self):
+    def load(self, params):
         """
         Initialize particles' positions and velocities.
         Positions are initilized based on the load method while velocities are chosen 
@@ -121,44 +126,31 @@ class Particles:
         It could be made faster if we made load a function and not a method of Particles.
         but in that case we would have to pass all the parameters.
         """
-        N = self.N
 
-        N_species = self.params.num_species
-
-        load_method = self.params.load_method
-        if load_method == 'restart':
-            timestep = self.params.load_restart_step
-            if timestep == None:
-                print("\nERROR: restart_step not defined. Bye")
-                sys.exit()
-
-            self.load_from_restart(timestep)
-
-        elif load_method == 'file':
-            if self.params.ptcls_input_file:
-                print('\nERROR: particle_input_file not defined. Bye')
-                sys.exit()
-
-            if self.params.Control.verbose:
-                print('\nReading initial particle positions and velocities from file...')
-
-            f_input = self.params.ptcls_input_file  # name of input file
-            self.load_from_file(f_input, N)
-
+        load_method = params.load_method
+        if params.load_method == 'restart':
+            if params.load_restart_step is None:
+                raise AttributeError("Restart step not defined. Please define restart_step in YAML file.")
+            if not type(params.load_restart_step) is int:
+                raise TypeError("Only integers are allowed.")
+            self.load_from_restart(params.load_restart_step)
+        elif params.load_method == 'file':
+            if params.ptcls_input_file is None:
+                raise AttributeError('Input file not defined. Please define particle_input_file in YAML file.')
+            self.load_from_file(params.ptcls_input_file)
         else:
             # Particles Velocities Initialization
             if self.params.Control.verbose:
                 print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
 
-            Vsigma = np.zeros(N_species)
-            for i in range(N_species):
-                Vsigma[i] = np.sqrt(self.params.kB * self.params.Ti / self.params.species[i].mass)
+            Vsigma = np.zeros(params.num_species)
+            for i in range(params.num_species):
+                Vsigma[i] = np.sqrt(params.kB * params.Ti / params.species[i].mass)
 
-            species_start = 0
             species_end = 0
-            for ic in range(N_species):
+            for ic in range(params.num_species):
                 Vsig = Vsigma[ic]
-                num_ptcls = self.params.species[ic].num
+                num_ptcls = params.species[ic].num
                 species_start = species_end
                 species_end = species_start + num_ptcls
 
@@ -176,26 +168,24 @@ class Particles:
                 self.vel[species_start:species_end, 2] -= vz_mean
 
             # Particles Position Initialization
-            if self.params.Control.verbose:
-                print('\nAssigning initial positions according to {}'.format(load_method))
+            if params.Control.verbose:
+                print('\nAssigning initial positions according to {}'.format(params.load_method))
 
             # position distribution. 
             if load_method == 'lattice':
-                self.lattice(self.N, self.params.load_perturb, self.params.load_rand_seed)
+                self.lattice(params.load_perturb, params.load_rand_seed)
 
             elif load_method == 'random_reject':
-                self.random_reject(self.N, self.params.load_r_reject, self.params.load_rand_seed)
+                self.random_reject(params.load_r_reject, params.load_rand_seed)
 
             elif load_method == 'halton_reject':
-                self.halton_reject(self.N, self.params.load_halton_bases, self.params.load_r_reject)
+                self.halton_reject(params.load_halton_bases, params.load_r_reject)
 
             elif load_method == 'random_no_reject':
-                self.random_no_reject(self.N)
+                self.random_no_reject()
 
             else:
-                if self.params.Control.verbose:
-                    print('\nWARNING: Incorrect particle placement scheme specified... Using "random_no_reject"')
-                self.random_no_reject(self.N)
+                raise AttributeError('Incorrect particle placement scheme specified.')
 
         return
 
@@ -213,8 +203,46 @@ class Particles:
         """
         pass
 
-    def update(self):
-        pass
+    def update_attributes(self, params):
+        """
+        Update particles' attributes.
+
+        Parameters
+        ----------
+        params : class
+            `S_params` class containing the updated information.
+
+        """
+        species_end = 0
+        ic_species = 0
+
+        self.species_name = np.empty(self.tot_num_ptcls, dtype='object')
+        self.species_id = np.zeros((self.tot_num_ptcls,), dtype=int)
+        self.species_num = np.zeros(self.params.num_species, dtype=int)
+        self.species_mass = np.zeros(self.params.num_species)
+
+        self.mass = np.zeros(self.tot_num_ptcls)  # mass of each particle
+        self.charge = np.zeros(self.tot_num_ptcls)  # charge of each particle
+
+        for i in range(params.num_species):
+            species_start = species_end
+            species_end += params.species[i].num
+
+            self.species_num[i] = params.species[i].num
+            self.species_mass[i] = params.species[i].mass
+
+            self.species_name[species_start:species_end] = params.species[i].name
+            self.mass[species_start:species_end] = params.species[i].mass
+
+            if hasattr(params.species[i], 'charge'):
+                self.charge[species_start:species_end] = params.species[i].charge
+            else:
+                self.charge[species_start:species_end] = 1.0
+
+            self.species_id[species_start:species_end] = ic_species
+            ic_species += 1
+
+        return
 
     def load_from_restart(self, it):
         """
@@ -236,7 +264,7 @@ class Particles:
         self.pbc_cntr = data["cntr"]
         self.rdf_hist = data["rdf_hist"]
 
-    def load_from_file(self, f_name, N):
+    def load_from_file(self, f_name):
         """
         Load particles' data from a specific file.
 
@@ -250,9 +278,9 @@ class Particles:
 
         """
         pv_data = np.loadtxt(f_name)
-        if not (pv_data.shape[0] == N):
+        if not (pv_data.shape[0] == self.tot_num_ptcls):
             print("Number of particles is not same between input file and initial p & v data file.")
-            print("From the input file: N = ", N)
+            print("From the input file: N = ", self.tot_num_ptcls)
             print("From the initial p & v data: N = ", pv_data.shape[0])
             sys.exit()
         self.pos[:, 0] = pv_data[:, 0]
@@ -263,14 +291,9 @@ class Particles:
         self.vel[:, 1] = pv_data[:, 4]
         self.vel[:, 2] = pv_data[:, 5]
 
-    def random_no_reject(self, N):
+    def random_no_reject(self):
         """
         Randomly distribute particles along each direction.
-
-        Parameters
-        ----------
-        N : int
-            Number of particles.
 
         Returns
         -------
@@ -281,19 +304,16 @@ class Particles:
 
         # np.random.seed(self.params.load_rand_seed) # Seed for random number generator
 
-        self.pos[:, 0] = self.params.Lx * np.random.random(N)
-        self.pos[:, 1] = self.params.Ly * np.random.random(N)
-        self.pos[:, 2] = self.params.Lz * np.random.random(N)
+        self.pos[:, 0] = np.random.uniform(0.0, self.box_lengths[0], self.tot_num_ptcls)
+        self.pos[:, 1] = np.random.uniform(0.0, self.box_lengths[1], self.tot_num_ptcls)
+        self.pos[:, 2] = np.random.uniform(0.0, self.box_lengths[2], self.tot_num_ptcls)
 
-    def lattice(self, N, perturb, rand_seed):
+    def lattice(self, perturb, rand_seed):
         """ 
         Place particles in a simple cubic lattice with a slight perturbation ranging from 0 to 0.5 times the lattice spacing.
 
         Parameters
         ----------
-        N : int
-            Number of particles to be placed.
-
         perturb : float
             Value of perturbation, p, such that 0 <= p <= 1.
 
@@ -318,39 +338,36 @@ class Particles:
             perturb * 0.5))
 
         # Determining number of particles per side of simple cubic lattice
-        part_per_side = N ** (1. / 3.)  # Number of particles per side of cubic lattice
+        part_per_side = self.tot_num_ptcls ** (1. / 3.)  # Number of particles per side of cubic lattice
 
         # Check if total number of particles is a perfect cube, if not, place more than the requested amount
-        if round(part_per_side) ** 3 != N:
-            part_per_side = np.ceil(N ** (1. / 3.))
-            print(
-                'Warning: Total number of particles requested is not a perfect cube. Initializing with {} particles.'.format(
-                    int(part_per_side ** 3)))
+        if round(part_per_side) ** 3 != self.tot_num_ptcls:
+            part_per_side = np.ceil(self.tot_num_ptcls ** (1. / 3.))
+            print('\nWARNING: Total number of particles requested is not a perfect cube.')
+            print('Initializing with {} particles.'.format(int(part_per_side ** 3)))
 
-        L = self.params.L
-
-        d_lattice = L / (N ** (1. / 3.))  # Lattice spacing
+        dx_lattice = self.box_lengths[0] / (self.tot_num_ptcls ** (1. / 3.))  # Lattice spacing
+        dz_lattice = self.box_lengths[1] / (self.tot_num_ptcls ** (1. / 3.))  # Lattice spacing
+        dy_lattice = self.box_lengths[2] / (self.tot_num_ptcls ** (1. / 3.))  # Lattice spacing
 
         # Start timer
         start = time.time()
 
         # Create x, y, and z position arrays
-        x = np.arange(0, L, d_lattice) + 0.5 * d_lattice
-        y = np.arange(0, L, d_lattice) + 0.5 * d_lattice
-        z = np.arange(0, L, d_lattice) + 0.5 * d_lattice
+        x = np.arange(0, self.box_lengths[0], dx_lattice) + 0.5 * dx_lattice
+        y = np.arange(0, self.box_lengths[1], dy_lattice) + 0.5 * dy_lattice
+        z = np.arange(0, self.box_lengths[2], dz_lattice) + 0.5 * dz_lattice
 
-        # Create a lattice with approprate x, y, and z values based on arange
+        # Create a lattice with appropriate x, y, and z values based on arange
         X, Y, Z = np.meshgrid(x, y, z)
 
         # Random seed
-        if (self.params.Control.verbose):
-            print('Random number generator using rand_seed = {}'.format(rand_seed))
         np.random.seed(rand_seed)  # Seed for random number generator
 
         # Perturb lattice
-        X += np.random.uniform(-0.5, 0.5, np.shape(X)) * perturb * d_lattice
-        Y += np.random.uniform(-0.5, 0.5, np.shape(Y)) * perturb * d_lattice
-        Z += np.random.uniform(-0.5, 0.5, np.shape(Z)) * perturb * d_lattice
+        X += np.random.uniform(-0.5, 0.5, np.shape(X)) * perturb * dx_lattice
+        Y += np.random.uniform(-0.5, 0.5, np.shape(Y)) * perturb * dy_lattice
+        Z += np.random.uniform(-0.5, 0.5, np.shape(Z)) * perturb * dz_lattice
 
         # Flatten the meshgrid values for plotting and computation
         self.pos[:, 0] = X.ravel()
@@ -359,18 +376,15 @@ class Particles:
 
         # End timer
         end = time.time()
-        print('Lattice Elapsed time: ', end - start)
+        print('Lattice creation took: {:1.4e} sec'.format(end - start) )
 
-    def random_reject(self, N, r_reject, rand_seed):
+    def random_reject(self, r_reject, rand_seed):
         """ 
         Place particles by sampling a uniform distribution from 0 to L (the box length)
         and uses a rejection radius to avoid placing particles to close to each other.
         
         Parameters
         ----------
-        N : int
-            Total number of particles to place.
-
         r_reject : float
             Value of rejection radius.
 
@@ -390,19 +404,15 @@ class Particles:
         # Set random seed
         np.random.seed(rand_seed)
 
-        # Determine box side length
-        L = (4 * np.pi * N / 3) ** (1 / 3)
-        L = self.params.L
-
         # Initialize Arrays
         x = np.array([])
         y = np.array([])
         z = np.array([])
 
         # Set first x, y, and z positions
-        x_new = np.random.uniform(0, L)
-        y_new = np.random.uniform(0, L)
-        z_new = np.random.uniform(0, L)
+        x_new = np.random.uniform(0, self.box_lengths[0])
+        y_new = np.random.uniform(0, self.box_lengths[1])
+        z_new = np.random.uniform(0, self.box_lengths[2])
 
         # Append to arrays
         x = np.append(x, x_new)
@@ -415,12 +425,12 @@ class Particles:
         start = time.time()  # Start timer for placing particles
         bad_count = 0
         # Loop to place particles
-        while i < N - 1:
+        while i < self.tot_num_ptcls - 1:
 
             # Set x, y, and z positions
-            x_new = np.random.uniform(0, L)
-            y_new = np.random.uniform(0, L)
-            z_new = np.random.uniform(0, L)
+            x_new = np.random.uniform(0.0, self.box_lengths[0])
+            y_new = np.random.uniform(0.0, self.box_lengths[1])
+            z_new = np.random.uniform(0.0, self.box_lengths[2])
 
             # Check if particle was place too close relative to all other current particles
             for j in range(len(x)):
@@ -434,20 +444,20 @@ class Particles:
                 z_diff = z_new - z[j]
 
                 # periodic condition applied for minimum image
-                if (x_diff < -L / 2):
-                    x_diff = x_diff + L
-                if (x_diff > L / 2):
-                    x_diff = x_diff - L
+                if x_diff < - self.box_lengths[0] / 2:
+                    x_diff = x_diff + self.box_lengths[0]
+                if x_diff > self.box_lengths[0] / 2:
+                    x_diff = x_diff - self.box_lengths[0]
 
-                if (y_diff < -L / 2):
-                    y_diff = y_diff + L
-                if (y_diff > L / 2):
-                    y_diff = y_diff - L
+                if y_diff < - self.box_lengths[1] / 2:
+                    y_diff = y_diff + self.box_lengths[1]
+                if y_diff > self.box_lengths[1] / 2:
+                    y_diff = y_diff - self.box_lengths[1]
 
-                if (z_diff < -L / 2):
-                    z_diff = z_diff + L
-                if (z_diff > L / 2):
-                    z_diff = z_diff - L
+                if z_diff < -self.box_lengths[2] / 2:
+                    z_diff = z_diff + self.box_lengths[2]
+                if z_diff > self.box_lengths[2] / 2:
+                    z_diff = z_diff - self.box_lengths[2]
 
                 # Compute distance
                 r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
@@ -457,7 +467,7 @@ class Particles:
                     flag = 0  # new position not added (False -> no longer outside reject r)
                     break
 
-            # If flag true add new positiion
+            # If flag true add new position
             if flag == 1:
                 x = np.append(x, x_new)
                 y = np.append(y, y_new)
@@ -471,18 +481,15 @@ class Particles:
         self.pos[:, 2] = z
 
         end = time.time()
-        print('Random Elapsed time: ', end - start)
+        print('Uniform distribution with rejection radius took : {:1.4e} sec'.format(end - start))
 
-    def halton_reject(self, N, bases, r_reject):
+    def halton_reject(self, bases, r_reject):
         """ 
         Place particles according to a Halton sequence from 0 to L (the box length)
         and uses a rejection radius to avoid placing particles to close to each other.
     
         Parameters
         ----------
-        N : int
-            Total number of particles to place.
-
         bases : array
             Array of 3 ints each of which is a base for the Halton sequence.
             Defualt: bases = np.array([2,3,5])
@@ -502,9 +509,6 @@ class Particles:
         # Get bases
         b1, b2, b3 = bases
 
-        # Determine box side length
-        L = (4 * np.pi * N / 3) ** (1 / 3)  # Box length normalized by weigner-steitz radius
-
         # Allocate space and store first value from Halton
         x = np.array([0])
         y = np.array([0])
@@ -518,7 +522,7 @@ class Particles:
         start = time.time()  # Start timer for placing particles
 
         # Loop over all particles
-        while i < N:
+        while i < self.tot_num_ptcls:
 
             # Increment particle counter
             n = k
@@ -532,7 +536,7 @@ class Particles:
                 f1 /= b1
                 r1 += f1 * (n % int(b1))
                 n = np.floor(n / b1)
-            x_new = L * r1  # new x value
+            x_new = self.box_lengths[0] * r1  # new x value
 
             # Determine y coordinate
             f2 = 1
@@ -541,7 +545,7 @@ class Particles:
                 f2 /= b2
                 r2 += f2 * (m % int(b2))
                 m = np.floor(m / b2)
-            y_new = L * r2  # new y value
+            y_new = self.box_lengths[1] * r2  # new y value
 
             # Determine z coordinate
             f3 = 1
@@ -550,7 +554,7 @@ class Particles:
                 f3 /= b3
                 r3 += f3 * (p % int(b3))
                 p = np.floor(p / b3)
-            z_new = L * r3  # new z value
+            z_new = self.box_lengths[2] * r3  # new z value
 
             # Check if particle was place too close relative to all other current particles
             for j in range(len(x)):
@@ -564,20 +568,20 @@ class Particles:
                 z_diff = z_new - z[j]
 
                 # Periodic condition applied for minimum image
-                if x_diff < -L / 2:
-                    x_diff = x_diff + L
-                if x_diff > L / 2:
-                    x_diff = x_diff - L
+                if x_diff < - self.box_lengths[0] / 2:
+                    x_diff = x_diff + self.box_lengths[0]
+                if x_diff > self.box_lengths[0] / 2:
+                    x_diff = x_diff - self.box_lengths[0]
 
-                if y_diff < -L / 2:
-                    y_diff = y_diff + L
-                if y_diff > L / 2:
-                    y_diff = y_diff - L
+                if y_diff < -self.box_lengths[1] / 2:
+                    y_diff = y_diff + self.box_lengths[1]
+                if y_diff > self.box_lengths[1] / 2:
+                    y_diff = y_diff - self.box_lengths[1]
 
-                if z_diff < -L / 2:
-                    z_diff = z_diff + L
-                if z_diff > L / 2:
-                    z_diff = z_diff - L
+                if z_diff < -self.box_lengths[2] / 2:
+                    z_diff = z_diff + self.box_lengths[2]
+                if z_diff > self.box_lengths[2] / 2:
+                    z_diff = z_diff - self.box_lengths[2]
 
                 # Compute distance
                 r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
@@ -604,4 +608,4 @@ class Particles:
 
         # End timer        
         end = time.time()
-        print('Halton Elapsed time: ', end - start)
+        print("Particles' positioned according to Halton method took: {:1.4e}".format(end - start))

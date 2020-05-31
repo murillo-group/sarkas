@@ -58,8 +58,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
     acc_s_r = np.zeros_like(pos)  # Vector of accelerations
 
     rdf_nbins = rdf_hist.shape[0]
-    num_species = id_ij[-1] + 1
-    dr_rdf = L/float(2.0*rdf_nbins)
+    dr_rdf = L / float(2.0 * rdf_nbins)
 
     for i in range(N):
         for j in range(i + 1, N):
@@ -86,8 +85,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
             # Compute distance between particles i and j
             r = np.sqrt(dx * dx + dy * dy + dz * dz)
             if measure and int(r / dr_rdf) < rdf_nbins:
-                gr_ij = int((num_species - 1) * id_ij[i] + id_ij[j])
-                rdf_hist[int(r / dr_rdf), gr_ij] += 1
+                rdf_hist[int(r / dr_rdf), id_ij[i], id_ij[j]] += 1
 
             if r < rc:
                 id_i = id_ij[i]
@@ -202,8 +200,7 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
     head.fill(empty)  # Make head list empty until population
 
     rdf_nbins = rdf_hist.shape[0]
-    num_species = id_ij[-1] + 1
-    dr_rdf = rc/float(rdf_nbins)
+    dr_rdf = rc / float(rdf_nbins)
 
     # Loop over all particles and place them in cells
     for i in range(N):
@@ -296,9 +293,8 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
                                         # Compute distance between particles i and j
                                         r = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
 
-                                        if measure and int(r/dr_rdf) < rdf_nbins:
-                                            gr_ij = int ((num_species - 1)*id_ij[i] + id_ij[j])
-                                            rdf_hist[int(r/dr_rdf), gr_ij] += 1
+                                        if measure and int(r / dr_rdf) < rdf_nbins:
+                                            rdf_hist[int(r / dr_rdf), id_ij[i], id_ij[j]] += 1
 
                                         # If below the cutoff radius, compute the force
                                         if r < rc:

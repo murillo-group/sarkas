@@ -52,7 +52,7 @@ Control:
     - dump_step: 30                # dump time step
     - verbose: yes
     - output_dir: ybim_mks_p3m        # dir name to save data. The default is "Checkpoint"
- 
+
 PostProcessing:
     - rdf_nbins: 100
-    - ssf_no_ka_values: 30
+    - ssf_no_ka_values: 5

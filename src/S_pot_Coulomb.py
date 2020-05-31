@@ -128,7 +128,7 @@ def Coulomb_force_P3M(r, pot_matrix_ij):
     U_s_r = pot_matrix_ij[1] * mt.erfc(alpha * r) / r
     f1 = mt.erfc(alpha * r) / r2
     f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(- a2 * r2)
-    fr = pot_matrix_ij[1] * (f1 + f2)
+    fr = pot_matrix_ij[1] * (f1 + f2)/r
 
     return U_s_r, fr
 

@@ -8,5 +8,12 @@
 *.npy
 *.npz
 *.idea
+*.ipynb
+*.ipynb_checkpoints
+*.png
+*.prof
+nohup.out
+OCP_cgs
+OCP_mks
 Checkpoint
 .DS_Store

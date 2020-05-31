@@ -10,9 +10,9 @@ Particles:
         temperature_eV: 0.5         # eV Temperature
 
     - load:
-        method: restart    # loading method
+        method: random_no_reject    # loading method
         rand_seed: 13546565              # random seed
-        restart_step: 0
+
 Potential: 
     - type: EGS                     # potential type
     - method: PP                    # Linked-cell

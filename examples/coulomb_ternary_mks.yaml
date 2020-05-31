@@ -1,0 +1,67 @@
+# keywords: Carbon-Oxygen Mixture, Yukawa, P3M, mks, random_no_reject
+Particles:
+    - species:
+        name: C
+        number_density: 1.0e+30       # /m^3
+        # mass: 1.9926467e-26            # /kg
+        num: 1000                    # total number of particles of ion1
+        Z: 6.0                        # degree of ionization
+        A: 12.011                      # atomic mass
+        temperature: 5.0e+5
+
+    - species:
+        name: O
+        number_density: 0.9e+30       # /m^3
+        # mass: 2.6561982e-26         # /kg
+        num: 900
+        Z: 8.0                      # degree of ionization
+        A: 15.999                   # atomic mass
+        temperature: 5.0e+5
+
+    - species:
+        name: He
+        number_density: 0.1e+30       # /m^3
+        # mass: 2.6561982e-26         # /kg
+        num: 100
+        Z: 2.0                      # degree of ionization
+        A: 4.002602                   # atomic mass
+        temperature: 5.0e+5
+
+    - load:
+        method: random_no_reject    # loading method
+        rand_seed: 123456789        # random seed
+
+Potential: 
+    - type: Coulomb                 # potential type
+    - method: P3M                    # Linked-cell
+    - rc: 4.185166e-10          # cut-off radius, meter
+    
+
+P3M:
+    - MGrid: [32, 32, 32]
+    - aliases: [3,3,3]
+    - cao: 6
+    - alpha_ewald: 8.834774e+09
+
+Integrator:
+    - type: Verlet                  # velocity integrator type
+
+Thermostat:
+    - type: Berendsen               # thermostat type
+    - tau: 10.0
+    - timestep: 200
+
+Control:
+    - units: mks                    # units
+    - dt: 2.935008e-19            # sec
+    - Neq: 50000                      # number of timesteps for the equilibrium
+    - Nsteps: 50000                    # number of timesteps afater the equilibrium
+    - BC: periodic                  # periodic boundary condition
+    - writexyz: no                  # no xyz output
+    - dump_step: 100                # dump time step
+    - verbose: no
+    - output_dir: WD_Ternary        # dir name to save data. The default is "Checkpoint"
+ 
+PostProcessing:
+    - rdf_nbins: 500
+    - ssf_no_ka_values: 10
