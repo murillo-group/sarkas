@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Potentials &mdash; sarkas  documentation</title>
+  <title>Potentials &mdash; Sarkas 1.0 documentation</title>
   
 
   
@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Thermostats" href="thermostats.html" />
-    <link rel="prev" title="S_verbose module" href="S_verbose.html" /> 
+    <link rel="prev" title="Sarkas module" href="Sarkas.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> sarkas
+            <a href="index.html" class="icon icon-home"> Sarkas
           
 
           
@@ -115,7 +115,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">sarkas</a>
+          <a href="index.html">Sarkas</a>
         
       </nav>
 
@@ -204,7 +204,7 @@ Notice that when <span class="math notranslate nohighlight">\(\kappa = 0\)</span
 </div>
 <div class="section" id="exact-gradient-corrected-screened-yukawa-potential">
 <h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
-<p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo <a href="#id3"><span class="problematic" id="id2">[1]_</span></a>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
+<p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo <a class="reference internal" href="#stanton2015" id="id2"><span>[Stanton2015]</span></a>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[\nu = - 3 \lambda \frac{4\pi \bar{e}^2 \beta }{ 4 \pi \Lambda_{e}} \mathcal I_{-3/2}(\eta),\]</div>
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a correction factor; <span class="math notranslate nohighlight">\(\lambda = 1/9\)</span> for the true gradient corrected Thomas-Fermi model and <span class="math notranslate nohighlight">\(\lambda = 1\)</span> for the traditional  von Weissaecker model. In the case <span class="math notranslate nohighlight">\(\nu &lt; 1\)</span> the EGS potential takes the form</p>
@@ -246,11 +246,8 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <dl class="citation">
-<dt class="label" id="stanton2015"><span class="brackets">Stanton2015</span></dt>
+<dt class="label" id="stanton2015"><span class="brackets"><a class="fn-backref" href="#id2">Stanton2015</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.91.033104">L. Stanton and M. Murillo Phys Rev E 91 033104 (2015)</a></p>
-</dd>
-<dt class="label" id="dharuman2017"><span class="brackets">Dharuman2017</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1063/1.4973842">G. Dharuman et al. J Chem Phys 146 024112 (2017)</a></p>
 </dd>
 </dl>
 </div>
@@ -267,7 +264,7 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
         <a href="thermostats.html" class="btn btn-neutral float-right" title="Thermostats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="S_verbose.html" class="btn btn-neutral float-left" title="S_verbose module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="Sarkas.html" class="btn btn-neutral float-left" title="Sarkas module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -278,7 +275,7 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 13, 2020.
+        Last updated on Jun, 01, 2020.
       </span>
 
     </p>
@@ -305,32 +302,7 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
   
   
     
-    
-
-  <style>
-    /* Sidebar header (and topbar for mobile) */
-    .wy-side-nav-search, .wy-nav-top {
-      background: #18453b;
-    }
-    /* Sidebar */
-    .wy-nav-side {
-      background: #535054;
-    }
-    .wy-menu-vertical p.caption {
-	  color: #fff;
-	}
-	.wy-menu-vertical a {
-	  color: #eee;
-	}
-	.wy-menu-vertical a:hover {
-    background-color: #18453b;
-  }
-/*  .wy-nav-content {
-    max-width: 900px !important;
-  }*/
-}
-  </style>
-
+   
 
 </body>
 </html>

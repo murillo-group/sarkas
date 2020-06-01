@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>S_particles &mdash; sarkas  documentation</title>
+  <title>S_particles &mdash; Sarkas 1.0 documentation</title>
   
 
   
@@ -49,7 +49,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> sarkas
+            <a href="../index.html" class="icon icon-home"> Sarkas
           
 
           
@@ -83,6 +83,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -106,7 +107,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">sarkas</a>
+          <a href="../index.html">Sarkas</a>
         
       </nav>
 
@@ -188,8 +189,11 @@
 <span class="sd">    params : class</span>
 <span class="sd">        Simulation&#39;s parameters. </span>
 
-<span class="sd">    N : int</span>
+<span class="sd">    tot_num_ptcls: int</span>
 <span class="sd">        Total number of particles.</span>
+
+<span class="sd">    box_lengths : array</span>
+<span class="sd">        Box sides&#39; lengths.</span>
 
 <span class="sd">    mass : array</span>
 <span class="sd">        Mass of each particle.</span>
@@ -205,6 +209,15 @@
 <span class="sd">    </span>
 <span class="sd">    species_num : array</span>
 <span class="sd">        Number of particles of each species.</span>
+
+<span class="sd">    rdf_nbins : int</span>
+<span class="sd">        Number of bins for radial pair distribution.</span>
+
+<span class="sd">    no_grs : int</span>
+<span class="sd">        Number of independent :math:`g_{ij}(r)`.</span>
+
+<span class="sd">    rdf_hist : array</span>
+<span class="sd">        Histogram array for the radial pair distribution function.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
@@ -212,60 +225,53 @@
 <span class="sd">        Initialize the attributes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span>
 
         <span class="n">iseed</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">load_rand_seed</span>
         <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">iseed</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pbc_cntr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbc_cntr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;object&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;object&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>  <span class="c1"># mass of each particle</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>  <span class="c1"># charge of each particle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>  <span class="c1"># mass of each particle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>  <span class="c1"># charge of each particle</span>
 
         <span class="c1"># No. of independent rdf</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">no_grs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span> <span class="o">*</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_grs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rdf_nbins</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">PostProcessing</span><span class="o">.</span><span class="n">rdf_nbins</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">rdf_nbins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">rdf_nbins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
 
-        <span class="k">return</span>
-
-<div class="viewcode-block" id="Particles.assign_attributes"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.assign_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">assign_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Assign particles attributes &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>  <span class="c1"># mass of each particle</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>  <span class="c1"># charge of each particle</span>
-
-        <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Assign particles attributes</span>
         <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
-
         <span class="n">ic_species</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
             <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
-            <span class="n">species_end</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+            <span class="n">species_end</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">species_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
 
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;charge&#39;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;charge&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">species_id</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">ic_species</span>
-            <span class="n">ic_species</span> <span class="o">+=</span> <span class="mi">1</span></div>
+            <span class="n">ic_species</span> <span class="o">+=</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize particles&#39; positions and velocities.</span>
 <span class="sd">        Positions are initilized based on the load method while velocities are chosen </span>
@@ -278,44 +284,31 @@
 <span class="sd">        It could be made faster if we made load a function and not a method of Particles.</span>
 <span class="sd">        but in that case we would have to pass all the parameters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span>
 
-        <span class="n">N_species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span>
-
-        <span class="n">load_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load_method</span>
-        <span class="k">if</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;restart&#39;</span><span class="p">:</span>
-            <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span>
-            <span class="k">if</span> <span class="n">timestep</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">ERROR: restart_step not defined. Bye&quot;</span><span class="p">)</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ptcls_input_file</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">ERROR: particle_input_file not defined. Bye&#39;</span><span class="p">)</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Reading initial particle positions and velocities from file...&#39;</span><span class="p">)</span>
-
-            <span class="n">f_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ptcls_input_file</span>  <span class="c1"># name of input file</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">f_input</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
-
+        <span class="n">load_method</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;restart&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Restart step not defined. Please define restart_step in YAML file.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Only integers are allowed.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">ptcls_input_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Input file not defined. Please define particle_input_file in YAML file.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">ptcls_input_file</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Particles Velocities Initialization</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Assigning initial velocities from a Maxwell-Boltzmann distribution&#39;</span><span class="p">)</span>
 
-            <span class="n">Vsigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N_species</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_species</span><span class="p">):</span>
-                <span class="n">Vsigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Ti</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+            <span class="n">Vsigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+                <span class="n">Vsigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Ti</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
 
-            <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_species</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
                 <span class="n">Vsig</span> <span class="o">=</span> <span class="n">Vsigma</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
-                <span class="n">num_ptcls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+                <span class="n">num_ptcls</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
                 <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
                 <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">num_ptcls</span>
 
@@ -333,26 +326,24 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">vz_mean</span>
 
             <span class="c1"># Particles Position Initialization</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Assigning initial positions according to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">load_method</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Assigning initial positions according to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_method</span><span class="p">))</span>
 
             <span class="c1"># position distribution. </span>
             <span class="k">if</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;lattice&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load_perturb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load_rand_seed</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_perturb</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_rand_seed</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;random_reject&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load_rand_seed</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_rand_seed</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;halton_reject&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load_halton_bases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_halton_bases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;random_no_reject&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">random_no_reject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">random_no_reject</span><span class="p">()</span>
 
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">WARNING: Incorrect particle placement scheme specified... Using &quot;random_no_reject&quot;&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">random_no_reject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Incorrect particle placement scheme specified.&#39;</span><span class="p">)</span>
 
         <span class="k">return</span></div>
 
@@ -370,8 +361,46 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Particles.update"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span></div>
+<div class="viewcode-block" id="Particles.update_attributes"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.update_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">update_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update particles&#39; attributes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params : class</span>
+<span class="sd">            `S_params` class containing the updated information.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ic_species</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;object&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>  <span class="c1"># mass of each particle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>  <span class="c1"># charge of each particle</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+            <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
+            <span class="n">species_end</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;charge&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_id</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">ic_species</span>
+            <span class="n">ic_species</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span></div>
 
 <div class="viewcode-block" id="Particles.load_from_restart"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.load_from_restart">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -393,7 +422,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pbc_cntr</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;cntr&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rdf_hist&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load particles&#39; data from a specific file.</span>
 
@@ -407,9 +436,9 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pv_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">f_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pv_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">N</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pv_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of particles is not same between input file and initial p &amp; v data file.&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;From the input file: N = &quot;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;From the input file: N = &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;From the initial p &amp; v data: N = &quot;</span><span class="p">,</span> <span class="n">pv_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
@@ -420,14 +449,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Particles.random_no_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.random_no_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_no_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.random_no_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.random_no_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_no_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Randomly distribute particles along each direction.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        N : int</span>
-<span class="sd">            Number of particles.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -438,19 +462,16 @@
 
         <span class="c1"># np.random.seed(self.params.load_rand_seed) # Seed for random number generator</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Lx</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Ly</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Lz</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">perturb</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">perturb</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Place particles in a simple cubic lattice with a slight perturbation ranging from 0 to 0.5 times the lattice spacing.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        N : int</span>
-<span class="sd">            Number of particles to be placed.</span>
-
 <span class="sd">        perturb : float</span>
 <span class="sd">            Value of perturbation, p, such that 0 &lt;= p &lt;= 1.</span>
 
@@ -475,39 +496,36 @@
             <span class="n">perturb</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">))</span>
 
         <span class="c1"># Determining number of particles per side of simple cubic lattice</span>
-        <span class="n">part_per_side</span> <span class="o">=</span> <span class="n">N</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>  <span class="c1"># Number of particles per side of cubic lattice</span>
+        <span class="n">part_per_side</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>  <span class="c1"># Number of particles per side of cubic lattice</span>
 
         <span class="c1"># Check if total number of particles is a perfect cube, if not, place more than the requested amount</span>
-        <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="n">part_per_side</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">!=</span> <span class="n">N</span><span class="p">:</span>
-            <span class="n">part_per_side</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">N</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s1">&#39;Warning: Total number of particles requested is not a perfect cube. Initializing with </span><span class="si">{}</span><span class="s1"> particles.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="nb">int</span><span class="p">(</span><span class="n">part_per_side</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="n">part_per_side</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">:</span>
+            <span class="n">part_per_side</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">WARNING: Total number of particles requested is not a perfect cube.&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initializing with </span><span class="si">{}</span><span class="s1"> particles.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">part_per_side</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)))</span>
 
-        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">L</span>
-
-        <span class="n">d_lattice</span> <span class="o">=</span> <span class="n">L</span> <span class="o">/</span> <span class="p">(</span><span class="n">N</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">))</span>  <span class="c1"># Lattice spacing</span>
+        <span class="n">dx_lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">))</span>  <span class="c1"># Lattice spacing</span>
+        <span class="n">dz_lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">))</span>  <span class="c1"># Lattice spacing</span>
+        <span class="n">dy_lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">))</span>  <span class="c1"># Lattice spacing</span>
 
         <span class="c1"># Start timer</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="c1"># Create x, y, and z position arrays</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d_lattice</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">d_lattice</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d_lattice</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">d_lattice</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">d_lattice</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">d_lattice</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dx_lattice</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dx_lattice</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dy_lattice</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dy_lattice</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dz_lattice</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dz_lattice</span>
 
-        <span class="c1"># Create a lattice with approprate x, y, and z values based on arange</span>
+        <span class="c1"># Create a lattice with appropriate x, y, and z values based on arange</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
 
         <span class="c1"># Random seed</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Random number generator using rand_seed = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rand_seed</span><span class="p">))</span>
         <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">rand_seed</span><span class="p">)</span>  <span class="c1"># Seed for random number generator</span>
 
         <span class="c1"># Perturb lattice</span>
-        <span class="n">X</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">d_lattice</span>
-        <span class="n">Y</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">Y</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">d_lattice</span>
-        <span class="n">Z</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">Z</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">d_lattice</span>
+        <span class="n">X</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">dx_lattice</span>
+        <span class="n">Y</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">Y</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">dy_lattice</span>
+        <span class="n">Z</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">Z</span><span class="p">))</span> <span class="o">*</span> <span class="n">perturb</span> <span class="o">*</span> <span class="n">dz_lattice</span>
 
         <span class="c1"># Flatten the meshgrid values for plotting and computation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
@@ -516,18 +534,15 @@
 
         <span class="c1"># End timer</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Lattice Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Lattice creation took: </span><span class="si">{:1.4e}</span><span class="s1"> sec&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Place particles by sampling a uniform distribution from 0 to L (the box length)</span>
 <span class="sd">        and uses a rejection radius to avoid placing particles to close to each other.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        N : int</span>
-<span class="sd">            Total number of particles to place.</span>
-
 <span class="sd">        r_reject : float</span>
 <span class="sd">            Value of rejection radius.</span>
 
@@ -547,19 +562,15 @@
         <span class="c1"># Set random seed</span>
         <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">rand_seed</span><span class="p">)</span>
 
-        <span class="c1"># Determine box side length</span>
-        <span class="n">L</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">N</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
-        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">L</span>
-
         <span class="c1"># Initialize Arrays</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
 
         <span class="c1"># Set first x, y, and z positions</span>
-        <span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
-        <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
-        <span class="n">z_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+        <span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">z_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
         <span class="c1"># Append to arrays</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_new</span><span class="p">)</span>
@@ -572,12 +583,12 @@
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># Start timer for placing particles</span>
         <span class="n">bad_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="c1"># Loop to place particles</span>
-        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
 
             <span class="c1"># Set x, y, and z positions</span>
-            <span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
-            <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
-            <span class="n">z_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+            <span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">z_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
             <span class="c1"># Check if particle was place too close relative to all other current particles</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
@@ -591,20 +602,20 @@
                 <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_new</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
 
                 <span class="c1"># periodic condition applied for minimum image</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">x_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
-                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">+</span> <span class="n">L</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">x_diff</span> <span class="o">&gt;</span> <span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
-                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">-</span> <span class="n">L</span>
+                <span class="k">if</span> <span class="n">x_diff</span> <span class="o">&lt;</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">x_diff</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-                <span class="k">if</span> <span class="p">(</span><span class="n">y_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
-                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">+</span> <span class="n">L</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">y_diff</span> <span class="o">&gt;</span> <span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
-                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">-</span> <span class="n">L</span>
+                <span class="k">if</span> <span class="n">y_diff</span> <span class="o">&lt;</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">y_diff</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-                <span class="k">if</span> <span class="p">(</span><span class="n">z_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
-                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">+</span> <span class="n">L</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">z_diff</span> <span class="o">&gt;</span> <span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
-                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">-</span> <span class="n">L</span>
+                <span class="k">if</span> <span class="n">z_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">z_diff</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
                 <span class="c1"># Compute distance</span>
                 <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_diff</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y_diff</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">z_diff</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
@@ -614,7 +625,7 @@
                     <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># new position not added (False -&gt; no longer outside reject r)</span>
                     <span class="k">break</span>
 
-            <span class="c1"># If flag true add new positiion</span>
+            <span class="c1"># If flag true add new position</span>
             <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_new</span><span class="p">)</span>
                 <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
@@ -628,18 +639,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span>
 
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Random Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Uniform distribution with rejection radius took : </span><span class="si">{:1.4e}</span><span class="s1"> sec&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Place particles according to a Halton sequence from 0 to L (the box length)</span>
 <span class="sd">        and uses a rejection radius to avoid placing particles to close to each other.</span>
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        N : int</span>
-<span class="sd">            Total number of particles to place.</span>
-
 <span class="sd">        bases : array</span>
 <span class="sd">            Array of 3 ints each of which is a base for the Halton sequence.</span>
 <span class="sd">            Defualt: bases = np.array([2,3,5])</span>
@@ -659,9 +667,6 @@
         <span class="c1"># Get bases</span>
         <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span> <span class="o">=</span> <span class="n">bases</span>
 
-        <span class="c1"># Determine box side length</span>
-        <span class="n">L</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">N</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Box length normalized by weigner-steitz radius</span>
-
         <span class="c1"># Allocate space and store first value from Halton</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
@@ -675,7 +680,7 @@
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># Start timer for placing particles</span>
 
         <span class="c1"># Loop over all particles</span>
-        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">:</span>
 
             <span class="c1"># Increment particle counter</span>
             <span class="n">n</span> <span class="o">=</span> <span class="n">k</span>
@@ -689,7 +694,7 @@
                 <span class="n">f1</span> <span class="o">/=</span> <span class="n">b1</span>
                 <span class="n">r1</span> <span class="o">+=</span> <span class="n">f1</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">b1</span><span class="p">))</span>
                 <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">b1</span><span class="p">)</span>
-            <span class="n">x_new</span> <span class="o">=</span> <span class="n">L</span> <span class="o">*</span> <span class="n">r1</span>  <span class="c1"># new x value</span>
+            <span class="n">x_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">r1</span>  <span class="c1"># new x value</span>
 
             <span class="c1"># Determine y coordinate</span>
             <span class="n">f2</span> <span class="o">=</span> <span class="mi">1</span>
@@ -698,7 +703,7 @@
                 <span class="n">f2</span> <span class="o">/=</span> <span class="n">b2</span>
                 <span class="n">r2</span> <span class="o">+=</span> <span class="n">f2</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">b2</span><span class="p">))</span>
                 <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">m</span> <span class="o">/</span> <span class="n">b2</span><span class="p">)</span>
-            <span class="n">y_new</span> <span class="o">=</span> <span class="n">L</span> <span class="o">*</span> <span class="n">r2</span>  <span class="c1"># new y value</span>
+            <span class="n">y_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r2</span>  <span class="c1"># new y value</span>
 
             <span class="c1"># Determine z coordinate</span>
             <span class="n">f3</span> <span class="o">=</span> <span class="mi">1</span>
@@ -707,7 +712,7 @@
                 <span class="n">f3</span> <span class="o">/=</span> <span class="n">b3</span>
                 <span class="n">r3</span> <span class="o">+=</span> <span class="n">f3</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">b3</span><span class="p">))</span>
                 <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="n">b3</span><span class="p">)</span>
-            <span class="n">z_new</span> <span class="o">=</span> <span class="n">L</span> <span class="o">*</span> <span class="n">r3</span>  <span class="c1"># new z value</span>
+            <span class="n">z_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">r3</span>  <span class="c1"># new z value</span>
 
             <span class="c1"># Check if particle was place too close relative to all other current particles</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
@@ -721,20 +726,20 @@
                 <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_new</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
 
                 <span class="c1"># Periodic condition applied for minimum image</span>
-                <span class="k">if</span> <span class="n">x_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">+</span> <span class="n">L</span>
-                <span class="k">if</span> <span class="n">x_diff</span> <span class="o">&gt;</span> <span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">-</span> <span class="n">L</span>
+                <span class="k">if</span> <span class="n">x_diff</span> <span class="o">&lt;</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">x_diff</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-                <span class="k">if</span> <span class="n">y_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">+</span> <span class="n">L</span>
-                <span class="k">if</span> <span class="n">y_diff</span> <span class="o">&gt;</span> <span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">-</span> <span class="n">L</span>
+                <span class="k">if</span> <span class="n">y_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">y_diff</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y_diff</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-                <span class="k">if</span> <span class="n">z_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">+</span> <span class="n">L</span>
-                <span class="k">if</span> <span class="n">z_diff</span> <span class="o">&gt;</span> <span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">-</span> <span class="n">L</span>
+                <span class="k">if</span> <span class="n">z_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">z_diff</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">z_diff</span> <span class="o">=</span> <span class="n">z_diff</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
                 <span class="c1"># Compute distance</span>
                 <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_diff</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y_diff</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">z_diff</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
@@ -761,7 +766,7 @@
 
         <span class="c1"># End timer        </span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Halton Elapsed time: &#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Particles&#39; positioned according to Halton method took: </span><span class="si">{:1.4e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>
@@ -776,7 +781,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 13, 2020.
+        Last updated on Jun, 01, 2020.
       </span>
 
     </p>

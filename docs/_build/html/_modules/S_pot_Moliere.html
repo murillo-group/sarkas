@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>S_pot_Moliere &mdash; sarkas  documentation</title>
+  <title>S_pot_Moliere &mdash; Sarkas 1.0 documentation</title>
   
 
   
@@ -49,7 +49,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> sarkas
+            <a href="../index.html" class="icon icon-home"> Sarkas
           
 
           
@@ -83,6 +83,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -106,7 +107,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">sarkas</a>
+          <a href="../index.html">Sarkas</a>
         
       </nav>
 
@@ -198,10 +199,11 @@
                         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span>
                             <span class="n">b_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
+    <span class="n">params_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">C_params</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
-        <span class="n">Moliere_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+        <span class="n">Moliere_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">Moliere_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">8</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+        <span class="n">Moliere_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
 
     <span class="n">Z53</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">Z_avg</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -211,7 +213,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">Zi</span> <span class="o">=</span> <span class="mf">1.0</span>
 
-        <span class="n">Z53</span> <span class="o">+=</span> <span class="p">(</span><span class="n">Zi</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">5.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span>
+        <span class="n">Z53</span> <span class="o">+=</span> <span class="n">Zi</span> <span class="o">**</span> <span class="p">(</span><span class="mf">5.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span>
         <span class="n">Z_avg</span> <span class="o">+=</span> <span class="n">Zi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span>
 
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
@@ -220,9 +222,9 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">Zj</span> <span class="o">=</span> <span class="mf">1.0</span>
 
-            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_params</span>
-            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">b_params</span>
-            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Zi</span> <span class="o">*</span> <span class="n">Zj</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
+            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">C_params</span><span class="p">),</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_params</span>
+            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">C_params</span><span class="p">):</span><span class="n">params_len</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">b_params</span>
+            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="n">params_len</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Zi</span> <span class="o">*</span> <span class="n">Zj</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
 
     <span class="c1"># Effective Coupling Parameter in case of multi-species</span>
     <span class="c1"># see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)</span>
@@ -243,7 +245,7 @@
         <span class="n">params</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">Moliere_force_PP</span>
 
         <span class="c1"># Force error calculated from eq.(43) in Ref.[1]_</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">/</span> <span class="n">b_params</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">b_params</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">/</span> <span class="n">b_params</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">b_params</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
         <span class="c1"># Renormalize</span>
         <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
 
@@ -286,19 +288,20 @@
 <span class="sd">    pot_matrix[3] = b_1</span>
 <span class="sd">    pot_matrix[4] = b_2</span>
 <span class="sd">    pot_matrix[5] = b_3</span>
+<span class="sd">    pot_matrix[6] = Z_1Z_2/4pi e_0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">U</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">force</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pot_matrix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)):</span>
         <span class="n">factor1</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
         <span class="n">factor2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span>
         <span class="n">U</span> <span class="o">+=</span> <span class="n">factor2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">factor1</span><span class="p">)</span>
-        <span class="n">force</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">factor1</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="n">r</span>
+        <span class="n">force</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">factor1</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">r</span>
 
-    <span class="n">force</span> <span class="o">=</span> <span class="n">force</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
-    <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">force</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span></div>
 </pre></div>
@@ -315,7 +318,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 13, 2020.
+        Last updated on Jun, 01, 2020.
       </span>
 
     </p>

@@ -13,24 +13,27 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../src'))
-#sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
+
 
 # -- Project information -----------------------------------------------------
 
-project = 'sarkas'
+project = 'Sarkas'
 copyright = '2020, MurilloGroup'
 author = 'MurilloGroup'
 
-html_last_updated_fmt = '%b, %d, %Y'
+# The full version, including alpha/beta/rc tags
+release = '1.0'
+
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-	'sphinx.ext.napoleon',
-	'sphinx.ext.autodoc',
-	'sphinx_rtd_theme',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.autodoc',
+    'sphinx_rtd_theme',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax'
 ]
@@ -50,21 +53,10 @@ napoleon_use_rtype = True
 
 autodoc_mock_imports = ['numpy', 'yaml','fdint', 'numba', 'scipy','time',
                         'sys', 'pyfftw', 'pandas','Sarkas']
-#                        'S_integrator',  
-#                        'S_particles',
-#                        'S_verbose' ,
-#                        'S_params', 
-#                        'S_checkpoint',
-#                        'S_pot_LJ',
-#                        'S_pot_Yukawa',
-#                        'S_pot_Coulomb',
-#                        'S_pot_Moliere',
-#                        'S_pot_EGS',
-#                        'S_pot_QSP',
-#                        'S_calc_force_pm',
-#                        'S_calc_force_pp',
-#                        'S_thermostat',
-#                        'S_particles' ]
+
+
+html_last_updated_fmt = '%b, %d, %Y'
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -72,8 +64,6 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
-
 
 # -- Options for HTML output -------------------------------------------------
 

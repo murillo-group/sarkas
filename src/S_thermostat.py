@@ -36,7 +36,7 @@ class Thermostat:
 @nb.njit
 def Berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     """
-    Update particle velocity based on Berendsen thermostat.
+    Update particle velocity based on Berendsen thermostat [Berendsen1984]_.
 
     Parameters
     ----------

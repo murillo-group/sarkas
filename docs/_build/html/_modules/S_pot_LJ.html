@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>S_pot_LJ &mdash; sarkas  documentation</title>
+  <title>S_pot_LJ &mdash; Sarkas 1.0 documentation</title>
   
 
   
@@ -49,7 +49,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> sarkas
+            <a href="../index.html" class="icon icon-home"> Sarkas
           
 
           
@@ -83,6 +83,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -106,7 +107,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">sarkas</a>
+          <a href="../index.html">Sarkas</a>
         
       </nav>
 
@@ -219,7 +220,7 @@
 
     <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sigma2</span> <span class="o">**</span> <span class="mi">12</span> <span class="o">/</span> <span class="p">(</span><span class="mf">13.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">**</span> <span class="mi">13</span><span class="p">))</span>
     <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span>
-
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="n">epsilon_tot</span><span class="o">/</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">T_desired</span><span class="p">)</span>
     <span class="k">return</span></div>
 
 
@@ -276,7 +277,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 13, 2020.
+        Last updated on Jun, 01, 2020.
       </span>
 
     </p>

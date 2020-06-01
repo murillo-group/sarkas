@@ -50,7 +50,7 @@ Notice that when :math:`\kappa = 0` we recover the Coulomb Potential.
 
 Exact Gradient-corrected Screened Yukawa Potential
 --------------------------------------------------
-The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo [1]_, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, :math:`\nu`,
+The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo [Stanton2015]_, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, :math:`\nu`,
 
 .. math::
    \nu = - 3 \lambda \frac{4\pi \bar{e}^2 \beta }{ 4 \pi \Lambda_{e}} \mathcal I_{-3/2}(\eta),
@@ -113,6 +113,5 @@ is the thermal de Broglie wavelength between particles :math:`a` and :math:`b`. 
 References
 ----------
 .. [Stanton2015] `L. Stanton and M. Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
-.. [Dharuman2017] `G. Dharuman et al. J Chem Phys 146 024112 (2017) <https://doi.org/10.1063/1.4973842>`_
     
 
