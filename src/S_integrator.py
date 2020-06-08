@@ -144,7 +144,7 @@ def Verlet(ptcls, params):
     return U
 
 
-def Magnetic_integrator(ptcls, params):
+def Magnetic_Verlet(ptcls, params):
     """
      Update particles' positions and velocities based on velocity verlet method in the case of a
      constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [1]_

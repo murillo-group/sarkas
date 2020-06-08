@@ -84,6 +84,10 @@ class Thermodynamics:
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
         self.no_dim = params.dimensions
+        if params.load_method == "restart":
+            self.restart_sim = True
+        else:
+            self.restart_sim = False
         self.box_lengths = params.Lv
         self.box_volume = params.box_volume
         self.tot_no_ptcls = params.total_num_ptcls
@@ -106,6 +110,7 @@ class Thermodynamics:
         self.eV2K = params.eV2K
         self.a_ws = params.aws
         self.T = params.T_desired
+        self.Gamma_eff = params.Potential.Gamma_eff
 
     def compute_pressure_quantities(self):
         """
@@ -174,11 +179,11 @@ class Thermodynamics:
             Pressure divided by :math:`k_BT`.
         """
         r *= self.a_ws
-        r2 = r*r
-        r3 = r2*r
+        r2 = r * r
+        r3 = r2 * r
 
         if potential == "Coulomb":
-            dv_dr = - 1.0/r2
+            dv_dr = - 1.0 / r2
             # Check for finiteness of first element when r[0] = 0.0
             if not np.isfinite(dv_dr[0]):
                 dv_dr[0] = dv_dr[1]
@@ -192,7 +197,7 @@ class Thermodynamics:
         # No. of independent g(r)
         T = np.mean(self.dataframe["Temperature"])
         pressure = self.kB * T - 2.0 / 3.0 * np.pi * self.species_dens[0] \
-                   * potential_matrix[1, 0, 0] * np.trapz(dv_dr*r3*gr, x=r)
+                   * potential_matrix[1, 0, 0] * np.trapz(dv_dr * r3 * gr, x=r)
         pressure *= self.species_dens[0]
 
         return pressure
@@ -268,18 +273,6 @@ class Thermodynamics:
         if show:
             fig.show()
 
-    def save(self, data):
-        """
-        Save Thermodynamics data to csv.
-
-        Parameters
-        ----------
-        data : dict
-            Thermodynamic functions at each time step.
-        """
-        self.dataframe = pd.DataFrame(data)
-        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-
     def parse(self):
         """
         Parse Thermodynamics functions from saved csv file.
@@ -346,7 +339,6 @@ class ElectricCurrent:
             self.species_charge[i] = params.species[i].charge
             self.species_names.append(params.species[i].name)
 
-        self.time = np.arange(self.no_dumps) * self.dt * self.dump_step
         self.tot_no_ptcls = params.total_num_ptcls
         self.wp = params.wp
         self.a_ws = params.aws
@@ -372,8 +364,10 @@ class ElectricCurrent:
         vel = np.zeros((self.no_dumps, 3, self.tot_no_ptcls))
         #
         print("Parsing particles' velocities.")
+        time = np.zeros(self.no_dumps)
         for it in tqdm(range(self.no_dumps)):
             dump = int(it * self.dump_step)
+            time[it] = dump * self.dt
             datap = load_from_restart(self.fldr, dump)
             vel[it, 0, :] = datap["vel"][:, 0]
             vel[it, 1, :] = datap["vel"][:, 1]
@@ -381,6 +375,8 @@ class ElectricCurrent:
         #
         print("Calculating Electric current quantities.")
         species_current, total_current = calc_elec_current(vel, self.species_charge, self.species_np)
+        data_dic = {"Time": time}
+        self.dataframe = pd.DataFrame(data_dic)
 
         self.dataframe["Total Current X"] = total_current[0, :]
         self.dataframe["Total Current Y"] = total_current[1, :]
@@ -1102,7 +1098,7 @@ def load_from_restart(fldr, it):
         Particles' data.
     """
 
-    file_name = fldr + "/" + "S_checkpoint_" + str(it) + ".npz"
+    file_name = fldr + "/Particles_Data/" + "S_checkpoint_" + str(it) + ".npz"
     data = np.load(file_name, allow_pickle=True)
     return data
 
@@ -1436,7 +1432,6 @@ def calc_elec_current(vel, sp_charge, sp_num):
     return Js, Jtot
 
 
-
 @nb.njit
 def autocorrelationfunction(At):
     """
@@ -1502,7 +1497,7 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
     for sp in range(len(species_np)):
         sp_end = sp_start + species_np[sp]
         vel[:, sp_start: sp_end] *= np.sqrt(species_mass[sp])
-        acc[:, sp_start: sp_end] *= species_mass[sp]  #force
+        acc[:, sp_start: sp_end] *= species_mass[sp]  # force
         sp_start = sp_end
 
     pressure = 0.0

@@ -17,8 +17,9 @@ Particles:
         temperature: 6.32e+5
 
     - load:
-        method: random_no_reject    # loading method
+        method: restart    # loading method
         rand_seed: 123456789        # random seed
+        restart_step : 2000000
 
 Potential: 
     - type: QSP                 # potential type
@@ -43,15 +44,15 @@ Thermostat:
 
 Control:
     - units: cgs                    # units
-    - dt: 6.961499e-20            # sec
-    - Neq: 50000                      # number of timesteps for the equilibrium
-    - Nsteps: 100000                   # number of timesteps after the equilibrium
+    - dt: 1.3922998e-20            # sec
+    - Neq: 250000                      # number of timesteps for the equilibrium
+    - Nsteps: 5000000                  # number of timesteps after the equilibrium
     - BC: periodic                  # periodic boundary condition
-    - writexyz: yes                  # no xyz output
-    - dump_step: 50                # dump time step
+    - writexyz: no                  # no xyz output
+    - dump_step: 200                # dump time step
     - verbose: yes
     - output_dir: QSP_cgs       # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 500
+    - rdf_nbins: 100
     - ssf_no_ka_values: 50

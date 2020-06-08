@@ -67,6 +67,7 @@ class Particles:
         Initialize the attributes
         """
         self.params = params
+        self.checkpoint_dir = params.Control.checkpoint_dir + "/" + "Particles_Data" + "/"
         self.box_lengths = params.Lv
         self.tot_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
@@ -82,6 +83,7 @@ class Particles:
         self.species_name = np.empty(self.tot_num_ptcls, dtype='object')
         self.species_id = np.zeros((self.tot_num_ptcls,), dtype=int)
         self.species_num = np.zeros(self.params.num_species, dtype=int)
+        self.species_conc = np.zeros(self.params.num_species)
         self.species_mass = np.zeros(self.params.num_species)
 
         self.mass = np.zeros(self.tot_num_ptcls)  # mass of each particle
@@ -94,12 +96,12 @@ class Particles:
 
         # Assign particles attributes
         species_end = 0
-        ic_species = 0
         for i in range(params.num_species):
             species_start = species_end
             species_end += params.species[i].num
 
             self.species_num[i] = params.species[i].num
+            self.species_conc[i] = params.species[i].num/self.tot_num_ptcls
             self.species_mass[i] = params.species[i].mass
 
             self.species_name[species_start:species_end] = params.species[i].name
@@ -110,13 +112,12 @@ class Particles:
             else:
                 self.charge[species_start:species_end] = 1.0
 
-            self.species_id[species_start:species_end] = ic_species
-            ic_species += 1
+            self.species_id[species_start:species_end] = i
 
     def load(self, params):
         """
         Initialize particles' positions and velocities.
-        Positions are initilized based on the load method while velocities are chosen 
+        Positions are initialized based on the load method while velocities are chosen
         from a Maxwell-Boltzmann distribution.
 
         """
@@ -124,7 +125,7 @@ class Particles:
         """
         Dev Notes: Here numba does not help at all. In fact loading is slower with numba. 
         It could be made faster if we made load a function and not a method of Particles.
-        but in that case we would have to pass all the parameters.
+        but in that case we would have to pass each parameter individually.
         """
 
         load_method = params.load_method
@@ -220,7 +221,7 @@ class Particles:
         self.species_id = np.zeros((self.tot_num_ptcls,), dtype=int)
         self.species_num = np.zeros(self.params.num_species, dtype=int)
         self.species_mass = np.zeros(self.params.num_species)
-
+        self.species_conc = np.zeros(self.params.num_species)
         self.mass = np.zeros(self.tot_num_ptcls)  # mass of each particle
         self.charge = np.zeros(self.tot_num_ptcls)  # charge of each particle
 
@@ -230,6 +231,7 @@ class Particles:
 
             self.species_num[i] = params.species[i].num
             self.species_mass[i] = params.species[i].mass
+            self.species_conc[i] = params.species[i].num/self.tot_num_ptcls
 
             self.species_name[species_start:species_end] = params.species[i].name
             self.mass[species_start:species_end] = params.species[i].mass
@@ -254,7 +256,7 @@ class Particles:
             Timestep.
 
         """
-        file_name = self.params.Control.checkpoint_dir + "/" + "S_checkpoint_" + str(it) + ".npz"
+        file_name = self.checkpoint_dir + "/" + "S_checkpoint_" + str(it) + ".npz"
         data = np.load(file_name, allow_pickle=True)
         self.species_id = data["species_id"]
         self.species_name = data["species_name"]

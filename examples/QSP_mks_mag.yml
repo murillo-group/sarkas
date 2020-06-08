@@ -32,7 +32,7 @@ P3M:
     - alpha_ewald: 2.238909e+10
 
 Magnetized:
-    - B_Tesla: 405723.46
+    - B_Tesla: 16228938.4
     - electrostatic_thermalization: 1
     - Neq_mag: 50000
 
@@ -44,16 +44,19 @@ Thermostat:
     - timestep: 0
     - tau: 5.0
 
+
+BoundaryCondition:
+    - periodic: ["x", "y", "z"]
+
 Control:
     - units: mks                    # units
     - dt: 1.772108e-20            # sec
     - Neq: 50000                      # number of timesteps for the equilibrium
-    - Nsteps: 400000                   # number of timesteps after the equilibrium
-    - BC: periodic                  # periodic boundary condition
-    - writexyz: yes                  # no xyz output
-    - dump_step: 10000                # dump time step
-    - verbose: yes
-    - output_dir: MagQSP_N1024_G05_rs04      # dir name to save data. The default is "Checkpoint"
+    - Nsteps: 10000000                   # number of timesteps after the equilibrium
+    - writexyz: no                  # no xyz output
+    - dump_step: 100                # dump time step
+    - verbose: no
+    - output_dir: QSP_mks_mag
 
 PostProcessing:
     - rdf_nbins: 100

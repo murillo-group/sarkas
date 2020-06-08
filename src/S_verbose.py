@@ -1,5 +1,5 @@
 import numpy as np
-
+from pyfiglet import Figlet
 
 class Verbose:
     """ 
@@ -17,7 +17,9 @@ class Verbose:
         f_log_name = params.Control.checkpoint_dir + "/" + "log_" + params.Control.fname_app + ".out"
         params.Control.log_file = f_log_name
         f_log = open(f_log_name, "w+")
-        print("Sarkas Ver. 1.0", file=f_log)
+        figlet_obj = Figlet(font='starwars')
+        print(figlet_obj.renderText('Sarkas'), file=f_log)
+        print("An open-source pure-python molecular dynamics code for simulating plasmas.", file=f_log)
         f_log.close()
         self.params = params
 
@@ -28,8 +30,8 @@ class Verbose:
         params = self.params
         f_log = open(params.Control.log_file, 'a+')
 
-        print('\n\n----------- Molecular Dynamics Simulation ----------------------', file=f_log)
-        print('No. of particles = ', params.total_num_ptcls, file=f_log)
+        print('\n\n-------------- Simulation ----------------------', file=f_log)
+        print('\nNo. of particles = ', params.total_num_ptcls, file=f_log)
         print('No. of species = ', len(params.species), file=f_log)
         print('units: ', params.Control.units, file=f_log)
         print('Temperature = {:2.6e} [K]'.format(params.T_desired), file=f_log)
@@ -93,7 +95,7 @@ class Verbose:
             print("rs Coupling Parameter = {:3.3f} ".format(params.rs), file=f_log)
 
         if params.Magnetic.on:
-            print('\nMagnetized Plasma', file=f_log)
+            print('\nMagnetized Plasma:', file=f_log)
             for ic in range(params.num_species):
                 print('Cyclotron frequency of Species {:2} = {:2.6e}'.format(ic + 1, params.species[ic].omega_c),
                       file=f_log)
@@ -101,7 +103,7 @@ class Verbose:
                                                                 params.species[ic].omega_c / params.species[ic].wp),
                       file=f_log)
 
-        print("\nAlgorithm = ", params.Potential.method, file=f_log)
+        print("\nAlgorithm : ", params.Potential.method, file=f_log)
         if params.Potential.method == 'P3M':
             print('Ewald parameter alpha = {:1.6e}'.format(params.P3M.G_ew), file=f_log)
             print('alpha * a_ws = {:2.6e}'.format(params.Potential.matrix[-1, 0, 0] * params.aws), file=f_log)
@@ -148,7 +150,13 @@ class Verbose:
         print('\nNo. of equilibration steps = ', params.Control.Neq, file=f_log)
         print('No. of post-equilibration steps = ', params.Control.Nsteps, file=f_log)
         print('snapshot interval = ', params.Control.dump_step, file=f_log)
-        print('Periodic boundary condition {1=yes, 0=no} =', params.Control.PBC, file=f_log)
+        print('\nBoundary conditions:', file=f_log)
+        if params.BC.pbc_axes:
+            print('Periodic BC along axes : ', params.BC.pbc_axes, file=f_log)
+        if params.BC.mm_axes:
+            print('Momentum Mirror BC along axes : ', params.BC.mm_axes, file=f_log)
+        if params.BC.open_axes:
+            print('Open BC along axes : ', params.BC.open_axes, file=f_log)
 
         if params.Langevin.on:
             print('Langevin model = ', params.Langevin.type, file=f_log)

@@ -359,7 +359,7 @@ def setup(params, filename):
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Ref.[4]_
     params.Potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
-    params.QFactor = params.QFactor / params.fourpie0
+    params.QFactor /= params.fourpie0
     params.Potential.matrix = Yukawa_matrix
 
     # Calculate the (total) plasma frequency

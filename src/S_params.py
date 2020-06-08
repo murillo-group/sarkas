@@ -25,17 +25,8 @@ class Params:
         box_volume : float
             Box volume.
 
-        d : int
+        dimensions : int
             Number of non-zero dimensions.
-        
-        dq : float
-            Minimum wavenumber defined as :math:`2\pi/L` .
-        
-        dt : int
-            Timestep.
-
-        dump_step : int
-            Snapshot interval.
 
         fourpie0: float
             Electrostatic constant :math: `4\pi \espilon_0`.
@@ -98,7 +89,7 @@ class Params:
             Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2` .
         
         L : float
-            Box length.
+            Smallest box length.
 
         Lx : float
             Box length in the :math:`x` direction.
@@ -112,20 +103,17 @@ class Params:
         Lv : array, shape(3)
             Box length in each direction.
 
-        Lmax_v : array, shape(3)
-            Maximum box length in each direction.
+        e1 : float
+            Unit vector in the :math:`x` direction.
 
-        Lmin_v : array, shape(3)
-            Minimum box length in each direction.
-        
+        e2 : float
+            Unit vector in the :math:`y` direction.
+
+        e3 : float
+            Unit vector in the :math:`z` direction.
+
         N : int
             Total number of particles same as ``tot_num_ptcls``.
-        
-        Neq : int
-            Total number of equilibration steps.
-
-        Nq : int
-            Number of wavenumbers.
 
         P3M : class
             P3M algorithm's parameters.
@@ -133,9 +121,6 @@ class Params:
         ptcls_input_file : str
             User defined input file containing particles' data.
 
-        q_max : int
-            Maximum wavenumber.
-        
         Te : float
             Equilibrium electron temperature. Defined in Potential module.
 
@@ -153,15 +138,12 @@ class Params:
 
         total_num_ptcls : int
             Total number of particles. Calculated from the sum of ``Species.num``.
-        
-        units : str
-            Choice of units mks or cgs.
 
         wp : float
-            Total Plasma frequency.
+            Total Plasma frequency. Defined in Potential module.
 
         force : func
-            Function for force calculation.
+            Function for force calculation. Assigned in Potential module.
     """
 
     def __init__(self):
@@ -169,6 +151,9 @@ class Params:
         self.N = 0
         self.ne = 0.0
         self.L = 0.0
+        self.Lv = []
+        self.box_volume = 0.0
+        self.dimensions = 3
         self.J2erg = 1.0e+7  # erg/J
         self.eps0 = const.epsilon_0
         self.fourpie0 = 4.0 * np.pi * self.eps0
@@ -192,6 +177,7 @@ class Params:
         #
         self.load = []
         self.P3M = self.P3M()
+        self.BC = self.BC()
         self.Magnetic = self.Magnetic()
         self.Potential = self.Potential()
         self.Integrator = self.Integrator()
@@ -199,6 +185,37 @@ class Params:
         self.Thermostat = self.Thermostat()
         self.Langevin = self.Langevin()
         self.PostProcessing = self.PostProcessing()
+
+    class BC:
+        """Boundary Conditions.
+
+        Attributes
+        ----------
+        pbc_axes : list
+            Axes with Periodic Boundary Conditions.
+
+        mm_axes : list
+            Axes with Momentum Mirror Conditions.
+
+        open_axes: list
+            Axes with Open Boundary Conditions.
+
+        pbc_axes_indx : array
+            Indexes of axes with Periodic Boundary Conditions.
+
+        mm_axes_indx : array
+            Indexes of axes with Momentum Mirror Conditions.
+
+        open_axes_indx: array
+            Indexes of axes with Open Boundary Conditions.
+        """
+        def __init__(self):
+            self.pbc_axes = []
+            self.mm_axes = []
+            self.open_axes = []
+            self.pbc_axes_indx = []
+            self.mm_axes_indx = []
+            self.open_axes_indx = []
 
     class Species:
         """ 
@@ -238,15 +255,18 @@ class Params:
 
         Attributes
         ----------
-            on : bool
-                Flag for magnetized plasma. 
+        on : bool
+            Flag for magnetized plasma.
 
-            elec_therm : int
-                Thermalize electrostatic forces first? 
-                0 = False, 1 = True (default).
-            
-            Neq_mag : int
-                Number of equilibration steps with magnetic field on.
+        elec_therm : int
+            Thermalize electrostatic forces first?
+            0 = False, 1 = True (default).
+
+        Neq_mag : int
+            Number of equilibration steps with magnetic field on.
+
+        Bfield : float
+            Strength of Magnetic Field.
         """
 
         def __init__(self):
@@ -431,7 +451,7 @@ class Params:
             dump_step : int
                 Snapshot interval.
 
-            np_per_boxlength : array
+            np_per_side : array
                 Number of particles per box length. Note that :math: `N_x x N_y x N_z = N_{tot}`
 
             writexyz : str
@@ -460,7 +480,7 @@ class Params:
             self.verbose = "yes"
             self.checkpoint_dir = "Checkpoint"
             self.log_file = self.checkpoint_dir + "/log.out"
-            self.np_per_boxlength = []
+            self.np_per_side = []
 
     class PostProcessing:
 
@@ -521,7 +541,6 @@ class Params:
 
         return
 
-    # read input data which does not depend on potential type. 
     def common_parser(self, filename):
         """
         Parse common parameters from input file
@@ -663,7 +682,7 @@ class Params:
 
                             if key == "electrostatic_thermalization":
                                 # 1 = true, 0 = false
-                                self.Magnetic.elec_therm = int(value)
+                                self.Magnetic.elec_therm = value
 
                             if key == "Neq_mag":
                                 # Number of equilibration of magnetic degrees of freedom
@@ -704,6 +723,21 @@ class Params:
                             if key == "momentum_mirror":
                                 self.BC.mm_axes = value
 
+                            if key == "open":
+                                self.BC.open_axes = value
+
+                if lkey == "BoundaryConditions":
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if key == "periodic":
+                                self.BC.pbc_axes = value
+
+                            if key == "momentum_mirror":
+                                self.BC.mm_axes = value
+
+                            if key == "open":
+                                self.BC.open_axes = value
+
                 if lkey == "Control":
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
@@ -724,15 +758,15 @@ class Params:
                                 self.Control.Neq = int(value)
 
                             # Periodic Boundary Condition
-                            if key == "BC":
-                                self.Control.BC = value
-                                if self.Control.BC == "periodic":
-                                    self.Control.PBC = 1
-                                else:
-                                    self.Control.PBC = 0
+                            # if key == "BC":
+                            #     self.Control.BC = value
+                            #     if self.Control.BC == "periodic":
+                            #         self.Control.PBC = 1
+                            #     else:
+                            #         self.Control.PBC = 0
 
-                            if key == "Np_per_boxlength":
-                                self.Control.np_per_boxlength = np.array(value, dtype=int)
+                            if key == "Np_per_side":
+                                self.Control.np_per_side = np.array(value, dtype=int)
 
                             # Saving interval
                             if key == "dump_step":
@@ -763,7 +797,7 @@ class Params:
                                 self.Control.fname_app = self.Control.checkpoint_dir
 
         # Check for conflicts in case of magnetic field
-        if self.Magnetic.on == True and self.Magnetic.elec_therm == 1:
+        if self.Magnetic.on and self.Magnetic.elec_therm:
             self.Integrator.mag_type = value
             self.Integrator.type = 'Verlet'
 
@@ -846,13 +880,13 @@ class Params:
 
         # Simulation Box Parameters
         self.N = self.total_num_ptcls
-        if len(self.Control.np_per_boxlength) != 0:
-            if int(np.prod(self.Control.np_per_boxlength)) != self.total_num_ptcls:
+        if len(self.Control.np_per_side) != 0:
+            if int(np.prod(self.Control.np_per_side)) != self.total_num_ptcls:
                 raise ValueError("Number of particles per dimension does not match total number of particles.")
 
-            self.Lx = self.aws * self.Control.np_per_boxlength[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Ly = self.aws * self.Control.np_per_boxlength[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Lz = self.aws * self.Control.np_per_boxlength[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lx = self.aws * self.Control.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.aws * self.Control.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.aws * self.Control.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
         else:
             self.Lx = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
             self.Ly = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
@@ -871,24 +905,38 @@ class Params:
 
         self.T_desired = self.Ti
 
-        # # boundary Conditions
-        # if hasattr(self.BC, "pbc_axes"):
-        #     for (ij,bc) in enumerate(self.BC.pbc_axes):
-        #         if bc == "x":
-        #             self.BC.pbc_axes_indx[ij] = 0
-        #         elif bc == "y":
-        #             self.BC.pbc_axes_indx[ij] = 1
-        #         elif bc == "z":
-        #             self.BC.pbc_axes_indx[ij] = 2
-        #
-        # if hasattr(self.BC, "mm_axes"):
-        #     self.BC.mm_axes_indx = np.zeros( len(self.BC.mm_axes), dtype=np.int)
-        #     for (ij,bc) in enumerate(self.BC.mm_axes):
-        #         if bc == "x":
-        #             self.BC.mm_axes_indx[ij] = 0
-        #         elif bc == "y":
-        #             self.BC.mm_axes_indx[ij] = 1
-        #         elif bc == "z":
-        #             self.BC.mm_axes_indx[ij] = 2
+        # boundary Conditions
+        if self.BC.pbc_axes:
+            self.BC.pbc_axes_indx = np.zeros( len(self.BC.pbc_axes))
+            for (ij, bc) in enumerate(self.BC.pbc_axes):
+                if bc == "x":
+                    self.BC.pbc_axes_indx[ij] = 0
+                elif bc == "y":
+                    self.BC.pbc_axes_indx[ij] = 1
+                elif bc == "z":
+                    self.BC.pbc_axes_indx[ij] = 2
 
+        if self.BC.mm_axes:
+            print("\nOnly Periodic Boundary Conditions are supported. Bye!")
+            sys.exit()
+            self.BC.mm_axes_indx = np.zeros(len(self.BC.mm_axes), dtype=np.int)
+            for (ij, bc) in enumerate(self.BC.mm_axes):
+                if bc == "x":
+                    self.BC.mm_axes_indx[ij] = 0
+                elif bc == "y":
+                    self.BC.mm_axes_indx[ij] = 1
+                elif bc == "z":
+                    self.BC.mm_axes_indx[ij] = 2
+
+        if self.BC.open_axes:
+            print("\nOnly Periodic Boundary Conditions are supported. Bye!")
+            sys.exit()
+            self.BC.open_axes_indx = np.zeros(len(self.BC.open_axes), dtype=np.int)
+            for (ij, bc) in enumerate(self.BC.open_axes):
+                if bc == "x":
+                    self.BC.open_axes_indx[ij] = 0
+                elif bc == "y":
+                    self.BC.open_axes_indx[ij] = 1
+                elif bc == "z":
+                    self.BC.open_axes_indx[ij] = 2
         return

@@ -46,9 +46,9 @@ Control:
     - Neq: 50000                      # number of timesteps for the equilibrium
     - Nsteps: 50000                   # number of timesteps after the equilibrium
     - BC: periodic                  # periodic boundary condition
-    - writexyz: yes                  # no xyz output
+    - writexyz: no                  # no xyz output
     - dump_step: 50                # dump time step
-    - verbose: no
+    - verbose: yes
     - output_dir: QSP_mks       # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
