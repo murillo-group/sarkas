@@ -753,8 +753,13 @@ class DynamicStructureFactor:
     def __init__(self, params):
 
         self.fldr = params.Control.checkpoint_dir
+        self.ptcls_fldr = os.path.join(self.fldr, "Particles_Data")
+        self.k_fldr = os.path.join(self.fldr, "k_space_data")
+        self.k_file = os.path.join(self.k_fldr, "k_arrays")
+        self.nkt_file = os.path.join(self.k_fldr, "nkt")
         self.fname_app = params.Control.fname_app
         self.filename_csv = os.path.join(self.fldr, "DynamicStructureFactor_" + self.fname_app + '.csv')
+
         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
@@ -780,8 +785,6 @@ class DynamicStructureFactor:
                                    params.PostProcessing.dsf_no_ka_values], dtype=int)
         else:
             self.no_ka = params.PostProcessing.dsf_no_ka_values  # number of ka values
-        self.k_list, self.k_counts, self.k_unique = kspace_setup(self.no_ka, self.box_lengths)
-        self.ka_values = 2.0 * np.pi * self.k_unique * self.a_ws
 
     def parse(self):
         """
@@ -789,6 +792,11 @@ class DynamicStructureFactor:
         """
         try:
             self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+            k_data = np.load(self.k_file)
+            self.k_list = k_data["k_list"]
+            self.k_counts = k_data["k_counts"]
+            self.ka_values = k_data["ka_values"]
+
         except FileNotFoundError:
             print("\nFile {} not found!".format(self.filename_csv))
             print("\nComputing DSF now")
@@ -800,34 +808,45 @@ class DynamicStructureFactor:
         Compute :math:`S_{ij}(k,\omega)' and the array of :math:`\omega/\omega_p` values.
         ``self.Skw``. Shape = (``no_ws``, ``no_Sij``)
         """
-        calculate = calc_Skw_single
 
         data = {"Frequencies": 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)}
         self.dataframe = pd.DataFrame(data)
 
-        # Parse the particles from the dump files
-        pos = np.zeros((self.no_dumps, self.tot_no_ptcls, 3))
-        # Read particles' position for all times
-        print("Parsing particles' positions.")
-        for it in tqdm(range(self.no_dumps)):
-            dump = int(it * self.dump_step)
-            data = load_from_restart(self.fldr, dump)
-            pos[it, :, 0] = data["pos"][:, 0]
-            pos[it, :, 1] = data["pos"][:, 1]
-            pos[it, :, 2] = data["pos"][:, 2]
+        # Parse nkt otherwise calculate it
+        try:
+            nkt = np.load(self.nkt_file)
+            k_data = np.load(self.k_file)
+            self.k_list = k_data["k_list"]
+            self.k_counts = k_data["k_counts"]
+            self.ka_values = k_data["ka_values"]
+            self.no_ka_values = len(self.ka_values)
 
-        print("Calculating S(k,w)")
-        Skw = calc_Skw_single(pos, self.k_list, self.k_counts, self.species_np, self.no_dumps, self.dt, self.dump_step)
+        except FileNotFoundError:
+            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka, self.box_lengths)
+            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
+            self.no_ka_values = len(self.ka_values)
+            np.savez(self.k_file,
+                     k_list=self.k_list,
+                     k_counts=self.k_counts,
+                     ka_values=self.ka_values)
+
+            nkt = calc_nkt(self.ptcls_fldr, self.no_dumps, self.dump_step, self.species_np, self.k_list)
+            np.save(self.nkt_file)
+
+        # Calculate Skw
+        Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_np, self.no_dumps, self.dt, self.dump_step)
         print("Saving S(k,w)")
-        for ik in range(len(self.k_counts)):
-            for sp_i in range(self.no_species):
-                for sp_j in range(sp_i, self.no_species):
+        sp_indx = 0
+        for sp_i in range(self.no_species):
+            for sp_j in range(sp_i, self.no_species):
+                for ik in range(len(self.k_counts)):
                     if ik == 0:
                         column = "{}-{} DSF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
                     else:
                         column = "{}-{} DSF {} ka_min".format(self.species_names[sp_i],
                                                               self.species_names[sp_j], ik + 1)
-                    self.dataframe[column] = Skw[ik, sp_i, :]
+                    self.dataframe[column] = Skw[sp_indx, ik, :]
+                sp_indx += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -840,6 +859,7 @@ class DynamicStructureFactor:
         try:
             self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
         except FileNotFoundError:
+            print("Computing S(k,w)")
             self.compute()
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
@@ -850,11 +870,6 @@ class DynamicStructureFactor:
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
                             np.fft.fftshift(self.dataframe[column]), lw=lw,
                             label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
-                    for i in range(1, 5):
-                        column = "{}-{} DSF {} ka_min".format(self.species_names[sp_i], self.species_names[sp_j], i + 1)
-                        ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
-                                np.fft.fftshift(self.dataframe[column]), lw=lw,
-                                label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
         else:
             column = "{}-{} DSF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
@@ -881,7 +896,7 @@ class DynamicStructureFactor:
         if dispersion:
             w_array = np.array(self.dataframe["Frequencies"]) / self.wp
             neg_indx = np.where(w_array < 0.0)[0][0]
-            Skw = np.array(self.dataframe.iloc[:, 1:])
+            Skw = np.array(self.dataframe.iloc[:, 1:self.no_ka_values + 1])
             ka_vals, w = np.meshgrid(self.ka_values, w_array[: neg_indx])
             fig = plt.figure(figsize=(10, 7))
             plt.pcolor(ka_vals, w, Skw[: neg_indx, :], vmin=Skw[:, 1].min(), vmax=Skw[:, 1].max())
@@ -892,7 +907,7 @@ class DynamicStructureFactor:
             plt.ylabel(r'$\omega/\omega_p$', fontsize=fsz)
             plt.ylim(0, 2)
             plt.tick_params(axis='both', which='major', labelsize=fsz)
-            plt.title('$S(k,\\omega)$', fontsize=fsz)
+            plt.title("$S(k, \omega)$", fontsize=fsz)
             fig.tight_layout()
             fig.savefig(os.path.join(self.fldr, 'Skw_Dispersion_' + self.fname_app + '.png'))
             if show:
@@ -1122,7 +1137,7 @@ def load_from_restart(fldr, it):
         Particles' data.
     """
 
-    file_name = os.path.join(os.path.join(fldr, "Particles_Data"), "S_checkpoint_" + str(it) + ".npz")
+    file_name = os.path.join(fldr, "S_checkpoint_" + str(it) + ".npz")
     data = np.load(file_name, allow_pickle=True)
     return data
 
@@ -1654,60 +1669,84 @@ def calc_nkt_multi_pa(pos_data, ka_min, num_ka_values, species_np, no_dumps):
     return ka_values, Sk
 
 
-@nb.njit
-def calc_nkt_single(pos_data, ka_list, ka_counts, species_np, no_dumps):
+def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list):
     """
-    Calculate :math:`n(k,t)`.
+    Calculate :math:`n(k)` for a single species.
+
+    Parameters
+    ----------
+    fldr : str
+        Name of folder containing particles data.
+
+    no_dumps : int
+        Number of saved timesteps.
+
+    dump_step : int
+        Timestep interval saving.
+
+    species_np : array
+        Number of particles of each species.
+
+    k_list : list
+        List of :math: `k` vectors.
+
+    Return
+    ------
+    nkt : array, complex
+        Density fluctations.
+    """
+    # Read particles' position for all times
+    print("Calculating n(k,t).")
+    for it in tqdm(range(no_dumps)):
+        dump = int(it * dump_step)
+        data = load_from_restart(fldr, dump)
+        pos = data["pos"]
+        sp_start = 0
+        for i, sp in enumerate(species_np):
+            sp_end = sp_start + sp
+            nkt[i, it, :] = calc_nk(pos[sp_start:sp_end, :], k_list)
+            sp_start = sp_end
+
+    return nkt
+
+
+@nb.njit
+def calc_nk(pos_data, k_list):
+    """
+    Calculate :math:`n(k)`.
 
     Parameters
     ----------
     pos_data : ndarray
         Particles' position scaled by the box lengths. Shape = ( `no_dumps`, 3, `tot_no_ptcls')
 
-    ka_list : list
+    k_list : list
         List of :math:`k` indices in each direction with corresponding magnitude and index of `ka_counts`.
         Shape=(`no_ka_values`, 5)
 
-    ka_counts : array
-        Number of times each :math:`k` magnitude appears.
-
-    species_np : array
-        Array with one element giving number of particles.
-
-    no_dumps : int
-        Number of dumps.
-
     Returns
     -------
-
-    Sk : ndarray
-        Array containing :math:`S(k)`. Shape=(`no_ka_values`, `no_dumps`)
+    nk : array
+        Array containing :math:`n(k)`.
     """
-    num_ka_values = len(ka_counts)
 
-    nkt = np.zeros((num_ka_values, no_dumps), dtype=np.complex128)
+    nk = np.empty(len(k_list), dtype=np.complex128)
 
-    # I don't know if this will cause problem with large numbers
-    for it in range(no_dumps):
-        for ik in range(ka_list.shape[0]):
-            kr_i = (ka_list[ik][0] * pos_data[it, 0, :]
-                    + ka_list[ik][1] * pos_data[it, 1, :]
-                    + ka_list[ik][2] * pos_data[it, 2, :]) * 2.0 * np.pi
+    for ik, k_vec in enumerate(k_list):
+        kr_i = 2.0 * np.pi * (k_vec[0] * pos_data[:, 0] + k_vec[1] * pos_data[:, 1] + k_vec[2] * pos_data[:, 2])
+        nk[ik] = np.sum(np.exp(-1j * kr_i))
 
-            indx = int(ka_list[ik][-1])
-            nkt[indx, it] += np.sum(np.exp(-1j * kr_i)) / (np.sqrt(ka_counts[indx] * species_np[0]))
-
-    return nkt
+    return nk
 
 
-def calc_Skw_multi(pos_data, ka_list, ka_counts, species_np, no_dumps):
+def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
     """
     Calculate :math:`S(k,w)` of all species.
 
     Parameters
     ----------
-    pos_data : ndarray
-        Particles' position scaled by the box lengths. Shape = ( `no_dumps`, 3, `tot_no_ptcls')
+    nkt : nkarray, complex
+        Particles' density fluctuations. Shape = ( `no_species`, `no_k_list`, `no_dumps`)
 
     ka_list : list
         List of :math:`k` indices in each direction with corresponding magnitude and index of `ka_counts`.
@@ -1724,33 +1763,26 @@ def calc_Skw_multi(pos_data, ka_list, ka_counts, species_np, no_dumps):
 
     Returns
     -------
-    nkw : ndarray
-        Array containing the Fourier transform of :math:`n(k,t)` of each species.
-        :math:`n(k,\omega)`. Shape=(`no_ka_values`,`no_species`, `no_dumps`)
+    Skw : ndarray
+        DSF of each species and pair of species. Shape = (`no_skw`, `len(ka_counts)`, `len(w)`
     """
-    num_ka_values = len(ka_counts)
-    num_species = len(species_np)
-    nkt = np.zeros((num_ka_values, num_species, no_dumps), dtype=np.complex128)
-    nkw = np.zeros((num_ka_values, num_species, no_dumps), dtype=np.complex128)
-    norm = 1.0 / float(no_dumps)
-    for ik in range(num_ka_values):
-        kr_i = (ka_list[ik][0] * pos_data[:, 0, :]
-                + ka_list[ik][1] * pos_data[:, 1, :]
-                + ka_list[ik][2] * pos_data[:, 2, :]) * 2.0 * np.pi
-        indx = int(ka_list[ik][-1])
-        sp_start = 0
-        for sp in range(num_species):
-            sp_end = sp_start + species_np[sp]
-            nkt[indx, sp, :] += np.sum(np.exp(-1j * kr_i[:, sp_start:sp_end]), axis=1) / (
-                    ka_counts[indx] * np.sqrt(species_np[0]))
 
-            sp_start = sp_end
-    for ik in range(num_ka_values):
-        indx = int(ka_list[ik][-1])
-        for sp in range(num_species):
-            nkw[indx, sp, :] += np.fft.fft(nkt[ik, sp, :]) * norm
+    norm = dt / np.sqrt(no_dumps * dt * dump_step)
+    no_skw = int(len(species_np) * (len(species_np) + 1) / 2)
+    Skw = np.empty((no_skw, len(ka_counts), no_dumps))
 
-    return nkw
+    pair_indx = 0
+    for ip, si in enumerate(species_np):
+        for jp, sj in enumerate(ip, species_np):
+            print("Calculating S(k,w) pair {}-{}".format(ip, jp))
+            for ik, ka in tqdm(enumerate(ka_list)):
+                indx = int(ka[-1])
+                nkw_i = np.fft.fft(nkt[ip, ik, :]) * norm
+                nkw_j = np.fft.fft(nkt[jp, ik, :]) * norm
+
+                Skw[pair_indx, indx, :] += np.real(np.conj(nkw_i) * nkw_j) / (ka_counts[indx] * np.sqrt(si * sj))
+            pair_indx += 1
+    return Skw
 
 
 def calc_Skw_single(pos_data, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
