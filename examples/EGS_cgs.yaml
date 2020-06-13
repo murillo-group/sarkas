@@ -19,6 +19,9 @@ Potential:
     - rc: 9.3471e-08             # cut-off radius, cm
     - elec_temperature_eV: 0.5
 
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
 Integrator:
     - type: Verlet                  # velocity integrator type
 
@@ -32,7 +35,6 @@ Control:
     - dt: 1.064305707e-16            # sec
     - Neq: 30000                     # number of timesteps for the equilibrium
     - Nsteps: 30000                  # number of timesteps afater the equilibrium
-    - BC: periodic                  # periodic boundary condition
     - writexyz: yes                  # no xyz output
     - dump_step: 1                # dump time step
     - verbose: yes

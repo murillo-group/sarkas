@@ -1,6 +1,7 @@
 """ 
 Module to handle particles' class.
 """
+import os
 import numpy as np
 import time
 import sys
@@ -67,7 +68,7 @@ class Particles:
         Initialize the attributes
         """
         self.params = params
-        self.checkpoint_dir = params.Control.checkpoint_dir + "/" + "Particles_Data" + "/"
+        self.checkpoint_dir = os.path.join(params.Control.checkpoint_dir,"Particles_Data")
         self.box_lengths = params.Lv
         self.tot_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
@@ -256,7 +257,7 @@ class Particles:
             Timestep.
 
         """
-        file_name = self.checkpoint_dir + "/" + "S_checkpoint_" + str(it) + ".npz"
+        file_name = os.path.join(self.checkpoint_dir, "S_checkpoint_" + str(it) + ".npz")
         data = np.load(file_name, allow_pickle=True)
         self.species_id = data["species_id"]
         self.species_name = data["species_name"]

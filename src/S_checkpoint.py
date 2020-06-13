@@ -31,11 +31,10 @@ class Checkpoint:
         """
         self.dt = params.Control.dt
         self.checkpoint_dir = params.Control.checkpoint_dir
-        self.ptcls_dir = self.checkpoint_dir + "/" + "Particles_Data"
-        self.energy_filename = self.checkpoint_dir + "/" + "Thermodynamics_" + params.Control.fname_app + '.csv'
-        self.ptcls_file_name = self.ptcls_dir + "/" + "S_checkpoint_"
+        self.ptcls_dir = os.path.join(self.checkpoint_dir, "Particles_Data")
+        self.energy_filename = os.path.join( self.checkpoint_dir, "Thermodynamics_" + params.Control.fname_app + '.csv')
+        self.ptcls_file_name = os.path.join( self.ptcls_dir,  "S_checkpoint_")
         self.species_names = []
-        #self.energy_units = " [J]" if params.Control.units == "mks" else " [erg]"
         self.Gamma_eff = params.Potential.Gamma_eff * params.T_desired
 
         for i in range(params.num_species):
@@ -46,10 +45,10 @@ class Checkpoint:
         if not (os.path.exists(self.ptcls_dir)):
             os.mkdir(self.ptcls_dir)
 
-        filename = self.checkpoint_dir + "/" + "S_parameters.pickle"
-        save_file = open(filename, "wb")
+        save_file = open(os.path.join(self.checkpoint_dir, "S_parameters.pickle"), "wb")
         pickle.dump(params, save_file)
         save_file.close()
+
         if not params.load_method == "restart":
             data = {"Time": [],
                     "Total Energy": [],

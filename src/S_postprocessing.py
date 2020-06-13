@@ -1,15 +1,13 @@
 """
 Module for calculating physical quantities from Sarkas checkpoints.
 """
+import os
 import numpy as np
 import numba as nb
 import pandas as pd
 import matplotlib.pyplot as plt
 import time as tme
 from tqdm import tqdm
-
-# from matplotlib import rc
-# rc('text', usetex=True)
 
 lw = 2
 fsz = 14
@@ -79,7 +77,7 @@ class Thermodynamics:
     """
 
     def __init__(self, params):
-        self.fldr = params.Control.checkpoint_dir + '/'
+        self.fldr = params.Control.checkpoint_dir
         self.fname_app = params.Control.fname_app
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
@@ -103,7 +101,7 @@ class Thermodynamics:
             self.species_masses[i] = params.species[i].mass
             self.species_dens[i] = params.species[i].num_density
         # Output file with Energy and Temperature
-        self.filename_csv = self.fldr + "Thermodynamics_" + self.fname_app + '.csv'
+        self.filename_csv = os.path.join(self.fldr, "Thermodynamics_" + self.fname_app + '.csv')
         # Constants
         self.wp = params.wp
         self.kB = params.kB
@@ -269,7 +267,7 @@ class Thermodynamics:
         ax.set_ylabel(ylbl[quantity], fontsize=fsz)
         ax.set_xlabel(r'$\omega_p t$', fontsize=fsz)
         fig.tight_layout()
-        fig.savefig(self.fldr + quantity + '_' + self.fname_app + '.png')
+        fig.savefig(os.path.join(self.fldr, quantity + '_' + self.fname_app + '.png'))
         if show:
             fig.show()
 
@@ -324,9 +322,9 @@ class ElectricCurrent:
     """
 
     def __init__(self, params):
-        self.fldr = params.Control.checkpoint_dir + '/'
+        self.fldr = params.Control.checkpoint_dir
         self.fname_app = params.Control.fname_app
-        self.filename_csv = self.fldr + "ElectricCurrent_" + self.fname_app + '.csv'
+        self.filename_csv = os.path.join(self.fldr, "ElectricCurrent_" + self.fname_app + '.csv')
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
         self.no_species = len(params.species)
@@ -434,7 +432,7 @@ class ElectricCurrent:
         ax.set_xlabel(r'$\omega_p t$', fontsize=fsz)
         ax.set_xscale('log')
         fig.tight_layout()
-        fig.savefig(self.fldr + 'TotalCurrentACF_' + self.fname_app + '.png')
+        fig.savefig(os.path.join(self.fldr, 'TotalCurrentACF_' + self.fname_app + '.png'))
         if show:
             fig.show()
 
@@ -471,8 +469,8 @@ class XYZFile:
     """
 
     def __init__(self, params):
-        self.fldr = params.Control.checkpoint_dir + '/'
-        self.filename = self.fldr + "pva_" + params.Control.fname_app + '.xyz'
+        self.fldr = params.Control.checkpoint_dir
+        self.filename = os.path.join(self.fldr, "pva_" + params.Control.fname_app + '.xyz')
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
         self.dump_skip = 1
@@ -567,9 +565,9 @@ class StaticStructureFactor:
 
     def __init__(self, params):
 
-        self.fldr = params.Control.checkpoint_dir + '/'
+        self.fldr = params.Control.checkpoint_dir
         self.fname_app = params.Control.fname_app
-        self.filename_csv = self.fldr + "StaticStructureFunction_" + self.fname_app + ".csv"
+        self.filename_csv = os.path.join(self.fldr, "StaticStructureFunction_" + self.fname_app + ".csv")
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
         self.no_species = len(params.species)
@@ -701,7 +699,7 @@ class StaticStructureFactor:
         ax.set_ylabel(r'$S(k)$', fontsize=fsz)
         ax.set_xlabel(r'$ka$', fontsize=fsz)
         fig.tight_layout()
-        fig.savefig(self.fldr + 'StaticStructureFactor' + self.fname_app + '.png')
+        fig.savefig(os.paht.join(self.fldr, 'StaticStructureFactor' + self.fname_app + '.png'))
         if show:
             fig.show()
 
@@ -754,9 +752,9 @@ class DynamicStructureFactor:
 
     def __init__(self, params):
 
-        self.fldr = params.Control.checkpoint_dir + '/'
+        self.fldr = params.Control.checkpoint_dir
         self.fname_app = params.Control.fname_app
-        self.filename_csv = self.fldr + "DynamicStructureFactor_" + self.fname_app + '.csv'
+        self.filename_csv = os.path.join(self.fldr, "DynamicStructureFactor_" + self.fname_app + '.csv')
         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
@@ -804,43 +802,38 @@ class DynamicStructureFactor:
         """
         calculate = calc_Skw_single
 
-        data = {"Frequencies": np.fft.fftfreq(self.no_dumps, self.dt / 2)}
+        data = {"Frequencies": 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)}
         self.dataframe = pd.DataFrame(data)
 
         # Parse the particles from the dump files
-        pos = np.zeros((self.no_dumps, 3, self.tot_no_ptcls))
+        pos = np.zeros((self.no_dumps, self.tot_no_ptcls, 3))
         # Read particles' position for all times
-        print("Parsing particles' positions ")
+        print("Parsing particles' positions.")
         for it in tqdm(range(self.no_dumps)):
             dump = int(it * self.dump_step)
             data = load_from_restart(self.fldr, dump)
-            pos[it, 0, :] = data["pos"][:, 0]
-            pos[it, 1, :] = data["pos"][:, 1]
-            pos[it, 2, :] = data["pos"][:, 2]
+            pos[it, :, 0] = data["pos"][:, 0]
+            pos[it, :, 1] = data["pos"][:, 1]
+            pos[it, :, 2] = data["pos"][:, 2]
 
         print("Calculating S(k,w)")
-        Skw = calculate(pos, self.k_list, self.k_counts, self.species_np, self.no_dumps)
+        Skw = calc_Skw_single(pos, self.k_list, self.k_counts, self.species_np, self.no_dumps, self.dt, self.dump_step)
         print("Saving S(k,w)")
-        start = tme.time()
         for ik in range(len(self.k_counts)):
             for sp_i in range(self.no_species):
                 for sp_j in range(sp_i, self.no_species):
                     if ik == 0:
-                        column = "{}-{} DSF ka_min".format(self.species_names[sp_i],
-                                                           self.species_names[sp_j])
+                        column = "{}-{} DSF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
                     else:
                         column = "{}-{} DSF {} ka_min".format(self.species_names[sp_i],
                                                               self.species_names[sp_j], ik + 1)
                     self.dataframe[column] = Skw[ik, sp_i, :]
 
-        end = tme.time()
-        print('Saving DSF elapsed time = ', (end - start))
-
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
         return
 
-    def plot(self, show=False):
+    def plot(self, show=False, dispersion=False):
         """
         Plot :math: `S(k,\omega)` and save the figure.
         """
@@ -850,17 +843,28 @@ class DynamicStructureFactor:
             self.compute()
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        for sp_i in range(self.no_species):
-            for sp_j in range(sp_i, self.no_species):
-                column = "{}-{} DSF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
-                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
-                        np.fft.fftshift(self.dataframe[column]), lw=lw,
-                        label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
-                for i in range(1, 5):
-                    column = "{}-{} DSF {} ka_min".format(self.species_names[sp_i], self.species_names[sp_j], i + 1)
-                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) * self.wp,
+        if self.no_species > 1:
+            for sp_i in range(self.no_species):
+                for sp_j in range(sp_i, self.no_species):
+                    column = "{}-{} DSF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
+                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
                             np.fft.fftshift(self.dataframe[column]), lw=lw,
                             label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
+                    for i in range(1, 5):
+                        column = "{}-{} DSF {} ka_min".format(self.species_names[sp_i], self.species_names[sp_j], i + 1)
+                        ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
+                                np.fft.fftshift(self.dataframe[column]), lw=lw,
+                                label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
+        else:
+            column = "{}-{} DSF ka_min".format(self.species_names[0], self.species_names[0])
+            ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
+                    np.fft.fftshift(self.dataframe[column]), lw=lw,
+                    label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
+            for i in range(1, 5):
+                column = "{}-{} DSF {} ka_min".format(self.species_names[0], self.species_names[0], i + 1)
+                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
+                        np.fft.fftshift(self.dataframe[column]), lw=lw,
+                        label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
 
         ax.grid(True, alpha=0.3)
         ax.legend(loc='best', ncol=3, fontsize=fsz)
@@ -870,9 +874,29 @@ class DynamicStructureFactor:
         ax.set_ylabel(r'$S(k,\omega)$', fontsize=fsz)
         ax.set_xlabel(r'$\omega/\omega_p$', fontsize=fsz)
         fig.tight_layout()
-        fig.savefig(self.fldr + 'Skw_' + self.fname_app + '.png')
+        fig.savefig(os.path.join(self.fldr, 'Skw_' + self.fname_app + '.png'))
         if show:
             fig.show()
+
+        if dispersion:
+            w_array = np.array(self.dataframe["Frequencies"]) / self.wp
+            neg_indx = np.where(w_array < 0.0)[0][0]
+            Skw = np.array(self.dataframe.iloc[:, 1:])
+            ka_vals, w = np.meshgrid(self.ka_values, w_array[: neg_indx])
+            fig = plt.figure(figsize=(10, 7))
+            plt.pcolor(ka_vals, w, Skw[: neg_indx, :], vmin=Skw[:, 1].min(), vmax=Skw[:, 1].max())
+            cbar = plt.colorbar()
+            cbar.set_ticks([])
+            cbar.ax.tick_params(labelsize=fsz - 2)
+            plt.xlabel(r'$ka$', fontsize=fsz)
+            plt.ylabel(r'$\omega/\omega_p$', fontsize=fsz)
+            plt.ylim(0, 2)
+            plt.tick_params(axis='both', which='major', labelsize=fsz)
+            plt.title('$S(k,\\omega)$', fontsize=fsz)
+            fig.tight_layout()
+            fig.savefig(os.path.join(self.fldr, 'Skw_Dispersion_' + self.fname_app + '.png'))
+            if show:
+                fig.show()
 
 
 class RadialDistributionFunction:
@@ -927,9 +951,9 @@ class RadialDistributionFunction:
 
     def __init__(self, params):
         self.no_bins = params.PostProcessing.rdf_nbins  # number of ka values
-        self.fldr = params.Control.checkpoint_dir + '/'
+        self.fldr = params.Control.checkpoint_dir
         self.fname_app = params.Control.fname_app
-        self.filename_csv = self.fldr + "RadialDistributionFunction_" + params.Control.fname_app + ".csv"
+        self.filename_csv = os.path.join(self.fldr, "RadialDistributionFunction_" + params.Control.fname_app + ".csv")
         self.dump_step = params.Control.dump_step
         self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
         self.no_species = len(params.species)
@@ -1016,7 +1040,7 @@ class RadialDistributionFunction:
                 subscript = self.species_names[i] + self.species_names[j]
                 ax.plot(self.dataframe["ra values"],
                         self.dataframe["{}-{} RDF".format(self.species_names[i], self.species_names[j])],
-                        lw=lw, label=r'$g_{ ' + subscript + '} (r)$')
+                        lw=lw, label=r'$g_{' + subscript + '} (r)$')
                 indx += 1
         ax.grid(True, alpha=0.3)
         if self.no_species > 2:
@@ -1029,7 +1053,7 @@ class RadialDistributionFunction:
         ax.set_xlabel(r'$r/a$', fontsize=fsz)
         # ax.set_ylim(0, 5)
         fig.tight_layout()
-        fig.savefig(self.fldr + 'RDF_' + self.fname_app + '.png')
+        fig.savefig(os.path.join(self.fldr, 'RDF_' + self.fname_app + '.png'))
         if show:
             fig.show()
         return
@@ -1098,7 +1122,7 @@ def load_from_restart(fldr, it):
         Particles' data.
     """
 
-    file_name = fldr + "/Particles_Data/" + "S_checkpoint_" + str(it) + ".npz"
+    file_name = os.path.join(os.path.join(fldr, "Particles_Data"), "S_checkpoint_" + str(it) + ".npz")
     data = np.load(file_name, allow_pickle=True)
     return data
 
@@ -1729,7 +1753,7 @@ def calc_Skw_multi(pos_data, ka_list, ka_counts, species_np, no_dumps):
     return nkw
 
 
-def calc_Skw_single(pos_data, ka_list, ka_counts, species_np, no_dumps):
+def calc_Skw_single(pos_data, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
     """
     Calculate :math:`S(k,\omega)`.
 
@@ -1760,17 +1784,15 @@ def calc_Skw_single(pos_data, ka_list, ka_counts, species_np, no_dumps):
     num_ka_values = len(ka_counts)
     num_species = len(species_np)
     Skw = np.zeros((num_ka_values, num_species, no_dumps))
-    norm = 1.0 / np.sqrt(no_dumps)
+    norm = dt / np.sqrt(no_dumps * dt * dump_step)
     for ik in tqdm(range(len(ka_list))):
-        kr_i = 2.0 * np.pi * (ka_list[ik][0] * pos_data[:, 0, :]
-                              + ka_list[ik][1] * pos_data[:, 1, :]
-                              + ka_list[ik][2] * pos_data[:, 2, :])
-
-        indx = int(ka_list[ik][-1])
+        kr_i = 2.0 * np.pi * (ka_list[ik, 0] * pos_data[:, :, 0]
+                              + ka_list[ik, 1] * pos_data[:, :, 1]
+                              + ka_list[ik, 2] * pos_data[:, :, 2])
 
         nkt = np.sum(np.exp(-1j * kr_i), axis=1)
         nkw = np.fft.fft(nkt) * norm
-
+        indx = int(ka_list[ik][-1])
         Skw[indx, 0, :] += np.real(np.conj(nkw) * nkw) / (ka_counts[indx] * species_np[0])
 
     return Skw

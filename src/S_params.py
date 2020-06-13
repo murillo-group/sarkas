@@ -528,16 +528,17 @@ class Params:
         if self.Potential.type == "QSP":
             QSP.setup(self, filename)
 
-        self.Potential.LL_on = 1  # linked list on
-        if not hasattr(self.Potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.Lv.min() / 2, "will be used as rc")
-            self.Potential.rc = self.Lv.min() / 2.
-            self.Potential.LL_on = 0  # linked list off
+        if not self.BC.open_axes:
+            self.Potential.LL_on = 1 # linked list on
+            if not hasattr(self.Potential, "rc"):
+                print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.Lv.min() / 2, "will be used as rc")
+                self.Potential.rc = self.Lv.min() / 2.
+                self.Potential.LL_on = 0  # linked list off
 
-        if self.Potential.method == "PP" and self.Potential.rc > self.Lv.min() / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.Lv.min() / 2, "will be used as rc")
-            self.Potential.rc = self.Lv.min()/ 2.
-            self.Potential.LL_on = 0  # linked list off
+            if self.Potential.method == "PP" and self.Potential.rc > self.Lv.min() / 2.:
+                print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.Lv.min() / 2, "will be used as rc")
+                self.Potential.rc = self.Lv.min()/ 2.
+                self.Potential.LL_on = 0  # linked list off
 
         return
 
@@ -712,19 +713,6 @@ class Params:
                                 self.PostProcessing.ssf_no_ka_values = value
                             if key == 'dsf_no_ka_values':
                                 self.PostProcessing.dsf_no_ka_values = value
-
-                if lkey == "BoundaryCondition":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            # Type
-                            if key == "periodic":
-                                self.BC.pbc_axes = value
-
-                            if key == "momentum_mirror":
-                                self.BC.mm_axes = value
-
-                            if key == "open":
-                                self.BC.open_axes = value
 
                 if lkey == "BoundaryConditions":
                     for keyword in dics[lkey]:
@@ -929,8 +917,6 @@ class Params:
                     self.BC.mm_axes_indx[ij] = 2
 
         if self.BC.open_axes:
-            print("\nOnly Periodic Boundary Conditions are supported. Bye!")
-            sys.exit()
             self.BC.open_axes_indx = np.zeros(len(self.BC.open_axes), dtype=np.int)
             for (ij, bc) in enumerate(self.BC.open_axes):
                 if bc == "x":

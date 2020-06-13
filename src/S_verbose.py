@@ -1,5 +1,49 @@
+import os
 import numpy as np
-from pyfiglet import Figlet
+from pyfiglet import print_figlet, Figlet
+
+FONTS = ['speed',
+         'starwars',
+         'graffiti',
+         'chunky',
+         'epic',
+         'larry3d',
+         'ogre']
+FG_COLORS = ['255;255;255',
+             '13;177;75',
+             '153;162;162',
+             '240;133;33',
+             '144;154;183',
+             '209;222;63',
+             '232;217;181',
+             '200;154;88',
+             '148;174;74',
+             '203;90;40'
+             ]
+
+BG_COLORS = ['24;69;49',
+             '0;129;131',
+             '83;80;84',
+             '110;0;95'
+             ]
+
+
+def screen_figlet():
+    """
+    Print a colored figlet of Sarkas to screen.
+    """
+    fg = FG_COLORS[np.random.randint(0, len(FG_COLORS))]
+    bg = BG_COLORS[np.random.randint(0, len(BG_COLORS))]
+    fnt = FONTS[np.random.randint(0, len(FONTS))]
+    clr = fg #+ ':' + bg
+    print_figlet('\n\tSarkas\n', font=fnt, colors=clr)
+
+    print("\nAn open-source pure-python molecular dynamics code for non-ideal plasmas.")
+    print('\n\n------------- Simulation -------------')
+    print('\nInput file read.')
+    print('\nParams Class created.')
+    print('\nLog file created.')
+
 
 class Verbose:
     """ 
@@ -14,12 +58,12 @@ class Verbose:
 
     def __init__(self, params):
 
-        f_log_name = params.Control.checkpoint_dir + "/" + "log_" + params.Control.fname_app + ".out"
+        f_log_name = os.path.join(params.Control.checkpoint_dir,"log_" + params.Control.fname_app + ".out")
         params.Control.log_file = f_log_name
         f_log = open(f_log_name, "w+")
         figlet_obj = Figlet(font='starwars')
         print(figlet_obj.renderText('Sarkas'), file=f_log)
-        print("An open-source pure-python molecular dynamics code for simulating plasmas.", file=f_log)
+        print("An open-source pure-python molecular dynamics code for non-ideal plasmas.", file=f_log)
         f_log.close()
         self.params = params
 
@@ -121,7 +165,7 @@ class Verbose:
                 file=f_log)
             print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err), file=f_log)
             print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err), file=f_log)
-        else:
+        elif params.Potential.method == 'PP':
             print('rcut/a_ws = {:2.6e}'.format(params.Potential.rc / params.aws), file=f_log)
             print('No. of cells per dimension = {:2}, {:2}, {:2}'.format(int(params.Lv[0] / params.Potential.rc),
                                                                          int(params.Lv[1] / params.Potential.rc),
@@ -129,7 +173,7 @@ class Verbose:
                   file=f_log)
             print('No. of neighbors per particle = {:4}'.format(int(params.total_num_ptcls * 4.0 / 3.0 * np.pi
                                                                     * (params.Potential.rc / params.Lv.min()) ** 3.0)),
-                file=f_log)
+                  file=f_log)
             print('PP Force Error = {:2.6e}'.format(params.PP_err), file=f_log)
 
         print('\ntime step = {:2.6e} [s]'.format(params.Control.dt), file=f_log)

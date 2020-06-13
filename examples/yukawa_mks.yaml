@@ -2,21 +2,25 @@
 Particles:
     - species:
         name: H
-        number_density: 1.62e+30       # /m^3
+        number_density: 1.000e+18       # /m^3
         mass: 1.673e-27                # kg, ptcl mass of ion1
-        num: 2000                    # total number of particles of ion1 
+        num: 8000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
-        temperature: 2.244712e+03
+        temperature: 7.09048e-02
     
     - load:
-        method: random_no_reject    # loading method
+        method: restart    # loading method
         rand_seed: 123456789        # random seed
+        restart_step: 50000
 
 Potential: 
     - type: Yukawa                  # potential type
     - method: PP
-    - rc: 3.296866e-10             # cut-off radius, meter
+    - rc: 4.0000e-6             # cut-off radius, meter
     - kappa: 2.0
+
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
 
 Integrator:
     - type: Verlet       # velocity integrator type
@@ -28,13 +32,12 @@ Thermostat:
 
 Control:
     - units: mks                    # units
-    - dt: 1.519123e-17            # sec
-    - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nsteps: 50000                    # number of timesteps afater the equilibrium
-    - BC: periodic                  # periodic boundary condition
+    - dt: 1.87773e-12            # sec
+    - Neq: 10000                      # number of timesteps for the equilibrium
+    - Nsteps: 100000                    # number of timesteps afater the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
-    - verbose: no
+    - verbose: yes
     - output_dir: YOCP_mks_pp        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:

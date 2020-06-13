@@ -42,7 +42,7 @@ def setup(params):
         else:
             Zi = 1.0
 
-        Z53 += (Zi) ** (5. / 3.) * params.species[i].concentration
+        Z53 += Zi ** (5. / 3.) * params.species[i].concentration
         Z_avg += Zi * params.species[i].concentration
 
         for j in range(params.num_species):
@@ -123,11 +123,10 @@ def Coulomb_force_P3M(r, pot_matrix_ij):
     pot_matrix_ij[2,:,:] = Ewald parameter alpha
     """
     alpha = pot_matrix_ij[2]  # Ewald parameter alpha
-    a2 = alpha * alpha
     r2 = r * r
     U_s_r = pot_matrix_ij[1] * mt.erfc(alpha * r) / r
     f1 = mt.erfc(alpha * r) / r2
-    f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(- a2 * r2)
+    f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(- alpha**2 * r2)
     fr = pot_matrix_ij[1] * (f1 + f2)/r
 
     return U_s_r, fr
@@ -203,7 +202,10 @@ def gf_opt(MGrid, aliases, BoxLv, p, alpha, rcut, fourpie0):
 
     Gew_sq = Gew * Gew
 
-    CoulombFactor = 1.0 / fourpie0
+    if fourpie0 == 1.0:
+        four_pi = 4.0*np.pi
+    else:
+        four_pi = 4.0*np.pi/fourpie0
 
     G_k = np.zeros((Mz, My, Mx))
 
@@ -280,7 +282,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, alpha, rcut, fourpie0):
                                 U_k_M = (U_kx_M * U_ky_M * U_kz_M) ** p
                                 U_k_M_sq = U_k_M * U_k_M
 
-                                G_k_M = CoulombFactor * np.exp(-0.25 * k_M_sq / Gew_sq) / k_M_sq
+                                G_k_M = four_pi * np.exp(-0.25 * k_M_sq / Gew_sq) / k_M_sq
 
                                 k_dot_k_M = kx * kx_M + ky * ky_M + kz * kz_M
 
@@ -289,12 +291,12 @@ def gf_opt(MGrid, aliases, BoxLv, p, alpha, rcut, fourpie0):
 
                     # eq.(22) of Ref. [1]_
                     G_k[nz, ny, nx] = U_G_k / ((U_k_sq ** 2) * k_sq)
-                    Gk_hat = CoulombFactor * np.exp(-0.25 * k_sq / Gew_sq) / k_sq
+                    Gk_hat = four_pi * np.exp(-0.25 * k_sq / Gew_sq) / k_sq
 
                     # eq.(28) of Ref. [1]_ 
                     PM_err += Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
-    PP_err = 2.0 * CoulombFactor / np.sqrt(Lx * Ly * Lz) * np.exp(-Gew_sq * rcut2) / np.sqrt(rcut)
+    PP_err = 2.0 * four_pi / np.sqrt(Lx * Ly * Lz) * np.exp(-Gew_sq * rcut2) / np.sqrt(rcut)
     PM_err = np.sqrt(PM_err) / (Lx * Ly * Lz) ** (1. / 3.)
 
     return G_k, kx_v, ky_v, kz_v, PM_err, PP_err

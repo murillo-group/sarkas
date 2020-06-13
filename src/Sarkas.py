@@ -19,9 +19,9 @@ from tqdm import tqdm
 
 # import MD modules, class
 from S_thermostat import Thermostat, calc_kin_temp, remove_drift
-from S_integrator import Integrator, calc_pot_acc
+from S_integrator import Integrator, calc_pot_acc, calc_pot_acc_fmm
 from S_particles import Particles
-from S_verbose import Verbose
+from S_verbose import Verbose, screen_figlet
 from S_params import Params
 from S_checkpoint import Checkpoint
 from S_postprocessing import Thermodynamics, RadialDistributionFunction
@@ -32,23 +32,18 @@ input_file = sys.argv[1]
 params = Params()
 params.setup(input_file)  # Read initial conditions and setup parameters
 
-if params.Control.verbose:
-    figlet_obj = Figlet(font='graffiti')
-    print("\n")
-    print( figlet_obj.renderText('Sarkas') )
-    print("An open-source pure-python molecular dynamics code for simulating plasmas.")
-    print('\n\n------------- Simulation -------------')
-    print('\nInput file read.')
-    print('\nParams Class created.')
-
-integrator = Integrator(params)
 checkpoint = Checkpoint(params)  # For restart and pva backups.
-thermostat = Thermostat(params)
+
 verbose = Verbose(params)
+
 if not params.load_method == "restart":
     verbose.sim_setting_summary()  # simulation setting summary
+
 if params.Control.verbose:
-    print('\nLog file created.')
+    screen_figlet()
+
+integrator = Integrator(params)
+thermostat = Thermostat(params)
 
 ptcls = Particles(params)
 ptcls.load(params)
@@ -57,7 +52,11 @@ if params.Control.verbose:
     print('\nParticles initialized.')
 
 # Calculate initial kinetic energy and temperature
-U_init = calc_pot_acc(ptcls, params)
+if not params.Potential.method == "FMM":
+    U_init = calc_pot_acc(ptcls, params)
+else:
+    U_init = calc_pot_acc_fmm(ptcls, params)
+
 Ks, Tps = calc_kin_temp(ptcls.vel,ptcls.species_num,ptcls.species_mass, params.kB)
 Tot_Kin = Ks.sum()
 Temperature = ptcls.species_conc.transpose() @ Tps
@@ -87,6 +86,7 @@ if not params.load_method == "restart":
     remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
     # Save the current state
     Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
+    U_therm = U_init
     checkpoint.dump(ptcls, Ks, Tps, U_therm, 0)
 
 time_eq = time.time()
@@ -120,6 +120,7 @@ if params.Magnetic.on and params.Magnetic.elec_therm:
 ##############################################
 # Prepare for Production Phase
 ##############################################
+
 # Open output files
 if params.load_method == "restart":
     it_start = params.load_restart_step
@@ -129,6 +130,7 @@ if params.load_method == "restart":
 else:
     it_start = 0
     # Restart the pbc counter
+
     ptcls.pbc_cntr.fill(0.0)
     # Create array for storing energy information
     if params.Control.writexyz:
@@ -141,10 +143,12 @@ ascale = 1.0 / (params.aws * params.wp ** 2)
 
 # Update measurement flag for rdf
 params.Control.measure = True
+
 ##############################################
 # Production Phase
 ##############################################
-if params.Control.verbose: print("\n------------- Production -------------")
+if params.Control.verbose:
+    print("\n------------- Production -------------")
 time_eq = time.time()
 for it in tqdm(range(it_start, params.Control.Nsteps), disable=(not params.Control.verbose)):
     # Move the particles and calculate the potential

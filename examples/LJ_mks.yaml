@@ -31,6 +31,9 @@ Potential:
     - epsilon: [1.656e-21]          # = 120*k_B
     - sigma: [3.4e-10]              # = 3.4 angstrom
 
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
 Integrator:
     - type: Verlet
 
@@ -44,7 +47,6 @@ Control:
     - Neq: 10000
     - Nsteps: 10000
     - dump_step: 100
-    - BC: periodic
     - units: mks
     - writexyz: no
     - verbose: yes

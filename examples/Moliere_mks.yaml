@@ -19,6 +19,9 @@ Potential:
     - C: [0.5, -0.5, 1.0]
     - b: [1.6667e+10, 6.7690e+10, 6.7690e+10]
 
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
 Integrator:
     - type: Verlet                  # velocity integrator type
 
@@ -32,7 +35,6 @@ Control:
     - dt: 3.244415e-17            # sec
     - Neq: 10000                     # number of timesteps for the equilibrium
     - Nsteps: 10000                  # number of timesteps afater the equilibrium
-    - BC: periodic                  # periodic boundary condition
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
     - verbose: no

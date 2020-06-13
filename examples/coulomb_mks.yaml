@@ -15,13 +15,16 @@ Particles:
 Potential:
     - type: Coulomb                  # potential type
     - method: P3M                   # Linked-cell
-    - rc: 2.79946255e-10             # cut-off radius, meter
+    - rc: 4.225604e-10             # cut-off radius, meter
     
 P3M:
     - MGrid: [64,64,64]
     - aliases: [3,3,3]
     - cao: 6
-    - alpha_ewald: 1.16243741e+10
+    - alpha_ewald: 8.992798e+09
+
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
 
 Integrator:
     - type: Verlet                  # velocity integrator type
@@ -36,10 +39,9 @@ Control:
     - dt: 1.193536e-17            # sec
     - Neq: 30000                      # number of timesteps for the equilibrium
     - Nsteps: 50000                    # number of timesteps after the equilibrium
-    - BC: periodic                  # periodic boundary condition
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
-    - verbose: no
+    - verbose: yes
     - output_dir: OCP_mks        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:

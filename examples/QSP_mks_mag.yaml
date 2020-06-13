@@ -31,6 +31,9 @@ P3M:
     - cao: 6
     - alpha_ewald: 2.238909e+10
 
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
 Magnetized:
     - B_Tesla: 16228938.4
     - electrostatic_thermalization: 1
@@ -43,7 +46,6 @@ Thermostat:
     - type: Berendsen               # thermostat type
     - timestep: 0
     - tau: 5.0
-
 
 BoundaryCondition:
     - periodic: ["x", "y", "z"]

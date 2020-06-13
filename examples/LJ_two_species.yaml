@@ -30,6 +30,9 @@ Potential:
     - epsilon: [1.656e-14, 0.4968e-14, 0.4968e-14, 1.656e-14]                # e11, e12, e21 = e12, e22
     - sigma: [3.4e-8, 3.4e-8, 3.4e-8, 3.4e-8]                     # s11, s12, s21 = s12, s22
 
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
 Integrator:
     - type: Verlet
 
@@ -43,8 +46,7 @@ Control:
     - Neq: 10000
     - Nsteps: 10000
     - dump_step: 100
-    - BC: periodic
-    - units: cgs 
+    - units: cgs
     - writexyz: no
     - verbose: yes
     - output_dir: LJ_03         # dir name to save data. Default is "Checkpoint"
