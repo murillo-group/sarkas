@@ -13,8 +13,5 @@
 *.png
 *.prof
 nohup.out
-OCP_cgs
-OCP_mks
-QSP_cgs
-Checkpoint
+Simulations
 .DS_Store

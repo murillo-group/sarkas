@@ -9,9 +9,8 @@ Particles:
         temperature: 7.09048e-02
     
     - load:
-        method: restart    # loading method
+        method: random_no_reject    # loading method
         rand_seed: 123456789        # random seed
-        restart_step: 50000
 
 Potential: 
     - type: Yukawa                  # potential type
@@ -34,7 +33,7 @@ Control:
     - units: mks                    # units
     - dt: 1.87773e-12            # sec
     - Neq: 10000                      # number of timesteps for the equilibrium
-    - Nsteps: 100000                    # number of timesteps afater the equilibrium
+    - Nsteps: 100000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
     - verbose: yes

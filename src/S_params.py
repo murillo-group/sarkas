@@ -3,6 +3,7 @@ Module for handling Params class
 """
 import yaml
 import numpy as np
+import os.path
 import sys
 import scipy.constants as const
 import S_pot_Coulomb as Coulomb
@@ -478,8 +479,10 @@ class Params:
             self.screen_output = False
             self.writexyz = "no"
             self.verbose = "yes"
-            self.checkpoint_dir = "Checkpoint"
-            self.log_file = self.checkpoint_dir + "/log.out"
+            self.simulations_dir = "Simulations"
+            self.ptcls_dump_dir = "Particles_Data"
+            self.checkpoint_dir = os.path.join(self.simulations_dir, "Checkpoint")
+            self.log_file = os.path.join(self.checkpoint_dir, "log.out")
             self.np_per_side = []
 
     class PostProcessing:
@@ -745,14 +748,6 @@ class Params:
                             if key == "Neq":
                                 self.Control.Neq = int(value)
 
-                            # Periodic Boundary Condition
-                            # if key == "BC":
-                            #     self.Control.BC = value
-                            #     if self.Control.BC == "periodic":
-                            #         self.Control.PBC = 1
-                            #     else:
-                            #         self.Control.PBC = 0
-
                             if key == "Np_per_side":
                                 self.Control.np_per_side = np.array(value, dtype=int)
 
@@ -776,13 +771,14 @@ class Params:
 
                             # Directory where to store Checkpoint files
                             if key == "output_dir":
-                                self.Control.checkpoint_dir = value
+                                self.Control.fname_app = value
+                                self.Control.checkpoint_dir = os.path.join(self.Control.simulations_dir, value)
+                                self.Control.dump_dir = os.path.join(self.Control.checkpoint_dir,
+                                                                     self.Control.ptcls_dump_dir)
 
                             # Filenames appendix
                             if key == "fname_app":
                                 self.Control.fname_app = value
-                            else:
-                                self.Control.fname_app = self.Control.checkpoint_dir
 
         # Check for conflicts in case of magnetic field
         if self.Magnetic.on and self.Magnetic.elec_therm:
@@ -895,7 +891,7 @@ class Params:
 
         # boundary Conditions
         if self.BC.pbc_axes:
-            self.BC.pbc_axes_indx = np.zeros( len(self.BC.pbc_axes))
+            self.BC.pbc_axes_indx = np.zeros(len(self.BC.pbc_axes))
             for (ij, bc) in enumerate(self.BC.pbc_axes):
                 if bc == "x":
                     self.BC.pbc_axes_indx[ij] = 0

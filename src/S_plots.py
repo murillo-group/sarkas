@@ -10,24 +10,24 @@ params = Params()
 params.setup(input_file)
 
 # params.PostProcessing.no_ka_values = 15
-#E = Observable.Thermodynamics(params)
-# E.plot('Total Energy', delta = False, show=False)
+# E = Observable.Thermodynamics(params)
+# E.plot('Total Energy', delta=True, show=False)
 # E.plot('Temperature', False)
-#E.plot('Gamma', False)
-# E.plot('Pressure Tensor ACF', False, True)
+# E.plot('Gamma', False)
+#E.plot('Pressure Tensor ACF', False, True)
 
 # K = E.dataframe["Kinetic Energy"]  # pandas df
 
 
-params.PostProcessing.ssf_no_ka_values = [15, 15, 15]
-SSF = Observable.StaticStructureFactor(params)
-SSF.compute()
-SSF.plot()
+# params.PostProcessing.ssf_no_ka_values = [15, 15, 15]
+# SSF = Observable.StaticStructureFactor(params)
+# SSF.compute()
+# SSF.plot(show=True)
 
-# params.PostProcessing.dsf_no_ka_values = [15, 15, 15]
-# DSF = Observable.DynamicStructureFactor(params)
-# # DSF.compute()
-# DSF.plot(show=False, dispersion=True)
+# params.PostProcessing.dsf_no_ka_values = [5, 5, 5]
+DSF = Observable.DynamicStructureFactor(params)
+# DSF.compute()
+DSF.plot(show=False, dispersion=False)
 
 # #
 #rdf = Observable.RadialDistributionFunction(params)

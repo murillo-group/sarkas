@@ -31,9 +31,9 @@ class Checkpoint:
         """
         self.dt = params.Control.dt
         self.checkpoint_dir = params.Control.checkpoint_dir
-        self.ptcls_dir = os.path.join(self.checkpoint_dir, "Particles_Data")
-        self.energy_filename = os.path.join( self.checkpoint_dir, "Thermodynamics_" + params.Control.fname_app + '.csv')
-        self.ptcls_file_name = os.path.join( self.ptcls_dir,  "S_checkpoint_")
+        self.dump_dir = params.Control.dump_dir
+        self.energy_filename = os.path.join(self.checkpoint_dir, "Thermodynamics_" + params.Control.fname_app + '.csv')
+        self.ptcls_file_name = os.path.join(self.dump_dir,  "S_checkpoint_")
         self.species_names = []
         self.Gamma_eff = params.Potential.Gamma_eff * params.T_desired
 
@@ -42,8 +42,8 @@ class Checkpoint:
 
         if not (os.path.exists(self.checkpoint_dir)):
             os.mkdir(self.checkpoint_dir)
-        if not (os.path.exists(self.ptcls_dir)):
-            os.mkdir(self.ptcls_dir)
+        if not (os.path.exists(self.dump_dir)):
+            os.mkdir(self.dump_dir)
 
         save_file = open(os.path.join(self.checkpoint_dir, "S_parameters.pickle"), "wb")
         pickle.dump(params, save_file)
