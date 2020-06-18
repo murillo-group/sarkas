@@ -23,6 +23,9 @@ P3M:
     - cao: 6
     - alpha_ewald: 1.16243741e+8
 
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
 Integrator:
     - type: Verlet                  # velocity integrator type
 
@@ -34,12 +37,11 @@ Thermostat:
 Control:
     - units: cgs                    # units
     - dt: 1.193536e-17            # sec
-    - Neq: 5000                      # number of timesteps for the equilibrium
-    - Nsteps: 10000                    # number of timesteps afater the equilibrium
-    - BC: periodic                  # periodic boundary condition
+    - Neq: 10000                      # number of timesteps for the equilibrium
+    - Nsteps: 50000                    # number of timesteps afater the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
-    - verbose: yes
+    - verbose: no
     - output_dir: OCP_cgs        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:

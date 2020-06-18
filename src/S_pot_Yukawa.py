@@ -186,6 +186,11 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
 
     PM_err = 0.0
 
+    if fourpie0 == 1.0:
+        four_pi = 4.0*np.pi
+    else:
+        four_pi = 4.0*np.pi/fourpie0
+
     for nz in range(Mz):
         nz_sh = nz - nz_mid
         kz = 2.0 * np.pi * nz_sh / Lz
@@ -234,7 +239,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
                                 U_k_M = (U_kx_M * U_ky_M * U_kz_M) ** p
                                 U_k_M_sq = U_k_M * U_k_M
 
-                                G_k_M = np.exp(-0.25 * (kappa_sq + k_M_sq) / Gew_sq) / (kappa_sq + k_M_sq) / fourpie0
+                                G_k_M = four_pi * np.exp(-0.25 * (kappa_sq + k_M_sq) / Gew_sq) / (kappa_sq + k_M_sq)
 
                                 k_dot_k_M = kx * kx_M + ky * ky_M + kz * kz_M
 
@@ -243,13 +248,12 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
 
                     # eq.(22) of Ref.[2]_
                     G_k[nz, ny, nx] = U_G_k / ((U_k_sq ** 2) * k_sq)
-                    Gk_hat = np.exp(-0.25 * (kappa_sq + k_sq) / Gew_sq) / (kappa_sq + k_sq) / fourpie0
+                    Gk_hat = four_pi * np.exp(-0.25 * (kappa_sq + k_sq) / Gew_sq) / (kappa_sq + k_sq)
 
                     # eq.(28) of Ref.[2]_
                     PM_err = PM_err + Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
-    PP_err = 2.0 / np.sqrt(Lx * Ly * Lz) * np.exp(-0.25 * kappa_sq / Gew_sq) * np.exp(-Gew_sq * rcut2) / np.sqrt(
-        rcut) / fourpie0
+    PP_err = 2.0 * four_pi / np.sqrt(Lx * Ly * Lz * rcut) * np.exp(-0.25 * kappa_sq / Gew_sq) * np.exp(-Gew_sq * rcut2)
     PM_err = np.sqrt(PM_err) / (Lx * Ly * Lz) ** (1. / 3.)
 
     return G_k, kx_v, ky_v, kz_v, PM_err, PP_err
@@ -359,7 +363,7 @@ def setup(params, filename):
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Ref.[4]_
     params.Potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
-    params.QFactor = params.QFactor / params.fourpie0
+    params.QFactor /= params.fourpie0
     params.Potential.matrix = Yukawa_matrix
 
     # Calculate the (total) plasma frequency

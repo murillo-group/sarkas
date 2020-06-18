@@ -4,6 +4,7 @@ Module of various types of integrators
 
 import numpy as np
 import numba as nb
+import fmm3dpy as fmm
 import sys
 import S_calc_force_pp as force_pp
 import S_calc_force_pm as force_pm
@@ -133,10 +134,12 @@ def Verlet(ptcls, params):
     ptcls.pos += ptcls.vel * params.Control.dt
 
     # Periodic boundary condition
-    enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
-
-    # Compute total potential energy and acceleration for second half step velocity update
-    U = calc_pot_acc(ptcls, params)
+    if not params.Potential.method == 'FMM':
+        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
+        # Compute total potential energy and acceleration for second half step velocity update
+        U = calc_pot_acc(ptcls, params)
+    else:
+        U = calc_pot_acc_fmm(ptcls, params)
 
     # Second half step velocity update
     ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
@@ -144,7 +147,7 @@ def Verlet(ptcls, params):
     return U
 
 
-def Magnetic_integrator(ptcls, params):
+def Magnetic_Verlet(ptcls, params):
     """
      Update particles' positions and velocities based on velocity verlet method in the case of a
      constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [1]_
@@ -422,10 +425,41 @@ def calc_pot_acc(ptcls, params):
 
         ptcls.acc += acc_l_r
 
-    if not (params.Potential.type == "LJ"):
-        # Mie Energy of charged systems
-        dipole = calc_dipole(ptcls.pos, ptcls.charge)
-        U += 2.0 * np.pi * (dipole[0] ** 2 + dipole[1] ** 2 + dipole[2] ** 2) / (
-                    3.0 * params.box_volume * params.fourpie0)
+    # if not (params.Potential.type == "LJ"):
+    #     # Mie Energy of charged systems
+    #     dipole = calc_dipole(ptcls.pos, ptcls.charge)
+    #     U += 2.0 * np.pi * (dipole[0] ** 2 + dipole[1] ** 2 + dipole[2] ** 2) / (
+    #             3.0 * params.box_volume * params.fourpie0)
+
+    return U
+
+
+def calc_pot_acc_fmm(ptcls, params):
+    """
+
+    Parameters
+    ----------
+    ptcls
+    params
+
+    Returns
+    -------
+
+    """
+
+    if params.Potential.type == 'Coulomb':
+        out_fmm = fmm.lfmm3d(eps=1.0e-07, sources=np.transpose(ptcls.pos), charges=ptcls.charge, pg=2)
+    elif params.Potential.type == 'Yukawa':
+        out_fmm = fmm.hfmm3d(eps=1.0e-05, zk=1j / params.lambda_TF, sources=np.transpose(ptcls.pos),
+                         charges=ptcls.charge, pg=2)
+
+    U = ptcls.charge @ out_fmm.pot.real * 4.0 * np.pi / params.fourpie0
+    ptcls.acc = - np.transpose(ptcls.charge * out_fmm.grad.real / ptcls.mass) / params.fourpie0
+
+    # if not (params.Potential.type == "LJ"):
+    #     # Mie Energy of charged systems
+    #     dipole = calc_dipole(ptcls.pos, ptcls.charge)
+    #     U += 2.0 * np.pi * (dipole[0] ** 2 + dipole[1] ** 2 + dipole[2] ** 2) / (
+    #             3.0 * params.box_volume * params.fourpie0)
 
     return U

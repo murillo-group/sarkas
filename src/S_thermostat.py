@@ -36,7 +36,7 @@ class Thermostat:
 @nb.njit
 def Berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     """
-    Update particle velocity based on Berendsen thermostat.
+    Update particle velocity based on Berendsen thermostat [Berendsen1984]_.
 
     Parameters
     ----------
@@ -142,8 +142,8 @@ def remove_drift(vel, nums, masses):
         Mass of each species.
 
     """
-    P = np.zeros((len(nums), vel.shape[1]))
 
+    P = np.zeros((len(nums), vel.shape[1]))
     species_start = 0
     for ic in range(len(nums)):
         species_end = species_start + nums[ic]

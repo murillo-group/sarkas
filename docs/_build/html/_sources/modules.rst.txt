@@ -20,3 +20,4 @@ src
    S_pot_Yukawa
    S_thermostat
    S_verbose
+   Sarkas

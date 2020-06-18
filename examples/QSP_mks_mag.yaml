@@ -1,0 +1,64 @@
+Particles:
+    - species:
+        name: e
+        number_density: 2.5e+31       # /m^3
+        mass: 9.11e-31
+        num: 512                    # total number of particles of ion1
+        Z: -1.0                        # degree of ionization
+        temperature: 1.58e+6
+
+    - species:
+        name: p
+        number_density: 2.5e+31       # /m^3
+        mass: 1.67e-27         # kg, ptcl mass of ion1
+        num: 512                  # total number of particles of ion1
+        Z: 1.0                       # degree of ionization
+        temperature: 1.58e+6
+
+    - load:
+        method: random_no_reject    # loading method
+        rand_seed: 554843217        # random seed
+
+Potential:
+    - type: QSP                 # potential type
+    - QSP_type: Deutsch
+    - method: P3M
+    - rc: 1.566862e-10     # cut-off radius, meter
+
+P3M:
+    - MGrid: [16,16,16]
+    - aliases: [3,3,3]
+    - cao: 6
+    - alpha_ewald: 2.238909e+10
+
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
+Magnetized:
+    - B_Tesla: 16228938.4
+    - electrostatic_thermalization: 1
+    - Neq_mag: 50000
+
+Integrator:
+    - type: Verlet                  # velocity integrator type
+
+Thermostat:
+    - type: Berendsen               # thermostat type
+    - timestep: 0
+    - tau: 5.0
+
+BoundaryCondition:
+    - periodic: ["x", "y", "z"]
+
+Control:
+    - units: mks                    # units
+    - dt: 1.772108e-20            # sec
+    - Neq: 50000                      # number of timesteps for the equilibrium
+    - Nsteps: 10000000                   # number of timesteps after the equilibrium
+    - writexyz: no                  # no xyz output
+    - dump_step: 100                # dump time step
+    - verbose: no
+    - output_dir: QSP_mks_mag
+
+PostProcessing:
+    - rdf_nbins: 100

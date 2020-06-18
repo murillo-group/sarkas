@@ -56,6 +56,9 @@ P3M:
     - cao: 6
     - alpha_ewald: 5.348207e+07    # 1/cm
 
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
 Integrator:
     - type: Verlet                  # velocity integrator type
 
@@ -69,7 +72,6 @@ Control:
     - dt: 1.000e-17            # sec
     - Neq: 50000                      # number of timesteps for the equilibrium
     - Nsteps: 100000                    # number of timesteps afater the equilibrium
-    - BC: periodic                  # periodic boundary condition
     - writexyz: no                  # no xyz output
     - dump_step: 100                # dump time step
     - verbose: yes

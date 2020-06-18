@@ -117,7 +117,7 @@ def setup(params, filename):
 
     params.QFactor = params.QFactor / params.fourpie0
     if params.Potential.QSP_Pauli == 0:
-        QSP_matrix[3,:,:] = 0.0
+        QSP_matrix[3, :, :] = 0.0
 
     params.Potential.matrix = QSP_matrix
 
@@ -153,16 +153,8 @@ def setup(params, filename):
     params.Lmax_v = np.array([L, L, L])
     params.Lmin_v = np.array([0.0, 0.0, 0.0])
 
-    params.dq = 2.0 * np.pi
-    if params.L > 0.:
-        params.dq = 2. * np.pi / params.L
-
-
-    if params.Potential.method == "PP" or params.Potential.method == "brute":
-        print('WARNING! QSP interaction can only be calculated using P3M algorithm. Bye.')
-        sys.exit()
-
     if params.Potential.method == "P3M":
+
         if params.Potential.QSP_type == "Deutsch":
             params.force = Deutsch_force_P3M
         elif params.Potential.QSP_type == "Kelbg":
@@ -180,6 +172,9 @@ def setup(params, filename):
         params.P3M.PP_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0
         params.P3M.PM_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0 / (params.box_volume ** (2. / 3.))
         params.P3M.F_err = np.sqrt(params.P3M.PM_err ** 2 + params.P3M.PP_err ** 2)
+
+    else:
+        raise AttributeError('QSP interaction can only be calculated using P3M algorithm.')
 
     return
 
@@ -308,6 +303,7 @@ def Kelbg_force_P3M(r, pot_matrix):
 
     return U, force
 
+
 @nb.njit
 def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
     """
@@ -389,8 +385,6 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
 
     Gew_sq = Gew * Gew
 
-    k_mks = 1.0 / (fourpie0)
-
     G_k = np.zeros((Mz, My, Mx))
 
     if np.mod(Mz, 2) == 0:
@@ -417,6 +411,11 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
     kz_v = 2.0 * np.pi * (nz_v - nz_mid) / Lz
 
     PM_err = 0.0
+
+    if fourpie0 == 1.0:
+        four_pi = 4.0 * np.pi
+    else:
+        four_pi = 4.0 * np.pi / fourpie0
 
     for nz in range(Mz):
         nz_sh = nz - nz_mid
@@ -466,7 +465,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
                                 U_k_M = (U_kx_M * U_ky_M * U_kz_M) ** p
                                 U_k_M_sq = U_k_M * U_k_M
 
-                                G_k_M = k_mks * np.exp(-0.25 * k_M_sq / Gew_sq) / k_M_sq
+                                G_k_M = four_pi * np.exp(-0.25 * k_M_sq / Gew_sq) / k_M_sq
 
                                 k_dot_k_M = kx * kx_M + ky * ky_M + kz * kz_M
 
@@ -477,22 +476,21 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
                     G_k[nz, ny, nx] = U_G_k / ((U_k_sq ** 2) * k_sq)
 
                     # eq. (9) of Ref. [3]_
-                    Gk_hat = k_mks * np.exp(-0.25 * k_sq / Gew_sq) / k_sq
+                    Gk_hat = four_pi * np.exp(-0.25 * k_sq / Gew_sq) / k_sq
 
                     # eq.(28) of Ref. [3]_
-                    PM_err = PM_err + Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
+                    PM_err += Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
     # Calculate the PP error for the e-e interaction only. 
     # This is because the electron's DeBroglie wavelength is much shorter than the ion's, hence longer-range force.     
     PP_err_exp = 2.0 * np.pi * np.exp(- 2.0 * C * rcut) * (C * rcut + 2) / rcut
-
     PP_err_ee = -np.pi / 4. * (3.0 * np.sqrt(2.0 * np.pi / F) * mt.erf(np.sqrt(2.0 * F * rcut2))
                                + 4.0 * rcut * np.exp(-2.0 * F * rcut2) * (4.0 * F * rcut2 + 3))
 
-    PP_err_ee *= D ** 2 / (k_mks ** 2)
+    PP_err_ee *= D ** 2 * fourpie0 ** 2
 
-    PP_err_Ew = 4.0 * np.exp(-2.0 * Gew_sq * rcut2) / rcut
-    PP_err_tot = np.sqrt(PP_err_Ew + PP_err_ee + PP_err_exp) * k_mks / np.sqrt(Lx * Ly * Lz)
+    PP_err_Ew = 4.0 * four_pi ** 2 * np.exp(-2.0 * Gew_sq * rcut2) / rcut
+    PP_err_tot = np.sqrt(PP_err_Ew + PP_err_ee + PP_err_exp) / (fourpie0 * np.sqrt(Lx * Ly * Lz))
 
     PM_err_tot = np.sqrt(PM_err) / (Lx * Ly * Lz) ** (1. / 3.)
 

@@ -50,6 +50,11 @@ distribution that has many of the necessary packages for Sarkas is Anaconda whic
     We strongly recommend to install SARKAS using Anaconda since this will prevent any incompatibility between
     packages' versions.
 
+<<<<<<< HEAD
+Requirements
+------------
+=======
+>>>>>>> master
 If you already have a version of python3 installed, you may still need to download additional packages
 such as pyfftw_, fdint_, tqdm_, and numba_. If you have the most recent version of Anaconda installed, you should already have numba, installed.
 Sarkas requires the following packages: numba_ which allows it to run as fast (if not faster) than C++ or Fortran,
@@ -89,4 +94,23 @@ To install fdint
 .. _fdint: https://pypi.org/project/fdint/
 .. _numba: https://numba.pydata.org
 .. _pip: https://pip.pypa.io/en/stable/
+<<<<<<< HEAD
 .. _tqdm: https://tqdm.github.io/
+
+Obtaining Sarkas
+----------------
+Sarkas is undergoing heavy development but the most recent version can be found on GitHub_, which 
+can then be cloned.
+
+.. _GitHub: https://github.com/murillo-group/sarkas-repo
+
+Installation using Anaconda
+---------------------------
+Instruction on how to install Sarkas using Anaconda. This will be done once setup.py is complete
+
+Installation using something else
+---------------------------------
+No instructions. You should install it with Anaconda otherwise go get LAMMPS.
+=======
+.. _tqdm: https://tqdm.github.io/
+>>>>>>> master

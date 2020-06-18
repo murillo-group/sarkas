@@ -1,0 +1,56 @@
+#keywords: single species, LJ, PP, mks, random_no_reject
+# for Argon 
+# Physical Review, 136, 2A, 1964
+# A. Rahman
+# Correlations in the Motion of Atoms in Liquid Argon
+# T = 94.4 K
+# rho = 1.374g/cm^3
+# m = 39.95*1.6747e-24 gram
+# epsilon/kb = 120 K
+# sigma = 3.4 A
+# cc = 2.25 sigma
+# L = 10.229*sigma --> rho = 1.374 g/cm^3
+# dt = 10^-14
+
+Particles:
+    - species:
+        name: Argon                 # species name
+        number_density: 2.06e28     # number/meter^3
+        mass: 6.69043e-26           # Kilogram
+        temperature: 94.4           # kelvin
+        num: 864                    # total number of Argon
+
+    - load:
+        method: random_reject
+        r_reject: 3.0e-10             # meter
+        rand_seed: 123
+
+Potential: 
+    - type: LJ
+    - rc: 7.65e-10                  # meter
+    - epsilon: [1.656e-21]          # = 120*k_B
+    - sigma: [3.4e-10]              # = 3.4 angstrom
+
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
+Integrator:
+    - type: Verlet
+
+Thermostat:
+    - type: Berendsen
+    - timestep: 2000
+    - tau: 10.0
+
+Control:
+    - dt: 1.e-14                    # timestep, sec   
+    - Neq: 10000
+    - Nsteps: 10000
+    - dump_step: 100
+    - units: mks
+    - writexyz: no
+    - verbose: yes
+    - output_dir: LJ_mks            # dir name to save data. Default is "Checkpoint"
+
+PostProcessing:
+    - rdf_nbins: 100

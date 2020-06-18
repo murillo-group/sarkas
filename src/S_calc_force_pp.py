@@ -87,7 +87,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
             if measure and int(r / dr_rdf) < rdf_nbins:
                 rdf_hist[int(r / dr_rdf), id_ij[i], id_ij[j]] += 1
 
-            if r < rc:
+            if 0 < r < rc:
                 id_i = id_ij[i]
                 id_j = id_ij[j]
                 mass_i = mass_ij[i]

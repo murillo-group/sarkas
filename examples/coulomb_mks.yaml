@@ -1,0 +1,50 @@
+# keywords: OCP, Yukawa, P3M, mks, random_no_reject
+Particles:
+    - species:
+        name: H
+        number_density: 1.62e+30       # /m^3
+        mass: 1.673e-27                # kg, ptcl mass of ion1
+        num: 10000                    # total number of particles of ion1
+        Z: 1.0                        # degree of ionization
+        temperature: 2.636325e+03
+
+    - load:
+        method: random_no_reject    # loading method
+        rand_seed: 123456789        # random seed
+
+Potential:
+    - type: Coulomb                  # potential type
+    - method: P3M                   # Linked-cell
+    - rc: 4.225604e-10             # cut-off radius, meter
+    
+P3M:
+    - MGrid: [64,64,64]
+    - aliases: [3,3,3]
+    - cao: 6
+    - alpha_ewald: 8.992798e+09
+
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
+Integrator:
+    - type: Verlet                  # velocity integrator type
+
+Thermostat:
+    - type: Berendsen               # thermostat type
+    - timestep: 2000
+    - tau: 5.0
+
+Control:
+    - units: mks                    # units
+    - dt: 1.193536e-17            # sec
+    - Neq: 30000                      # number of timesteps for the equilibrium
+    - Nsteps: 50000                    # number of timesteps after the equilibrium
+    - writexyz: no                  # no xyz output
+    - dump_step: 10                # dump time step
+    - verbose: yes
+    - output_dir: OCP_mks        # dir name to save data. The default is "Checkpoint"
+
+PostProcessing:
+    - rdf_nbins: 100
+    - dsf_no_ka_values: [10, 10, 10]
+    - ssf_no_ka_values: [10, 10, 10]
