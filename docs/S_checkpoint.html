@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>S_checkpoint module &mdash; sarkas  documentation</title>
+  <title>S_checkpoint module &mdash; Sarkas 1.0 documentation</title>
   
 
   
@@ -51,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> sarkas
+            <a href="index.html" class="icon icon-home"> Sarkas
           
 
           
@@ -85,6 +85,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
@@ -105,6 +106,7 @@
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
 </ul>
 </li>
 </ul>
@@ -126,7 +128,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">sarkas</a>
+          <a href="index.html">Sarkas</a>
         
       </nav>
 
@@ -210,12 +212,15 @@
 
 <dl class="py method">
 <dt id="S_checkpoint.Checkpoint.dump">
-<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_checkpoint.html#Checkpoint.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_checkpoint.Checkpoint.dump" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">kinetic_energies</span></em>, <em class="sig-param"><span class="n">temperatures</span></em>, <em class="sig-param"><span class="n">potential_energy</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_checkpoint.html#Checkpoint.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_checkpoint.Checkpoint.dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save particles’ data to binary file for future restart.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ptcls</strong> (<em>class</em>) – Particles’ data. See <code class="docutils literal notranslate"><span class="pre">S_particles.py</span></code> for more info.</p></li>
+<li><p><strong>kinetic_energies</strong> (<em>array</em>) – Kinetic energy of each species.</p></li>
+<li><p><strong>temperatures</strong> (<em>array</em>) – Temperature of each species.</p></li>
+<li><p><strong>potential_energy</strong> (<em>float</em>) – Potential energy.</p></li>
 <li><p><strong>it</strong> (<em>int</em>) – Timestep number.</p></li>
 </ul>
 </dd>
@@ -248,7 +253,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on May, 31, 2020.
+        Last updated on Jun, 18, 2020.
       </span>
 
     </p>
