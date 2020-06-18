@@ -9,8 +9,9 @@ Particles:
         temperature: 2.636325e+03
 
     - load:
-        method: random_no_reject    # loading method
+        method: restart    # loading method
         rand_seed: 123456789        # random seed
+        restart_step: 50000
 
 Potential:
     - type: Coulomb                  # potential type
@@ -38,13 +39,13 @@ Control:
     - units: mks                    # units
     - dt: 1.193536e-17            # sec
     - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nsteps: 50000                    # number of timesteps after the equilibrium
+    - Nsteps: 100000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
-    - verbose: yes
+    - verbose: no
     - output_dir: OCP_mks        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
     - rdf_nbins: 100
-    - dsf_no_ka_values: [10, 10, 10]
-    - ssf_no_ka_values: [10, 10, 10]
+    - dsf_no_ka_values: [20, 20, 20]
+    - ssf_no_ka_values: [20, 20, 20]

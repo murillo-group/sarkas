@@ -19,8 +19,9 @@ Particles:
         temperature: 2.6937e+05
 
     - load:
-        method: random_no_reject    # loading method
+        method: restart    # loading method
         rand_seed: 123456789        # random seed
+        restart_step: 0
 
 Potential:
     - type: Coulomb                 # potential type
@@ -48,9 +49,9 @@ Control:
     - units: mks                    # units
     - dt: 2.0e-20            # sec
     - Neq: 5000                      # number of timesteps for the equilibrium
-    - Nsteps: 30000                    # number of timesteps afater the equilibrium
+    - Nsteps: 50000                    # number of timesteps afater the equilibrium
     - writexyz: no                  # no xyz output
-    - dump_step: 100                # dump time step
+    - dump_step: 10                # dump time step
     - verbose: yes
     - output_dir: BIM        # dir name to save data. The default is "Checkpoint"
 

@@ -351,36 +351,6 @@ def enforce_pbc(pos, cntr, BoxVector):
     return
 
 
-@nb.njit
-def calc_dipole(pos, charge):
-    """ 
-    Calculate the dipole due to all charges. See Ref. [2]_ for explanation.
-
-    Parameters
-    ----------
-    pos : array
-        Particles' positions. See ``S_particles.py`` for more info.
-
-    charge : array
-        Array containing the charge of each particle. See ``S_particles.py`` for more info.
-    
-    Returns
-    -------
-    dipole : array
-        Net dipole
-    
-    References
-    ----------
-    .. [2] `J-M. Caillol, J Chem Phys 101 6080 (1994) <https://doi.org/10.1063/1.468422>`_
-
-    """
-    dipole = np.zeros(3)
-    for i in range(pos.shape[0]):
-        dipole += charge[i] * pos[i, :]
-
-    return dipole
-
-
 def calc_pot_acc(ptcls, params):
     """ 
     Calculate the Potential and update particles' accelerations.
@@ -425,11 +395,11 @@ def calc_pot_acc(ptcls, params):
 
         ptcls.acc += acc_l_r
 
-    # if not (params.Potential.type == "LJ"):
-    #     # Mie Energy of charged systems
-    #     dipole = calc_dipole(ptcls.pos, ptcls.charge)
-    #     U += 2.0 * np.pi * (dipole[0] ** 2 + dipole[1] ** 2 + dipole[2] ** 2) / (
-    #             3.0 * params.box_volume * params.fourpie0)
+    if not (params.Potential.type == "LJ"):
+        # Mie Energy of charged systems
+        # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
+        dipole = ptcls.charge @ ptcls.pos
+        U += 2.0 * np.pi * np.sum(dipole ** 2) / (3.0 * params.box_volume * params.fourpie0)
 
     return U
 
@@ -455,11 +425,5 @@ def calc_pot_acc_fmm(ptcls, params):
 
     U = ptcls.charge @ out_fmm.pot.real * 4.0 * np.pi / params.fourpie0
     ptcls.acc = - np.transpose(ptcls.charge * out_fmm.grad.real / ptcls.mass) / params.fourpie0
-
-    # if not (params.Potential.type == "LJ"):
-    #     # Mie Energy of charged systems
-    #     dipole = calc_dipole(ptcls.pos, ptcls.charge)
-    #     U += 2.0 * np.pi * (dipole[0] ** 2 + dipole[1] ** 2 + dipole[2] ** 2) / (
-    #             3.0 * params.box_volume * params.fourpie0)
 
     return U

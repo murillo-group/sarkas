@@ -304,7 +304,6 @@ def setup(params, filename):
                             params.Te = float(value)
 
                         if key == "elec_temperature_eV":
-                            T_eV = float(value)
                             params.Te = params.eV2K * float(value)
 
     if params.P3M.on:
@@ -348,7 +347,7 @@ def setup(params, filename):
         else:
             Zi = 1.0
 
-        Z53 += (Zi) ** (5. / 3.) * params.species[i].concentration
+        Z53 += Zi ** (5. / 3.) * params.species[i].concentration
         Z_avg += Zi * params.species[i].concentration
 
         for j in range(params.num_species):

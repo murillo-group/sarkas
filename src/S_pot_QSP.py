@@ -115,7 +115,7 @@ def setup(params, filename):
             QSP_matrix[1, i, j] = q1 * q2 / params.fourpie0
             QSP_matrix[2, i, j] = twopi / Lambda_dB
 
-    params.QFactor = params.QFactor / params.fourpie0
+    params.QFactor /= params.fourpie0
     if params.Potential.QSP_Pauli == 0:
         QSP_matrix[3, :, :] = 0.0
 
@@ -140,18 +140,6 @@ def setup(params, filename):
 
     params.ai = (3.0 / (4.0 * np.pi * params.ni)) ** (1.0 / 3.0)  # Ion WS
     params.Potential.Gamma_eff = abs(params.Potential.matrix[1, 0, 1]) / (params.ai * params.kB * params.Ti)
-    # Rescale all the Lengths by the ion's WS Radius instead of the total WS radius. 
-    params.L = params.ai * (4.0 * np.pi * params.total_num_ptcls / 3.0) ** (1.0 / 3.0)  # box length
-    L = params.L
-    params.Lx = L
-    params.Ly = L
-    params.Lz = L
-    params.Lv = np.array([L, L, L])  # box length vector
-    params.d = np.count_nonzero(params.Lv)  # no. of dimensions
-
-    params.box_volume = L * L * L
-    params.Lmax_v = np.array([L, L, L])
-    params.Lmin_v = np.array([0.0, 0.0, 0.0])
 
     if params.Potential.method == "P3M":
 
@@ -288,7 +276,7 @@ def Kelbg_force_P3M(r, pot_matrix):
 
     # Diffraction terms of the potential and force
     U_pp = -A * np.exp(-C2 * r2 / np.pi) / r
-    U_pp2 = + A * C * mt.erfc(C * r / np.sqrt(pi))
+    U_pp2 = + A * C * mt.erfc(C * r / np.sqrt(np.pi))
 
     # Pauli Term
     ee_pot_term = D * np.exp(-F * r2)
@@ -373,9 +361,6 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
     Mx = MGrid[0]  # params.P3M.Mx
     My = MGrid[1]  # params.P3M.My
     Mz = MGrid[2]  # params.P3M.Mz
-    # hx = params.P3M.hx
-    # hy = params.P3M.hy
-    # hz = params.P3M.hz
     Lx = BoxLv[0]  # params.Lx
     Ly = BoxLv[1]  # params.Ly
     Lz = BoxLv[2]  # params.Lz
@@ -482,15 +467,15 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
                     PM_err += Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
     # Calculate the PP error for the e-e interaction only. 
-    # This is because the electron's DeBroglie wavelength is much shorter than the ion's, hence longer-range force.     
-    PP_err_exp = 2.0 * np.pi * np.exp(- 2.0 * C * rcut) * (C * rcut + 2) / rcut
-    PP_err_ee = -np.pi / 4. * (3.0 * np.sqrt(2.0 * np.pi / F) * mt.erf(np.sqrt(2.0 * F * rcut2))
-                               + 4.0 * rcut * np.exp(-2.0 * F * rcut2) * (4.0 * F * rcut2 + 3))
+    # This is because the electron's deBroglie wavelength is much shorter than the ion's, hence longer-range force.
+    PP_err_exp = np.sqrt(2.0 * np.pi * C) * np.exp(- C * rcut)
+    # PP_err_ee = -np.pi / 4. * (3.0 * np.sqrt(2.0 * np.pi / F) * mt.erf(np.sqrt(2.0 * F * rcut2))
+    #                            + 4.0 * rcut * np.exp(-2.0 * F * rcut2) * (4.0 * F * rcut2 + 3))
+    #
+    # PP_err_ee *= D ** 2 * fourpie0 ** 2
 
-    PP_err_ee *= D ** 2 * fourpie0 ** 2
-
-    PP_err_Ew = 4.0 * np.exp(-2.0 * Gew_sq * rcut2) / rcut
-    PP_err_tot = np.sqrt(PP_err_Ew + PP_err_ee + PP_err_exp) / (fourpie0 * np.sqrt(Lx * Ly * Lz))
+    # PP_err_Ew = 4.0 * np.exp(-2.0 * Gew_sq * rcut2) / rcut
+    PP_err_tot = PP_err_exp / (fourpie0 * np.sqrt(Lx * Ly * Lz))
 
     PM_err_tot = np.sqrt(PM_err) / (Lx * Ly * Lz) ** (1. / 3.)
 

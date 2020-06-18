@@ -91,7 +91,7 @@ class Verbose:
         print('No. of species = ', len(params.species), file=f_log)
         for sp in range(params.num_species):
             print("Species {} : {}".format(sp + 1, params.species[sp].name), file=f_log)
-            print("Species ID: {}".format(sp), file=f_log)
+            print("\tSpecies ID: {}".format(sp), file=f_log)
             print("\tNo. of particles = {} ".format(params.species[sp].num), file=f_log)
             print("\tNumber density = {:2.6e} ".format(params.species[sp].num_density), end='', file=f_log)
             print("[N/cc]" if params.Control.units == "cgs" else "[N/m^3]", file=f_log)
@@ -151,18 +151,23 @@ class Verbose:
                 print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff), file=f_log)
             else:
                 print('Gamma = {:4.2e}'.format(params.Potential.matrix[0, 0, 0]), file=f_log)
+
         elif params.Potential.type == 'LJ':
             print('epsilon = {:2.6e}'.format(params.Potential.matrix[0, 0, 0]), file=f_log)
             print('sigma = {:2.6e}'.format(params.Potential.matrix[1, 0, 0]), file=f_log)
+
         elif params.Potential.type == "QSP":
-            print("e de Broglie wavelength = {:2.6e} ".format(params.Potential.matrix[0, 0, 0] / np.sqrt(2.0)),
-                  file=f_log)
-            print("e de Broglie wavelength / a_ws = {:2.6e} ".format(
-                params.Potential.matrix[0, 0, 0] / (np.sqrt(2.0) * params.ai)), file=f_log)
-            print("ion de Broglie wavelength = {:2.6e} ".format(params.Potential.matrix[0, 1, 1] / np.sqrt(2.0)),
-                  file=f_log)
-            print("ion de Broglie wavelength / a_ws = {:2.6e} ".format(
-                params.Potential.matrix[0, 1, 1] / np.sqrt(2.0) / params.ai), file=f_log)
+            print("e de Broglie wavelength = {:2.4f} ai = {:2.6e} ".format(
+                params.Potential.matrix[0, 0, 0] / np.sqrt(2.0) / params.ai,
+                params.Potential.matrix[0, 0, 0] / np.sqrt(2.0)), end='', file=f_log)
+            print("[cm]" if params.Control.units == "cgs" else "[m]", file=f_log)
+            print("e-e screening parameter = {:2.4f}".format(params.Potential.matrix[2, 0, 0]*params.aws), file=f_log)
+            print("ion de Broglie wavelength  = {:2.4f} ai = {:2.6e} ".format(
+                params.Potential.matrix[0, 1, 1] / np.sqrt(2.0) / params.ai,
+                params.Potential.matrix[0, 1, 1] / np.sqrt(2.0)), end='', file=f_log)
+            print("[cm]" if params.Control.units == "cgs" else "[m]", file=f_log)
+            print("i-i screening parameter = {:2.4f}".format(params.Potential.matrix[2, 1, 1]*params.aws), file=f_log)
+            print("e-i screening parameter = {:2.4f}".format(params.Potential.matrix[2, 0, 1]*params.aws), file=f_log)
             print("e-i Coupling Parameter = {:3.3f} ".format(params.Potential.Gamma_eff), file=f_log)
             print("rs Coupling Parameter = {:3.3f} ".format(params.rs), file=f_log)
 
