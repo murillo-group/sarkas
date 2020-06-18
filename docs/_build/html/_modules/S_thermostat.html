@@ -184,18 +184,34 @@
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Only Berendsen thermostat is supported. Check your input file, thermostat part.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
+<<<<<<< HEAD
 
 <div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="n">K</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">therm_timestep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">therm_tau</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
         <span class="k">return</span></div></div>
 
+=======
+
+<div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+        <span class="n">K</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">therm_timestep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">therm_tau</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+        <span class="k">return</span></div></div>
+>>>>>>> master
 
 <div class="viewcode-block" id="Berendsen"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Berendsen">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">Berendsen</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">therm_timestep</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update particle velocity based on Berendsen thermostat [Berendsen1984]_.</span>
 
+<<<<<<< HEAD
+=======
+<div class="viewcode-block" id="Berendsen"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Berendsen">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<span class="k">def</span> <span class="nf">Berendsen</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">therm_timestep</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update particle velocity based on Berendsen thermostat.</span>
+
+>>>>>>> master
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    T : array</span>
@@ -331,7 +347,11 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
+=======
+        Last updated on May, 31, 2020.
+>>>>>>> master
       </span>
 
     </p>
