@@ -2,6 +2,7 @@
 Module for calculating physical quantities from Sarkas checkpoints.
 """
 import os
+import yaml
 import numpy as np
 import numba as nb
 import pandas as pd
@@ -11,6 +12,35 @@ from tqdm import tqdm
 LW = 2
 FSZ = 14
 MSZ = 8
+
+def read_pickle(input_file):
+    """
+    Read Pickle File containing params.
+
+    Parameters
+    ----------
+    input_file: str
+        Input YAML file of the simulation.
+    Returns
+    -------
+    data : dict
+        Params dictionary.
+    """
+    with open(input_file, 'r') as stream:
+        dics = yaml.load(stream, Loader=yaml.FullLoader)
+        for lkey in dics:
+            if lkey == "Control":
+                for keyword in dics[lkey]:
+                    for key, value in keyword.items():
+                        # Directory where to store Checkpoint files
+                        if key == "output_dir":
+                            checkpoint_dir = os.path.join("Simulations", value)
+
+    pickle_file = os.path.join(checkpoint_dir, "S_parameters.pickle")
+
+    data = np.load(pickle_file, allow_pickle=True)
+
+    return data
 
 
 class Thermodynamics:
@@ -1474,7 +1504,6 @@ class TransportCoefficients:
             transport_coeff = np.trapz(integrand[:tau], x=time[:tau]) / (4.0 * np.pi)
             print("Electrical Conductivity = {:1.4e}/w_p".format(transport_coeff))
         return transport_coeff
-
 
 def load_from_restart(fldr, it):
     """
