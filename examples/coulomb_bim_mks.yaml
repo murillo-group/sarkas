@@ -25,13 +25,13 @@ Particles:
 Potential:
     - type: Coulomb                 # potential type
     - method: P3M                    # Linked-cell
-    - rc: 3.583154e-12          # cut-off radius, meter
+    - rc: 5.583154e-12          # cut-off radius, meter
 
 P3M:
-    - MGrid: [32, 32, 32]
+    - MGrid: [64, 64, 64]
     - aliases: [3,3,3]
     - cao: 6
-    - alpha_ewald: 1.813491e+11
+    - alpha_ewald: 7.253964e+11
 
 BoundaryConditions:
     - periodic: ["x", "y", "z"]
@@ -46,13 +46,13 @@ Thermostat:
 
 Control:
     - units: mks                    # units
-    - dt: 1.0e-20            # sec
+    - dt: 2.0e-20            # sec
     - Neq: 5000                      # number of timesteps for the equilibrium
     - Nsteps: 50000                    # number of timesteps afater the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
-    - verbose: yes
-    - output_dir: BIM_1        # dir name to save data. The default is "Checkpoint"
+    - verbose: no
+    - output_dir: BIM        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
     - rdf_nbins: 100

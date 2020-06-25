@@ -39,7 +39,7 @@ Control:
     - units: mks                    # units
     - dt: 1.193536e-17            # sec
     - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nsteps: 100000                    # number of timesteps after the equilibrium
+    - Nsteps: 50000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
     - verbose: no
