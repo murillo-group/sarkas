@@ -32,11 +32,19 @@ input_file = sys.argv[1]
 params = Params()
 params.setup(input_file)  # Read initial conditions and setup parameters
 
-checkpoint = Checkpoint(params)  # For restart and pva backups.
+params.Control.pre_run = True
+
+
+# For restart and pva backups.
+checkpoint = Checkpoint(params)
+checkpoint.save_pickle(params)
 
 verbose = Verbose(params)
 if not params.load_method == 'restart':
     verbose.sim_setting_summary(params)  # simulation setting summary
+
+if params.Control.pre_run:
+    sys.exit()
 
 integrator = Integrator(params)
 thermostat = Thermostat(params)

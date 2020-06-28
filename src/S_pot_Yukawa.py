@@ -253,7 +253,7 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
                     # eq.(28) of Ref.[2]_
                     PM_err = PM_err + Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
-    PP_err = 2.0 / np.sqrt(Lx * Ly * Lz * rcut) * np.exp(-0.25 * kappa_sq / Gew_sq) * np.exp(-Gew_sq * rcut2)
+    PP_err = 2.0 / np.sqrt(Lx * Ly * Lz * rcut) * np.exp(-0.25 * kappa_sq / Gew_sq) * np.exp(-Gew_sq * rcut2)/fourpie0
     PM_err = np.sqrt(PM_err) / (Lx * Ly * Lz) ** (1. / 3.)
 
     return G_k, kx_v, ky_v, kz_v, PM_err, PP_err
@@ -395,7 +395,6 @@ def setup(params, filename):
         params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err, params.P3M.PP_err = gf_opt(
             params.P3M.MGrid, params.P3M.aliases, params.Lv, params.P3M.cao, params.Potential.matrix,
             params.Potential.rc, params.fourpie0)
-
         # Include the charges in the Force errors. Prefactor in eq.(29) Ref.[1]_
         # Notice that the equation was derived for a single component plasma. 
         params.P3M.PP_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0

@@ -453,19 +453,31 @@ class Params:
                 Snapshot interval.
 
             np_per_side : array
-                Number of particles per box length. Note that :math: `N_x x N_y x N_z = N_{tot}`
+                Number of particles per box length. Default= :math: `N_{tot}^{1/3}`
+                Note that :math: `N_x x N_y x N_z = N_{tot}`
 
             writexyz : str
-                Flag for XYZ file for OVITO. "no" or "yes".
+                Flag for XYZ file for OVITO. Default = False.
 
             verbose : str
                 Flag for verbose screen output.
             
             checkpoint_dir : str
-                Directory to store simulation's output files.
+                Path to the directory where the outputs of the current simulation will be stored.
+                Default = "Simulations/UnNamedRun"
 
             log_file : str
-                File name for log output.
+                File name for log output. Default = log.out
+
+            pre_run : bool
+                Flag for initial estimation of simulation parameters.
+
+            simulations_dir : str
+                Path to the directory where all future simulations will be stored. Default = cwd +  "Simulations"
+
+            dump_dir : str
+                Path to the directory where simulations' dumps will be stored.
+                Default = "Simulations/UnNamedRun/Particles_Data"
         """
 
         def __init__(self):
@@ -474,16 +486,15 @@ class Params:
             self.dt = None
             self.Nsteps = None
             self.Neq = None
-            self.BC = "periodic"
             self.dump_step = 1
-            self.screen_output = False
-            self.writexyz = "no"
-            self.verbose = "yes"
+            self.writexyz = False
+            self.verbose = True
             self.simulations_dir = "Simulations"
-            self.ptcls_dump_dir = "Particles_Data"
-            self.checkpoint_dir = os.path.join(self.simulations_dir, "Checkpoint")
+            self.dump_dir = "Particles_Data"
+            self.checkpoint_dir = "UnNamedRun"
             self.log_file = os.path.join(self.checkpoint_dir, "log.out")
             self.np_per_side = []
+            self.pre_run = False
 
     class PostProcessing:
 
@@ -661,6 +672,10 @@ class Params:
                         for key, value in keyword.items():
                             if key == 'type':
                                 self.Thermostat.type = value
+
+                            if key == 'thermostating_temperatures':
+                                self.Thermostat.temperatures = value
+
                             # If Berendsen
                             if key == 'tau':
                                 if float(value) > 0.0:
@@ -770,20 +785,37 @@ class Params:
                                     self.Control.verbose = 1
 
                             # Directory where to store Checkpoint files
+                            if key == "simulations_dir":
+                                self.Control.simulations_dir = value
+
+                            # Directory where to store Checkpoint files
                             if key == "output_dir":
                                 self.Control.fname_app = value
-                                self.Control.checkpoint_dir = os.path.join(self.Control.simulations_dir, value)
-                                self.Control.dump_dir = os.path.join(self.Control.checkpoint_dir,
-                                                                     self.Control.ptcls_dump_dir)
+                                self.Control.checkpoint_dir = value
+
+                            if key == "dump_dir":
+                                self.Control.dump_dir = value
 
                             # Filenames appendix
-                            if key == "fname_app":
+                            if key == "job_id":
                                 self.Control.fname_app = value
 
         # Check for conflicts in case of magnetic field
         if self.Magnetic.on and self.Magnetic.elec_therm:
             self.Integrator.mag_type = value
             self.Integrator.type = 'Verlet'
+
+        # Check for conflicts in directories
+        if not os.path.exists(self.Control.simulations_dir):
+            os.mkdir(self.Control.simulations_dir)
+
+        self.Control.checkpoint_dir = os.path.join(self.Control.simulations_dir, self.Control.checkpoint_dir)
+        if not os.path.exists(self.Control.checkpoint_dir):
+            os.mkdir(self.Control.checkpoint_dir)
+
+        self.Control.dump_dir = os.path.join(self.Control.checkpoint_dir, self.Control.dump_dir)
+        if not os.path.exists(self.Control.dump_dir):
+            os.mkdir(self.Control.dump_dir)
 
         return
 

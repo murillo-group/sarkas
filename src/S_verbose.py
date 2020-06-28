@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 from pyfiglet import print_figlet, Figlet
 
@@ -45,6 +46,33 @@ def screen_figlet():
     print('\nLog file created.')
 
 
+def opening(params, output, f_flag):
+    """
+    Print the opening statement and figlet.
+
+    Parameters
+    ----------
+    params : class
+        Simulation parameters.
+
+    output : io
+        Location where to print output
+
+    f_flag : bool
+        Flag for deciding to print to file.
+    """
+
+    if params.load_method == "restart":
+        print('\n\n--------------------------- Restart -------------------------------------', file=output)
+        print("Restart step: {}".format(params.load_restart_step), file=output)
+        print("Total production steps: {}".format(params.Control.Nsteps), file=output)
+    else:
+        if f_flag:
+            figlet_obj = Figlet(font='starwars')
+            print(figlet_obj.renderText('Sarkas'), file=output)
+        print("An open-source pure-Python molecular dynamics code for non-ideal plasmas.", file=output)
+
+
 class Verbose:
     """ 
     Class to handle verbose output to screen.
@@ -59,45 +87,49 @@ class Verbose:
     def __init__(self, params):
 
         self.f_log_name = os.path.join(params.Control.checkpoint_dir, "log_" + params.Control.fname_app + ".out")
-        params.Control.log_file = self.f_log_name
-        if params.load_method == "restart":
-            f_log = open(self.f_log_name, "a+")
-            print('\n\n--------------------------- Restart -------------------------------------', file=f_log)
-            print("Restart step: {}".format(params.load_restart_step), file=f_log)
-            print("Total production steps: {}".format(params.Control.Nsteps), file=f_log)
-        else:
-            f_log = open(self.f_log_name, "w+")
-            figlet_obj = Figlet(font='starwars')
-            print(figlet_obj.renderText('Sarkas'), file=f_log)
-            print("An open-source pure-python molecular dynamics code for non-ideal plasmas.", file=f_log)
+        if not os.path.exists(params.Control.checkpoint_dir):
+            os.mkdir(params.Control.checkpoint_dir)
 
-        f_log.close()
+        params.Control.log_file = self.f_log_name
+        if not params.Control.pre_run:
+            io_file = self.f_log_name
+        else:
+            self.f_pre_run = os.path.join(params.Control.checkpoint_dir,'pre_run_' + params.Control.fname_app + '.out')
+            io_file = self.f_pre_run
+
+        option = "a+" if params.load_method == "restart" else "w+"
+        with open(io_file, option) as f_log:
+            opening(params, f_log, True)
 
         if params.Control.verbose:
             screen_figlet()
+            opening(params, sys.stdout, False)
 
     def sim_setting_summary(self, params):
         """
         Print out to file a summary of simulation's parameters.
         """
-        f_log = open(self.f_log_name, 'a+')
-
-        print('\n\n-------------- Simulation ----------------------', file=f_log)
+        if params.Control.pre_run:
+            f_log = open(self.f_pre_run, 'a+')
+            print('\n\n-------------- Pre Run Details ----------------------', file=f_log)
+        else:
+            f_log = open(self.f_log_name, 'a+')
+            print('\n\n-------------- Simulation ----------------------', file=f_log)
         print('\nJob ID: ', params.Control.fname_app, file=f_log)
         print('Job directory: ', params.Control.checkpoint_dir, file=f_log)
         print('Dump directory: ', params.Control.dump_dir, file=f_log)
         print('\nUnits: ', params.Control.units, file=f_log)
         print('Total No. of particles = ', params.total_num_ptcls, file=f_log)
         print('No. of species = ', len(params.species), file=f_log)
-        for sp in range(params.num_species):
-            print("Species {} : {}".format(sp + 1, params.species[sp].name), file=f_log)
-            print("\tSpecies ID: {}".format(sp), file=f_log)
-            print("\tNo. of particles = {} ".format(params.species[sp].num), file=f_log)
-            print("\tNumber density = {:2.6e} ".format(params.species[sp].num_density), end='', file=f_log)
+        for isp, sp in enumerate(params.species):
+            print("Species {} : {}".format(isp + 1, sp.name), file=f_log)
+            print("\tSpecies ID: {}".format(isp), file=f_log)
+            print("\tNo. of particles = {} ".format(sp.num), file=f_log)
+            print("\tNumber density = {:2.6e} ".format(sp.num_density), end='', file=f_log)
             print("[N/cc]" if params.Control.units == "cgs" else "[N/m^3]", file=f_log)
-            print("\tMass = {:2.6e} ".format(params.species[sp].mass), end='', file=f_log)
+            print("\tMass = {:2.6e} ".format(sp.mass), end='', file=f_log)
             print("[g]" if params.Control.units == "cgs" else "[kg]", file=f_log)
-            print('\tTemperature = {:2.6e} [K]'.format(params.T_desired), file=f_log)
+            print('\tTemperature = {:2.6e} [K]'.format(sp.temperature), file=f_log)
 
         print('\nLengths scales:', file=f_log)
         print('Wigner-Seitz radius = {:2.6e} '.format(params.aws), end='', file=f_log)
@@ -117,6 +149,8 @@ class Verbose:
 
         print("\nIntegrator: ", params.Integrator.type, file=f_log)
         print("\nThermostat: ", params.Thermostat.type, file=f_log)
+        # print("Berendsen Relaxation rate: {:1.3f}".format(1.0/params.Thermostat.tau), file=f_log)
+        # print("Thermostating Temperatures: ", params.Thermostat.temperatures, file=f_log)
 
         print('\nPotential: ', params.Potential.type, file=f_log)
         if params.Potential.type == 'Yukawa':
@@ -161,13 +195,13 @@ class Verbose:
                 params.Potential.matrix[0, 0, 0] / np.sqrt(2.0) / params.ai,
                 params.Potential.matrix[0, 0, 0] / np.sqrt(2.0)), end='', file=f_log)
             print("[cm]" if params.Control.units == "cgs" else "[m]", file=f_log)
-            print("e-e screening parameter = {:2.4f}".format(params.Potential.matrix[2, 0, 0]*params.aws), file=f_log)
+            print("e-e screening parameter = {:2.4f}".format(params.Potential.matrix[2, 0, 0] * params.aws), file=f_log)
             print("ion de Broglie wavelength  = {:2.4f} ai = {:2.6e} ".format(
                 params.Potential.matrix[0, 1, 1] / np.sqrt(2.0) / params.ai,
                 params.Potential.matrix[0, 1, 1] / np.sqrt(2.0)), end='', file=f_log)
             print("[cm]" if params.Control.units == "cgs" else "[m]", file=f_log)
-            print("i-i screening parameter = {:2.4f}".format(params.Potential.matrix[2, 1, 1]*params.aws), file=f_log)
-            print("e-i screening parameter = {:2.4f}".format(params.Potential.matrix[2, 0, 1]*params.aws), file=f_log)
+            print("i-i screening parameter = {:2.4f}".format(params.Potential.matrix[2, 1, 1] * params.aws), file=f_log)
+            print("e-i screening parameter = {:2.4f}".format(params.Potential.matrix[2, 0, 1] * params.aws), file=f_log)
             print("e-i Coupling Parameter = {:3.3f} ".format(params.Potential.Gamma_eff), file=f_log)
             print("rs Coupling Parameter = {:3.3f} ".format(params.rs), file=f_log)
 
@@ -239,7 +273,7 @@ class Verbose:
             print('Open BC along axes : ', params.BC.open_axes, file=f_log)
 
         if params.Langevin.on:
-            print('Langevin model = ', params.Langevin.type, file=f_log)
+            print('Langevin model : ', params.Langevin.type, file=f_log)
 
         f_log.close()
 

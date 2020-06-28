@@ -18,6 +18,7 @@ src
    S_pot_Moliere
    S_pot_QSP
    S_pot_Yukawa
+   S_testing
    S_thermostat
    S_verbose
    Sarkas

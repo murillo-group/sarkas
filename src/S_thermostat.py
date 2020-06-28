@@ -6,15 +6,48 @@ import numba as nb
 
 
 class Thermostat:
+    """
+    Parameters
+    ----------
+
+    params : class
+
+    Attributes
+    ----------
+    kB : float
+        Boltzmann constant in correct units.
+
+    no_species : int
+        Total number of species.
+
+    species_np : array
+        Number of particles of each species.
+
+    species_mass : array
+        Mass of each species.
+
+    relaxation_rate: float
+        Berendsen parameter tau.
+
+    relaxation_timestep: int
+        Timestep at which thermostat is turned on.
+
+    T_desired: array
+        Thermostating temperature of each species.
+
+    type: str
+        Thermostat type
+
+    """
     def __init__(self, params):
         if params.Thermostat.on:
             self.kB = params.kB
             self.no_species = len(params.species)
             self.species_np = np.zeros(self.no_species)
             self.species_masses = np.zeros(self.no_species)
-            self.therm_timestep = params.Thermostat.timestep
-            self.therm_tau = params.Thermostat.tau
-            self.T_desired = params.T_desired
+            self.relaxation_timestep = params.Thermostat.timestep
+            self.relaxation_rate = params.Thermostat.tau
+            self.T_desired = np.array(params.Thermostat.temperatures)
 
             for i in range(self.no_species):
                 self.species_np[i] = params.species[i].num
@@ -28,9 +61,20 @@ class Thermostat:
             pass
 
     def update(self, vel, it):
+        """
+        Update particles' velocities according to the chosen thermostat
+
+        Parameters
+        ----------
+        vel : ndarray
+            Particles' velocities to be rescaled.
+
+        it : int
+            Current timestep.
+
+        """
         K, T = calc_kin_temp(vel, self.species_np, self.species_masses, self.kB)
-        self.type(vel, self.T_desired, T, self.species_np, self.therm_timestep, self.therm_tau, it)
-        return
+        self.type(vel, self.T_desired, T, self.species_np, self.relaxation_timestep, self.relaxation_rate, it)
 
 
 @nb.njit
@@ -46,8 +90,8 @@ def Berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     vel : array
         Particles' velocities to rescale.
 
-    T_desired : float
-        Target temperature.
+    T_desired : array
+        Target temperature of each species.
 
     tau : float
         Scale factor.
@@ -72,9 +116,9 @@ def Berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
         species_end = species_start + species_np[i]
 
         if it <= therm_timestep:
-            fact = np.sqrt(T_desired / T[i])
+            fact = np.sqrt(T_desired[i] / T[i])
         else:
-            fact = np.sqrt(1.0 + (T_desired / T[i] - 1.0) / tau)  # eq.(11)
+            fact = np.sqrt(1.0 + (T_desired[i] / T[i] - 1.0) / tau)  # eq.(11)
 
         vel[species_start:species_end, :] *= fact
         species_start = species_end
@@ -158,4 +202,3 @@ def remove_drift(vel, nums, masses):
             vel[species_start:species_end, :] -= P[ic, :] / (float(nums[ic]) * masses[ic])
             species_start = species_end
 
-    return
