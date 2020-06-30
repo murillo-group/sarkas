@@ -162,26 +162,6 @@
            <div itemprop="articleBody">
             
   <div class="section" id="thermostats">
-<<<<<<< HEAD
-<h1>Thermostats<a class="headerlink" href="#thermostats" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="berendsen-thermostat">
-<h2>Berendsen Thermostat<a class="headerlink" href="#berendsen-thermostat" title="Permalink to this headline">¶</a></h2>
-<p>The Berendsen Thermostat (BT) using a tapered velocity scaling approach. In a strict velocity scaling approach the temperature <span class="math notranslate nohighlight">\(T_e\)</span> is estimated, through a quantity proportional to <span class="math notranslate nohighlight">\(\langle v^2 \rangle\)</span>, and the velocities are scaled to values consistent with the desired temperature <span class="math notranslate nohighlight">\(T_d\)</span>, as in <span class="math notranslate nohighlight">\(v_i \to \alpha v_i\)</span>. Being completely inconsistent with physical laws, it is preferable to use the same simple algorithm but more gently so that the dynamics during the thermostat period is more consistent with the underlying equations of motion. In the BT we begin with an model for the temperature as we would like to see it evolve over a slower timescale <span class="math notranslate nohighlight">\(\tau_{BT}\)</span>. One model is</p>
-<div class="math notranslate nohighlight">
-\[\frac{dT}{dt} = \frac{T_d - T}{\tau_{BT}},\]</div>
-<p>This equation can be solved analytically to yield</p>
-<div class="math notranslate nohighlight">
-\[T(t) = T(0)e^{-t/\tau_BT} + \left(1 - e^{-t/\tau_BT}  \right)T_d ,\]</div>
-<p>which can be seen to transition from the initial temperature <span class="math notranslate nohighlight">\(T(0)\)</span> to the desired temperature <span class="math notranslate nohighlight">\(T_d\)</span> on a time scale of <span class="math notranslate nohighlight">\(\tau_{BT}\)</span>. By choosing <span class="math notranslate nohighlight">\(\tau_{BT}\)</span> to be many time steps we can eventually equilibrate the system while allowing it to explore configurations closer to the real (not velocity scaled) dynamics.</p>
-<p>To implement BT we discretize the BT model across one time step to obtain</p>
-<div class="math notranslate nohighlight">
-\[T(t + \Delta t) = T(t) + \frac{\Delta t}{\tau_{BT}}\left(T_d - T(t) \right) .\]</div>
-<p>We want to scale the current velocities such that this new temperature <span class="math notranslate nohighlight">\(T(t+\Delta t)\)</span> is achieved, because that the temperature prescribed by the BT. Finding the ratio then of the target temperature and the current temperature, we get</p>
-<div class="math notranslate nohighlight">
-\[\frac{T(t + \Delta t)}{T(t) } = 1+ \frac{\Delta t}{\tau_{BT}}\left(\frac{T_d}{T(t) } - 1 \right)\]</div>
-<p>Taking the square root this yields the scaling factor for the velocities.</p>
-<p>The BT is implemented in Sarkas with several epochs. You can specify the number of epochs and the individual strengths <span class="math notranslate nohighlight">\(\tau_{BT,j}\)</span>. This allows for a stronger thermostat initially, but tapering to a more gentle thermostat toward the end of the equilibration phase.</p>
-=======
 <span id="id1"></span><h1>Thermostats<a class="headerlink" href="#thermostats" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="berendsen-thermostat">
 <h2>Berendsen Thermostat<a class="headerlink" href="#berendsen-thermostat" title="Permalink to this headline">¶</a></h2>
@@ -213,7 +193,6 @@ Finding the ratio then of the target temperature and the current temperature, we
 <p>The BT is implemented in Sarkas with several epochs. You can specify the number of epochs and the individual
 strengths <span class="math notranslate nohighlight">\(\tau_{B,j}\)</span>. This allows for a stronger thermostat initially, but tapering to a more gentle thermostat
 toward the end of the equilibration phase.</p>
->>>>>>> vacf_iccf_tools
 </div>
 </div>
 
@@ -237,11 +216,7 @@ toward the end of the equilibration phase.</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-<<<<<<< HEAD
-        Last updated on Jun, 18, 2020.
-=======
         Last updated on Jun, 30, 2020.
->>>>>>> vacf_iccf_tools
       </span>
 
     </p>

@@ -86,10 +86,6 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
-<<<<<<< HEAD
-<li class="toctree-l2"><a class="reference internal" href="#problem-set-up">Problem Set-up</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#saving-output-from-sarkas">Saving Output from Sarkas</a></li>
-=======
 <li class="toctree-l2"><a class="reference internal" href="#input-file">Input File</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#particles">Particles</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interaction">Interaction</a></li>
@@ -107,7 +103,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-a-simulation">Running a simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id7">Post Processing</a></li>
->>>>>>> vacf_iccf_tools
 </ul>
 </li>
 </ul>
@@ -184,128 +179,6 @@
            <div itemprop="articleBody">
             
   <div class="section" id="tutorial">
-<<<<<<< HEAD
-<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<p>Here we provide a step-by-step guide to illustrate how to run Sarkas and how to obtain useful quantities from your simulation data once you run is complete. The topics that are listed in this tutorial are as follows</p>
-<ul class="simple">
-<li><p>Saving output data from Sarkas</p></li>
-<li><p>Computing the radial distribution function (RDF)</p></li>
-<li><p>Computing the velocity autocorrelation function (VACF)</p></li>
-<li><p>Computing the self-diffusion coefficient</p></li>
-</ul>
-<div class="section" id="problem-set-up">
-<h2>Problem Set-up<a class="headerlink" href="#problem-set-up" title="Permalink to this headline">¶</a></h2>
-<p>Let’s consider a strongly coupled plasma comprised of 500 copper ions with a number density of <span class="math notranslate nohighlight">\(n_i = 6e+22 \frac{N}{cm^3}\)</span> at a temperature <span class="math notranslate nohighlight">\(1 eV\)</span>, the non-dimensional parameters, assuming a Yukawa potential is used for the interactions, the “Potential” section of the yaml.inp file would be set-up as follows</p>
-<table class="colwidths-auto docutils align-default" id="id1">
-<caption><span class="caption-text">Example values for “Potential” section in yaml.inp file</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>type</p></td>
-<td><p>Yukwa</p></td>
-</tr>
-<tr class="row-odd"><td><p>algorithm</p></td>
-<td><p>PP</p></td>
-</tr>
-<tr class="row-even"><td><p>kappa</p></td>
-<td><p>3.04</p></td>
-</tr>
-<tr class="row-odd"><td><p>Gamma</p></td>
-<td><p>129.12</p></td>
-</tr>
-<tr class="row-even"><td><p>rc</p></td>
-<td><p>3.78</p></td>
-</tr>
-</tbody>
-</table>
-<p>After adding these parameters to the yaml.inp file, we move to the “Control” section of the yaml.inp file to specify the simulation parameters. Supposing that we want a fairly converged RDF and VACF, we could specify the following values</p>
-<table class="colwidths-auto docutils align-default" id="id2">
-<caption><span class="caption-text">Example values for “Control” section in yaml.inp file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>dt</p></td>
-<td><p>0.1</p></td>
-</tr>
-<tr class="row-odd"><td><p>Neq</p></td>
-<td><p>1000</p></td>
-</tr>
-<tr class="row-even"><td><p>Nstep</p></td>
-<td><p>30000</p></td>
-</tr>
-<tr class="row-odd"><td><p>BC</p></td>
-<td><p>periodic</p></td>
-</tr>
-<tr class="row-even"><td><p>writeout</p></td>
-<td><p>yes</p></td>
-</tr>
-<tr class="row-odd"><td><p>writexyz</p></td>
-<td><p>no</p></td>
-</tr>
-<tr class="row-even"><td><p>dump_step</p></td>
-<td><p>10</p></td>
-</tr>
-<tr class="row-odd"><td><p>random_seed</p></td>
-<td><p>1 (deprecated)</p></td>
-</tr>
-<tr class="row-even"><td><p>restart</p></td>
-<td><p>no</p></td>
-</tr>
-<tr class="row-odd"><td><p>verbose</p></td>
-<td><p>yes</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id3">
-<caption><span class="caption-text">Example values for “Control” section in yaml.inp file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>dt</p></td>
-<td><p>0.1</p></td>
-</tr>
-<tr class="row-odd"><td><p>Neq</p></td>
-<td><p>1000</p></td>
-</tr>
-<tr class="row-even"><td><p>Nstep</p></td>
-<td><p>30000</p></td>
-</tr>
-<tr class="row-odd"><td><p>BC</p></td>
-<td><p>periodic</p></td>
-</tr>
-<tr class="row-even"><td><p>writeout</p></td>
-<td><p>yes</p></td>
-</tr>
-<tr class="row-odd"><td><p>writexyz</p></td>
-<td><p>no</p></td>
-</tr>
-<tr class="row-even"><td><p>dump_step</p></td>
-<td><p>10</p></td>
-</tr>
-<tr class="row-odd"><td><p>random_seed</p></td>
-<td><p>1 (deprecated)</p></td>
-</tr>
-<tr class="row-even"><td><p>restart</p></td>
-<td><p>no</p></td>
-</tr>
-<tr class="row-odd"><td><p>verbose</p></td>
-<td><p>yes</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="saving-output-from-sarkas">
-<h2>Saving Output from Sarkas<a class="headerlink" href="#saving-output-from-sarkas" title="Permalink to this headline">¶</a></h2>
-=======
 <span id="id1"></span><h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <p>Here we provide a step-by-step guide to illustrate how to run Sarkas and how to obtain useful quantities
 from your simulation data once you run is complete. The topics that are listed in this tutorial are as follows</p>
@@ -325,7 +198,7 @@ particles interact via a Yukawa potential, i.e. an YOCP.</p>
 <p>The first step in any MD simulation is the creation of an input file containing all the relevant parameters
 of our simulation. We start by considering the physical parameter of our system. Assume we want to simulate
 a strongly coupled plasma comprised of <span class="math notranslate nohighlight">\(N = 10\, 000\)</span> hydrogen ions with
-a number density of <span class="math notranslate nohighlight">\(n = 1.6e+30 N/m^3\)</span> at a temperature <span class="math notranslate nohighlight">\(0.5 eV\)</span>.
+a number density of <span class="math notranslate nohighlight">\(n = 1.6 \times 10^{30} N/m^3\)</span> at a temperature <span class="math notranslate nohighlight">\(0.5 eV\)</span>.
 These parameters are defined in our <code class="docutils literal notranslate"><span class="pre">yaml</span></code> file by the block <code class="docutils literal notranslate"><span class="pre">Particles</span></code> and its attribute <code class="docutils literal notranslate"><span class="pre">species</span></code>,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Particles</span><span class="p">:</span>
     <span class="o">-</span> <span class="n">species</span><span class="p">:</span>
@@ -649,7 +522,7 @@ of <span class="math notranslate nohighlight">\(r_c\)</span> is close to optimal
 </pre></div>
 </div>
 <p>Since we have chosen <code class="docutils literal notranslate"><span class="pre">verbose</span> <span class="pre">=</span> <span class="pre">yes</span></code> this simulation will print to screen a progress bar thanks to the package <code class="docutils literal notranslate"><span class="pre">tqdm</span></code></p>
-<img alt="Figure not found" src="_static/assets/SimRun1.png" />
+<img alt="Figure not found" src="_images/SimRun1.png" />
 <p>Did you think that you could get away so easily? We need to check if our run is doing what we want it to do.</p>
 </div>
 <div class="section" id="id7">
@@ -670,7 +543,6 @@ of <span class="math notranslate nohighlight">\(r_c\)</span> is close to optimal
 </dd>
 </dl>
 </p>
->>>>>>> vacf_iccf_tools
 </div>
 </div>
 
@@ -696,11 +568,7 @@ of <span class="math notranslate nohighlight">\(r_c\)</span> is close to optimal
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-<<<<<<< HEAD
-        Last updated on Jun, 18, 2020.
-=======
         Last updated on Jun, 30, 2020.
->>>>>>> vacf_iccf_tools
       </span>
 
     </p>

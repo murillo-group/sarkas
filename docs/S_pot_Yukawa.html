@@ -36,11 +36,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-<<<<<<< HEAD
-    <link rel="next" title="S_thermostat module" href="S_thermostat.html" />
-=======
     <link rel="next" title="S_testing module" href="S_testing.html" />
->>>>>>> vacf_iccf_tools
     <link rel="prev" title="S_pot_QSP module" href="S_pot_QSP.html" /> 
 </head>
 
@@ -108,10 +104,7 @@
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_QSP.html">S_pot_QSP module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_pot_Yukawa module</a></li>
-<<<<<<< HEAD
-=======
 <li class="toctree-l2"><a class="reference internal" href="S_testing.html">S_testing module</a></li>
->>>>>>> vacf_iccf_tools
 <li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
@@ -193,46 +186,29 @@
 <p>Module for handling Yukawa interaction</p>
 <dl class="py function">
 <dt id="S_pot_Yukawa.Yukawa_force_P3M">
-<<<<<<< HEAD
-<code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">Yukawa_force_P3M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix_ij</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#Yukawa_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.Yukawa_force_P3M" title="Permalink to this definition">¶</a></dt>
-=======
 <code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">Yukawa_force_P3M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#Yukawa_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.Yukawa_force_P3M" title="Permalink to this definition">¶</a></dt>
->>>>>>> vacf_iccf_tools
 <dd><p>Calculates Potential and Force between two particles when the P3M algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<em>float</em>) – Distance between two particles.</p></li>
-<<<<<<< HEAD
-<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – Potential matrix. See setup function above.</p></li>
-=======
 <li><p><strong>pot_matrix</strong> (<em>array</em>) – Potential matrix. See setup function above.
 pot_matrix[0] : qi qj/(4pi esp0) Force factor between two particles.
 pot_matrix[1] : kappa = 1.0/lambda_TF. Same value for all species.
 pot_matrix[2] : Ewald parameter</p></li>
->>>>>>> vacf_iccf_tools
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>U_s_r</strong> (<em>float</em>) – Potential value</p></li>
-<<<<<<< HEAD
-<li><p><strong>fr</strong> (<em>float</em>) – Force between two particles calculated using eq.(22) in Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a></p></li>
-=======
 <li><p><strong>fr</strong> (<em>float</em>) – Force between two particles calculated using eq.(22) in Ref. <a class="reference internal" href="tutorial.html#dharuman2017" id="id1"><span>[Dharuman2017]</span></a></p></li>
->>>>>>> vacf_iccf_tools
 </ul>
 </p>
 </dd>
 </dl>
 <p class="rubric">References</p>
-<<<<<<< HEAD
-<dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id5">2</a>)</span></dt>
-=======
 <dl class="citation">
 <dt class="label" id="dharuman2017"><span class="brackets"><a class="fn-backref" href="#id1">Dharuman2017</a></span></dt>
->>>>>>> vacf_iccf_tools
 <dd><p><a class="reference external" href="https://doi.org/10.1063/1.4973842">G. Dharuman et al. J Chem Phys 146 024112 (2017)</a></p>
 </dd>
 </dl>
@@ -240,23 +216,15 @@ pot_matrix[2] : Ewald parameter</p></li>
 
 <dl class="py function">
 <dt id="S_pot_Yukawa.Yukawa_force_PP">
-<<<<<<< HEAD
-<code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">Yukawa_force_PP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix_ij</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#Yukawa_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.Yukawa_force_PP" title="Permalink to this definition">¶</a></dt>
-=======
 <code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">Yukawa_force_PP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#Yukawa_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.Yukawa_force_PP" title="Permalink to this definition">¶</a></dt>
->>>>>>> vacf_iccf_tools
 <dd><p>Calculates Potential and Force between two particles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<em>float</em>) – Distance between two particles.</p></li>
-<<<<<<< HEAD
-<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
-=======
 <li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.
 pot_matrix[0] : qi qj/(4pi esp0) Force factor between two particles.
 pot_matrix[1] : kappa = 1.0/lambda_TF or given as input. Same value for all species.</p></li>
->>>>>>> vacf_iccf_tools
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -270,45 +238,6 @@ pot_matrix[1] : kappa = 1.0/lambda_TF or given as input. Same value for all spec
 </dd></dl>
 
 <dl class="py function">
-<<<<<<< HEAD
-<dt id="S_pot_Yukawa.gf_opt">
-<code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">MGrid</span></em>, <em class="sig-param"><span class="n">aliases</span></em>, <em class="sig-param"><span class="n">BoxLv</span></em>, <em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em>, <em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">fourpie0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.gf_opt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. <a class="footnote-reference brackets" href="#id6" id="id3">2</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>MGrid</strong> (<em>array</em>) – number of mesh points in x,y,z</p></li>
-<li><p><strong>aliases</strong> (<em>array</em>) – number of aliases in each direction</p></li>
-<li><p><strong>BoxLv</strong> (<em>array</em>) – Length of simulation’s box in each direction</p></li>
-<li><p><strong>p</strong> (<em>int</em>) – Charge assignment order (CAO)</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – Potential matrix. It contains screening parameter and Ewald parameter. See potential matrix above.</p></li>
-<li><p><strong>rcut</strong> (<em>float</em>) – Cutoff distance for the PP calculation</p></li>
-<li><p><strong>fourpie0</strong> (<em>float</em>) – Potential factor.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>G_k</strong> (<em>array_like</em>) – optimal Green Function</p></li>
-<li><p><strong>kx_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the x-axis</p></li>
-<li><p><strong>ky_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the y-axis</p></li>
-<li><p><strong>kz_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the z-axis</p></li>
-<li><p><strong>PM_err</strong> (<em>float</em>) – Error in the force calculation due to the optimized Green’s function. eq.(28) of Ref. <a class="footnote-reference brackets" href="#id6" id="id4">2</a></p></li>
-<li><p><strong>PP_err</strong> (<em>float</em>) – Error in the force calculation due to the distance cutoff. eq.(30) of Ref. <a class="footnote-reference brackets" href="#id2" id="id5">1</a></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<dl class="footnote brackets">
-<dt class="label" id="id6"><span class="brackets">2</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id4">2</a>)</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1063/1.2932253">H.A. Stern et al. J Chem Phys 128, 214006 (2008)</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-=======
->>>>>>> vacf_iccf_tools
 <dt id="S_pot_Yukawa.setup">
 <code class="sig-prename descclassname">S_pot_Yukawa.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Yukawa.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Yukawa.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Yukawa’s parameters.</p>
@@ -322,17 +251,10 @@ pot_matrix[1] : kappa = 1.0/lambda_TF or given as input. Same value for all spec
 </dl>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<<<<<<< HEAD
-<dt class="label" id="id7"><span class="brackets">3</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.91.033104">Stanton and Murillo Phys Rev E 91 033104 (2015)</a></p>
-</dd>
-<dt class="label" id="id8"><span class="brackets">4</span></dt>
-=======
 <dt class="label" id="id2"><span class="brackets">3</span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.91.033104">Stanton and Murillo Phys Rev E 91 033104 (2015)</a></p>
 </dd>
 <dt class="label" id="id3"><span class="brackets">4</span></dt>
->>>>>>> vacf_iccf_tools
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.90.023104">T. Haxhimali et al. Phys Rev E 90 023104 (2014)</a></p>
 </dd>
 </dl>
@@ -348,11 +270,7 @@ pot_matrix[1] : kappa = 1.0/lambda_TF or given as input. Same value for all spec
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-<<<<<<< HEAD
-        <a href="S_thermostat.html" class="btn btn-neutral float-right" title="S_thermostat module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-=======
         <a href="S_testing.html" class="btn btn-neutral float-right" title="S_testing module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
->>>>>>> vacf_iccf_tools
       
       
         <a href="S_pot_QSP.html" class="btn btn-neutral float-left" title="S_pot_QSP module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -366,11 +284,7 @@ pot_matrix[1] : kappa = 1.0/lambda_TF or given as input. Same value for all spec
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-<<<<<<< HEAD
-        Last updated on Jun, 18, 2020.
-=======
         Last updated on Jun, 30, 2020.
->>>>>>> vacf_iccf_tools
       </span>
 
     </p>

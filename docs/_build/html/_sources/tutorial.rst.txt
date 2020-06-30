@@ -24,7 +24,7 @@ Particles
 The first step in any MD simulation is the creation of an input file containing all the relevant parameters
 of our simulation. We start by considering the physical parameter of our system. Assume we want to simulate
 a strongly coupled plasma comprised of :math:`N = 10\, 000` hydrogen ions with
-a number density of :math:`n = 1.6e+30 N/m^3` at a temperature :math:`0.5 eV`.
+a number density of :math:`n = 1.6 \times 10^{30} N/m^3` at a temperature :math:`0.5 eV`.
 These parameters are defined in our ``yaml`` file by the block ``Particles`` and its attribute ``species``,
 
 .. code-block:: python
