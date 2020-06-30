@@ -4,7 +4,7 @@ Module for handling the Particle-Mesh part of the force and potential calculatio
 """
 
 import numpy as np
-import numba as nb
+from numba import jit, njit
 import pyfftw
 
 # These "ignore" are needed because numba does not support pyfftw yet
@@ -16,13 +16,14 @@ warnings.simplefilter('ignore', category=NumbaWarning)
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
 
-@nb.njit
-def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
+@njit
+def force_optimized_green_function(MGrid, aliases, BoxLv, p, constants):
     """
-    Calculate the Optimized Green Function given by eq.(22) of Ref. [2]_.
+    Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008]_.
 
     Parameters
     ----------
+
     MGrid : array
         number of mesh points in x,y,z
 
@@ -35,14 +36,8 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
     p : int
         Charge assignment order (CAO)
 
-    pot_matrix : array
-        Potential matrix. It contains screening parameter and Ewald parameter. See potential matrix above.
-
-    rcut : float
-        Cutoff distance for the PP calculation
-
-    fourpie0 : float
-        Potential factor.
+    constants : array
+        Screening parameter, Ewald parameter, 4 pi eps0.
 
     Returns
     -------
@@ -66,11 +61,11 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
 
     References
     ----------
-    .. [2] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) <https://doi.org/10.1063/1.2932253>`_
+    .. [Stern2008] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) <https://doi.org/10.1063/1.2932253>`_
     """
-    kappa = pot_matrix[0]
-    Gew = pot_matrix[1]
-    rcut2 = rcut * rcut
+    kappa = constants[0]
+    Gew = constants[1]
+    fourpie0 = constants[2]
     mx_max = aliases[0]  # params.P3M.mx_max
     my_max = aliases[1]  # params.P3M.my_max
     mz_max = aliases[2]  # params.P3M.mz_max
@@ -181,13 +176,12 @@ def gf_opt(MGrid, aliases, BoxLv, p, pot_matrix, rcut, fourpie0):
                     # eq.(28) of Ref.[2]_
                     PM_err = PM_err + Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
-    # PP_err = 2.0 / np.sqrt(Lx * Ly * Lz * rcut) * np.exp(-0.25 * kappa_sq / Gew_sq) * np.exp(-Gew_sq * rcut2) / fourpie0
     PM_err = np.sqrt(PM_err) / (Lx * Ly * Lz) ** (1. / 3.)
 
     return G_k, kx_v, ky_v, kz_v, PM_err
 
 
-@nb.njit
+@njit
 def assgnmnt_func(cao, x):
     """ 
     Calculate the charge assignment function as given in Ref. [1]_ .
@@ -273,7 +267,7 @@ def assgnmnt_func(cao, x):
     return W
 
 
-@nb.njit
+@njit
 def calc_charge_dens(pos, Z, N, cao, Mx, My, Mz, hx, hy, hz):
     """ 
     Assigns Charges to Mesh Points.
@@ -319,15 +313,15 @@ def calc_charge_dens(pos, Z, N, cao, Mx, My, Mz, hx, hy, hz):
 
     rho_r = np.zeros((Mz, My, Mz))
 
-    #Mid point calculation
-    if cao% 2 == 0:
+    # Mid point calculation
+    if cao % 2 == 0:
         # Choose the midpoint between the two closest mesh point to the particle's position
         mid = 0.5
-        pshift = int( cao/2 - 1)
+        pshift = int(cao / 2 - 1)
     else:
         # Choose the mesh point closes to the particle
         mid = 0.0
-        pshift = int( cao/float(2.0) )
+        pshift = int(cao / float(2.0))
 
     for ipart in range(N):
 
@@ -396,7 +390,7 @@ def calc_charge_dens(pos, Z, N, cao, Mx, My, Mz, hx, hy, hz):
     return rho_r
 
 
-@nb.njit
+@njit
 def calc_field(phi_k, kx_v, ky_v, kz_v):
     """ 
     Calculates the Electric field in Fourier space.
@@ -435,7 +429,7 @@ def calc_field(phi_k, kx_v, ky_v, kz_v):
     return E_kx, E_ky, E_kz
 
 
-@nb.njit
+@njit
 def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, Z, N, cao, Mass, Mx, My, Mz, hx, hy, hz):
     """ 
     Calculates the long range part of particles' accelerations. 
@@ -578,8 +572,8 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, Z, N, cao, Mass, Mx, My, Mz, hx, hy, h
     return acc
 
 
-## FFTW version
-@nb.jit  # Numba does not support pyfftw yet, however, this decorator still speeds up the function.
+# FFTW version
+@jit  # Numba does not support pyfftw yet, however, this decorator still speeds up the function.
 def update(pos, Z, Mass, MGrid, Lv, G_k, kx_v, ky_v, kz_v, cao):
     """ 
     Calculate the long range part of particles' accelerations.

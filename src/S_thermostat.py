@@ -47,7 +47,7 @@ class Thermostat:
             self.species_masses = np.zeros(self.no_species)
             self.relaxation_timestep = params.Thermostat.timestep
             self.relaxation_rate = params.Thermostat.tau
-            self.T_desired = np.array(params.Thermostat.temperatures)
+            self.T_desired = params.Thermostat.temperatures
 
             for i in range(self.no_species):
                 self.species_np[i] = params.species[i].num

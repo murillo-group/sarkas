@@ -3,11 +3,13 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import time as timer
 import sys
+import  os
 from S_verbose import Verbose
 from S_params import Params
 from S_particles import Particles
 import S_calc_force_pp as force_pp
 import S_calc_force_pm as force_pm
+plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
 
 
 # Green's function for Yukawa potential
@@ -42,8 +44,8 @@ def force_error_approx(params, kappa):
     r_min = params.Potential.rc * 0.5
     r_max = params.Potential.rc * 1.5
 
-    alphas = params.aws * np.linspace(a_min, a_max, 200)
-    rcuts = np.linspace(r_min, r_max, 200) / params.aws
+    alphas = params.aws * np.linspace(a_min, a_max, 101)
+    rcuts = np.linspace(r_min, r_max, 101) / params.aws
 
     DeltaF_PM = np.zeros(len(alphas))
     DeltaF_PP = np.zeros((len(alphas), len(rcuts)))
@@ -106,9 +108,12 @@ def optimal_green_function(params):
     """
     # Dev notes. I am rewriting the functions here because I need to put a counter around it.
     # Optimized Green's Function
+
+    kappa = params.Potential.matrix[1, 0, 0] if params.Potential.type == "Yukawa" else 0.0
+    constants = np.array([kappa, params.P3M.G_ew, params.fourpie0])
     start = timer.time()
-    params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err = force_pm.gf_opt(
-        params.P3M.MGrid, params.P3M.aliases, params.Lv, params.P3M.cao, pot_mat, rcut, params.fourpie0)
+    params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err = force_pm.force_optimized_green_function(
+        params.P3M.MGrid, params.P3M.aliases, params.Lv, params.P3M.cao, constants)
     green_time = timer.time() - start
 
     # Notice that the equation was derived for a single component plasma.
@@ -118,7 +123,7 @@ def optimal_green_function(params):
     params.P3M.PM_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
     # Total force error
     params.P3M.F_err = np.sqrt(params.P3M.PM_err ** 2 + params.P3M.PP_err ** 2)
-    print_time_report("GF", green_time, 0)
+    return green_time
 
 
 def force_calculations(params, ptcls, loops):
@@ -180,8 +185,8 @@ def print_time_report(str_id, t, loops):
         print("\nOptimal Green's Function Time = {:1.3f} sec".format(t))
     elif str_id == "PP":
         print('\nAverage time of PP Force calculation over {} loops: {:1.3f} msec'.format(loops, t * 1e3))
-    elif str_id == "P3M":
-        print('\nAverage time of P3M Force calculation over {} loops: {:1.3f} msec'.format(loops, t * 1e3))
+    elif str_id == "PM":
+        print('\nAverage time of PM Force calculation over {} loops: {:1.3f} msec'.format(loops, t * 1e3))
 
 
 input_file = sys.argv[1]
@@ -194,16 +199,21 @@ except IndexError:
 params = Params()
 params.setup(input_file)
 
+# Change verbose params for printing to screen
 params.Control.verbose = True
 params.Control.pre_run = True
 
 verbose = Verbose(params)
 verbose.sim_setting_summary(params)  # simulation setting summary
 
+# Initialize particles and all their attributes. Needed for force calculation
+ptcls = Particles(params)
+params.Control.verbose = False # Turn it off so it doesnt print S_particles print statements
+ptcls.load(params)
+
 rcut = params.Potential.rc
 alpha = params.Potential.matrix[-1, 0, 0]
-kappa = params.Potential.matrix[0, 0, 0] if params.Potential.type == "Yukawa" else 0.0
-pot_mat = np.array([kappa, alpha])
+kappa = params.Potential.matrix[1, 0, 0] if params.Potential.type == "Yukawa" else 0.0
 
 # Calculate the analytical formula given in Dharuman et al.
 DeltaF_tot, Delta_F_PP, DeltaF_PM, rcuts, alphas = force_error_approx(params, kappa * params.aws)
@@ -211,68 +221,100 @@ DeltaF_tot, Delta_F_PP, DeltaF_PM, rcuts, alphas = force_error_approx(params, ka
 chosen_alpha = alpha * params.aws
 chosen_rcut = rcut / params.aws
 
+
+print('\n\n----------------- Time -----------------------')
+green_time = optimal_green_function(params)
+print_time_report("GF", green_time, 0)
+
+# Calculate the average over several force calculations
+PP_force_time, PM_force_time = force_calculations(params, ptcls, loops)
+# Calculate the mean excluding the first value because that time include numba compilation time
+PP_mean_time = np.mean(PP_force_time[1:])
+PM_mean_time = np.mean(PM_force_time[1:])
+print_time_report("PP", PP_mean_time, loops)
+print_time_report("PM", PM_mean_time, loops)
+
+eq_time = (PP_mean_time + PM_mean_time) * params.Control.Neq
+t_hrs = int(eq_time / 3600)
+t_min = int((eq_time - t_hrs * 3600) / 60)
+t_sec = int((eq_time - t_hrs * 3600 - t_min * 60))
+print('\nThermalization time ~ {} hrs {} mins {} secs'.format(t_hrs, t_min, t_sec))
+
+prod_time = (PP_mean_time + PM_mean_time) * params.Control.Nsteps
+t_hrs = int(prod_time / 3600)
+t_min = int((prod_time - t_hrs * 3600) / 60)
+t_sec = int((prod_time - t_hrs * 3600 - t_min * 60))
+print('Production time ~ {} hrs {} mins {} secs'.format(t_hrs, t_min, t_sec))
+
+tot_time = eq_time + prod_time
+t_hrs = int(tot_time / 3600)
+t_min = int((tot_time - t_hrs * 3600) / 60)
+t_sec = int((tot_time - t_hrs * 3600 - t_min * 60))
+print('Total run time ~ {} hrs {} mins {} secs \n'.format(t_hrs, t_min, t_sec))
+
+
 # Plot the results
+fig_path = os.path.join(params.Control.checkpoint_dir,'Pre_Run_Test')
+if not os.path.exists(fig_path):
+    os.mkdir(fig_path)
 fsz = 16
 lw = 2
-fig, ax = plt.subplots(1, 2, figsize=(12, 7))
-ax[0].plot(rcuts, DeltaF_tot[50, :], label=r'$\alpha = {:2.4f}$'.format(alphas[50]))
-ax[0].plot(rcuts, DeltaF_tot[57, :], label=r'$\alpha = {:2.4f}$'.format(alphas[57]))
-ax[0].plot(rcuts, DeltaF_tot[60, :], label=r'$\alpha = {:2.4f}$'.format(alphas[60]))
-ax[0].set_xlabel(r'$r_c/a_{ws}$', fontsize=fsz)
+fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
+ax[0].plot(rcuts, DeltaF_tot[30, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[30]))
+ax[0].plot(rcuts, DeltaF_tot[40, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[40]))
+ax[0].plot(rcuts, DeltaF_tot[50, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[50]))
+ax[0].plot(rcuts, DeltaF_tot[60, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[60]))
+ax[0].plot(rcuts, DeltaF_tot[70, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[70]))
+ax[0].set_ylabel(r'$\Delta F^{apprx}_{tot}$')
+ax[0].set_xlabel(r'$r_c/a_{ws}$')
 ax[0].set_yscale('log')
+ax[0].axvline(chosen_rcut, ls='--', c='k')
+ax[0].axhline(params.P3M.F_err, ls='--', c='k')
+if rcuts[-1]*params.aws > params.Lv.min():
+    ax[0].axvline(params.Lv.min()/params.aws, c='k', label=r'$L/2$')
 ax[0].grid(True, alpha=0.3)
-ax[0].tick_params(labelsize=fsz)
-ax[0].legend(loc='best', fontsize=fsz)
+# ax[0].tick_params(labelsize=fsz)
+ax[0].legend(loc='best')
 
 # ax[1].semilogy(alphas, DeltaF_PP[:,50,kp], lw = lwh, label = r'$\kappa = {:2.2f}$'.format(kappas[kp]))
 # ax[1].semilogy(alphas, DeltaF_PM[:,9], lw = lwh, label = r'$\kappa = {:2.2f}$'.format(kappas[9]))
-ax[1].plot(alphas, DeltaF_tot[:, 50], label=r'$r_c = {:2.4f}$'.format(rcuts[50]))
-ax[1].plot(alphas, DeltaF_tot[:, 60], label=r'$r_c = {:2.4f}$'.format(rcuts[60]))
-ax[1].plot(alphas, DeltaF_tot[:, 82], label=r'$r_c = {:2.4f}$'.format(rcuts[82]))
-ax[1].plot(alphas, DeltaF_tot[:, 150], label=r'$r_c = {:2.4f}$'.format(rcuts[150]))
-ax[1].set_xlabel(r'$\alpha \; a_{ws}$', fontsize=fsz)
+ax[1].plot(alphas, DeltaF_tot[:, 30], label=r'$r_c = {:2.4f}'.format(rcuts[30]) + ' a_{ws}$')
+ax[1].plot(alphas, DeltaF_tot[:, 40], label=r'$r_c = {:2.4f}'.format(rcuts[40]) + ' a_{ws}$')
+ax[1].plot(alphas, DeltaF_tot[:, 50], label=r'$r_c = {:2.4f}'.format(rcuts[50]) + ' a_{ws}$')
+ax[1].plot(alphas, DeltaF_tot[:, 60], label=r'$r_c = {:2.4f}'.format(rcuts[60]) + ' a_{ws}$')
+ax[1].plot(alphas, DeltaF_tot[:, 70], label=r'$r_c = {:2.4f}'.format(rcuts[70]) + ' a_{ws}$')
+ax[1].set_xlabel(r'$\alpha \; a_{ws}$')
 ax[1].set_yscale('log')
-ax[1].axvline(chosen_alpha)
+ax[1].axhline(params.P3M.F_err, ls='--', c='k')
+ax[1].axvline(chosen_alpha, ls='--', c='k')
 # ax[1].set_xscale('log')
-ax[1].tick_params(labelsize=fsz)
-ax[0].set_title(r'$N = {} \quad M = {}, \quad \kappa = {:1.3f}$'.format(params.total_num_ptcls,
-                                                                        params.P3M.MGrid[0],
-                                                                        kappa * params.aws), fontsize=fsz)
+# ax[1].tick_params(labelsize=fsz)
 ax[1].grid(True, alpha=0.3)
-ax[1].legend(loc='best', fontsize=fsz)
-fig.tight_layout()
+ax[1].legend(loc='best')
+fig.suptitle(r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(params.total_num_ptcls,
+                                                                                  params.P3M.MGrid[0],
+                                                                                  kappa*params.aws))
+fig.savefig(fig_path + 'ForceError_LinePlot_' + params.Control.fname_app + '.png')
 fig.show()
 
 r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
 cmps = 'viridis'
 origin = 'lower'
 levels = [1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
-fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+fig, ax = plt.subplots(1, 1, figsize=(10, 7))
 CS = ax.contourf(a_mesh, r_mesh, DeltaF_tot[:, :], norm=LogNorm(vmin=DeltaF_tot.min(), vmax=1), cmap=cmps)
 CS2 = ax.contour(CS, colors='w')
-ax.clabel(CS2, fmt='%1.0e', colors='w', fontsize=fsz)
+ax.clabel(CS2, fmt='%1.0e', colors='w')
 cbar = fig.colorbar(CS)
-cbar.ax.tick_params(labelsize=fsz)
+# cbar.ax.tick_params(labelsize=fsz)
 # Add the contour line levels to the colorbar
 # cbar.add_lines(CS2)
 ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
-ax.tick_params(labelsize=fsz)
-ax.set_xlabel(r'$\alpha \;a_{ws}$', fontsize=fsz)
-ax.set_ylabel(r'$r_c/a_{ws}$', fontsize=fsz)
-ax.set_title(r'$N = {} \quad M = {}, \quad \kappa = {:1.3f}$'.format(params.total_num_ptcls,
-                                                                     params.P3M.MGrid[0],
-                                                                     kappa * params.aws), fontsize=fsz)
+# ax.tick_params(labelsize=fsz)
+ax.set_xlabel(r'$\alpha \;a_{ws}$')
+ax.set_ylabel(r'$r_c/a_{ws}$')
+ax.set_title(r'$\Delta F^{apprx}_{tot}(r_c,\alpha)$' + '  for  $N = {}, \quad M = {}, \quad \kappa = {:1.3f}$'.format(
+    params.total_num_ptcls, params.P3M.MGrid[0], kappa * params.aws))
 fig.tight_layout()
+fig.savefig(fig_path + 'ForceError_ClrMap_' + params.Control.fname_app + '.png')
 fig.show()
-
-green_time = optimal_green_function(params)
-
-# Initialize particles and all the attributes needed for force calculation
-ptcls = Particles(params)
-ptcls.load(params)
-
-# Calculate the average over several force calculations
-PP_force_time, PM_force_time = force_calculations(params, ptcls, loops)
-# Calculate the mean excluding the first value because that time include numba compilation time
-print_time_report("PP", np.mean(PP_force_time[1:]), loops)
-print_time_report("P3M", np.mean(PM_force_time[1:]), loops)

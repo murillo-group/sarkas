@@ -210,6 +210,7 @@ class Params:
         open_axes_indx: array
             Indexes of axes with Open Boundary Conditions.
         """
+
         def __init__(self):
             self.pbc_axes = []
             self.mm_axes = []
@@ -543,7 +544,7 @@ class Params:
             QSP.setup(self, filename)
 
         if not self.BC.open_axes:
-            self.Potential.LL_on = 1 # linked list on
+            self.Potential.LL_on = 1  # linked list on
             if not hasattr(self.Potential, "rc"):
                 print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.Lv.min() / 2, "will be used as rc")
                 self.Potential.rc = self.Lv.min() / 2.
@@ -551,7 +552,7 @@ class Params:
 
             if self.Potential.method == "PP" and self.Potential.rc > self.Lv.min() / 2.:
                 print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.Lv.min() / 2, "will be used as rc")
-                self.Potential.rc = self.Lv.min()/ 2.
+                self.Potential.rc = self.Lv.min() / 2.
                 self.Potential.LL_on = 0  # linked list off
 
         return
@@ -607,9 +608,7 @@ class Params:
                                         self.species[ic].mass_density = float(value)
 
                                     if key == "temperature_eV":
-                                        # Conversion factor from eV to Kelvin
-                                        eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
-                                        self.species[ic].temperature = float(value) * eV2K
+                                        self.species[ic].temperature = float(value) * self.eV2K
 
                             if key == "load":
                                 for key, value in value.items():
@@ -687,6 +686,13 @@ class Params:
                             if key == 'timestep':
                                 # Number of timesteps to wait before turning on Berendsen
                                 self.Thermostat.timestep = int(value)
+
+                            if key == "temperatures_eV":
+                                self.Thermostat.temperatures = np.array(value) if isinstance(value, list) else np.array([value])
+                                self.Thermostat.temperatures *= self.eV2K
+                            if key == "temperatures":
+                                # Conversion factor from eV to Kelvin
+                                self.Thermostat.temperatures = np.array(value) if isinstance(value, list) else np.array([value])
 
                 if lkey == "Magnetized":
                     self.Magnetic.on = True
@@ -854,12 +860,10 @@ class Params:
                 self.species[ic].num_density = self.species[ic].mass_density * Av / self.species[ic].atomic_weight
                 self.total_num_density += self.species[ic].num_density
         # Concentrations arrays and ions' total temperature
-        nT = 0.
+        self.Ti = 0.0
         for ic in range(self.num_species):
             self.species[ic].concentration = self.species[ic].num / self.total_num_ptcls
-            nT += self.species[ic].concentration * self.species[ic].temperature
-
-        self.Ti = nT
+            self.Ti += self.species[ic].concentration * self.species[ic].temperature
 
         # Wigner-Seitz radius calculated from the total density
         self.aws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)

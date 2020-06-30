@@ -9,9 +9,8 @@ Particles:
         temperature: 2.636325e+03
 
     - load:
-        method: restart    # loading method
+        method: random_no_reject    # loading method
         rand_seed: 123456789        # random seed
-        restart_step: 50000
 
 Potential:
     - type: Coulomb                  # potential type

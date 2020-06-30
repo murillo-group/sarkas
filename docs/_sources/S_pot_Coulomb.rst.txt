@@ -1,7 +1,7 @@
-S\_force\_error module
+S\_pot\_Coulomb module
 ======================
 
-.. automodule:: S_force_error
+.. automodule:: S_pot_Coulomb
    :members:
    :undoc-members:
    :show-inheritance:

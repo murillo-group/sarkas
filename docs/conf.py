@@ -36,8 +36,8 @@ extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
+    'sphinxcontrib.bibtex',
     'sphinx.ext.intersphinx'
-
 ]
 
 # Napoleon settings
