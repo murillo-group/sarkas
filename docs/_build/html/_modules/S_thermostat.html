@@ -164,15 +164,48 @@
 
 
 <div class="viewcode-block" id="Thermostat"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Thermostat">[docs]</a><span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    params : class</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kB : float</span>
+<span class="sd">        Boltzmann constant in correct units.</span>
+
+<span class="sd">    no_species : int</span>
+<span class="sd">        Total number of species.</span>
+
+<span class="sd">    species_np : array</span>
+<span class="sd">        Number of particles of each species.</span>
+
+<span class="sd">    species_mass : array</span>
+<span class="sd">        Mass of each species.</span>
+
+<span class="sd">    relaxation_rate: float</span>
+<span class="sd">        Berendsen parameter tau.</span>
+
+<span class="sd">    relaxation_timestep: int</span>
+<span class="sd">        Timestep at which thermostat is turned on.</span>
+
+<span class="sd">    T_desired: array</span>
+<span class="sd">        Thermostating temperature of each species.</span>
+
+<span class="sd">    type: str</span>
+<span class="sd">        Thermostat type</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">no_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_species</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_species</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">therm_timestep</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">timestep</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">therm_tau</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">tau</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">T_desired</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">timestep</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">tau</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span>
 
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_species</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
@@ -187,9 +220,20 @@
 <<<<<<< HEAD
 
 <div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update particles&#39; velocities according to the chosen thermostat</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vel : ndarray</span>
+<span class="sd">            Particles&#39; velocities to be rescaled.</span>
+
+<span class="sd">        it : int</span>
+<span class="sd">            Current timestep.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">K</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">therm_timestep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">therm_tau</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
-        <span class="k">return</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span></div></div>
 
 =======
 
@@ -220,8 +264,8 @@
 <span class="sd">    vel : array</span>
 <span class="sd">        Particles&#39; velocities to rescale.</span>
 
-<span class="sd">    T_desired : float</span>
-<span class="sd">        Target temperature.</span>
+<span class="sd">    T_desired : array</span>
+<span class="sd">        Target temperature of each species.</span>
 
 <span class="sd">    tau : float</span>
 <span class="sd">        Scale factor.</span>
@@ -246,9 +290,9 @@
         <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">species_np</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">it</span> <span class="o">&lt;=</span> <span class="n">therm_timestep</span><span class="p">:</span>
-            <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">T_desired</span> <span class="o">/</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">T_desired</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">T_desired</span> <span class="o">/</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">tau</span><span class="p">)</span>  <span class="c1"># eq.(11)</span>
+            <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">T_desired</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">tau</span><span class="p">)</span>  <span class="c1"># eq.(11)</span>
 
         <span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">fact</span>
         <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
@@ -316,8 +360,8 @@
 <span class="sd">        Mass of each species.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">),</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">),</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
     <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)):</span>
         <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
@@ -330,9 +374,8 @@
         <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)):</span>
             <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
             <span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-=</span> <span class="n">P</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span> <span class="o">*</span> <span class="n">masses</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span>
-            <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
+            <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span></div>
 
-    <span class="k">return</span></div>
 </pre></div>
 
            </div>
@@ -348,10 +391,14 @@
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

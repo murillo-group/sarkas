@@ -35,7 +35,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="S_particles module" href="S_particles.html" />
+    <link rel="prev" title="S_integrator module" href="S_integrator.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -79,11 +81,42 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">S_params module</a></li>
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
-</div>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pm.html">S_calc_force_pm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pp.html">S_calc_force_pp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_checkpoint.html">S_checkpoint module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">S_params module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_QSP.html">S_pot_QSP module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_testing.html">S_testing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+</ul>
+
             
           
         </div>
@@ -126,6 +159,8 @@
   <ul class="wy-breadcrumbs">
     
       <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">src</a> &raquo;</li>
         
       <li>S_params module</li>
     
@@ -177,42 +212,9 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="S_params.Params.d">
-<code class="sig-name descname">d</code><a class="headerlink" href="#S_params.Params.d" title="Permalink to this definition">¶</a></dt>
+<dt id="S_params.Params.dimensions">
+<code class="sig-name descname">dimensions</code><a class="headerlink" href="#S_params.Params.dimensions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of non-zero dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="S_params.Params.dq">
-<code class="sig-name descname">dq</code><a class="headerlink" href="#S_params.Params.dq" title="Permalink to this definition">¶</a></dt>
-<dd><p>Minimum wavenumber defined as <span class="math notranslate nohighlight">\(2\pi/L\)</span> .</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="S_params.Params.dt">
-<code class="sig-name descname">dt</code><a class="headerlink" href="#S_params.Params.dt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Timestep.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="S_params.Params.dump_step">
-<code class="sig-name descname">dump_step</code><a class="headerlink" href="#S_params.Params.dump_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Snapshot interval.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>int</p>
@@ -443,7 +445,7 @@
 <dl class="py attribute">
 <dt id="S_params.Params.L">
 <code class="sig-name descname">L</code><a class="headerlink" href="#S_params.Params.L" title="Permalink to this definition">¶</a></dt>
-<dd><p>Box length.</p>
+<dd><p>Smallest box length.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -496,23 +498,34 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="S_params.Params.Lmax_v">
-<code class="sig-name descname">Lmax_v</code><a class="headerlink" href="#S_params.Params.Lmax_v" title="Permalink to this definition">¶</a></dt>
-<dd><p>Maximum box length in each direction.</p>
+<dt id="S_params.Params.e1">
+<code class="sig-name descname">e1</code><a class="headerlink" href="#S_params.Params.e1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit vector in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>array, shape(3)</p>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="S_params.Params.Lmin_v">
-<code class="sig-name descname">Lmin_v</code><a class="headerlink" href="#S_params.Params.Lmin_v" title="Permalink to this definition">¶</a></dt>
-<dd><p>Minimum box length in each direction.</p>
+<dt id="S_params.Params.e2">
+<code class="sig-name descname">e2</code><a class="headerlink" href="#S_params.Params.e2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit vector in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>array, shape(3)</p>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.e3">
+<code class="sig-name descname">e3</code><a class="headerlink" href="#S_params.Params.e3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit vector in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -521,28 +534,6 @@
 <dt id="S_params.Params.N">
 <code class="sig-name descname">N</code><a class="headerlink" href="#S_params.Params.N" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total number of particles same as <code class="docutils literal notranslate"><span class="pre">tot_num_ptcls</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="S_params.Params.Neq">
-<code class="sig-name descname">Neq</code><a class="headerlink" href="#S_params.Params.Neq" title="Permalink to this definition">¶</a></dt>
-<dd><p>Total number of equilibration steps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="S_params.Params.Nq">
-<code class="sig-name descname">Nq</code><a class="headerlink" href="#S_params.Params.Nq" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of wavenumbers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>int</p>
@@ -568,17 +559,6 @@
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="S_params.Params.q_max">
-<code class="sig-name descname">q_max</code><a class="headerlink" href="#S_params.Params.q_max" title="Permalink to this definition">¶</a></dt>
-<dd><p>Maximum wavenumber.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -650,20 +630,9 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="S_params.Params.units">
-<code class="sig-name descname">units</code><a class="headerlink" href="#S_params.Params.units" title="Permalink to this definition">¶</a></dt>
-<dd><p>Choice of units mks or cgs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
 <dt id="S_params.Params.wp">
 <code class="sig-name descname">wp</code><a class="headerlink" href="#S_params.Params.wp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Total Plasma frequency.</p>
+<dd><p>Total Plasma frequency. Defined in Potential module.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -674,12 +643,85 @@
 <dl class="py attribute">
 <dt id="S_params.Params.force">
 <code class="sig-name descname">force</code><a class="headerlink" href="#S_params.Params.force" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for force calculation.</p>
+<dd><p>Function for force calculation. Assigned in Potential module.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>func</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="S_params.Params.BC">
+<em class="property">class </em><code class="sig-name descname">BC</code><a class="reference internal" href="_modules/S_params.html#Params.BC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_params.Params.BC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Boundary Conditions.</p>
+<dl class="py attribute">
+<dt id="S_params.Params.BC.pbc_axes">
+<code class="sig-name descname">pbc_axes</code><a class="headerlink" href="#S_params.Params.BC.pbc_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Axes with Periodic Boundary Conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.BC.mm_axes">
+<code class="sig-name descname">mm_axes</code><a class="headerlink" href="#S_params.Params.BC.mm_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Axes with Momentum Mirror Conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.BC.open_axes">
+<code class="sig-name descname">open_axes</code><a class="headerlink" href="#S_params.Params.BC.open_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Axes with Open Boundary Conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.BC.pbc_axes_indx">
+<code class="sig-name descname">pbc_axes_indx</code><a class="headerlink" href="#S_params.Params.BC.pbc_axes_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indexes of axes with Periodic Boundary Conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.BC.mm_axes_indx">
+<code class="sig-name descname">mm_axes_indx</code><a class="headerlink" href="#S_params.Params.BC.mm_axes_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indexes of axes with Momentum Mirror Conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.BC.open_axes_indx">
+<code class="sig-name descname">open_axes_indx</code><a class="headerlink" href="#S_params.Params.BC.open_axes_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indexes of axes with Open Boundary Conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -743,9 +785,10 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="S_params.Params.Control.np_per_boxlength">
-<code class="sig-name descname">np_per_boxlength</code><a class="headerlink" href="#S_params.Params.Control.np_per_boxlength" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of particles per box length. Note that :math: <cite>N_x x N_y x N_z = N_{tot}</cite></p>
+<dt id="S_params.Params.Control.np_per_side">
+<code class="sig-name descname">np_per_side</code><a class="headerlink" href="#S_params.Params.Control.np_per_side" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of particles per box length. Default= :math: <cite>N_{tot}^{1/3}</cite>
+Note that :math: <cite>N_x x N_y x N_z = N_{tot}</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>array</p>
@@ -756,7 +799,7 @@
 <dl class="py attribute">
 <dt id="S_params.Params.Control.writexyz">
 <code class="sig-name descname">writexyz</code><a class="headerlink" href="#S_params.Params.Control.writexyz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flag for XYZ file for OVITO. “no” or “yes”.</p>
+<dd><p>Flag for XYZ file for OVITO. Default = False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -778,7 +821,8 @@
 <dl class="py attribute">
 <dt id="S_params.Params.Control.checkpoint_dir">
 <code class="sig-name descname">checkpoint_dir</code><a class="headerlink" href="#S_params.Params.Control.checkpoint_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Directory to store simulation’s output files.</p>
+<dd><p>Path to the directory where the outputs of the current simulation will be stored.
+Default = “Simulations/UnNamedRun”</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -789,7 +833,41 @@
 <dl class="py attribute">
 <dt id="S_params.Params.Control.log_file">
 <code class="sig-name descname">log_file</code><a class="headerlink" href="#S_params.Params.Control.log_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>File name for log output.</p>
+<dd><p>File name for log output. Default = log.out</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.Control.pre_run">
+<code class="sig-name descname">pre_run</code><a class="headerlink" href="#S_params.Params.Control.pre_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for initial estimation of simulation parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.Control.simulations_dir">
+<code class="sig-name descname">simulations_dir</code><a class="headerlink" href="#S_params.Params.Control.simulations_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the directory where all future simulations will be stored. Default = cwd +  “Simulations”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.Control.dump_dir">
+<code class="sig-name descname">dump_dir</code><a class="headerlink" href="#S_params.Params.Control.dump_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the directory where simulations’ dumps will be stored.
+Default = “Simulations/UnNamedRun/Particles_Data”</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -892,6 +970,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.Magnetic.Bfield">
+<code class="sig-name descname">Bfield</code><a class="headerlink" href="#S_params.Params.Magnetic.Bfield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strength of Magnetic Field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1369,6 +1458,15 @@
           </div>
           <footer>
   
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="S_particles.html" class="btn btn-neutral float-right" title="S_particles module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="S_integrator.html" class="btn btn-neutral float-left" title="S_integrator module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
 
   <hr/>
 
@@ -1377,10 +1475,14 @@
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>
@@ -1407,7 +1509,32 @@
   
   
     
-   
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
 
 </body>
 </html>

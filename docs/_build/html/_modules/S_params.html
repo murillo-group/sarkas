@@ -161,6 +161,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 <span class="kn">import</span> <span class="nn">S_pot_Coulomb</span> <span class="k">as</span> <span class="nn">Coulomb</span>
@@ -183,17 +184,8 @@
 <span class="sd">        box_volume : float</span>
 <span class="sd">            Box volume.</span>
 
-<span class="sd">        d : int</span>
+<span class="sd">        dimensions : int</span>
 <span class="sd">            Number of non-zero dimensions.</span>
-<span class="sd">        </span>
-<span class="sd">        dq : float</span>
-<span class="sd">            Minimum wavenumber defined as :math:`2\pi/L` .</span>
-<span class="sd">        </span>
-<span class="sd">        dt : int</span>
-<span class="sd">            Timestep.</span>
-
-<span class="sd">        dump_step : int</span>
-<span class="sd">            Snapshot interval.</span>
 
 <span class="sd">        fourpie0: float</span>
 <span class="sd">            Electrostatic constant :math: `4\pi \espilon_0`.</span>
@@ -256,7 +248,7 @@
 <span class="sd">            Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2` .</span>
 <span class="sd">        </span>
 <span class="sd">        L : float</span>
-<span class="sd">            Box length.</span>
+<span class="sd">            Smallest box length.</span>
 
 <span class="sd">        Lx : float</span>
 <span class="sd">            Box length in the :math:`x` direction.</span>
@@ -270,20 +262,17 @@
 <span class="sd">        Lv : array, shape(3)</span>
 <span class="sd">            Box length in each direction.</span>
 
-<span class="sd">        Lmax_v : array, shape(3)</span>
-<span class="sd">            Maximum box length in each direction.</span>
+<span class="sd">        e1 : float</span>
+<span class="sd">            Unit vector in the :math:`x` direction.</span>
 
-<span class="sd">        Lmin_v : array, shape(3)</span>
-<span class="sd">            Minimum box length in each direction.</span>
-<span class="sd">        </span>
+<span class="sd">        e2 : float</span>
+<span class="sd">            Unit vector in the :math:`y` direction.</span>
+
+<span class="sd">        e3 : float</span>
+<span class="sd">            Unit vector in the :math:`z` direction.</span>
+
 <span class="sd">        N : int</span>
 <span class="sd">            Total number of particles same as ``tot_num_ptcls``.</span>
-<span class="sd">        </span>
-<span class="sd">        Neq : int</span>
-<span class="sd">            Total number of equilibration steps.</span>
-
-<span class="sd">        Nq : int</span>
-<span class="sd">            Number of wavenumbers.</span>
 
 <span class="sd">        P3M : class</span>
 <span class="sd">            P3M algorithm&#39;s parameters.</span>
@@ -291,9 +280,6 @@
 <span class="sd">        ptcls_input_file : str</span>
 <span class="sd">            User defined input file containing particles&#39; data.</span>
 
-<span class="sd">        q_max : int</span>
-<span class="sd">            Maximum wavenumber.</span>
-<span class="sd">        </span>
 <span class="sd">        Te : float</span>
 <span class="sd">            Equilibrium electron temperature. Defined in Potential module.</span>
 
@@ -311,15 +297,12 @@
 
 <span class="sd">        total_num_ptcls : int</span>
 <span class="sd">            Total number of particles. Calculated from the sum of ``Species.num``.</span>
-<span class="sd">        </span>
-<span class="sd">        units : str</span>
-<span class="sd">            Choice of units mks or cgs.</span>
 
 <span class="sd">        wp : float</span>
-<span class="sd">            Total Plasma frequency.</span>
+<span class="sd">            Total Plasma frequency. Defined in Potential module.</span>
 
 <span class="sd">        force : func</span>
-<span class="sd">            Function for force calculation.</span>
+<span class="sd">            Function for force calculation. Assigned in Potential module.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -327,6 +310,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">J2erg</span> <span class="o">=</span> <span class="mf">1.0e+7</span>  <span class="c1"># erg/J</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eps0</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">epsilon_0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps0</span>
@@ -350,6 +336,7 @@
         <span class="c1">#</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">P3M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">P3M</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="p">()</span>
@@ -357,6 +344,38 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Langevin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Langevin</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">PostProcessing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PostProcessing</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Params.BC"><a class="viewcode-back" href="../S_params.html#S_params.Params.BC">[docs]</a>    <span class="k">class</span> <span class="nc">BC</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Boundary Conditions.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pbc_axes : list</span>
+<span class="sd">            Axes with Periodic Boundary Conditions.</span>
+
+<span class="sd">        mm_axes : list</span>
+<span class="sd">            Axes with Momentum Mirror Conditions.</span>
+
+<span class="sd">        open_axes: list</span>
+<span class="sd">            Axes with Open Boundary Conditions.</span>
+
+<span class="sd">        pbc_axes_indx : array</span>
+<span class="sd">            Indexes of axes with Periodic Boundary Conditions.</span>
+
+<span class="sd">        mm_axes_indx : array</span>
+<span class="sd">            Indexes of axes with Momentum Mirror Conditions.</span>
+
+<span class="sd">        open_axes_indx: array</span>
+<span class="sd">            Indexes of axes with Open Boundary Conditions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pbc_axes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mm_axes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">open_axes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pbc_axes_indx</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mm_axes_indx</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">open_axes_indx</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 <div class="viewcode-block" id="Params.Species"><a class="viewcode-back" href="../S_params.html#S_params.Params.Species">[docs]</a>    <span class="k">class</span> <span class="nc">Species</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot; </span>
@@ -396,15 +415,18 @@
 
 <span class="sd">        Attributes</span>
 <span class="sd">        ----------</span>
-<span class="sd">            on : bool</span>
-<span class="sd">                Flag for magnetized plasma. </span>
+<span class="sd">        on : bool</span>
+<span class="sd">            Flag for magnetized plasma.</span>
 
-<span class="sd">            elec_therm : int</span>
-<span class="sd">                Thermalize electrostatic forces first? </span>
-<span class="sd">                0 = False, 1 = True (default).</span>
-<span class="sd">            </span>
-<span class="sd">            Neq_mag : int</span>
-<span class="sd">                Number of equilibration steps with magnetic field on.</span>
+<span class="sd">        elec_therm : int</span>
+<span class="sd">            Thermalize electrostatic forces first?</span>
+<span class="sd">            0 = False, 1 = True (default).</span>
+
+<span class="sd">        Neq_mag : int</span>
+<span class="sd">            Number of equilibration steps with magnetic field on.</span>
+
+<span class="sd">        Bfield : float</span>
+<span class="sd">            Strength of Magnetic Field.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -589,20 +611,32 @@
 <span class="sd">            dump_step : int</span>
 <span class="sd">                Snapshot interval.</span>
 
-<span class="sd">            np_per_boxlength : array</span>
-<span class="sd">                Number of particles per box length. Note that :math: `N_x x N_y x N_z = N_{tot}`</span>
+<span class="sd">            np_per_side : array</span>
+<span class="sd">                Number of particles per box length. Default= :math: `N_{tot}^{1/3}`</span>
+<span class="sd">                Note that :math: `N_x x N_y x N_z = N_{tot}`</span>
 
 <span class="sd">            writexyz : str</span>
-<span class="sd">                Flag for XYZ file for OVITO. &quot;no&quot; or &quot;yes&quot;.</span>
+<span class="sd">                Flag for XYZ file for OVITO. Default = False.</span>
 
 <span class="sd">            verbose : str</span>
 <span class="sd">                Flag for verbose screen output.</span>
 <span class="sd">            </span>
 <span class="sd">            checkpoint_dir : str</span>
-<span class="sd">                Directory to store simulation&#39;s output files.</span>
+<span class="sd">                Path to the directory where the outputs of the current simulation will be stored.</span>
+<span class="sd">                Default = &quot;Simulations/UnNamedRun&quot;</span>
 
 <span class="sd">            log_file : str</span>
-<span class="sd">                File name for log output.</span>
+<span class="sd">                File name for log output. Default = log.out</span>
+
+<span class="sd">            pre_run : bool</span>
+<span class="sd">                Flag for initial estimation of simulation parameters.</span>
+
+<span class="sd">            simulations_dir : str</span>
+<span class="sd">                Path to the directory where all future simulations will be stored. Default = cwd +  &quot;Simulations&quot;</span>
+
+<span class="sd">            dump_dir : str</span>
+<span class="sd">                Path to the directory where simulations&#39; dumps will be stored.</span>
+<span class="sd">                Default = &quot;Simulations/UnNamedRun/Particles_Data&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -611,14 +645,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Nsteps</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Neq</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">BC</span> <span class="o">=</span> <span class="s2">&quot;periodic&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">screen_output</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">writexyz</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="s2">&quot;Checkpoint&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">+</span> <span class="s2">&quot;/log.out&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">np_per_boxlength</span> <span class="o">=</span> <span class="p">[]</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writexyz</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">simulations_dir</span> <span class="o">=</span> <span class="s2">&quot;Simulations&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span> <span class="o">=</span> <span class="s2">&quot;Particles_Data&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="s2">&quot;UnNamedRun&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;log.out&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pre_run</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Params.PostProcessing"><a class="viewcode-back" href="../S_params.html#S_params.Params.PostProcessing">[docs]</a>    <span class="k">class</span> <span class="nc">PostProcessing</span><span class="p">:</span>
 
@@ -666,20 +701,20 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;QSP&quot;</span><span class="p">:</span>
             <span class="n">QSP</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># linked list on</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="p">,</span> <span class="s2">&quot;rc&quot;</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: The cut-off radius is not defined. L/2 = &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;will be used as rc&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># linked list off</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># linked list on</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="p">,</span> <span class="s2">&quot;rc&quot;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: The cut-off radius is not defined. L/2 = &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;will be used as rc&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># linked list off</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: The cut-off radius is &gt; L/2. L/2 = &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;will be used as rc&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">/</span> <span class="mf">2.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># linked list off</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: The cut-off radius is &gt; L/2. L/2 = &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;will be used as rc&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># linked list off</span>
 
         <span class="k">return</span></div>
 
-    <span class="c1"># read input data which does not depend on potential type. </span>
 <div class="viewcode-block" id="Params.common_parser"><a class="viewcode-back" href="../S_params.html#S_params.Params.common_parser">[docs]</a>    <span class="k">def</span> <span class="nf">common_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse common parameters from input file</span>
@@ -731,9 +766,7 @@
                                         <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">mass_density</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;temperature_eV&quot;</span><span class="p">:</span>
-                                        <span class="c1"># Conversion factor from eV to Kelvin</span>
-                                        <span class="n">eV2K</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;electron volt-kelvin relationship&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="n">eV2K</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eV2K</span>
 
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;load&quot;</span><span class="p">:</span>
                                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -796,6 +829,10 @@
                         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">value</span>
+
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;thermostating_temperatures&#39;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">value</span>
+
                             <span class="c1"># If Berendsen</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;tau&#39;</span><span class="p">:</span>
                                 <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
@@ -807,6 +844,13 @@
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;timestep&#39;</span><span class="p">:</span>
                                 <span class="c1"># Number of timesteps to wait before turning on Berendsen</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">timestep</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;temperatures_eV&quot;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">value</span><span class="p">])</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eV2K</span>
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;temperatures&quot;</span><span class="p">:</span>
+                                <span class="c1"># Conversion factor from eV to Kelvin</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">value</span><span class="p">])</span>
 
                 <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Magnetized&quot;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span> <span class="o">=</span> <span class="kc">True</span>
@@ -821,7 +865,7 @@
 
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;electrostatic_thermalization&quot;</span><span class="p">:</span>
                                 <span class="c1"># 1 = true, 0 = false</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">elec_therm</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">elec_therm</span> <span class="o">=</span> <span class="n">value</span>
 
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;Neq_mag&quot;</span><span class="p">:</span>
                                 <span class="c1"># Number of equilibration of magnetic degrees of freedom</span>
@@ -852,15 +896,17 @@
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;dsf_no_ka_values&#39;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">PostProcessing</span><span class="o">.</span><span class="n">dsf_no_ka_values</span> <span class="o">=</span> <span class="n">value</span>
 
-                <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;BoundaryCondition&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;BoundaryConditions&quot;</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">]:</span>
                         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                            <span class="c1"># Type</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;periodic&quot;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">pbc_axes</span> <span class="o">=</span> <span class="n">value</span>
 
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;momentum_mirror&quot;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">mm_axes</span> <span class="o">=</span> <span class="n">value</span>
+
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;open&quot;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes</span> <span class="o">=</span> <span class="n">value</span>
 
                 <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Control&quot;</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">]:</span>
@@ -881,16 +927,8 @@
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;Neq&quot;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">Neq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-                            <span class="c1"># Periodic Boundary Condition</span>
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;BC&quot;</span><span class="p">:</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">BC</span> <span class="o">=</span> <span class="n">value</span>
-                                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">BC</span> <span class="o">==</span> <span class="s2">&quot;periodic&quot;</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span> <span class="o">=</span> <span class="mi">1</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span> <span class="o">=</span> <span class="mi">0</span>
-
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;Np_per_boxlength&quot;</span><span class="p">:</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_boxlength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;Np_per_side&quot;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
                             <span class="c1"># Saving interval</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;dump_step&quot;</span><span class="p">:</span>
@@ -911,19 +949,37 @@
                                     <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="mi">1</span>
 
                             <span class="c1"># Directory where to store Checkpoint files</span>
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;simulations_dir&quot;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">simulations_dir</span> <span class="o">=</span> <span class="n">value</span>
+
+                            <span class="c1"># Directory where to store Checkpoint files</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;output_dir&quot;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">=</span> <span class="n">value</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">value</span>
 
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;dump_dir&quot;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dump_dir</span> <span class="o">=</span> <span class="n">value</span>
+
                             <span class="c1"># Filenames appendix</span>
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;fname_app&quot;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;job_id&quot;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">=</span> <span class="n">value</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span>
 
         <span class="c1"># Check for conflicts in case of magnetic field</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">elec_therm</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">elec_therm</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">mag_type</span> <span class="o">=</span> <span class="n">value</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s1">&#39;Verlet&#39;</span>
+
+        <span class="c1"># Check for conflicts in directories</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">simulations_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">simulations_dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">simulations_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dump_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">)</span>
 
         <span class="k">return</span></div>
 
@@ -962,12 +1018,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">mass_density</span> <span class="o">*</span> <span class="n">Av</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">atomic_weight</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
         <span class="c1"># Concentrations arrays and ions&#39; total temperature</span>
-        <span class="n">nT</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ti</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span>
-            <span class="n">nT</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">Ti</span> <span class="o">=</span> <span class="n">nT</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ti</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span>
 
         <span class="c1"># Wigner-Seitz radius calculated from the total density</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
@@ -1004,13 +1058,13 @@
 
         <span class="c1"># Simulation Box Parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_boxlength</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_boxlength</span><span class="p">))</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">))</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of particles per dimension does not match total number of particles.&quot;</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_boxlength</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_boxlength</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_boxlength</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
@@ -1029,26 +1083,38 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ti</span>
 
-        <span class="c1"># # boundary Conditions</span>
-        <span class="c1"># if hasattr(self.BC, &quot;pbc_axes&quot;):</span>
-        <span class="c1">#     for (ij,bc) in enumerate(self.BC.pbc_axes):</span>
-        <span class="c1">#         if bc == &quot;x&quot;:</span>
-        <span class="c1">#             self.BC.pbc_axes_indx[ij] = 0</span>
-        <span class="c1">#         elif bc == &quot;y&quot;:</span>
-        <span class="c1">#             self.BC.pbc_axes_indx[ij] = 1</span>
-        <span class="c1">#         elif bc == &quot;z&quot;:</span>
-        <span class="c1">#             self.BC.pbc_axes_indx[ij] = 2</span>
-        <span class="c1">#</span>
-        <span class="c1"># if hasattr(self.BC, &quot;mm_axes&quot;):</span>
-        <span class="c1">#     self.BC.mm_axes_indx = np.zeros( len(self.BC.mm_axes), dtype=np.int)</span>
-        <span class="c1">#     for (ij,bc) in enumerate(self.BC.mm_axes):</span>
-        <span class="c1">#         if bc == &quot;x&quot;:</span>
-        <span class="c1">#             self.BC.mm_axes_indx[ij] = 0</span>
-        <span class="c1">#         elif bc == &quot;y&quot;:</span>
-        <span class="c1">#             self.BC.mm_axes_indx[ij] = 1</span>
-        <span class="c1">#         elif bc == &quot;z&quot;:</span>
-        <span class="c1">#             self.BC.mm_axes_indx[ij] = 2</span>
+        <span class="c1"># boundary Conditions</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">pbc_axes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">pbc_axes_indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">pbc_axes</span><span class="p">))</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">ij</span><span class="p">,</span> <span class="n">bc</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">pbc_axes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">pbc_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">pbc_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">pbc_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">mm_axes</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Only Periodic Boundary Conditions are supported. Bye!&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">mm_axes_indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">mm_axes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">ij</span><span class="p">,</span> <span class="n">bc</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">mm_axes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">mm_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">mm_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">mm_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes_indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">ij</span><span class="p">,</span> <span class="n">bc</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">bc</span> <span class="o">==</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes_indx</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="k">return</span></div></div>
 </pre></div>
 
@@ -1065,10 +1131,14 @@
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

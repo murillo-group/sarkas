@@ -35,7 +35,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="S_pot_Yukawa module" href="S_pot_Yukawa.html" />
+    <link rel="prev" title="S_pot_Moliere module" href="S_pot_Moliere.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -79,11 +81,42 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">S_pot_QSP module</a></li>
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
-</div>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pm.html">S_calc_force_pm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pp.html">S_calc_force_pp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_checkpoint.html">S_checkpoint module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_EGS.html">S_pot_EGS module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">S_pot_QSP module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_testing.html">S_testing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+</ul>
+
             
           
         </div>
@@ -127,6 +160,8 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
+          <li><a href="modules.html">src</a> &raquo;</li>
+        
       <li>S_pot_QSP module</li>
     
     
@@ -148,34 +183,39 @@
             
   <div class="section" id="module-S_pot_QSP">
 <span id="s-pot-qsp-module"></span><h1>S_pot_QSP module<a class="headerlink" href="#module-S_pot_QSP" title="Permalink to this headline">¶</a></h1>
-<p>Module for handling the Quantum Statistical Potential as given by Ref <a class="footnote-reference brackets" href="#id3" id="id1">1</a></p>
+<p>Module for handling the Quantum Statistical Potential.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Notice that in Ref. [1] the DeBroglie wavelength is defined as</p>
+<p>Notice that in Ref. <a class="reference internal" href="#hansen1981" id="id1"><span>[Hansen1981]</span></a> the DeBroglie wavelength is defined as</p>
 <div class="math notranslate nohighlight">
 \[\lambda_{ee} = \dfrac{\hbar}{\sqrt{2 \pi \mu_{ee} k_{B} T} },\]</div>
-<p>while in statistical physics textbooks and Ref. <a class="footnote-reference brackets" href="#id4" id="id2">2</a> is defined as</p>
+<p>while in statistical physics textbooks and Ref. <a class="reference internal" href="#glosli2008" id="id2"><span>[Glosli2008]</span></a> is defined as</p>
 <div class="math notranslate nohighlight">
 \[\lambda_{ee} = \dfrac{h}{\sqrt{2 \pi \mu_{ee} k_{B} T} },\]</div>
 </div>
 <p class="rubric">References</p>
-<dl class="footnote brackets">
-<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dl class="citation">
+<dt class="label" id="hansen1981"><span class="brackets"><a class="fn-backref" href="#id1">Hansen1981</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevA.23.2041">J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981)</a></p>
 </dd>
-<dt class="label" id="id4"><span class="brackets">2</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id7">2</a>)</span></dt>
+<dt class="label" id="glosli2008"><span class="brackets"><a class="fn-backref" href="#id2">Glosli2008</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.78.025401">J.N. Glosli et al. Phys Rev E 78 025401(R) (2008)</a></p>
 </dd>
 </dl>
 <dl class="py function">
 <dt id="S_pot_QSP.Deutsch_force_P3M">
 <code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">Deutsch_force_P3M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#Deutsch_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.Deutsch_force_P3M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the Deutsch QSP Force between two particles.</p>
+<dd><p>Calculate Deutsch QSP Force between two particles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<em>float</em>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.
+pot_matrix[0,:,:] = qi*qj/4*pi*eps0
+pot_matrix[1,:,:] = 2pi/deBroglie
+pot_matrix[2,:,:] = e-e Pauli term factor
+pot_matrix[3,:,:] = e-e Pauli term exponent term
+pot_matrix[4,:,:] = Ewald parameter</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -196,7 +236,12 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<em>float</em>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent parameters.
+pot_matrix[0] = qi*qj/4*pi*eps0
+pot_matrix[1] = 2pi/deBroglie
+pot_matrix[2] = e-e Pauli term factor
+pot_matrix[3] = e-e Pauli term exponent term
+pot_matrix[4] = Ewald parameter</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -210,49 +255,10 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="S_pot_QSP.gf_opt">
-<code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">MGrid</span></em>, <em class="sig-param"><span class="n">aliases</span></em>, <em class="sig-param"><span class="n">BoxLv</span></em>, <em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em>, <em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">fourpie0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.gf_opt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the Optimized Green Function given by eq.(22) of Ref.[3]_ .</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>MGrid</strong> (<em>array</em>) – number of mesh points in x,y,z.</p></li>
-<li><p><strong>aliases</strong> (<em>array</em>) – number of aliases in each direction.</p></li>
-<li><p><strong>BoxLv</strong> (<em>array</em>) – Length of simulation’s box in each direction.</p></li>
-<li><p><strong>p</strong> (<em>int</em>) – charge assignment order (CAO).</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – Potential matrix. It contains screening parameter and Ewald parameter. See potential matrix above.</p></li>
-<li><p><strong>rcut</strong> (<em>float</em>) – Cutoff distance for the PP calculation.</p></li>
-<li><p><strong>fourpie0</strong> (<em>float</em>) – Potential factor.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>G_k</strong> (<em>array</em>) – optimal Green Function.</p></li>
-<li><p><strong>kx_v</strong> (<em>array</em>) – array of reciprocal space vectors along the x-axis.</p></li>
-<li><p><strong>ky_v</strong> (<em>array</em>) – array of reciprocal space vectors along the y-axis.</p></li>
-<li><p><strong>kz_v</strong> (<em>array</em>) – array of reciprocal space vectors along the z-axis.</p></li>
-<li><p><strong>PM_err</strong> (<em>float</em>) – Error in the force calculation due to the optimized Green’s function. eq.(28) of Ref.[3]_ .</p></li>
-<li><p><strong>PP_err</strong> (<em>float</em>) – Error in the e-e force calculation due to the distance cutoff see eq.(30) of Ref.[4]_ .</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<dl class="footnote brackets">
-<dt class="label" id="id5"><span class="brackets">3</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1063/1.2932253">H.A. Stern et al. J Chem Phys 128, 214006 (2008)</a></p>
-</dd>
-<dt class="label" id="id6"><span class="brackets">4</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1063/1.4973842">G. Dharuman et al. J Chem Phys 146 024112 (2017)</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="S_pot_QSP.setup">
 <code class="sig-prename descclassname">S_pot_QSP.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_QSP.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_QSP.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the <code class="docutils literal notranslate"><span class="pre">params</span></code> class with QSP Potential parameters.
-The QSP Potential is given by eq.(5) in Ref. <a class="footnote-reference brackets" href="#id4" id="id7">2</a> .</p>
+The QSP Potential is given by eq.(5) in Ref. <a href="#id4"><span class="problematic" id="id3">[2]_</span></a> .</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -271,6 +277,15 @@ The QSP Potential is given by eq.(5) in Ref. <a class="footnote-reference bracke
           </div>
           <footer>
   
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="S_pot_Yukawa.html" class="btn btn-neutral float-right" title="S_pot_Yukawa module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="S_pot_Moliere.html" class="btn btn-neutral float-left" title="S_pot_Moliere module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
 
   <hr/>
 
@@ -279,10 +294,14 @@ The QSP Potential is given by eq.(5) in Ref. <a class="footnote-reference bracke
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>
@@ -309,7 +328,32 @@ The QSP Potential is given by eq.(5) in Ref. <a class="footnote-reference bracke
   
   
     
-   
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
 
 </body>
 </html>

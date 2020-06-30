@@ -1,3 +1,6 @@
+.. _quickstart:
+
+==========
 Quickstart
 ==========
 Once installation is complete you can start running Sarkas.
@@ -7,7 +10,7 @@ Examples of input files can be found in the `example` folder.
 More information on the input files can be found below inputfile_
 
 Running Sarkas
---------------
+==============
 Once you have created your input file, say `yukawa_mks.yaml`, you can run Sarkas by simply typing the command
 (in the sarkas directory)
 

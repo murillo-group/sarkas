@@ -3,6 +3,7 @@ Module for handling Params class
 """
 import yaml
 import numpy as np
+import os.path
 import sys
 import scipy.constants as const
 import S_pot_Coulomb as Coulomb
@@ -209,6 +210,7 @@ class Params:
         open_axes_indx: array
             Indexes of axes with Open Boundary Conditions.
         """
+
         def __init__(self):
             self.pbc_axes = []
             self.mm_axes = []
@@ -452,19 +454,31 @@ class Params:
                 Snapshot interval.
 
             np_per_side : array
-                Number of particles per box length. Note that :math: `N_x x N_y x N_z = N_{tot}`
+                Number of particles per box length. Default= :math: `N_{tot}^{1/3}`
+                Note that :math: `N_x x N_y x N_z = N_{tot}`
 
             writexyz : str
-                Flag for XYZ file for OVITO. "no" or "yes".
+                Flag for XYZ file for OVITO. Default = False.
 
             verbose : str
                 Flag for verbose screen output.
             
             checkpoint_dir : str
-                Directory to store simulation's output files.
+                Path to the directory where the outputs of the current simulation will be stored.
+                Default = "Simulations/UnNamedRun"
 
             log_file : str
-                File name for log output.
+                File name for log output. Default = log.out
+
+            pre_run : bool
+                Flag for initial estimation of simulation parameters.
+
+            simulations_dir : str
+                Path to the directory where all future simulations will be stored. Default = cwd +  "Simulations"
+
+            dump_dir : str
+                Path to the directory where simulations' dumps will be stored.
+                Default = "Simulations/UnNamedRun/Particles_Data"
         """
 
         def __init__(self):
@@ -473,14 +487,15 @@ class Params:
             self.dt = None
             self.Nsteps = None
             self.Neq = None
-            self.BC = "periodic"
             self.dump_step = 1
-            self.screen_output = False
-            self.writexyz = "no"
-            self.verbose = "yes"
-            self.checkpoint_dir = "Checkpoint"
-            self.log_file = self.checkpoint_dir + "/log.out"
+            self.writexyz = False
+            self.verbose = True
+            self.simulations_dir = "Simulations"
+            self.dump_dir = "Particles_Data"
+            self.checkpoint_dir = "UnNamedRun"
+            self.log_file = os.path.join(self.checkpoint_dir, "log.out")
             self.np_per_side = []
+            self.pre_run = False
 
     class PostProcessing:
 
@@ -529,7 +544,7 @@ class Params:
             QSP.setup(self, filename)
 
         if not self.BC.open_axes:
-            self.Potential.LL_on = 1 # linked list on
+            self.Potential.LL_on = 1  # linked list on
             if not hasattr(self.Potential, "rc"):
                 print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.Lv.min() / 2, "will be used as rc")
                 self.Potential.rc = self.Lv.min() / 2.
@@ -537,7 +552,7 @@ class Params:
 
             if self.Potential.method == "PP" and self.Potential.rc > self.Lv.min() / 2.:
                 print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.Lv.min() / 2, "will be used as rc")
-                self.Potential.rc = self.Lv.min()/ 2.
+                self.Potential.rc = self.Lv.min() / 2.
                 self.Potential.LL_on = 0  # linked list off
 
         return
@@ -593,9 +608,7 @@ class Params:
                                         self.species[ic].mass_density = float(value)
 
                                     if key == "temperature_eV":
-                                        # Conversion factor from eV to Kelvin
-                                        eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
-                                        self.species[ic].temperature = float(value) * eV2K
+                                        self.species[ic].temperature = float(value) * self.eV2K
 
                             if key == "load":
                                 for key, value in value.items():
@@ -658,6 +671,10 @@ class Params:
                         for key, value in keyword.items():
                             if key == 'type':
                                 self.Thermostat.type = value
+
+                            if key == 'thermostating_temperatures':
+                                self.Thermostat.temperatures = value
+
                             # If Berendsen
                             if key == 'tau':
                                 if float(value) > 0.0:
@@ -669,6 +686,13 @@ class Params:
                             if key == 'timestep':
                                 # Number of timesteps to wait before turning on Berendsen
                                 self.Thermostat.timestep = int(value)
+
+                            if key == "temperatures_eV":
+                                self.Thermostat.temperatures = np.array(value) if isinstance(value, list) else np.array([value])
+                                self.Thermostat.temperatures *= self.eV2K
+                            if key == "temperatures":
+                                # Conversion factor from eV to Kelvin
+                                self.Thermostat.temperatures = np.array(value) if isinstance(value, list) else np.array([value])
 
                 if lkey == "Magnetized":
                     self.Magnetic.on = True
@@ -745,14 +769,6 @@ class Params:
                             if key == "Neq":
                                 self.Control.Neq = int(value)
 
-                            # Periodic Boundary Condition
-                            # if key == "BC":
-                            #     self.Control.BC = value
-                            #     if self.Control.BC == "periodic":
-                            #         self.Control.PBC = 1
-                            #     else:
-                            #         self.Control.PBC = 0
-
                             if key == "Np_per_side":
                                 self.Control.np_per_side = np.array(value, dtype=int)
 
@@ -775,19 +791,37 @@ class Params:
                                     self.Control.verbose = 1
 
                             # Directory where to store Checkpoint files
+                            if key == "simulations_dir":
+                                self.Control.simulations_dir = value
+
+                            # Directory where to store Checkpoint files
                             if key == "output_dir":
+                                self.Control.fname_app = value
                                 self.Control.checkpoint_dir = value
 
+                            if key == "dump_dir":
+                                self.Control.dump_dir = value
+
                             # Filenames appendix
-                            if key == "fname_app":
+                            if key == "job_id":
                                 self.Control.fname_app = value
-                            else:
-                                self.Control.fname_app = self.Control.checkpoint_dir
 
         # Check for conflicts in case of magnetic field
         if self.Magnetic.on and self.Magnetic.elec_therm:
             self.Integrator.mag_type = value
             self.Integrator.type = 'Verlet'
+
+        # Check for conflicts in directories
+        if not os.path.exists(self.Control.simulations_dir):
+            os.mkdir(self.Control.simulations_dir)
+
+        self.Control.checkpoint_dir = os.path.join(self.Control.simulations_dir, self.Control.checkpoint_dir)
+        if not os.path.exists(self.Control.checkpoint_dir):
+            os.mkdir(self.Control.checkpoint_dir)
+
+        self.Control.dump_dir = os.path.join(self.Control.checkpoint_dir, self.Control.dump_dir)
+        if not os.path.exists(self.Control.dump_dir):
+            os.mkdir(self.Control.dump_dir)
 
         return
 
@@ -826,12 +860,10 @@ class Params:
                 self.species[ic].num_density = self.species[ic].mass_density * Av / self.species[ic].atomic_weight
                 self.total_num_density += self.species[ic].num_density
         # Concentrations arrays and ions' total temperature
-        nT = 0.
+        self.Ti = 0.0
         for ic in range(self.num_species):
             self.species[ic].concentration = self.species[ic].num / self.total_num_ptcls
-            nT += self.species[ic].concentration * self.species[ic].temperature
-
-        self.Ti = nT
+            self.Ti += self.species[ic].concentration * self.species[ic].temperature
 
         # Wigner-Seitz radius calculated from the total density
         self.aws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
@@ -895,7 +927,7 @@ class Params:
 
         # boundary Conditions
         if self.BC.pbc_axes:
-            self.BC.pbc_axes_indx = np.zeros( len(self.BC.pbc_axes))
+            self.BC.pbc_axes_indx = np.zeros(len(self.BC.pbc_axes))
             for (ij, bc) in enumerate(self.BC.pbc_axes):
                 if bc == "x":
                     self.BC.pbc_axes_indx[ij] = 0

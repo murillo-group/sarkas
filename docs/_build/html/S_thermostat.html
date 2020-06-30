@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="S_verbose module" href="S_verbose.html" />
-    <link rel="prev" title="S_pot_Yukawa module" href="S_pot_Yukawa.html" /> 
+    <link rel="prev" title="S_testing module" href="S_testing.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -85,6 +85,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
@@ -103,6 +104,7 @@
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_QSP.html">S_pot_QSP module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_testing.html">S_testing module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">S_thermostat module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
@@ -195,7 +197,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>T</strong> (<em>array</em>) – Temperature of each species.</p></li>
 <li><p><strong>vel</strong> (<em>array</em>) – Particles’ velocities to rescale.</p></li>
-<li><p><strong>T_desired</strong> (<em>float</em>) – Target temperature.</p></li>
+<li><p><strong>T_desired</strong> (<em>array</em>) – Target temperature of each species.</p></li>
 <li><p><strong>tau</strong> (<em>float</em>) – Scale factor.</p></li>
 <li><p><strong>therm_timestep</strong> (<em>int</em>) – Timestep at which to turn on the thermostat.</p></li>
 <li><p><strong>species_np</strong> (<em>array</em>) – Number of each species.</p></li>
@@ -219,10 +221,112 @@
 <dt id="S_thermostat.Thermostat">
 <em class="property">class </em><code class="sig-prename descclassname">S_thermostat.</code><code class="sig-name descname">Thermostat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#Thermostat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.Thermostat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – </p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="S_thermostat.Thermostat.kB">
+<code class="sig-name descname">kB</code><a class="headerlink" href="#S_thermostat.Thermostat.kB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boltzmann constant in correct units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_thermostat.Thermostat.no_species">
+<code class="sig-name descname">no_species</code><a class="headerlink" href="#S_thermostat.Thermostat.no_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_thermostat.Thermostat.species_np">
+<code class="sig-name descname">species_np</code><a class="headerlink" href="#S_thermostat.Thermostat.species_np" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of particles of each species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_thermostat.Thermostat.species_mass">
+<code class="sig-name descname">species_mass</code><a class="headerlink" href="#S_thermostat.Thermostat.species_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mass of each species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_thermostat.Thermostat.relaxation_rate">
+<code class="sig-name descname">relaxation_rate</code><a class="headerlink" href="#S_thermostat.Thermostat.relaxation_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Berendsen parameter tau.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_thermostat.Thermostat.relaxation_timestep">
+<code class="sig-name descname">relaxation_timestep</code><a class="headerlink" href="#S_thermostat.Thermostat.relaxation_timestep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timestep at which thermostat is turned on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_thermostat.Thermostat.T_desired">
+<code class="sig-name descname">T_desired</code><a class="headerlink" href="#S_thermostat.Thermostat.T_desired" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thermostating temperature of each species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_thermostat.Thermostat.type">
+<code class="sig-name descname">type</code><a class="headerlink" href="#S_thermostat.Thermostat.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thermostat type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="S_thermostat.Thermostat.update">
 <code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vel</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_thermostat.html#Thermostat.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_thermostat.Thermostat.update" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Update particles’ velocities according to the chosen thermostat</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vel</strong> (<em>ndarray</em>) – Particles’ velocities to be rescaled.</p></li>
+<li><p><strong>it</strong> (<em>int</em>) – Current timestep.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -277,7 +381,7 @@
         <a href="S_verbose.html" class="btn btn-neutral float-right" title="S_verbose module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="S_pot_Yukawa.html" class="btn btn-neutral float-left" title="S_pot_Yukawa module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="S_testing.html" class="btn btn-neutral float-left" title="S_testing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -289,10 +393,14 @@
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>
@@ -319,7 +427,32 @@
   
   
     
-   
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
 
 </body>
 </html>

@@ -6,12 +6,11 @@ Particles:
         mass: 1.673e-27                # kg, ptcl mass of ion1
         num: 8000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
-        temperature: 7.09048e-02
+        temperature: 0.2
     
     - load:
-        method: restart    # loading method
+        method: random_no_reject    # loading method
         rand_seed: 123456789        # random seed
-        restart_step: 50000
 
 Potential: 
     - type: Yukawa                  # potential type
@@ -33,8 +32,8 @@ Thermostat:
 Control:
     - units: mks                    # units
     - dt: 1.87773e-12            # sec
-    - Neq: 10000                      # number of timesteps for the equilibrium
-    - Nsteps: 100000                    # number of timesteps afater the equilibrium
+    - Neq: 5000                      # number of timesteps for the equilibrium
+    - Nsteps: 50000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
     - verbose: yes

@@ -104,6 +104,10 @@
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_QSP.html">S_pot_QSP module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
+<<<<<<< HEAD
+=======
+<li class="toctree-l2"><a class="reference internal" href="S_testing.html">S_testing module</a></li>
+>>>>>>> vacf_iccf_tools
 <li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
@@ -185,13 +189,23 @@
 <p>Module for handling Coulomb interaction</p>
 <dl class="py function">
 <dt id="S_pot_Coulomb.Coulomb_force_P3M">
+<<<<<<< HEAD
 <code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">Coulomb_force_P3M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix_ij</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#Coulomb_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.Coulomb_force_P3M" title="Permalink to this definition">¶</a></dt>
+=======
+<code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">Coulomb_force_P3M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#Coulomb_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.Coulomb_force_P3M" title="Permalink to this definition">¶</a></dt>
+>>>>>>> vacf_iccf_tools
 <dd><p>Calculate Potential and Force between two particles when the P3M algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<em>real</em>) – Distance between two particles.</p></li>
+<<<<<<< HEAD
 <li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
+=======
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.
+pot_matrix[0] = q1*q2/(4*pi*eps0)
+pot_matrix[1] = Ewald parameter alpha</p></li>
+>>>>>>> vacf_iccf_tools
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -205,6 +219,7 @@
 </dd></dl>
 
 <dl class="py function">
+<<<<<<< HEAD
 <dt id="S_pot_Coulomb.gf_opt">
 <code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">gf_opt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">MGrid</span></em>, <em class="sig-param"><span class="n">aliases</span></em>, <em class="sig-param"><span class="n">BoxLv</span></em>, <em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">alpha</span></em>, <em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">fourpie0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#gf_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.gf_opt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a> .</p>
@@ -241,6 +256,8 @@
 </dd></dl>
 
 <dl class="py function">
+=======
+>>>>>>> vacf_iccf_tools
 <dt id="S_pot_Coulomb.setup">
 <code class="sig-prename descclassname">S_pot_Coulomb.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_pot_Coulomb.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_Coulomb.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Coulomb’s parameters.</p>
@@ -275,7 +292,11 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
+<<<<<<< HEAD
         Last updated on Jun, 18, 2020.
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

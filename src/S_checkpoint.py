@@ -3,7 +3,7 @@ Module handling restarting/checkpoint
 """
 import os
 import csv
-from numpy import savez, sum
+from numpy import load, savez, sum
 import pickle
 
 
@@ -11,58 +11,68 @@ class Checkpoint:
     """
     Class to handle restart dumps.
 
-    Attributes
+    Parameters
     ----------
     params : class
-        Simulation's parameters. see ``S_params.py`` module for more info.
-    
+        Simulation's parameters.
+
+    Attributes
+    ----------
+    dt : float
+        Simulation timestep.
+
+    dump_dir : str
+        Path to directory where simulations dump will be stored.
+
+    energy_filename : str
+        CSV file for storing energy values.
+
+    ptcls_file_name : str
+        Prefix of dumps filenames.
+
+    params_picckle : str
+        Pickle file where all simulation parameters will be stored.
+
+    species_name: list
+        Names of each particle species.
+
     checkpoint_dir : str
         Output directory. 
     """
 
     def __init__(self, params):
-        """
-        Save simulation's parameters to a binary file using pickle.
-
-        Parameters
-        ----------
-        params : class
-            Simulation's parameters.
-        """
         self.dt = params.Control.dt
         self.checkpoint_dir = params.Control.checkpoint_dir
-        self.ptcls_dir = os.path.join(self.checkpoint_dir, "Particles_Data")
-        self.energy_filename = os.path.join( self.checkpoint_dir, "Thermodynamics_" + params.Control.fname_app + '.csv')
-        self.ptcls_file_name = os.path.join( self.ptcls_dir,  "S_checkpoint_")
+        self.dump_dir = params.Control.dump_dir
+        self.energy_filename = os.path.join(self.checkpoint_dir, "Thermodynamics_" + params.Control.fname_app + '.csv')
+        self.ptcls_file_name = os.path.join(self.dump_dir,  "S_checkpoint_")
+        self.params_pickle = os.path.join(self.checkpoint_dir, "S_parameters" + params.Control.fname_app + ".pickle")
+
         self.species_names = []
         self.Gamma_eff = params.Potential.Gamma_eff * params.T_desired
 
         for i in range(params.num_species):
             self.species_names.append(params.species[i].name)
 
+        # Check the existence of locations
         if not (os.path.exists(self.checkpoint_dir)):
             os.mkdir(self.checkpoint_dir)
-        if not (os.path.exists(self.ptcls_dir)):
-            os.mkdir(self.ptcls_dir)
+        if not (os.path.exists(self.dump_dir)):
+            os.mkdir(self.dump_dir)
 
-        save_file = open(os.path.join(self.checkpoint_dir, "S_parameters.pickle"), "wb")
-        pickle.dump(params, save_file)
-        save_file.close()
+    def save_pickle(self, params):
+        """
+        Save all simulations parameters in a pickle file.
 
-        if not params.load_method == "restart":
-            data = {"Time": [],
-                    "Total Energy": [],
-                    "Total Kinetic Energy": [],
-                    "Potential Energy": [],
-                    "Temperature": []}
-            if params.num_species > 1:
-                for sp in range(params.num_species):
-                    data["{} Kinetic Energy".format(self.species_names[sp])] = []
-                    data["{} Temperature".format(self.species_names[sp])] = []
-            data["Gamma"] = []
-            with open(self.energy_filename, 'w') as f:
-                w = csv.writer(f)
-                w.writerow(data.keys())
+        Parameters
+        ----------
+        params : class
+            Simulation parameters.
+
+        """
+        pickle_file = open(self.params_pickle, "wb")
+        pickle.dump(params, pickle_file)
+        pickle_file.close()
 
     def dump(self, ptcls, kinetic_energies, temperatures, potential_energy, it):
         """

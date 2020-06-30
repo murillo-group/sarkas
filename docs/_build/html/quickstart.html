@@ -35,7 +35,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -79,17 +81,28 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Quickstart</a><ul>
-<li><a class="reference internal" href="#running-sarkas">Running Sarkas</a><ul>
-<li><a class="reference internal" href="#input-file">Input file</a></li>
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-sarkas">Running Sarkas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#input-file">Input file</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
-</div>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">src</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+</ul>
+
             
           
         </div>
@@ -153,7 +166,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="quickstart">
-<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
 <p>Once installation is complete you can start running Sarkas.
 In the following we will run a quick example.
 Sarkas, like any other code, requires an input file containing all the simulation’s parameters.
@@ -175,8 +188,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 <span id="inputfile"></span><h3>Input file<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h3>
 <p>This file is responsible for specifying the simulation’s parameters such as the number of particles, number of timesteps, and initialization. Examples of input files can be found in the examples folder. There are several examples aimed at demonstrating the various capabilities of Sarkas. The names of each example file indicate the interacting potential used, the number of species, the system of units, and the force calculation algorithm, and whether the system is magnetized or not. In the following we will describe one of the example files.</p>
 <p>Let us open <cite>ybim_mks_p3m_mag.yaml</cite> file in a text editor. This file contains parameters for a simulation of a Carbon-Oxygen mixture interacting via a Yukawa potential and under the influence of a constant Magnetic field. The first thing to notice is that there are eight sections each of which contains a set of parameters. Each section corresponds to a subclass of the <cite>Params</cite> class. The order is relatively important since some section parameters might depend on a previous section. For example: the Magnetized section must come after the Integrator section since the option electrostatic_thermalization, if chosen to be True, it modifies the integrator type. Below we present a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: <cite>https://learn.getgrav.org/16/advanced/yaml</cite>.</p>
-<table class="colwidths-auto docutils align-default" id="id1">
-<caption><span class="caption-text">Table for “Particles - species” section key and value pairs in the input file</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id2">
+<caption><span class="caption-text">Table for “Particles - species” section key and value pairs in the input file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -214,8 +227,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id2">
-<caption><span class="caption-text">Table for “Particles - load” section key and value pairs in the input file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id3">
+<caption><span class="caption-text">Table for “Particles - load” section key and value pairs in the input file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -249,8 +262,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id3">
-<caption><span class="caption-text">Table for “Potential” section key and value pairs in the input file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id4">
+<caption><span class="caption-text">Table for “Potential” section key and value pairs in the input file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -272,8 +285,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id4">
-<caption><span class="caption-text">Table for “P3M” section key and value pairs in the input file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id5">
+<caption><span class="caption-text">Table for “P3M” section key and value pairs in the input file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -299,8 +312,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id5">
-<caption><span class="caption-text">Table for “Integrator” section key and value pairs in the input file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id6">
+<caption><span class="caption-text">Table for “Integrator” section key and value pairs in the input file</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -314,8 +327,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id6">
-<caption><span class="caption-text">Table for “Magnetized” section key and value pairs in the input file</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id7">
+<caption><span class="caption-text">Table for “Magnetized” section key and value pairs in the input file</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>:Value Data Type”</p></th>
@@ -341,8 +354,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id7">
-<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id8">
+<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -364,8 +377,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id8">
-<caption><span class="caption-text">Table for “Langevin” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id9">
+<caption><span class="caption-text">Table for “Langevin” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -383,8 +396,8 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-auto docutils align-default" id="id9">
-<caption><span class="caption-text">Table for “Control” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
+<table class="colwidths-auto docutils align-default" id="id10">
+<caption><span class="caption-text">Table for “Control” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id10" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -454,6 +467,15 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
           </div>
           <footer>
   
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
 
   <hr/>
 
@@ -462,10 +484,14 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>
@@ -492,7 +518,32 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
   
   
     
-   
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
 
 </body>
 </html>

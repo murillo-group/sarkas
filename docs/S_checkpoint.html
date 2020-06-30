@@ -104,6 +104,10 @@
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_QSP.html">S_pot_QSP module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
+<<<<<<< HEAD
+=======
+<li class="toctree-l2"><a class="reference internal" href="S_testing.html">S_testing module</a></li>
+>>>>>>> vacf_iccf_tools
 <li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
@@ -188,6 +192,7 @@
 <em class="property">class </em><code class="sig-prename descclassname">S_checkpoint.</code><code class="sig-name descname">Checkpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_checkpoint.html#Checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_checkpoint.Checkpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to handle restart dumps.</p>
+<<<<<<< HEAD
 <dl class="py attribute">
 <dt id="S_checkpoint.Checkpoint.params">
 <code class="sig-name descname">params</code><a class="headerlink" href="#S_checkpoint.Checkpoint.params" title="Permalink to this definition">¶</a></dt>
@@ -195,6 +200,75 @@
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>class</p>
+=======
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="S_checkpoint.Checkpoint.dt">
+<code class="sig-name descname">dt</code><a class="headerlink" href="#S_checkpoint.Checkpoint.dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulation timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_checkpoint.Checkpoint.dump_dir">
+<code class="sig-name descname">dump_dir</code><a class="headerlink" href="#S_checkpoint.Checkpoint.dump_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to directory where simulations dump will be stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_checkpoint.Checkpoint.energy_filename">
+<code class="sig-name descname">energy_filename</code><a class="headerlink" href="#S_checkpoint.Checkpoint.energy_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>CSV file for storing energy values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_checkpoint.Checkpoint.ptcls_file_name">
+<code class="sig-name descname">ptcls_file_name</code><a class="headerlink" href="#S_checkpoint.Checkpoint.ptcls_file_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prefix of dumps filenames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_checkpoint.Checkpoint.params_picckle">
+<code class="sig-name descname">params_picckle</code><a class="headerlink" href="#S_checkpoint.Checkpoint.params_picckle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pickle file where all simulation parameters will be stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_checkpoint.Checkpoint.species_name">
+<code class="sig-name descname">species_name</code><a class="headerlink" href="#S_checkpoint.Checkpoint.species_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Names of each particle species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+>>>>>>> vacf_iccf_tools
 </dd>
 </dl>
 </dd></dl>
@@ -227,6 +301,20 @@
 </dl>
 </dd></dl>
 
+<<<<<<< HEAD
+=======
+<dl class="py method">
+<dt id="S_checkpoint.Checkpoint.save_pickle">
+<code class="sig-name descname">save_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_checkpoint.html#Checkpoint.save_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_checkpoint.Checkpoint.save_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save all simulations parameters in a pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+>>>>>>> vacf_iccf_tools
 </dd></dl>
 
 </div>
@@ -253,7 +341,11 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
+<<<<<<< HEAD
         Last updated on Jun, 18, 2020.
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

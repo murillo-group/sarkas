@@ -104,6 +104,10 @@
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_QSP.html">S_pot_QSP module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
+<<<<<<< HEAD
+=======
+<li class="toctree-l2"><a class="reference internal" href="S_testing.html">S_testing module</a></li>
+>>>>>>> vacf_iccf_tools
 <li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
@@ -786,7 +790,12 @@
 <dl class="py attribute">
 <dt id="S_params.Params.Control.np_per_side">
 <code class="sig-name descname">np_per_side</code><a class="headerlink" href="#S_params.Params.Control.np_per_side" title="Permalink to this definition">¶</a></dt>
+<<<<<<< HEAD
 <dd><p>Number of particles per box length. Note that :math: <cite>N_x x N_y x N_z = N_{tot}</cite></p>
+=======
+<dd><p>Number of particles per box length. Default= :math: <cite>N_{tot}^{1/3}</cite>
+Note that :math: <cite>N_x x N_y x N_z = N_{tot}</cite></p>
+>>>>>>> vacf_iccf_tools
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>array</p>
@@ -797,7 +806,11 @@
 <dl class="py attribute">
 <dt id="S_params.Params.Control.writexyz">
 <code class="sig-name descname">writexyz</code><a class="headerlink" href="#S_params.Params.Control.writexyz" title="Permalink to this definition">¶</a></dt>
+<<<<<<< HEAD
 <dd><p>Flag for XYZ file for OVITO. “no” or “yes”.</p>
+=======
+<dd><p>Flag for XYZ file for OVITO. Default = False.</p>
+>>>>>>> vacf_iccf_tools
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -819,7 +832,12 @@
 <dl class="py attribute">
 <dt id="S_params.Params.Control.checkpoint_dir">
 <code class="sig-name descname">checkpoint_dir</code><a class="headerlink" href="#S_params.Params.Control.checkpoint_dir" title="Permalink to this definition">¶</a></dt>
+<<<<<<< HEAD
 <dd><p>Directory to store simulation’s output files.</p>
+=======
+<dd><p>Path to the directory where the outputs of the current simulation will be stored.
+Default = “Simulations/UnNamedRun”</p>
+>>>>>>> vacf_iccf_tools
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -830,7 +848,45 @@
 <dl class="py attribute">
 <dt id="S_params.Params.Control.log_file">
 <code class="sig-name descname">log_file</code><a class="headerlink" href="#S_params.Params.Control.log_file" title="Permalink to this definition">¶</a></dt>
+<<<<<<< HEAD
 <dd><p>File name for log output.</p>
+=======
+<dd><p>File name for log output. Default = log.out</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.Control.pre_run">
+<code class="sig-name descname">pre_run</code><a class="headerlink" href="#S_params.Params.Control.pre_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for initial estimation of simulation parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.Control.simulations_dir">
+<code class="sig-name descname">simulations_dir</code><a class="headerlink" href="#S_params.Params.Control.simulations_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the directory where all future simulations will be stored. Default = cwd +  “Simulations”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_params.Params.Control.dump_dir">
+<code class="sig-name descname">dump_dir</code><a class="headerlink" href="#S_params.Params.Control.dump_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the directory where simulations’ dumps will be stored.
+Default = “Simulations/UnNamedRun/Particles_Data”</p>
+>>>>>>> vacf_iccf_tools
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -1437,7 +1493,11 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
+<<<<<<< HEAD
         Last updated on Jun, 18, 2020.
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

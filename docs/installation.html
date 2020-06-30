@@ -85,8 +85,12 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#option-1-github-repository">Option 1: GitHub Repository</a></li>
+<<<<<<< HEAD
 <li class="toctree-l2"><a class="reference internal" href="#option-2-pip-install">Option 2: Pip  Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#option-3-docker-image">Option 3: Docker Image</a></li>
+=======
+<li class="toctree-l2"><a class="reference internal" href="#option-2-docker-image">Option 2: Docker Image</a></li>
+>>>>>>> vacf_iccf_tools
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 </ul>
 </li>
@@ -166,18 +170,27 @@
            <div itemprop="articleBody">
             
   <div class="section" id="installation">
+<<<<<<< HEAD
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+=======
+<span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+>>>>>>> vacf_iccf_tools
 <p>To  install Sarkas, choose one of the three methods below, then verify you have all necessary prerequisites.</p>
 <div class="section" id="option-1-github-repository">
 <h2>Option 1: GitHub Repository<a class="headerlink" href="#option-1-github-repository" title="Permalink to this headline">¶</a></h2>
 <p>Sarkas is undergoing heavy development. The most recent version can be found on <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">GitHub</a>.</p>
 </div>
+<<<<<<< HEAD
 <div class="section" id="option-2-pip-install">
 <h2>Option 2: Pip  Install<a class="headerlink" href="#option-2-pip-install" title="Permalink to this headline">¶</a></h2>
 <p>Instruction on how to install Sarkas using Anaconda. This will be done once setup.py is complete</p>
 </div>
 <div class="section" id="option-3-docker-image">
 <h2>Option 3: Docker Image<a class="headerlink" href="#option-3-docker-image" title="Permalink to this headline">¶</a></h2>
+=======
+<div class="section" id="option-2-docker-image">
+<h2>Option 2: Docker Image<a class="headerlink" href="#option-2-docker-image" title="Permalink to this headline">¶</a></h2>
+>>>>>>> vacf_iccf_tools
 <p>Alternatively, you can install a whole Sarkas package including all dependencies/preliminary-packages using <a class="reference external" href="https://www.docker.com/products/docker-desktop">Docker</a>.
 To install Sarkas using Docker, run the following commands:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/murillo-group/sarkas.git
@@ -199,6 +212,7 @@ $ docker build -t sarkas -f Docker/Dockerfile .
 <li><p>Numba &gt;= 0.49.1</p></li>
 <li><p>pyfftw &gt;= 0.12.0</p></li>
 <li><p>tqdm &gt;= 4.46.0</p></li>
+<<<<<<< HEAD
 </ul>
 </li>
 </ul>
@@ -233,6 +247,53 @@ To install fdint</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install fdint
 </pre></div>
 </div>
+=======
+<li><p>pyfiglet &gt;= 0.8.post1</p></li>
+</ul>
+</li>
+</ul>
+<p>Before you can begin working with Sarkas, you will need to have Python 3 installed. A useful Python
+distribution that has many of the necessary packages for Sarkas is Anaconda which can be downloaded <a class="reference external" href="https://www.anaconda.com">here</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We strongly recommend to install Anaconda as this will prevent any incompatibility issues between
+packages’ versions.</p>
+</div>
+<p>If you already have a version of Python 3 installed, you may still need to download additional packages
+such as <a class="reference external" href="https://pypi.org/project/pyFFTW/">pyfftw</a>, <a class="reference external" href="https://pypi.org/project/fdint/">fdint</a>, <a class="reference external" href="https://tqdm.github.io/">tqdm</a>, <a class="reference external" href="https://numba.pydata.org">numba</a>, and <a class="reference external" href="https://github.com/pwaller/pyfiglet">pyfiglet</a>. If you have the most recent version of Anaconda installed,
+you should already have <code class="docutils literal notranslate"><span class="pre">numba</span></code>, installed. Sarkas requires the following packages:
+<a class="reference external" href="https://numba.pydata.org">numba</a> which allows it to run as fast (if not faster) than C++ or Fortran,
+<a class="reference external" href="https://pypi.org/project/pyFFTW/">pyfftw</a>, to perform Fourier transforms, <a class="reference external" href="https://pypi.org/project/fdint/">fdint</a> to calculate Fermi-Dirac integrals, <a class="reference external" href="https://tqdm.github.io/">tqdm</a> to print the progress bar, and
+<a class="reference external" href="https://github.com/pwaller/pyfiglet">pyfiglet</a> to print Sarkas figlet to screen.</p>
+<p>If you have the python package manager <a class="reference external" href="https://pip.pypa.io/en/stable/">pip</a> installed,
+you can install these packages, by simply opening a terminal and running the following commands:</p>
+<p>To install <code class="docutils literal notranslate"><span class="pre">numba</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install numba
+</pre></div>
+</div>
+<p>To install fdint</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install fdint
+</pre></div>
+</div>
+<p>To install <code class="docutils literal notranslate"><span class="pre">pyfftw</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda install -c conda-forge pyfftw
+</pre></div>
+</div>
+<p>To install <code class="docutils literal notranslate"><span class="pre">tqdm</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda install -c conda-forge tqdm
+</pre></div>
+</div>
+<p>To install <code class="docutils literal notranslate"><span class="pre">pyfiglet</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda install -c conda-forge pyfiglet
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We highly recommend to use <code class="docutils literal notranslate"><span class="pre">conda</span></code> for all the packages except for the first two. This is in order to prevent
+compatibility errors between different code versions. In addition, <code class="docutils literal notranslate"><span class="pre">conda</span></code> will automatically install the FFTW
+package and link to its libraries.</p>
+</div>
+>>>>>>> vacf_iccf_tools
 </div>
 </div>
 
@@ -258,7 +319,11 @@ To install fdint</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
+<<<<<<< HEAD
         Last updated on Jun, 18, 2020.
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

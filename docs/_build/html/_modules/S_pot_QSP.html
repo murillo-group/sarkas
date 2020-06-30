@@ -156,30 +156,30 @@
            <div itemprop="articleBody">
             
   <h1>Source code for S_pot_QSP</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; Module for handling the Quantum Statistical Potential as given by Ref [1]_</span>
+<span></span><span class="sd">&quot;&quot;&quot; Module for handling the Quantum Statistical Potential.</span>
 
 <span class="sd">Note</span>
 <span class="sd">----</span>
-<span class="sd">Notice that in Ref. [1] the DeBroglie wavelength is defined as</span>
+<span class="sd">Notice that in Ref. [Hansen1981]_ the DeBroglie wavelength is defined as</span>
 
 <span class="sd">.. math::</span>
 <span class="sd">   \lambda_{ee} = \dfrac{\hbar}{\sqrt{2 \pi \mu_{ee} k_{B} T} },</span>
 
-<span class="sd">while in statistical physics textbooks and Ref. [2]_ is defined as</span>
+<span class="sd">while in statistical physics textbooks and Ref. [Glosli2008]_ is defined as</span>
 
 <span class="sd">.. math::</span>
 <span class="sd">   \lambda_{ee} = \dfrac{h}{\sqrt{2 \pi \mu_{ee} k_{B} T} },</span>
 
 <span class="sd">References</span>
 <span class="sd">----------</span>
-<span class="sd">.. [1] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) &lt;https://doi.org/10.1103/PhysRevA.23.2041&gt;`_</span>
-<span class="sd">.. [2] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) &lt;https://doi.org/10.1103/PhysRevE.78.025401&gt;`_</span>
+<span class="sd">.. [Hansen1981] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) &lt;https://doi.org/10.1103/PhysRevA.23.2041&gt;`_</span>
+<span class="sd">.. [Glosli2008] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) &lt;https://doi.org/10.1103/PhysRevE.78.025401&gt;`_</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">S_calc_force_pm</span> <span class="kn">import</span> <span class="n">force_optimized_green_function</span> <span class="k">as</span> <span class="n">gf_opt</span>
 
 
 <div class="viewcode-block" id="setup"><a class="viewcode-back" href="../S_pot_QSP.html#S_pot_QSP.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -199,11 +199,12 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dev Notes</span>
 <span class="sd">    for more info and a description of the potential&#39;s parameters.</span>
-<span class="sd">    QSP_matrix[0,:,:] = de Broglie wavelengths,</span>
-<span class="sd">    QSP_matrix[1,:,:] = qi*qj/4*pi*eps0</span>
-<span class="sd">    QSP_matrix[2,:,:] = 2pi/deBroglie</span>
-<span class="sd">    QSP_matrix[3,:,:] = e-e Hansen-Pauli factor term factor</span>
-<span class="sd">    QSP_matrix[4,:,:] = e-e exp factor 4pi/deBroglie/ln(2) </span>
+<span class="sd">    QSP_matrix[0,:,:] = qi*qj/4*pi*eps0</span>
+<span class="sd">    QSP_matrix[1,:,:] = 2pi/deBroglie</span>
+<span class="sd">    QSP_matrix[2,:,:] = e-e Pauli term factor</span>
+<span class="sd">    QSP_matrix[3,:,:] = e-e Pauli term exponent term</span>
+<span class="sd">    QSP_matrix[4,:,:] = Ewald parameter</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Default attributes</span>
     <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">=</span> <span class="s1">&#39;Deutsch&#39;</span>
@@ -215,43 +216,50 @@
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">]:</span>
                     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;QSP_type&quot;</span><span class="p">:</span>  <span class="c1"># screening</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;QSP_type&quot;</span><span class="p">:</span>
                             <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">=</span> <span class="n">value</span>
                         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;QSP_Pauli&quot;</span><span class="p">:</span>
                             <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_Pauli</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
-        <span class="n">QSP_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">QSP_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
-        <span class="c1"># open the input file to read Yukawa parameters</span>
+    <span class="c1"># Do a bunch of checks</span>
+    <span class="c1"># P3M algorithm only</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;QSP interaction can only be calculated using P3M algorithm.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
-        <span class="c1"># constants and conversion factors</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">ae</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># e WS</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">rs</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ae</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">a0</span>  <span class="c1"># e coupling parameter</span>
+    <span class="c1"># Check for neutrality</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">tot_net_charge</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">tot_net_charge</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Total net charge is not zero.&#39;</span><span class="p">)</span>
 
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># e,i simulation parameters</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">ae</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># e WS</span>
+    <span class="n">e_indx</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">isp</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span> <span class="ow">or</span> <span class="n">sp</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;electrons&#39;</span> <span class="ow">or</span> <span class="n">sp</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;electron&#39;</span><span class="p">:</span>
+            <span class="n">e_indx</span> <span class="o">=</span> <span class="n">isp</span>
 
-    <span class="n">twopi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">e_indx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;The 1st species are not electrons. Please redefine the 1st species as electrons.&#39;</span><span class="p">)</span>
+
+    <span class="n">two_pi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">four_pi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">two_pi</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">ae</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">four_pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># e WS</span>
     <span class="n">params</span><span class="o">.</span><span class="n">rs</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ae</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">a0</span>  <span class="c1"># e coupling parameter</span>
     <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Ti</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span>
+
+    <span class="c1"># Redefine ion temperatures and ion total number density</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Ti</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">ni</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">for</span> <span class="n">isp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Ti</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">isp</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">isp</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">ni</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">isp</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
+
+    <span class="c1"># Calculate the total and ion Wigner-Seitz Radius from the total density</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">four_pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">four_pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ni</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># Ion WS</span>
 
     <span class="n">beta_e</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Te</span><span class="p">)</span>
     <span class="n">beta_i</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Ti</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span>
-
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">],</span> <span class="s2">&quot;Z&quot;</span><span class="p">):</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">Z</span>
-
+    <span class="n">QSP_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
         <span class="n">m1</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
         <span class="n">q1</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span>
@@ -261,91 +269,67 @@
             <span class="n">q2</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span>
             <span class="n">reduced</span> <span class="o">=</span> <span class="p">(</span><span class="n">m1</span> <span class="o">*</span> <span class="n">m2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">m1</span> <span class="o">+</span> <span class="n">m2</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">Lambda_dB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">/</span> <span class="n">reduced</span><span class="p">)</span>
-                <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lambda_dB</span>
+                <span class="n">Lambda_dB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">two_pi</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">/</span> <span class="n">reduced</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>  <span class="c1"># e-e</span>
-                    <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">beta_e</span>
-                    <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">Lambda_dB</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">beta_e</span>
+                    <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">Lambda_dB</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">Lambda_dB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">beta_i</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">/</span> <span class="n">reduced</span><span class="p">)</span>
-                <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lambda_dB</span>
+                <span class="n">Lambda_dB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">two_pi</span> <span class="o">*</span> <span class="n">beta_i</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">/</span> <span class="n">reduced</span><span class="p">)</span>
 
-            <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
-            <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">twopi</span> <span class="o">/</span> <span class="n">Lambda_dB</span>
+            <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
+            <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">/</span> <span class="n">Lambda_dB</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_Pauli</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">/=</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_Pauli</span><span class="p">:</span>
+        <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">QSP_matrix</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">ai</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Ti</span><span class="p">)</span>
 
     <span class="c1"># Calculate the (total) plasma frequency</span>
     <span class="n">wp_tot_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
-        <span class="n">wp2</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span> <span class="o">/</span> <span class="p">(</span>
-                <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
+        <span class="n">wp2</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">num_density</span> <span class="o">/</span> <span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp2</span><span class="p">)</span>
         <span class="n">wp_tot_sq</span> <span class="o">+=</span> <span class="n">wp2</span>
 
     <span class="n">params</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
 
-    <span class="c1"># Calculate the Wigner-Seitz Radius</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">==</span> <span class="s2">&quot;Deutsch&quot;</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">Deutsch_force_P3M</span>
+        <span class="c1"># Calculate the PP Force error from the e-e diffraction term only.</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">two_pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">ni</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">ni</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
+    <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">==</span> <span class="s2">&quot;Kelbg&quot;</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">Kelbg_force_P3M</span>
+        <span class="c1"># TODO: Calculate the PP Force error from the e-e diffraction term only.</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">two_pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ni</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># Ion WS</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">ai</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Ti</span><span class="p">)</span>
-    <span class="c1"># Rescale all the Lengths by the ion&#39;s WS Radius instead of the total WS radius. </span>
-    <span class="n">params</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ai</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># box length</span>
-    <span class="n">L</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">L</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="n">L</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="n">L</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="n">L</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Lv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">L</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">L</span><span class="p">])</span>  <span class="c1"># box length vector</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>  <span class="c1"># no. of dimensions</span>
+    <span class="c1"># P3M parameters</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hx</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lx</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">Mx</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hy</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Ly</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">My</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hz</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lz</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">Mz</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_ew</span>
+    <span class="c1"># Calculate the Optimized Green&#39;s Function</span>
+    <span class="n">constants</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_ew</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">])</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_k</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kx_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">ky_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kz_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span> <span class="o">=</span> <span class="n">gf_opt</span><span class="p">(</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">aliases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">cao</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="n">L</span> <span class="o">*</span> <span class="n">L</span> <span class="o">*</span> <span class="n">L</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Lmax_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">L</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">L</span><span class="p">])</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Lmin_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
-
-    <span class="n">params</span><span class="o">.</span><span class="n">dq</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">L</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">dq</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">L</span>
-
-
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;brute&quot;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING! QSP interaction can only be calculated using P3M algorithm. Bye.&#39;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">==</span> <span class="s2">&quot;Deutsch&quot;</span><span class="p">:</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">Deutsch_force_P3M</span>
-        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">==</span> <span class="s2">&quot;Kelbg&quot;</span><span class="p">:</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">Kelbg_force_P3M</span>
-        <span class="c1"># P3M parameters</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hx</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lx</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">Mx</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hy</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Ly</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">My</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">hz</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lz</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">Mz</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_ew</span>
-        <span class="c1"># Optimized Green&#39;s Function</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">G_k</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kx_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">ky_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">kz_v</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">gf_opt</span><span class="p">(</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">aliases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">cao</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
-
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">**</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">))</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">F_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># Complete PM and PP Force error calculation</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">**</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
+    <span class="c1"># Calculate the total force error</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">F_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PM_err</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="Deutsch_force_P3M"><a class="viewcode-back" href="../S_pot_QSP.html#S_pot_QSP.Deutsch_force_P3M">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="Deutsch_force_P3M"><a class="viewcode-back" href="../S_pot_QSP.html#S_pot_QSP.Deutsch_force_P3M">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">Deutsch_force_P3M</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Calculates the Deutsch QSP Force between two particles.</span>
+<span class="sd">    Calculate Deutsch QSP Force between two particles.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -354,6 +338,11 @@
 
 <span class="sd">    pot_matrix : array</span>
 <span class="sd">        It contains potential dependent variables.</span>
+<span class="sd">        pot_matrix[0,:,:] = qi*qj/4*pi*eps0</span>
+<span class="sd">        pot_matrix[1,:,:] = 2pi/deBroglie</span>
+<span class="sd">        pot_matrix[2,:,:] = e-e Pauli term factor</span>
+<span class="sd">        pot_matrix[3,:,:] = e-e Pauli term exponent term</span>
+<span class="sd">        pot_matrix[4,:,:] = Ewald parameter</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -362,46 +351,39 @@
 <span class="sd">                </span>
 <span class="sd">    force : float</span>
 <span class="sd">        Force between two particles.</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    pot_matrix[0] = de Broglies wavelength,</span>
-<span class="sd">    pot_matrix[1] = qi*qj/4*pi*eps0</span>
-<span class="sd">    pot_matrix[2] = 2pi/deBroglie</span>
-<span class="sd">    pot_matrix[3] = e-e term factor</span>
-<span class="sd">    pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">C</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-    <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
-    <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>  <span class="c1"># Ewald parameter alpha</span>
 
-    <span class="c1"># Ewald short-range force and potential</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
     <span class="n">a2</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span>
     <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span>
-    <span class="n">U_s_r</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
 
-    <span class="c1"># Diffraction term</span>
-    <span class="n">f1</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">r</span>
-    <span class="n">f2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
-    <span class="n">fterm1</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span><span class="p">)</span>
+    <span class="c1"># Ewald short-range potential and force terms</span>
+    <span class="n">U_ewald</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">f_ewald</span> <span class="o">=</span> <span class="n">U_ewald</span> <span class="o">/</span> <span class="n">r2</span>                                                      <span class="c1"># 1/r derivative</span>
+    <span class="n">f_ewald</span> <span class="o">+=</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>      <span class="c1"># erfc derivative</span>
 
-    <span class="c1"># Exponential terms of the potential and force</span>
-    <span class="n">U_pp</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
-    <span class="n">ee_pot_term</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="c1"># Diffraction potential and force term</span>
+    <span class="n">U_diff</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">f_diff</span> <span class="o">=</span> <span class="n">U_diff</span> <span class="o">/</span> <span class="n">r2</span>                                                        <span class="c1"># 1/r derivative</span>
+    <span class="n">f_diff</span> <span class="o">+=</span> <span class="o">-</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span>                                     <span class="c1"># exp derivative</span>
 
-    <span class="n">fterm2</span> <span class="o">=</span> <span class="n">U_pp</span> <span class="o">/</span> <span class="n">r2</span>
-    <span class="n">fterm3</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="n">C</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span>
-    <span class="n">fterm4</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">D</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="c1"># Pauli potential and force terms</span>
+    <span class="n">U_pauli</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="n">f_pauli</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">D</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
 
-    <span class="n">U</span> <span class="o">=</span> <span class="n">U_s_r</span> <span class="o">+</span> <span class="n">U_pp</span> <span class="o">+</span> <span class="n">ee_pot_term</span>
-    <span class="n">force</span> <span class="o">=</span> <span class="n">fterm1</span> <span class="o">+</span> <span class="n">fterm2</span> <span class="o">+</span> <span class="n">fterm3</span> <span class="o">+</span> <span class="n">fterm4</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U_ewald</span> <span class="o">+</span> <span class="n">U_diff</span> <span class="o">+</span> <span class="n">U_pauli</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">f_ewald</span> <span class="o">+</span> <span class="n">f_diff</span> <span class="o">+</span> <span class="n">f_pauli</span>
 
     <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span></div>
 
 
-<div class="viewcode-block" id="Kelbg_force_P3M"><a class="viewcode-back" href="../S_pot_QSP.html#S_pot_QSP.Kelbg_force_P3M">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="Kelbg_force_P3M"><a class="viewcode-back" href="../S_pot_QSP.html#S_pot_QSP.Kelbg_force_P3M">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">Kelbg_force_P3M</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Calculates the QSP Force between two particles when the P3M algorithm is chosen.</span>
@@ -412,7 +394,12 @@
 <span class="sd">        Distance between two particles.</span>
 
 <span class="sd">    pot_matrix : array</span>
-<span class="sd">        It contains potential dependent variables.</span>
+<span class="sd">        It contains potential dependent parameters.</span>
+<span class="sd">        pot_matrix[0] = qi*qj/4*pi*eps0</span>
+<span class="sd">        pot_matrix[1] = 2pi/deBroglie</span>
+<span class="sd">        pot_matrix[2] = e-e Pauli term factor</span>
+<span class="sd">        pot_matrix[3] = e-e Pauli term exponent term</span>
+<span class="sd">        pot_matrix[4] = Ewald parameter</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -423,238 +410,36 @@
 <span class="sd">        Force between two particles.</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    pot_matrix[0] = de Broglies wavelength,</span>
-<span class="sd">    pot_matrix[1] = qi*qj/4*pi*eps0</span>
-<span class="sd">    pot_matrix[2] = 2pi/deBroglie</span>
-<span class="sd">    pot_matrix[3] = e-e term factor</span>
-<span class="sd">    pot_matrix[4] = e-e exp factor 4pi/L_dB^2/ln(2)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Ewald force corresponding to the 1/r term of the potential</span>
-
-    <span class="n">A</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">C</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">C2</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">C</span>
-    <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-    <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
-    <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>  <span class="c1"># Ewald parameter alpha</span>
-
-    <span class="c1"># Ewald short-range force and potential</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">C2</span> <span class="o">=</span> <span class="n">C</span><span class="o">*</span><span class="n">C</span>
     <span class="n">a2</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span>
     <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span>
-    <span class="n">U_s_r</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
 
-    <span class="n">f1</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">r</span>
-    <span class="n">f2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
-    <span class="n">fterm1</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span><span class="p">)</span>
+    <span class="c1"># Ewald short-range potential and force terms</span>
+    <span class="n">U_ewald</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">f_ewald</span> <span class="o">=</span> <span class="n">U_ewald</span> <span class="o">/</span> <span class="n">r2</span>                                                                  <span class="c1"># 1/r derivative</span>
+    <span class="n">f_ewald</span> <span class="o">+=</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>                  <span class="c1"># erfc derivative</span>
 
-    <span class="c1"># Diffraction terms of the potential and force</span>
-    <span class="n">U_pp</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
-    <span class="n">U_pp2</span> <span class="o">=</span> <span class="o">+</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pi</span><span class="p">))</span>
+    <span class="c1"># Diffraction potential and force term</span>
+    <span class="n">U_diff</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">U_diff</span> <span class="o">+=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+
+    <span class="n">f_diff</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>    <span class="c1"># exp(r)/r derivative</span>
+    <span class="n">f_diff</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>                          <span class="c1"># erfc derivative</span>
 
     <span class="c1"># Pauli Term</span>
-    <span class="n">ee_pot_term</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="n">U_pauli</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="n">f_pauli</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">D</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
 
-    <span class="n">fterm_pp</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
-    <span class="c1"># erfc derivative</span>
-    <span class="n">fterm_pp2</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">fterm_ee</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">D</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
-
-    <span class="n">U</span> <span class="o">=</span> <span class="n">U_s_r</span> <span class="o">+</span> <span class="n">U_pp</span> <span class="o">+</span> <span class="n">U_pp2</span> <span class="o">+</span> <span class="n">ee_pot_term</span>
-    <span class="n">force</span> <span class="o">=</span> <span class="n">fterm1</span> <span class="o">+</span> <span class="n">fterm_pp</span> <span class="o">+</span> <span class="n">fterm_pp2</span> <span class="o">+</span> <span class="n">fterm_ee</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U_ewald</span> <span class="o">+</span> <span class="n">U_diff</span> <span class="o">+</span> <span class="n">U_pauli</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">f_ewald</span> <span class="o">+</span> <span class="n">f_diff</span> <span class="o">+</span> <span class="n">f_pauli</span>
 
     <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span></div>
-
-<div class="viewcode-block" id="gf_opt"><a class="viewcode-back" href="../S_pot_QSP.html#S_pot_QSP.gf_opt">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
-<span class="k">def</span> <span class="nf">gf_opt</span><span class="p">(</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">aliases</span><span class="p">,</span> <span class="n">BoxLv</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">fourpie0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates the Optimized Green Function given by eq.(22) of Ref.[3]_ .</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    MGrid : array</span>
-<span class="sd">        number of mesh points in x,y,z.</span>
-
-<span class="sd">    aliases : array</span>
-<span class="sd">        number of aliases in each direction.</span>
-
-<span class="sd">    BoxLv : array</span>
-<span class="sd">        Length of simulation&#39;s box in each direction.</span>
-
-<span class="sd">    p : int</span>
-<span class="sd">        charge assignment order (CAO).</span>
-
-<span class="sd">    pot_matrix : array</span>
-<span class="sd">        Potential matrix. It contains screening parameter and Ewald parameter. See potential matrix above.</span>
-
-<span class="sd">    rcut : float</span>
-<span class="sd">        Cutoff distance for the PP calculation.</span>
-
-<span class="sd">    fourpie0 : float</span>
-<span class="sd">        Potential factor.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    G_k : array</span>
-<span class="sd">        optimal Green Function.</span>
-
-<span class="sd">    kx_v : array</span>
-<span class="sd">       array of reciprocal space vectors along the x-axis.</span>
-
-<span class="sd">    ky_v : array</span>
-<span class="sd">       array of reciprocal space vectors along the y-axis.</span>
-
-<span class="sd">    kz_v : array</span>
-<span class="sd">       array of reciprocal space vectors along the z-axis.</span>
-
-<span class="sd">    PM_err : float</span>
-<span class="sd">        Error in the force calculation due to the optimized Green&#39;s function. eq.(28) of Ref.[3]_ .</span>
-
-<span class="sd">    PP_err : float</span>
-<span class="sd">        Error in the e-e force calculation due to the distance cutoff see eq.(30) of Ref.[4]_ .</span>
-<span class="sd">   </span>
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-<span class="sd">    .. [3] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) &lt;https://doi.org/10.1063/1.2932253&gt;`_</span>
-<span class="sd">    .. [4] `G. Dharuman et al. J Chem Phys 146 024112 (2017) &lt;https://doi.org/10.1063/1.4973842&gt;`_</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># Grab the e-e interaction parameters only. </span>
-    <span class="n">C</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-
-    <span class="n">Gew</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># params.Potential.matrix[5,0,0]</span>
-
-    <span class="n">rcut2</span> <span class="o">=</span> <span class="n">rcut</span> <span class="o">*</span> <span class="n">rcut</span>
-    <span class="n">mx_max</span> <span class="o">=</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># params.P3M.mx_max</span>
-    <span class="n">my_max</span> <span class="o">=</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># params.P3M.my_max</span>
-    <span class="n">mz_max</span> <span class="o">=</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># params.P3M.mz_max</span>
-    <span class="n">Mx</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># params.P3M.Mx</span>
-    <span class="n">My</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># params.P3M.My</span>
-    <span class="n">Mz</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># params.P3M.Mz</span>
-    <span class="c1"># hx = params.P3M.hx</span>
-    <span class="c1"># hy = params.P3M.hy</span>
-    <span class="c1"># hz = params.P3M.hz</span>
-    <span class="n">Lx</span> <span class="o">=</span> <span class="n">BoxLv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># params.Lx</span>
-    <span class="n">Ly</span> <span class="o">=</span> <span class="n">BoxLv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># params.Ly</span>
-    <span class="n">Lz</span> <span class="o">=</span> <span class="n">BoxLv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># params.Lz</span>
-    <span class="n">hx</span> <span class="o">=</span> <span class="n">Lx</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">Mx</span><span class="p">)</span>
-    <span class="n">hy</span> <span class="o">=</span> <span class="n">Ly</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">My</span><span class="p">)</span>
-    <span class="n">hz</span> <span class="o">=</span> <span class="n">Lz</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">Mz</span><span class="p">)</span>
-
-    <span class="n">Gew_sq</span> <span class="o">=</span> <span class="n">Gew</span> <span class="o">*</span> <span class="n">Gew</span>
-
-    <span class="n">k_mks</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">fourpie0</span><span class="p">)</span>
-
-    <span class="n">G_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mz</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mx</span><span class="p">))</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">Mz</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">nz_mid</span> <span class="o">=</span> <span class="n">Mz</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">nz_mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">Mz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">My</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">ny_mid</span> <span class="o">=</span> <span class="n">My</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">ny_mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">My</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">Mx</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">nx_mid</span> <span class="o">=</span> <span class="n">Mx</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">nx_mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">Mx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
-
-    <span class="n">nx_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Mx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">Mx</span><span class="p">))</span>
-    <span class="n">ny_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">My</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">My</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-    <span class="n">nz_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Mz</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">Mz</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-    <span class="n">kx_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx_v</span> <span class="o">-</span> <span class="n">nx_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">Lx</span>
-    <span class="n">ky_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ny_v</span> <span class="o">-</span> <span class="n">ny_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ly</span>
-    <span class="n">kz_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nz_v</span> <span class="o">-</span> <span class="n">nz_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">Lz</span>
-
-    <span class="n">PM_err</span> <span class="o">=</span> <span class="mf">0.0</span>
-
-    <span class="k">for</span> <span class="n">nz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Mz</span><span class="p">):</span>
-        <span class="n">nz_sh</span> <span class="o">=</span> <span class="n">nz</span> <span class="o">-</span> <span class="n">nz_mid</span>
-        <span class="n">kz</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">nz_sh</span> <span class="o">/</span> <span class="n">Lz</span>
-
-        <span class="k">for</span> <span class="n">ny</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">My</span><span class="p">):</span>
-            <span class="n">ny_sh</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">-</span> <span class="n">ny_mid</span>
-            <span class="n">ky</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">ny_sh</span> <span class="o">/</span> <span class="n">Ly</span>
-
-            <span class="k">for</span> <span class="n">nx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Mx</span><span class="p">):</span>
-                <span class="n">nx_sh</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">-</span> <span class="n">nx_mid</span>
-                <span class="n">kx</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">nx_sh</span> <span class="o">/</span> <span class="n">Lx</span>
-
-                <span class="n">k_sq</span> <span class="o">=</span> <span class="n">kx</span> <span class="o">*</span> <span class="n">kx</span> <span class="o">+</span> <span class="n">ky</span> <span class="o">*</span> <span class="n">ky</span> <span class="o">+</span> <span class="n">kz</span> <span class="o">*</span> <span class="n">kz</span>
-
-                <span class="k">if</span> <span class="n">k_sq</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
-
-                    <span class="n">U_k_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
-                    <span class="n">U_G_k</span> <span class="o">=</span> <span class="mf">0.0</span>
-
-                    <span class="c1"># Sum over the aliases</span>
-                    <span class="k">for</span> <span class="n">mz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">mz_max</span><span class="p">,</span> <span class="n">mz_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                        <span class="k">for</span> <span class="n">my</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">my_max</span><span class="p">,</span> <span class="n">my_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                            <span class="k">for</span> <span class="n">mx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">mx_max</span><span class="p">,</span> <span class="n">mx_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-
-                                <span class="n">kx_M</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx_sh</span> <span class="o">+</span> <span class="n">mx</span> <span class="o">*</span> <span class="n">Mx</span><span class="p">)</span> <span class="o">/</span> <span class="n">Lx</span>
-                                <span class="n">ky_M</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ny_sh</span> <span class="o">+</span> <span class="n">my</span> <span class="o">*</span> <span class="n">My</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ly</span>
-                                <span class="n">kz_M</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nz_sh</span> <span class="o">+</span> <span class="n">mz</span> <span class="o">*</span> <span class="n">Mz</span><span class="p">)</span> <span class="o">/</span> <span class="n">Lz</span>
-
-                                <span class="n">k_M_sq</span> <span class="o">=</span> <span class="n">kx_M</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">ky_M</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">kz_M</span> <span class="o">**</span> <span class="mi">2</span>
-
-                                <span class="k">if</span> <span class="n">kx_M</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
-                                    <span class="n">U_kx_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">*</span> <span class="n">hx</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">*</span> <span class="n">hx</span><span class="p">)</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="n">U_kx_M</span> <span class="o">=</span> <span class="mf">1.0</span>
-
-                                <span class="k">if</span> <span class="n">ky_M</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
-                                    <span class="n">U_ky_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">*</span> <span class="n">hy</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">*</span> <span class="n">hy</span><span class="p">)</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="n">U_ky_M</span> <span class="o">=</span> <span class="mf">1.0</span>
-
-                                <span class="k">if</span> <span class="n">kz_M</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
-                                    <span class="n">U_kz_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kz_M</span> <span class="o">*</span> <span class="n">hz</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kz_M</span> <span class="o">*</span> <span class="n">hz</span><span class="p">)</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="n">U_kz_M</span> <span class="o">=</span> <span class="mf">1.0</span>
-
-                                <span class="n">U_k_M</span> <span class="o">=</span> <span class="p">(</span><span class="n">U_kx_M</span> <span class="o">*</span> <span class="n">U_ky_M</span> <span class="o">*</span> <span class="n">U_kz_M</span><span class="p">)</span> <span class="o">**</span> <span class="n">p</span>
-                                <span class="n">U_k_M_sq</span> <span class="o">=</span> <span class="n">U_k_M</span> <span class="o">*</span> <span class="n">U_k_M</span>
-
-                                <span class="n">G_k_M</span> <span class="o">=</span> <span class="n">k_mks</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">k_M_sq</span> <span class="o">/</span> <span class="n">Gew_sq</span><span class="p">)</span> <span class="o">/</span> <span class="n">k_M_sq</span>
-
-                                <span class="n">k_dot_k_M</span> <span class="o">=</span> <span class="n">kx</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">+</span> <span class="n">ky</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">+</span> <span class="n">kz</span> <span class="o">*</span> <span class="n">kz_M</span>
-
-                                <span class="n">U_G_k</span> <span class="o">+=</span> <span class="p">(</span><span class="n">U_k_M_sq</span> <span class="o">*</span> <span class="n">G_k_M</span> <span class="o">*</span> <span class="n">k_dot_k_M</span><span class="p">)</span>
-                                <span class="n">U_k_sq</span> <span class="o">+=</span> <span class="n">U_k_M_sq</span>
-
-                    <span class="c1"># eq.(22) of Ref. [3]_                                                  </span>
-                    <span class="n">G_k</span><span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]</span> <span class="o">=</span> <span class="n">U_G_k</span> <span class="o">/</span> <span class="p">((</span><span class="n">U_k_sq</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">k_sq</span><span class="p">)</span>
-
-                    <span class="c1"># eq. (9) of Ref. [3]_</span>
-                    <span class="n">Gk_hat</span> <span class="o">=</span> <span class="n">k_mks</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">k_sq</span> <span class="o">/</span> <span class="n">Gew_sq</span><span class="p">)</span> <span class="o">/</span> <span class="n">k_sq</span>
-
-                    <span class="c1"># eq.(28) of Ref. [3]_</span>
-                    <span class="n">PM_err</span> <span class="o">=</span> <span class="n">PM_err</span> <span class="o">+</span> <span class="n">Gk_hat</span> <span class="o">*</span> <span class="n">Gk_hat</span> <span class="o">*</span> <span class="n">k_sq</span> <span class="o">-</span> <span class="n">U_G_k</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">((</span><span class="n">U_k_sq</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">k_sq</span><span class="p">)</span>
-
-    <span class="c1"># Calculate the PP error for the e-e interaction only. </span>
-    <span class="c1"># This is because the electron&#39;s DeBroglie wavelength is much shorter than the ion&#39;s, hence longer-range force.     </span>
-    <span class="n">PP_err_exp</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">C</span> <span class="o">*</span> <span class="n">rcut</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="n">rcut</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">rcut</span>
-
-    <span class="n">PP_err_ee</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">4.</span> <span class="o">*</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">F</span><span class="p">)</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">rcut2</span><span class="p">))</span>
-                               <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">rcut</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">rcut2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">rcut2</span> <span class="o">+</span> <span class="mi">3</span><span class="p">))</span>
-
-    <span class="n">PP_err_ee</span> <span class="o">*=</span> <span class="n">D</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">k_mks</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-
-    <span class="n">PP_err_Ew</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">Gew_sq</span> <span class="o">*</span> <span class="n">rcut2</span><span class="p">)</span> <span class="o">/</span> <span class="n">rcut</span>
-    <span class="n">PP_err_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PP_err_Ew</span> <span class="o">+</span> <span class="n">PP_err_ee</span> <span class="o">+</span> <span class="n">PP_err_exp</span><span class="p">)</span> <span class="o">*</span> <span class="n">k_mks</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Lx</span> <span class="o">*</span> <span class="n">Ly</span> <span class="o">*</span> <span class="n">Lz</span><span class="p">)</span>
-
-    <span class="n">PM_err_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PM_err</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">Lx</span> <span class="o">*</span> <span class="n">Ly</span> <span class="o">*</span> <span class="n">Lz</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">G_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">,</span> <span class="n">PM_err_tot</span><span class="p">,</span> <span class="n">PP_err_tot</span></div>
 </pre></div>
 
            </div>
@@ -670,10 +455,14 @@
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

@@ -14,17 +14,17 @@ Michigan State University
 import numpy as np
 import time
 import sys
-from pyfiglet import Figlet
+# Progress bar
 from tqdm import tqdm
 
-# import MD modules, class
+# import Sarkas MD modules
 from S_thermostat import Thermostat, calc_kin_temp, remove_drift
 from S_integrator import Integrator, calc_pot_acc, calc_pot_acc_fmm
 from S_particles import Particles
-from S_verbose import Verbose, screen_figlet
+from S_verbose import Verbose
 from S_params import Params
 from S_checkpoint import Checkpoint
-from S_postprocessing import Thermodynamics, RadialDistributionFunction
+from S_postprocessing import RadialDistributionFunction
 
 time0 = time.time()
 
@@ -32,15 +32,13 @@ input_file = sys.argv[1]
 params = Params()
 params.setup(input_file)  # Read initial conditions and setup parameters
 
-checkpoint = Checkpoint(params)  # For restart and pva backups.
+# For restart and pva backups.
+checkpoint = Checkpoint(params)
+checkpoint.save_pickle(params)
 
 verbose = Verbose(params)
-
-if not params.load_method == "restart":
-    verbose.sim_setting_summary()  # simulation setting summary
-
-if params.Control.verbose:
-    screen_figlet()
+if not params.load_method == 'restart':
+    verbose.sim_setting_summary(params)  # simulation setting summary
 
 integrator = Integrator(params)
 thermostat = Thermostat(params)
@@ -68,15 +66,20 @@ time_init = time.time()
 verbose.time_stamp("Initialization", time_init - time0)
 #
 f_log = open(params.Control.log_file, 'a+')
-print("\nInitial State: T = {:2.6e}, E = {:2.6e}, K = {:2.6e}, U = {:2.6e}".format(Temperature,
-                                                                                   E_init, Tot_Kin, U_init),
-      file=f_log)
+print("\nInitial State:", file=f_log)
+if params.Control.units == "cgs":
+    print("T = {:2.6e} [K], E = {:2.6e} [erg], K = {:2.6e} [erg], U = {:2.6e} [erg]".format(Temperature,
+                                                                                   E_init, Tot_Kin, U_init), file=f_log)
+else:
+    print("T = {:2.6e} [K], E = {:2.6e} [J], K = {:2.6e} [J], U = {:2.6e} [J]".format(Temperature,
+                                                                                   E_init, Tot_Kin, U_init), file=f_log)
 f_log.close()
 ##############################################
 # Equilibration Phase
 ##############################################
 if not params.load_method == "restart":
-    if params.Control.verbose: print("\n------------- Equilibration -------------")
+    if params.Control.verbose:
+        print("\n------------- Equilibration -------------")
     for it in tqdm(range(params.Control.Neq), disable=not params.Control.verbose):
         # Calculate the Potential energy and update particles' data
         U_therm = integrator.update(ptcls, params)
@@ -167,7 +170,8 @@ for it in tqdm(range(it_start, params.Control.Nsteps), disable=(not params.Contr
 # Save production time
 time_prod = time.time()
 verbose.time_stamp("Production", time_prod - time_eq)
-if params.Control.writexyz: f_xyz.close()
+if params.Control.writexyz:
+    f_xyz.close()
 ##############################################
 # Finalization Phase
 ##############################################

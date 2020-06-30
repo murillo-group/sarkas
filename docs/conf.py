@@ -35,7 +35,9 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx_rtd_theme',
     'sphinx.ext.viewcode',
-    'sphinx.ext.mathjax'
+    'sphinx.ext.mathjax',
+    'sphinxcontrib.bibtex',
+    'sphinx.ext.intersphinx'
 ]
 
 # Napoleon settings

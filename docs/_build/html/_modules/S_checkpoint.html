@@ -160,7 +160,8 @@
 <span class="sd">Module handling restarting/checkpoint</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">load</span><span class="p">,</span> <span class="n">savez</span><span class="p">,</span> <span class="nb">sum</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 
 
@@ -168,36 +169,70 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to handle restart dumps.</span>
 
-<span class="sd">    Attributes</span>
+<span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    params : class</span>
-<span class="sd">        Simulation&#39;s parameters. see ``S_params.py`` module for more info.</span>
-<span class="sd">    </span>
+<span class="sd">        Simulation&#39;s parameters.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dt : float</span>
+<span class="sd">        Simulation timestep.</span>
+
+<span class="sd">    dump_dir : str</span>
+<span class="sd">        Path to directory where simulations dump will be stored.</span>
+
+<span class="sd">    energy_filename : str</span>
+<span class="sd">        CSV file for storing energy values.</span>
+
+<span class="sd">    ptcls_file_name : str</span>
+<span class="sd">        Prefix of dumps filenames.</span>
+
+<span class="sd">    params_picckle : str</span>
+<span class="sd">        Pickle file where all simulation parameters will be stored.</span>
+
+<span class="sd">    species_name: list</span>
+<span class="sd">        Names of each particle species.</span>
+
 <span class="sd">    checkpoint_dir : str</span>
 <span class="sd">        Output directory. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dump_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;Thermodynamics_&quot;</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptcls_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span>  <span class="s2">&quot;S_checkpoint_&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params_pickle</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;S_parameters&quot;</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">+</span> <span class="s2">&quot;.pickle&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">T_desired</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># Check the existence of locations</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">)):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">)):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Checkpoint.save_pickle"><a class="viewcode-back" href="../S_checkpoint.html#S_checkpoint.Checkpoint.save_pickle">[docs]</a>    <span class="k">def</span> <span class="nf">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Save simulation&#39;s parameters to a binary file using pickle.</span>
+<span class="sd">        Save all simulations parameters in a pickle file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        params : class</span>
-<span class="sd">            Simulation&#39;s parameters.</span>
+<span class="sd">            Simulation parameters.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
-        <span class="c1"># redundancy for the sake of shortness</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">)):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+        <span class="n">pickle_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params_pickle</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">pickle_file</span><span class="p">)</span>
+        <span class="n">pickle_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="s2">&quot;S_parameters.pickle&quot;</span>
-
-        <span class="n">save_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
-        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">save_file</span><span class="p">)</span>
-        <span class="n">save_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-<div class="viewcode-block" id="Checkpoint.dump"><a class="viewcode-back" href="../S_checkpoint.html#S_checkpoint.Checkpoint.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Checkpoint.dump"><a class="viewcode-back" href="../S_checkpoint.html#S_checkpoint.Checkpoint.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">kinetic_energies</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">potential_energy</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save particles&#39; data to binary file for future restart.</span>
 
@@ -205,27 +240,46 @@
 <span class="sd">        ----------</span>
 <span class="sd">        ptcls : class</span>
 <span class="sd">            Particles&#39; data. See ``S_particles.py`` for more info.</span>
-
+<span class="sd">        </span>
+<span class="sd">        kinetic_energies : array </span>
+<span class="sd">            Kinetic energy of each species.</span>
+<span class="sd">        </span>
+<span class="sd">        temperatures : array </span>
+<span class="sd">            Temperature of each species.</span>
+<span class="sd">        </span>
+<span class="sd">        potential_energy : float</span>
+<span class="sd">            Potential energy.</span>
+<span class="sd">            </span>
 <span class="sd">        it : int</span>
 <span class="sd">            Timestep number.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">species_id</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span>
-        <span class="n">species_name</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_name</span>
-        <span class="n">pos</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span>
-        <span class="n">vel</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span>
-        <span class="n">acc</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span>
-        <span class="n">cntr</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span>
-        <span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="o">+</span><span class="s2">&quot;S_checkpoint_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span>
-                 <span class="n">species_id</span><span class="o">=</span><span class="n">species_id</span><span class="p">,</span>
-                 <span class="n">species_name</span><span class="o">=</span><span class="n">species_name</span><span class="p">,</span>
-                 <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
-                 <span class="n">vel</span><span class="o">=</span><span class="n">vel</span><span class="p">,</span>
-                 <span class="n">acc</span><span class="o">=</span><span class="n">acc</span><span class="p">,</span>
-                 <span class="n">cntr</span> <span class="o">=</span> <span class="n">cntr</span><span class="p">,</span>
-                 <span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">rdf_hist</span>
-                 <span class="p">)</span></div></div>
+        <span class="n">fle_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptcls_file_name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+        <span class="n">tme</span> <span class="o">=</span> <span class="n">it</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">savez</span><span class="p">(</span><span class="n">fle_name</span><span class="p">,</span>
+              <span class="n">species_id</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">species_id</span><span class="p">,</span>
+              <span class="n">species_name</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">species_name</span><span class="p">,</span>
+              <span class="n">pos</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+              <span class="n">vel</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span>
+              <span class="n">acc</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">,</span>
+              <span class="n">cntr</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span>
+              <span class="n">rdf_hist</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span><span class="p">,</span>
+              <span class="n">time</span><span class="o">=</span><span class="n">tme</span><span class="p">)</span>
+
+        <span class="c1"># Prepare data for saving</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
+                <span class="s2">&quot;Total Energy&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">kinetic_energies</span><span class="p">)</span> <span class="o">+</span> <span class="n">potential_energy</span><span class="p">,</span>
+                <span class="s2">&quot;Total Kinetic Energy&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">kinetic_energies</span><span class="p">),</span>
+                <span class="s2">&quot;Potential Energy&quot;</span><span class="p">:</span> <span class="n">potential_energy</span><span class="p">}</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_conc</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">@</span> <span class="n">temperatures</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Temperature&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)):</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Kinetic Energy&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">sp</span><span class="p">])]</span> <span class="o">=</span> <span class="n">kinetic_energies</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Temperature&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">sp</span><span class="p">])]</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Gamma&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">/</span> <span class="n">temperature</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_filename</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div></div>
 </pre></div>
 
            </div>
@@ -241,10 +295,14 @@
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

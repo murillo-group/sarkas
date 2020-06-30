@@ -162,7 +162,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">njit</span>
 <span class="kn">import</span> <span class="nn">pyfftw</span>
 
 <span class="c1"># These &quot;ignore&quot; are needed because numba does not support pyfftw yet</span>
@@ -174,7 +174,172 @@
 <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaPendingDeprecationWarning</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="assgnmnt_func"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.assgnmnt_func">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="force_optimized_green_function"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.force_optimized_green_function">[docs]</a><span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">force_optimized_green_function</span><span class="p">(</span><span class="n">MGrid</span><span class="p">,</span> <span class="n">aliases</span><span class="p">,</span> <span class="n">BoxLv</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008]_.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    MGrid : array</span>
+<span class="sd">        number of mesh points in x,y,z</span>
+
+<span class="sd">    aliases : array</span>
+<span class="sd">        number of aliases in each direction</span>
+
+<span class="sd">    BoxLv : array</span>
+<span class="sd">        Length of simulation&#39;s box in each direction</span>
+
+<span class="sd">    p : int</span>
+<span class="sd">        Charge assignment order (CAO)</span>
+
+<span class="sd">    constants : array</span>
+<span class="sd">        Screening parameter, Ewald parameter, 4 pi eps0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    G_k : array_like</span>
+<span class="sd">        optimal Green Function</span>
+
+<span class="sd">    kx_v : array_like</span>
+<span class="sd">       array of reciprocal space vectors along the x-axis</span>
+
+<span class="sd">    ky_v : array_like</span>
+<span class="sd">       array of reciprocal space vectors along the y-axis</span>
+
+<span class="sd">    kz_v : array_like</span>
+<span class="sd">       array of reciprocal space vectors along the z-axis</span>
+
+<span class="sd">    PM_err : float</span>
+<span class="sd">        Error in the force calculation due to the optimized Green&#39;s function. eq.(28) of Ref. [2]_</span>
+
+<span class="sd">    PP_err : float</span>
+<span class="sd">        Error in the force calculation due to the distance cutoff. eq.(30) of Ref. [1]_</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [Stern2008] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) &lt;https://doi.org/10.1063/1.2932253&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kappa</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Gew</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">fourpie0</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">mx_max</span> <span class="o">=</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># params.P3M.mx_max</span>
+    <span class="n">my_max</span> <span class="o">=</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># params.P3M.my_max</span>
+    <span class="n">mz_max</span> <span class="o">=</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># params.P3M.mz_max</span>
+    <span class="n">Mx</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># params.P3M.Mx</span>
+    <span class="n">My</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># params.P3M.My</span>
+    <span class="n">Mz</span> <span class="o">=</span> <span class="n">MGrid</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># params.P3M.Mz</span>
+    <span class="n">Lx</span> <span class="o">=</span> <span class="n">BoxLv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># params.Lx</span>
+    <span class="n">Ly</span> <span class="o">=</span> <span class="n">BoxLv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># params.Ly</span>
+    <span class="n">Lz</span> <span class="o">=</span> <span class="n">BoxLv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># params.Lz</span>
+    <span class="n">hx</span> <span class="o">=</span> <span class="n">Lx</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">Mx</span><span class="p">)</span>
+    <span class="n">hy</span> <span class="o">=</span> <span class="n">Ly</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">My</span><span class="p">)</span>
+    <span class="n">hz</span> <span class="o">=</span> <span class="n">Lz</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">Mz</span><span class="p">)</span>
+
+    <span class="n">kappa_sq</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">kappa</span>
+    <span class="n">Gew_sq</span> <span class="o">=</span> <span class="n">Gew</span> <span class="o">*</span> <span class="n">Gew</span>
+
+    <span class="n">G_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mz</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mx</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">Mz</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">nz_mid</span> <span class="o">=</span> <span class="n">Mz</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nz_mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">Mz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">My</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ny_mid</span> <span class="o">=</span> <span class="n">My</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ny_mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">My</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">Mx</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">nx_mid</span> <span class="o">=</span> <span class="n">Mx</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nx_mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">Mx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="n">nx_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Mx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">Mx</span><span class="p">))</span>
+    <span class="n">ny_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">My</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">My</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">nz_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Mz</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">Mz</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">kx_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx_v</span> <span class="o">-</span> <span class="n">nx_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">Lx</span>
+    <span class="n">ky_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ny_v</span> <span class="o">-</span> <span class="n">ny_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ly</span>
+    <span class="n">kz_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nz_v</span> <span class="o">-</span> <span class="n">nz_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">Lz</span>
+
+    <span class="n">PM_err</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">if</span> <span class="n">fourpie0</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="n">four_pi</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">four_pi</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">fourpie0</span>
+
+    <span class="k">for</span> <span class="n">nz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Mz</span><span class="p">):</span>
+        <span class="n">nz_sh</span> <span class="o">=</span> <span class="n">nz</span> <span class="o">-</span> <span class="n">nz_mid</span>
+        <span class="n">kz</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">nz_sh</span> <span class="o">/</span> <span class="n">Lz</span>
+
+        <span class="k">for</span> <span class="n">ny</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">My</span><span class="p">):</span>
+            <span class="n">ny_sh</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">-</span> <span class="n">ny_mid</span>
+            <span class="n">ky</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">ny_sh</span> <span class="o">/</span> <span class="n">Ly</span>
+
+            <span class="k">for</span> <span class="n">nx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Mx</span><span class="p">):</span>
+                <span class="n">nx_sh</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">-</span> <span class="n">nx_mid</span>
+                <span class="n">kx</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">nx_sh</span> <span class="o">/</span> <span class="n">Lx</span>
+
+                <span class="n">k_sq</span> <span class="o">=</span> <span class="n">kx</span> <span class="o">*</span> <span class="n">kx</span> <span class="o">+</span> <span class="n">ky</span> <span class="o">*</span> <span class="n">ky</span> <span class="o">+</span> <span class="n">kz</span> <span class="o">*</span> <span class="n">kz</span>
+
+                <span class="k">if</span> <span class="n">k_sq</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+
+                    <span class="n">U_k_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="n">U_G_k</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+                    <span class="c1"># Sum over the aliases</span>
+                    <span class="k">for</span> <span class="n">mz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">mz_max</span><span class="p">,</span> <span class="n">mz_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">my</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">my_max</span><span class="p">,</span> <span class="n">my_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="k">for</span> <span class="n">mx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">mx_max</span><span class="p">,</span> <span class="n">mx_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+
+                                <span class="n">kx_M</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx_sh</span> <span class="o">+</span> <span class="n">mx</span> <span class="o">*</span> <span class="n">Mx</span><span class="p">)</span> <span class="o">/</span> <span class="n">Lx</span>
+                                <span class="n">ky_M</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ny_sh</span> <span class="o">+</span> <span class="n">my</span> <span class="o">*</span> <span class="n">My</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ly</span>
+                                <span class="n">kz_M</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nz_sh</span> <span class="o">+</span> <span class="n">mz</span> <span class="o">*</span> <span class="n">Mz</span><span class="p">)</span> <span class="o">/</span> <span class="n">Lz</span>
+
+                                <span class="n">k_M_sq</span> <span class="o">=</span> <span class="n">kx_M</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">ky_M</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">kz_M</span> <span class="o">**</span> <span class="mi">2</span>
+
+                                <span class="k">if</span> <span class="n">kx_M</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                                    <span class="n">U_kx_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">*</span> <span class="n">hx</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">*</span> <span class="n">hx</span><span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">U_kx_M</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+                                <span class="k">if</span> <span class="n">ky_M</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                                    <span class="n">U_ky_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">*</span> <span class="n">hy</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">*</span> <span class="n">hy</span><span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">U_ky_M</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+                                <span class="k">if</span> <span class="n">kz_M</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                                    <span class="n">U_kz_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kz_M</span> <span class="o">*</span> <span class="n">hz</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kz_M</span> <span class="o">*</span> <span class="n">hz</span><span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">U_kz_M</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+                                <span class="n">U_k_M</span> <span class="o">=</span> <span class="p">(</span><span class="n">U_kx_M</span> <span class="o">*</span> <span class="n">U_ky_M</span> <span class="o">*</span> <span class="n">U_kz_M</span><span class="p">)</span> <span class="o">**</span> <span class="n">p</span>
+                                <span class="n">U_k_M_sq</span> <span class="o">=</span> <span class="n">U_k_M</span> <span class="o">*</span> <span class="n">U_k_M</span>
+
+                                <span class="n">G_k_M</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">kappa_sq</span> <span class="o">+</span> <span class="n">k_M_sq</span><span class="p">)</span> <span class="o">/</span> <span class="n">Gew_sq</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">kappa_sq</span> <span class="o">+</span> <span class="n">k_M_sq</span><span class="p">)</span>
+
+                                <span class="n">k_dot_k_M</span> <span class="o">=</span> <span class="n">kx</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">+</span> <span class="n">ky</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">+</span> <span class="n">kz</span> <span class="o">*</span> <span class="n">kz_M</span>
+
+                                <span class="n">U_G_k</span> <span class="o">+=</span> <span class="p">(</span><span class="n">U_k_M_sq</span> <span class="o">*</span> <span class="n">G_k_M</span> <span class="o">*</span> <span class="n">k_dot_k_M</span><span class="p">)</span>
+                                <span class="n">U_k_sq</span> <span class="o">+=</span> <span class="n">U_k_M_sq</span>
+
+                    <span class="c1"># eq.(22) of Ref.[2]_</span>
+                    <span class="n">G_k</span><span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]</span> <span class="o">=</span> <span class="n">U_G_k</span> <span class="o">/</span> <span class="p">((</span><span class="n">U_k_sq</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">k_sq</span><span class="p">)</span>
+                    <span class="n">Gk_hat</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">kappa_sq</span> <span class="o">+</span> <span class="n">k_sq</span><span class="p">)</span> <span class="o">/</span> <span class="n">Gew_sq</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">kappa_sq</span> <span class="o">+</span> <span class="n">k_sq</span><span class="p">)</span>
+
+                    <span class="c1"># eq.(28) of Ref.[2]_</span>
+                    <span class="n">PM_err</span> <span class="o">=</span> <span class="n">PM_err</span> <span class="o">+</span> <span class="n">Gk_hat</span> <span class="o">*</span> <span class="n">Gk_hat</span> <span class="o">*</span> <span class="n">k_sq</span> <span class="o">-</span> <span class="n">U_G_k</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">((</span><span class="n">U_k_sq</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">k_sq</span><span class="p">)</span>
+
+    <span class="n">PM_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PM_err</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">Lx</span> <span class="o">*</span> <span class="n">Ly</span> <span class="o">*</span> <span class="n">Lz</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">,</span> <span class="n">PM_err</span></div>
+
+
+<div class="viewcode-block" id="assgnmnt_func"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.assgnmnt_func">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Calculate the charge assignment function as given in Ref. [1]_ .</span>
@@ -260,7 +425,7 @@
     <span class="k">return</span> <span class="n">W</span></div>
 
 
-<div class="viewcode-block" id="calc_charge_dens"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_charge_dens">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="calc_charge_dens"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_charge_dens">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_charge_dens</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cao</span><span class="p">,</span> <span class="n">Mx</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mz</span><span class="p">,</span> <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Assigns Charges to Mesh Points.</span>
@@ -306,15 +471,15 @@
 
     <span class="n">rho_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mz</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mz</span><span class="p">))</span>
 
-    <span class="c1">#Mid point calculation</span>
-    <span class="k">if</span> <span class="n">cao</span><span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="c1"># Mid point calculation</span>
+    <span class="k">if</span> <span class="n">cao</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># Choose the midpoint between the two closest mesh point to the particle&#39;s position</span>
         <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.5</span>
-        <span class="n">pshift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">cao</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">pshift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Choose the mesh point closes to the particle</span>
         <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">pshift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">cao</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">pshift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">ipart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
 
@@ -383,7 +548,7 @@
     <span class="k">return</span> <span class="n">rho_r</span></div>
 
 
-<div class="viewcode-block" id="calc_field"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_field">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="calc_field"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_field">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_field</span><span class="p">(</span><span class="n">phi_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Calculates the Electric field in Fourier space.</span>
@@ -422,7 +587,7 @@
     <span class="k">return</span> <span class="n">E_kx</span><span class="p">,</span> <span class="n">E_ky</span><span class="p">,</span> <span class="n">E_kz</span></div>
 
 
-<div class="viewcode-block" id="calc_acc_pm"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_acc_pm">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="calc_acc_pm"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.calc_acc_pm">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_acc_pm</span><span class="p">(</span><span class="n">E_x_r</span><span class="p">,</span> <span class="n">E_y_r</span><span class="p">,</span> <span class="n">E_z_r</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cao</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Mx</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mz</span><span class="p">,</span> <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Calculates the long range part of particles&#39; accelerations. </span>
@@ -565,8 +730,8 @@
     <span class="k">return</span> <span class="n">acc</span></div>
 
 
-<span class="c1">## FFTW version</span>
-<div class="viewcode-block" id="update"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.update">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">jit</span>  <span class="c1"># Numba does not support pyfftw yet, however, this decorator still speeds up the function.</span>
+<span class="c1"># FFTW version</span>
+<div class="viewcode-block" id="update"><a class="viewcode-back" href="../S_calc_force_pm.html#S_calc_force_pm.update">[docs]</a><span class="nd">@jit</span>  <span class="c1"># Numba does not support pyfftw yet, however, this decorator still speeds up the function.</span>
 <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">MGrid</span><span class="p">,</span> <span class="n">Lv</span><span class="p">,</span> <span class="n">G_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">,</span> <span class="n">cao</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Calculate the long range part of particles&#39; accelerations.</span>
@@ -683,10 +848,14 @@
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
 <<<<<<< HEAD
+<<<<<<< HEAD
         Last updated on Jun, 01, 2020.
 =======
         Last updated on May, 31, 2020.
 >>>>>>> master
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

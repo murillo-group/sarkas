@@ -166,7 +166,11 @@
            <div itemprop="articleBody">
             
   <div class="section" id="quickstart">
+<<<<<<< HEAD
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+=======
+<span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+>>>>>>> vacf_iccf_tools
 <p>Once installation is complete you can start running Sarkas.
 In the following we will run a quick example.
 Sarkas, like any other code, requires an input file containing all the simulation’s parameters.
@@ -176,9 +180,21 @@ More information on the input files can be found below <a class="reference inter
 <h2>Running Sarkas<a class="headerlink" href="#running-sarkas" title="Permalink to this headline">¶</a></h2>
 <p>Once you have created your input file, say <cite>yukawa_mks.yaml</cite>, you can run Sarkas by simply typing the command
 (in the sarkas directory)</p>
+<<<<<<< HEAD
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 src/Sarkas.py input.yaml
 </pre></div>
 </div>
+=======
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This will change once the Jupyter GUI is ready.</p>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 src/Sarkas.py examples/yukawa_mks.yaml
+</pre></div>
+</div>
+<p>Depending on the option <cite>Control: verbose</cite> in the input file, information about the state of the simulations are printed to screen.
+In this example case <cite>Control: verbose: yes</cite>.</p>
+>>>>>>> vacf_iccf_tools
 <p>Simulation’s data is stored in the folder given in <cite>Control:output_dir:</cite> option of the input file.
 In this example case <cite>Control:output_dir:YOCP_mks_pp</cite>. In this folder you can find a
 log file, containing simulations’ parameters, physical constants, and run times; a series of checkpoint files
@@ -186,10 +202,16 @@ containing particles’ data needed for restarting the simulation; a file contai
 and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 <div class="section" id="input-file">
 <span id="inputfile"></span><h3>Input file<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h3>
+<<<<<<< HEAD
 <p>This file is responsible for specifying the simulation’s parameters such as the number of particles, number of timesteps, and initialization. Examples of input files can be found in the examples folder. There are several examples aimed at demonstrating the various capabilities of Sarkas. The names of each example file indicate the interacting potential used, the number of species, the system of units, and the force calculation algorithm, and whether the system is magnetized or not. In the following we will describe one of the example files.</p>
 <p>Let us open <cite>ybim_mks_p3m_mag.yaml</cite> file in a text editor. This file contains parameters for a simulation of a Carbon-Oxygen mixture interacting via a Yukawa potential and under the influence of a constant Magnetic field. The first thing to notice is that there are eight sections each of which contains a set of parameters. Each section corresponds to a subclass of the <cite>Params</cite> class. The order is relatively important since some section parameters might depend on a previous section. For example: the Magnetized section must come after the Integrator section since the option electrostatic_thermalization, if chosen to be True, it modifies the integrator type. Below we present a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: <cite>https://learn.getgrav.org/16/advanced/yaml</cite>.</p>
 <table class="colwidths-auto docutils align-default" id="id1">
 <caption><span class="caption-text">Table for “Particles - species” section key and value pairs in the input file</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+=======
+<p>Let us open <cite>ybim_mks_p3m_mag.yaml</cite> file in a text editor. This file contains parameters for a simulation of a Carbon-Oxygen mixture interacting via a Yukawa potential and under the influence of a constant Magnetic field. The first thing to notice is that there are eight sections each of which contains a set of parameters. Each section corresponds to a subclass of the <cite>Params</cite> class. The order is relatively important since some section parameters might depend on a previous section. For example: the Magnetized section must come after the Integrator section since the option electrostatic_thermalization, if chosen to be True, it modifies the integrator type. Below we present a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: <cite>https://learn.getgrav.org/16/advanced/yaml</cite>.</p>
+<table class="colwidths-auto docutils align-default" id="id2">
+<caption><span class="caption-text">Table for “Particles - species” section key and value pairs in the input file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -227,8 +249,13 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <table class="colwidths-auto docutils align-default" id="id2">
 <caption><span class="caption-text">Table for “Particles - load” section key and value pairs in the input file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+=======
+<table class="colwidths-auto docutils align-default" id="id3">
+<caption><span class="caption-text">Table for “Particles - load” section key and value pairs in the input file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -262,8 +289,13 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <table class="colwidths-auto docutils align-default" id="id3">
 <caption><span class="caption-text">Table for “Potential” section key and value pairs in the input file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+=======
+<table class="colwidths-auto docutils align-default" id="id4">
+<caption><span class="caption-text">Table for “Potential” section key and value pairs in the input file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -285,8 +317,13 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <table class="colwidths-auto docutils align-default" id="id4">
 <caption><span class="caption-text">Table for “P3M” section key and value pairs in the input file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+=======
+<table class="colwidths-auto docutils align-default" id="id5">
+<caption><span class="caption-text">Table for “P3M” section key and value pairs in the input file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -312,8 +349,13 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <table class="colwidths-auto docutils align-default" id="id5">
 <caption><span class="caption-text">Table for “Integrator” section key and value pairs in the input file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+=======
+<table class="colwidths-auto docutils align-default" id="id6">
+<caption><span class="caption-text">Table for “Integrator” section key and value pairs in the input file</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -327,8 +369,13 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <table class="colwidths-auto docutils align-default" id="id6">
 <caption><span class="caption-text">Table for “Magnetized” section key and value pairs in the input file</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+=======
+<table class="colwidths-auto docutils align-default" id="id7">
+<caption><span class="caption-text">Table for “Magnetized” section key and value pairs in the input file</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>:Value Data Type”</p></th>
@@ -354,8 +401,13 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <table class="colwidths-auto docutils align-default" id="id7">
 <caption><span class="caption-text">Table for “Thermostat” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+=======
+<table class="colwidths-auto docutils align-default" id="id8">
+<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -377,8 +429,13 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <table class="colwidths-auto docutils align-default" id="id8">
 <caption><span class="caption-text">Table for “Langevin” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+=======
+<table class="colwidths-auto docutils align-default" id="id9">
+<caption><span class="caption-text">Table for “Langevin” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -396,8 +453,13 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <table class="colwidths-auto docutils align-default" id="id9">
 <caption><span class="caption-text">Table for “Control” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
+=======
+<table class="colwidths-auto docutils align-default" id="id10">
+<caption><span class="caption-text">Table for “Control” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id10" title="Permalink to this table">¶</a></caption>
+>>>>>>> vacf_iccf_tools
 <thead>
 <tr class="row-odd"><th class="head"><p>Key</p></th>
 <th class="head"><p>Value Data Type</p></th>
@@ -483,7 +545,11 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
+<<<<<<< HEAD
         Last updated on Jun, 18, 2020.
+=======
+        Last updated on Jun, 30, 2020.
+>>>>>>> vacf_iccf_tools
       </span>
 
     </p>

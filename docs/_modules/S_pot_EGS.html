@@ -1,0 +1,473 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S_pot_EGS &mdash; Sarkas 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>S_pot_EGS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for S_pot_EGS</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for handling EGS Potential as described in Ref. [1]_</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">.. [1] `Stanton and Murillo Phys Rev E 91 033104 (2015) &lt;https://doi.org/10.1103/PhysRevE.91.033104&gt;`_</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">fdint</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+
+<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../S_pot_EGS.html#S_pot_EGS.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates ``params`` class with EGS potential parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : class</span>
+<span class="sd">        Simulation&#39;s parameters. See S_params.py for more info.</span>
+
+<span class="sd">    filename : str</span>
+<span class="sd">        Input filename.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    EGS_matrix[0,i,j] : kappa = 1.0/lambda_TF or given as input. Same value for all species.</span>
+<span class="sd">    EGS_matrix[1,i,j] : nu = eq.(14) of Ref</span>
+<span class="sd">    EGS_matrix[2,i,j] : qi qj/(4 pi esp0) Force factor between two particles.</span>
+<span class="sd">    EGS_matrix[3:6,i,j] : other parameters see below.</span>
+<span class="sd">    EGS_matrix[7,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># constants and conversion factors    </span>
+    <span class="n">twopi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">beta_i</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Ti</span><span class="p">)</span>
+
+    <span class="c1"># open the input file to read Yukawa parameters</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">dics</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">lkey</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;kappa&quot;</span><span class="p">:</span>  <span class="c1"># screening</span>
+                            <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;Gamma&quot;</span><span class="p">:</span>  <span class="c1"># coupling</span>
+                            <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">Gamma</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+                        <span class="c1"># electron temperature for screening parameter calculation</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;elec_temperature&quot;</span><span class="p">:</span>
+                            <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;elec_temperature_eV&quot;</span><span class="p">:</span>
+                            <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;Te&quot;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Electron temperature is not defined. 1st species temperature &quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+              <span class="s2">&quot;will be used as the electron temperature.&quot;</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">temperature</span>
+
+    <span class="c1"># lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi</span>
+    <span class="n">lmbda</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">9.0</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">lmbda</span> <span class="o">=</span> <span class="n">lmbda</span>
+
+    <span class="n">fdint_fdk_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">fdk</span><span class="p">)</span>
+    <span class="n">fdint_ifd1h_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">ifd1h</span><span class="p">)</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Te</span><span class="p">)</span>
+    <span class="n">lambda_DB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">*</span> <span class="n">beta</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">me</span><span class="p">)</span>
+    <span class="n">lambda3</span> <span class="o">=</span> <span class="n">lambda_DB</span> <span class="o">**</span> <span class="mi">3</span>
+    <span class="c1"># chemical potential of electron gas/(kB T). See eq.(4) in Ref.[3]_</span>
+    <span class="n">eta</span> <span class="o">=</span> <span class="n">fdint_ifd1h_vec</span><span class="p">(</span><span class="n">lambda3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">)</span>
+    <span class="c1"># Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_</span>
+    <span class="n">lambda_TF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">lambda3</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="mf">8.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">fdint_fdk_vec</span><span class="p">(</span><span class="n">k</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="n">eta</span><span class="p">)))</span>
+
+    <span class="c1"># eq. (14) of Ref. [1]_</span>
+    <span class="n">nu</span> <span class="o">=</span> <span class="o">-</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">lmbda</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">lambda_DB</span><span class="p">)</span> <span class="o">*</span> <span class="n">fdint_fdk_vec</span><span class="p">(</span><span class="n">k</span><span class="o">=-</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="n">eta</span><span class="p">)</span>
+    <span class="c1"># Fermi Energy</span>
+    <span class="n">E_F</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">me</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+    <span class="c1"># Degeneracy Parameter</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">beta</span> <span class="o">*</span> <span class="n">E_F</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">theta</span> <span class="o">&lt;=</span> <span class="mi">12</span> <span class="ow">and</span> <span class="n">theta</span> <span class="o">&gt;=</span> <span class="mf">0.1</span><span class="p">:</span>
+        <span class="c1"># Regime of validity of the following approximation Perrot et al. Phys Rev A 302619 (1984)</span>
+        <span class="c1"># eq. (33) of Ref. [1]_</span>
+        <span class="n">Ntheta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.8343</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.2151</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">+</span> <span class="mf">5.2759</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">4</span>
+        <span class="c1"># eq. (34) of Ref. [1]_</span>
+        <span class="n">Dtheta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">3.9431</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">7.9138</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">4</span>
+        <span class="c1"># eq. (32) of Ref. [1]_</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">Ntheta</span> <span class="o">/</span> <span class="n">Dtheta</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">theta</span><span class="p">)</span>
+        <span class="c1"># grad h(x)</span>
+        <span class="n">gradh</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">Ntheta</span> <span class="o">/</span> <span class="n">Dtheta</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">theta</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># derivative of tanh(1/x)</span>
+                 <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+                             <span class="n">Ntheta</span> <span class="o">*</span> <span class="p">(</span><span class="mf">7.8862</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">+</span> <span class="mf">31.6552</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">Dtheta</span> <span class="o">**</span> <span class="mi">2</span>  <span class="c1"># derivative of 1/Dtheta</span>
+                             <span class="o">+</span> <span class="p">(</span><span class="mf">5.6686</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">-</span> <span class="mf">0.6453</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">21.1036</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">Dtheta</span><span class="p">))</span> <span class="c1"># derivative of Ntheta</span>
+        <span class="c1"># eq.(31) of Ref. [1]_</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">8.0</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">*</span> <span class="n">gradh</span><span class="p">)</span>  <span class="c1"># *(params.hbar2/lambda_TF**2)/params.me</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">=</span> <span class="n">lambda_TF</span>
+    <span class="c1"># Monotonic decay</span>
+    <span class="k">if</span> <span class="n">nu</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># eq. (29) of Ref. [1]_</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">lambda_p</span> <span class="o">=</span> <span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">b</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">nu</span><span class="p">)))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">lambda_m</span> <span class="o">=</span> <span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">b</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">nu</span><span class="p">)))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">nu</span><span class="p">)</span>
+
+    <span class="c1"># Oscillatory behavior</span>
+    <span class="k">if</span> <span class="n">nu</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># eq. (29) of Ref. [1]_</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">gamma_m</span> <span class="o">=</span> <span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="o">-</span> <span class="n">b</span><span class="p">))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">gamma_p</span> <span class="o">=</span> <span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">alphap</span> <span class="o">=</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="n">nu</span>
+
+    <span class="c1"># Calculate the (total) plasma frequency</span>
+    <span class="n">wp_tot_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="n">wp2</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span> <span class="o">/</span> <span class="p">(</span>
+                    <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp2</span><span class="p">)</span>
+        <span class="n">wp_tot_sq</span> <span class="o">+=</span> <span class="n">wp2</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">P3M</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
+        <span class="n">EGS_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">EGS_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">8</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+
+    <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span>
+    <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">nu</span>
+
+    <span class="n">Z53</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">Z_avg</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;Z&quot;</span><span class="p">):</span>
+            <span class="n">Zi</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Z</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Zi</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="n">Z53</span> <span class="o">+=</span> <span class="n">Zi</span> <span class="o">**</span> <span class="p">(</span><span class="mf">5.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span>
+        <span class="n">Z_avg</span> <span class="o">+=</span> <span class="n">Zi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">concentration</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="s2">&quot;Z&quot;</span><span class="p">):</span>
+                <span class="n">Zj</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">Z</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Zj</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+            <span class="k">if</span> <span class="n">nu</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Zi</span> <span class="o">*</span> <span class="n">Zj</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">lambda_m</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">lambda_p</span>
+
+            <span class="k">if</span> <span class="n">nu</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Zi</span> <span class="o">*</span> <span class="n">Zj</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">alphap</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">gamma_m</span>
+                <span class="n">EGS_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">gamma_p</span>
+
+    <span class="c1"># Effective Coupling Parameter in case of multi-species</span>
+    <span class="c1"># see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="n">Z53</span> <span class="o">*</span> <span class="n">Z_avg</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta_i</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">EGS_matrix</span>
+
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">EGS_force_PP</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span>
+        <span class="c1"># Renormalize</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">ERROR: P3M Algorithm not implemented yet. Good Bye!&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="EGS_force_PP"><a class="viewcode-back" href="../S_pot_EGS.html#S_pot_EGS.EGS_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<span class="k">def</span> <span class="nf">EGS_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Calculates Potential and force between particles using the EGS Potential.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : float</span>
+<span class="sd">        Particles&#39; distance.</span>
+
+<span class="sd">    pot_matrix : array</span>
+<span class="sd">        EGS potential parameters. </span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+
+<span class="sd">    U : float</span>
+<span class="sd">        Potential.</span>
+
+<span class="sd">    fr : float</span>
+<span class="sd">        Force.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nu</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">nu</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="c1"># pot_matrix[2] = Charge factor</span>
+        <span class="c1"># pot_matrix[3] = 1 + alpha</span>
+        <span class="c1"># pot_matrix[4] = 1 - alpha</span>
+        <span class="c1"># pot_matrix[5] = lambda_minus</span>
+        <span class="c1"># pot_matrix[6] = lambda_plus</span>
+
+        <span class="n">temp1</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">temp2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp1</span> <span class="o">+</span> <span class="n">temp2</span><span class="p">)</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="n">fr</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp1</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp2</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span><span class="o">/</span><span class="n">r</span>
+        <span class="n">fr</span> <span class="o">/=</span> <span class="n">r</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># pot_matrix[2] = Charge factor</span>
+        <span class="c1"># pot_matrix[3] = 1.0</span>
+        <span class="c1"># pot_matrix[4] = alpha prime</span>
+        <span class="c1"># pot_matrix[5] = gamma_minus</span>
+        <span class="c1"># pot_matrix[6] = gamma_plus</span>
+        <span class="n">cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="n">fr1</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span>   <span class="c1"># derivative of 1/r</span>
+        <span class="n">fr3</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>   <span class="c1"># derivative of exp</span>
+        <span class="n">fr2</span> <span class="o">=</span> <span class="p">(</span><span class="n">sin</span> <span class="o">-</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">/</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">fr</span> <span class="o">=</span> <span class="p">(</span><span class="n">fr1</span> <span class="o">+</span> <span class="n">fr2</span> <span class="o">+</span> <span class="n">fr3</span><span class="p">)</span><span class="o">/</span><span class="n">r</span>
+
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">fr</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Jun, 30, 2020.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

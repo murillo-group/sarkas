@@ -2,19 +2,19 @@
 Particles:
     - species:
         name: e
-        number_density: 1.6e+30       # /m^3
+        number_density: 2.5e+31       # /m^3
         mass: 9.1093837015e-31
-        num: 512                    # total number of particles of ion1 
+        num: 1000                    # total number of particles of ion1
         Z: -1.0                        # degree of ionization
-        temperature: 6.32e+5 
+        temperature: 1.58e+6
 
     - species:
         name: p
-        number_density: 1.6e+30       # /m^3
+        number_density: 2.5e+31       # /m^3
         mass: 1.67262192369e-27         # kg, ptcl mass of ion1
-        num: 512                  # total number of particles of ion1 
+        num: 1000                  # total number of particles of ion1
         Z: 1.0                       # degree of ionization
-        temperature: 6.32e+5
+        temperature: 1.58e+6
 
     - load:
         method: random_no_reject    # loading method
@@ -24,13 +24,13 @@ Potential:
     - type: QSP                 # potential type
     - QSP_type: Deutsch
     - method: P3M                    # Linked-cell
-    - rc: 2.691278e-10     # cut-off radius, meter
+    - rc: 1.68e-10     # cut-off radius, meter
 
 P3M:
-    - MGrid: [32,32,32]
-    - aliases: [2,2,2]
-    - cao: 3
-    - alpha_ewald: 1.354007e+10
+    - MGrid: [64, 64, 64]
+    - aliases: [3,3,3]
+    - cao: 6
+    - alpha_ewald: 3.0327e+10
 
 BoundaryConditions:
     - periodic: ["x", "y", "z"]
@@ -45,13 +45,13 @@ Thermostat:
 
 Control:
     - units: mks                    # units
-    - dt: 3.16e-19            # sec
-    - Neq: 50000                      # number of timesteps for the equilibrium
-    - Nsteps: 50000                   # number of timesteps after the equilibrium
+    - dt: 0.5e-19            # sec
+    - Neq: 100000                      # number of timesteps for the equilibrium
+    - Nsteps: 5000000000                   # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 50                # dump time step
-    - verbose: yes
-    - output_dir: QSP_mks       # dir name to save data. The default is "Checkpoint"
+    - verbose: no
+    - output_dir: QSP_mks_mag       # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 100
+    - rdf_nbins: 200
