@@ -30,10 +30,10 @@ class Checkpoint:
     ptcls_file_name : str
         Prefix of dumps filenames.
 
-    params_picckle : str
+    params_pickle : str
         Pickle file where all simulation parameters will be stored.
 
-    species_name: list
+    species_names: list
         Names of each particle species.
 
     checkpoint_dir : str
@@ -45,8 +45,8 @@ class Checkpoint:
         self.checkpoint_dir = params.Control.checkpoint_dir
         self.dump_dir = params.Control.dump_dir
         self.energy_filename = os.path.join(self.checkpoint_dir, "Thermodynamics_" + params.Control.fname_app + '.csv')
-        self.ptcls_file_name = os.path.join(self.dump_dir,  "S_checkpoint_")
-        self.params_pickle = os.path.join(self.checkpoint_dir, "S_parameters" + params.Control.fname_app + ".pickle")
+        self.ptcls_file_name = os.path.join(self.dump_dir, "S_checkpoint_")
+        self.params_pickle = os.path.join(self.checkpoint_dir, "S_parameters.pickle")
 
         self.species_names = []
         self.Gamma_eff = params.Potential.Gamma_eff * params.T_desired
@@ -59,6 +59,20 @@ class Checkpoint:
             os.mkdir(self.checkpoint_dir)
         if not (os.path.exists(self.dump_dir)):
             os.mkdir(self.dump_dir)
+
+        if not os.path.exists(self.energy_filename):
+            # Create the Energy file
+            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
+            if len(params.species) > 1:
+                for i, sp in enumerate(params.species):
+                    dkeys.append("{} Kinetic Energy".format(sp.name))
+                    dkeys.append("{} Temperature".format(sp.name))
+            dkeys.append("Gamma")
+            data = dict.fromkeys(dkeys)
+
+            with open(self.energy_filename, 'w+') as f:
+                w = csv.writer(f)
+                w.writerow(data.keys())
 
     def save_pickle(self, params):
         """
@@ -96,7 +110,7 @@ class Checkpoint:
             Timestep number.
         """
         fle_name = self.ptcls_file_name + str(it)
-        tme = it*self.dt
+        tme = it * self.dt
         savez(fle_name,
               species_id=ptcls.species_id,
               species_name=ptcls.species_name,

@@ -11,32 +11,32 @@ from matplotlib.gridspec import GridSpec
 import S_postprocessing as Observable
 
 plt.style.use(
-    os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle') )
+    os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
 lw, LW = 2, 2
 FSZ, fsz = 16, 16
 
 UNITS = [
     {"Energy": 'J',
-    "Time": 's',
-    "Length": 'm',
-    "Charge": 'C',
-    "Temperature": 'K',
-    "ElectronVolt": 'eV',
-    "Mass": 'kg',
-    "Magnetic Field": 'T',
-    "Current": "A",
-    "Power": "erg/s"},
+     "Time": 's',
+     "Length": 'm',
+     "Charge": 'C',
+     "Temperature": 'K',
+     "ElectronVolt": 'eV',
+     "Mass": 'kg',
+     "Magnetic Field": 'T',
+     "Current": "A",
+     "Power": "erg/s"},
     {"Energy": 'erg',
-    "Time": 's',
-    "Length": 'cm',
-    "Charge": 'esu',
-    "Temperature": 'K',
-    "ElectronVolt": 'eV',
-    "Mass": 'g',
-    "Magnetic Field": 'G',
-    "Current": "esu/s",
-    "Power": "erg/s"}
-    ]
+     "Time": 's',
+     "Length": 'cm',
+     "Charge": 'esu',
+     "Temperature": 'K',
+     "ElectronVolt": 'eV',
+     "Mass": 'g',
+     "Magnetic Field": 'G',
+     "Current": "esu/s",
+     "Power": "erg/s"}
+]
 
 PREFIXES = {
     "Y": 1e24,
@@ -62,6 +62,7 @@ PREFIXES = {
     "y": 1.0e-24
 }
 
+
 def update_label(old_label, exponent_text_old):
     if exponent_text_old == "":
         return old_label
@@ -81,10 +82,10 @@ def update_label(old_label, exponent_text_old):
             multiplier = 1.0
         except ValueError:
             try:
-                prefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(10*evalue)]
+                prefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(10 * evalue)]
                 multiplier = 10.
             except ValueError:
-                prefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(100*evalue)]
+                prefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(100 * evalue)]
                 multiplier = 100.
 
     exponent_text = evalue
@@ -111,6 +112,7 @@ def format_label_string_with_exponent(ax, axis='both'):
         ax.offsetText.set_visible(False)
         ax.set_label_text(update_label(label, exponent_text))
 
+
 input_file = sys.argv[1]
 #
 # params = Params()
@@ -120,12 +122,11 @@ input_file = sys.argv[1]
 # save_file.close()
 params = Observable.read_pickle(input_file)
 # params.Control.checkpoint_dir = os.path.join("Simulations", params.Control.checkpoint_dir)
-# E = Observable.Thermodynamics(params)
-# E.parse()
-# E.plot("Total Energy", True)
-#E.statistics("Total Energy", max_no_divisions=1000, show=True)
-# E.boxplot("Total Energy",True)
-FSZ = 16
+E = Observable.Thermodynamics(params)
+E.parse()
+# E.statistics("Total Energy", max_no_divisions=1000, show=True)
+E.boxplot("Total Energy", True)
+
 # clr = [24/255, 69/255, 49/255]
 # clr2 = [240/255, 133/255, 33/255]
 
@@ -137,13 +138,13 @@ FSZ = 16
 # Z.plot()
 
 # params.PostProcessing.dsf_no_ka_values = [5, 5, 5]
-DSF = Observable.DynamicStructureFactor(params)
-DSF.compute()
-DSF.plot(show=False)
-#
-SSF = Observable.StaticStructureFactor(params)
-SSF.compute()
-SSF.plot(show=True)
+# DSF = Observable.DynamicStructureFactor(params)
+# DSF.compute()
+# DSF.plot(show=False)
+# #
+# SSF = Observable.StaticStructureFactor(params)
+# SSF.compute()
+# SSF.plot(show=True)
 
 # rdf = Observable.RadialDistributionFunction(params)
 # rdf.parse()

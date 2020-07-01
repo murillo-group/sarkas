@@ -11,32 +11,30 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 plt.style.use(
-    os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle') )
+    os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
 
-FSZ = 16
-LW = 2
 UNITS = [
     {"Energy": 'J',
-    "Time": 's',
-    "Length": 'm',
-    "Charge": 'C',
-    "Temperature": 'K',
-    "ElectronVolt": 'eV',
-    "Mass": 'kg',
-    "Magnetic Field": 'T',
-    "Current": "A",
-    "Power": "erg/s"},
+     "Time": 's',
+     "Length": 'm',
+     "Charge": 'C',
+     "Temperature": 'K',
+     "ElectronVolt": 'eV',
+     "Mass": 'kg',
+     "Magnetic Field": 'T',
+     "Current": "A",
+     "Power": "erg/s"},
     {"Energy": 'erg',
-    "Time": 's',
-    "Length": 'cm',
-    "Charge": 'esu',
-    "Temperature": 'K',
-    "ElectronVolt": 'eV',
-    "Mass": 'g',
-    "Magnetic Field": 'G',
-    "Current": "esu/s",
-    "Power": "erg/s"}
-    ]
+     "Time": 's',
+     "Length": 'cm',
+     "Charge": 'esu',
+     "Temperature": 'K',
+     "ElectronVolt": 'eV',
+     "Mass": 'g',
+     "Magnetic Field": 'G',
+     "Current": "esu/s",
+     "Power": "erg/s"}
+]
 
 PREFIXES = {
     "Y": 1e24,
@@ -61,36 +59,6 @@ PREFIXES = {
     "z": 1.0e-21,
     "y": 1.0e-24
 }
-
-
-def read_pickle(input_file):
-    """
-    Read Pickle File containing params.
-
-    Parameters
-    ----------
-    input_file: str
-        Input YAML file of the simulation.
-    Returns
-    -------
-    data : dict
-        Params dictionary.
-    """
-    with open(input_file, 'r') as stream:
-        dics = yaml.load(stream, Loader=yaml.FullLoader)
-        for lkey in dics:
-            if lkey == "Control":
-                for keyword in dics[lkey]:
-                    for key, value in keyword.items():
-                        # Directory where to store Checkpoint files
-                        if key == "output_dir":
-                            checkpoint_dir = os.path.join("Simulations", value)
-
-    pickle_file = os.path.join(checkpoint_dir, "S_parameters.pickle")
-
-    data = np.load(pickle_file, allow_pickle=True)
-
-    return data
 
 
 class CurrentCorrelationFunctions:
@@ -187,7 +155,7 @@ class CurrentCorrelationFunctions:
 
         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
         self.dump_step = params.Control.dump_step
-        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -334,32 +302,31 @@ class CurrentCorrelationFunctions:
                 for sp_j in range(sp_i, self.no_species):
                     column = "{}-{} CCF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
-                            np.fft.fftshift(self.dataframe[column]), lw=LW,
+                            np.fft.fftshift(self.dataframe[column]),
                             label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
         else:
             column = "{}-{} CCF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
-                    np.fft.fftshift(self.dataframe[column]), lw=LW,
+                    np.fft.fftshift(self.dataframe[column]),
                     label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
             for i in range(1, 5):
                 column = "{}-{} CCF {} ka_min".format(self.species_names[0], self.species_names[0], i + 1)
                 ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
-                        np.fft.fftshift(self.dataframe[column]), lw=LW,
+                        np.fft.fftshift(self.dataframe[column]),
                         label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
 
         ax.grid(True, alpha=0.3)
-        ax.legend(loc='best', ncol=3, fontsize=FSZ)
-        ax.tick_params(labelsize=FSZ)
+        ax.legend(loc='best', ncol=3)
         ax.set_yscale('log')
         ax.set_xlim(0, 3)
         if longitudinal:
-            ax.set_ylabel(r'$L(k,\omega)$', fontsize=FSZ)
+            ax.set_ylabel(r'$L(k,\omega)$')
             fig_name = os.path.join(self.fldr, 'Lkw_' + self.fname_app + '.png')
         else:
-            ax.set_ylabel(r'$T(k,\omega)$', fontsize=FSZ)
+            ax.set_ylabel(r'$T(k,\omega)$')
             fig_name = os.path.join(self.fldr, 'Tkw_' + self.fname_app + '.png')
 
-        ax.set_xlabel(r'$\omega/\omega_p$', fontsize=FSZ)
+        ax.set_xlabel(r'$\omega/\omega_p$')
         fig.tight_layout(fig_name)
         fig.savefig()
         if show:
@@ -374,11 +341,11 @@ class CurrentCorrelationFunctions:
             plt.pcolor(ka_vals, w, Skw[neg_indx:, :], vmin=Skw[:, 1].min(), vmax=Skw[:, 1].max())
             cbar = plt.colorbar()
             cbar.set_ticks([])
-            cbar.ax.tick_params(labelsize=FSZ - 2)
-            plt.xlabel(r'$ka$', fontsize=FSZ)
-            plt.ylabel(r'$\omega/\omega_p$', fontsize=FSZ)
+            cbar.ax.tick_params(labelsize=14)
+            plt.xlabel(r'$ka$')
+            plt.ylabel(r'$\omega/\omega_p$')
             plt.ylim(0, 2)
-            plt.tick_params(axis='both', which='major', labelsize=FSZ)
+            plt.tick_params(axis='both', which='major')
             fig.tight_layout()
             if longitudinal:
                 fig.savefig(os.path.join(self.fldr, 'Lkw_Dispersion_' + self.fname_app + '.png'))
@@ -472,7 +439,7 @@ Attributes
 
         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
         self.dump_step = params.Control.dump_step
-        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -590,26 +557,25 @@ Attributes
                 for sp_j in range(sp_i, self.no_species):
                     column = "{}-{} DSF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
-                            np.fft.fftshift(self.dataframe[column]), lw=LW,
+                            np.fft.fftshift(self.dataframe[column]),
                             label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
         else:
             column = "{}-{} DSF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
-                    np.fft.fftshift(self.dataframe[column]), lw=LW,
+                    np.fft.fftshift(self.dataframe[column]),
                     label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
             for i in range(1, 5):
                 column = "{}-{} DSF {} ka_min".format(self.species_names[0], self.species_names[0], i + 1)
                 ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
-                        np.fft.fftshift(self.dataframe[column]), lw=LW,
+                        np.fft.fftshift(self.dataframe[column]),
                         label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
 
         ax.grid(True, alpha=0.3)
-        ax.legend(loc='best', ncol=3, fontsize=FSZ)
-        ax.tick_params(labelsize=FSZ)
+        ax.legend(loc='best', ncol=3)
         ax.set_yscale('log')
         ax.set_xlim(0, 3)
-        ax.set_ylabel(r'$S(k,\omega)$', fontsize=FSZ)
-        ax.set_xlabel(r'$\omega/\omega_p$', fontsize=FSZ)
+        ax.set_ylabel(r'$S(k,\omega)$')
+        ax.set_xlabel(r'$\omega/\omega_p$')
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, 'Skw_' + self.fname_app + '.png'))
         if show:
@@ -624,12 +590,12 @@ Attributes
             plt.pcolor(ka_vals, w, Skw[: neg_indx, :], vmin=Skw[:, 1].min(), vmax=Skw[:, 1].max())
             cbar = plt.colorbar()
             cbar.set_ticks([])
-            cbar.ax.tick_params(labelsize=FSZ - 2)
-            plt.xlabel(r'$ka$', fontsize=FSZ)
-            plt.ylabel(r'$\omega/\omega_p$', fontsize=FSZ)
+            cbar.ax.tick_params(labelsize=14)
+            plt.xlabel(r'$ka$')
+            plt.ylabel(r'$\omega/\omega_p$')
             plt.ylim(0, 2)
-            plt.tick_params(axis='both', which='major', labelsize=FSZ)
-            plt.title("$S(k, \omega)$", fontsize=FSZ)
+            plt.tick_params(axis='both', which='major')
+            plt.title("$S(k, \omega)$")
             fig.tight_layout()
             fig.savefig(os.path.join(self.fldr, 'Skw_Dispersion_' + self.fname_app + '.png'))
             if show:
@@ -685,7 +651,7 @@ class ElectricCurrent:
         self.dump_dir = params.Control.dump_dir
         self.filename_csv = os.path.join(self.fldr, "ElectricCurrent_" + self.fname_app + '.csv')
         self.dump_step = params.Control.dump_step
-        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_species = len(params.species)
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_names = []
@@ -780,20 +746,19 @@ class ElectricCurrent:
             self.compute()
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        ax.plot(self.dataframe["Time"] * self.wp, self.dataframe["Total Current ACF"], lw=LW,
+        ax.plot(self.dataframe["Time"] * self.wp, self.dataframe["Total Current ACF"],
                 label=r'$J_{tot} (t)$')
 
         if self.no_species > 1:
             for i in range(self.no_species):
                 ax.plot(self.dataframe["Time"] * self.wp,
                         self.dataframe["{} Total Current ACF".format(self.species_names[i])],
-                        lw=LW, label=r'$J_{' + self.species_names[i] + '} (t)$')
+                        label=r'$J_{' + self.species_names[i] + '} (t)$')
 
         ax.grid(True, alpha=0.3)
-        ax.legend(loc='upper right', fontsize=FSZ)
-        ax.tick_params(labelsize=FSZ)
-        ax.set_ylabel(r'$J(t)$', fontsize=FSZ)
-        ax.set_xlabel(r'$\omega_p t$', fontsize=FSZ)
+        ax.legend(loc='upper right')
+        ax.set_ylabel(r'$J(t)$')
+        ax.set_xlabel(r'$\omega_p t$')
         ax.set_xscale('log')
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, 'TotalCurrentACF_' + self.fname_app + '.png'))
@@ -865,7 +830,7 @@ class RadialDistributionFunction:
         self.fname_app = params.Control.fname_app
         self.filename_csv = os.path.join(self.fldr, "RadialDistributionFunction_" + params.Control.fname_app + ".csv")
         self.dump_step = params.Control.dump_step
-        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_species = len(params.species)
         self.no_grs = int(params.num_species * (params.num_species + 1) / 2)
         self.tot_no_ptcls = params.total_num_ptcls
@@ -955,17 +920,16 @@ class RadialDistributionFunction:
                 subscript = self.species_names[i] + self.species_names[j]
                 ax.plot(self.dataframe["ra values"],
                         self.dataframe["{}-{} RDF".format(self.species_names[i], self.species_names[j])],
-                        lw=LW, label=r'$g_{' + subscript + '} (r)$')
+                        label=r'$g_{' + subscript + '} (r)$')
                 indx += 1
         ax.grid(True, alpha=0.3)
         if self.no_species > 2:
-            ax.legend(loc='best', ncol=(self.no_species - 1), fontsize=FSZ)
+            ax.legend(loc='best', ncol=(self.no_species - 1))
         else:
-            ax.legend(loc='best', fontsize=FSZ)
+            ax.legend(loc='best')
 
-        ax.tick_params(labelsize=FSZ)
-        ax.set_ylabel(r'$g(r)$', fontsize=FSZ)
-        ax.set_xlabel(r'$r/a$', fontsize=FSZ)
+        ax.set_ylabel(r'$g(r)$')
+        ax.set_xlabel(r'$r/a$')
         # ax.set_ylim(0, 5)
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, 'RDF_' + self.fname_app + '.png'))
@@ -1054,7 +1018,7 @@ class StaticStructureFactor:
 
         self.filename_csv = os.path.join(self.fldr, "StaticStructureFunction_" + self.fname_app + ".csv")
         self.dump_step = params.Control.dump_step
-        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -1163,17 +1127,16 @@ class StaticStructureFactor:
                                 self.dataframe["{}-{} SSF".format(self.species_names[i], self.species_names[j])],
                                 yerr=self.dataframe[
                                     "{}-{} SSF Errorbar".format(self.species_names[i], self.species_names[j])],
-                                lw=LW, ls='--', marker='o', ms=MSZ, label=r'$S_{ ' + subscript + '} (k)$')
+                                ls='--', marker='o', label=r'$S_{ ' + subscript + '} (k)$')
                 else:
                     ax.plot(self.dataframe["ka values"],
                             self.dataframe["{}-{} SSF".format(self.species_names[i], self.species_names[j])],
-                            lw=LW, label=r'$S_{ ' + subscript + '} (k)$')
+                            label=r'$S_{ ' + subscript + '} (k)$')
 
         ax.grid(True, alpha=0.3)
-        ax.legend(loc='upper right', fontsize=FSZ)
-        ax.tick_params(labelsize=FSZ)
-        ax.set_ylabel(r'$S(k)$', fontsize=FSZ)
-        ax.set_xlabel(r'$ka$', fontsize=FSZ)
+        ax.legend(loc='upper right')
+        ax.set_ylabel(r'$S(k)$')
+        ax.set_xlabel(r'$ka$')
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, 'StaticStructureFactor' + self.fname_app + '.png'))
         if show:
@@ -1243,7 +1206,7 @@ class Thermodynamics:
         self.fldr = params.Control.checkpoint_dir
         self.fname_app = params.Control.fname_app
         self.dump_step = params.Control.dump_step
-        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_dim = params.dimensions
         if params.load_method == "restart":
             self.restart_sim = True
@@ -1402,9 +1365,9 @@ class Thermodynamics:
                 for j in range(self.no_dim):
                     ax.plot(self.dataframe["Time"] * self.wp,
                             self.dataframe["Pressure Tensor ACF {}{}".format(dim_lbl[i], dim_lbl[j])],
-                            lw=LW, label=r'$P_{' + dim_lbl[i] + dim_lbl[j] + '} (t)$')
+                            label=r'$P_{' + dim_lbl[i] + dim_lbl[j] + '} (t)$')
             ax.set_xscale('log')
-            ax.legend(loc='best', ncol=3, fontsize=FSZ)
+            ax.legend(loc='best', ncol=3)
             ax.set_ylim(-1, 1.5)
 
         elif quantity == "Pressure Tensor":
@@ -1412,17 +1375,16 @@ class Thermodynamics:
                 for j in range(self.no_dim):
                     ax.plot(self.dataframe["Time"] * self.wp,
                             self.dataframe["Pressure Tensor {}{}".format(dim_lbl[i], dim_lbl[j])],
-                            lw=LW, label=r'$P_{' + dim_lbl[i] + dim_lbl[j] + '} (t)$')
+                            label=r'$P_{' + dim_lbl[i] + dim_lbl[j] + '} (t)$')
             ax.set_xscale('log')
-            ax.legend(loc='best', ncol=3, fontsize=FSZ)
+            ax.legend(loc='best', ncol=3)
 
         else:
-            ax.plot(self.dataframe["Time"] * self.wp, self.dataframe[quantity], lw=LW)
+            ax.plot(self.dataframe["Time"] * self.wp, self.dataframe[quantity])
 
         ax.grid(True, alpha=0.3)
-        ax.tick_params(labelsize=FSZ)
-        ax.set_ylabel(ylbl[quantity], fontsize=FSZ)
-        ax.set_xlabel(r'$\omega_p t$', fontsize=FSZ)
+        ax.set_ylabel(ylbl[quantity])
+        ax.set_xlabel(r'$\omega_p t$')
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, quantity + '_' + self.fname_app + '.png'))
         if show:
@@ -1447,15 +1409,15 @@ class Thermodynamics:
                                                                                   max_no_divisions, self.no_dumps)
         # Plot the statistical efficiency
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        ax.plot(1/tau_blk[2:], statistical_efficiency[2:], '--o', ms=MSZ, label=quantity)
+        ax.plot(1 / tau_blk[2:], statistical_efficiency[2:], '--o', label=quantity)
         ax.grid(True, alpha=0.3)
-        ax.legend(loc='best', fontsize=FSZ)
-        ax.tick_params(labelsize=FSZ)
+        ax.legend(loc='best')
         ax.set_xscale('log')
-        ax.set_ylabel( r'$s(\tau_{\rm{blk}})$', fontsize=FSZ)
-        ax.set_xlabel(r'$1/\tau_{\rm{blk}}$', fontsize=FSZ)
+        ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
+        ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, quantity + 'StatisticalEfficiency_' + self.fname_app + '.png'))
+
         if show:
             fig.show()
 
@@ -1474,11 +1436,11 @@ class Thermodynamics:
         #
         # sns.boxplot(x="Blocks", y=quantity, data=self.dataframe, ax=ax)
         # ax.grid(True, alpha=0.3)
-        # ax.legend(loc='best', fontsize=FSZ-2)
+        # ax.legend(loc='best'-2)
         # # ax.set_xticks([i for i in range(0, self.no_dumps, tau_blk*10)])
         # # main_plot.tick_params(labelsize=FSZ-2)
-        # # main_plot.set_ylabel(quantity, fontsize=FSZ)
-        # # main_plot.set_xlabel("Time", fontsize=FSZ)
+        # # main_plot.set_ylabel(quantity)
+        # # main_plot.set_xlabel("Time")
         # fig.tight_layout()
         # # fig.savefig(os.path.join(self.fldr, 'TemperatureBoxplot_' + self.fname_app + '.png'))
         # # if show:
@@ -1486,28 +1448,40 @@ class Thermodynamics:
 
         fig = plt.figure(figsize=(12, 7))
         gs = GridSpec(4, 4)
-        quantity = "Temperature"
+        # quantity = "Temperature"
+        cumavg = self.dataframe[quantity].cumsum() / [i for i in range(1, self.no_dumps + 1)]
         delta_plot = fig.add_subplot(gs[0, 0:3])
         main_plot = fig.add_subplot(gs[1:4, 0:3])
         hist_plot = fig.add_subplot(gs[1:4, 3])
-        main_plot.plot(self.dataframe["Time"], self.dataframe[quantity], alpha=0.7, label=quantity)
-        main_plot.plot(self.dataframe["Time"], self.dataframe[quantity].cumsum() / [i for i in range(1, self.no_dumps + 2)])
+        main_plot.plot(self.dataframe["Time"], self.dataframe[quantity], alpha=0.7)
+        main_plot.plot(self.dataframe["Time"], cumavg, label='Cum Avg')
+        main_plot.axhline(self.dataframe[quantity].mean(), ls='--', c='r', alpha=0.7, label='Avg')
         hist_plot.hist(self.dataframe[quantity], bins=100, density=True, orientation='horizontal', alpha=0.75)
+        hist_plot.grid(True, alpha=0.3)
         hist_plot.get_xaxis().set_ticks([])
         hist_plot.get_yaxis().set_ticks([])
 
-        Delta = (self.dataframe[quantity] - self.dataframe[quantity][0]) / self.dataframe[quantity][0]
+        if quantity == 'Temperature':
+            Delta = (self.dataframe[quantity] - self.T) * 100 / self.T
+            Delta_cum_avg = Delta.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        else:
+            Delta = (self.dataframe[quantity] - self.dataframe[quantity][0]) * 100 / self.dataframe[quantity][0]
+            Delta_cum_avg = Delta.cumsum() / [i for i in range(1, self.no_dumps + 1)]
         delta_plot.plot(self.dataframe["Time"], Delta, alpha=0.5)
+        delta_plot.plot(self.dataframe["Time"], Delta_cum_avg, alpha=0.8)
         delta_plot.get_xaxis().set_ticks([])
-        delta_plot.set_ylabel(r'$\Delta$', fontsize=FSZ)
-        delta_plot.tick_params(labelsize=FSZ - 4)
-        main_plot.tick_params(labelsize=FSZ - 2)
+        delta_plot.set_ylabel(r'Deviation [%]')
+        delta_plot.tick_params(labelsize=12)
+        main_plot.tick_params(labelsize=14)
         # main_plot.ticklabel_format(axis='both', style="scientific")
         main_plot.set_ylabel(quantity)
+        main_plot.legend(loc='best')
         main_plot.set_xlabel("Time")
         fig.tight_layout()
+        fig.savefig(os.path.join(self.fldr, quantity + '_' + self.fname_app + '.png'))
         # format_label_string_with_exponent(main_plot,axis='both')
-        fig.show()
+        if show:
+            fig.show()
 
         return
 
@@ -1558,16 +1532,15 @@ class TransportCoefficients:
             time = np.array(J.dataframe["Time"]) * self.params.wp
             half_t = int(len(time) / 2)
             for it in range(no_int):
-                 sigma[it] = np.trapz(integrand[:half_t + it], x=time[:half_t + it]) / 3.0
+                sigma[it] = np.trapz(integrand[:half_t + it], x=time[:half_t + it]) / 3.0
             self.transport_coefficients["Electrical Conductivity"] = sigma
             # Plot the transport coefficient at different integration times
             fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-            ax.plot(time[half_t:], sigma, lw=LW, label=r'$\sigma (t)$')
+            ax.plot(time[half_t:], sigma, label=r'$\sigma (t)$')
             ax.grid(True, alpha=0.3)
-            ax.legend(loc='best', fontsize=FSZ)
-            ax.tick_params(labelsize=FSZ)
-            ax.set_ylabel(r'$\sigma(t)$', fontsize=FSZ)
-            ax.set_xlabel(r'$\omega_p t$', fontsize=FSZ)
+            ax.legend(loc='best')
+            ax.set_ylabel(r'$\sigma(t)$')
+            ax.set_xlabel(r'$\omega_p t$')
             fig.tight_layout()
             fig.savefig(os.path.join(self.params.Control.checkpoint_dir,
                                      'ConductivityPlot_' + self.params.Control.fname_app + '.png'))
@@ -1577,35 +1550,34 @@ class TransportCoefficients:
         elif quantity == "Diffusion":
             Z = VelocityAutocorrelationFunctions(self.params)
             Z.plot(show=True)
-            no_int = int(self.params.Control.Nsteps/self.params.Control.dump_step)
+            no_int = int(self.params.Control.Nsteps / self.params.Control.dump_step)
             D = np.zeros((self.params.num_species, no_int))
-            fig, ax = plt.subplots(1,1, figsize=(10,7))
+            fig, ax = plt.subplots(1, 1, figsize=(10, 7))
             # ax2 = ax.twinx()
             for i, sp in enumerate(self.params.species):
                 integrand = np.array(Z.dataframe["{} Total Velocity ACF".format(sp.name)])
                 time = np.array(Z.dataframe["Time"])
-                const = 1.0/(3.0*self.params.wp * self.params.aws**2)
+                const = 1.0 / (3.0 * self.params.wp * self.params.aws ** 2)
                 for it in range(1, no_int):
                     D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
-                self.transport_coefficients["{} Diffusion".format(sp.name)] = D[i,:]
+                self.transport_coefficients["{} Diffusion".format(sp.name)] = D[i, :]
                 # Find the minimum slope. This would be the ideal value
                 # indx = np.gradient(D[i, :]).argmin()
                 # lgnd_label = r'$D_{' + sp.name + '} =' + '{:1.4f}$'.format(D[i, indx]) \
                 #              + " @ $t = {:2.2f}$".format(time[half_t + indx]*self.params.wp)
-                ax.plot(time*self.params.wp, D[i,:], lw=LW, label=r'$D_{' + sp.name + '}(t)$')
+                ax.plot(time * self.params.wp, D[i, :], label=r'$D_{' + sp.name + '}(t)$')
                 # ax2.semilogy(time*self.params.wp, -np.gradient(np.gradient(D[i, :])), ls='--', lw=LW - 1,
                 #          label=r'$\nabla D_{' + sp.name + '}(t)$')
 
             # Complete figure
             ax.grid(True, alpha=0.3)
-            ax.legend(loc='best', fontsize=FSZ)
-            ax.tick_params(labelsize=FSZ)
-            ax.set_ylabel(r'$D_{\alpha}(t)/(a^2\omega_{\alpha})$', fontsize=FSZ)
-            ax.set_xlabel(r'$\omega_p t$', fontsize=FSZ)
+            ax.legend(loc='best')
+            ax.set_ylabel(r'$D_{\alpha}(t)/(a^2\omega_{\alpha})$')
+            ax.set_xlabel(r'$\omega_p t$')
 
-            # ax2.legend(loc='best', fontsize=FSZ)
+            # ax2.legend(loc='best')
             # ax2.tick_params(labelsize=FSZ)
-            # ax2.set_ylabel(r'$\nabla D_{\alpha}(t)/(a^2\omega_{\alpha})$', fontsize=FSZ)
+            # ax2.set_ylabel(r'$\nabla D_{\alpha}(t)/(a^2\omega_{\alpha})$')
 
             fig.tight_layout()
             fig.savefig(os.path.join(self.params.Control.checkpoint_dir,
@@ -1665,7 +1637,7 @@ class VelocityAutocorrelationFunctions:
         self.fname_app = params.Control.fname_app
         self.filename_csv = os.path.join(self.fldr, "VelocityACF_" + self.fname_app + '.csv')
         self.dump_step = params.Control.dump_step
-        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_species = len(params.species)
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_names = []
@@ -1737,14 +1709,12 @@ class VelocityAutocorrelationFunctions:
         for i, sp_name in enumerate(self.species_names):
             Z = self.dataframe["{} Total Velocity ACF".format(sp_name)]
             ax.plot(self.dataframe["Time"] * self.wp,
-                    Z/Z[0],
-                    lw=LW, label=r'$Z_{' + sp_name + '} (t)$')
+                    Z / Z[0], label=r'$Z_{' + sp_name + '} (t)$')
 
         ax.grid(True, alpha=0.3)
-        ax.legend(loc='upper right', fontsize=FSZ)
-        ax.tick_params(labelsize=FSZ)
-        ax.set_ylabel(r'$Z(t)$', fontsize=FSZ)
-        ax.set_xlabel(r'$\omega_p t$', fontsize=FSZ)
+        ax.legend(loc='upper right')
+        ax.set_ylabel(r'$Z(t)$', )
+        ax.set_xlabel(r'$\omega_p t$')
         ax.set_xscale('log')
         ax.set_ylim(-0.2, 1.2)
         fig.tight_layout()
@@ -1792,7 +1762,7 @@ class XYZFile:
         self.dump_dir = params.Control.dump_dir
         self.filename = os.path.join(self.fldr, "pva_" + params.Control.fname_app + '.xyz')
         self.dump_step = params.Control.dump_step
-        self.no_dumps = int(params.Control.Nsteps / params.Control.dump_step)
+        self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.dump_skip = 1
         self.tot_no_ptcls = params.total_num_ptcls
         self.a_ws = params.aws
@@ -1829,6 +1799,40 @@ class XYZFile:
                        fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
 
         f_xyz.close()
+
+
+def read_pickle(input_file):
+    """
+    Read Pickle File containing params.
+
+    Parameters
+    ----------
+    input_file: str
+        Input YAML file of the simulation.
+    Returns
+    -------
+    data : dict
+        Params dictionary.
+    """
+    with open(input_file, 'r') as stream:
+        dics = yaml.load(stream, Loader=yaml.FullLoader)
+        for lkey in dics:
+            if lkey == "Control":
+                for keyword in dics[lkey]:
+                    for key, value in keyword.items():
+                        # Directory where to store Checkpoint files
+                        if key == "output_dir":
+                            checkpoint_dir = os.path.join("Simulations", value)
+
+    pickle_file = os.path.join(checkpoint_dir, "S_parameters.pickle")
+
+    data = np.load(pickle_file, allow_pickle=True)
+
+    return data
+
+
+def count_dumps(dump_dir):
+    files = os.listdir(dump_dir)
 
 
 def load_from_restart(fldr, it):
@@ -2044,12 +2048,12 @@ def calc_vacf(vel, sp_num):
                 vacf_y[:no_dumps - it] += autocorrelationfunction_1D(vel[1, ptcl, it:])
                 vacf_z[:no_dumps - it] += autocorrelationfunction_1D(vel[2, ptcl, it:])
                 vacf_tot[:no_dumps - it] += autocorrelationfunction(vel[:, ptcl, it:])
-                norm_counter[:no_dumps -it] += 1.0
-        vacf_x_avg[i, :] = vacf_x/norm_counter
-        vacf_y_avg[i, :] = vacf_y/norm_counter
-        vacf_z_avg[i, :] = vacf_z/norm_counter
-        vacf_tot_avg[i, :] = vacf_tot/norm_counter
-        vacf_tot_avg[i, :] = vacf_tot/norm_counter
+                norm_counter[:no_dumps - it] += 1.0
+        vacf_x_avg[i, :] = vacf_x / norm_counter
+        vacf_y_avg[i, :] = vacf_y / norm_counter
+        vacf_z_avg[i, :] = vacf_z / norm_counter
+        vacf_tot_avg[i, :] = vacf_tot / norm_counter
+        vacf_tot_avg[i, :] = vacf_tot / norm_counter
 
         # vacf_x_avg[i, :] /= vacf_x_avg[i, 0]
         # vacf_y_avg[i, :] /= vacf_y_avg[i, 0]
@@ -2134,7 +2138,7 @@ def timeaveraging(At):
 
     for it in range(no_steps):
         for jt in range(it, no_steps - 1):
-            avg[it: no_steps - jt] += At[jt:no_steps]/At[jt]
+            avg[it: no_steps - jt] += At[jt:no_steps] / At[jt]
             norm_counter[it:no_steps - jt] += 1.0
 
     return avg / norm_counter
@@ -2433,7 +2437,7 @@ def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
 
     pair_indx = 0
     for ip, si in enumerate(species_np):
-        for jp in range( ip, len(species_np)):
+        for jp in range(ip, len(species_np)):
             sj = species_np[jp]
             for ik, ka in enumerate(ka_list):
                 indx = int(ka[-1])
@@ -2443,9 +2447,9 @@ def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
             pair_indx += 1
     return Skw
 
+
 @njit
 def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, no_dumps):
-
     tau_blk = np.zeros(max_no_divisions)
     sigma2_blk = np.zeros(max_no_divisions)
     statistical_efficiency = np.zeros(max_no_divisions)
