@@ -1,7 +1,6 @@
 *.pyc
 *.out
 *.xyz
-*.pdf
 *~
 *.swo
 *.swp
@@ -10,7 +9,6 @@
 *.idea
 *.ipynb
 *.ipynb_checkpoints
-*.png
 *.prof
 nohup.out
 Simulations
