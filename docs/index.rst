@@ -15,7 +15,6 @@ their choosing.
    :caption: Getting Started:
    
    installation
-   quickstart
    tutorial
 
 .. toctree::

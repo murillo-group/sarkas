@@ -1,0 +1,33 @@
+name: sarkas
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.*
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - numba
+  - pyfftw
+
+  # I/O
+  - pyyaml
+  - tqdm
+  - pyfiglet
+
+  # Analysis
+  - jupyter
+  - notebook
+  - matplotlib
+
+  # Documentation
+  - sphinx
+  - sphinx_bootstrap_theme
+  - sphinxcontrib-bibtex
+  - sphinxcontrib-apidoc
+  - sphinx_rtd_theme
+
+  - pip:
+      - fdint

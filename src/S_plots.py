@@ -119,11 +119,11 @@ input_file = sys.argv[1]
 # pickle.dump(params, save_file)
 # save_file.close()
 params = Observable.read_pickle(input_file)
-params.Control.checkpoint_dir = os.path.join("Simulations", params.Control.checkpoint_dir)
-E = Observable.Thermodynamics(params)
-E.parse()
+# params.Control.checkpoint_dir = os.path.join("Simulations", params.Control.checkpoint_dir)
+# E = Observable.Thermodynamics(params)
+# E.parse()
 # E.plot("Total Energy", True)
-# E.statistics("Total Energy", max_no_divisions=1000, show=True)
+#E.statistics("Total Energy", max_no_divisions=1000, show=True)
 # E.boxplot("Total Energy",True)
 FSZ = 16
 # clr = [24/255, 69/255, 49/255]
@@ -137,13 +137,13 @@ FSZ = 16
 # Z.plot()
 
 # params.PostProcessing.dsf_no_ka_values = [5, 5, 5]
-# DSF = Observable.DynamicStructureFactor(params)
-# DSF.compute()
-# DSF.plot(show=False)
+DSF = Observable.DynamicStructureFactor(params)
+DSF.compute()
+DSF.plot(show=False)
 #
-# SSF = Observable.StaticStructureFactor(params)
-# SSF.compute()
-# SSF.plot(show=True)
+SSF = Observable.StaticStructureFactor(params)
+SSF.compute()
+SSF.plot(show=True)
 
 # rdf = Observable.RadialDistributionFunction(params)
 # rdf.parse()

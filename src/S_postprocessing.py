@@ -14,7 +14,7 @@ plt.style.use(
     os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle') )
 
 FSZ = 16
-
+LW = 2
 UNITS = [
     {"Energy": 'J',
     "Time": 's',
@@ -61,6 +61,7 @@ PREFIXES = {
     "z": 1.0e-21,
     "y": 1.0e-24
 }
+
 
 def read_pickle(input_file):
     """
