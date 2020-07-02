@@ -125,7 +125,7 @@ params = Observable.read_pickle(input_file)
 E = Observable.Thermodynamics(params)
 E.parse()
 # E.statistics("Total Energy", max_no_divisions=1000, show=True)
-E.boxplot("Total Energy", True)
+# E.boxplot("Total Energy", True)
 
 # clr = [24/255, 69/255, 49/255]
 # clr2 = [240/255, 133/255, 33/255]
@@ -133,9 +133,10 @@ E.boxplot("Total Energy", True)
 
 # E.statistics("Temperature", max_no_divisions=1000, show=True)
 # params.Control.Nsteps = 10000
-# Z = Observable.VelocityAutocorrelationFunctions(params)
-# Z.compute()
-# Z.plot()
+Z = Observable.VelocityAutocorrelationFunctions(params)
+Z.compute()
+Z.plot()
+
 
 # params.PostProcessing.dsf_no_ka_values = [5, 5, 5]
 # DSF = Observable.DynamicStructureFactor(params)
@@ -147,6 +148,9 @@ E.boxplot("Total Energy", True)
 # SSF.plot(show=True)
 
 # rdf = Observable.RadialDistributionFunction(params)
+# data = Observable.load_from_restart(params.Control.dump_dir, params.Control.Nsteps)
+# rdf.save(data["rdf_hist"])
+# rdf.plot(show=True)
 # rdf.parse()
 # rdf.plot()
 #
@@ -154,9 +158,9 @@ E.boxplot("Total Energy", True)
 # J.dataframe["Total Electrical Current"]
 # J.plot()
 
-# TC = Observable.TransportCoefficients(params)
+TC = Observable.TransportCoefficients(params)
 # TC.compute("Electrical Conductivity",show=True)
-# TC.compute("Diffusion",show=True)
+TC.compute("Diffusion",show=True)
 #
 # XYZ = Observable.XYZFile(params)
 # XYZ.save()

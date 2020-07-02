@@ -48,6 +48,23 @@ class Verbose:
     """ 
     Class to handle verbose output to screen.
 
+    Attributes
+    ----------
+    pre_run: bool
+        Flag for pre run testing.
+
+    verbose: bool
+        Flag for verbose output to screen.
+
+    io_file: str
+        Filename of the file to write.
+
+    f_log_name: str
+        Log file name.
+
+    f_pre_run: str
+        Pre Run file name.
+
     Parameters
     ----------
     params : class
@@ -56,44 +73,50 @@ class Verbose:
     """
 
     def __init__(self, params):
-
-        self.f_log_name = os.path.join(params.Control.checkpoint_dir, "log_" + params.Control.fname_app + ".out")
+        self.verbose = params.Control.verbose
+        self.pre_run = params.Control.pre_run
+        # Create job folder if non existent
         if not os.path.exists(params.Control.checkpoint_dir):
             os.mkdir(params.Control.checkpoint_dir)
 
+        # Pre run file name
+        self.f_pre_run = os.path.join(params.Control.checkpoint_dir, 'pre_run_' + params.Control.fname_app + '.out')
+        # Log File name
+        self.f_log_name = os.path.join(params.Control.checkpoint_dir, "log_" + params.Control.fname_app + ".out")
+        # Save it in params too
         params.Control.log_file = self.f_log_name
-        if not params.Control.pre_run:
-            self.io_file = self.f_log_name
-        else:
-            self.f_pre_run = os.path.join(params.Control.checkpoint_dir, 'pre_run_' + params.Control.fname_app + '.out')
-            self.io_file = self.f_pre_run
 
+        # Pre run testing: assign self.io_file to the correct file to open/write
+        self.io_file = self.f_pre_run if params.Control.pre_run else self.f_log_name
+
+        # Print figlet to file if not a restart run
         if not params.load_method == "restart":
-            with open(self.io_file, "a+") as f_log:
+            with open(self.io_file, "w+") as f_log:
                 figlet_obj = Figlet(font='starwars')
                 print(figlet_obj.renderText('Sarkas'), file=f_log)
                 print("An open-source pure-Python molecular dynamics code for non-ideal plasmas.", file=f_log)
 
-        if params.Control.verbose:
+        # Print figlet to screen if verbose
+        if self.verbose:
             screen_figlet()
-
-        if params.Control.pre_run:
-            self.heading = '\n\n-------------- Pre Run Details ----------------------'
-        else:
-            self.heading = '\n\n----------------- Simulation -----------------------'
 
     def sim_setting_summary(self, params):
         """
         Print out to file a summary of simulation's parameters.
+        If verbose output then it will print twice: the first time to file and second time to screen.
+
+        Parameters
+        ----------
+        params : class
+            Simulation parameters to print.
         """
 
         screen = sys.stdout
         f_log = open(self.io_file, 'a+')
-        repeat = 1 if params.Control.verbose else 1
+        repeat = 2 if self.verbose else 1
 
         # redirect printing to file
-        # sys.stdout = f_log
-        # print(repeat)
+        sys.stdout = f_log
 
         # Print to file first then to screen if repeat == 2
         while repeat > 0:
@@ -104,7 +127,12 @@ class Verbose:
                 print("Total production steps: {}".format(params.Control.Nsteps))
 
             else:
-                print(self.heading)
+                # Choose the correct heading
+                if self.pre_run:
+                    print('\n\n-------------- Pre Run Details ----------------------')
+                else:
+                    print('\n\n----------------- Simulation -----------------------')
+
                 print('\nJob ID: ', params.Control.fname_app)
                 print('Job directory: ', params.Control.checkpoint_dir)
                 print('Dump directory: ', params.Control.dump_dir)
@@ -136,6 +164,17 @@ class Verbose:
                 print("[cm]" if params.Control.units == "cgs" else "[m]")
                 print("The remaining lengths scales are given in ", end='')
                 print("[cm]" if params.Control.units == "cgs" else "[m]")
+
+                print('\nBoundary conditions:')
+                if params.BC.pbc_axes:
+                    print('Periodic BC along axes : ', params.BC.pbc_axes)
+                if params.BC.mm_axes:
+                    print('Momentum Mirror BC along axes : ', params.BC.mm_axes)
+                if params.BC.open_axes:
+                    print('Open BC along axes : ', params.BC.open_axes)
+
+                if params.Langevin.on:
+                    print('Langevin model : ', params.Langevin.type)
 
                 print("\nIntegrator: ", params.Integrator.type)
                 print("\nThermostat: ", params.Thermostat.type)
@@ -205,9 +244,10 @@ class Verbose:
                                                                                      params.P3M.G_ew), end='')
                     print("[1/cm]" if params.Control.units == "cgs" else "[1/m]")
                     print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f} ~ 1/{} '.format(
-                        params.P3M.hx * params.P3M.G_ew, int(1./(params.P3M.hx * params.P3M.G_ew))),)
-                    print('rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
-                          end='')
+                        params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))), )
+                    print(
+                        'rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
+                        end='')
                     print("[cm]" if params.Control.units == "cgs" else "[m]")
                     print('Mesh = ', params.P3M.MGrid)
                     print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
@@ -216,7 +256,7 @@ class Verbose:
                         int(params.Lv[2] / params.Potential.rc)))
                     print('No. of PP neighbors per particle = {:6}'.format(
                         int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
-                                    params.Potential.rc / params.Lv.min()) ** 3.0)))
+                                params.Potential.rc / params.Lv.min()) ** 3.0)))
                     print('PM Force Error = {:2.6e}'.format(params.P3M.PM_err))
                     print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err))
                     print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err))
@@ -228,7 +268,7 @@ class Verbose:
                                                                                int(params.Lv[2] / params.Potential.rc)))
                     print('No. of neighbors per particle = {:4}'.format(
                         int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
-                                    params.Potential.rc / params.Lv.min()) ** 3.0)))
+                                params.Potential.rc / params.Lv.min()) ** 3.0)))
                     print('PP Force Error = {:2.6e}'.format(params.PP_err))
 
                 print("\nTime scales:")
@@ -247,28 +287,21 @@ class Verbose:
                     print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(params.wp))
                     print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
 
-                print('No. of equilibration steps = ', params.Control.Neq)
-                print('No. of post-equilibration steps = ', params.Control.Nsteps)
-                print('snapshot interval = ', params.Control.dump_step)
-                print('\nBoundary conditions:')
-                if params.BC.pbc_axes:
-                    print('Periodic BC along axes : ', params.BC.pbc_axes)
-                if params.BC.mm_axes:
-                    print('Momentum Mirror BC along axes : ', params.BC.mm_axes)
-                if params.BC.open_axes:
-                    print('Open BC along axes : ', params.BC.open_axes)
-
-                if params.Langevin.on:
-                    print('Langevin model : ', params.Langevin.type)
+                print('No. of equilibration steps = {} ~ {} wp T_eq'.format(
+                    params.Control.Neq, int(params.Control.Neq * params.wp * params.Control.dt)))
+                print('No. of post-equilibration steps = {} ~ {} wp T_prod'.format(
+                    params.Control.Nsteps, int(params.Control.Nsteps * params.wp * params.Control.dt)))
+                print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+                    params.Control.dump_step, params.Control.dump_step * params.Control.dt * params.wp))
 
             repeat -= 1
-            # sys.stdout = screen  # Restore the original sys.stdout
+            sys.stdout = screen  # Restore the original sys.stdout
 
         f_log.close()
 
     def time_stamp(self, time_stamp, t):
         """
-        Print out to screen elapsed times.
+        Print out to screen elapsed times. If verbose output, print to file first and then to screen.
 
         Parameters
         ----------
@@ -278,8 +311,20 @@ class Verbose:
         t : float
             Elapsed time.
         """
-        with open(self.f_log_name, "a+") as f_log:
+        screen = sys.stdout
+        f_log = open(self.io_file, 'a+')
+        repeat = 2 if self.verbose else 1
+
+        # redirect printing to file
+        sys.stdout = f_log
+        while repeat > 0:
+
             t_hrs = int(t / 3600)
             t_min = int((t - t_hrs * 3600) / 60)
             t_sec = int((t - t_hrs * 3600 - t_min * 60))
-            print('\n{} Time = {} hrs {} mins {} secs'.format(time_stamp, t_hrs, t_min, t_sec), file=f_log)
+            print('\n{} Time = {} hrs {} mins {} secs'.format(time_stamp, t_hrs, t_min, t_sec))
+
+            repeat -= 1
+            sys.stdout = screen
+
+        f_log.close()

@@ -48,7 +48,7 @@ Control:
     - units: cgs                    # units
     - dt: 1.3922998e-20            # sec
     - Neq: 250000                      # number of timesteps for the equilibrium
-    - Nsteps: 5000000                  # number of timesteps after the equilibrium
+    - Nsteps: 500000                  # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 200                # dump time step
     - verbose: yes

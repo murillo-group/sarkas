@@ -434,7 +434,16 @@ Did you think that you could get away so easily? We need to check if our run is 
 Post Processing
 ===============
 
-Now comes the fun part!
+Now comes the fun part! The first thing we want to do is to check for energy conservation again.
+
+.. image:: _static/assets/Total_Energy_yukawa_mks_p3m.png
+    :alt: Total Energy
+
+
+Plot of the Total Energy as a function of time.
+
+asfga
+
 
 .. bibliography:: _static/references.bib
 

@@ -1550,7 +1550,7 @@ class TransportCoefficients:
         elif quantity == "Diffusion":
             Z = VelocityAutocorrelationFunctions(self.params)
             Z.plot(show=True)
-            no_int = int(self.params.Control.Nsteps / self.params.Control.dump_step)
+            no_int = int(self.params.Control.Nsteps / self.params.Control.dump_step) + 1
             D = np.zeros((self.params.num_species, no_int))
             fig, ax = plt.subplots(1, 1, figsize=(10, 7))
             # ax2 = ax.twinx()
@@ -1568,8 +1568,7 @@ class TransportCoefficients:
                 ax.plot(time * self.params.wp, D[i, :], label=r'$D_{' + sp.name + '}(t)$')
                 # ax2.semilogy(time*self.params.wp, -np.gradient(np.gradient(D[i, :])), ls='--', lw=LW - 1,
                 #          label=r'$\nabla D_{' + sp.name + '}(t)$')
-
-            # Complete figure
+        # Complete figure
             ax.grid(True, alpha=0.3)
             ax.legend(loc='best')
             ax.set_ylabel(r'$D_{\alpha}(t)/(a^2\omega_{\alpha})$')
@@ -2000,7 +1999,7 @@ def calc_elec_current(vel, sp_charge, sp_num):
 
 
 @njit()
-def calc_vacf(vel, sp_num):
+def calc_vacf(vel, sp_num, it_skip=100):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
 
@@ -2033,7 +2032,6 @@ def calc_vacf(vel, sp_num):
     vacf_y_avg = np.zeros((no_species, no_dumps))
     vacf_z_avg = np.zeros((no_species, no_dumps))
     vacf_tot_avg = np.zeros((no_species, no_dumps))
-    it_skip = 1
     norm_counter = np.zeros(no_dumps)
     sp_start = 0
     for i, sp in enumerate(sp_num):
@@ -2043,12 +2041,13 @@ def calc_vacf(vel, sp_num):
         vacf_z = np.zeros(no_dumps)
         vacf_tot = np.zeros(no_dumps)
         for ptcl in range(sp_start, sp_end, 1000):
-            for it in range(no_dumps):
-                vacf_x[:no_dumps - it] += autocorrelationfunction_1D(vel[0, ptcl, it:])
-                vacf_y[:no_dumps - it] += autocorrelationfunction_1D(vel[1, ptcl, it:])
-                vacf_z[:no_dumps - it] += autocorrelationfunction_1D(vel[2, ptcl, it:])
-                vacf_tot[:no_dumps - it] += autocorrelationfunction(vel[:, ptcl, it:])
-                norm_counter[:no_dumps - it] += 1.0
+            for it in range(0,no_dumps, it_skip):
+
+                vacf_x[: no_dumps - it] += autocorrelationfunction_1D(vel[0, ptcl, it:])
+                vacf_y[: no_dumps - it] += autocorrelationfunction_1D(vel[1, ptcl, it:])
+                vacf_z[: no_dumps - it] += autocorrelationfunction_1D(vel[2, ptcl, it:])
+                vacf_tot[: no_dumps - it] += autocorrelationfunction(vel[:, ptcl, it:])
+                norm_counter+= 1.0
         vacf_x_avg[i, :] = vacf_x / norm_counter
         vacf_y_avg[i, :] = vacf_y / norm_counter
         vacf_z_avg[i, :] = vacf_z / norm_counter

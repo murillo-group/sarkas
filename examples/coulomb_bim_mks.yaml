@@ -25,7 +25,7 @@ Particles:
 Potential:
     - type: Coulomb                 # potential type
     - method: P3M                    # Linked-cell
-    - rc: 5.583154e-12          # cut-off radius, meter
+    - rc: 5.2729792e-12          # cut-off radius, meter
 
 P3M:
     - MGrid: [64, 64, 64]
@@ -46,7 +46,7 @@ Thermostat:
 
 Control:
     - units: mks                    # units
-    - dt: 2.0e-20            # sec
+    - dt: 1.5e-20            # sec
     - Neq: 5000                      # number of timesteps for the equilibrium
     - Nsteps: 50000                    # number of timesteps afater the equilibrium
     - writexyz: no                  # no xyz output

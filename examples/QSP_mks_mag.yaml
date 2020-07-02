@@ -50,13 +50,13 @@ Thermostat:
 
 Control:
     - units: mks                    # units
-    - dt: 0.5e-19            # sec
-    - Neq: 100000                      # number of timesteps for the equilibrium
-    - Nsteps: 5000000000                   # number of timesteps after the equilibrium
+    - dt: 0.75e-19            # sec
+    - Neq: 50000                      # number of timesteps for the equilibrium
+    - Nsteps: 500000                   # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
-    - dump_step: 50                # dump time step
+    - dump_step: 25                # dump time step
     - verbose:
-    - output_dir: QSP_mks       # dir name to save data. The default is "Checkpoint"
+    - output_dir: QSP_mks_mag       # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
     - rdf_nbins: 100
