@@ -688,7 +688,10 @@ class Params:
                                 self.Thermostat.timestep = int(value)
 
                             if key == "temperatures_eV":
-                                self.Thermostat.temperatures = np.array(value) if isinstance(value, list) else np.array([value])
+                                if isinstance(value, list):
+                                    self.Thermostat.temperatures = np.array(value, dtype=float)
+                                else:
+                                    np.array([value], dtype=float)
                                 self.Thermostat.temperatures *= self.eV2K
                             if key == "temperatures":
                                 # Conversion factor from eV to Kelvin

@@ -75,9 +75,7 @@ verbose.time_stamp('Total Run', tot_time)
 plt.close('all')
 kappa_title = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0]
 # Plot the results
-fig_path = os.path.join(params.Control.checkpoint_dir, 'Pre_Run_Test')
-if not os.path.exists(fig_path):
-    os.mkdir(fig_path)
+fig_path = params.Control.pre_run_dir
 
 fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
 ax[0].plot(rcuts, DeltaF_tot[30, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[30]))
@@ -115,7 +113,7 @@ fig.suptitle(
     r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(params.total_num_ptcls,
                                                                                             params.P3M.MGrid[0],
                                                                                             kappa_title * params.aws))
-fig.savefig(fig_path + 'ForceError_LinePlot_' + params.Control.fname_app + '.png')
+fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.Control.fname_app + '.png') )
 fig.show()
 
 r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
@@ -131,12 +129,13 @@ cbar = fig.colorbar(CS)
 # Add the contour line levels to the colorbar
 # cbar.add_lines(CS2)
 ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
-ax.axhline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
+if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
+    ax.axhline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
 # ax.tick_params(labelsize=fsz)
 ax.set_xlabel(r'$\alpha \;a_{ws}$')
 ax.set_ylabel(r'$r_c/a_{ws}$')
 ax.set_title(r'$\Delta F^{apprx}_{tot}(r_c,\alpha)$' + r'  for  $N = {}, \quad M = {}, \quad \kappa = {:1.3f}$'.format(
     params.total_num_ptcls, params.P3M.MGrid[0], kappa_title * params.aws))
 fig.tight_layout()
-fig.savefig(fig_path + 'ForceError_ClrMap_' + params.Control.fname_app + '.png')
+fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.Control.fname_app + '.png'))
 fig.show()

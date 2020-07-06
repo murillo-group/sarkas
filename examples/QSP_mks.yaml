@@ -4,7 +4,7 @@ Particles:
         name: e
         number_density: 2.5e+31       # /m^3
         mass: 9.1093837015e-31
-        num: 750                    # total number of particles of ion1
+        num: 5000                    # total number of particles of ion1
         Z: -1.0                        # degree of ionization
         temperature: 1.58e+6
 
@@ -12,7 +12,7 @@ Particles:
         name: p
         number_density: 2.5e+31       # /m^3
         mass: 1.67262192369e-27         # kg, ptcl mass of ion1
-        num: 750                  # total number of particles of ion1
+        num: 5000                  # total number of particles of ion1
         Z: 1.0                       # degree of ionization
         temperature: 1.58e+6
 
@@ -24,13 +24,13 @@ Potential:
     - type: QSP                 # potential type
     - QSP_type: Deutsch
     - method: P3M                    # Linked-cell
-    - rc: 1.53e-10     # cut-off radius, meter
+    - rc: 1.683890e-10     # cut-off radius, meter
 
 P3M:
     - MGrid: [32, 32, 32]
     - aliases: [3,3,3]
     - cao: 6
-    - alpha_ewald: 3.0327e+10
+    - alpha_ewald: 1.484657e+10
 
 BoundaryConditions:
     - periodic: ["x", "y", "z"]
@@ -42,16 +42,17 @@ Thermostat:
     - type: Berendsen               # thermostat type
     - tau: 10.
     - timestep: 2000
+    - temperatures: [1.58e+6, 1.58e+6]
 
 Control:
     - units: mks                    # units
     - dt: 0.35e-19            # sec
     - Neq: 50000                     # number of timesteps for the equilibrium
-    - Nsteps: 500000                   # number of timesteps after the equilibrium
+    - Nsteps: 50000                   # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 20                # dump time step
     - verbose: no
     - output_dir: QSP_mks       # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 200
+    - rdf_nbins: 500

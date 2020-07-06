@@ -3,15 +3,15 @@ Module for calculating physical quantities from Sarkas checkpoints.
 """
 import os
 import yaml
-from matplotlib.gridspec import GridSpec
+from tqdm import tqdm
 import numpy as np
 from numba import njit, prange
 import pandas as pd
+from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 
 plt.style.use(
-    os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
+    os.path.join(os.path.join(os.getcwd(), 'src'), 'PUBstyle'))
 
 UNITS = [
     {"Energy": 'J',
@@ -45,9 +45,7 @@ PREFIXES = {
     "G": 1e9,
     "M": 1e6,
     "k": 1e3,
-    "h": 1.0e2,
-    "da": 1.0e1,
-    "d": 1.0e-1,
+    "": 1e0,
     "c": 1.0e-2,
     "m": 1.0e-3,
     r"$\mu$": 1.0e-6,
@@ -1208,6 +1206,7 @@ class Thermodynamics:
         self.dump_step = params.Control.dump_step
         self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_dim = params.dimensions
+        self.units = params.Control.units
         if params.load_method == "restart":
             self.restart_sim = True
         else:
@@ -1449,14 +1448,18 @@ class Thermodynamics:
         fig = plt.figure(figsize=(12, 7))
         gs = GridSpec(4, 4)
         # quantity = "Temperature"
+        self.no_dumps = len(self.dataframe["Time"])
         cumavg = self.dataframe[quantity].cumsum() / [i for i in range(1, self.no_dumps + 1)]
         delta_plot = fig.add_subplot(gs[0, 0:3])
         main_plot = fig.add_subplot(gs[1:4, 0:3])
         hist_plot = fig.add_subplot(gs[1:4, 3])
-        main_plot.plot(self.dataframe["Time"], self.dataframe[quantity], alpha=0.7)
-        main_plot.plot(self.dataframe["Time"], cumavg, label='Cum Avg')
-        main_plot.axhline(self.dataframe[quantity].mean(), ls='--', c='r', alpha=0.7, label='Avg')
-        hist_plot.hist(self.dataframe[quantity], bins=100, density=True, orientation='horizontal', alpha=0.75)
+        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
+                                                               self.dataframe[quantity], "Time", quantity, self.units)
+
+        main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe[quantity], alpha=0.7)
+        main_plot.plot(xmul * self.dataframe["Time"], ymul * cumavg, label='Cum Avg')
+
+        hist_plot.hist(self.dataframe[quantity], bins=100, density=True, orientation='horizontal',alpha=0.75)
         hist_plot.grid(True, alpha=0.3)
         hist_plot.get_xaxis().set_ticks([])
         hist_plot.get_yaxis().set_ticks([])
@@ -1464,22 +1467,23 @@ class Thermodynamics:
         if quantity == 'Temperature':
             Delta = (self.dataframe[quantity] - self.T) * 100 / self.T
             Delta_cum_avg = Delta.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+            main_plot.axhline(ymul * self.T, ls='--', c='r', alpha=0.7, label='Desired T')
         else:
             Delta = (self.dataframe[quantity] - self.dataframe[quantity][0]) * 100 / self.dataframe[quantity][0]
             Delta_cum_avg = Delta.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+            main_plot.axhline(ymul * self.dataframe[quantity].mean(), ls='--', c='r', alpha=0.7, label='Avg')
+
         delta_plot.plot(self.dataframe["Time"], Delta, alpha=0.5)
         delta_plot.plot(self.dataframe["Time"], Delta_cum_avg, alpha=0.8)
         delta_plot.get_xaxis().set_ticks([])
         delta_plot.set_ylabel(r'Deviation [%]')
         delta_plot.tick_params(labelsize=12)
         main_plot.tick_params(labelsize=14)
-        # main_plot.ticklabel_format(axis='both', style="scientific")
-        main_plot.set_ylabel(quantity)
         main_plot.legend(loc='best')
-        main_plot.set_xlabel("Time")
+        main_plot.set_ylabel(quantity + ylbl)
+        main_plot.set_xlabel("Time" + xlbl)
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, quantity + '_' + self.fname_app + '.png'))
-        # format_label_string_with_exponent(main_plot,axis='both')
         if show:
             fig.show()
 
@@ -1568,7 +1572,7 @@ class TransportCoefficients:
                 ax.plot(time * self.params.wp, D[i, :], label=r'$D_{' + sp.name + '}(t)$')
                 # ax2.semilogy(time*self.params.wp, -np.gradient(np.gradient(D[i, :])), ls='--', lw=LW - 1,
                 #          label=r'$\nabla D_{' + sp.name + '}(t)$')
-        # Complete figure
+            # Complete figure
             ax.grid(True, alpha=0.3)
             ax.legend(loc='best')
             ax.set_ylabel(r'$D_{\alpha}(t)/(a^2\omega_{\alpha})$')
@@ -1583,6 +1587,11 @@ class TransportCoefficients:
                                      'DiffusionPlot_' + self.params.Control.fname_app + '.png'))
             if show:
                 fig.show()
+        elif quantity == "Interdiffusion":
+            Z = VelocityAutocorrelationFunctions(self.params)
+            Z.plot(show=True)
+
+
 
         return
 
@@ -1661,7 +1670,7 @@ class VelocityAutocorrelationFunctions:
         except FileNotFoundError:
             self.compute()
 
-    def compute(self):
+    def compute(self, time_averaging=False, it_skip=100):
         """
         Compute the velocity auto-correlation functions.
         """
@@ -1682,20 +1691,34 @@ class VelocityAutocorrelationFunctions:
 
         data_dic = {"Time": time}
         self.dataframe = pd.DataFrame(data_dic)
-        print("Calculating vacf ...")
-        vacf_x, vacf_y, vacf_z, vacf_tot = calc_vacf(vel, self.species_np)
+        if time_averaging:
+            print("Calculating vacf with time averaging on...")
+        else:
+            print("Calculating vacf with time averaging off...")
+        vacf_x, vacf_y, vacf_z, vacf_tot = calc_vacf(vel, self.species_np, time_averaging, it_skip)
 
         # Save to csv
+        v_ij = 0
         for sp in range(self.no_species):
-            self.dataframe["{} X Velocity ACF".format(self.species_names[sp])] = vacf_x[sp, :]
-            self.dataframe["{} Y Velocity ACF".format(self.species_names[sp])] = vacf_y[sp, :]
-            self.dataframe["{} Z Velocity ACF".format(self.species_names[sp])] = vacf_z[sp, :]
-            self.dataframe["{} Total Velocity ACF".format(self.species_names[sp])] = vacf_tot[sp, :]
+            self.dataframe["{} X Velocity ACF".format(self.species_names[sp])] = vacf_x[v_ij, :]
+            self.dataframe["{} Y Velocity ACF".format(self.species_names[sp])] = vacf_y[v_ij, :]
+            self.dataframe["{} Z Velocity ACF".format(self.species_names[sp])] = vacf_z[v_ij, :]
+            self.dataframe["{} Total Velocity ACF".format(self.species_names[sp])] = vacf_tot[v_ij, :]
+            for sp2 in range(sp + 1, self.no_species):
+                v_ij += 1
+                self.dataframe["{}-{} X Current ACF".format(self.species_names[sp],
+                                                            self.species_names[sp2])] = vacf_x[v_ij, :]
+                self.dataframe["{}-{} Y Current ACF".format(self.species_names[sp],
+                                                            self.species_names[sp2])] = vacf_y[v_ij, :]
+                self.dataframe["{}-{} Z Current ACF".format(self.species_names[sp],
+                                                            self.species_names[sp2])] = vacf_z[v_ij, :]
+                self.dataframe["{}-{} Total Current ACF".format(self.species_names[sp],
+                                                                self.species_names[sp2])] = vacf_tot[v_ij, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
         return
 
-    def plot(self, show=False):
+    def plot(self, intercurrent=False, show=False):
         """
         Plot the velocity autocorrelation function and save the figure.
         """
@@ -1704,25 +1727,42 @@ class VelocityAutocorrelationFunctions:
         except FileNotFoundError:
             self.compute()
 
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        for i, sp_name in enumerate(self.species_names):
-            Z = self.dataframe["{} Total Velocity ACF".format(sp_name)]
-            ax.plot(self.dataframe["Time"] * self.wp,
-                    Z / Z[0], label=r'$Z_{' + sp_name + '} (t)$')
+        if intercurrent:
+            fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+            for i, sp_name in enumerate(self.species_names):
+                for j in range(i + 1, self.no_species):
+                    J = self.dataframe["{}-{} Total Current ACF".format(sp_name, self.species_names[j])]
+                    ax.plot(self.dataframe["Time"] * self.wp,
+                            J / J[0], label=r'$J_{' + sp_name + self.species_names[j] + '} (t)$')
+            ax.grid(True, alpha=0.3)
+            ax.legend(loc='upper right')
+            ax.set_ylabel(r'$J(t)$', )
+            ax.set_xlabel(r'$\omega_p t$')
+            ax.set_xscale('log')
+            ax.set_ylim(-0.2, 1.2)
+            fig.tight_layout()
+            fig.savefig(os.path.join(self.fldr, 'InterCurrentACF_' + self.fname_app + '.png'))
+            if show:
+                fig.show()
+        else:
+            fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+            for i, sp_name in enumerate(self.species_names):
+                Z = self.dataframe["{} Total Velocity ACF".format(sp_name)]
+                ax.plot(self.dataframe["Time"] * self.wp,
+                        Z / Z[0], label=r'$Z_{' + sp_name + '} (t)$')
+            ax.grid(True, alpha=0.3)
+            ax.legend(loc='upper right')
+            ax.set_ylabel(r'$Z(t)$', )
+            ax.set_xlabel(r'$\omega_p t$')
+            ax.set_xscale('log')
+            ax.set_ylim(-0.2, 1.2)
+            fig.tight_layout()
+            fig.savefig(os.path.join(self.fldr, 'TotalVelocityACF_' + self.fname_app + '.png'))
+            if show:
+                fig.show()
 
-        ax.grid(True, alpha=0.3)
-        ax.legend(loc='upper right')
-        ax.set_ylabel(r'$Z(t)$', )
-        ax.set_xlabel(r'$\omega_p t$')
-        ax.set_xscale('log')
-        ax.set_ylim(-0.2, 1.2)
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'TotalVelocityACF_' + self.fname_app + '.png'))
-        if show:
-            fig.show()
 
-
-class XYZFile:
+class XYZWriter:
     """
     Write the XYZ file for OVITO visualization.
 
@@ -1766,6 +1806,7 @@ class XYZFile:
         self.tot_no_ptcls = params.total_num_ptcls
         self.a_ws = params.aws
         self.wp = params.wp
+        self.verbose = params.Control.verbose
 
     def save(self, dump_skip=1):
         """
@@ -1782,11 +1823,11 @@ class XYZFile:
         f_xyz = open(self.filename, "w+")
 
         # Rescale constants. This is needed since OVITO has a small number limit.
-        pscale = 1.0 / self.aws
-        vscale = 1.0 / (self.aws * self.wp)
-        ascale = 1.0 / (self.aws * self.wp ** 2)
+        pscale = 1.0 / self.a_ws
+        vscale = 1.0 / (self.a_ws * self.wp)
+        ascale = 1.0 / (self.a_ws * self.wp ** 2)
 
-        for it in range(int(self.no_dumps / self.dump_skip)):
+        for it in tqdm(range(int(self.no_dumps / self.dump_skip)), disable=not self.verbose):
             dump = int(it * self.dump_step * self.dump_skip)
 
             data = load_from_restart(self.dump_dir, dump)
@@ -1998,13 +2039,19 @@ def calc_elec_current(vel, sp_charge, sp_num):
     return Js, Jtot
 
 
-@njit()
-def calc_vacf(vel, sp_num, it_skip=100):
+@njit(parallel=True)
+def calc_vacf(vel, sp_num, time_averaging, it_skip=100):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
 
     Parameters
     ----------
+    time_averaging: bool
+        Flag for time averaging.
+
+    it_skip: int
+        Timestep interval for time averaging.
+
     vel : ndarray
         Particles' velocities.
 
@@ -2027,38 +2074,101 @@ def calc_vacf(vel, sp_num, it_skip=100):
     """
     no_species = len(sp_num)
     no_dumps = vel.shape[2]
+    concs = np.copy(sp_num) / no_species
 
-    vacf_x_avg = np.zeros((no_species, no_dumps))
-    vacf_y_avg = np.zeros((no_species, no_dumps))
-    vacf_z_avg = np.zeros((no_species, no_dumps))
-    vacf_tot_avg = np.zeros((no_species, no_dumps))
-    norm_counter = np.zeros(no_dumps)
+    no_vacf = int(no_species * (no_species + 1) / 2)
+    vacf_x_avg = np.zeros((no_vacf, no_dumps))
+    vacf_y_avg = np.zeros((no_vacf, no_dumps))
+    vacf_z_avg = np.zeros((no_vacf, no_dumps))
+    vacf_tot_avg = np.zeros((no_vacf, no_dumps))
+
     sp_start = 0
-    for i, sp in enumerate(sp_num):
-        sp_end = sp_start + sp
-        vacf_x = np.zeros(no_dumps)
-        vacf_y = np.zeros(no_dumps)
-        vacf_z = np.zeros(no_dumps)
-        vacf_tot = np.zeros(no_dumps)
-        for ptcl in range(sp_start, sp_end, 1000):
-            for it in range(0,no_dumps, it_skip):
 
-                vacf_x[: no_dumps - it] += autocorrelationfunction_1D(vel[0, ptcl, it:])
-                vacf_y[: no_dumps - it] += autocorrelationfunction_1D(vel[1, ptcl, it:])
-                vacf_z[: no_dumps - it] += autocorrelationfunction_1D(vel[2, ptcl, it:])
-                vacf_tot[: no_dumps - it] += autocorrelationfunction(vel[:, ptcl, it:])
-                norm_counter+= 1.0
-        vacf_x_avg[i, :] = vacf_x / norm_counter
-        vacf_y_avg[i, :] = vacf_y / norm_counter
-        vacf_z_avg[i, :] = vacf_z / norm_counter
-        vacf_tot_avg[i, :] = vacf_tot / norm_counter
-        vacf_tot_avg[i, :] = vacf_tot / norm_counter
+    if time_averaging:
+        v_ij = 0
+        for i, sp in enumerate(sp_num):
+            sp_end = sp_start + sp
+            vacf_x = np.zeros(no_dumps)
+            vacf_y = np.zeros(no_dumps)
+            vacf_z = np.zeros(no_dumps)
+            vacf_tot = np.zeros(no_dumps)
+            jx_acf = np.zeros(no_dumps)
+            jy_acf = np.zeros(no_dumps)
+            jz_acf = np.zeros(no_dumps)
+            j_acf = np.zeros(no_dumps)
+            for ptcl in range(sp_start, sp_end):
+                norm_counter = np.zeros(no_dumps)
+                for it in range(0, no_dumps, it_skip):
+                    vacf_x[: no_dumps - it] += autocorrelationfunction_1D(vel[0, ptcl, it:])
+                    vacf_y[: no_dumps - it] += autocorrelationfunction_1D(vel[1, ptcl, it:])
+                    vacf_z[: no_dumps - it] += autocorrelationfunction_1D(vel[2, ptcl, it:])
+                    vacf_tot[: no_dumps - it] += autocorrelationfunction(vel[:, ptcl, it:])
+                    norm_counter[: no_dumps - it] += 1.0
+            vacf_x_avg[v_ij, :] = vacf_x / norm_counter
+            vacf_y_avg[v_ij, :] = vacf_y / norm_counter
+            vacf_z_avg[v_ij, :] = vacf_z / norm_counter
+            vacf_tot_avg[v_ij, :] = vacf_tot / norm_counter
 
-        # vacf_x_avg[i, :] /= vacf_x_avg[i, 0]
-        # vacf_y_avg[i, :] /= vacf_y_avg[i, 0]
-        # vacf_z_avg[i, :] /= vacf_z_avg[i, 0]
-        # vacf_tot_avg[i, :] /= vacf_tot_avg[i, 0]
-        sp_start = sp_end
+            # Calculate intra-species flux and its vacf
+            sp2_start = sp_end
+            v_sp1 = np.sum(vel[:, sp_start: sp_end, :], axis=1)
+            for j in range(i + 1, no_species):
+                v_ij += 1
+                sp2_end = sp2_start + sp_num[j]
+                norm_counter = np.zeros(no_dumps)
+                v_sp2 = np.sum(vel[:, sp2_start: sp2_end, :], axis=1)
+                for it in range(0, no_dumps, it_skip):
+                    jt = concs[i] * v_sp2 - concs[j] * v_sp1
+                    jx_acf[:no_dumps - it] += autocorrelationfunction_1D(jt[0, it:])
+                    jy_acf[:no_dumps - it] += autocorrelationfunction_1D(jt[1, it:])
+                    jz_acf[:no_dumps - it] += autocorrelationfunction_1D(jt[2, it:])
+                    j_acf[:no_dumps - it] += autocorrelationfunction(jt[:,it:])
+                    norm_counter[: no_dumps - it] += 1.0
+                vacf_x_avg[v_ij, :] = jx_acf/norm_counter
+                vacf_y_avg[v_ij, :] = jy_acf/norm_counter
+                vacf_z_avg[v_ij, :] = jz_acf/norm_counter
+                vacf_tot_avg[v_ij, :] = j_acf/norm_counter
+
+            sp_start = sp_end
+
+    else:
+        v_ij = 0
+        for i, sp in enumerate(sp_num):
+            sp_end = sp_start + sp
+            vacf_x = np.zeros(no_dumps)
+            vacf_y = np.zeros(no_dumps)
+            vacf_z = np.zeros(no_dumps)
+            vacf_tot = np.zeros(no_dumps)
+            # Calculate vacf of each species
+            for ptcl in prange(sp_start, sp_end):
+                vacf_x += autocorrelationfunction_1D(vel[0, ptcl, :])
+                vacf_y += autocorrelationfunction_1D(vel[1, ptcl, :])
+                vacf_z += autocorrelationfunction_1D(vel[2, ptcl, :])
+                vacf_tot += autocorrelationfunction(vel[:, ptcl, :])
+
+            vacf_x_avg[v_ij, :] = vacf_x
+            vacf_y_avg[v_ij, :] = vacf_y
+            vacf_z_avg[v_ij, :] = vacf_z
+            vacf_tot_avg[v_ij, :] = vacf_tot
+
+            # Calculate intra-species flux and its vacf
+            sp2_start = sp_end
+            v_sp1 = np.sum(vel[:, sp_start: sp_end, :], axis=1)
+            for j in range(i + 1, no_species):
+                v_ij += 1
+                sp2_end = sp2_start + sp_num[j]
+                v_sp2 = np.sum(vel[:, sp2_start: sp2_end, :], axis=1)
+                jt = concs[i] * v_sp2 - concs[j] * v_sp1
+                jx_acf = autocorrelationfunction_1D(jt[0])
+                jy_acf = autocorrelationfunction_1D(jt[1])
+                jz_acf = autocorrelationfunction_1D(jt[2])
+                j_acf = autocorrelationfunction(jt)
+                vacf_x_avg[v_ij, :] = jx_acf
+                vacf_y_avg[v_ij, :] = jy_acf
+                vacf_z_avg[v_ij, :] = jz_acf
+                vacf_tot_avg[v_ij, :] = j_acf
+
+            sp_start = sp_end
 
     return vacf_x_avg, vacf_y_avg, vacf_z_avg, vacf_tot_avg
 
@@ -2463,3 +2573,96 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
         statistical_efficiency[i] = tau_blk[i] * sigma2_blk[i] / run_std ** 2
 
     return tau_blk, sigma2_blk, statistical_efficiency
+
+
+def plot_labels(xdata, ydata, xlbl, ylbl, units):
+    """
+    Create plot labels with correct units and prefixes.
+
+    Parameters
+    ----------
+    xdata: array
+        X values.
+
+    ydata: array
+        Y values.
+
+    xlbl: str
+        String of the X quantity.
+
+    ylbl: str
+        String of the Y quantity.
+
+    units: str
+        'cgs' or 'mks'.
+
+    Returns
+    -------
+    xmultiplier: float
+        Scaling factor for X data.
+
+    ymultiplier: float
+        Scaling factor for Y data.
+
+    xprefix: str
+        Prefix for X units label
+
+    yprefix: str
+         Prefix for Y units label.
+
+    xlabel: str
+        X label units.
+
+    ylabel: str
+        Y label units
+    """
+    xmax = xdata.max()
+    ymax = ydata.max()
+
+    x_str = np.format_float_scientific(xmax)
+    y_str = np.format_float_scientific(ymax)
+
+    x_exp = 10 ** (float(x_str[x_str.find('e') + 1:]))
+    y_exp = 10 ** (float(y_str[y_str.find('e') + 1:]))
+
+    # find the prefix
+    if PREFIXES["y"] < x_exp < PREFIXES["Y"]:
+        try:
+            xprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(x_exp)]
+            xmultiplier = 1.0 / PREFIXES[xprefix]
+        except ValueError:
+            try:
+                xprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(10 * x_exp)]
+                xmultiplier = 1.0 / PREFIXES[xprefix]
+            except ValueError:
+                xprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(100 * x_exp)]
+                xmultiplier = 1.0 / PREFIXES[xprefix]
+
+    # find the prefix
+    if PREFIXES["y"] < y_exp < PREFIXES["Y"]:
+        try:
+            yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(y_exp)]
+            ymultiplier = 1.0 / PREFIXES[yprefix]
+        except ValueError:
+            try:
+                yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(10 * y_exp)]
+                ymultiplier = 1.0 / PREFIXES[yprefix]
+            except ValueError:
+                try:
+                    yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(100 * y_exp)]
+                    ymultiplier = 1.0 / PREFIXES[yprefix]
+                except ValueError:
+                    yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(1000 * y_exp)]
+                    ymultiplier = 1.0 / PREFIXES[yprefix]
+
+    units_dict = UNITS[1] if units == 'cgs' else UNITS[0]
+
+    for key in units_dict:
+        if key in ylbl:
+            ylabel = ' [' + yprefix + units_dict[key] + ']'
+
+    for key in units_dict:
+        if key in xlbl:
+            xlabel = '[' + xprefix + units_dict[key] + ']'
+
+    return xmultiplier, ymultiplier, xprefix, yprefix, xlabel, ylabel

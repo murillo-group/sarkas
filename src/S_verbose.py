@@ -79,8 +79,12 @@ class Verbose:
         if not os.path.exists(params.Control.checkpoint_dir):
             os.mkdir(params.Control.checkpoint_dir)
 
+        pre_run_path = os.path.join(params.Control.checkpoint_dir, 'Pre_Run_Test')
+        if not os.path.exists(pre_run_path):
+            os.mkdir(pre_run_path)
+        params.Control.pre_run_dir = pre_run_path
         # Pre run file name
-        self.f_pre_run = os.path.join(params.Control.checkpoint_dir, 'pre_run_' + params.Control.fname_app + '.out')
+        self.f_pre_run = os.path.join(params.Control.pre_run_dir, 'pre_run_' + params.Control.fname_app + '.out')
         # Log File name
         self.f_log_name = os.path.join(params.Control.checkpoint_dir, "log_" + params.Control.fname_app + ".out")
         # Save it in params too
@@ -123,9 +127,26 @@ class Verbose:
 
             if params.load_method == 'restart':
                 print('\n\n--------------------------- Restart -------------------------------------')
-                print("Restart step: {}".format(params.load_restart_step))
-                print("Total production steps: {}".format(params.Control.Nsteps))
+                print('Time step = {:2.6e} [s]'.format(params.Control.dt))
+                if params.Potential.type == 'Yukawa' or params.Potential.type == 'EGS':
+                    print('(total) ion plasma frequency = {:1.6e} [Hz]'.format(params.wp))
+                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
+                elif params.Potential.type == 'Coulomb' or params.Potential.type == 'Moliere':
+                    print('(total) plasma frequency = {:1.6e} [Hz]'.format(params.wp))
+                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
+                elif params.Potential.type == 'QSP':
+                    print('e plasma frequency = {:2.6e} [Hz]'.format(params.species[0].wp))
+                    print('ion plasma frequency = {:2.6e} [Hz]'.format(params.species[1].wp))
+                    print('w_pe dt = {:2.4f}'.format(params.Control.dt * params.species[0].wp))
+                elif params.Potential.type == 'LJ':
+                    print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(params.wp))
+                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
 
+                print("Restart step: {}".format(params.load_restart_step))
+                print('Total post-equilibration steps = {} ~ {} wp T_prod'.format(
+                    params.Control.Nsteps, int(params.Control.Nsteps * params.wp * params.Control.dt)))
+                print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+                    params.Control.dump_step, params.Control.dump_step * params.Control.dt * params.wp))
             else:
                 # Choose the correct heading
                 if self.pre_run:
