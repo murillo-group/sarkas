@@ -23,7 +23,8 @@ UNITS = [
      "Mass": 'kg',
      "Magnetic Field": 'T',
      "Current": "A",
-     "Power": "erg/s"},
+     "Power": "erg/s",
+     "none": ""},
     {"Energy": 'erg',
      "Time": 's',
      "Length": 'cm',
@@ -33,7 +34,8 @@ UNITS = [
      "Mass": 'g',
      "Magnetic Field": 'G',
      "Current": "esu/s",
-     "Power": "erg/s"}
+     "Power": "erg/s",
+     "none": ""}
 ]
 
 PREFIXES = {
@@ -50,7 +52,6 @@ PREFIXES = {
     "m": 1.0e-3,
     r"$\mu$": 1.0e-6,
     "n": 1.0e-9,
-    r"$\AA$": 1.0e-10,
     "p": 1.0e-12,
     "f": 1.0e-15,
     "a": 1.0e-18,
@@ -354,9 +355,10 @@ class CurrentCorrelationFunctions:
 
 
 class DynamicStructureFactor:
-    """ Dynamic Structure factor.
+    """
+    Dynamic Structure factor.
 
-Attributes
+    Attributes
     ----------
         a_ws : float
             Wigner-Seitz radius.
@@ -646,6 +648,7 @@ class ElectricCurrent:
     def __init__(self, params):
         self.fldr = params.Control.checkpoint_dir
         self.fname_app = params.Control.fname_app
+        self.units = params.Control.units
         self.dump_dir = params.Control.dump_dir
         self.filename_csv = os.path.join(self.fldr, "ElectricCurrent_" + self.fname_app + '.csv')
         self.dump_step = params.Control.dump_step
@@ -744,19 +747,14 @@ class ElectricCurrent:
             self.compute()
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        ax.plot(self.dataframe["Time"] * self.wp, self.dataframe["Total Current ACF"],
-                label=r'$J_{tot} (t)$')
+        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
+                                                               self.dataframe["Total Current ACF"], "Time", "none",
+                                                               self.units)
+        ax.plot(xmul * self.dataframe["Time"], self.dataframe["Total Current ACF"], '--o', label=r'$J_{tot} (t)$')
 
-        if self.no_species > 1:
-            for i in range(self.no_species):
-                ax.plot(self.dataframe["Time"] * self.wp,
-                        self.dataframe["{} Total Current ACF".format(self.species_names[i])],
-                        label=r'$J_{' + self.species_names[i] + '} (t)$')
-
-        ax.grid(True, alpha=0.3)
         ax.legend(loc='upper right')
         ax.set_ylabel(r'$J(t)$')
-        ax.set_xlabel(r'$\omega_p t$')
+        ax.set_xlabel('Time' + xlbl)
         ax.set_xscale('log')
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, 'TotalCurrentACF_' + self.fname_app + '.png'))
@@ -1459,7 +1457,7 @@ class Thermodynamics:
         main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe[quantity], alpha=0.7)
         main_plot.plot(xmul * self.dataframe["Time"], ymul * cumavg, label='Cum Avg')
 
-        hist_plot.hist(self.dataframe[quantity], bins=100, density=True, orientation='horizontal',alpha=0.75)
+        hist_plot.hist(self.dataframe[quantity], bins=100, density=True, orientation='horizontal', alpha=0.75)
         hist_plot.grid(True, alpha=0.3)
         hist_plot.get_xaxis().set_ticks([])
         hist_plot.get_yaxis().set_ticks([])
@@ -1528,19 +1526,15 @@ class TransportCoefficients:
         if quantity == "Electrical Conductivity":
             J = ElectricCurrent(self.params)
             J.plot(show=True)
-            # Number of time integrals to perform
-            no_int = int(0.5 * self.params.Control.Nsteps / self.params.Control.dump_step)
-            sigma = np.zeros(no_int)
-
+            sigma = np.zeros(J.no_dumps)
             integrand = np.array(J.dataframe["Total Current ACF"])
-            time = np.array(J.dataframe["Time"]) * self.params.wp
-            half_t = int(len(time) / 2)
-            for it in range(no_int):
-                sigma[it] = np.trapz(integrand[:half_t + it], x=time[:half_t + it]) / 3.0
+            time = np.array(J.dataframe["Time"])
+            for it in range(1, J.no_dumps):
+                sigma[it] = np.trapz(integrand[:it], x=time[:it]) / 3.0
             self.transport_coefficients["Electrical Conductivity"] = sigma
             # Plot the transport coefficient at different integration times
             fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-            ax.plot(time[half_t:], sigma, label=r'$\sigma (t)$')
+            ax.plot(time, sigma, label=r'$\sigma (t)$')
             ax.grid(True, alpha=0.3)
             ax.legend(loc='best')
             ax.set_ylabel(r'$\sigma(t)$')
@@ -1557,13 +1551,21 @@ class TransportCoefficients:
             no_int = int(self.params.Control.Nsteps / self.params.Control.dump_step) + 1
             D = np.zeros((self.params.num_species, no_int))
             fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-            # ax2 = ax.twinx()
             for i, sp in enumerate(self.params.species):
                 integrand = np.array(Z.dataframe["{} Total Velocity ACF".format(sp.name)])
                 time = np.array(Z.dataframe["Time"])
-                const = 1.0 / (3.0 * self.params.wp * self.params.aws ** 2)
+                const = 1.0 / 3.0 / Z.tot_mass_density
                 for it in range(1, no_int):
                     D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
+
+                # Sk = StaticStructureFactor(self.params)
+                # try:
+                #     Sk.dataframe = pd.read_csv(Sk.filename_csv, index_col=False)
+                # except FileNotFoundError:
+                #     Sk.compute()
+                # Take the determinant of the matrix
+                # Take the limit k --> 0 .
+
                 self.transport_coefficients["{} Diffusion".format(sp.name)] = D[i, :]
                 # Find the minimum slope. This would be the ideal value
                 # indx = np.gradient(D[i, :]).argmin()
@@ -1587,11 +1589,29 @@ class TransportCoefficients:
                                      'DiffusionPlot_' + self.params.Control.fname_app + '.png'))
             if show:
                 fig.show()
+
         elif quantity == "Interdiffusion":
             Z = VelocityAutocorrelationFunctions(self.params)
             Z.plot(show=True)
+            no_int = Z.no_dumps
+            no_dij = int(Z.no_species * (Z.no_species - 1) / 2)
+            D_ij = np.zeros((no_dij, no_int))
 
+            fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+            indx = 0
+            for i, sp1 in enumerate(self.params.species):
+                for j in range(i + 1, self.params.num_species):
+                    integrand = np.array(Z.dataframe["{}-{} Total Current ACF".format(sp1.name,
+                                                                                      self.params.species[j].name)])
+                    time = np.array(Z.dataframe["Time"])
+                    const = 1.0 / (3.0 * self.params.wp * self.params.aws ** 2)
+                    const /= (sp1.concentration * self.params.species[j].concentration)
+                    for it in range(1, no_int):
+                        D_ij[indx, it] = const * np.trapz(integrand[:it], x=time[:it])
 
+                    self.transport_coefficients["{}-{} Inter Diffusion".format(sp1.name,
+                                                                               self.params.species[j].name)] = D_ij[i,
+                                                                                                               :]
 
         return
 
@@ -1647,15 +1667,17 @@ class VelocityAutocorrelationFunctions:
         self.dump_step = params.Control.dump_step
         self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_species = len(params.species)
-        self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_names = []
         self.dt = params.Control.dt  # No of dump to skip
-        self.species_charge = np.zeros(self.no_species)
+        self.species_np = np.zeros(self.no_species, dtype=int)
+        self.species_masses = np.zeros(self.no_species)
+        self.species_dens = np.zeros(self.no_species)
         for i in range(self.no_species):
             self.species_np[i] = int(params.species[i].num)
-            self.species_charge[i] = params.species[i].charge
+            self.species_dens[i] = params.species[i].num_density
+            self.species_masses[i] = params.species[i].mass
             self.species_names.append(params.species[i].name)
-
+        self.tot_mass_density = self.species_masses.transpose() @ self.species_dens
         self.tot_no_ptcls = params.total_num_ptcls
         self.wp = params.wp
         self.a_ws = params.aws
@@ -1695,25 +1717,25 @@ class VelocityAutocorrelationFunctions:
             print("Calculating vacf with time averaging on...")
         else:
             print("Calculating vacf with time averaging off...")
-        vacf_x, vacf_y, vacf_z, vacf_tot = calc_vacf(vel, self.species_np, time_averaging, it_skip)
+        vacf = calc_vacf(vel, self.species_np, self.species_masses, time_averaging, it_skip)
 
         # Save to csv
         v_ij = 0
         for sp in range(self.no_species):
-            self.dataframe["{} X Velocity ACF".format(self.species_names[sp])] = vacf_x[v_ij, :]
-            self.dataframe["{} Y Velocity ACF".format(self.species_names[sp])] = vacf_y[v_ij, :]
-            self.dataframe["{} Z Velocity ACF".format(self.species_names[sp])] = vacf_z[v_ij, :]
-            self.dataframe["{} Total Velocity ACF".format(self.species_names[sp])] = vacf_tot[v_ij, :]
+            self.dataframe["{} X Velocity ACF".format(self.species_names[sp])] = vacf[v_ij, 0, :]
+            self.dataframe["{} Y Velocity ACF".format(self.species_names[sp])] = vacf[v_ij, 1, :]
+            self.dataframe["{} Z Velocity ACF".format(self.species_names[sp])] = vacf[v_ij, 2, :]
+            self.dataframe["{} Total Velocity ACF".format(self.species_names[sp])] = vacf[v_ij, 3, :]
             for sp2 in range(sp + 1, self.no_species):
                 v_ij += 1
                 self.dataframe["{}-{} X Current ACF".format(self.species_names[sp],
-                                                            self.species_names[sp2])] = vacf_x[v_ij, :]
+                                                            self.species_names[sp2])] = vacf[v_ij, 0, :]
                 self.dataframe["{}-{} Y Current ACF".format(self.species_names[sp],
-                                                            self.species_names[sp2])] = vacf_y[v_ij, :]
+                                                            self.species_names[sp2])] = vacf[v_ij, 1, :]
                 self.dataframe["{}-{} Z Current ACF".format(self.species_names[sp],
-                                                            self.species_names[sp2])] = vacf_z[v_ij, :]
+                                                            self.species_names[sp2])] = vacf[v_ij, 2, :]
                 self.dataframe["{}-{} Total Current ACF".format(self.species_names[sp],
-                                                                self.species_names[sp2])] = vacf_tot[v_ij, :]
+                                                                self.species_names[sp2])] = vacf[v_ij, 3, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
         return
@@ -2040,7 +2062,7 @@ def calc_elec_current(vel, sp_charge, sp_num):
 
 
 @njit(parallel=True)
-def calc_vacf(vel, sp_num, time_averaging, it_skip=100):
+def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
 
@@ -2072,105 +2094,126 @@ def calc_vacf(vel, sp_num, time_averaging, it_skip=100):
     vacf_tot: ndarray
         total velocity autocorrelation function
     """
-    no_species = len(sp_num)
-    no_dumps = vel.shape[2]
-    concs = np.copy(sp_num) / no_species
 
+    no_dim = vel.shape[0]
+    no_dumps = vel.shape[2]
+    no_species = len(sp_num)
     no_vacf = int(no_species * (no_species + 1) / 2)
-    vacf_x_avg = np.zeros((no_vacf, no_dumps))
-    vacf_y_avg = np.zeros((no_vacf, no_dumps))
-    vacf_z_avg = np.zeros((no_vacf, no_dumps))
-    vacf_tot_avg = np.zeros((no_vacf, no_dumps))
+    com_vel = np.zeros((no_species, 3, no_dumps))
+
+    tot_mass_dens = np.sum(sp_num * sp_mass)
 
     sp_start = 0
+    for i in range(no_species):
+        sp_end = sp_start + sp_num[i]
+        com_vel[i, :, :] = sp_mass[i] * np.sum(vel[:, sp_start: sp_end, :], axis=1) / tot_mass_dens
+        sp_start = sp_end
+
+    tot_com_vel = np.sum(com_vel, axis=0)
+
+    jc_acf = np.zeros((no_vacf, no_dim + 1, no_dumps))
 
     if time_averaging:
-        v_ij = 0
-        for i, sp in enumerate(sp_num):
-            sp_end = sp_start + sp
-            vacf_x = np.zeros(no_dumps)
-            vacf_y = np.zeros(no_dumps)
-            vacf_z = np.zeros(no_dumps)
-            vacf_tot = np.zeros(no_dumps)
-            jx_acf = np.zeros(no_dumps)
-            jy_acf = np.zeros(no_dumps)
-            jz_acf = np.zeros(no_dumps)
-            j_acf = np.zeros(no_dumps)
-            for ptcl in range(sp_start, sp_end):
-                norm_counter = np.zeros(no_dumps)
-                for it in range(0, no_dumps, it_skip):
-                    vacf_x[: no_dumps - it] += autocorrelationfunction_1D(vel[0, ptcl, it:])
-                    vacf_y[: no_dumps - it] += autocorrelationfunction_1D(vel[1, ptcl, it:])
-                    vacf_z[: no_dumps - it] += autocorrelationfunction_1D(vel[2, ptcl, it:])
-                    vacf_tot[: no_dumps - it] += autocorrelationfunction(vel[:, ptcl, it:])
-                    norm_counter[: no_dumps - it] += 1.0
-            vacf_x_avg[v_ij, :] = vacf_x / norm_counter
-            vacf_y_avg[v_ij, :] = vacf_y / norm_counter
-            vacf_z_avg[v_ij, :] = vacf_z / norm_counter
-            vacf_tot_avg[v_ij, :] = vacf_tot / norm_counter
+        indx = 0
+        for i in range(no_species):
+            sp1_flux = sp_mass[i] * float(sp_num[i]) * (com_vel[i] - tot_com_vel)
+            for j in range(i, no_species):
+                sp2_flux = sp_mass[j] * float(sp_num[j]) * (com_vel[j] - tot_com_vel)
+                for d in range(no_dim):
+                    norm_counter = np.zeros(no_dumps)
+                    temp = np.zeros(no_dumps)
+                    for it in range(0, no_dumps, it_skip):
+                        temp[:no_dumps - it] += correlationfunction_1D(sp1_flux[d, it:], sp2_flux[d, it:])
+                        norm_counter[:(no_dumps - it)] += 1.0
+                    jc_acf[indx, d, :] = temp/norm_counter
 
-            # Calculate intra-species flux and its vacf
-            sp2_start = sp_end
-            v_sp1 = np.sum(vel[:, sp_start: sp_end, :], axis=1)
-            for j in range(i + 1, no_species):
-                v_ij += 1
-                sp2_end = sp2_start + sp_num[j]
                 norm_counter = np.zeros(no_dumps)
-                v_sp2 = np.sum(vel[:, sp2_start: sp2_end, :], axis=1)
+                temp = np.zeros(no_dumps)
                 for it in range(0, no_dumps, it_skip):
-                    jt = concs[i] * v_sp2 - concs[j] * v_sp1
-                    jx_acf[:no_dumps - it] += autocorrelationfunction_1D(jt[0, it:])
-                    jy_acf[:no_dumps - it] += autocorrelationfunction_1D(jt[1, it:])
-                    jz_acf[:no_dumps - it] += autocorrelationfunction_1D(jt[2, it:])
-                    j_acf[:no_dumps - it] += autocorrelationfunction(jt[:,it:])
-                    norm_counter[: no_dumps - it] += 1.0
-                vacf_x_avg[v_ij, :] = jx_acf/norm_counter
-                vacf_y_avg[v_ij, :] = jy_acf/norm_counter
-                vacf_z_avg[v_ij, :] = jz_acf/norm_counter
-                vacf_tot_avg[v_ij, :] = j_acf/norm_counter
-
-            sp_start = sp_end
+                    temp[: no_dumps - it] += correlationfunction(sp1_flux[:, it:], sp2_flux[:, it:])
+                    norm_counter[:(no_dumps - it)] += 1.0
+                jc_acf[indx, d + 1, :] = temp / norm_counter
+                indx += 1
 
     else:
-        v_ij = 0
-        for i, sp in enumerate(sp_num):
-            sp_end = sp_start + sp
-            vacf_x = np.zeros(no_dumps)
-            vacf_y = np.zeros(no_dumps)
-            vacf_z = np.zeros(no_dumps)
-            vacf_tot = np.zeros(no_dumps)
-            # Calculate vacf of each species
-            for ptcl in prange(sp_start, sp_end):
-                vacf_x += autocorrelationfunction_1D(vel[0, ptcl, :])
-                vacf_y += autocorrelationfunction_1D(vel[1, ptcl, :])
-                vacf_z += autocorrelationfunction_1D(vel[2, ptcl, :])
-                vacf_tot += autocorrelationfunction(vel[:, ptcl, :])
+        indx = 0
+        for i in range(no_species):
+            sp1_flux = sp_mass[i] * float(sp_num[i]) * (com_vel[i] - tot_com_vel)
+            for j in range(i, no_species):
+                sp2_flux = sp_mass[j] * float(sp_num[j]) * (com_vel[j] - tot_com_vel)
+                for d in range(no_dim):
+                    jc_acf[indx, d, :] = correlationfunction_1D(sp1_flux[d, :], sp2_flux[d, :])
 
-            vacf_x_avg[v_ij, :] = vacf_x
-            vacf_y_avg[v_ij, :] = vacf_y
-            vacf_z_avg[v_ij, :] = vacf_z
-            vacf_tot_avg[v_ij, :] = vacf_tot
+                jc_acf[indx, d + 1, :] = correlationfunction(sp1_flux, sp2_flux)
+                indx += 1
 
-            # Calculate intra-species flux and its vacf
-            sp2_start = sp_end
-            v_sp1 = np.sum(vel[:, sp_start: sp_end, :], axis=1)
-            for j in range(i + 1, no_species):
-                v_ij += 1
-                sp2_end = sp2_start + sp_num[j]
-                v_sp2 = np.sum(vel[:, sp2_start: sp2_end, :], axis=1)
-                jt = concs[i] * v_sp2 - concs[j] * v_sp1
-                jx_acf = autocorrelationfunction_1D(jt[0])
-                jy_acf = autocorrelationfunction_1D(jt[1])
-                jz_acf = autocorrelationfunction_1D(jt[2])
-                j_acf = autocorrelationfunction(jt)
-                vacf_x_avg[v_ij, :] = jx_acf
-                vacf_y_avg[v_ij, :] = jy_acf
-                vacf_z_avg[v_ij, :] = jz_acf
-                vacf_tot_avg[v_ij, :] = j_acf
+    return jc_acf
 
-            sp_start = sp_end
 
-    return vacf_x_avg, vacf_y_avg, vacf_z_avg, vacf_tot_avg
+@njit(parallel=True)
+def calc_vacf_single(vel, sp_num, sp_mass, time_averaging, it_skip=100):
+    """
+    Calculate the velocity autocorrelation function of each species and in each direction.
+
+    Parameters
+    ----------
+    time_averaging: bool
+        Flag for time averaging.
+
+    it_skip: int
+        Timestep interval for time averaging.
+
+    vel : ndarray
+        Particles' velocities.
+
+    sp_num: array
+        Number of particles of each species.
+
+    Returns
+    -------
+    vacf: ndarray
+        Velocity autocorrelation functions. Shape =
+    """
+    no_dim = vel.shape[0]
+    no_dumps = vel.shape[2]
+
+    vacf = np.zeros((1, no_dim + 1, no_dumps))
+
+    if time_averaging:
+        for d in range(no_dim):
+            vacf_temp = np.zeros(no_dumps)
+            norm_counter = np.zeros(no_dumps)
+
+            for ptcl in range(sp_num[0]):
+                for it in range(0, no_dumps, it_skip):
+                    vacf_temp[: no_dumps - it] += autocorrelationfunction_1D(vel[d, ptcl, it:])
+                    norm_counter[: no_dumps - it] += 1.0
+
+            vacf[0, d, :] = vacf_temp / norm_counter
+
+        vacf_temp = np.zeros(no_dumps)
+        norm_counter = np.zeros(no_dumps)
+        for ptcl in range(sp_num[0]):
+            for it in range(0, no_dumps, it_skip):
+                vacf_temp[: no_dumps - it] += autocorrelationfunction(vel[:, ptcl, it:])
+                norm_counter[: no_dumps - it] += 1.0
+
+        vacf[0, -1, :] = vacf_temp / norm_counter
+    else:
+        # Calculate species mass density flux
+        for i in prange(3):
+            vacf_temp = np.zeros(no_dumps)
+            for ptcl in range(sp_num[0]):
+                vacf += autocorrelationfunction_1D(vel[i, ptcl, :])
+            vacf[0, i, :] = vacf_temp / sp_num[0]
+
+        vacf_temp = np.zeros(no_dumps)
+        for ptcl in range(sp_num[0]):
+            vacf_temp += autocorrelationfunction(vel[:, ptcl, :])
+
+        vacf[0, -1, :] = vacf_temp / sp_num[0]
+
+    return vacf
 
 
 @njit
@@ -2237,6 +2280,78 @@ def autocorrelationfunction_1D(At):
         Norm_counter[: no_steps - it] += 1.0
 
     return ACF / Norm_counter
+
+
+@njit
+def correlationfunction(At, Bt):
+    """
+    Calculate the correlation function :math:`\mathbf{A}(t)` and :math:`\mathbf{B}(t)`
+
+    .. math::
+        C_{AB}(\tau) =  \sum_j^D \sum_i^T A_j(t_i)B_j(t_i + \tau)
+
+    where :math:`D` (= ``no_dim``) is the number of dimensions and :math:`T` (= ``no_steps``) is the total length
+    of the simulation.
+
+    Parameters
+    ----------
+    At : ndarray
+        Observable to correlate. Shape=(``no_dim``, ``no_steps``).
+
+    Bt : ndarray
+        Observable to correlate. Shape=(``no_dim``, ``no_steps``).
+
+    Returns
+    -------
+    CF : array
+        Correlation function :math:`C_{AB}(\tau)`
+    """
+    no_steps = At.shape[1]
+    no_dim = At.shape[0]
+
+    CF = np.zeros(no_steps)
+    Norm_counter = np.zeros(no_steps)
+
+    for it in range(no_steps):
+        for dim in range(no_dim):
+            CF[: no_steps - it] += At[dim, it] * Bt[dim, it:no_steps]
+        Norm_counter[: no_steps - it] += 1.0
+
+    return CF / Norm_counter
+
+
+@njit
+def correlationfunction_1D(At, Bt):
+    """
+    Calculate the correlation function between :math:`A(t)` and :math:`B(t)`
+
+    .. math::
+        C_{AB}(\tau) =  \sum_i^T A(t_i)B(t_i + \tau)
+
+    where :math:`T` (= ``no_steps``) is the total length of the simulation.
+
+    Parameters
+    ----------
+    At : array
+        Observable to correlate. Shape=(``no_steps``).
+
+    Bt : array
+        Observable to correlate. Shape=(``no_steps``).
+
+    Returns
+    -------
+    CF : array
+        Correlation function :math:`C_{AB}(\tau)`
+    """
+    no_steps = At.shape[0]
+    CF = np.zeros(no_steps)
+    Norm_counter = np.zeros(no_steps)
+
+    for it in range(no_steps):
+        CF[: no_steps - it] += At[it] * Bt[it:no_steps]
+        Norm_counter[: no_steps - it] += 1.0
+
+    return CF / Norm_counter
 
 
 @njit
@@ -2645,14 +2760,16 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
             ymultiplier = 1.0 / PREFIXES[yprefix]
         except ValueError:
             try:
-                yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(10 * y_exp)]
+                print(10*y_exp)
+                yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(1.0e-01 * y_exp)]
                 ymultiplier = 1.0 / PREFIXES[yprefix]
             except ValueError:
                 try:
-                    yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(100 * y_exp)]
+                    print(100 * y_exp)
+                    yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(1.0e-02 * y_exp)]
                     ymultiplier = 1.0 / PREFIXES[yprefix]
                 except ValueError:
-                    yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(1000 * y_exp)]
+                    yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(10.0e-03 * y_exp)]
                     ymultiplier = 1.0 / PREFIXES[yprefix]
 
     units_dict = UNITS[1] if units == 'cgs' else UNITS[0]
@@ -2663,6 +2780,6 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
 
     for key in units_dict:
         if key in xlbl:
-            xlabel = '[' + xprefix + units_dict[key] + ']'
+            xlabel = ' [' + xprefix + units_dict[key] + ']'
 
     return xmultiplier, ymultiplier, xprefix, yprefix, xlabel, ylabel

@@ -25,8 +25,9 @@ Particles:
         temperature_eV: 200.0
 
     - load:
-        method: random_no_reject    # loading method
+        method: restart    # loading method
         rand_seed: 123456789        # random seed
+        restart_step: 50000
 
 Potential:
     - type: Yukawa                 # potential type
@@ -56,11 +57,13 @@ Control:
     - units: cgs                    # units
     - dt: 7.46759e-18            # sec
     - Neq: 5000                      # number of timesteps for the equilibrium
-    - Nsteps: 50000                    # number of timesteps after the equilibrium
+    - Nsteps: 200000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
-    - dump_step: 40                # dump time step
+    - dump_step: 20                # dump time step
     - verbose: no
     - output_dir: ICF        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
     - rdf_nbins: 500
+    - ssf_no_ka_values: [20, 20, 20]
+    - dsf_no_ka_values: [20, 20, 20]

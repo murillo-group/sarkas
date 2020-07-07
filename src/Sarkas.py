@@ -37,8 +37,7 @@ checkpoint = Checkpoint(params)
 checkpoint.save_pickle(params)
 
 verbose = Verbose(params)
-if not params.load_method == 'restart':
-    verbose.sim_setting_summary(params)  # simulation setting summary
+verbose.sim_setting_summary(params)  # simulation setting summary
 
 integrator = Integrator(params)
 thermostat = Thermostat(params)

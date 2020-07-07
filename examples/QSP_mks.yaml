@@ -17,7 +17,7 @@ Particles:
         temperature: 1.58e+6
 
     - load:
-        method: random_no_reject    # loading method
+        method: random_no_reject   # loading method
         rand_seed: 123456789        # random seed
 
 Potential: 
@@ -48,9 +48,9 @@ Control:
     - units: mks                    # units
     - dt: 0.35e-19            # sec
     - Neq: 50000                     # number of timesteps for the equilibrium
-    - Nsteps: 50000                   # number of timesteps after the equilibrium
+    - Nsteps: 100000                   # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
-    - dump_step: 20                # dump time step
+    - dump_step: 10                # dump time step
     - verbose: no
     - output_dir: QSP_mks       # dir name to save data. The default is "Checkpoint"
 

@@ -672,9 +672,6 @@ class Params:
                             if key == 'type':
                                 self.Thermostat.type = value
 
-                            if key == 'thermostating_temperatures':
-                                self.Thermostat.temperatures = value
-
                             # If Berendsen
                             if key == 'tau':
                                 if float(value) > 0.0:
@@ -695,7 +692,10 @@ class Params:
                                 self.Thermostat.temperatures *= self.eV2K
                             if key == "temperatures":
                                 # Conversion factor from eV to Kelvin
-                                self.Thermostat.temperatures = np.array(value) if isinstance(value, list) else np.array([value])
+                                if isinstance(value, list):
+                                    self.Thermostat.temperatures = np.array(value)
+                                else:
+                                    self.Thermostat.temperatures = np.array([value])
 
                 if lkey == "Magnetized":
                     self.Magnetic.on = True
@@ -826,6 +826,11 @@ class Params:
         if not os.path.exists(self.Control.dump_dir):
             os.mkdir(self.Control.dump_dir)
 
+        # Check for thermostat temperatures
+        if not hasattr(self.Thermostat, 'temperatures'):
+            self.Thermostat.temperatures = np.zeros(len(self.species))
+            for i, sp in enumerate(self.species):
+                self.Thermostat.temperatures[i] = sp.temperature
         return
 
     def assign_attributes(self):
