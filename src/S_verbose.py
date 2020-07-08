@@ -275,6 +275,8 @@ class Verbose:
                         int(params.Lv[0] / params.Potential.rc),
                         int(params.Lv[1] / params.Potential.rc),
                         int(params.Lv[2] / params.Potential.rc)))
+                    print('No. of particles in PP loop = {:6}'.format(
+                        int(params.total_num_density * (3 * params.Potential.rc) ** 3)))
                     print('No. of PP neighbors per particle = {:6}'.format(
                         int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
                                 params.Potential.rc / params.Lv.min()) ** 3.0)))

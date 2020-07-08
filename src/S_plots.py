@@ -14,11 +14,11 @@ params = Observable.read_pickle(input_file)
 
 E = Observable.Thermodynamics(params)
 E.parse()
-E.boxplot('Total Energy', show=True)
+E.boxplot('Total Energy', show=False)
 #
-Z = Observable.VelocityAutocorrelationFunctions(params)
-Z.compute()
-Z.plot(intercurrent=True, show=True)
+# Z = Observable.VelocityAutocorrelationFunctions(params)
+# Z.compute()
+# Z.plot(intercurrent=True, show=True)
 #
 # params.PostProcessing.dsf_no_ka_values = [5, 5, 5]
 # DSF = Observable.DynamicStructureFactor(params)
@@ -36,11 +36,11 @@ Z.plot(intercurrent=True, show=True)
 # rdf.parse()
 # rdf.plot()
 #
-J = Observable.ElectricCurrent(params)
-J.compute()
-J.plot()
-TC = Observable.TransportCoefficients(params)
-TC.compute("Electrical Conductivity", show=True)
+# J = Observable.ElectricCurrent(params)
+# J.compute()
+# J.plot()
+# TC = Observable.TransportCoefficients(params)
+# TC.compute("Electrical Conductivity", show=True)
 # TC.compute("Diffusion",show=True)
 # #
 # XYZ = Observable.XYZWriter(params)

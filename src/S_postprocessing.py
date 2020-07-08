@@ -1205,6 +1205,12 @@ class Thermodynamics:
         self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_dim = params.dimensions
         self.units = params.Control.units
+        self.dt = params.Control.dt
+        self.potential = params.Potential.type
+        self.thermostat = params.Thermostat.type
+        self.thermostat_tau = params.Thermostat.tau
+        self.F_err = params.P3M.F_err
+        self.Nsteps = params.Control.Nsteps
         if params.load_method == "restart":
             self.restart_sim = True
         else:
@@ -1420,72 +1426,113 @@ class Thermodynamics:
 
         return
 
-    def boxplot(self, quantity="Temperature", show=True):
+    def boxplot(self, show=False):
         self.parse()
-        # tag = np.zeros(self.no_dumps + 1)
-        # tau_blk = 100
-        # for i in range(0, self.no_dumps + 1, tau_blk):
-        #     tag[i:i+tau_blk] = i
-        # self.dataframe["Blocks"] = tag
-        #
-        # # fig = plt.figure(figsize=(12, 9))
-        # fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        #
-        # sns.boxplot(x="Blocks", y=quantity, data=self.dataframe, ax=ax)
-        # ax.grid(True, alpha=0.3)
-        # ax.legend(loc='best'-2)
-        # # ax.set_xticks([i for i in range(0, self.no_dumps, tau_blk*10)])
-        # # main_plot.tick_params(labelsize=FSZ-2)
-        # # main_plot.set_ylabel(quantity)
-        # # main_plot.set_xlabel("Time")
-        # fig.tight_layout()
-        # # fig.savefig(os.path.join(self.fldr, 'TemperatureBoxplot_' + self.fname_app + '.png'))
-        # # if show:
-        # #     fig.show()
 
-        fig = plt.figure(figsize=(12, 7))
-        gs = GridSpec(4, 4)
+        fig = plt.figure(figsize=(16, 9))
+        gs = GridSpec(4, 8)
         # quantity = "Temperature"
         self.no_dumps = len(self.dataframe["Time"])
-        cumavg = self.dataframe[quantity].cumsum() / [i for i in range(1, self.no_dumps + 1)]
-        delta_plot = fig.add_subplot(gs[0, 0:3])
-        main_plot = fig.add_subplot(gs[1:4, 0:3])
-        hist_plot = fig.add_subplot(gs[1:4, 3])
+        nbins = int(0.05 * self.no_dumps)
+
+        Info_plot = fig.add_subplot(gs[0:4, 0:2])
+
+        T_hist_plot = fig.add_subplot(gs[1:4, 2])
+        T_delta_plot = fig.add_subplot(gs[0, 3:5])
+        T_main_plot = fig.add_subplot(gs[1:4, 3:5])
+
+        E_delta_plot = fig.add_subplot(gs[0, 5:7])
+        E_main_plot = fig.add_subplot(gs[1:4, 5:7])
+        E_hist_plot = fig.add_subplot(gs[1:4, 7])
+
+        # Temperature plots
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                               self.dataframe[quantity], "Time", quantity, self.units)
+                                                               self.dataframe["Temperature"], "Time",
+                                                               "Temperature", self.units)
+        T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
 
-        main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe[quantity], alpha=0.7)
-        main_plot.plot(xmul * self.dataframe["Time"], ymul * cumavg, label='Cum Avg')
+        T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
+        T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
+        T_main_plot.axhline(ymul * self.T, ls='--', c='r', alpha=0.7, label='Desired T')
 
-        hist_plot.hist(self.dataframe[quantity], bins=100, density=True, orientation='horizontal', alpha=0.75)
-        hist_plot.grid(True, alpha=0.3)
-        hist_plot.get_xaxis().set_ticks([])
-        hist_plot.get_yaxis().set_ticks([])
+        Delta_T = (self.dataframe["Temperature"] - self.T) * 100 / self.T
+        Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        T_delta_plot.plot(self.dataframe["Time"], Delta_T, alpha=0.5)
+        T_delta_plot.plot(self.dataframe["Time"], Delta_T_cum_avg, alpha=0.8)
 
-        if quantity == 'Temperature':
-            Delta = (self.dataframe[quantity] - self.T) * 100 / self.T
-            Delta_cum_avg = Delta.cumsum() / [i for i in range(1, self.no_dumps + 1)]
-            main_plot.axhline(ymul * self.T, ls='--', c='r', alpha=0.7, label='Desired T')
-        else:
-            Delta = (self.dataframe[quantity] - self.dataframe[quantity][0]) * 100 / self.dataframe[quantity][0]
-            Delta_cum_avg = Delta.cumsum() / [i for i in range(1, self.no_dumps + 1)]
-            main_plot.axhline(ymul * self.dataframe[quantity].mean(), ls='--', c='r', alpha=0.7, label='Avg')
+        T_delta_plot.get_xaxis().set_ticks([])
+        T_delta_plot.set_ylabel(r'Deviation [%]')
+        T_delta_plot.tick_params(labelsize=12)
+        T_main_plot.tick_params(labelsize=14)
+        T_main_plot.legend(loc='best')
+        T_main_plot.set_ylabel("Temperature" + ylbl)
+        T_main_plot.set_xlabel("Time" + xlbl)
+        T_hist_plot.hist(self.dataframe['Temperature'], bins=nbins, density=True, orientation='horizontal',
+                         alpha=0.75)
+        T_hist_plot.get_xaxis().set_ticks([])
+        T_hist_plot.get_yaxis().set_ticks([])
+        T_hist_plot.set_xlim(T_hist_plot.get_xlim()[::-1])
 
-        delta_plot.plot(self.dataframe["Time"], Delta, alpha=0.5)
-        delta_plot.plot(self.dataframe["Time"], Delta_cum_avg, alpha=0.8)
-        delta_plot.get_xaxis().set_ticks([])
-        delta_plot.set_ylabel(r'Deviation [%]')
-        delta_plot.tick_params(labelsize=12)
-        main_plot.tick_params(labelsize=14)
-        main_plot.legend(loc='best')
-        main_plot.set_ylabel(quantity + ylbl)
-        main_plot.set_xlabel("Time" + xlbl)
+        # Energy plots
+        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
+                                                               self.dataframe["Total Energy"], "Time",
+                                                               "Total Energy", self.units)
+        E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
+
+        E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
+        E_main_plot.plot(xmul * self.dataframe["Time"], ymul * E_cumavg, label='Cum Avg')
+        E_main_plot.axhline(ymul * self.dataframe["Total Energy"].mean(), ls='--', c='r', alpha=0.7, label='Avg')
+
+        Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"][0]) * 100 / \
+                  self.dataframe["Total Energy"][0]
+        Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        E_delta_plot.plot(self.dataframe["Time"], Delta_E, alpha=0.5)
+        E_delta_plot.plot(self.dataframe["Time"], Delta_E_cum_avg, alpha=0.8)
+
+        E_delta_plot.get_xaxis().set_ticks([])
+        E_delta_plot.set_ylabel(r'Deviation [%]')
+        E_delta_plot.tick_params(labelsize=12)
+        E_main_plot.tick_params(labelsize=14)
+        E_main_plot.legend(loc='best')
+        E_main_plot.set_ylabel("Total Energy" + ylbl)
+        E_main_plot.set_xlabel("Time" + xlbl)
+        E_hist_plot.hist(xmul * self.dataframe['Total Energy'], bins=nbins, density=True,
+                         orientation='horizontal', alpha=0.75)
+        E_hist_plot.get_xaxis().set_ticks([])
+        E_hist_plot.get_yaxis().set_ticks([])
+
+        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(np.array([self.dt]),
+                                                               self.dataframe["Temperature"], "Time",
+                                                               "Temperature", self.units)
+        Info_plot.axis([0, 10, 0, 10])
+        Info_plot.grid(False)
+        fsz = 14
+        Info_plot.text(0., 10, "Job ID: {}".format(self.fname_app))
+        Info_plot.text(0., 9.5, "No. of species = {}".format(len(self.species_np)), fontsize=fsz)
+        y_coord = 9.0
+        for isp, sp in enumerate(self.species_names):
+            Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp), fontsize=fsz)
+            Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(self.species_np[isp]), fontsize=fsz)
+            Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(ymul * self.dataframe['{} Temperature'.format(sp)].iloc[-1],
+                                                                                   ylbl), fontsize=fsz)
+            y_coord -= 1.5
+
+        y_coord -= 0.25
+        Info_plot.text(0., y_coord, "Total $N$ = {}".format(self.species_np.sum()), fontsize=fsz)
+        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(self.thermostat), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / self.thermostat_tau), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(self.potential), fontsize=fsz)
+        Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(self.F_err), fontsize=fsz)
+
+        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * self.dt, xlbl), fontsize=fsz)
+        Info_plot.text(0., y_coord - 3.5, "{:1.2f} % Production Completed".format(
+            100 * self.dump_step * self.no_dumps / self.Nsteps), fontsize=fsz)
+
+        Info_plot.axis('off')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, quantity + '_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'EnsembleCheckPlot_' + self.fname_app + '.png'))
         if show:
             fig.show()
-
-        return
 
 
 class TransportCoefficients:
@@ -2125,7 +2172,7 @@ def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
                     for it in range(0, no_dumps, it_skip):
                         temp[:no_dumps - it] += correlationfunction_1D(sp1_flux[d, it:], sp2_flux[d, it:])
                         norm_counter[:(no_dumps - it)] += 1.0
-                    jc_acf[indx, d, :] = temp/norm_counter
+                    jc_acf[indx, d, :] = temp / norm_counter
 
                 norm_counter = np.zeros(no_dumps)
                 temp = np.zeros(no_dumps)
@@ -2737,43 +2784,35 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
     x_str = np.format_float_scientific(xmax)
     y_str = np.format_float_scientific(ymax)
 
-    x_exp = 10 ** (float(x_str[x_str.find('e') + 1:]))
-    y_exp = 10 ** (float(y_str[y_str.find('e') + 1:]))
+    x_exp = 10.0 ** (float(x_str[x_str.find('e') + 1:]))
+    y_exp = 10.0 ** (float(y_str[y_str.find('e') + 1:]))
 
     # find the prefix
-    if PREFIXES["y"] < x_exp < PREFIXES["Y"]:
-        try:
-            xprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(x_exp)]
-            xmultiplier = 1.0 / PREFIXES[xprefix]
-        except ValueError:
-            try:
-                xprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(10 * x_exp)]
-                xmultiplier = 1.0 / PREFIXES[xprefix]
-            except ValueError:
-                xprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(100 * x_exp)]
-                xmultiplier = 1.0 / PREFIXES[xprefix]
+    xprefix = "none"
+    xmul = -1.5
+    i = 0.1
+    while xmul < 0:
+        i *= 10.
+        for key, value in PREFIXES.items():
+            ratio = i * x_exp / value
+            if abs(ratio - 1) < 1.0e-6:
+                xprefix = key
+                xmul = i / value
 
     # find the prefix
-    if PREFIXES["y"] < y_exp < PREFIXES["Y"]:
-        try:
-            yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(y_exp)]
-            ymultiplier = 1.0 / PREFIXES[yprefix]
-        except ValueError:
-            try:
-                print(10*y_exp)
-                yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(1.0e-01 * y_exp)]
-                ymultiplier = 1.0 / PREFIXES[yprefix]
-            except ValueError:
-                try:
-                    print(100 * y_exp)
-                    yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(1.0e-02 * y_exp)]
-                    ymultiplier = 1.0 / PREFIXES[yprefix]
-                except ValueError:
-                    yprefix = list(PREFIXES.keys())[list(PREFIXES.values()).index(10.0e-03 * y_exp)]
-                    ymultiplier = 1.0 / PREFIXES[yprefix]
+    yprefix = "none"
+    ymul = - 1.5
+    i = 1.0
+    while ymul < 0:
+        for key, value in PREFIXES.items():
+            ratio = i * y_exp / value
+            if abs(ratio - 1) < 1.0e-6:
+                yprefix = key
+                ymul = i / value
+        i *= 10.
 
+    # Find the correct Units
     units_dict = UNITS[1] if units == 'cgs' else UNITS[0]
-
     for key in units_dict:
         if key in ylbl:
             ylabel = ' [' + yprefix + units_dict[key] + ']'
@@ -2782,4 +2821,4 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         if key in xlbl:
             xlabel = ' [' + xprefix + units_dict[key] + ']'
 
-    return xmultiplier, ymultiplier, xprefix, yprefix, xlabel, ylabel
+    return xmul, ymul, xprefix, yprefix, xlabel, ylabel

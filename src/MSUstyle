@@ -251,7 +251,7 @@ lines.linewidth : 2  ## line width in points
 #font.variant : normal
 #font.weight  : normal
 #font.stretch : normal
-#font.size    : 10.0
+font.size    : 14.0
 
 #font.serif      : DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif : DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
@@ -347,7 +347,7 @@ lines.linewidth : 2  ## line width in points
 ## Following are default face and edge colors, default tick sizes,
 ## default fontsizes for ticklabels, and so on.  See
 ## https://matplotlib.org/api/axes_api.html#module-matplotlib.axes
-axes.facecolor     : [0.6, 0.635, 0.635]   ## axes background color
+# axes.facecolor     : [0.6, 0.635, 0.635]   ## axes background color
 axes.edgecolor     : black   ## axes edge color
 #axes.linewidth     : 0.8     ## edge linewidth
 axes.grid          : True   ## display grid or not
@@ -524,7 +524,7 @@ figure.titlesize   : 16     ## size of the figure title (``Figure.suptitle()``)
 #figure.titleweight : normal    ## weight of the figure title
 figure.figsize     : 10, 7  ## figure size in inches
 #figure.dpi         : 100       ## figure dots per inch
-#figure.facecolor   : white     ## figure facecolor
+figure.facecolor   : [0.6, 0.635, 0.635] #white     ## figure facecolor
 #figure.edgecolor   : white     ## figure edgecolor
 #figure.frameon     : True      ## enable figure frame
 #figure.max_open_warning : 20   ## The maximum number of figures to open through
