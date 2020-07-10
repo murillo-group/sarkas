@@ -59,8 +59,8 @@ Control:
     - Neq: 5000                      # number of timesteps for the equilibrium
     - Nsteps: 200000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
-    - dump_step: 20                # dump time step
-    - verbose: no
+    - dump_step: 10                # dump time step
+    - verbose: yes
     - output_dir: ICF        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:

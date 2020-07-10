@@ -450,7 +450,7 @@ axes.prop_cycle : cycler('color', ['18453b', 'f08521', '008183', '6e005f', '5350
 #xtick.major.pad     : 3.5     ## distance to major tick label in points
 #xtick.minor.pad     : 3.4     ## distance to the minor tick label in points
 #xtick.color         : black   ## color of the tick labels
-xtick.labelsize     : large  ## fontsize of the tick labels
+xtick.labelsize     : 14  ## fontsize of the tick labels
 #xtick.direction     : out     ## direction: {in, out, inout}
 #xtick.minor.visible : False   ## visibility of minor ticks on x-axis
 #xtick.major.top     : True    ## draw x axis top major ticks
@@ -470,7 +470,7 @@ xtick.labelsize     : large  ## fontsize of the tick labels
 #ytick.major.pad     : 3.5     ## distance to major tick label in points
 #ytick.minor.pad     : 3.4     ## distance to the minor tick label in points
 #ytick.color         : black   ## color of the tick labels
-ytick.labelsize     : large  ## fontsize of the tick labels
+ytick.labelsize     : 14  ## fontsize of the tick labels
 #ytick.direction     : out     ## direction: {in, out, inout}
 #ytick.minor.visible : False   ## visibility of minor ticks on y-axis
 #ytick.major.left    : True    ## draw y axis left major ticks
@@ -483,7 +483,7 @@ ytick.labelsize     : large  ## fontsize of the tick labels
 ## ***************************************************************************
 ## * GRIDS                                                                   *
 ## ***************************************************************************
-grid.color     : white #b0b0b0  ## grid color
+grid.color     : black #b0b0b0  ## grid color
 grid.linestyle : --       ## solid
 #grid.linewidth : 0.8     ## in points
 grid.alpha     : 0.4     ## transparency, between 0.0 and 1.0
@@ -503,7 +503,7 @@ legend.edgecolor     : black      ## background patch boundary color
 #legend.numpoints     : 1        ## the number of marker points in the legend line
 #legend.scatterpoints : 1        ## number of scatter points
 #legend.markerscale   : 1.0      ## the relative size of legend markers vs. original
-legend.fontsize      : 16
+legend.fontsize      : 14
 #legend.title_fontsize : None    ## None sets to the same as the default axes.
 
 ## Dimensions as fraction of fontsize:

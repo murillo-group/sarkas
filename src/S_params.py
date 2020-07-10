@@ -451,7 +451,10 @@ class Params:
                 Boundary Condition. 'Periodic' only.
 
             dump_step : int
-                Snapshot interval.
+                Production Snapshot interval.
+
+            therm_dump_step : int
+                Thermalization Snapshot interval.
 
             np_per_side : array
                 Number of particles per box length. Default= :math: `N_{tot}^{1/3}`
@@ -478,7 +481,12 @@ class Params:
 
             dump_dir : str
                 Path to the directory where simulations' dumps will be stored.
-                Default = "Simulations/UnNamedRun/Particles_Data"
+                Default = "Simulations/UnNamedRun/Production"
+
+            therm_dir : str
+                Path to the directory where simulations' dumps will be stored.
+                Default = "Simulations/UnNamedRun/Thermalization"
+
         """
 
         def __init__(self):
@@ -488,10 +496,12 @@ class Params:
             self.Nsteps = None
             self.Neq = None
             self.dump_step = 1
+            self.therm_dump_step = 1
             self.writexyz = False
             self.verbose = True
             self.simulations_dir = "Simulations"
-            self.dump_dir = "Particles_Data"
+            self.dump_dir = "Production"
+            self.therm_dir = "Thermalization"
             self.checkpoint_dir = "UnNamedRun"
             self.log_file = os.path.join(self.checkpoint_dir, "log.out")
             self.np_per_side = []
@@ -503,6 +513,7 @@ class Params:
             self.rdf_nbins = 100
             self.ssf_no_ka_values = np.array([5, 5, 5], dtype=int)
             self.dsf_no_ka_values = np.array([5, 5, 5], dtype=int)
+            self.hermite_order = 10
 
     def setup(self, filename):
         """
@@ -688,14 +699,14 @@ class Params:
                                 if isinstance(value, list):
                                     self.Thermostat.temperatures = np.array(value, dtype=float)
                                 else:
-                                    np.array([value], dtype=float)
+                                    self.Thermostat.temperatures = np.array([value], dtype=float)
                                 self.Thermostat.temperatures *= self.eV2K
                             if key == "temperatures":
                                 # Conversion factor from eV to Kelvin
                                 if isinstance(value, list):
-                                    self.Thermostat.temperatures = np.array(value)
+                                    self.Thermostat.temperatures = np.array(value, dtype=float)
                                 else:
-                                    self.Thermostat.temperatures = np.array([value])
+                                    self.Thermostat.temperatures = np.array([value], dtype=float)
 
                 if lkey == "Magnetized":
                     self.Magnetic.on = True
@@ -779,6 +790,9 @@ class Params:
                             if key == "dump_step":
                                 self.Control.dump_step = int(value)
 
+                            if key == "therm_dump_step":
+                                self.Control.therm_dump_step = int(value)
+
                             # Write the XYZ file, Yes/No
                             if key == "writexyz":
                                 if value is False:
@@ -805,6 +819,9 @@ class Params:
                             if key == "dump_dir":
                                 self.Control.dump_dir = value
 
+                            if key == "therm_dir":
+                                self.Control.therm_dir = value
+
                             # Filenames appendix
                             if key == "job_id":
                                 self.Control.fname_app = value
@@ -826,12 +843,17 @@ class Params:
         if not os.path.exists(self.Control.dump_dir):
             os.mkdir(self.Control.dump_dir)
 
+        self.Control.therm_dir = os.path.join(self.Control.checkpoint_dir, self.Control.therm_dir)
+        if not os.path.exists(self.Control.therm_dir):
+            os.mkdir(self.Control.therm_dir)
+        if not os.path.exists(os.path.join(self.Control.therm_dir, "dumps")):
+            os.mkdir(os.path.join(self.Control.therm_dir, "dumps"))
+
         # Check for thermostat temperatures
         if not hasattr(self.Thermostat, 'temperatures'):
             self.Thermostat.temperatures = np.zeros(len(self.species))
             for i, sp in enumerate(self.species):
                 self.Thermostat.temperatures[i] = sp.temperature
-        return
 
     def assign_attributes(self):
         """ Assign the parsed parameters"""

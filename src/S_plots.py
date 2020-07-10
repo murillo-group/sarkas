@@ -4,22 +4,26 @@ Module for plotting observables.
 import sys
 import matplotlib.pyplot as plt
 import os
-import S_postprocessing as Observable
+import S_postprocessing as PostProc
 
 plt.style.use(
-    os.path.join(os.path.join(os.getcwd(), 'src'), 'PUBstyle'))
+    os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
 
 input_file = sys.argv[1]
-params = Observable.read_pickle(input_file)
+params = PostProc.read_pickle(input_file)
 
-E = Observable.Thermodynamics(params)
-E.parse()
-E.boxplot('Total Energy', show=False)
-#
+T = PostProc.Thermalization(params)
+T.temp_energy_plot(show=True)
+# T.hermite_plot(params, show=True)
+#T.moment_ratios_plot(params, show=True)
+# E = Observable.Thermodynamics(params)
+# E.parse()
+# E.boxplot(show=True)
+# #
 # Z = Observable.VelocityAutocorrelationFunctions(params)
 # Z.compute()
 # Z.plot(intercurrent=True, show=True)
-#
+
 # params.PostProcessing.dsf_no_ka_values = [5, 5, 5]
 # DSF = Observable.DynamicStructureFactor(params)
 # DSF.compute()

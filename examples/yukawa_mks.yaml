@@ -26,7 +26,7 @@ Integrator:
 
 Thermostat:
     - type: Berendsen               # thermostat type
-    - timestep: 2000
+    - timestep: 0
     - tau: 5.0
 
 Control:
@@ -36,6 +36,7 @@ Control:
     - Nsteps: 50000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
+    - therm_dump_step: 10
     - verbose: yes
     - output_dir: YOCP_mks_pp        # dir name to save data. The default is "Checkpoint"
 

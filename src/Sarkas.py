@@ -77,14 +77,17 @@ f_log.close()
 # Equilibration Phase
 ##############################################
 if not params.load_method == "restart":
+    checkpoint.therm_dump(ptcls, Ks, Tps, U_init, 0)
     if params.Control.verbose:
         print("\n------------- Equilibration -------------")
     for it in tqdm(range(params.Control.Neq), disable=not params.Control.verbose):
         # Calculate the Potential energy and update particles' data
         U_therm = integrator.update(ptcls, params)
+        if (it + 1) % params.Control.therm_dump_step == 0:
+            Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
+            checkpoint.therm_dump(ptcls, Ks, Tps, U_therm, it + 1)
         # Thermostate
         thermostat.update(ptcls.vel, it)
-
     remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
     # Save the current state
     Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)

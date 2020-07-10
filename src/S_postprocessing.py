@@ -1513,8 +1513,9 @@ class Thermodynamics:
         for isp, sp in enumerate(self.species_names):
             Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp), fontsize=fsz)
             Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(self.species_np[isp]), fontsize=fsz)
-            Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(ymul * self.dataframe['{} Temperature'.format(sp)].iloc[-1],
-                                                                                   ylbl), fontsize=fsz)
+            Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(
+                ymul * self.dataframe['{} Temperature'.format(sp)].iloc[-1],
+                ylbl), fontsize=fsz)
             y_coord -= 1.5
 
         y_coord -= 0.25
@@ -1531,6 +1532,272 @@ class Thermodynamics:
         Info_plot.axis('off')
         fig.tight_layout()
         fig.savefig(os.path.join(self.fldr, 'EnsembleCheckPlot_' + self.fname_app + '.png'))
+        if show:
+            fig.show()
+
+
+class Thermalization:
+    """
+    Thermodynamic functions.
+
+    Attributes
+    ----------
+        a_ws : float
+            Wigner-Seitz radius.
+
+        box_volume: float
+            Box Volume
+
+        dataframe : pandas dataframe
+            It contains all the thermodynamics functions.
+            options: "Total Energy", "Potential Energy", "Kinetic Energy", "Temperature", "time", "Pressure",
+                    "Pressure Tensor ACF", "Pressure Tensor", "Gamma", "{species name} Temperature",
+                    "{species name} Kinetic Energy".
+
+        dump_step : int
+            Dump step frequency.
+
+        filename_csv : str
+            Name of csv output file.
+
+        fldr : str
+            Folder containing dumps.
+
+        eV2K : float
+            Conversion factor from eV to Kelvin.
+
+        no_dim : int
+            Number of non-zero dimensions.
+
+        no_dumps : int
+            Number of dumps.
+
+        no_species : int
+            Number of species.
+
+        species_np: array
+            Array of integers with the number of particles for each species.
+
+        species_names : list
+            Names of particle species.
+
+        species_masses : list
+            Names of particle species.
+
+        tot_no_ptcls : int
+            Total number of particles.
+
+        wp : float
+            Plasma frequency.
+
+        kB : float
+            Boltzmann constant.
+
+    """
+
+    def __init__(self, params):
+        self.fldr = params.Control.therm_dir
+        self.dump_dir = os.path.join(self.fldr, "dumps")
+        self.fname_app = params.Control.fname_app
+        self.dump_step = params.Control.therm_dump_step
+        self.no_dumps = len(os.listdir(params.Control.therm_dir))
+        self.no_dim = params.dimensions
+        self.units = params.Control.units
+        self.dt = params.Control.dt
+        self.potential = params.Potential.type
+        self.thermostat = params.Thermostat.type
+        self.thermostat_tau = params.Thermostat.tau
+        if not hasattr(params.P3M, 'F_err'):
+            self.F_err = params.PP_err
+        else:
+            self.F_err = params.P3M.F_err
+        self.Nsteps = params.Control.Neq
+        if params.load_method == "restart":
+            self.restart_sim = True
+        else:
+            self.restart_sim = False
+        self.box_lengths = params.Lv
+        self.box_volume = params.box_volume
+        self.tot_no_ptcls = params.total_num_ptcls
+
+        self.no_species = len(params.species)
+        self.species_np = np.zeros(self.no_species)
+        self.species_names = []
+        self.species_masses = np.zeros(self.no_species)
+        self.species_dens = np.zeros(self.no_species)
+        for i in range(self.no_species):
+            self.species_np[i] = params.species[i].num
+            self.species_names.append(params.species[i].name)
+            self.species_masses[i] = params.species[i].mass
+            self.species_dens[i] = params.species[i].num_density
+        # Output file with Energy and Temperature
+        self.filename_csv = os.path.join(self.fldr, "Thermalization_" + self.fname_app + '.csv')
+        # Constants
+        self.wp = params.wp
+        self.kB = params.kB
+        self.eV2K = params.eV2K
+        self.a_ws = params.aws
+        self.T = params.T_desired
+        self.Gamma_eff = params.Potential.Gamma_eff
+
+    def parse(self):
+        """
+        Parse Thermodynamics functions from saved csv file.
+        """
+        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+
+    def statistics(self, quantity="Total Energy", max_no_divisions=100, show=True):
+
+        self.parse()
+        run_avg = self.dataframe[quantity].mean()
+        run_std = self.dataframe[quantity].std()
+
+        observable = np.array(self.dataframe[quantity])
+        # Loop over the blocks
+        tau_blk, sigma2_blk, statistical_efficiency = calc_statistical_efficiency(observable,
+                                                                                  run_avg, run_std,
+                                                                                  max_no_divisions, self.no_dumps)
+        # Plot the statistical efficiency
+        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+        ax.plot(1 / tau_blk[2:], statistical_efficiency[2:], '--o', label=quantity)
+        ax.grid(True, alpha=0.3)
+        ax.legend(loc='best')
+        ax.set_xscale('log')
+        ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
+        ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
+        fig.tight_layout()
+        fig.savefig(os.path.join(self.fldr, quantity + 'StatisticalEfficiency_' + self.fname_app + '.png'))
+
+        if show:
+            fig.show()
+
+        return
+
+    def hermite_plot(self, params, show=False):
+
+        hc = HermiteCoefficients(params)
+        hc.dump_dir = self.dump_dir
+        hc.no_dumps = len(os.listdir(self.dump_dir))
+        hc.compute()
+        hc.plot(show)
+
+    def moment_ratios_plot(self, params, show=False):
+
+        vm = VelocityMoments(params)
+        vm.dump_dir = self.dump_dir
+        vm.no_dumps = len(os.listdir(self.dump_dir))
+        vm.compute()
+        vm.plot_ratios(show)
+
+    def temp_energy_plot(self, show=False):
+        self.parse()
+
+        fig = plt.figure(figsize=(16, 9))
+        gs = GridSpec(4, 8)
+        # quantity = "Temperature"
+        self.no_dumps = len(self.dataframe["Time"])
+        nbins = int(0.05 * self.no_dumps)
+
+        Info_plot = fig.add_subplot(gs[0:4, 0:2])
+
+        T_hist_plot = fig.add_subplot(gs[1:4, 2])
+        T_delta_plot = fig.add_subplot(gs[0, 3:5])
+        T_main_plot = fig.add_subplot(gs[1:4, 3:5])
+
+        E_delta_plot = fig.add_subplot(gs[0, 5:7])
+        E_main_plot = fig.add_subplot(gs[1:4, 5:7])
+        E_hist_plot = fig.add_subplot(gs[1:4, 7])
+
+        # Temperature plots
+        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
+                                                               self.dataframe["Temperature"], "Time",
+                                                               "Temperature", self.units)
+        T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
+
+        T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
+        T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
+        T_main_plot.axhline(ymul * self.T, ls='--', c='r', alpha=0.7, label='Desired T')
+
+        Delta_T = (self.dataframe["Temperature"] - self.T) * 100 / self.T
+        Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        T_delta_plot.plot(self.dataframe["Time"], Delta_T, alpha=0.5)
+        T_delta_plot.plot(self.dataframe["Time"], Delta_T_cum_avg, alpha=0.8)
+
+        T_delta_plot.get_xaxis().set_ticks([])
+        T_delta_plot.set_ylabel(r'Deviation [%]')
+        T_delta_plot.tick_params(labelsize=12)
+        T_main_plot.tick_params(labelsize=14)
+        T_main_plot.legend(loc='best')
+        T_main_plot.set_ylabel("Temperature" + ylbl)
+        T_main_plot.set_xlabel("Time" + xlbl)
+        T_hist_plot.hist(self.dataframe['Temperature'], bins=nbins, density=True, orientation='horizontal',
+                         alpha=0.75)
+        T_hist_plot.get_xaxis().set_ticks([])
+        T_hist_plot.get_yaxis().set_ticks([])
+        T_hist_plot.set_xlim(T_hist_plot.get_xlim()[::-1])
+
+        # Energy plots
+        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
+                                                               self.dataframe["Total Energy"], "Time",
+                                                               "Total Energy", self.units)
+        E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
+
+        E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
+        E_main_plot.plot(xmul * self.dataframe["Time"], ymul * E_cumavg, label='Cum Avg')
+        E_main_plot.axhline(ymul * self.dataframe["Total Energy"].mean(), ls='--', c='r', alpha=0.7, label='Avg')
+
+        Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"][0]) * 100 / \
+                  self.dataframe["Total Energy"][0]
+        Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        E_delta_plot.plot(self.dataframe["Time"], Delta_E, alpha=0.5)
+        E_delta_plot.plot(self.dataframe["Time"], Delta_E_cum_avg, alpha=0.8)
+
+        E_delta_plot.get_xaxis().set_ticks([])
+        E_delta_plot.set_ylabel(r'Deviation [%]')
+        E_delta_plot.tick_params(labelsize=12)
+        E_main_plot.tick_params(labelsize=14)
+        E_main_plot.legend(loc='best')
+        E_main_plot.set_ylabel("Total Energy" + ylbl)
+        E_main_plot.set_xlabel("Time" + xlbl)
+        E_hist_plot.hist(xmul * self.dataframe['Total Energy'], bins=nbins, density=True,
+                         orientation='horizontal', alpha=0.75)
+        E_hist_plot.get_xaxis().set_ticks([])
+        E_hist_plot.get_yaxis().set_ticks([])
+
+        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(np.array([self.dt]),
+                                                               self.dataframe["Temperature"], "Time",
+                                                               "Temperature", self.units)
+        Info_plot.axis([0, 10, 0, 10])
+        Info_plot.grid(False)
+        fsz = 14
+        Info_plot.text(0., 10, "Job ID: {}".format(self.fname_app))
+        Info_plot.text(0., 9.5, "No. of species = {}".format(len(self.species_np)))
+        y_coord = 9.0
+        for isp, sp in enumerate(self.species_names):
+            Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp))
+            Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(self.species_np[isp]))
+            if self.no_species > 1:
+                Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(
+                    ymul * self.dataframe['{} Temperature'.format(sp)].iloc[-1], ylbl))
+            else:
+                Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(
+                    ymul * self.dataframe['Temperature'].iloc[-1], ylbl))
+            y_coord -= 1.5
+
+        y_coord -= 0.25
+        Info_plot.text(0., y_coord, "Total $N$ = {}".format(self.species_np.sum()))
+        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(self.thermostat))
+        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / self.thermostat_tau))
+        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(self.potential))
+        Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(self.F_err))
+
+        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * self.dt, xlbl))
+        Info_plot.text(0., y_coord - 3.5, "{:1.2f} % Thermalization Completed".format(
+            100 * self.dump_step * self.no_dumps / self.Nsteps))
+
+        Info_plot.axis('off')
+        fig.tight_layout()
+        fig.savefig(os.path.join(self.fldr, 'TempEnergyPlot_' + self.fname_app + '.png'))
         if show:
             fig.show()
 
@@ -1831,6 +2098,267 @@ class VelocityAutocorrelationFunctions:
                 fig.show()
 
 
+class HermiteCoefficients:
+
+    def __init__(self, params):
+        if not hasattr(params.PostProcessing, 'hermite_nbins'):
+            self.no_bins = int(0.05 * params.total_num_ptcls)
+        else:
+            self.no_bins = params.PostProcessing.hermite_nbins  # number of ka values
+
+        if not hasattr(params.PostProcessing, 'hermite_order'):
+            self.HermiteOrder = 5
+        else:
+            self.HermiteOrder = params.PostProcessing.hermite_order
+        self.dump_dir = params.Control.dump_dir
+        self.no_dumps = len(
+            os.listdir(params.Control.dump_dir))  # int(params.Control.Nsteps / params.Control.dump_step)
+        #
+        self.fldr = os.path.join(params.Control.checkpoint_dir, 'HermiteExp_data')
+        if not os.path.exists(self.fldr):
+            os.mkdir(self.fldr)
+        self.plots_dir = os.path.join(self.fldr, 'Hermite_Plots')
+        self.fname_app = params.Control.fname_app
+        self.filename_csv = os.path.join(self.fldr, "HermiteCoefficients_" + self.fname_app + '.csv')
+        self.dump_step = params.Control.dump_step
+        self.units = params.Control.units
+        self.no_species = len(params.species)
+        self.tot_no_ptcls = params.total_num_ptcls
+        self.no_dim = params.dimensions
+        self.no_steps = params.Control.Nsteps
+        self.a_ws = params.aws
+        self.wp = params.wp
+        self.kB = params.kB
+        self.species_np = np.zeros(self.no_species)  # Number of particles of each species
+        self.species_names = []
+        self.dt = params.Control.dt
+
+        for i in range(self.no_species):
+            self.species_np[i] = int(params.species[i].num)
+            self.species_names.append(params.species[i].name)
+
+    def compute(self):
+
+        vscale = 1.0 / (self.a_ws * self.wp)
+        vel = np.zeros((self.no_dim, self.tot_no_ptcls))
+
+        xcoeff = np.zeros((self.no_species, self.no_dumps, self.HermiteOrder + 1))
+        ycoeff = np.zeros((self.no_species, self.no_dumps, self.HermiteOrder + 1))
+        zcoeff = np.zeros((self.no_species, self.no_dumps, self.HermiteOrder + 1))
+
+        time = np.zeros(self.no_dumps)
+        print("Computing Hermite Coefficients ...")
+        for it in range(self.no_dumps):
+            time[it] = it * self.dt * self.dump_step
+            dump = int(it * self.dump_step)
+            datap = load_from_restart(self.dump_dir, dump)
+            vel[0, :] = datap["vel"][:, 0]
+            vel[1, :] = datap["vel"][:, 1]
+            vel[2, :] = datap["vel"][:, 2]
+
+            sp_start = 0
+            for sp in range(self.no_species):
+                sp_end = int(sp_start + self.species_np[sp])
+                x_hist, xbins = np.histogram(vel[0, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
+                y_hist, ybins = np.histogram(vel[1, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
+                z_hist, zbins = np.histogram(vel[2, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
+
+                # Center the bins
+                vx = 0.5 * (xbins[:-1] + xbins[1:])
+                vy = 0.5 * (ybins[:-1] + ybins[1:])
+                vz = 0.5 * (zbins[:-1] + zbins[1:])
+
+                xcoeff[sp, it, :] = calculate_herm_coeff(vx, x_hist, self.HermiteOrder)
+                ycoeff[sp, it, :] = calculate_herm_coeff(vy, y_hist, self.HermiteOrder)
+                zcoeff[sp, it, :] = calculate_herm_coeff(vz, z_hist, self.HermiteOrder)
+
+                sp_start = sp_end
+
+        data = {"Time": time}
+        self.dataframe = pd.DataFrame(data)
+
+        for sp in range(self.no_species):
+            for hi in range(self.HermiteOrder + 1):
+                self.dataframe["{} Hermite x Coeff a{}".format(self.species_names[sp], hi)] = xcoeff[sp, :, hi]
+                self.dataframe["{} Hermite y Coeff a{}".format(self.species_names[sp], hi)] = ycoeff[sp, :, hi]
+                self.dataframe["{} Hermite z Coeff a{}".format(self.species_names[sp], hi)] = zcoeff[sp, :, hi]
+
+        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+
+        return
+
+    def parse(self):
+
+        try:
+            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+        except FileNotFoundError:
+            self.compute()
+
+    def plot(self, show=False):
+        """
+        Plot the Hermite coefficients and save the figure
+        """
+        try:
+            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+        except FileNotFoundError:
+            self.compute()
+
+        if not os.path.exists(self.plots_dir):
+            os.mkdir(self.plots_dir)
+
+        if self.no_species > 1:
+            self.species_plots_dirs = []
+            for i, name in enumerate(self.species_names):
+                self.species_plots_dirs.append = os.path.join(self.plots_dir, "{}".format(name))
+                os.mkdir(os.path.join(self.plots_dir, "{}".format(name)))
+        else:
+            self.species_plots_dirs = [self.plots_dir]
+
+        for sp, name in enumerate(self.species_names):
+            fig, ax = plt.subplots(2, 3, sharex=True, constrained_layout=True, figsize=(16, 9))
+            for ip in range(2):
+                for jp in range(3):
+                    indx = (ip * 3 + jp)
+                    xcolumn = "{} Hermite x Coeff a{}".format(name, indx)
+                    ycolumn = "{} Hermite y Coeff a{}".format(name, indx)
+                    zcolumn = "{} Hermite z Coeff a{}".format(name, indx)
+                    xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"], np.array([1.0]),
+                                                                           'Time', 'none', self.units)
+                    ax[ip, jp].plot(self.dataframe["Time"] * xmul, self.dataframe[xcolumn], label=r"$x$ Coeff")
+                    ax[ip, jp].plot(self.dataframe["Time"] * xmul, self.dataframe[ycolumn], label=r"$y$ Coeff")
+                    ax[ip, jp].plot(self.dataframe["Time"] * xmul, self.dataframe[zcolumn], label=r"$z$ Coeff")
+                    ax[ip, jp].set_title(r'Coefficient $a_{}$'.format(indx))
+
+                    if ip == 1:
+                        ax[ip, jp].set_xlabel(r'$t$' + xlbl)
+
+            ax[0, 0].legend(loc='best')
+            ax[0, 0].set_ylim(0, 2)
+            # ax[0, 1].set_ylim(-0.1, 0.1)
+            # ax[1, 0].set_ylim(-0.1, 0.1)
+            # ax[1, 2].set_ylim(-0.2, 0.2)
+            # ratio = self.species_np[1] / self.species_np[0]
+            fig.suptitle("Hermite Coefficients of {}".format(name))
+            plot_name = os.path.join(self.species_plots_dirs[sp], '{}_HermCoeffPlot_'.format(name)
+                                     + self.fname_app + '.png')
+            fig.savefig(plot_name)
+            if show:
+                fig.show()
+
+
+class VelocityMoments:
+
+    def __init__(self, params):
+        if not hasattr(params.PostProcessing, 'mom_nbins'):
+            self.no_bins = 501
+        else:
+            self.no_bins = params.PostProcessing.mom_nbins
+
+        self.dump_dir = params.Control.dump_dir
+        self.no_dumps = len(os.listdir(self.dump_dir))
+        #
+        self.fldr = os.path.join(params.Control.checkpoint_dir, "MomentRatios_Data")
+        if not os.path.exists(self.fldr):
+            os.mkdir(self.fldr)
+        self.plots_dir = os.path.join(self.fldr, 'Plots')
+        self.fname_app = params.Control.fname_app
+        self.filename_csv = os.path.join(self.fldr, "VelocityMoments_" + self.fname_app + '.csv')
+        #
+        self.dump_step = params.Control.dump_step
+        self.no_species = len(params.species)
+        self.tot_no_ptcls = params.total_num_ptcls
+        self.no_dim = params.dimensions
+        self.units = params.Control.units
+        self.no_steps = params.Control.Nsteps
+        self.a_ws = params.aws
+        self.wp = params.wp
+
+        self.species_np = np.zeros(self.no_species)  # Number of particles of each species
+        self.species_names = []
+        self.dt = params.Control.dt
+        self.max_no_moment = 3
+        for i in range(self.no_species):
+            self.species_np[i] = int(params.species[i].num)
+            self.species_names.append(params.species[i].name)
+
+    def compute(self):
+
+        vscale = 1. / (self.a_ws * self.wp)
+        vel = np.zeros((self.no_dumps, self.tot_no_ptcls, 3))
+
+        self.time = np.zeros(self.no_dumps)
+        for it in range(self.no_dumps):
+            dump = int(it * self.dump_step)
+            datap = load_from_restart(self.dump_dir, dump)
+            vel[it, :, 0] = datap["vel"][:, 0] * vscale
+            vel[it, :, 1] = datap["vel"][:, 1] * vscale
+            vel[it, :, 2] = datap["vel"][:, 2] * vscale
+            self.time[it] = datap["time"]
+
+        data = {"Time": self.time}
+        self.dataframe = pd.DataFrame(data)
+        print("Calculating Moments ...")
+        self.moments = calc_moments(vel, self.no_bins, self.species_np)
+
+        # Save the dataframe
+        for sp in range(self.no_species):
+            self.dataframe["{} vx 2nd moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp)]
+            self.dataframe["{} vx 4th moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp) + 1]
+            self.dataframe["{} vx 6th moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp) + 2]
+
+            self.dataframe["{} vy 2nd moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp) + 3]
+            self.dataframe["{} vy 4th moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp) + 4]
+            self.dataframe["{} vy 6th moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp) + 5]
+
+            self.dataframe["{} vz 2nd moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp) + 6]
+            self.dataframe["{} vz 4th moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp) + 7]
+            self.dataframe["{} vz 6th moment".format(self.species_names[sp])] = self.moments[:, int(9 * sp) + 8]
+
+        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+
+    def plot_ratios(self, show=False):
+        """
+
+        Returns
+        -------
+
+        """
+
+        print("Calculating ratios ...")
+        ratios = calc_moment_ratios(self.moments, self.species_np, self.no_dumps)
+
+        if not os.path.exists(self.plots_dir):
+            os.mkdir(self.plots_dir)
+
+        if self.no_species > 1:
+            self.species_plots_dirs = []
+            for i, name in enumerate(self.species_names):
+                self.species_plots_dirs.append = os.path.join(self.plots_dir, "{}".format(name))
+                os.mkdir(os.path.join(self.plots_dir, "{}".format(name)))
+        else:
+            self.species_plots_dirs = [self.plots_dir]
+
+        for sp, sp_name in enumerate(self.species_names):
+            fig, ax = plt.subplots(1, 1)
+            xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.time, np.array([1]), 'Time', 'none', self.units)
+            ax.plot(self.time * xmul, ratios[sp, 0, :], label=r"4/2 ratio")
+            ax.plot(self.time * xmul, ratios[sp, 1, :], label=r"6/2 ratio")
+            ax.axhline(1.0, ls='--', c='k', label='Equilibrium')
+            ax.grid(True, alpha=0.3)
+            ax.legend(loc='upper right')
+            #
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+            ax.set_xlabel(r'$t$' + xlbl)
+            #
+            ax.set_title("Moments ratios of {}".format(sp_name))
+            fig.savefig(os.path.join(self.species_plots_dirs[sp], "MomentRatios_" + self.fname_app + '.png'))
+            if show:
+                fig.show()
+            else:
+                plt.close(fig)
+
+
 class XYZWriter:
     """
     Write the XYZ file for OVITO visualization.
@@ -1938,10 +2466,6 @@ def read_pickle(input_file):
     data = np.load(pickle_file, allow_pickle=True)
 
     return data
-
-
-def count_dumps(dump_dir):
-    files = os.listdir(dump_dir)
 
 
 def load_from_restart(fldr, it):
@@ -2735,6 +3259,107 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
         statistical_efficiency[i] = tau_blk[i] * sigma2_blk[i] / run_std ** 2
 
     return tau_blk, sigma2_blk, statistical_efficiency
+
+
+def calculate_herm_coeff(x, distribution, maxpower):
+    coeff = np.zeros(maxpower + 1)
+    for i in range(maxpower + 1):
+        hc = np.zeros(1 + i)
+        hc[-1] = 1.0
+        Hp = np.polynomial.hermite_e.hermeval(x, hc)
+        coeff[i] = np.trapz(distribution * Hp, x=x)
+
+    return coeff
+
+
+def calc_moments(vel, nbins, species_np):
+    """
+
+    Parameters
+    ----------
+    vel
+    nbins
+    species_np
+
+    Returns
+    -------
+
+    """
+
+    no_dumps = vel.shape[0]
+    moments = np.empty((no_dumps, int(9 * len(species_np))))
+
+    for it in range(no_dumps):
+        sp_start = 0
+        for sp, nsp in enumerate(species_np):
+            sp_end = sp_start + int(nsp)
+
+            xdist, xbins = np.histogram(vel[it, sp_start:sp_end, 0], bins=nbins, density=True)
+            ydist, ybins = np.histogram(vel[it, sp_start:sp_end, 1], bins=nbins, density=True)
+            zdist, zbins = np.histogram(vel[it, sp_start:sp_end, 2], bins=nbins, density=True)
+
+            vx = (xbins[:-1] + xbins[1:]) / 2.
+            vy = (ybins[:-1] + ybins[1:]) / 2.
+            vz = (zbins[:-1] + zbins[1:]) / 2.
+
+            moments[it, int(9 * sp)] = np.sum(vx ** 2 * xdist) * abs(vx[1] - vx[0])
+            moments[it, int(9 * sp) + 1] = np.sum(vx ** 4 * xdist) * abs(vx[1] - vx[0])
+            moments[it, int(9 * sp) + 2] = np.sum(vx ** 6 * xdist) * abs(vx[1] - vx[0])
+
+            moments[it, int(9 * sp) + 3] = np.sum(vy ** 2 * ydist) * abs(vy[1] - vy[0])
+            moments[it, int(9 * sp) + 4] = np.sum(vy ** 4 * ydist) * abs(vy[1] - vy[0])
+            moments[it, int(9 * sp) + 5] = np.sum(vy ** 6 * ydist) * abs(vy[1] - vy[0])
+
+            moments[it, int(9 * sp) + 6] = np.sum(vz ** 2 * zdist) * abs(vz[1] - vz[0])
+            moments[it, int(9 * sp) + 7] = np.sum(vz ** 4 * zdist) * abs(vz[1] - vz[0])
+            moments[it, int(9 * sp) + 8] = np.sum(vz ** 6 * zdist) * abs(vz[1] - vz[0])
+
+            sp_start = sp_end
+
+    return moments
+
+
+@njit
+def calc_moment_ratios(moments, species_np, no_dumps):
+    """
+
+    Parameters
+    ----------
+    vel
+    nbins
+    species_np
+
+    Returns
+    -------
+
+    """
+
+    no_ratios = 2
+    ratios = np.zeros((len(species_np), no_ratios, no_dumps))
+
+    sp_start = 0
+    for sp, nsp in enumerate(species_np):
+        sp_end = sp_start + nsp
+
+        vx2_mom = moments[:, int(9 * sp)]
+        vx4_mom = moments[:, int(9 * sp) + 1]
+        vx6_mom = moments[:, int(9 * sp) + 2]
+
+        vy2_mom = moments[:, int(9 * sp) + 3]
+        vy4_mom = moments[:, int(9 * sp) + 4]
+        vy6_mom = moments[:, int(9 * sp) + 5]
+
+        vz2_mom = moments[:, int(9 * sp) + 6]
+        vz4_mom = moments[:, int(9 * sp) + 7]
+        vz6_mom = moments[:, int(9 * sp) + 8]
+
+        ratios[sp, 0, :] = (vx4_mom / vx2_mom ** 2) * (vy4_mom / vy2_mom ** 2) * (vz4_mom / vz2_mom ** 2) / 27.0
+        ratios[sp, 1, :] = (vx6_mom / vx2_mom ** 3) * (vy6_mom / vy2_mom ** 3) * (vz6_mom / vz2_mom ** 3) / 15.0 ** 3
+
+        sp_start = sp_end
+
+    print('Done')
+    return ratios
 
 
 def plot_labels(xdata, ydata, xlbl, ylbl, units):
