@@ -6,12 +6,21 @@ Installation
 
 To install Sarkas you first need to download the source code from its GitHub repository_.
 
-Cloning a Repository
-====================
-The instructions that follow are copy of those found in the GitHub help page_. If you have problem cloning the repository
-please visit this help page_.
+Forking and Cloning Sarkas repository
+=====================================
+The instructions that follow are a copy of those found in the Github help fork_ page. If you have problems cloning
+the repository please visit the fork_ page.
+
+A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without
+affecting the original project.
 
 #. Navigate to the main page of Sarkas' repository_
+
+#. In the top right corner of the page, under your account icon, click on **Fork**.
+
+#. Great you have successfully forked Sarkas repository. Now we need to clone it on your local computer.
+
+#. Navigate to your Github page and select your Sarkas repository
 
 #. Above the list of files, click on the green button **Clone**
 
@@ -101,5 +110,6 @@ If you have Python 3.* installed jump back to Option 1.
 
 .. _Anaconda: https://www.anaconda.org
 .. _repository: https://github.com/murillo-group/sarkas-repo
-.. _page: https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository
+.. _fork: https://docs.github.com/en/github/getting-started-with-github/fork-a-repo
+.. _clone: https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository
 .. _download: https://www.anaconda.com/products/individual

@@ -113,6 +113,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -373,16 +374,18 @@ This is done by running</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">run</span> <span class="n">src</span><span class="o">/</span><span class="n">S_testing</span><span class="o">.</span><span class="n">py</span> <span class="n">examples</span><span class="o">/</span><span class="n">yukawa_mks_p3m</span><span class="o">.</span><span class="n">yaml</span> <span class="mi">10</span>
 </pre></div>
 </div>
-<p>in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops over which we wish to
-average the force calculation time. The first part of the output of this command looks something like this</p>
+<p>in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops
+over which we wish to average the force calculation time. The first part of the output of this command looks something
+like this</p>
 <img alt="S_testing_output_1.png not found" src="_images/S_testing_output_1.png" />
-<p>As you can see most of the simulation parameters defined in the input file are printed to screen together with other
+<p>As you can see most of the simulation parameters defined in the input file are repeated here together with other
 important information. For example, in the section “Length scales:” we find the value of the Wigner-Seitz radius, the
-number of non zero dimensions, and the length of the simulation box sides in terms of <span class="math notranslate nohighlight">\(a_{ws}\)</span> and the numerical
+number of non zero dimensions, and the length of the simulation box sides in terms of <span class="math notranslate nohighlight">\(a_{ws}\)</span> and its numerical
 value in the chosen units. Few lines below we find the Potential section which shows all the relevant parameters of our
-chosen potential. Notice that this section depends on the type of chosen potential and as such it varies. Next we find
-the Algorithm section. This is particularly verbose in the case of the P3M algorithm. Notice that the Ewald parameter
-and the cutoff radius are given in terms of the WS radius also. Below the line <code class="docutils literal notranslate"><span class="pre">Mesh</span> <span class="pre">=</span> <span class="pre">[64</span> <span class="pre">64</span> <span class="pre">64]</span></code> the number of cells
+chosen potential. Note that this section depends on the type of potential and as such it varies. Next we find
+the Algorithm section. This is particularly verbose in the case of the P3M algorithm since we have parameters for the PP
+and PM part of the algorithm. The two important parameter are: the Ewald parameter <span class="math notranslate nohighlight">\(\alpha\)</span> and
+the cutoff radius, <span class="math notranslate nohighlight">\(r_c\)</span>. Below the line <code class="docutils literal notranslate"><span class="pre">Mesh</span> <span class="pre">=</span> <span class="pre">[64</span> <span class="pre">64</span> <span class="pre">64]</span></code> the number of cells
 per dimension for the Linked Cell algorithm and the number of particles inside a spheres of radius rcut. Next we find
 the most important information: the error in the force calculation.</p>
 <p>Before explaining the force error calculation we show the second part of the output of the command which gives the
@@ -474,7 +477,7 @@ space <a class="bibtex reference internal" href="#dharuman2017" id="id5">[DSGM17
 force calculations by comparing
 <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> and <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}\)</span>. The first figure
 produced by our example is shown below and it is a contour map of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span>
-in the <span class="math notranslate nohighlight">\(r_c - \alpha\)</span> parameters space</p>
+in the <span class="math notranslate nohighlight">\(r_c,\, \alpha\)</span> parameters space</p>
 <img alt="Figure not found" src="_images/Pre_Run_TestForceError_ClrMap_yukawa_mks_p3m.png" />
 <p>The numbers on the white contours indicate the value of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> along those
 lines and the black dot indicates where our choice of parameters fall into this parameter space. We notice that our
@@ -570,7 +573,7 @@ of <span class="math notranslate nohighlight">\(r_c\)</span> is close to optimal
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 01, 2020.
+        Last updated on Jul, 10, 2020.
       </span>
 
     </p>

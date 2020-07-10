@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="src" href="modules.html" />
-    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+    <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,7 +84,6 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#input-file">Input File</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#particles">Particles</a></li>
@@ -114,6 +113,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -374,16 +374,18 @@ This is done by running</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">run</span> <span class="n">src</span><span class="o">/</span><span class="n">S_testing</span><span class="o">.</span><span class="n">py</span> <span class="n">examples</span><span class="o">/</span><span class="n">yukawa_mks_p3m</span><span class="o">.</span><span class="n">yaml</span> <span class="mi">10</span>
 </pre></div>
 </div>
-<p>in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops over which we wish to
-average the force calculation time. The first part of the output of this command looks something like this</p>
+<p>in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops
+over which we wish to average the force calculation time. The first part of the output of this command looks something
+like this</p>
 <img alt="S_testing_output_1.png not found" src="_images/S_testing_output_1.png" />
-<p>As you can see most of the simulation parameters defined in the input file are printed to screen together with other
+<p>As you can see most of the simulation parameters defined in the input file are repeated here together with other
 important information. For example, in the section “Length scales:” we find the value of the Wigner-Seitz radius, the
-number of non zero dimensions, and the length of the simulation box sides in terms of <span class="math notranslate nohighlight">\(a_{ws}\)</span> and the numerical
+number of non zero dimensions, and the length of the simulation box sides in terms of <span class="math notranslate nohighlight">\(a_{ws}\)</span> and its numerical
 value in the chosen units. Few lines below we find the Potential section which shows all the relevant parameters of our
-chosen potential. Notice that this section depends on the type of chosen potential and as such it varies. Next we find
-the Algorithm section. This is particularly verbose in the case of the P3M algorithm. Notice that the Ewald parameter
-and the cutoff radius are given in terms of the WS radius also. Below the line <code class="docutils literal notranslate"><span class="pre">Mesh</span> <span class="pre">=</span> <span class="pre">[64</span> <span class="pre">64</span> <span class="pre">64]</span></code> the number of cells
+chosen potential. Note that this section depends on the type of potential and as such it varies. Next we find
+the Algorithm section. This is particularly verbose in the case of the P3M algorithm since we have parameters for the PP
+and PM part of the algorithm. The two important parameter are: the Ewald parameter <span class="math notranslate nohighlight">\(\alpha\)</span> and
+the cutoff radius, <span class="math notranslate nohighlight">\(r_c\)</span>. Below the line <code class="docutils literal notranslate"><span class="pre">Mesh</span> <span class="pre">=</span> <span class="pre">[64</span> <span class="pre">64</span> <span class="pre">64]</span></code> the number of cells
 per dimension for the Linked Cell algorithm and the number of particles inside a spheres of radius rcut. Next we find
 the most important information: the error in the force calculation.</p>
 <p>Before explaining the force error calculation we show the second part of the output of the command which gives the
@@ -475,7 +477,7 @@ space <a class="bibtex reference internal" href="#dharuman2017" id="id5">[DSGM17
 force calculations by comparing
 <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> and <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}\)</span>. The first figure
 produced by our example is shown below and it is a contour map of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span>
-in the <span class="math notranslate nohighlight">\(r_c - \alpha\)</span> parameters space</p>
+in the <span class="math notranslate nohighlight">\(r_c,\, \alpha\)</span> parameters space</p>
 <img alt="Figure not found" src="_images/Pre_Run_TestForceError_ClrMap_yukawa_mks_p3m.png" />
 <p>The numbers on the white contours indicate the value of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> along those
 lines and the black dot indicates where our choice of parameters fall into this parameter space. We notice that our
@@ -527,7 +529,10 @@ of <span class="math notranslate nohighlight">\(r_c\)</span> is close to optimal
 </div>
 <div class="section" id="id7">
 <h2>Post Processing<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
-<p>Now comes the fun part!</p>
+<p>Now comes the fun part! The first thing we want to do is to check for energy conservation again.</p>
+<img alt="Total Energy" src="_static/assets/Total_Energy_yukawa_mks_p3m.png" />
+<p>Plot of the Total Energy as a function of time.</p>
+<p>asfga</p>
 <p id="bibtex-bibliography-tutorial-0"><dl class="citation">
 <dt class="bibtex label" id="deserno1998"><span class="brackets"><a class="fn-backref" href="#id6">DH98</a></span></dt>
 <dd><p>Markus Deserno and Christian Holm. How to mesh up ewald sums. ii. an accurate error estimate for the particle–particle–particle-mesh algorithm. <em>The Journal of Chemical Physics</em>, 109(18):7694–7701, 1998. <a class="reference external" href="https://doi.org/10.1063/1.477415">doi:10.1063/1.477415</a>.</p>
@@ -557,7 +562,7 @@ of <span class="math notranslate nohighlight">\(r_c\)</span> is close to optimal
         <a href="modules.html" class="btn btn-neutral float-right" title="src" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -568,7 +573,7 @@ of <span class="math notranslate nohighlight">\(r_c\)</span> is close to optimal
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 01, 2020.
+        Last updated on Jul, 10, 2020.
       </span>
 
     </p>

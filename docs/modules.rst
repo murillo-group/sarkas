@@ -7,6 +7,7 @@ src
    S_calc_force_pm
    S_calc_force_pp
    S_checkpoint
+   S_force_error
    S_integrator
    S_params
    S_particles

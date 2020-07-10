@@ -84,7 +84,6 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -93,6 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="S_calc_force_pm.html">S_calc_force_pm module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_calc_force_pp.html">S_calc_force_pp module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_checkpoint.html">S_checkpoint module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_force_error.html">S_force_error module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
@@ -115,6 +115,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -188,6 +189,61 @@
 <em class="property">class </em><code class="sig-prename descclassname">S_verbose.</code><code class="sig-name descname">Verbose</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_verbose.html#Verbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_verbose.Verbose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to handle verbose output to screen.</p>
+<dl class="py attribute">
+<dt id="S_verbose.Verbose.pre_run">
+<code class="sig-name descname">pre_run</code><a class="headerlink" href="#S_verbose.Verbose.pre_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for pre run testing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_verbose.Verbose.verbose">
+<code class="sig-name descname">verbose</code><a class="headerlink" href="#S_verbose.Verbose.verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for verbose output to screen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_verbose.Verbose.io_file">
+<code class="sig-name descname">io_file</code><a class="headerlink" href="#S_verbose.Verbose.io_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filename of the file to write.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_verbose.Verbose.f_log_name">
+<code class="sig-name descname">f_log_name</code><a class="headerlink" href="#S_verbose.Verbose.f_log_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log file name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="S_verbose.Verbose.f_pre_run">
+<code class="sig-name descname">f_pre_run</code><a class="headerlink" href="#S_verbose.Verbose.f_pre_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pre Run file name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters</p>
@@ -196,13 +252,19 @@
 <dl class="py method">
 <dt id="S_verbose.Verbose.sim_setting_summary">
 <code class="sig-name descname">sim_setting_summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_verbose.html#Verbose.sim_setting_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_verbose.Verbose.sim_setting_summary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print out to file a summary of simulation’s parameters.</p>
+<dd><p>Print out to file a summary of simulation’s parameters.
+If verbose output then it will print twice: the first time to file and second time to screen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>class</em>) – Simulation parameters to print.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="S_verbose.Verbose.time_stamp">
 <code class="sig-name descname">time_stamp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time_stamp</span></em>, <em class="sig-param"><span class="n">t</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/S_verbose.html#Verbose.time_stamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_verbose.Verbose.time_stamp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print out to screen elapsed times.</p>
+<dd><p>Print out to screen elapsed times. If verbose output, print to file first and then to screen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -245,7 +307,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 01, 2020.
+        Last updated on Jul, 10, 2020.
       </span>
 
     </p>

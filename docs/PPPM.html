@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Particle-Particle Particle-Mesh Algorithm &mdash; Sarkas 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Thermostats" href="thermostats.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">src</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Particle-Particle Particle-Mesh Algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ewald-sum">Ewald Sum</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#short-range-term">Short-range term</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#long-range-term">Long-range term</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Particle-Particle Particle-Mesh Algorithm</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/PPPM.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="particle-particle-particle-mesh-algorithm">
+<span id="pppmtheory"></span><h1>Particle-Particle Particle-Mesh Algorithm<a class="headerlink" href="#particle-particle-particle-mesh-algorithm" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="ewald-sum">
+<h2>Ewald Sum<a class="headerlink" href="#ewald-sum" title="Permalink to this headline">¶</a></h2>
+<p>Long range forces are calculated using the Ewald method which consists in dividing the potential into a short
+and a long range part. Physically this is equivalent to adding and subtracting a screening cloud around each charge.
+This screening cloud is usually chosen to be given by a Gaussian charged density distribution, but it need not be.
+The choice of a Gaussian is due to spherical symmetry.</p>
+<p>The total charge density at point <span class="math notranslate nohighlight">\(\mathbf r\)</span> is then</p>
+<div class="math notranslate nohighlight">
+\[\rho(\mathbf r) = \sum_{i}^N  \left \{ \left ( q_i\delta( \mathbf r - \mathbf r_i) - \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r - \mathbf r_i \right )^2 } \right ) + \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 } \right \},\]</div>
+<p>where the first term is the charge density due to the real particles and the last two terms are a negative
+and positive screening cloud. The first two term are in parenthesis to emphasizes the splitting into</p>
+<div class="math notranslate nohighlight">
+\[\rho(\mathbf r)  = \rho_{\mathcal R}(\mathbf r) + \rho_{\mathcal F}(\mathbf r)\]</div>
+<div class="math notranslate nohighlight">
+\[\rho_{\mathcal R} (\mathbf r) = \sum_{i}^N \left ( q_i\delta( \mathbf r- \mathbf r_i) - \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 } \right ), \quad \rho_{\mathcal F}(\mathbf r) = \sum_{i}^N \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 }\]</div>
+<p>where <span class="math notranslate nohighlight">\(\rho_{\mathcal R}(\mathbf r)\)</span> indicates the charge density leading to the short range part of the potential
+and <span class="math notranslate nohighlight">\(\rho_{\mathcal F}(\mathbf r)\)</span> leading to the long range part.
+The subscripts <span class="math notranslate nohighlight">\(\mathcal R, \mathcal F\)</span> stand for Real and Fourier space indicating the way the calculation
+will be done.</p>
+<p>The potential at every point <span class="math notranslate nohighlight">\(\mathbf r\)</span> is calculated from Poisson’s equation</p>
+<div class="math notranslate nohighlight">
+\[-\nabla^2 \phi( \mathbf r) = 4\pi \rho_{\mathcal R} (\mathbf r) + 4\pi \rho_{\mathcal F}( \mathbf r).\]</div>
+<div class="section" id="short-range-term">
+<h3>Short-range term<a class="headerlink" href="#short-range-term" title="Permalink to this headline">¶</a></h3>
+<p>The short range term is calculated in the usual way</p>
+<div class="math notranslate nohighlight">
+\[-\nabla^2 \phi_{\mathcal R}( \mathbf r) = 4\pi \sum_{i}^N  \left ( q_i\delta( \mathbf r- \mathbf r_i) - \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 } \right ).\]</div>
+<p>The first term <span class="math notranslate nohighlight">\(\delta(\mathbf r - \mathbf r_i)\)</span> leads to the usual Coulomb potential (<span class="math notranslate nohighlight">\(\sim 1/r\)</span>) while
+the Gaussian leads to the error function</p>
+<div class="math notranslate nohighlight">
+\[\phi_{\mathcal R}( \mathbf r ) = \sum_i^N  \frac{q_i}{r} - \frac{q_i}{r}\text{erf} (\alpha r)  = \sum_i^N \frac{q_i}{r} \text{erfc}(\alpha r)\]</div>
+</div>
+<div class="section" id="long-range-term">
+<h3>Long-range term<a class="headerlink" href="#long-range-term" title="Permalink to this headline">¶</a></h3>
+<p>The long range term is calculated in Fourier space</p>
+<div class="math notranslate nohighlight">
+\[k^2 \tilde\phi_{\mathcal F}(k) = 4\pi \tilde\rho_{\mathcal F}(k)\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\tilde\rho_{\mathcal F}(k) = \frac{1}{V} \int d\mathbf re^{- i \mathbf k \cdot \mathbf r} \rho_{\mathcal F}( \mathbf r ) = \sum_{i}^N \frac{q_i\alpha^{3/2}}{\pi V} \int d\mathbf r e^{- i \mathbf k \cdot \mathbf r}  e^{-\alpha^2 \left( \mathbf r - \mathbf r_i \right )^2 } = \sum_{i}^N \frac{q_i}{V} e^{-i \mathbf k \cdot \mathbf r_i} e^{-k^2/(4\alpha^2)}.\]</div>
+<p>The potential is then</p>
+<div class="math notranslate nohighlight">
+\[\tilde \phi_{\mathcal F}(\mathbf k) = \frac{4\pi}{k^2} \frac{1}{V} \sum_{i}^N q_i e^{-i\mathbf k \cdot \mathbf r_i} e^{-k^2/(4\alpha^2)} = \frac{1}{V} \sum_i^N v(k)e^{-k^2/(4 \alpha^2)} q_i e^{-i \mathbf k \cdot \mathbf r_i}\]</div>
+<p>and in real space</p>
+<div class="math notranslate nohighlight">
+\[\phi_{\mathcal R}( \mathbf r ) = \sum_{\mathbf k \neq 0} \tilde \phi_{\mathcal F}(\mathbf k)e^{i \mathbf k \cdot \mathbf r} = \frac{1}{V} \sum_{\mathbf k\neq 0} \sum_{i}^N v(k) e^{-k^2/(4\alpha^2)}q_i e^{i \mathbf k \cdot ( \mathbf r- \mathbf r_i) },\]</div>
+<p>where the <span class="math notranslate nohighlight">\(\mathbf k = 0\)</span> is removed from the sum because of the overall charge neutrality.
+The potential energy created by this long range part is</p>
+<div class="math notranslate nohighlight">
+\[U_{\mathcal F} = \frac {1}{2} \sum_i^N q_i \phi_{\mathcal F}(\mathbf r_i) = \frac{1}{2} \frac{1}{V} \sum_{i,j}^N q_i q_j \sum_{\mathbf k \neq 0 } v(k)  e^{-k^2/(4\alpha^2)}e^{i \mathbf k \cdot ( \mathbf r_i - \mathbf r_j) } = \frac{1}{2} \sum_{\mathbf k \neq 0} |\rho_0(\mathbf k)|^2 v(k) e^{-k^2/(4\alpha^2)},\]</div>
+<p>where I used the definition of the charge density</p>
+<div class="math notranslate nohighlight">
+\[\rho_0(\mathbf k) = \frac 1V \sum_i^N q_i e^{i \mathbf k \cdot \mathbf r_i}.\]</div>
+<p>However, in the above sum we are including the self-energy term, i.e. <span class="math notranslate nohighlight">\(\mathbf r_i = \mathbf r_j\)</span>. This term
+can be easily calculated and then removed from <span class="math notranslate nohighlight">\(U_{\mathcal F}\)</span></p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathcal Q^2}{2V} \sum_{\mathbf k} \frac{4\pi}{k^2} e^{-k^2/(4\alpha^2)} \rightarrow \frac{\mathcal Q^2}{2V} \left ( \frac{L}{2\pi} \right )^3 \int dk (4\pi)^2 e^{-k^2/(4\alpha^2) }  = \mathcal Q^2 \frac{(4\pi)^2}{2V} \left ( \frac{L}{2\pi} \right )^3 \sqrt{\pi } \alpha = \mathcal Q^2 \frac{\alpha}{\sqrt{\pi} }\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal Q^2 = \sum_i^N q_i^2\)</span>, note that in the integral we have re-included <span class="math notranslate nohighlight">\(\mathbf k = 0\)</span>, but
+this is not a problem(?). Finally the long-range potential energy is</p>
+<div class="math notranslate nohighlight">
+\[U_{\mathcal L} = U_{\mathcal F} - \mathcal Q^2 \frac{\alpha}{\sqrt{\pi} }\]</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="thermostats.html" class="btn btn-neutral float-left" title="Thermostats" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Jul, 10, 2020.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

@@ -224,19 +224,21 @@ in your terminal or
 
     %run src/S_testing.py examples/yukawa_mks_p3m.yaml 10
 
-in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops over which we wish to
-average the force calculation time. The first part of the output of this command looks something like this
+in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops
+over which we wish to average the force calculation time. The first part of the output of this command looks something
+like this
 
 .. image:: _static/assets/S_testing_output_1.png
     :alt: S_testing_output_1.png not found
 
-As you can see most of the simulation parameters defined in the input file are printed to screen together with other
+As you can see most of the simulation parameters defined in the input file are repeated here together with other
 important information. For example, in the section "Length scales:" we find the value of the Wigner-Seitz radius, the
-number of non zero dimensions, and the length of the simulation box sides in terms of :math:`a_{ws}` and the numerical
+number of non zero dimensions, and the length of the simulation box sides in terms of :math:`a_{ws}` and its numerical
 value in the chosen units. Few lines below we find the Potential section which shows all the relevant parameters of our
-chosen potential. Notice that this section depends on the type of chosen potential and as such it varies. Next we find
-the Algorithm section. This is particularly verbose in the case of the P3M algorithm. Notice that the Ewald parameter
-and the cutoff radius are given in terms of the WS radius also. Below the line ``Mesh = [64 64 64]`` the number of cells
+chosen potential. Note that this section depends on the type of potential and as such it varies. Next we find
+the Algorithm section. This is particularly verbose in the case of the P3M algorithm since we have parameters for the PP
+and PM part of the algorithm. The two important parameter are: the Ewald parameter :math:`\alpha` and
+the cutoff radius, :math:`r_c`. Below the line ``Mesh = [64 64 64]`` the number of cells
 per dimension for the Linked Cell algorithm and the number of particles inside a spheres of radius rcut. Next we find
 the most important information: the error in the force calculation.
 
@@ -369,7 +371,7 @@ As mentioned before running ``S_testing.py`` produces two figures. These are use
 force calculations by comparing
 :math:`\Delta F_{\textrm{tot}}^{(\textrm{apprx})}` and :math:`\Delta F_{\textrm{tot}}`. The first figure
 produced by our example is shown below and it is a contour map of :math:`\Delta F_{\textrm{tot}}^{(\textrm{apprx})}`
-in the :math:`r_c - \alpha` parameters space
+in the :math:`r_c,\, \alpha` parameters space
 
 .. image:: _static/assets/Pre_Run_TestForceError_ClrMap_yukawa_mks_p3m.png
     :alt: Figure not found
