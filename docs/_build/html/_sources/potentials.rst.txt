@@ -29,7 +29,7 @@ Two charged particle with charge numbers :math:`Z_a` and :math:`Z_b` interact wi
 
 where :math:`r` is the distance between ions, :math:`e` is the elementary charge.
 
-.. _potentials-yukawa:
+
 Yukawa Potential 
 ----------------
 The Yukawa potential, or screened Coulomb potential, is widely used in the plasma community to describe the interactions of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two ions of charge number :math:`Z_a` and :math:`Z_b` is given by

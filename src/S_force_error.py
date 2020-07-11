@@ -15,7 +15,32 @@ def betamp(m, p, alpha, kappa):
     return np.trapz(Gk(xa, alpha, kappa) * Gk(xa, alpha, kappa) * xa ** (2 * (m + p + 2)), x=xa)
 
 
-def analytical_approx(params):
+def analytical_approx_pp(params):
+    """
+
+    Parameters
+    ----------
+    params
+
+    Returns
+    -------
+
+    """
+
+    kappa = 0.0 if params.Potential.type == "Coulomb" else params.aws/params.lambda_TF
+
+    r_min = params.Potential.rc * 0.5
+    r_max = params.Potential.rc * 1.5
+
+    rcuts = np.linspace(r_min, r_max, 101) / params.aws
+
+    # Calculate the analytic PP error and the total force error
+    DeltaF_PP = np.sqrt(2.0 * np.pi * kappa) * np.exp(- rcuts * kappa)
+    DeltaF_PP *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
+
+    return DeltaF_PP, rcuts
+
+def analytical_approx_pppm(params):
     """
 
     Parameters

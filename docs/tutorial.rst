@@ -7,6 +7,7 @@ Tutorial
 Here we provide a step-by-step guide to illustrate how to run Sarkas and how to obtain useful quantities
 from your simulation data once you run is complete. The topics that are listed in this tutorial are as follows
 
+- Options
 - Input file
 - Testing
 - Running a simulation
@@ -15,6 +16,38 @@ from your simulation data once you run is complete. The topics that are listed i
 We will illustrate these steps using the example file ``yukawa_mks_p3m.yaml`` in the ``examples`` folder.
 This file contains parameters for a :math:`NVE` simulation of a One component strongly coupled plasma whose
 particles interact via a Yukawa potential, i.e. an YOCP.
+
+Options
+=======
+
+First and foremost we run the help command in a terminal window
+
+.. code-block:: bash
+
+    $ python src/Sarkas.py -h
+
+or
+
+.. code-block:: python
+
+    %run src/Sarkas.py -h
+
+in a Jupyter Notebook. This will produce the following output
+
+.. figure:: _static/assets/Help_output.png
+    :alt: Figure not found
+
+This output tells you the different option with which you can run Sarkas. The first option is ``-i`` is required and
+is the path to the YAML input file of our simulation. The second option is ``-c`` which can be either ``True`` or
+``False`` and it indicates whether we want to check the current state of the run. The third option ``-t`` is another
+boolean flag indicating whether to run a test of our input parameter or not. The next three option are not required and
+are mostly used in the case we want to run many simulations without creating multiple input file and only want to change
+only few control parameters. The option ``-d`` indicates the name of the directory where to save the simulation's output.
+The option ``-j`` refers to the name we want to append to each output file and finally ``-s`` sets the random number
+seed. Very often we need to run many simulations with similar parameters but with different initial conditions. The
+``-s`` option allows us to do so without creating multiple YAML files.
+
+In the next section we will explain the input file.
 
 Input File
 ==========
@@ -27,7 +60,7 @@ a strongly coupled plasma comprised of :math:`N = 10\, 000` hydrogen ions with
 a number density of :math:`n = 1.6 \times 10^{30} N/m^3` at a temperature :math:`0.5 eV`.
 These parameters are defined in our ``yaml`` file by the block ``Particles`` and its attribute ``species``,
 
-.. code-block:: python
+.. code-block:: yaml
 
     Particles:
         - species:
@@ -60,7 +93,7 @@ Interaction
 -----------
 The next section of the input file defines our interaction potential's parameters
 
-.. code-block:: python
+.. code-block:: yaml
 
     Potential:
         - type: Yukawa
@@ -71,8 +104,7 @@ The next section of the input file defines our interaction potential's parameter
 
 The instance ``type`` defines the interaction potential. Currently Sarkas supports the following interaction potentials:
 Coulomb, Yukawa, Exact-gradient corrected Yukawa, Quantum Statistical Potentials, Moliere, Lennard-Jones 6-12. More info
-on each of these potential can be found in :ref:`potentials`. Next we define the screening parameter ``kappa``,
-see :ref:`potentials-yukawa`. Notice that this a non-dimensional parameter, that is the real screening length will be
+on each of these potential can be found in :ref:`potentials`. Next we define the screening parameter ``kappa``. Notice that this a non-dimensional parameter, that is the real screening length will be
 calculated from :math:`\lambda = a/\kappa` where :math:`a` is the Wigner-Seitz radius. Finally we define the cut-off radius for the Particle-Particle part of the P3M algorithm
 by ``rc``.
 
@@ -82,7 +114,7 @@ The ``P3M`` section that follows is essential for our simulation as it defines i
 The parameters in this section are what differentiate a good simulation from a bad simulation.
 Details on how to choose these parameters are given later in this page, but for now we limit to describing them
 
-.. code-block:: python
+.. code-block:: yaml
 
     P3M:
         - MGrid: [64,64,64]
@@ -101,7 +133,7 @@ Boundary Conditions
 
 Next we define the boundary conditions for our simulation.
 
-.. code-block:: python
+.. code-block:: yaml
 
     BoundaryConditions:
         - periodic: ["x", "y", "z"]
@@ -117,7 +149,7 @@ Integrator
 
 Notice that we have not defined our integrator yet. This is done in the section ``Integrator`` of the input file
 
-.. code-block:: python
+.. code-block:: yaml
 
     Integrator:
         - type: Verlet
@@ -135,11 +167,11 @@ Most MD simulations require an thermalization phase in which the system evolves 
 so that the initial configuration relaxes to the desired thermal equilibrium. The parameters
 of the thermalization phase are defined in the ``Thermostat`` section of the input file.
 
-.. code-block:: python
+.. code-block:: yaml
 
     Thermostat:
         - type: Berendsen               # thermostat type
-        - thermostating_temperatures_eV: 0.5
+        - temperatures_eV: 0.5
         - timestep: 2000
         - tau: 5.0
 
@@ -158,7 +190,7 @@ Control
 -------
 The next section defines some general parameters
 
-.. code-block:: python
+.. code-block:: yaml
 
     Control:
         - units: mks                  # units
@@ -198,7 +230,7 @@ be calculated during the production phase. The radial distribution function (RDF
 efficiently calculated in the production phase than in the post-processing phase. Hence, we chose to divide our
 RDF into 300 bins
 
-.. code-block:: python
+.. code-block:: yaml
 
     PostProcessing:
         - rdf_nbins: 300
@@ -216,13 +248,13 @@ This is done by running
 
 .. code-block:: bash
 
-    $ python src/S_testing.py examples/yukawa_mks_p3m.yaml 10
+    $ python src/Sarkas.py -i examples/yukawa_mks_p3m.yaml -t
 
 in your terminal or
 
 .. code-block:: python
 
-    %run src/S_testing.py examples/yukawa_mks_p3m.yaml 10
+    %run src/Sarkas.py -i examples/yukawa_mks_p3m.yaml -t
 
 in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops
 over which we wish to average the force calculation time. The first part of the output of this command looks something
@@ -417,6 +449,7 @@ Some good rules of thumb to keep in mind while choosing the parameters are
 of the charge approximation order, :math:`p`, the number of mesh points, :math:`M_x = M_y = M_z`, and number of aliases
 :math:`m_x = m_y = m_z`.
 
+
 Running a simulation
 ====================
 
@@ -424,27 +457,32 @@ Once we have chosen the parameters, we are ready to start a simulation by typing
 
 .. code-block:: bash
 
-    $ python src/Sarkas.py examples/yukawa_mks_p3m.yaml
+    $ python src/Sarkas.py -i examples/yukawa_mks_p3m.yaml
 
-Since we have chosen ``verbose = yes`` this simulation will print to screen a progress bar thanks to the package ``tqdm``
+Since we have chosen ``verbose = yes`` this simulation will print a progress bar to screen, thanks to the package ``tqdm``
 
 .. image:: _static/assets/SimRun1.png
     :alt: Figure not found
 
-Did you think that you could get away so easily? We need to check if our run is doing what we want it to do.
+Did you think that you could get away so easily? We need to check if our run is doing what we want. To do so, in a
+different terminal window we run
+
+.. code-block:: bash
+
+    $ python src/Sarkas.py -i examples/yukawa_mks_p3m.yaml -c therm
+
+Note the option ``-c`` takes the value ``therm`` if we are in the thermalization phase, otherwise we give ``prod``.
+This produces the following plot
+
 
 Post Processing
 ===============
 
 Now comes the fun part! The first thing we want to do is to check for energy conservation again.
 
-.. image:: _static/assets/Total_Energy_yukawa_mks_p3m.png
-    :alt: Total Energy
-
 
 Plot of the Total Energy as a function of time.
 
-asfga
 
 
 .. bibliography:: _static/references.bib

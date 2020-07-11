@@ -396,7 +396,7 @@ axes.formatter.use_mathtext : True  ## When True, use mathtext for scientific
 #axes.unicode_minus : True  ## use Unicode for the minus symbol
                             ## rather than hyphen.  See
                             ## https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
-axes.prop_cycle : cycler('color', ['18453b', 'f08521', '008183', '6e005f', '535054', 'd1de3f', '0db14b', 'c89a58', '909ab7', 'e8d9b5', '94ae4a', 'cb5a28'])
+axes.prop_cycle : cycler('color', ['18453b', 'f08521', '008183', '6e005f', 'd1de3f', '0db14b', 'c89a58', '535054', '909ab7', 'e8d9b5', '94ae4a', 'cb5a28'])
                    ## cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
                    ## color cycle for plot lines as list of string colorspecs:
                    ##     single letter, long name, or web-style hex

@@ -4,18 +4,30 @@ Module for plotting observables.
 import sys
 import matplotlib.pyplot as plt
 import os
+# Sarkas Module
 import S_postprocessing as PostProc
 
 plt.style.use(
     os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
 
-input_file = sys.argv[1]
-params = PostProc.read_pickle(input_file)
+plt.close('all')
+fig, ax = plt.subplots(1, 1)
+for i, input_file in enumerate(sys.argv[1:], 1):
+    params = PostProc.read_pickle(input_file)
 
-T = PostProc.Thermalization(params)
-T.temp_energy_plot(show=True)
-# T.hermite_plot(params, show=True)
-#T.moment_ratios_plot(params, show=True)
+    T = PostProc.Thermalization(params)
+    T.parse()
+    xmul, ymul, xpref, ypref, xlbl, ylbl = PostProc.plot_labels(T.dataframe["Time"], T.dataframe["Temperature"],
+                                                                "Time", "Temperature", params.Control.units)
+    ax.plot(T.dataframe["Time"] * xmul, (T.dataframe["Temperature"][0] - T.dataframe["Temperature"]) * ymul,
+            label=r"$\tau_B = {:1.1f}$".format(params.Thermostat.tau))
+
+ax.legend(loc='best')
+ax.set_xlabel(r"$t$" + xlbl)
+ax.set_ylabel(r"$\Delta T$" + ylbl)
+fig.tight_layout()
+fig.show()
+# T.moment_ratios_plot(params, show=True)
 # E = Observable.Thermodynamics(params)
 # E.parse()
 # E.boxplot(show=True)

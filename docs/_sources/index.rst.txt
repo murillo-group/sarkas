@@ -29,7 +29,7 @@ their choosing.
 
    potentials
    thermostats
-
+   PPPM
 
 Indices and tables
 ==================

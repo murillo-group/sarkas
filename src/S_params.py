@@ -499,11 +499,12 @@ class Params:
             self.therm_dump_step = 1
             self.writexyz = False
             self.verbose = True
-            self.simulations_dir = "Simulations"
-            self.dump_dir = "Production"
-            self.therm_dir = "Thermalization"
-            self.checkpoint_dir = "UnNamedRun"
-            self.log_file = os.path.join(self.checkpoint_dir, "log.out")
+            self.simulations_dir = None
+            self.dump_dir = None
+            self.therm_dir = None
+            self.checkpoint_dir = None
+            self.fname_app = None
+            self.log_file = None
             self.np_per_side = []
             self.pre_run = False
 
@@ -515,19 +516,20 @@ class Params:
             self.dsf_no_ka_values = np.array([5, 5, 5], dtype=int)
             self.hermite_order = 10
 
-    def setup(self, filename):
+    def setup(self, args):
         """
         Setup simulations' parameters.
 
         Parameters
         ----------
-        filename : str
-            Input file's name.
-
+        args : dict
+            Input arguments
         """
 
+        filename = args["input"]
         # Parse parameters from input file
         self.common_parser(filename)
+        self.create_directories(args)
         self.assign_attributes()
 
         # Coulomb potential
@@ -813,7 +815,6 @@ class Params:
 
                             # Directory where to store Checkpoint files
                             if key == "output_dir":
-                                self.Control.fname_app = value
                                 self.Control.checkpoint_dir = value
 
                             if key == "dump_dir":
@@ -831,7 +832,53 @@ class Params:
             self.Integrator.mag_type = value
             self.Integrator.type = 'Verlet'
 
-        # Check for conflicts in directories
+        # Check for thermostat temperatures
+        if not hasattr(self.Thermostat, 'temperatures'):
+            self.Thermostat.temperatures = np.zeros(len(self.species))
+            for i, sp in enumerate(self.species):
+                self.Thermostat.temperatures[i] = sp.temperature
+
+    def create_directories(self, args):
+        """
+        Check for undefined control variables and create output directory and its subdirectories.
+
+        Parameters
+        ---------
+        args: dict
+            Input arguments.
+
+        """
+        # Check for directories
+        if self.Control.simulations_dir is None:
+            self.Control.simulations_dir = 'Simulations'
+
+        if self.Control.checkpoint_dir is None:
+            if args["job_dir"] is None:
+                self.Control.checkpoint_dir = 'Output'
+            else:
+                self.Control.checkpoint_dir = args["job_dir"]
+        else:
+            # Input option supersedes YAML file
+            if not args["job_dir"] is None:
+                self.Control.checkpoint_dir = args["job_dir"]
+
+        if self.Control.dump_dir is None:
+            self.Control.dump_dir = 'Production'
+
+        if self.Control.therm_dir is None:
+            self.Control.therm_dir = 'Thermalization'
+
+        if self.Control.fname_app is None:
+            if args["job_id"] is None:
+                self.Control.fname_app = "jobid"
+            else:
+                self.Control.fname_app = args['job_id']
+        else:
+            # Input option supersedes YAML file
+            if not args["job_dir"] is None:
+                self.Control.checkpoint_dir = args["job_id"]
+
+        # Check if the directories exist
         if not os.path.exists(self.Control.simulations_dir):
             os.mkdir(self.Control.simulations_dir)
 
@@ -849,11 +896,8 @@ class Params:
         if not os.path.exists(os.path.join(self.Control.therm_dir, "dumps")):
             os.mkdir(os.path.join(self.Control.therm_dir, "dumps"))
 
-        # Check for thermostat temperatures
-        if not hasattr(self.Thermostat, 'temperatures'):
-            self.Thermostat.temperatures = np.zeros(len(self.species))
-            for i, sp in enumerate(self.species):
-                self.Thermostat.temperatures[i] = sp.temperature
+        if self.Control.log_file is None:
+            self.Control.log_file = os.path.join(self.Control.checkpoint_dir, 'log.out')
 
     def assign_attributes(self):
         """ Assign the parsed parameters"""

@@ -1527,7 +1527,7 @@ class Thermodynamics:
 
         Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * self.dt, xlbl), fontsize=fsz)
         Info_plot.text(0., y_coord - 3.5, "{:1.2f} % Production Completed".format(
-            100 * self.dump_step * self.no_dumps / self.Nsteps), fontsize=fsz)
+            100 * self.dump_step * ( self.no_dumps - 1 )/ self.Nsteps), fontsize=fsz)
 
         Info_plot.axis('off')
         fig.tight_layout()
@@ -1681,6 +1681,8 @@ class Thermalization:
         hc.compute()
         hc.plot(show)
 
+        return hc
+
     def moment_ratios_plot(self, params, show=False):
 
         vm = VelocityMoments(params)
@@ -1688,6 +1690,8 @@ class Thermalization:
         vm.no_dumps = len(os.listdir(self.dump_dir))
         vm.compute()
         vm.plot_ratios(show)
+
+        return vm
 
     def temp_energy_plot(self, show=False):
         self.parse()
@@ -1793,7 +1797,7 @@ class Thermalization:
 
         Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * self.dt, xlbl))
         Info_plot.text(0., y_coord - 3.5, "{:1.2f} % Thermalization Completed".format(
-            100 * self.dump_step * self.no_dumps / self.Nsteps))
+            100 * (self.dump_step  * (self.no_dumps - 1) )/ self.Nsteps))
 
         Info_plot.axis('off')
         fig.tight_layout()
