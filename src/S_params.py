@@ -526,7 +526,7 @@ class Params:
             Input arguments
         """
 
-        filename = args["input"]
+        filename = args.input_file
         # Parse parameters from input file
         self.common_parser(filename)
         self.create_directories(args)
@@ -853,14 +853,14 @@ class Params:
             self.Control.simulations_dir = 'Simulations'
 
         if self.Control.checkpoint_dir is None:
-            if args["job_dir"] is None:
+            if args.job_dir is None:
                 self.Control.checkpoint_dir = 'Output'
             else:
-                self.Control.checkpoint_dir = args["job_dir"]
+                self.Control.checkpoint_dir = args.job_dir
         else:
             # Input option supersedes YAML file
-            if not args["job_dir"] is None:
-                self.Control.checkpoint_dir = args["job_dir"]
+            if not args.job_dir is None:
+                self.Control.checkpoint_dir = args.job_dir
 
         if self.Control.dump_dir is None:
             self.Control.dump_dir = 'Production'
@@ -869,14 +869,14 @@ class Params:
             self.Control.therm_dir = 'Thermalization'
 
         if self.Control.fname_app is None:
-            if args["job_id"] is None:
+            if args.job_id is None:
                 self.Control.fname_app = "jobid"
             else:
-                self.Control.fname_app = args['job_id']
+                self.Control.fname_app = args.job_id
         else:
             # Input option supersedes YAML file
-            if not args["job_dir"] is None:
-                self.Control.checkpoint_dir = args["job_id"]
+            if not args.job_dir is None:
+                self.Control.checkpoint_dir = args.job_id
 
         # Check if the directories exist
         if not os.path.exists(self.Control.simulations_dir):

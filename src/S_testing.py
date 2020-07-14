@@ -174,17 +174,74 @@ def main(params):
     tot_time = eq_time + prod_time
     verbose.time_stamp('Total Run', tot_time)
 
+    # Calculate times
+    # The number of cells in each dimension
+    Ncx = int(params.Lv[0] / params.Potential.rc)
+    Ncy = int(params.Lv[1] / params.Potential.rc)
+    Ncz = int(params.Lv[2] / params.Potential.rc)
+    Nc_tot = Ncx * Ncy * Ncz
+
+    # Number of particles per cell
+    Npc = (params.total_num_ptcls / Nc_tot)
+
+    # time for PP = ( # neighbors per cell ) ( # of particles per cell) ^ 2 ( # of cells )
+    # pp_time_complexity = (26 * Npc ** 2 * Nc_tot) + params.total_num_ptcls
+    # PP_unit_time = PP_mean_time / pp_time_complexity
+
+    # time for PM
+    # assign_func_time = params.total_num_ptcls * (6 * params.P3M.cao + (3 * params.P3M.cao) ** 3 + params.P3M.cao ** 3)
+    # Mv = np.prod(params.P3M.MGrid)
+    # pm_time_complexity = fftw_time  # + 3.0 * Mv + Mv * Mv
+    # PM_unit_time = PM_mean_time / pm_time_complexity
+
+    Mg = np.linspace(16, 256, 16)
+    Ncells = np.linspace(2, 12, 11)
+
+    Est_matrix_time = np.zeros((len(Mg), len(Ncells)))
+
+    for i, m in enumerate(Mg):
+        Mv = m ** 3
+        for j, c in enumerate(Ncells):
+            Npc = c ** 3
+            Est_matrix_time[i, j] = np.sqrt((26 * PP_mean_time * params.total_num_ptcls ** 2 / Npc
+                                             - PM_mean_time * (
+                                                         5.0 * Mv * np.log2(Mv))) ** 2)  # this is from FFTW website
+    best = np.unravel_index(Est_matrix_time.argmin(), Est_matrix_time.shape)
+    print(best)
+    c_mesh, m_mesh = np.meshgrid(Ncells, Mg)
+    fig, ax = plt.subplots(1, 1)
+    CS = ax.contourf(m_mesh, c_mesh, Est_matrix_time)
+    CS2 = ax.contour(CS, colors='w')
+    ax.clabel(CS2, fmt='%1.0e', colors='w')
+    cbar = fig.colorbar(CS)
+    # cbar.ax.tick_params(labelsize=fsz)
+    # Add the contour line levels to the colorbar
+    # cbar.add_lines(CS2)
+    ax.scatter(params.P3M.MGrid[0], Ncx, s=200, c='k')
+    ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='w')
+    fig.savefig(os.path.join(fig_path, 'Time_ColorMap_' + params.Control.fname_app + '.png'))
+    fig.show()
+    xdata = Mg ** 3 * 3 * np.log2(Mg)
+    #
+    # fig, ax = plt.subplots(1, 1)
+    # ax.plot(xdata, PM_means)
+    # ax.set_xscale('log')
+    # ax.set_yscale('log')
+    # plt.xticks(xdata,
+    #            labels=['16', '32', '48', '64', '80', '96', '112', '128', '144', '160', '176', '192', '208', '224',
+    #                    '240', '256'])
+    # fig.show()
+
 
 if __name__ == '__main__':
     # Construct the argument parser
     ap = argparse.ArgumentParser()
 
     # Add the arguments to the parser
-    ap.add_argument("-t", "--pre_run_testing", required=False, help="Pre Run Testing Flag")
     ap.add_argument("-i", "--input", required=True, help="YAML Input file")
     ap.add_argument("-d", "--job_dir", required=False, help="Job Directory")
     ap.add_argument("-j", "--job_id", required=False, help="Job ID")
-    ap.add_argument("-s", "--randseed", required=False, help="Random Number Seed")
+    ap.add_argument("-s", "--seed", required=False, help="Random Number Seed")
     args = vars(ap.parse_args())
 
     params = Params()

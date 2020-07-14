@@ -11,7 +11,7 @@ Michigan State University
 """
 
 # Python modules
-import argparse
+from optparse import OptionParser
 # Sarkas modules
 import S_testing as Testing
 import S_simulation as Simulation
@@ -19,36 +19,41 @@ import S_postprocessing as PostProc
 from S_params import Params
 
 # Construct the argument parser
-ap = argparse.ArgumentParser()
+op = OptionParser()
 
 # Add the arguments to the parser
-ap.add_argument("-i", "--input", required=True, help="YAML Input file")
-ap.add_argument("-c", "--check", required=False, help="Check current state of run")
-ap.add_argument("-t", "--pre_run_testing", required=False, help="Pre Run Testing Flag")
-ap.add_argument("-d", "--job_dir", required=False, help="Job Directory")
-ap.add_argument("-j", "--job_id", required=False, help="Job ID")
-ap.add_argument("-s", "--seed", required=False, help="Random Number Seed")
-args = vars(ap.parse_args())
+op.add_option("-t", "--pre_run_testing", action='store_true', dest='test', default=False, help="Pre Run Testing Flag")
+op.add_option("-c", "--check", type='choice', choices=['therm', 'prod'],
+              action='store', dest='check', help="Check current state of run")
+op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Directory")
+op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
+op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
+op.add_option("-v", "--verbose", action='store_true', dest='verbose', help="Verbose output")
+op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
 
-pre_run_testing = False if args["pre_run_testing"] is None else True
+options, arguments = op.parse_args()
+
+if options.input_file is None:
+    raise OSError('Input file not defined.')
 
 # Read initial conditions and setup parameters
 params = Params()
-params.setup(args)
+params.setup(options)
 
 # Update rand seed with option
-if not args["seed"] is None:
-    params.load_rand_seed = int(args["seed"])
+if options.seed:
+    params.load_rand_seed = int(options.seed)
 
 # Test/Run/Check
-if pre_run_testing:
+if options.test:
     Testing.main(params)
-
-elif not args["check"] is None:
-    if args["check"] == 'therm':
+elif options.check is not None:
+    if options.check == "therm":
         T = PostProc.Thermalization(params)
         T.temp_energy_plot(show=True)
-    else:
+        hc = T.hermite_plot(params, True)
+        vm = T.moment_ratios_plot(params, True)
+    elif options.check == "prod":
         E = PostProc.Thermodynamics(params)
         E.temp_energy_plot(show=True)
 else:

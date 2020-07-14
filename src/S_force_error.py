@@ -140,7 +140,7 @@ def optimal_green_function_timer(params):
     alpha = params.P3M.G_ew
     constants = np.array([P3M_screening, alpha, params.fourpie0])
     start = timer.time()
-    G_k, kx_v, ky_v, kz_v, PM_err = force_pm.force_optimized_green_function(
+    params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err = force_pm.force_optimized_green_function(
         params.P3M.MGrid, params.P3M.aliases, params.Lv, params.P3M.cao, constants)
     green_time = timer.time() - start
 

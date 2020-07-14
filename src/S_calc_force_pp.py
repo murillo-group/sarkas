@@ -184,17 +184,17 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
     ls = np.arange(N)  # List of particle indices in a given cell
 
     # The number of cells in each dimension
-    Lxd = int(Lx / rc)
-    Lyd = int(Ly / rc)
-    Lzd = int(Lz / rc)
+    Nxd = int(Lx / rc)
+    Nyd = int(Ly / rc)
+    Nzd = int(Lz / rc)
 
     # Width of each cell
-    rc_x = Lx / Lxd
-    rc_y = Ly / Lyd
-    rc_z = Lz / Lzd
+    rc_x = Lx / Nxd
+    rc_y = Ly / Nyd
+    rc_z = Lz / Nzd
 
     # Total number of cells in volume
-    Ncell = Lxd * Lyd * Lzd
+    Ncell = Nxd * Nyd * Nzd
     head = np.arange(Ncell)  # List of head particles
     empty = -50  # value for empty list and head arrays
     head.fill(empty)  # Make head list empty until population
@@ -209,7 +209,7 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
         cy = int(pos[i, 1] / rc_y)  # Y cell
         cz = int(pos[i, 2] / rc_z)  # Z cell
         # Determine cell in 3D volume for i-th particle
-        c = cx + cy * Lxd + cz * Lxd * Lyd
+        c = cx + cy * Nxd + cz * Nxd * Nyd
         # List of particle indices occupying a given cell
         ls[i] = head[c]
 
@@ -217,12 +217,12 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
         head[c] = i
 
     # Loop over all cells in x, y, and z direction
-    for cx in range(Lxd):
-        for cy in range(Lyd):
-            for cz in range(Lzd):
+    for cx in range(Nxd):
+        for cy in range(Nyd):
+            for cz in range(Nzd):
 
                 # Compute the cell in 3D volume
-                c = cx + cy * Lxd + cz * Lxd * Lyd
+                c = cx + cy * Nxd + cz * Nxd * Nyd
 
                 # Loop over all cell pairs (N-1 and N+1)
                 for cz_N in range(cz - 1, cz + 2):
@@ -232,11 +232,11 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
                             ## x cells ##
                             # Check if periodicity is needed for 0th cell
                             if cx_N < 0:
-                                cx_shift = Lxd
+                                cx_shift = Nxd
                                 rshift[0] = -Lx
                             # Check if periodicity is needed for Nth cell
-                            elif cx_N >= Lxd:
-                                cx_shift = -Lxd
+                            elif cx_N >= Nxd:
+                                cx_shift = -Nxd
                                 rshift[0] = Lx
                             else:
                                 cx_shift = 0
@@ -245,11 +245,11 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
                             ## y cells ##
                             # Check periodicity
                             if cy_N < 0:
-                                cy_shift = Lyd
+                                cy_shift = Nyd
                                 rshift[1] = -Ly
                             # Check periodicity
-                            elif cy_N >= Lyd:
-                                cy_shift = -Lyd
+                            elif cy_N >= Nyd:
+                                cy_shift = -Nyd
                                 rshift[1] = Ly
                             else:
                                 cy_shift = 0
@@ -258,18 +258,18 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
                             ## z cells ##
                             # Check periodicity
                             if cz_N < 0:
-                                cz_shift = Lzd
+                                cz_shift = Nzd
                                 rshift[2] = -Lz
                             # Check periodicity
-                            elif cz_N >= Lzd:
-                                cz_shift = -Lzd
+                            elif cz_N >= Nzd:
+                                cz_shift = -Nzd
                                 rshift[2] = Lz
                             else:
                                 cz_shift = 0
                                 rshift[2] = 0.0
 
                             # Compute the location of the N-th cell based on shifts
-                            c_N = (cx_N + cx_shift) + (cy_N + cy_shift) * Lxd + (cz_N + cz_shift) * Lxd * Lyd
+                            c_N = (cx_N + cx_shift) + (cy_N + cy_shift) * Nxd + (cz_N + cz_shift) * Nxd * Nyd
 
                             i = head[c]
 

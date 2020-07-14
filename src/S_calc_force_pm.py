@@ -379,7 +379,7 @@ def calc_charge_dens(pos, Z, N, cao, Mx, My, Mz, hx, hy, hz):
                     else:
                         r_j = ixn
 
-                    rho_r[r_g, r_i, r_j] = rho_r[r_g, r_i, r_j] + Z[ipart] * wz[g] * wy[i] * wx[j]
+                    rho_r[r_g, r_i, r_j] += Z[ipart] * wz[g] * wy[i] * wx[j]
 
                     ixn += 1
 
@@ -555,9 +555,9 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, Z, N, cao, Mass, Mx, My, Mz, hx, hy, h
                         r_j = ixn
 
                     ZM = Z[ipart] / Mass[ipart]
-                    E_x_p[ipart] = E_x_p[ipart] + ZM * E_x_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
-                    E_y_p[ipart] = E_y_p[ipart] + ZM * E_y_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
-                    E_z_p[ipart] = E_z_p[ipart] + ZM * E_z_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
+                    E_x_p[ipart] += ZM * E_x_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
+                    E_y_p[ipart] += ZM * E_y_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
+                    E_z_p[ipart] += ZM * E_z_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
 
                     ixn += 1
 
