@@ -1,4 +1,4 @@
-
+  
 
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
@@ -86,13 +86,13 @@
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">src</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -163,12 +163,14 @@
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 
 
-<div class="viewcode-block" id="Thermostat"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Thermostat">[docs]</a><span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
+<div class="viewcode-block" id="Thermostat"><a class="viewcode-back" href="../api/S_thermostat.html#S_thermostat.Thermostat">[docs]</a><span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Thermostat object.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-
 <span class="sd">    params : class</span>
+<span class="sd">        Simulation&#39;s parameters.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -181,7 +183,7 @@
 <span class="sd">    species_np : array</span>
 <span class="sd">        Number of particles of each species.</span>
 
-<span class="sd">    species_mass : array</span>
+<span class="sd">    species_masses : array</span>
 <span class="sd">        Mass of each species.</span>
 
 <span class="sd">    relaxation_rate: float</span>
@@ -218,7 +220,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
 
-<div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../api/S_thermostat.html#S_thermostat.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update particles&#39; velocities according to the chosen thermostat</span>
 
@@ -235,7 +237,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Berendsen"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.Berendsen">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="Berendsen"><a class="viewcode-back" href="../api/S_thermostat.html#S_thermostat.Berendsen">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">Berendsen</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">therm_timestep</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update particle velocity based on Berendsen thermostat [Berendsen1984]_.</span>
@@ -243,7 +245,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    T : array</span>
-<span class="sd">        Temperature of each species.</span>
+<span class="sd">        Instantaneous temperature of each species.</span>
 
 <span class="sd">    vel : array</span>
 <span class="sd">        Particles&#39; velocities to rescale.</span>
@@ -284,7 +286,7 @@
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="calc_kin_temp"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.calc_kin_temp">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="calc_kin_temp"><a class="viewcode-back" href="../api/S_thermostat.html#S_thermostat.calc_kin_temp">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">calc_kin_temp</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="n">masses</span><span class="p">,</span> <span class="n">kB</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the kinetic energy and temperature.</span>
@@ -327,7 +329,7 @@
     <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">T</span></div>
 
 
-<div class="viewcode-block" id="remove_drift"><a class="viewcode-back" href="../S_thermostat.html#S_thermostat.remove_drift">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="remove_drift"><a class="viewcode-back" href="../api/S_thermostat.html#S_thermostat.remove_drift">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">remove_drift</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="n">masses</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Enforce conservation of total linear momentum. Updates ``ptcls.vel``</span>
@@ -374,7 +376,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 11, 2020.
+        Last updated on Jul, 17, 2020.
       </span>
 
     </p>

@@ -21,15 +21,15 @@ their choosing.
    :maxdepth: 2
    :caption: Source Code:
 
-   modules
+   api/modules
    
 .. toctree::
    :maxdepth: 2
    :caption: Theoretical Background:
 
-   potentials
-   thermostats
-   PPPM
+   theory/potentials
+   theory/thermostats
+   theory/PPPM
 
 Indices and tables
 ==================

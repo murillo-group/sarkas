@@ -1,0 +1,452 @@
+  
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S_simulation &mdash; Sarkas 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">src</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>S_simulation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for S_simulation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for running the simulation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Python modules</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+<span class="c1"># Progress bar</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="c1"># import Sarkas MD modules</span>
+<span class="kn">from</span> <span class="nn">S_thermostat</span> <span class="kn">import</span> <span class="n">Thermostat</span><span class="p">,</span> <span class="n">calc_kin_temp</span><span class="p">,</span> <span class="n">remove_drift</span>
+<span class="kn">from</span> <span class="nn">S_integrator</span> <span class="kn">import</span> <span class="n">Integrator</span><span class="p">,</span> <span class="n">calc_pot_acc</span><span class="p">,</span> <span class="n">calc_pot_acc_fmm</span>
+<span class="kn">from</span> <span class="nn">S_particles</span> <span class="kn">import</span> <span class="n">Particles</span>
+<span class="kn">from</span> <span class="nn">S_verbose</span> <span class="kn">import</span> <span class="n">Verbose</span>
+<span class="kn">from</span> <span class="nn">S_params</span> <span class="kn">import</span> <span class="n">Params</span>
+<span class="kn">from</span> <span class="nn">S_checkpoint</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+<span class="kn">from</span> <span class="nn">S_postprocessing</span> <span class="kn">import</span> <span class="n">RadialDistributionFunction</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../api/S_simulation.html#S_simulation.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run a Molecular Dynamics simulation with the parameters given by the input YAML file.</span>
+
+<span class="sd">    Paramaters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : class</span>
+<span class="sd">        Simulation parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="c1"># For restart and pva backups.</span>
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">checkpoint</span><span class="o">.</span><span class="n">save_pickle</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Verbose</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">verbose</span><span class="o">.</span><span class="n">sim_setting_summary</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>  <span class="c1"># simulation setting summary</span>
+
+    <span class="n">integrator</span> <span class="o">=</span> <span class="n">Integrator</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">thermostat</span> <span class="o">=</span> <span class="n">Thermostat</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">ptcls</span> <span class="o">=</span> <span class="n">Particles</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">ptcls</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Particles initialized.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate initial kinetic energy and temperature</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;FMM&quot;</span><span class="p">:</span>
+        <span class="n">U_init</span> <span class="o">=</span> <span class="n">calc_pot_acc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">U_init</span> <span class="o">=</span> <span class="n">calc_pot_acc_fmm</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+    <span class="n">Tot_Kin</span> <span class="o">=</span> <span class="n">Ks</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">Temperature</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_conc</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">@</span> <span class="n">Tps</span>
+    <span class="n">E_init</span> <span class="o">=</span> <span class="n">U_init</span> <span class="o">+</span> <span class="n">Tot_Kin</span>
+
+    <span class="n">remove_drift</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">)</span>
+    <span class="c1">#</span>
+    <span class="n">time_init</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">verbose</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Initialization&quot;</span><span class="p">,</span> <span class="n">time_init</span> <span class="o">-</span> <span class="n">time0</span><span class="p">)</span>
+    <span class="c1">#</span>
+    <span class="n">f_log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Initial State:&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f_log</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;T = </span><span class="si">{:2.6e}</span><span class="s2"> [K], E = </span><span class="si">{:2.6e}</span><span class="s2"> [erg], K = </span><span class="si">{:2.6e}</span><span class="s2"> [erg], U = </span><span class="si">{:2.6e}</span><span class="s2"> [erg]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Temperature</span><span class="p">,</span>
+                                                                                                <span class="n">E_init</span><span class="p">,</span> <span class="n">Tot_Kin</span><span class="p">,</span>
+                                                                                                <span class="n">U_init</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">f_log</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;T = </span><span class="si">{:2.6e}</span><span class="s2"> [K], E = </span><span class="si">{:2.6e}</span><span class="s2"> [J], K = </span><span class="si">{:2.6e}</span><span class="s2"> [J], U = </span><span class="si">{:2.6e}</span><span class="s2"> [J]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Temperature</span><span class="p">,</span>
+                                                                                          <span class="n">E_init</span><span class="p">,</span> <span class="n">Tot_Kin</span><span class="p">,</span> <span class="n">U_init</span><span class="p">),</span>
+              <span class="n">file</span><span class="o">=</span><span class="n">f_log</span><span class="p">)</span>
+    <span class="n">f_log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="c1">##############################################</span>
+    <span class="c1"># Equilibration Phase</span>
+    <span class="c1">##############################################</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s2">&quot;restart&quot;</span><span class="p">:</span>
+        <span class="n">checkpoint</span><span class="o">.</span><span class="n">therm_dump</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span><span class="p">,</span> <span class="n">U_init</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------------- Equilibration -------------&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">Neq</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
+            <span class="c1"># Calculate the Potential energy and update particles&#39; data</span>
+            <span class="n">U_therm</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">therm_dump_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+                <span class="n">checkpoint</span><span class="o">.</span><span class="n">therm_dump</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span><span class="p">,</span> <span class="n">U_therm</span><span class="p">,</span> <span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Thermostate</span>
+            <span class="n">thermostat</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+        <span class="n">remove_drift</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">)</span>
+        <span class="c1"># Save the current state</span>
+        <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+        <span class="n">U_therm</span> <span class="o">=</span> <span class="n">U_init</span>
+        <span class="n">checkpoint</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span><span class="p">,</span> <span class="n">U_therm</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">time_eq</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">verbose</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Equilibration&quot;</span><span class="p">,</span> <span class="n">time_eq</span> <span class="o">-</span> <span class="n">time_init</span><span class="p">)</span>
+    <span class="c1">##############################################</span>
+    <span class="c1"># Magnetic Equilibration Phase</span>
+    <span class="c1">##############################################</span>
+    <span class="c1"># Turn on magnetic field, if not on already, and thermalize</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">on</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">elec_therm</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">mag_type</span>
+        <span class="n">integrator</span> <span class="o">=</span> <span class="n">Integrator</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------------- Magnetic Equilibration -------------&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Magnetic</span><span class="o">.</span><span class="n">Neq_mag</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="p">(</span><span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">)):</span>
+            <span class="c1"># Calculate the Potential energy and update particles&#39; data</span>
+            <span class="n">U_therm</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="c1"># Thermostate</span>
+            <span class="n">thermostat</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+
+        <span class="n">remove_drift</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">)</span>
+        <span class="c1"># Save the current state</span>
+        <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+        <span class="n">checkpoint</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span><span class="p">,</span> <span class="n">U_therm</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1">#</span>
+        <span class="n">time_mag</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">verbose</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Magnetic Equilibration&quot;</span><span class="p">,</span> <span class="n">time_mag</span> <span class="o">-</span> <span class="n">time_eq</span><span class="p">)</span>
+        <span class="n">time_eq</span> <span class="o">=</span> <span class="n">time_mag</span>
+
+    <span class="c1">##############################################</span>
+    <span class="c1"># Prepare for Production Phase</span>
+    <span class="c1">##############################################</span>
+
+    <span class="c1"># Open output files</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s2">&quot;restart&quot;</span><span class="p">:</span>
+        <span class="n">it_start</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">writexyz</span><span class="p">:</span>
+            <span class="c1"># Particles&#39; positions, velocities, accelerations for OVITO</span>
+            <span class="n">f_xyz</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="s2">&quot;pva_&quot;</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">+</span> <span class="s2">&quot;.xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;a+&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">it_start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Restart the pbc counter</span>
+
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="c1"># Create array for storing energy information</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">writexyz</span><span class="p">:</span>
+            <span class="c1"># Particles&#39; positions, velocities, accelerations for OVITO</span>
+            <span class="n">f_xyz</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="s2">&quot;pva_&quot;</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">fname_app</span> <span class="o">+</span> <span class="s2">&quot;.xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span>
+
+    <span class="n">pscale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span>
+    <span class="n">vscale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">wp</span><span class="p">)</span>
+    <span class="n">ascale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">wp</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Update measurement flag for rdf</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">measure</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1">##############################################</span>
+    <span class="c1"># Production Phase</span>
+    <span class="c1">##############################################</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------------- Production -------------&quot;</span><span class="p">)</span>
+    <span class="n">time_eq</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">Nsteps</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="p">(</span><span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">)):</span>
+        <span class="c1"># Move the particles and calculate the potential</span>
+        <span class="n">U_prod</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Save particles&#39; data for restart</span>
+            <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span> <span class="o">=</span> <span class="n">calc_kin_temp</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_mass</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+            <span class="n">checkpoint</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">Ks</span><span class="p">,</span> <span class="n">Tps</span><span class="p">,</span> <span class="n">U_prod</span><span class="p">,</span> <span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Write particles&#39; data to XYZ file for OVITO Visualization</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">writexyz</span><span class="p">:</span>
+                <span class="n">f_xyz</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:d}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">))</span>
+                <span class="n">f_xyz</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s2">&quot;name x y z vx vy vz ax ay az</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">f_xyz</span><span class="p">,</span>
+                           <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">ptcls</span><span class="o">.</span><span class="n">species_name</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">*</span> <span class="n">pscale</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="n">vscale</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">*</span> <span class="n">ascale</span><span class="p">],</span>
+                           <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Save production time</span>
+    <span class="n">time_prod</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">verbose</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Production&quot;</span><span class="p">,</span> <span class="n">time_prod</span> <span class="o">-</span> <span class="n">time_eq</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">writexyz</span><span class="p">:</span>
+        <span class="n">f_xyz</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="c1">##############################################</span>
+    <span class="c1"># Finalization Phase</span>
+    <span class="c1">##############################################</span>
+    <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">rdf</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span><span class="p">)</span>
+    <span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+    <span class="c1"># Print elapsed times to screen</span>
+    <span class="n">time_tot</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">verbose</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="n">time_tot</span> <span class="o">-</span> <span class="n">time0</span><span class="p">)</span></div>
+    <span class="c1">##############################################</span>
+    <span class="c1"># End of simulation</span>
+    <span class="c1">##############################################</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># Construct the option parser</span>
+    <span class="n">op</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">()</span>
+
+    <span class="c1"># Add the arguments to the parser</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--pre_run_testing&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Test input parameters&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Verbose output&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--plot_show&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;plot_show&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show plots&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--check&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;choice&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;therm&#39;</span><span class="p">,</span> <span class="s1">&#39;prod&#39;</span><span class="p">],</span>
+                  <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Check current state of run&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--job_dir&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;job_dir&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Job Directory&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-j&quot;</span><span class="p">,</span> <span class="s2">&quot;--job_id&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;job_id&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Job ID&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--seed&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;seed&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Random Number Seed&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--input&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;input_file&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;YAML Input file&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--repeat&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;repeat&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;YAML Input file&quot;</span><span class="p">)</span>
+
+    <span class="n">options</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">Params</span><span class="p">()</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+    <span class="c1"># Read initial conditions and setup parameters</span>
+    <span class="c1"># Update rand seed with option. This supersedes the input file.</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">seed</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">load_rand_seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="c1"># Verbose output. This does not supersede the input file if False.</span>
+    <span class="c1"># That is if you don&#39;t give this option and the input file has Control.verbose=Yes, then you will</span>
+    <span class="c1"># still have a verbose output</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">main</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Jul, 17, 2020.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>
