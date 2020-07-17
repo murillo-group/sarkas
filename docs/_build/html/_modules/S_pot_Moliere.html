@@ -1,4 +1,4 @@
-
+  
 
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
@@ -86,13 +86,13 @@
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">src</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -169,7 +169,7 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 
-<div class="viewcode-block" id="Moliere_setup"><a class="viewcode-back" href="../S_pot_Moliere.html#S_pot_Moliere.Moliere_setup">[docs]</a><span class="k">def</span> <span class="nf">Moliere_setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Moliere_setup"><a class="viewcode-back" href="../api/S_pot_Moliere.html#S_pot_Moliere.Moliere_setup">[docs]</a><span class="k">def</span> <span class="nf">Moliere_setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Updates ``params`` class with Moliere potential paramters.</span>
 
@@ -256,7 +256,7 @@
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="Moliere_force_PP"><a class="viewcode-back" href="../S_pot_Moliere.html#S_pot_Moliere.Moliere_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="Moliere_force_PP"><a class="viewcode-back" href="../api/S_pot_Moliere.html#S_pot_Moliere.Moliere_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">Moliere_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Calculates the PP force between particles using the Moliere Potential.</span>
@@ -322,7 +322,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 11, 2020.
+        Last updated on Jul, 17, 2020.
       </span>
 
     </p>

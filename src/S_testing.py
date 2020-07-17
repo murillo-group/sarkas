@@ -6,28 +6,234 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import os
-import argparse
+from optparse import OptionParser
+from scipy.optimize import curve_fit
+from mpl_toolkits.mplot3d import Axes3D
+
 
 # Sarkas modules
 from S_verbose import Verbose
 from S_params import Params
 from S_particles import Particles
 import S_force_error as force_error
+#
+# plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
 
-plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
+
+def quadratic(x, a, b, c):
+    """
+    Quadratic function for fitting.
+
+    Parameters
+    ----------
+    x : array
+        Values at which to calculate the function.
+
+    a: float
+        Intercept.
+
+    b: float
+        Coefficient of linear term.
+
+    c: float
+        Coefficient of quadratic term.
+
+    Returns
+    -------
+    quadratic formula
+    """
+    return a + b * x + c * x * x
 
 
-def main(params):
+def linear(x, a):
+    """
+    Linear function for fitting.
+
+    Parameters
+    ----------
+    x : array
+        Values at which to calculate the function.
+
+    a: float
+        Coefficient of linear term.
+
+    Returns
+    -------
+    linear formula
+    """
+    return a * x
+
+
+def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params):
+    """
+    Plot selected values of the total force error approximation.
+
+    Parameters
+    ----------
+    rcuts: array
+        Cut off distances.
+    alphas: array
+        Ewald parameters.
+
+    chosen_alpha: float
+        Chosen Ewald parameter.
+
+    chosen_rcut: float
+        Chosen cut off radius.
+
+    DeltaF_tot: ndarray
+        Force error matrix.
+
+    params: class
+        Simulation's parameters.
+
+    """
+    # Plot the calculate Force error
+    kappa_title = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0]
+
+    # Plot the results
+    fig_path = params.Control.pre_run_dir
+
+    fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
+    ax[0].plot(rcuts, DeltaF_tot[30, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
+    ax[0].plot(rcuts, DeltaF_tot[40, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[40]))
+    ax[0].plot(rcuts, DeltaF_tot[50, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[50]))
+    ax[0].plot(rcuts, DeltaF_tot[60, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[60]))
+    ax[0].plot(rcuts, DeltaF_tot[70, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[70]))
+    ax[0].set_ylabel(r'$\Delta F^{approx}_{tot}$')
+    ax[0].set_xlabel(r'$r_c/a_{ws}$')
+    ax[0].set_yscale('log')
+    ax[0].axvline(chosen_rcut, ls='--', c='k')
+    ax[0].axhline(params.P3M.F_err, ls='--', c='k')
+    if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
+        ax[0].axvline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
+    ax[0].grid(True, alpha=0.3)
+    ax[0].legend(loc='best')
+
+    ax[1].plot(alphas, DeltaF_tot[:, 30], label=r'$r_c = {:2.2f}'.format(rcuts[30]) + ' a_{ws}$')
+    ax[1].plot(alphas, DeltaF_tot[:, 40], label=r'$r_c = {:2.2f}'.format(rcuts[40]) + ' a_{ws}$')
+    ax[1].plot(alphas, DeltaF_tot[:, 50], label=r'$r_c = {:2.2f}'.format(rcuts[50]) + ' a_{ws}$')
+    ax[1].plot(alphas, DeltaF_tot[:, 60], label=r'$r_c = {:2.2f}'.format(rcuts[60]) + ' a_{ws}$')
+    ax[1].plot(alphas, DeltaF_tot[:, 70], label=r'$r_c = {:2.2f}'.format(rcuts[70]) + ' a_{ws}$')
+    ax[1].set_xlabel(r'$\alpha \; a_{ws}$')
+    ax[1].set_yscale('log')
+    ax[1].axhline(params.P3M.F_err, ls='--', c='k')
+    ax[1].axvline(chosen_alpha, ls='--', c='k')
+    ax[1].grid(True, alpha=0.3)
+    ax[1].legend(loc='best')
+    fig.suptitle(
+        r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
+            params.total_num_ptcls,
+            params.P3M.MGrid[0],
+            kappa_title * params.aws))
+    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.Control.fname_app + '.png'))
+    fig.show()
+
+
+def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params):
+    """
+    Plot a color map of the total force error approximation.
+
+    Parameters
+    ----------
+    rcuts: array
+        Cut off distances.
+
+    alphas: array
+        Ewald parameters.
+
+    chosen_alpha: float
+        Chosen Ewald parameter.
+
+    chosen_rcut: float
+        Chosen cut off radius.
+
+    DeltaF_tot: ndarray
+        Force error matrix.
+
+    params: class
+        Simulation's parameters.
+
+    """
+    # Plot the calculate Force error
+    kappa_title = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0]
+
+    # Plot the results
+    fig_path = params.Control.pre_run_dir
+
+    r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
+    fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+    CS = ax.contourf(a_mesh, r_mesh, DeltaF_tot, norm=LogNorm(vmin=DeltaF_tot.min(), vmax=1))
+    CS2 = ax.contour(CS, colors='w')
+    ax.clabel(CS2, fmt='%1.0e', colors='w')
+    ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
+    if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
+        ax.axhline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
+    # ax.tick_params(labelsize=fsz)
+    ax.set_xlabel(r'$\alpha \;a_{ws}$')
+    ax.set_ylabel(r'$r_c/a_{ws}$')
+    ax.set_title(
+        r'$\Delta F^{approx}_{tot}(r_c,\alpha)$' + r'  for  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
+            params.total_num_ptcls, params.P3M.MGrid[0], kappa_title * params.aws))
+    fig.colorbar(CS)
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.Control.fname_app + '.png'))
+    fig.show()
+
+
+def make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels):
+    """
+    Make a dual plot of the fitted functions.
+    """
+    fig, ax = plt.subplots(1, 2, figsize=(12, 7))
+    ax[0].plot(pm_xdata, pm_times.mean(axis=-1), 'o', label='Measured times')
+    ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), '--r')
+    ax[1].plot(pp_xdata, pp_times.mean(axis=-1), 'o', label='Measured times')
+    ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), '--r')
+
+    ax[0].set_xscale('log')
+    ax[0].set_yscale('log')
+
+    ax[1].set_xscale('log')
+    ax[1].set_yscale('log')
+
+    ax[0].legend()
+    ax[1].legend()
+
+    ax[0].set_xticks(pm_xdata)
+    ax[0].set_xticklabels(pm_xlabels)
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax[0].get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+
+    ax[1].set_xticks(pp_xdata[0:-1:3])
+    ax[1].set_xticklabels(pp_xlabels)
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax[1].get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+
+    ax[0].set_title("PM calculation")
+    ax[1].set_title("PP calculation")
+
+    ax[0].set_xlabel('Mesh sizes')
+    ax[1].set_xlabel(r'$r_c / a_{ws}$')
+    fig.tight_layout()
+    fig.show()
+
+
+def main(params, repeat=True):
     """
     Run a test to check the force error and estimate run time.
 
     Parameters
     ----------
+    repeat: bool
+        Flag for estimating optimal PPPM parameters.
+
     params : class
         Simulation parameters.
     """
     loops = 10
-
+    if repeat:
+        plt.close('all')
     # Change verbose params for printing to screen
     params.Control.verbose = True
     params.Control.pre_run = True
@@ -45,115 +251,26 @@ def main(params):
     if params.Potential.rc > params.Lv.min() / 2:
         raise ValueError("Cut-off radius is larger than L/2! L/2 = {:1.4e}".format(params.Lv.min() / 2))
 
-    print('\n\n----------------- Time -----------------------')
+    print('\n\n----------------- Time -----------------------\n')
 
-    if hasattr(params.P3M, 'G_ew'):
-        # Calculate the analytical formula given in Dharuman et al.
-        DeltaF_tot, DeltaF_PP, DeltaF_PM, rcuts, alphas = force_error.analytical_approx_pppm(params)
+    if params.P3M.on:
 
         chosen_alpha = params.P3M.G_ew * params.aws
         chosen_rcut = params.Potential.rc / params.aws
-
+        const_ha = params.P3M.hx * params.P3M.G_ew
         green_time = force_error.optimal_green_function_timer(params)
         force_error.print_time_report("GF", green_time, 0)
 
-        # Plot the calculate Force error
-        plt.close('all')
-        kappa_title = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0]
-        # Plot the results
-        fig_path = params.Control.pre_run_dir
+        # Calculate Force error from analytic approximation given in Dharuman et al. J Chem Phys 2017
+        DeltaF_tot, DeltaF_PP, DeltaF_PM, rcuts, alphas = force_error.analytical_approx_pppm(params)
+
         # Color Map
-        r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
-        cmps = 'viridis'
-        origin = 'lower'
-        levels = [1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        CS = ax.contourf(a_mesh, r_mesh, DeltaF_tot[:, :], norm=LogNorm(vmin=DeltaF_tot.min(), vmax=1), cmap=cmps)
-        CS2 = ax.contour(CS, colors='w')
-        ax.clabel(CS2, fmt='%1.0e', colors='w')
-        cbar = fig.colorbar(CS)
-        # cbar.ax.tick_params(labelsize=fsz)
-        # Add the contour line levels to the colorbar
-        # cbar.add_lines(CS2)
-        ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
-        if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
-            ax.axhline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
-        # ax.tick_params(labelsize=fsz)
-        ax.set_xlabel(r'$\alpha \;a_{ws}$')
-        ax.set_ylabel(r'$r_c/a_{ws}$')
-        ax.set_title(
-            r'$\Delta F^{apprx}_{tot}(r_c,\alpha)$' + r'  for  $N = {}, \quad M = {}, \quad \kappa = {:1.3f}$'.format(
-                params.total_num_ptcls, params.P3M.MGrid[0], kappa_title * params.aws))
-        fig.tight_layout()
-        fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.Control.fname_app + '.png'))
-        fig.show()
+        make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
+
         # Line Plot
-        fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
-        ax[0].plot(rcuts, DeltaF_tot[30, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[30]))
-        ax[0].plot(rcuts, DeltaF_tot[40, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[40]))
-        ax[0].plot(rcuts, DeltaF_tot[50, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[50]))
-        ax[0].plot(rcuts, DeltaF_tot[60, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[60]))
-        ax[0].plot(rcuts, DeltaF_tot[70, :], label=r'$\alpha a_{ws} = ' + '{:2.4f}$'.format(alphas[70]))
-        ax[0].set_ylabel(r'$\Delta F^{apprx}_{tot}$')
-        ax[0].set_xlabel(r'$r_c/a_{ws}$')
-        ax[0].set_yscale('log')
-        ax[0].axvline(chosen_rcut, ls='--', c='k')
-        ax[0].axhline(params.P3M.F_err, ls='--', c='k')
-        if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
-            ax[0].axvline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
-        ax[0].grid(True, alpha=0.3)
-        # ax[0].tick_params(labelsize=fsz)
-        ax[0].legend(loc='best')
-
-        # ax[1].semilogy(alphas, DeltaF_PP[:,50,kp], lw = lwh, label = r'$\kappa = {:2.2f}$'.format(kappas[kp]))
-        # ax[1].semilogy(alphas, DeltaF_PM[:,9], lw = lwh, label = r'$\kappa = {:2.2f}$'.format(kappas[9]))
-        ax[1].plot(alphas, DeltaF_tot[:, 30], label=r'$r_c = {:2.4f}'.format(rcuts[30]) + ' a_{ws}$')
-        ax[1].plot(alphas, DeltaF_tot[:, 40], label=r'$r_c = {:2.4f}'.format(rcuts[40]) + ' a_{ws}$')
-        ax[1].plot(alphas, DeltaF_tot[:, 50], label=r'$r_c = {:2.4f}'.format(rcuts[50]) + ' a_{ws}$')
-        ax[1].plot(alphas, DeltaF_tot[:, 60], label=r'$r_c = {:2.4f}'.format(rcuts[60]) + ' a_{ws}$')
-        ax[1].plot(alphas, DeltaF_tot[:, 70], label=r'$r_c = {:2.4f}'.format(rcuts[70]) + ' a_{ws}$')
-        ax[1].set_xlabel(r'$\alpha \; a_{ws}$')
-        ax[1].set_yscale('log')
-        ax[1].axhline(params.P3M.F_err, ls='--', c='k')
-        ax[1].axvline(chosen_alpha, ls='--', c='k')
-        # ax[1].set_xscale('log')
-        # ax[1].tick_params(labelsize=fsz)
-        ax[1].grid(True, alpha=0.3)
-        ax[1].legend(loc='best')
-        fig.suptitle(
-            r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
-                params.total_num_ptcls,
-                params.P3M.MGrid[0],
-                kappa_title * params.aws))
-        fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.Control.fname_app + '.png'))
-        fig.show()
-
-
+        make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     else:
-
-        kappa_title = 0.0 if params.Potential.type == "Coulomb" else 1.0 / params.lambda_TF
-        # Plot the results
-
         DeltaF_tot, rcuts = force_error.analytical_approx_pp(params)
-        chosen_rcut = params.Potential.rc / params.aws
-
-        fig_path = params.Control.pre_run_dir
-
-        fig, ax = plt.subplots(1, 1)
-        ax.plot(rcuts, DeltaF_tot)
-        ax.set_ylabel(r'$\Delta F^{apprx}_{tot}$')
-        ax.set_xlabel(r'$r_c/a_{ws}$')
-        ax.set_yscale('log')
-        ax.axvline(chosen_rcut, ls='--', c='k')
-        if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
-            ax.axvline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
-        # ax.grid(True, alpha=0.3)
-        # ax[0].tick_params(labelsize=fsz)
-        ax.set_title(
-            r'Approximate Total Force error  $N = {}, \quad \kappa = {:1.2f}$'.format(
-                params.total_num_ptcls, kappa_title * params.aws))
-        fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.Control.fname_app + '.png'))
-        fig.show()
 
     # Calculate the average over several force calculations
     PP_acc_time, PM_acc_time = force_error.acceleration_timer(params, ptcls, loops)
@@ -174,77 +291,137 @@ def main(params):
     tot_time = eq_time + prod_time
     verbose.time_stamp('Total Run', tot_time)
 
-    # Calculate times
-    # The number of cells in each dimension
-    Ncx = int(params.Lv[0] / params.Potential.rc)
-    Ncy = int(params.Lv[1] / params.Potential.rc)
-    Ncz = int(params.Lv[2] / params.Potential.rc)
-    Nc_tot = Ncx * Ncy * Ncz
+    if repeat:
+        print('\n\n----------------- Timing Study -----------------------')
+        Mg = np.linspace(6, 36, 6)
+        max_cells = int(0.5 * params.Lv.min()/params.aws)
+        Ncells = np.linspace(2.5, max_cells, int(max_cells * 3))
 
-    # Number of particles per cell
-    Npc = (params.total_num_ptcls / Nc_tot)
+        pp_times = np.zeros((len(Ncells), 3))
+        pm_times = np.zeros((len(Mg), 3))
 
-    # time for PP = ( # neighbors per cell ) ( # of particles per cell) ^ 2 ( # of cells )
-    # pp_time_complexity = (26 * Npc ** 2 * Nc_tot) + params.total_num_ptcls
-    # PP_unit_time = PP_mean_time / pp_time_complexity
+        pm_xlabels = []
+        # Average the PM time
+        for i, m in enumerate(Mg):
+            params.P3M.MGrid = int(m) * np.ones(3, dtype=int)
+            green_time = force_error.optimal_green_function_timer(params)
+            print('Mesh = {} x {} x {} : '.format(*params.P3M.MGrid), end='')
+            force_error.print_time_report("GF", green_time, 0)
+            pm_xlabels.append("{}x{}x{}".format(*params.P3M.MGrid))
+            for it in range(3):
+                pm_times[i, it] = force_error.pm_acceleration_timer(params, ptcls)
 
-    # time for PM
-    # assign_func_time = params.total_num_ptcls * (6 * params.P3M.cao + (3 * params.P3M.cao) ** 3 + params.P3M.cao ** 3)
-    # Mv = np.prod(params.P3M.MGrid)
-    # pm_time_complexity = fftw_time  # + 3.0 * Mv + Mv * Mv
-    # PM_unit_time = PM_mean_time / pm_time_complexity
-
-    Mg = np.linspace(16, 256, 16)
-    Ncells = np.linspace(2, 12, 11)
-
-    Est_matrix_time = np.zeros((len(Mg), len(Ncells)))
-
-    for i, m in enumerate(Mg):
-        Mv = m ** 3
+        print('PP calculation')
+        pp_xlabels = []
         for j, c in enumerate(Ncells):
-            Npc = c ** 3
-            Est_matrix_time[i, j] = np.sqrt((26 * PP_mean_time * params.total_num_ptcls ** 2 / Npc
-                                             - PM_mean_time * (
-                                                         5.0 * Mv * np.log2(Mv))) ** 2)  # this is from FFTW website
-    best = np.unravel_index(Est_matrix_time.argmin(), Est_matrix_time.shape)
-    print(best)
-    c_mesh, m_mesh = np.meshgrid(Ncells, Mg)
-    fig, ax = plt.subplots(1, 1)
-    CS = ax.contourf(m_mesh, c_mesh, Est_matrix_time)
-    CS2 = ax.contour(CS, colors='w')
-    ax.clabel(CS2, fmt='%1.0e', colors='w')
-    cbar = fig.colorbar(CS)
-    # cbar.ax.tick_params(labelsize=fsz)
-    # Add the contour line levels to the colorbar
-    # cbar.add_lines(CS2)
-    ax.scatter(params.P3M.MGrid[0], Ncx, s=200, c='k')
-    ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='w')
-    fig.savefig(os.path.join(fig_path, 'Time_ColorMap_' + params.Control.fname_app + '.png'))
-    fig.show()
-    xdata = Mg ** 3 * 3 * np.log2(Mg)
-    #
-    # fig, ax = plt.subplots(1, 1)
-    # ax.plot(xdata, PM_means)
-    # ax.set_xscale('log')
-    # ax.set_yscale('log')
-    # plt.xticks(xdata,
-    #            labels=['16', '32', '48', '64', '80', '96', '112', '128', '144', '160', '176', '192', '208', '224',
-    #                    '240', '256'])
-    # fig.show()
+            params.Potential.rc = params.Lv.min() / c
+            if j % 3 == 0:
+                pp_xlabels.append("{:1.2f}".format(params.Potential.rc / params.aws))
+            for it in range(3):
+                pp_times[j, it] = force_error.pp_acceleration_timer(params, ptcls)
+
+        # Time complexity for the PP and PM part
+        pm_xdata = 15.0 * Mg ** 3 * np.log2(Mg)
+        pp_xdata = params.total_num_ptcls ** 2 / (Ncells ** 3)
+        # Fit each line
+        pp_opt, pcov = curve_fit(linear, pp_xdata, pp_times.mean(axis=-1))
+        pm_opt, pcov = curve_fit(quadratic, pm_xdata, pm_times.mean(axis=-1))
+
+        make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels)
+
+        Lagrangian = np.empty((len(Mg), len(Ncells)))
+
+        kappa = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0] * params.aws
+
+        DeltaF_map = np.zeros_like(Lagrangian)
+        for i, m in enumerate(Mg):
+            params.P3M.MGrid = int(m) * np.ones(3, dtype=int)
+            alpha = const_ha * m / params.Lv[0] * params.aws
+            h = params.Lv[0] / m / params.aws
+            for j, c in enumerate(Ncells):
+                rc = params.Lv.min() / c / params.aws
+                DeltaF_map[i, j], pp_err, pm_err = force_error.analytical_approx_pppm_single(kappa, rc,
+                                                                                             params.P3M.cao,
+                                                                                             h, alpha)
+                Lagrangian[i, j] = abs(pp_err * linear(pp_xdata[j], *pp_opt) ** 2
+                                       - pm_err * quadratic(pm_xdata[i], *pm_opt) ** 2 )
+
+        DeltaF_map *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
+        Lagrangian *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
+
+        best = np.unravel_index(Lagrangian.argmin(), Lagrangian.shape)
+        print(Mg[best[0]], Ncells[best[1]])
+        print(Lagrangian[best[0], best[1]])
+        print(DeltaF_map[best[0], best[1]])
+        c_mesh, m_mesh = np.meshgrid(Ncells, Mg)
+        # levels = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot_surface(m_mesh, c_mesh, Lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+        # CS = ax.contourf(m_mesh, c_mesh, Lagrangian, norm=LogNorm(vmin=Lagrangian.min(), vmax=Lagrangian.max()))
+        # CS2 = ax.contour(CS, colors='w')
+        # ax.clabel(CS2, fmt='%1.0e', colors='w')
+        # fig.colorbar(CS)
+        ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='k')
+        ax.set_xlabel('Mesh size')
+        ax.set_ylabel(r'No. Cells = $1/r_c$')
+        ax.set_title('Lagrangian')
+        fig.show()
+
+        fig, ax = plt.subplots(1, 1, figsize=(11, 7))
+        # ax = plt.axes(projection='3d')
+        # ax.plot_surface(m_mesh, c_mesh, DeltaF_map, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+        CS = ax.contourf(m_mesh, c_mesh, DeltaF_map, norm=LogNorm(vmin=DeltaF_tot.min(), vmax=DeltaF_tot.max()))
+        CS2 = ax.contour(CS, colors='w')
+        ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='k')
+        ax.clabel(CS2, fmt='%1.0e', colors='w')
+        fig.colorbar(CS)
+        ax.set_xlabel('Mesh size')
+        ax.set_ylabel(r'No. Cells = $1/r_c$')
+        ax.set_title('Force Error')
+        fig.show()
+
+        params.P3M.MGrid = int(Mg[best[0]]) * np.ones(3, dtype=int)
+        params.Potential.rc = params.Lv[0] / Ncells[best[1]]
+        params.P3M.G_ew = 0.5 * const_ha / params.Lv[0] * Mg[best[0]]
+        params.P3M.Mx = params.P3M.MGrid[0]
+        params.P3M.My = params.P3M.MGrid[1]
+        params.P3M.Mz = params.P3M.MGrid[2]
+        params.P3M.hx = params.Lx / float(params.P3M.Mx)
+        params.P3M.hy = params.Ly / float(params.P3M.My)
+        params.P3M.hz = params.Lz / float(params.P3M.Mz)
+        green_time = force_error.optimal_green_function_timer(params)
+        f_err, params.P3M.PP_err, pm_err = force_error.analytical_approx_pppm_single(
+            kappa, params.Potential.rc / params.aws, params.P3M.cao, params.P3M.hx, params.P3M.G_ew * params.aws)
+
+        params.P3M.PP_err *= np.sqrt(params.total_num_ptcls * params.aws**3 / params.box_volume)
+
+        params.P3M.F_err = np.sqrt(params.P3M.PP_err ** 2 + params.P3M.PM_err ** 2)
+
+        verbose.timing_study(params)
+        # main(params, False)
 
 
 if __name__ == '__main__':
-    # Construct the argument parser
-    ap = argparse.ArgumentParser()
+    # Construct the option parser
+    op = OptionParser()
 
     # Add the arguments to the parser
-    ap.add_argument("-i", "--input", required=True, help="YAML Input file")
-    ap.add_argument("-d", "--job_dir", required=False, help="Job Directory")
-    ap.add_argument("-j", "--job_id", required=False, help="Job ID")
-    ap.add_argument("-s", "--seed", required=False, help="Random Number Seed")
-    args = vars(ap.parse_args())
+    op.add_option("-t", "--pre_run_testing", action='store_true', dest='test', default=False,
+                  help="Test input parameters")
+    op.add_option("-v", "--verbose", action='store_true', dest='verbose', default=False, help="Verbose output")
+    op.add_option("-p", "--plot_show", action='store_true', dest='plot_show', default=False, help="Show plots")
+    op.add_option("-c", "--check", type='choice', choices=['therm', 'prod'],
+                  action='store', dest='check', help="Check current state of run")
+    op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Directory")
+    op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
+    op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
+    op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
+    op.add_option("-r", "--repeat", action='store_true', default=False, dest='repeat', help="YAML Input file")
+
+    options, _ = op.parse_args()
 
     params = Params()
-    params.setup(args)  # Read initial conditions and setup parameters
+    params.setup(options)  # Read initial conditions and setup parameters
 
-    main(params)
+    main(params, options.repeat)

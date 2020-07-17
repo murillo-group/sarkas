@@ -3,12 +3,12 @@ Module for plotting observables.
 """
 import sys
 import matplotlib.pyplot as plt
-import os
+# import os
 # Sarkas Module
 import S_postprocessing as PostProc
 
-plt.style.use(
-    os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
+# plt.style.use(
+#     os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
 
 plt.close('all')
 fig, ax = plt.subplots(1, 1)

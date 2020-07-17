@@ -25,9 +25,8 @@ Particles:
         temperature_eV: 200.0
 
     - load:
-        method: restart    # loading method
+        method: random_no_reject    # loading method
         rand_seed: 123456789        # random seed
-        restart_step: 50000
 
 Potential:
     - type: Yukawa                 # potential type
@@ -56,10 +55,11 @@ Thermostat:
 Control:
     - units: cgs                    # units
     - dt: 7.46759e-18            # sec
-    - Neq: 5000                      # number of timesteps for the equilibrium
-    - Nsteps: 200000                    # number of timesteps after the equilibrium
+    - Neq: 10000                      # number of timesteps for the equilibrium
+    - Nsteps: 10000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
+    - therm_dump_step: 10
     - verbose: yes
     - output_dir: ICF        # dir name to save data. The default is "Checkpoint"
 

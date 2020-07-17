@@ -1,19 +1,11 @@
 """
-                                SARKAS: 1.0
-
-An open-source pure-python molecular dynamics (MD) code for simulating plasmas.
-
-Developed by the research group of:
-Professor Michael S. Murillo
-murillom@msu.edu
-Dept. of Computational Mathematics, Science, and Engineering,
-Michigan State University
+Module for running the simulation.
 """
 
 # Python modules
 import numpy as np
 import time
-import sys
+from optparse import OptionParser
 # Progress bar
 from tqdm import tqdm
 
@@ -25,7 +17,6 @@ from S_verbose import Verbose
 from S_params import Params
 from S_checkpoint import Checkpoint
 from S_postprocessing import RadialDistributionFunction
-import argparse
 
 
 def main(params):
@@ -198,21 +189,36 @@ def main(params):
 
 
 if __name__ == '__main__':
-    # Construct the argument parser
-    ap = argparse.ArgumentParser()
+    # Construct the option parser
+    op = OptionParser()
 
     # Add the arguments to the parser
-    ap.add_argument("-t", "--pre_run_testing", required=False, help="Pre Run Testing Flag")
-    ap.add_argument("-i", "--input", required=True, help="YAML Input file")
-    ap.add_argument("-d", "--job_dir", required=False, help="Job Directory")
-    ap.add_argument("-j", "--job_id", required=False, help="Job ID")
-    ap.add_argument("-s", "--randseed", required=False, help="Random Number Seed")
-    args = vars(ap.parse_args())
+    op.add_option("-t", "--pre_run_testing", action='store_true', dest='test', default=False,
+                  help="Test input parameters")
+    op.add_option("-v", "--verbose", action='store_true', dest='verbose', default=False, help="Verbose output")
+    op.add_option("-p", "--plot_show", action='store_true', dest='plot_show', default=False, help="Show plots")
+    op.add_option("-c", "--check", type='choice', choices=['therm', 'prod'],
+                  action='store', dest='check', help="Check current state of run")
+    op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Directory")
+    op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
+    op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
+    op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
+    op.add_option("-r", "--repeat", action='store_true', default=False, dest='repeat', help="YAML Input file")
+
+    options, _ = op.parse_args()
 
     params = Params()
-    params.setup(args)  # Read initial conditions and setup parameters
+    params.setup(options)
+    # Read initial conditions and setup parameters
+    # Update rand seed with option. This supersedes the input file.
+    if options.seed:
+        params.load_rand_seed = int(options.seed)
 
-    if not args["randseed"] is None:
-        params.load_rand_seed = int(args["randseed"])
+    # Verbose output. This does not supersede the input file if False.
+    # That is if you don't give this option and the input file has Control.verbose=Yes, then you will
+    # still have a verbose output
+    if options.verbose:
+        params.Control.verbose = True
 
     main(params)
+

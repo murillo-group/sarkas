@@ -1,0 +1,309 @@
+  
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>S_pot_EGS module &mdash; Sarkas 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="S_pot_LJ module" href="S_pot_LJ.html" />
+    <link rel="prev" title="S_pot_Coulomb module" href="S_pot_Coulomb.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pm.html">S_calc_force_pm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_calc_force_pp.html">S_calc_force_pp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_checkpoint.html">S_checkpoint module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_force_error.html">S_force_error module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_integrator.html">S_integrator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_params.html">S_params module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_particles.html">S_particles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_plots.html">S_plots module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_postprocessing.html">S_postprocessing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">S_pot_EGS module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_LJ.html">S_pot_LJ module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Moliere.html">S_pot_Moliere module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_QSP.html">S_pot_QSP module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_simulation.html">S_simulation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_testing.html">S_testing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_thermostat.html">S_thermostat module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="S_verbose.html">S_verbose module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Sarkas.html">Sarkas module</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">src</a> &raquo;</li>
+        
+      <li>S_pot_EGS module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/S_pot_EGS.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-S_pot_EGS">
+<span id="s-pot-egs-module"></span><h1>S_pot_EGS module<a class="headerlink" href="#module-S_pot_EGS" title="Permalink to this headline">¶</a></h1>
+<p>Module for handling EGS Potential as described in Ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a></p>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.91.033104">Stanton and Murillo Phys Rev E 91 033104 (2015)</a></p>
+</dd>
+</dl>
+<dl class="py function">
+<dt id="S_pot_EGS.EGS_force_PP">
+<code class="sig-prename descclassname">S_pot_EGS.</code><code class="sig-name descname">EGS_force_PP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/S_pot_EGS.html#EGS_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_EGS.EGS_force_PP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Potential and force between particles using the EGS Potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Particles’ distance.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – EGS potential parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
+<li><p><strong>fr</strong> (<em>float</em>) – Force.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="S_pot_EGS.setup">
+<code class="sig-prename descclassname">S_pot_EGS.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/S_pot_EGS.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#S_pot_EGS.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with EGS potential parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>class</em>) – Simulation’s parameters. See S_params.py for more info.</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Input filename.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="S_pot_LJ.html" class="btn btn-neutral float-right" title="S_pot_LJ module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="S_pot_Coulomb.html" class="btn btn-neutral float-left" title="S_pot_Coulomb module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Jul, 17, 2020.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

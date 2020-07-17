@@ -22,17 +22,20 @@ from S_params import Params
 op = OptionParser()
 
 # Add the arguments to the parser
-op.add_option("-t", "--pre_run_testing", action='store_true', dest='test', default=False, help="Pre Run Testing Flag")
+op.add_option("-t", "--pre_run_testing", action='store_true', dest='test', default=False, help="Test input parameters")
+op.add_option("-v", "--verbose", action='store_true', dest='verbose', default=False, help="Verbose output")
+op.add_option("-p", "--plot_show", action='store_true', dest='plot_show', default=False, help="Show plots")
 op.add_option("-c", "--check", type='choice', choices=['therm', 'prod'],
               action='store', dest='check', help="Check current state of run")
 op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Directory")
 op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
 op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
-op.add_option("-v", "--verbose", action='store_true', dest='verbose', help="Verbose output")
 op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
+op.add_option("-r", "--repeat", action='store_true', default=False, dest='repeat', help="YAML Input file")
 
-options, arguments = op.parse_args()
+options, _ = op.parse_args()
 
+# Input file is a must
 if options.input_file is None:
     raise OSError('Input file not defined.')
 
@@ -40,21 +43,27 @@ if options.input_file is None:
 params = Params()
 params.setup(options)
 
-# Update rand seed with option
+# Update rand seed with option. This supersedes the input file.
 if options.seed:
     params.load_rand_seed = int(options.seed)
 
-# Test/Run/Check
+# Verbose output. This does not supersede the input file if False.
+# That is if you don't give this option and the input file has Control.verbose=Yes, then you will
+# still have a verbose output
+if options.verbose:
+    params.Control.verbose = True
+
+# Test/Check/Run
 if options.test:
-    Testing.main(params)
+    Testing.main(params, options.repeat)
 elif options.check is not None:
     if options.check == "therm":
         T = PostProc.Thermalization(params)
-        T.temp_energy_plot(show=True)
-        hc = T.hermite_plot(params, True)
-        vm = T.moment_ratios_plot(params, True)
+        T.temp_energy_plot(options.plot_show)
+        # hc = T.hermite_plot(params, options.plot_show)
+        # vm = T.moment_ratios_plot(params, options.plot_show)
     elif options.check == "prod":
         E = PostProc.Thermodynamics(params)
-        E.temp_energy_plot(show=True)
+        E.temp_energy_plot(options.plot_show)
 else:
     Simulation.main(params)

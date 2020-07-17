@@ -14,9 +14,15 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../src'))
 
+intersphinx_mapping = {
+    'python': ('http://docs.python.org/', None),
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+    'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
+    'matplotlib': ('http://matplotlib.org/', None),
+    'pandas': ('http://pandas.pydata.org/pandas-docs/dev/', None),
+}
 
 # -- Project information -----------------------------------------------------
-
 project = 'Sarkas'
 copyright = '2020, MurilloGroup'
 author = 'MurilloGroup'
@@ -33,7 +39,10 @@ release = '1.0'
 extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
     'sphinx_rtd_theme',
+    'sphinxcontrib.apidoc',
+    # 'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
@@ -53,8 +62,8 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 
-autodoc_mock_imports = ['numpy', 'yaml','fdint', 'numba', 'scipy','time',
-                        'sys', 'pyfftw', 'pandas','Sarkas']
+autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
+                        'pyfftw', 'pyfiglet', 'tqdm', 'fmm3dpy', 'Sarkas']
 
 
 html_last_updated_fmt = '%b, %d, %Y'
@@ -78,3 +87,10 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+# -- APIDoc configuration -----------------------------------------------------
+apidoc_module_dir = '../src'
+apidoc_output_dir = 'api'
+# apidoc_excluded_paths = ['*tests*', '*setup_package*']
+# apidoc_separate_modules = True

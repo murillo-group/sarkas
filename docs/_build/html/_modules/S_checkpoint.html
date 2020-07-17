@@ -1,4 +1,4 @@
-
+  
 
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
@@ -86,13 +86,13 @@
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">src</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -165,7 +165,7 @@
 <span class="kn">import</span> <span class="nn">pickle</span>
 
 
-<div class="viewcode-block" id="Checkpoint"><a class="viewcode-back" href="../S_checkpoint.html#S_checkpoint.Checkpoint">[docs]</a><span class="k">class</span> <span class="nc">Checkpoint</span><span class="p">:</span>
+<div class="viewcode-block" id="Checkpoint"><a class="viewcode-back" href="../api/S_checkpoint.html#S_checkpoint.Checkpoint">[docs]</a><span class="k">class</span> <span class="nc">Checkpoint</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to handle restart dumps.</span>
 
@@ -254,7 +254,7 @@
                 <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
                 <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-<div class="viewcode-block" id="Checkpoint.save_pickle"><a class="viewcode-back" href="../S_checkpoint.html#S_checkpoint.Checkpoint.save_pickle">[docs]</a>    <span class="k">def</span> <span class="nf">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Checkpoint.save_pickle"><a class="viewcode-back" href="../api/S_checkpoint.html#S_checkpoint.Checkpoint.save_pickle">[docs]</a>    <span class="k">def</span> <span class="nf">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save all simulations parameters in a pickle file.</span>
 
@@ -268,7 +268,7 @@
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">pickle_file</span><span class="p">)</span>
         <span class="n">pickle_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Checkpoint.dump"><a class="viewcode-back" href="../S_checkpoint.html#S_checkpoint.Checkpoint.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">kinetic_energies</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">potential_energy</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Checkpoint.dump"><a class="viewcode-back" href="../api/S_checkpoint.html#S_checkpoint.Checkpoint.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">kinetic_energies</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">potential_energy</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save particles&#39; data to binary file for future restart.</span>
 
@@ -317,7 +317,7 @@
             <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="Checkpoint.therm_dump"><a class="viewcode-back" href="../S_checkpoint.html#S_checkpoint.Checkpoint.therm_dump">[docs]</a>    <span class="k">def</span> <span class="nf">therm_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">kinetic_energies</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">potential_energy</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Checkpoint.therm_dump"><a class="viewcode-back" href="../api/S_checkpoint.html#S_checkpoint.Checkpoint.therm_dump">[docs]</a>    <span class="k">def</span> <span class="nf">therm_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">kinetic_energies</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">potential_energy</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save particles&#39; data to binary file for future restart.</span>
 
@@ -376,7 +376,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 11, 2020.
+        Last updated on Jul, 17, 2020.
       </span>
 
     </p>

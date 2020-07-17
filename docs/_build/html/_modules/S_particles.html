@@ -1,4 +1,4 @@
-
+  
 
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
@@ -86,13 +86,13 @@
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">src</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -167,7 +167,7 @@
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="mi">0</span>
 
 
-<div class="viewcode-block" id="Particles"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles">[docs]</a><span class="k">class</span> <span class="nc">Particles</span><span class="p">:</span>
+<div class="viewcode-block" id="Particles"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles">[docs]</a><span class="k">class</span> <span class="nc">Particles</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Particles class.</span>
 
@@ -273,7 +273,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">species_id</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
 
-<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize particles&#39; positions and velocities.</span>
 <span class="sd">        Positions are initialized based on the load method while velocities are chosen</span>
@@ -349,21 +349,21 @@
 
         <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Particles.add"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.add"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Add more particles: specific species, and number of particles</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Particles.remove"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.remove"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove particles: need to specify particle id</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Particles.update_attributes"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.update_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">update_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.update_attributes"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.update_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">update_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update particles&#39; attributes.</span>
 
@@ -405,7 +405,7 @@
 
         <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Particles.load_from_restart"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.load_from_restart">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load_from_restart"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.load_from_restart">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load particles&#39; data from a checkpoint of a previous run</span>
 
@@ -425,7 +425,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pbc_cntr</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;cntr&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rdf_hist&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load particles&#39; data from a specific file.</span>
 
@@ -452,7 +452,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Particles.random_no_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.random_no_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_no_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.random_no_reject"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.random_no_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_no_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Randomly distribute particles along each direction.</span>
 
@@ -469,7 +469,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">perturb</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">perturb</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Place particles in a simple cubic lattice with a slight perturbation ranging from 0 to 0.5 times the lattice spacing.</span>
 
@@ -539,7 +539,7 @@
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Lattice creation took: </span><span class="si">{:1.4e}</span><span class="s1"> sec&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">,</span> <span class="n">rand_seed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Place particles by sampling a uniform distribution from 0 to L (the box length)</span>
 <span class="sd">        and uses a rejection radius to avoid placing particles to close to each other.</span>
@@ -644,7 +644,7 @@
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Uniform distribution with rejection radius took : </span><span class="si">{:1.4e}</span><span class="s1"> sec&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../S_particles.html#S_particles.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../api/S_particles.html#S_particles.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Place particles according to a Halton sequence from 0 to L (the box length)</span>
 <span class="sd">        and uses a rejection radius to avoid placing particles to close to each other.</span>
@@ -784,7 +784,7 @@
     <p>
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 11, 2020.
+        Last updated on Jul, 17, 2020.
       </span>
 
     </p>

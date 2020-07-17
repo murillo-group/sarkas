@@ -7,10 +7,12 @@ import numba as nb
 
 class Thermostat:
     """
+    Thermostat object.
+
     Parameters
     ----------
-
     params : class
+        Simulation's parameters.
 
     Attributes
     ----------
@@ -23,7 +25,7 @@ class Thermostat:
     species_np : array
         Number of particles of each species.
 
-    species_mass : array
+    species_masses : array
         Mass of each species.
 
     relaxation_rate: float
@@ -85,7 +87,7 @@ def Berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     Parameters
     ----------
     T : array
-        Temperature of each species.
+        Instantaneous temperature of each species.
 
     vel : array
         Particles' velocities to rescale.
