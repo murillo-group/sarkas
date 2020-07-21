@@ -16,8 +16,9 @@ from S_verbose import Verbose
 from S_params import Params
 from S_particles import Particles
 import S_force_error as force_error
+
 #
-# plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
+plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle.mplstyle'))
 
 
 def quadratic(x, a, b, c):
@@ -185,15 +186,15 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     fig.show()
 
 
-def make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels):
+def make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels, fig_path):
     """
     Make a dual plot of the fitted functions.
     """
     fig, ax = plt.subplots(1, 2, figsize=(12, 7))
     ax[0].plot(pm_xdata, pm_times.mean(axis=-1), 'o', label='Measured times')
-    ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), '--r')
+    ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), '--r', label="Fit $f(x) = a + b x + c x^2$")
     ax[1].plot(pp_xdata, pp_times.mean(axis=-1), 'o', label='Measured times')
-    ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), '--r')
+    ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), '--r', label="Fit $f(x) = a x$")
 
     ax[0].set_xscale('log')
     ax[0].set_yscale('log')
@@ -220,6 +221,7 @@ def make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xla
     ax[0].set_xlabel('Mesh sizes')
     ax[1].set_xlabel(r'$r_c / a_{ws}$')
     fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'Timing_Fit.png'))
     fig.show()
 
 
@@ -297,8 +299,8 @@ def main(params, estimate=False):
 
     if estimate:
         print('\n\n----------------- Timing Study -----------------------')
-        Mg = np.linspace(6, 36, 6, dtype = int)
-        max_cells = int(0.5 * params.Lv.min()/params.aws)
+        Mg = np.array([6, 8, 16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
+        max_cells = int(0.5 * params.Lv.min() / params.aws)
         Ncells = np.linspace(2.5, max_cells, int(max_cells * 3))
 
         pp_times = np.zeros((len(Ncells), 3))
@@ -331,7 +333,8 @@ def main(params, estimate=False):
         pp_opt, pcov = curve_fit(linear, pp_xdata, pp_times.mean(axis=-1))
         pm_opt, pcov = curve_fit(quadratic, pm_xdata, pm_times.mean(axis=-1))
 
-        make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels)
+        make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels,
+                      params.Control.pre_run_dir)
 
         Lagrangian = np.empty((len(Mg), len(Ncells)))
 
@@ -348,7 +351,7 @@ def main(params, estimate=False):
                                                                                              params.P3M.cao,
                                                                                              h, alpha)
                 Lagrangian[i, j] = abs(pp_err * linear(pp_xdata[j], *pp_opt) ** 2
-                                       - pm_err * quadratic(pm_xdata[i], *pm_opt) ** 2 )
+                                       - pm_err * quadratic(pm_xdata[i], *pm_opt) ** 2)
 
         DeltaF_map *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
         Lagrangian *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
@@ -360,16 +363,17 @@ def main(params, estimate=False):
         c_mesh, m_mesh = np.meshgrid(Ncells, Mg)
         # levels = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
         fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(m_mesh, c_mesh, Lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-        # CS = ax.contourf(m_mesh, c_mesh, Lagrangian, norm=LogNorm(vmin=Lagrangian.min(), vmax=Lagrangian.max()))
-        # CS2 = ax.contour(CS, colors='w')
-        # ax.clabel(CS2, fmt='%1.0e', colors='w')
-        # fig.colorbar(CS)
-        ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='w')
+        ax = fig.add_subplot(111)  # , projection='3d')
+        # ax.plot_surface(m_mesh, c_mesh, Lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+        CS = ax.contourf(m_mesh, c_mesh, Lagrangian, norm=LogNorm(vmin=Lagrangian.min(), vmax=Lagrangian.max()))
+        CS2 = ax.contour(CS, colors='w')
+        ax.clabel(CS2, fmt='%1.0e', colors='w')
+        fig.colorbar(CS)
+        ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='k')
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
-        ax.set_title('Lagrangian')
+        ax.set_title('2D Lagrangian')
+        fig.savefig(os.path.join(params.Control.pre_run_dir, '2D_Lagrangian.png'))
         fig.show()
 
         fig, ax = plt.subplots(1, 1, figsize=(11, 7))
@@ -387,6 +391,7 @@ def main(params, estimate=False):
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('Force Error')
+        fig.savefig(os.path.join(params.Control.pre_run_dir, 'ForceMap.png'))
         fig.show()
 
         params.P3M.MGrid = int(Mg[best[0]]) * np.ones(3, dtype=int)
@@ -402,7 +407,7 @@ def main(params, estimate=False):
         f_err, params.P3M.PP_err, pm_err = force_error.analytical_approx_pppm_single(
             kappa, params.Potential.rc / params.aws, params.P3M.cao, params.P3M.hx, params.P3M.G_ew * params.aws)
 
-        params.P3M.PP_err *= np.sqrt(params.total_num_ptcls * params.aws**3 / params.box_volume)
+        params.P3M.PP_err *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
 
         params.P3M.F_err = np.sqrt(params.P3M.PP_err ** 2 + params.P3M.PM_err ** 2)
 
