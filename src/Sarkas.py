@@ -31,7 +31,7 @@ op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Direc
 op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
 op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
 op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
-op.add_option("-r", "--repeat", action='store_true', default=False, dest='repeat', help="YAML Input file")
+op.add_option("-r", "--restart", action='store', dest='restart', type=int, help="Restart simulation")
 
 options, _ = op.parse_args()
 
@@ -43,27 +43,34 @@ if options.input_file is None:
 params = Params()
 params.setup(options)
 
-# Update rand seed with option. This supersedes the input file.
-if options.seed:
-    params.load_rand_seed = int(options.seed)
+if options.check is not None:
+    params = PostProc.read_pickle(params.Control.checkpoint_dir)
+else:
+    # Update rand seed with option. This supersedes the input file.
+    if options.seed:
+        params.load_rand_seed = int(options.seed)
 
-# Verbose output. This does not supersede the input file if False.
-# That is if you don't give this option and the input file has Control.verbose=Yes, then you will
-# still have a verbose output
-if options.verbose:
-    params.Control.verbose = True
-
+    # Verbose output. This does not supersede the input file if False.
+    # That is if you don't give this option and the input file has Control.verbose=Yes, then you will
+    # still have a verbose output
+    if options.verbose:
+        params.Control.verbose = True
+        
+     if options.restart is not None:                                                                                            
+        params.load_method = 'restart'                                                                                           
+        params.load_restart_step = options.restart                                                                               
+                                                   
 # Test/Check/Run
 if options.test:
     Testing.main(params, options.repeat)
 elif options.check is not None:
     if options.check == "therm":
         T = PostProc.Thermalization(params)
-        T.temp_energy_plot(options.plot_show)
+        T.temp_energy_plot(params, options.plot_show)
         # hc = T.hermite_plot(params, options.plot_show)
         # vm = T.moment_ratios_plot(params, options.plot_show)
     elif options.check == "prod":
         E = PostProc.Thermodynamics(params)
-        E.temp_energy_plot(options.plot_show)
+        E.temp_energy_plot(params, options.plot_show)
 else:
     Simulation.main(params)

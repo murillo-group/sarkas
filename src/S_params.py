@@ -869,8 +869,10 @@ class Params:
             self.Control.therm_dir = 'Thermalization'
 
         if self.Control.fname_app is None:
-            if args.job_id is None:
+            if args.job_id is None and args.job_dir is None:
                 self.Control.fname_app = "jobid"
+            elif args.job_id is None and args.job_dir is not None:
+                self.Control.fname_app = args.job_dir
             else:
                 self.Control.fname_app = args.job_id
         else:

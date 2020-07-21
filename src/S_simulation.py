@@ -203,7 +203,7 @@ if __name__ == '__main__':
     op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
     op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
     op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
-    op.add_option("-r", "--repeat", action='store_true', default=False, dest='repeat', help="YAML Input file")
+    op.add_option("-r", "--restart", action='store', dest='restart', type=int, help="Restart step")
 
     options, _ = op.parse_args()
 
@@ -220,5 +220,9 @@ if __name__ == '__main__':
     if options.verbose:
         params.Control.verbose = True
 
+    if options.restart is not None:
+        params.load_method = 'restart'
+        params.load_restart_step = options.restart
+        
     main(params)
 

@@ -9,7 +9,7 @@ import os
 from optparse import OptionParser
 from scipy.optimize import curve_fit
 from mpl_toolkits.mplot3d import Axes3D
-
+from tqdm import tqdm
 
 # Sarkas modules
 from S_verbose import Verbose
@@ -163,7 +163,11 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
 
     r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
     fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-    CS = ax.contourf(a_mesh, r_mesh, DeltaF_tot, norm=LogNorm(vmin=DeltaF_tot.min(), vmax=1))
+    if DeltaF_tot.min() == 0.0:
+        minv = 1e-120
+    else:
+        minv = DeltaF_tot.min()
+    CS = ax.contourf(a_mesh, r_mesh, DeltaF_tot, norm=LogNorm(vmin=minv, vmax=1))
     CS2 = ax.contour(CS, colors='w')
     ax.clabel(CS2, fmt='%1.0e', colors='w')
     ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
@@ -219,20 +223,20 @@ def make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xla
     fig.show()
 
 
-def main(params, repeat=True):
+def main(params, estimate=False):
     """
     Run a test to check the force error and estimate run time.
 
     Parameters
     ----------
-    repeat: bool
+    estimate: bool
         Flag for estimating optimal PPPM parameters.
 
     params : class
         Simulation parameters.
     """
     loops = 10
-    if repeat:
+    if estimate:
         plt.close('all')
     # Change verbose params for printing to screen
     params.Control.verbose = True
@@ -291,9 +295,9 @@ def main(params, repeat=True):
     tot_time = eq_time + prod_time
     verbose.time_stamp('Total Run', tot_time)
 
-    if repeat:
+    if estimate:
         print('\n\n----------------- Timing Study -----------------------')
-        Mg = np.linspace(6, 36, 6)
+        Mg = np.linspace(6, 36, 6, dtype = int)
         max_cells = int(0.5 * params.Lv.min()/params.aws)
         Ncells = np.linspace(2.5, max_cells, int(max_cells * 3))
 
@@ -313,7 +317,7 @@ def main(params, repeat=True):
 
         print('PP calculation')
         pp_xlabels = []
-        for j, c in enumerate(Ncells):
+        for j, c in tqdm(enumerate(Ncells)):
             params.Potential.rc = params.Lv.min() / c
             if j % 3 == 0:
                 pp_xlabels.append("{:1.2f}".format(params.Potential.rc / params.aws))
@@ -350,9 +354,9 @@ def main(params, repeat=True):
         Lagrangian *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
 
         best = np.unravel_index(Lagrangian.argmin(), Lagrangian.shape)
-        print(Mg[best[0]], Ncells[best[1]])
-        print(Lagrangian[best[0], best[1]])
-        print(DeltaF_map[best[0], best[1]])
+        #print(Mg[best[0]], Ncells[best[1]])
+        #print(Lagrangian[best[0], best[1]])
+        #print(DeltaF_map[best[0], best[1]])
         c_mesh, m_mesh = np.meshgrid(Ncells, Mg)
         # levels = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
         fig = plt.figure()
@@ -362,7 +366,7 @@ def main(params, repeat=True):
         # CS2 = ax.contour(CS, colors='w')
         # ax.clabel(CS2, fmt='%1.0e', colors='w')
         # fig.colorbar(CS)
-        ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='k')
+        ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='w')
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('Lagrangian')
@@ -371,7 +375,11 @@ def main(params, repeat=True):
         fig, ax = plt.subplots(1, 1, figsize=(11, 7))
         # ax = plt.axes(projection='3d')
         # ax.plot_surface(m_mesh, c_mesh, DeltaF_map, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-        CS = ax.contourf(m_mesh, c_mesh, DeltaF_map, norm=LogNorm(vmin=DeltaF_tot.min(), vmax=DeltaF_tot.max()))
+        if DeltaF_tot.min() == 0.0:
+            minv = 1e-120
+        else:
+            minv = DeltaF_tot.min()
+        CS = ax.contourf(m_mesh, c_mesh, DeltaF_map, norm=LogNorm(vmin=minv, vmax=DeltaF_tot.max()))
         CS2 = ax.contour(CS, colors='w')
         ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='k')
         ax.clabel(CS2, fmt='%1.0e', colors='w')
@@ -399,8 +407,14 @@ def main(params, repeat=True):
         params.P3M.F_err = np.sqrt(params.P3M.PP_err ** 2 + params.P3M.PM_err ** 2)
 
         verbose.timing_study(params)
-        # main(params, False)
-
+        predicted_times = (pp_opt[0]*Ncells[best[1]] + pm_opt[0] + pm_opt[1]*Mg[best[0]] + pm_opt[1]*Mg[best[0]]**2)
+        # Print estimate of run times
+        eq_time = predicted_times * params.Control.Neq
+        verbose.time_stamp('Thermalization', eq_time)                                                                            
+        prod_time = predicted_times * params.Control.Nsteps
+        verbose.time_stamp('Production', prod_time)                                                                             
+        tot_time = eq_time + prod_time                                                                                           
+        verbose.time_stamp('Total Run', tot_time)
 
 if __name__ == '__main__':
     # Construct the option parser
@@ -417,11 +431,11 @@ if __name__ == '__main__':
     op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
     op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
     op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
-    op.add_option("-r", "--repeat", action='store_true', default=False, dest='repeat', help="YAML Input file")
-
+    op.add_option("-r", "--restart", action='store', dest='restart', help="Restart step")
+    op.add_option("-e", "--estimate", action='store_true', dest='estimate', help="Estimate optimal parameters")
     options, _ = op.parse_args()
 
     params = Params()
     params.setup(options)  # Read initial conditions and setup parameters
 
-    main(params, options.repeat)
+    main(params, options.estimate)

@@ -1855,7 +1855,7 @@ class Thermodynamics:
         y_coord -= 0.25
         Info_plot.text(0., y_coord, "Total $N$ = {}".format(params.total_num_ptcls), fontsize=fsz)
         Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.Thermostat.type), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.Thermostat_tau), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.Thermostat.tau), fontsize=fsz)
         Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.Potential.type), fontsize=fsz)
         if params.P3M.on:
             Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.P3M.F_err), fontsize=fsz)
@@ -3834,30 +3834,21 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
 
 
-def read_pickle(input_file):
+def read_pickle(params_dir):
     """
     Read Pickle File containing params.
 
     Parameters
     ----------
-    input_file: str
+    params_dir: str
         Input YAML file of the simulation.
     Returns
     -------
     data : dict
         Params dictionary.
     """
-    with open(input_file, 'r') as stream:
-        dics = yaml.load(stream, Loader=yaml.FullLoader)
-        for lkey in dics:
-            if lkey == "Control":
-                for keyword in dics[lkey]:
-                    for key, value in keyword.items():
-                        # Directory where to store Checkpoint files
-                        if key == "output_dir":
-                            checkpoint_dir = os.path.join("Simulations", value)
-
-    pickle_file = os.path.join(checkpoint_dir, "S_parameters.pickle")
+    
+    pickle_file = os.path.join(params_dir, "S_parameters.pickle")
 
     data = np.load(pickle_file, allow_pickle=True)
 
