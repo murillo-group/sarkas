@@ -1,6 +1,5 @@
 """
 Module for handling the Particle-Mesh part of the force and potential calculation.
-
 """
 
 import numpy as np
@@ -10,7 +9,6 @@ import pyfftw
 # These "ignore" are needed because numba does not support pyfftw yet
 from numba.core.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 import warnings
-
 warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaWarning)
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
@@ -174,7 +172,7 @@ def force_optimized_green_function(MGrid, aliases, BoxLv, p, constants):
                     Gk_hat = four_pi * np.exp(-0.25 * (kappa_sq + k_sq) / Gew_sq) / (kappa_sq + k_sq)
 
                     # eq.(28) of Ref.[2]_
-                    PM_err = PM_err + Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
+                    PM_err += Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
     PM_err = np.sqrt(PM_err) / (Lx * Ly * Lz) ** (1. / 3.)
 

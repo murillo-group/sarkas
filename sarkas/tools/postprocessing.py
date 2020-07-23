@@ -2,7 +2,6 @@
 Module for calculating physical quantities from Sarkas checkpoints.
 """
 import os
-import yaml
 from tqdm import tqdm
 import numpy as np
 from numba import njit, prange

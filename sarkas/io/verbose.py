@@ -376,7 +376,7 @@ class Verbose:
             print("\nAlgorithm : ", params.Potential.method)
             if params.Potential.method == 'P3M':
                 print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f} ~ 1/{} '.format(
-                    params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))), )
+                    params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))) )
                 print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
                     int(params.Lv[0] / params.Potential.rc),
                     int(params.Lv[1] / params.Potential.rc),
@@ -384,8 +384,7 @@ class Verbose:
                 print('No. of particles in PP loop = {:6}'.format(
                     int(params.total_num_density * (3 * params.Potential.rc) ** 3)))
                 print('No. of PP neighbors per particle = {:6}'.format(
-                    int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
-                            params.Potential.rc / params.Lv.min()) ** 3.0)))
+                    int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (params.Potential.rc / params.Lv.min()) ** 3.0)))
                 print('PM Force Error = {:2.6e}'.format(params.P3M.PM_err))
                 print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err))
                 print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err))

@@ -4,10 +4,9 @@ Module of various types of integrators
 
 import numpy as np
 import numba as nb
-import fmm3dpy as fmm
+# import fmm3dpy as fmm
 import sys
-import S_calc_force_pp as force_pp
-import S_calc_force_pm as force_pm
+from sarkas.algorithm import force_pp, force_pm
 
 
 class Integrator:
@@ -404,26 +403,26 @@ def calc_pot_acc(ptcls, params):
     return U
 
 
-def calc_pot_acc_fmm(ptcls, params):
-    """
-
-    Parameters
-    ----------
-    ptcls
-    params
-
-    Returns
-    -------
-
-    """
-
-    if params.Potential.type == 'Coulomb':
-        out_fmm = fmm.lfmm3d(eps=1.0e-07, sources=np.transpose(ptcls.pos), charges=ptcls.charge, pg=2)
-    elif params.Potential.type == 'Yukawa':
-        out_fmm = fmm.hfmm3d(eps=1.0e-05, zk=1j / params.lambda_TF, sources=np.transpose(ptcls.pos),
-                         charges=ptcls.charge, pg=2)
-
-    U = ptcls.charge @ out_fmm.pot.real * 4.0 * np.pi / params.fourpie0
-    ptcls.acc = - np.transpose(ptcls.charge * out_fmm.grad.real / ptcls.mass) / params.fourpie0
-
-    return U
+# def calc_pot_acc_fmm(ptcls, params):
+#     """
+#
+#     Parameters
+#     ----------
+#     ptcls
+#     params
+#
+#     Returns
+#     -------
+#
+#     """
+#
+#     if params.Potential.type == 'Coulomb':
+#         out_fmm = fmm.lfmm3d(eps=1.0e-07, sources=np.transpose(ptcls.pos), charges=ptcls.charge, pg=2)
+#     elif params.Potential.type == 'Yukawa':
+#         out_fmm = fmm.hfmm3d(eps=1.0e-05, zk=1j / params.lambda_TF, sources=np.transpose(ptcls.pos),
+#                          charges=ptcls.charge, pg=2)
+#
+#     U = ptcls.charge @ out_fmm.pot.real * 4.0 * np.pi / params.fourpie0
+#     ptcls.acc = - np.transpose(ptcls.charge * out_fmm.grad.real / ptcls.mass) / params.fourpie0
+#
+#     return U

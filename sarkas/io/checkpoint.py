@@ -3,7 +3,7 @@ Module handling restarting/checkpoint
 """
 import os
 import csv
-from numpy import load, savez, sum
+from numpy import savez, sum
 import pickle
 
 

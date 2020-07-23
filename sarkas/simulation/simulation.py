@@ -5,21 +5,20 @@ Module for running the simulation.
 # Python modules
 import numpy as np
 import time
-from optparse import OptionParser
 # Progress bar
 from tqdm import tqdm
 
-# import Sarkas MD modules
-from S_thermostat import Thermostat, calc_kin_temp, remove_drift
-from S_integrator import Integrator, calc_pot_acc, calc_pot_acc_fmm
-from S_particles import Particles
-from S_verbose import Verbose
-from S_params import Params
-from S_checkpoint import Checkpoint
-from S_postprocessing import RadialDistributionFunction
+# Sarkas MD modules
+# from sarkas.simulation.params import Params
+from sarkas.simulation.particles import Particles
+from sarkas.thermostats.thermostat import Thermostat, calc_kin_temp, remove_drift
+from sarkas.integrators.integrator import Integrator, calc_pot_acc#, #calc_pot_acc_fmm
+from sarkas.io.verbose import Verbose
+from sarkas.io.checkpoint import Checkpoint
+from sarkas.tools.postprocessing import RadialDistributionFunction
 
 
-def main(params):
+def run(params):
     """
     Run a Molecular Dynamics simulation with the parameters given by the input YAML file.
 
@@ -48,8 +47,8 @@ def main(params):
     # Calculate initial kinetic energy and temperature
     if not params.Potential.method == "FMM":
         U_init = calc_pot_acc(ptcls, params)
-    else:
-        U_init = calc_pot_acc_fmm(ptcls, params)
+    # else:
+        # U_init = calc_pot_acc_fmm(ptcls, params)
 
     Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
     Tot_Kin = Ks.sum()
@@ -189,6 +188,8 @@ def main(params):
 
 
 if __name__ == '__main__':
+    from optparse import OptionParser
+
     # Construct the option parser
     op = OptionParser()
 
@@ -224,5 +225,5 @@ if __name__ == '__main__':
         params.load_method = 'restart'
         params.load_restart_step = options.restart
         
-    main(params)
+    run(params)
 

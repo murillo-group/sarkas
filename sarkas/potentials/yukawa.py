@@ -6,7 +6,7 @@ from numba import njit
 import math as mt
 import yaml  # IO
 import fdint  # Fermi integrals calculation
-from S_calc_force_pm import force_optimized_green_function as gf_opt
+from sarkas.algorithm.force_pm import force_optimized_green_function as gf_opt
 
 
 @njit

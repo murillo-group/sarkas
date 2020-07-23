@@ -12,10 +12,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from tqdm import tqdm
 
 # Sarkas modules
-from S_verbose import Verbose
-from S_params import Params
-from S_particles import Particles
-import S_force_error as force_error
+from sarkas.io.verbose import Verbose
+from sarkas.objects.params import Params
+from sarkas.objects.particles import Particles
+from sarkas.tools import force_error
 
 #
 plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle.mplstyle'))
@@ -168,7 +168,7 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
         minv = 1e-120
     else:
         minv = DeltaF_tot.min()
-    CS = ax.contourf(a_mesh, r_mesh, DeltaF_tot, norm=LogNorm(vmin=minv, vmax=1))
+    CS = ax.contourf(a_mesh, r_mesh, DeltaF_tot, norm=LogNorm(vmin=minv, vmax=DeltaF_tot.max()))
     CS2 = ax.contour(CS, colors='w')
     ax.clabel(CS2, fmt='%1.0e', colors='w')
     ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
@@ -263,7 +263,6 @@ def main(params, estimate=False):
 
         chosen_alpha = params.P3M.G_ew * params.aws
         chosen_rcut = params.Potential.rc / params.aws
-        const_ha = params.P3M.hx * params.P3M.G_ew
         green_time = force_error.optimal_green_function_timer(params)
         force_error.print_time_report("GF", green_time, 0)
 
@@ -297,74 +296,74 @@ def main(params, estimate=False):
     tot_time = eq_time + prod_time
     verbose.time_stamp('Total Run', tot_time)
 
+    # Plot the calculate Force error
+    kappa = params.Potential.matrix[1, 0, 0] if params.Potential.type == "Yukawa" else 0.0
+    print( kappa)
     if estimate:
         print('\n\n----------------- Timing Study -----------------------')
-        Mg = np.array([6, 8, 16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
+        Mg = np.array([6, 8, 16, 24, 32, 40, 48, 56], dtype=int)
         max_cells = int(0.5 * params.Lv.min() / params.aws)
-        Ncells = np.linspace(2.5, max_cells, int(max_cells * 3))
+        Ncells = np.arange(3, max_cells, dtype=int)
+        print(Ncells)
+        pm_times = np.zeros(len(Mg))
+        pm_errs = np.zeros(len(Mg))
 
-        pp_times = np.zeros((len(Ncells), 3))
-        pm_times = np.zeros((len(Mg), 3))
+        pp_times = np.zeros((len(Mg), len(Ncells)))
+        pp_errs = np.zeros((len(Mg), len(Ncells)))
 
         pm_xlabels = []
+        pp_xlabels = []
+
+        DeltaF_map = np.zeros((len(Mg), len(Ncells)))
+
         # Average the PM time
         for i, m in enumerate(Mg):
-            params.P3M.MGrid = int(m) * np.ones(3, dtype=int)
+            params.P3M.MGrid = m * np.ones(3, dtype=int)
+            params.P3M.G_ew = 0.25 * m / params.Lv.min()
             green_time = force_error.optimal_green_function_timer(params)
-            print('Mesh = {} x {} x {} : '.format(*params.P3M.MGrid), end='')
+            pm_errs[i] = params.P3M.PM_err
+            print('\n\nMesh = {} x {} x {} : '.format(*params.P3M.MGrid))
+            print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(params.P3M.G_ew * params.aws, params.P3M.G_ew))
+            print('PM Err = {:1.4e}  '.format(params.P3M.PM_err), end='')
+
             force_error.print_time_report("GF", green_time, 0)
             pm_xlabels.append("{}x{}x{}".format(*params.P3M.MGrid))
             for it in range(3):
-                pm_times[i, it] = force_error.pm_acceleration_timer(params, ptcls)
+                pm_times[i] += force_error.pm_acceleration_timer(params, ptcls) / 3.0
 
-        print('PP calculation')
-        pp_xlabels = []
-        for j, c in tqdm(enumerate(Ncells)):
-            params.Potential.rc = params.Lv.min() / c
-            if j % 3 == 0:
-                pp_xlabels.append("{:1.2f}".format(params.Potential.rc / params.aws))
-            for it in range(3):
-                pp_times[j, it] = force_error.pp_acceleration_timer(params, ptcls)
+            for j, c in enumerate(Ncells):
+                params.Potential.rc = params.Lv.min() / c
+                kappa_over_alpha = - 0.25 * (kappa / params.P3M.G_ew) ** 2
+                alpha_times_rcut = - (params.P3M.G_ew * params.Potential.rc) ** 2
+                params.P3M.PP_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(params.Potential.rc)
+                params.P3M.PP_err *= np.sqrt(params.N) * params.aws ** 2 / np.sqrt(params.box_volume)
+                print('rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
+                    end='')
+                print("[cm]" if params.Control.units == "cgs" else "[m]")
+                print('PP Err = {:1.4e}  '.format(params.P3M.PP_err) )
+                pp_errs[i, j] = params.P3M.PP_err
+                DeltaF_map[i, j] = np.sqrt(params.P3M.PP_err ** 2 + params.P3M.PM_err ** 2)
 
-        # Time complexity for the PP and PM part
-        pm_xdata = 15.0 * Mg ** 3 * np.log2(Mg)
-        pp_xdata = params.total_num_ptcls ** 2 / (Ncells ** 3)
-        # Fit each line
-        pp_opt, pcov = curve_fit(linear, pp_xdata, pp_times.mean(axis=-1))
-        pm_opt, pcov = curve_fit(quadratic, pm_xdata, pm_times.mean(axis=-1))
+                if j == 0:
+                    pp_xlabels.append("{:1.2f}".format(params.Potential.rc / params.aws))
 
-        make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels,
-                      params.Control.pre_run_dir)
+                for it in range(3):
+                    pp_times[i, j] += force_error.pp_acceleration_timer(params, ptcls) / 3.0
 
         Lagrangian = np.empty((len(Mg), len(Ncells)))
-
-        kappa = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0] * params.aws
-
-        DeltaF_map = np.zeros_like(Lagrangian)
-        for i, m in enumerate(Mg):
-            params.P3M.MGrid = int(m) * np.ones(3, dtype=int)
-            alpha = const_ha * m / params.Lv[0] * params.aws
-            h = params.Lv[0] / m / params.aws
-            for j, c in enumerate(Ncells):
-                rc = params.Lv.min() / c / params.aws
-                DeltaF_map[i, j], pp_err, pm_err = force_error.analytical_approx_pppm_single(kappa, rc,
-                                                                                             params.P3M.cao,
-                                                                                             h, alpha)
-                Lagrangian[i, j] = abs(pp_err * linear(pp_xdata[j], *pp_opt) ** 2
-                                       - pm_err * quadratic(pm_xdata[i], *pm_opt) ** 2)
-
-        DeltaF_map *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
-        Lagrangian *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
+        for i in range(len(Mg)):
+            for j in range(len(Ncells)):
+                Lagrangian[i, j] = abs(pp_errs[i, j] ** 2 * pp_times[i, j] - pm_errs[i] ** 2 * pm_times[i])
 
         best = np.unravel_index(Lagrangian.argmin(), Lagrangian.shape)
-        #print(Mg[best[0]], Ncells[best[1]])
-        #print(Lagrangian[best[0], best[1]])
-        #print(DeltaF_map[best[0], best[1]])
+        print(Mg.shape, Ncells.shape)
         c_mesh, m_mesh = np.meshgrid(Ncells, Mg)
+        print(m_mesh.shape, c_mesh.shape)
+        print(m_mesh[best], c_mesh[best])
         # levels = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
         fig = plt.figure()
-        ax = fig.add_subplot(111)  # , projection='3d')
-        # ax.plot_surface(m_mesh, c_mesh, Lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+        ax = fig.add_subplot(111) # projection='3d')
+        # CS = ax.plot_surface(m_mesh, c_mesh, Lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
         CS = ax.contourf(m_mesh, c_mesh, Lagrangian, norm=LogNorm(vmin=Lagrangian.min(), vmax=Lagrangian.max()))
         CS2 = ax.contour(CS, colors='w')
         ax.clabel(CS2, fmt='%1.0e', colors='w')
@@ -377,8 +376,6 @@ def main(params, estimate=False):
         fig.show()
 
         fig, ax = plt.subplots(1, 1, figsize=(11, 7))
-        # ax = plt.axes(projection='3d')
-        # ax.plot_surface(m_mesh, c_mesh, DeltaF_map, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
         if DeltaF_tot.min() == 0.0:
             minv = 1e-120
         else:
@@ -394,32 +391,26 @@ def main(params, estimate=False):
         fig.savefig(os.path.join(params.Control.pre_run_dir, 'ForceMap.png'))
         fig.show()
 
-        params.P3M.MGrid = int(Mg[best[0]]) * np.ones(3, dtype=int)
-        params.Potential.rc = params.Lv[0] / Ncells[best[1]]
-        params.P3M.G_ew = 0.5 * const_ha / params.Lv[0] * Mg[best[0]]
+        params.P3M.MGrid = Mg[best[0]] * np.ones(3, dtype=int)
+        params.Potential.rc = params.Lv.min() / Ncells[best[1]]
+        params.P3M.G_ew = 0.25 * m_mesh[best] / params.Lv.min()
         params.P3M.Mx = params.P3M.MGrid[0]
         params.P3M.My = params.P3M.MGrid[1]
         params.P3M.Mz = params.P3M.MGrid[2]
         params.P3M.hx = params.Lx / float(params.P3M.Mx)
         params.P3M.hy = params.Ly / float(params.P3M.My)
         params.P3M.hz = params.Lz / float(params.P3M.Mz)
-        green_time = force_error.optimal_green_function_timer(params)
-        f_err, params.P3M.PP_err, pm_err = force_error.analytical_approx_pppm_single(
-            kappa, params.Potential.rc / params.aws, params.P3M.cao, params.P3M.hx, params.P3M.G_ew * params.aws)
-
-        params.P3M.PP_err *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
-
-        params.P3M.F_err = np.sqrt(params.P3M.PP_err ** 2 + params.P3M.PM_err ** 2)
-
+        params.P3M.PM_err = pm_errs[best[0]]
+        params.P3M.PP_err = pp_errs[best]
+        params.P3M.F_err = np.sqrt(params.P3M.PM_err ** 2 + params.P3M.PP_err ** 2)
         verbose.timing_study(params)
-        predicted_times = (pp_opt[0]*Ncells[best[1]] + pm_opt[0] + pm_opt[1]*Mg[best[0]] + pm_opt[1]*Mg[best[0]]**2)
+
+        predicted_times = pp_times[best] + pm_times[best[0]]
         # Print estimate of run times
-        eq_time = predicted_times * params.Control.Neq
-        verbose.time_stamp('Thermalization', eq_time)                                                                            
-        prod_time = predicted_times * params.Control.Nsteps
-        verbose.time_stamp('Production', prod_time)                                                                             
-        tot_time = eq_time + prod_time                                                                                           
-        verbose.time_stamp('Total Run', tot_time)
+        verbose.time_stamp('Thermalization', predicted_times * params.Control.Neq)
+        verbose.time_stamp('Production', predicted_times * params.Control.Nsteps)
+        verbose.time_stamp('Total Run', predicted_times * (params.Control.Neq + params.Control.Nsteps))
+
 
 if __name__ == '__main__':
     # Construct the option parser

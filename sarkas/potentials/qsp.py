@@ -21,7 +21,7 @@ import numpy as np
 from numba import njit
 import yaml
 import math as mt
-from S_calc_force_pm import force_optimized_green_function as gf_opt
+from sarkas.algorithm.force_pm import force_optimized_green_function as gf_opt
 
 
 def setup(params, filename):

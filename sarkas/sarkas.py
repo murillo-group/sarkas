@@ -1,7 +1,7 @@
 """
                                 SARKAS: 1.0
 
-An open-source pure-python molecular dynamics (MD) code for simulating plasmas.
+An open-source pure-python molecular dynamics code for non-ideal plasmas.
 
 Developed by the research group of:
 Professor Michael S. Murillo
@@ -13,10 +13,8 @@ Michigan State University
 # Python modules
 from optparse import OptionParser
 # Sarkas modules
-import S_testing as Testing
-import S_simulation as Simulation
-import S_postprocessing as PostProc
-from S_params import Params
+from sarkas.simulation.params import Params
+import sarkas.tools.postprocessing as PostProc
 
 # Construct the argument parser
 op = OptionParser()
@@ -32,6 +30,7 @@ op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
 op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
 op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
 op.add_option("-r", "--restart", action='store', dest='restart', type=int, help="Restart simulation")
+op.add_option("-e", "--estimate", action='store_true', dest='estimate', help="Estimate optimal parameters")
 
 options, _ = op.parse_args()
 
@@ -56,14 +55,17 @@ else:
     if options.verbose:
         params.Control.verbose = True
         
-     if options.restart is not None:                                                                                            
-        params.load_method = 'restart'                                                                                           
-        params.load_restart_step = options.restart                                                                               
+    if options.restart is not None:
+        params.load_method = 'restart'
+        params.load_restart_step = options.restart
                                                    
 # Test/Check/Run
 if options.test:
-    Testing.main(params, options.repeat)
+    #
+    import sarkas.tools.testing as pre_run_test
+    pre_run_test.main(params, options.estimate)
 elif options.check is not None:
+    #
     if options.check == "therm":
         T = PostProc.Thermalization(params)
         T.temp_energy_plot(params, options.plot_show)
@@ -73,4 +75,5 @@ elif options.check is not None:
         E = PostProc.Thermodynamics(params)
         E.temp_energy_plot(params, options.plot_show)
 else:
-    Simulation.main(params)
+    from sarkas.simulation import simulation
+    simulation.run(params)

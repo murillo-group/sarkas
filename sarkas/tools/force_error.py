@@ -1,11 +1,9 @@
 import numpy as np
 from numba import njit
 import time as timer
-import S_calc_force_pp as force_pp
-import S_calc_force_pm as force_pm
+from sarkas.algorithm import force_pp, force_pm
 
 
-#
 @njit
 def Gk(x, alpha, kappa):
     """
@@ -152,16 +150,14 @@ def optimal_green_function_timer(params):
     # Dev notes. I am rewriting the functions here because I need to put a counter around it.
     # Optimized Green's Function
 
-    P3M_screening = params.Potential.matrix[1, 0, 0] if params.Potential.type == "Yukawa" else 0.0
-    alpha = params.P3M.G_ew
-    constants = np.array([P3M_screening, alpha, params.fourpie0])
+    kappa_Y = 1./params.lambda_TF if params.Potential.type == "Yukawa" else 0.0
+    constants = np.array([kappa_Y, params.P3M.G_ew, params.fourpie0])
     start = timer.time()
-    G_k, kx_v, ky_v, kz_v, params.P3M.PM_err = force_pm.force_optimized_green_function(
+    params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err = force_pm.force_optimized_green_function(
         params.P3M.MGrid, params.P3M.aliases, params.Lv, params.P3M.cao, constants)
-    params.P3M.G_k = G_k
-    params.P3M.kx_v = kx_v
-    params.P3M.ky_v = ky_v
-    params.P3M.kz_v = kz_v
+
+    params.P3M.PM_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
+
     green_time = timer.time() - start
 
     return green_time
