@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
                                 SARKAS: 1.0
 
@@ -27,7 +29,7 @@ op.add_option("-c", "--check", type='choice', choices=['therm', 'prod'],
               action='store', dest='check', help="Check current state of run")
 op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Directory")
 op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
-op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
+op.add_option("-s", "--seed", action='store', dest='seed', type=int, help="Random Number Seed")
 op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
 op.add_option("-r", "--restart", action='store', dest='restart', type=int, help="Restart simulation")
 op.add_option("-e", "--estimate", action='store_true', dest='estimate', help="Estimate optimal parameters")
@@ -40,7 +42,7 @@ if options.input_file is None:
 
 # Read initial conditions and setup parameters
 params = Params()
-params.setup(options)
+params.setup(vars(options))
 
 if options.check is not None:
     params = PostProc.read_pickle(params.Control.checkpoint_dir)

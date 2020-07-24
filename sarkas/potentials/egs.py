@@ -84,7 +84,7 @@ def setup(params, filename):
     E_F = (params.hbar2 / (2.0 * params.me)) * (3.0 * np.pi ** 2 * params.ne) ** (2. / 3.)
     # Degeneracy Parameter
     theta = 1.0 / (beta * E_F)
-    if theta <= 12 and theta >= 0.1:
+    if 0.1 <= theta <= 12:
         # Regime of validity of the following approximation Perrot et al. Phys Rev A 302619 (1984)
         # eq. (33) of Ref. [1]_
         Ntheta = 1.0 + 2.8343 * theta ** 2 - 0.2151 * theta ** 3 + 5.2759 * theta ** 4

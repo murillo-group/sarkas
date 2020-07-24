@@ -11,24 +11,24 @@ FONTS = ['speed',
          'larry3d',
          'ogre']
 
-FG_COLORS = ['255;255;255',
-             '13;177;75',
-             '153;162;162',
-             '240;133;33',
-             '144;154;183',
-             '209;222;63',
-             '232;217;181',
-             '200;154;88',
-             '148;174;74',
-             '203;90;40'
-             ]
-
-
-# BG_COLORS = ['24;69;49',
-#              '0;129;131',
-#              '83;80;84',
-#              '110;0;95'
+# FG_COLORS = ['255;255;255',
+#              '13;177;75',
+#              '153;162;162',
+#              '240;133;33',
+#              '144;154;183',
+#              '209;222;63',
+#              '232;217;181',
+#              '200;154;88',
+#              '148;174;74',
+#              '203;90;40'
 #              ]
+
+
+FG_COLORS = ['24;69;49',
+             '0;129;131',
+             '83;80;84',
+             '110;0;95'
+             ]
 
 
 def screen_figlet():
@@ -209,8 +209,9 @@ class Verbose:
                     print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff))
 
                 elif params.Potential.type == 'EGS':
+                    print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff))
                     print('lambda_TF = {:1.4e}'.format(params.lambda_TF))
-                    print('kappa = {:1.4e}'.format(params.Potential.matrix[1, 0, 0] * params.aws))
+                    print('kappa = {:1.4e}'.format(params.Potential.matrix[0, 0, 0] * params.aws))
                     print('nu = {:1.4e}'.format(params.Potential.nu))
                     if params.Potential.nu < 1:
                         print('Exponential decay:')
@@ -259,7 +260,7 @@ class Verbose:
                                                                         params.species[ic].omega_c / params.species[
                                                                             ic].wp))
 
-                print("\nAlgorithm : ", params.Potential.method)
+                print("\nAlgorithm: ", params.Potential.method)
                 if params.Potential.method == 'P3M':
                     print('Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(params.P3M.G_ew * params.aws,
                                                                                      params.P3M.G_ew), end='')
@@ -270,7 +271,7 @@ class Verbose:
                         'rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
                         end='')
                     print("[cm]" if params.Control.units == "cgs" else "[m]")
-                    print('Mesh = {} x {} x {}'.format(*params.P3M.MGrid) )
+                    print('Mesh = {} x {} x {}'.format(*params.P3M.MGrid))
                     print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
                         int(params.Lv[0] / params.Potential.rc),
                         int(params.Lv[1] / params.Potential.rc),
@@ -284,7 +285,10 @@ class Verbose:
                     print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err))
                     print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err))
                 elif params.Potential.method == 'PP':
-                    print('rcut/a_ws = {:2.6e}'.format(params.Potential.rc / params.aws))
+                    print(
+                        'rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
+                        end='')
+                    print("[cm]" if params.Control.units == "cgs" else "[m]")
                     print(
                         'No. of cells per dimension = {:2}, {:2}, {:2}'.format(int(params.Lv[0] / params.Potential.rc),
                                                                                int(params.Lv[1] / params.Potential.rc),
@@ -341,7 +345,6 @@ class Verbose:
         # redirect printing to file
         sys.stdout = f_log
         while repeat > 0:
-
             t_hrs = int(t / 3600)
             t_min = int((t - t_hrs * 3600) / 60)
             t_sec = int((t - t_hrs * 3600 - t_min * 60))
@@ -367,7 +370,7 @@ class Verbose:
             print('\n\n------------ Conclusion ------------\n')
             print('Suggested Mesh = [ {} , {} , {} ]'.format(*params.P3M.MGrid))
             print('Suggested Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(params.P3M.G_ew * params.aws,
-                                                                             params.P3M.G_ew), end='')
+                                                                                       params.P3M.G_ew), end='')
             print("[1/cm]" if params.Control.units == "cgs" else "[1/m]")
             print('Suggested rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws,
                                                                     params.Potential.rc), end='')
@@ -376,7 +379,7 @@ class Verbose:
             print("\nAlgorithm : ", params.Potential.method)
             if params.Potential.method == 'P3M':
                 print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f} ~ 1/{} '.format(
-                    params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))) )
+                    params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))))
                 print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
                     int(params.Lv[0] / params.Potential.rc),
                     int(params.Lv[1] / params.Potential.rc),

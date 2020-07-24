@@ -13,12 +13,12 @@ from tqdm import tqdm
 
 # Sarkas modules
 from sarkas.io.verbose import Verbose
-from sarkas.objects.params import Params
-from sarkas.objects.particles import Particles
+from sarkas.simulation.params import Params
+from sarkas.simulation.particles import Particles
 from sarkas.tools import force_error
 
 #
-plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle.mplstyle'))
+# plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle.mplstyle'))
 
 
 def quadratic(x, a, b, c):
@@ -298,7 +298,6 @@ def main(params, estimate=False):
 
     # Plot the calculate Force error
     kappa = params.Potential.matrix[1, 0, 0] if params.Potential.type == "Yukawa" else 0.0
-    print( kappa)
     if estimate:
         print('\n\n----------------- Timing Study -----------------------')
         Mg = np.array([6, 8, 16, 24, 32, 40, 48, 56], dtype=int)
@@ -429,9 +428,9 @@ if __name__ == '__main__':
     op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
     op.add_option("-r", "--restart", action='store', dest='restart', help="Restart step")
     op.add_option("-e", "--estimate", action='store_true', dest='estimate', help="Estimate optimal parameters")
-    options, _ = op.parse_args()
+    options, pot = op.parse_args()
 
     params = Params()
-    params.setup(options)  # Read initial conditions and setup parameters
+    params.setup(vars(options))  # Read initial conditions and setup parameters
 
     main(params, options.estimate)

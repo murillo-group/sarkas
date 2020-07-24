@@ -1,17 +1,52 @@
+import glob
+import os
+import sys
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
+
+# Get some values from the setup.cfg
+conf = ConfigParser()
+conf.read(['setup.cfg'])
+metadata = dict(conf.items('metadata'))
+
+PACKAGENAME = metadata.get('package_name', 'sarkas')
+DESCRIPTION = metadata.get('description', 'Sarkas')
+DESCRIPTION_FILE = metadata.get('description-file', 'README.md')
+VERSION = metadata.get('version','')
+AUTHOR = metadata.get('author', 'author')
+AUTHOR_EMAIL = metadata.get('author_email', '')
+LICENSE = metadata.get('license', 'unknown')
+URL = metadata.get('url', 'https://murillo-group.github.io/sarkas')
+__minimum_python_version__ = metadata.get("minimum_python_version", "3.6")
+
+# Enforce Python version check - this is the same check as in __init__.py but
+# this one has to happen before importing ah_bootstrap.
+if sys.version_info < tuple((int(val) for val in __minimum_python_version__.split('.'))):
+    sys.stderr.write("ERROR: packagename requires Python {} or later\n".format(__minimum_python_version__))
+    sys.exit(1)
+
+
 import setuptools
 
-with open("README.md", "r") as fh:
+with open(DESCRIPTION_FILE, "r") as fh:
     long_description = fh.read()
 
+# Treat everything in scripts except README.rst as a script to be installed
+scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))]
+
+
 setuptools.setup(
-    name="sarkas-murillogroup", # Replace with your own username
-    version="0.0.1",
-    author="Murillo Group MSU",
-    author_email="sarkasdev@gmail.com",
-    description="A Fast Pure-Python Molecular Dynamics Toolkit for Non-Ideal Plasmas.",
+    name=PACKAGENAME + "-murillogroup", # Replace with your own username
+    version=VERSION,
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
+    description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://murillo-group.github.io/sarkas",
+    url=URL,
+    scripts=scripts,
     packages=setuptools.find_packages(),
     install_requires=[
         'numpy',

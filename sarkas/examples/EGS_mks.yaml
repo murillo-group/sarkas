@@ -16,7 +16,7 @@ Particles:
 Potential: 
     - type: EGS                     # potential type
     - method: PP                    # Linked-cell
-    - rc: 4.3471e-09             # cut-off radius, cm
+    - rc: 1.3471e-09             # cut-off radius, cm
     - elec_temperature_eV: 0.5
 
 BoundaryConditions:
@@ -31,7 +31,7 @@ Thermostat:
     - timestep: 2000
 
 Control:
-    - units: cgs                    # units
+    - units: mks                    # units
     - dt: 1.064305707e-16            # sec
     - Neq: 30000                     # number of timesteps for the equilibrium
     - Nsteps: 30000                  # number of timesteps afater the equilibrium

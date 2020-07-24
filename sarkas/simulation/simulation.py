@@ -189,7 +189,7 @@ def run(params):
 
 if __name__ == '__main__':
     from optparse import OptionParser
-
+    from sarkas.simulation.params import Params
     # Construct the option parser
     op = OptionParser()
 
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     options, _ = op.parse_args()
 
     params = Params()
-    params.setup(options)
+    params.setup(vars(options))
     # Read initial conditions and setup parameters
     # Update rand seed with option. This supersedes the input file.
     if options.seed:
