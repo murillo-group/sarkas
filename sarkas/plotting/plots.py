@@ -5,7 +5,7 @@ import sys
 import matplotlib.pyplot as plt
 # import os
 # Sarkas Module
-import S_postprocessing as Observable
+import sarkas.tools.postprocessing as Observable
 # plt.style.use(
 #     os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle'))
 

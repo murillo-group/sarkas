@@ -66,8 +66,8 @@ class CurrentCorrelationFunctions:
 
     Parameters
     ----------
-    params: S_params class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------
@@ -374,8 +374,8 @@ class DynamicStructureFactor:
 
     Parameters
     ----------
-    params: S_params class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------
@@ -634,8 +634,8 @@ class ElectricCurrent:
 
     Parameters
     ----------
-    params: S_params class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------
@@ -813,8 +813,8 @@ class HermiteCoefficients:
 
     Parameters
     ----------
-    params: S_params class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------
@@ -1042,8 +1042,8 @@ class RadialDistributionFunction:
 
     Parameters
     ----------
-    params: S_params class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------
@@ -1223,8 +1223,8 @@ class StaticStructureFactor:
 
     Parameters
     ----------
-    params: S_params class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------
@@ -1443,8 +1443,8 @@ class Thermodynamics:
 
     Parameters
     ----------
-    params: S_params class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------
@@ -1757,8 +1757,9 @@ class Thermodynamics:
         show: bool
             Flag for displaying the figure.
 
-        params : class
-            Simulation's parameters.
+        params : object
+           Simulation's parameters.
+
         """
         self.parse()
 
@@ -1878,8 +1879,8 @@ class Thermalization:
 
     Parameters
     ----------
-    params: S_params class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------
@@ -2033,7 +2034,23 @@ class Thermalization:
         return
 
     def hermite_plot(self, params, show=False):
+        """
+        Calculate Hermite Coefficients and save the plots.
 
+        Parameters
+        ----------
+        params : object
+            Simulation's parameters
+
+        show: bool
+            Flag for showing plots
+
+        Returns
+        -------
+        hc: object
+            Hermite Coefficient object.
+
+        """
         hc = HermiteCoefficients(params)
         hc.dump_dir = self.dump_dir
         hc.no_dumps = len(os.listdir(self.dump_dir))
@@ -2043,7 +2060,23 @@ class Thermalization:
         return hc
 
     def moment_ratios_plot(self, params, show=False):
+        """
+        Calculate, plot, and save velocity moments.
 
+        Parameters
+        ----------
+        params : object
+           Simulation's parameters.
+
+        show: bool
+            Flag for showing plots to screen
+
+        Returns
+        -------
+        vm: object
+            Velocity moments object.
+
+        """
         vm = VelocityMoments(params)
         vm.dump_dir = self.dump_dir
         vm.no_dumps = len(os.listdir(self.dump_dir))
@@ -2053,6 +2086,18 @@ class Thermalization:
         return vm
 
     def temp_energy_plot(self, params, show=False):
+        """
+        Plot Temperature and Energy as a function of time with their cumulative sum and average.
+
+        Parameters
+        ----------
+        show: bool
+            Flag for displaying the figure.
+
+        params : object
+           Simulation's parameters.
+
+        """
         self.parse()
 
         fig = plt.figure(figsize=(16, 9))
@@ -2174,13 +2219,14 @@ class TransportCoefficients:
 
     Parameters
     ----------
-    params: S_params class
+    params: object
         Simulation's parameters.
 
     Attributes
     ----------
-    params : class
-        Simulation parameters.
+    params: object
+        Simulation's parameters.
+
     """
 
     def __init__(self, params):
@@ -2315,7 +2361,7 @@ class VelocityAutocorrelationFunctions:
 
     Parameters
     ----------
-    params: S_params class
+    params: object
         Simulation's parameters.
 
 
@@ -2509,7 +2555,7 @@ class VelocityMoments:
 
     Parameters
     ----------
-    params: S_params class
+    params: object
         Simulation's parameters.
 
     Attributes
@@ -2722,8 +2768,8 @@ class XYZWriter:
 
     Parameters
     ----------
-    params: S_params class
-        Simulations' parameters.
+    params: object
+        Simulation's parameters.
 
     Attributes
     ----------
@@ -3285,7 +3331,7 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
     return tau_blk, sigma2_blk, statistical_efficiency
 
 
-@njit(parallel=True)
+@njit
 def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
@@ -3356,7 +3402,7 @@ def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
                 for it in range(0, no_dumps, it_skip):
                     temp[: no_dumps - it] += correlationfunction(sp1_flux[:, it:], sp2_flux[:, it:])
                     norm_counter[:(no_dumps - it)] += 1.0
-                jc_acf[indx, d + 1, :] = temp / norm_counter
+                jc_acf[indx, no_dim, :] = temp / norm_counter
                 indx += 1
 
     else:
@@ -3374,7 +3420,7 @@ def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
     return jc_acf
 
 
-@njit(parallel=True)
+@njit
 def calc_vacf_single(vel, sp_num, sp_mass, time_averaging, it_skip=100):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
@@ -3426,7 +3472,7 @@ def calc_vacf_single(vel, sp_num, sp_mass, time_averaging, it_skip=100):
         vacf[0, -1, :] = vacf_temp / norm_counter
     else:
         # Calculate species mass density flux
-        for i in prange(3):
+        for i in range(3):
             vacf_temp = np.zeros(no_dumps)
             for ptcl in range(sp_num[0]):
                 vacf += autocorrelationfunction_1D(vel[i, ptcl, :])
@@ -3785,7 +3831,8 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         X label units.
 
     ylabel: str
-        Y label units
+        Y label units.
+
     """
     xmax = xdata.max()
     ymax = ydata.max()
@@ -3841,10 +3888,12 @@ def read_pickle(params_dir):
     ----------
     params_dir: str
         Input YAML file of the simulation.
+
     Returns
     -------
     data : dict
         Params dictionary.
+
     """
     
     pickle_file = os.path.join(params_dir, "S_parameters.pickle")

@@ -52,14 +52,15 @@ def force_optimized_green_function(MGrid, aliases, BoxLv, p, constants):
        array of reciprocal space vectors along the z-axis
 
     PM_err : float
-        Error in the force calculation due to the optimized Green's function. eq.(28) of Ref. [2]_
+        Error in the force calculation due to the optimized Green's function. eq.(28) of Ref. [Dharuman2017]_
 
     PP_err : float
-        Error in the force calculation due to the distance cutoff. eq.(30) of Ref. [1]_
+        Error in the force calculation due to the distance cutoff. eq.(30) of Ref. [Stern2008]_
 
     References
     ----------
     .. [Stern2008] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) <https://doi.org/10.1063/1.2932253>`_
+    .. [Dharuman2017] `G. Dharuman et al. J Chem Phys 146 024112 (2017) <https://doi.org/10.1063/1.4973842>`_
     """
     kappa = constants[0]
     Gew = constants[1]
@@ -167,11 +168,11 @@ def force_optimized_green_function(MGrid, aliases, BoxLv, p, constants):
                                 U_G_k += (U_k_M_sq * G_k_M * k_dot_k_M)
                                 U_k_sq += U_k_M_sq
 
-                    # eq.(22) of Ref.[2]_
+                    # eq.(22) of Ref.[Dharuman2017]_
                     G_k[nz, ny, nx] = U_G_k / ((U_k_sq ** 2) * k_sq)
                     Gk_hat = four_pi * np.exp(-0.25 * (kappa_sq + k_sq) / Gew_sq) / (kappa_sq + k_sq)
 
-                    # eq.(28) of Ref.[2]_
+                    # eq.(28) of Ref.[Dharuman2017]_
                     PM_err += Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
     PM_err = np.sqrt(PM_err) / (Lx * Ly * Lz) ** (1. / 3.)

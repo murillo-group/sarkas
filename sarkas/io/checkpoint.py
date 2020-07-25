@@ -13,7 +13,7 @@ class Checkpoint:
 
     Parameters
     ----------
-    params : class
+    params: object
         Simulation's parameters.
 
     Attributes
@@ -102,8 +102,8 @@ class Checkpoint:
 
         Parameters
         ----------
-        params : class
-            Simulation parameters.
+        params: object
+            Simulation's parameters.
 
         """
         pickle_file = open(self.params_pickle, "wb")
@@ -116,9 +116,9 @@ class Checkpoint:
 
         Parameters
         ----------
-        ptcls : class
-            Particles' data. See ``S_particles.py`` for more info.
-        
+        ptcls: object
+            Particles data.
+
         kinetic_energies : array 
             Kinetic energy of each species.
         
@@ -165,8 +165,8 @@ class Checkpoint:
 
         Parameters
         ----------
-        ptcls : class
-            Particles' data. See ``S_particles.py`` for more info.
+        ptcls : object
+            Particles' data.
 
         kinetic_energies : array
             Kinetic energy of each species.

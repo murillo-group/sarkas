@@ -1,4 +1,5 @@
-""" Module for handling the Quantum Statistical Potential.
+"""
+Module for handling the Quantum Statistical Potential.
 
 Note
 ----
@@ -16,6 +17,8 @@ References
 ----------
 .. [Hansen1981] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) <https://doi.org/10.1103/PhysRevA.23.2041>`_
 .. [Glosli2008] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) <https://doi.org/10.1103/PhysRevE.78.025401>`_
+
+
 """
 import numpy as np
 from numba import njit
@@ -24,45 +27,20 @@ import math as mt
 from sarkas.algorithm.force_pm import force_optimized_green_function as gf_opt
 
 
-def setup(params, filename):
-    """ 
+def setup(params, read_input=True):
+    """
     Update the ``params`` class with QSP Potential parameters. 
-    The QSP Potential is given by eq.(5) in Ref. [2]_ .
+    The QSP Potential is given by eq.(5) in Ref. [Glosli2008]_ .
 
     Parameters
     ----------
-    filename : str
-        Input file's name.
+    read_input: bool
+        Flag to read inputs from YAML input file.
 
-    params : class
-        Simulation parameters. See ``S_params.py`` for more info.
+    params : object
+        Simulation's parameters
 
     """
-    """
-    Dev Notes
-    for more info and a description of the potential's parameters.
-    QSP_matrix[0,:,:] = qi*qj/4*pi*eps0
-    QSP_matrix[1,:,:] = 2pi/deBroglie
-    QSP_matrix[2,:,:] = e-e Pauli term factor
-    QSP_matrix[3,:,:] = e-e Pauli term exponent term
-    QSP_matrix[4,:,:] = Ewald parameter
-    
-    """
-    # Default attributes
-    params.Potential.QSP_type = 'Deutsch'
-    params.Potential.QSP_Pauli = True
-    # open the input file to read Yukawa parameters
-    with open(filename, 'r') as stream:
-        dics = yaml.load(stream, Loader=yaml.FullLoader)
-        for lkey in dics:
-            if lkey == "Potential":
-                for keyword in dics[lkey]:
-                    for key, value in keyword.items():
-                        if key == "QSP_type":
-                            params.Potential.QSP_type = value
-                        if key == "QSP_Pauli":
-                            params.Potential.QSP_Pauli = value
-
     # Do a bunch of checks
     # P3M algorithm only
     if not params.Potential.method == "P3M":
@@ -79,6 +57,61 @@ def setup(params, filename):
 
     if not e_indx == 0:
         raise AttributeError('The 1st species are not electrons. Please redefine the 1st species as electrons.')
+
+    # Default attributes
+    params.Potential.QSP_type = 'Deutsch'
+    params.Potential.QSP_Pauli = True
+    if read_input:
+        # open the input file to read Yukawa parameters
+        with open(params.input_file, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+            for lkey in dics:
+                if lkey == "Potential":
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if key == "QSP_type":
+                                params.Potential.QSP_type = value
+
+                            if key == "QSP_Pauli":
+                                params.Potential.QSP_Pauli = value
+
+                            if key == "rc":  # cutoff
+                                params.Potential.rc = float(value)
+
+    update_params(params)
+
+
+def update_params(params):
+    """
+    Create potential dependent simulation's parameters.
+
+    Parameters
+    ----------
+    params : object
+        Simulation's parameters
+
+    """
+    """
+    Dev Notes
+    for more info and a description of the potential's parameters.
+    QSP_matrix[0,:,:] = qi*qj/4*pi*eps0
+    QSP_matrix[1,:,:] = 2pi/deBroglie
+    QSP_matrix[2,:,:] = e-e Pauli term factor
+    QSP_matrix[3,:,:] = e-e Pauli term exponent term
+    QSP_matrix[4,:,:] = Ewald parameter
+    """
+
+    if not params.BC.open_axes:
+        params.Potential.LL_on = True  # linked list on
+        if not hasattr(params.Potential, "rc"):
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
+
+        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
 
     two_pi = 2.0 * np.pi
     four_pi = 2.0 * two_pi
@@ -207,13 +240,13 @@ def Deutsch_force_P3M(r, pot_matrix):
 
     # Ewald short-range potential and force terms
     U_ewald = A * mt.erfc(alpha * r) / r
-    f_ewald = U_ewald / r2                                                      # 1/r derivative
-    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(- a2 * r2)      # erfc derivative
+    f_ewald = U_ewald / r2  # 1/r derivative
+    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(- a2 * r2)  # erfc derivative
 
     # Diffraction potential and force term
     U_diff = -A * np.exp(-C * r) / r
-    f_diff = U_diff / r2                                                        # 1/r derivative
-    f_diff += - A * C * np.exp(-C * r) / r2                                     # exp derivative
+    f_diff = U_diff / r2  # 1/r derivative
+    f_diff += - A * C * np.exp(-C * r) / r2  # exp derivative
 
     # Pauli potential and force terms
     U_pauli = D * np.exp(-F * r2)
@@ -258,21 +291,21 @@ def Kelbg_force_P3M(r, pot_matrix):
     D = pot_matrix[2]
     F = pot_matrix[3]
     alpha = pot_matrix[4]
-    C2 = C*C
+    C2 = C * C
     a2 = alpha * alpha
     r2 = r * r
 
     # Ewald short-range potential and force terms
     U_ewald = A * mt.erfc(alpha * r) / r
-    f_ewald = U_ewald / r2                                                                  # 1/r derivative
-    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(- a2 * r2)                  # erfc derivative
+    f_ewald = U_ewald / r2  # 1/r derivative
+    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(- a2 * r2)  # erfc derivative
 
     # Diffraction potential and force term
     U_diff = -A * np.exp(-C2 * r2 / np.pi) / r
     U_diff += A * C * mt.erfc(C * r / np.sqrt(np.pi))
 
-    f_diff = -A * (2.0 * C2 * r2 + np.pi) * np.exp(- C2 * r2 / np.pi) / (np.pi * r * r2)    # exp(r)/r derivative
-    f_diff += 2.0 * A * C2 * np.exp(- C2 * r2 / np.pi) / r / np.pi                          # erfc derivative
+    f_diff = -A * (2.0 * C2 * r2 + np.pi) * np.exp(- C2 * r2 / np.pi) / (np.pi * r * r2)  # exp(r)/r derivative
+    f_diff += 2.0 * A * C2 * np.exp(- C2 * r2 / np.pi) / r / np.pi  # erfc derivative
 
     # Pauli Term
     U_pauli = D * np.exp(-F * r2)

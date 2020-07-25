@@ -1,5 +1,7 @@
 """
-Module of various types of integrators 
+Module of various types of integrators
+
+
 """
 
 import numpy as np
@@ -15,13 +17,13 @@ class Integrator:
 
     Parameters
     ----------
-        params : class
+    params:  object
         Simulation's parameters.
 
     Attributes
     ----------
-        update : func
-            Integrator choice. 'Verlet' or 'Magnetic_Verlet'.
+    update: func
+        Integrator choice. 'Verlet' or 'Magnetic_Verlet'.
 
     """
 
@@ -43,68 +45,6 @@ class Integrator:
         else:
             print("Only Verlet integrator is supported. Check your input file, integrator part 2.")
 
-    def RK(self, ptcls):
-        """ 
-        Update particle position and velocity based on the 4th order Runge-Kutta method
-        More information can be found here: 
-        https://en.wikipedia.org/wiki/Runge–Kutta_methods
-        or on the Sarkas website. 
-    
-        Parameters
-        ----------
-        ptlcs: particles data. See S_particles.py for the detailed information
-        k1: the vel, acc at the beginng
-        k2: the vel, acc at the middle
-        k3: the vel, acc at the middle if the acc. at the beginning was k2
-        k4: the vel, acc at the end if the acc. at the beginning was k3
-
-        Returns
-        -------
-        U : float
-            Total potential energy
-        """
-        # Import global parameters (is there a better way to do this?)
-        dt = self.params.Control.dt
-        half_dt = 0.5 * dt
-        N = self.params.tot_num_ptcls
-        d = self.params.d
-        Lv = self.params.Lv
-
-        pass
-
-    def RK45(self, ptcls):
-        """ 
-        Update particle position and velocity based on Explicit Runge-Kutta method of order 5(4). 
-        More information can be found here: 
-        https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK45.html
-        https://en.wikipedia.org/wiki/Runge–Kutta_methods
-        or on the Sarkas website. 
-    
-        Parameters
-        ----------
-        ptlcs: class
-               Particles data. See S_particles.py for the detailed information
-
-        Returns
-        -------
-        U : float
-            Total potential energy
-        """
-
-        # Import global parameters (is there a better way to do this?)
-        # Yes use self.params or just pass params
-        dt = self.params.Control.dt
-        N = self.params.tot_num_ptcls
-        d = self.params.d
-        Lv = self.params.Lv
-        PBC = self.params.PBC
-        Lmax_v = self.params.Lmax_v
-        Lmin_v = self.params.Lmin_v
-        pass
-
-    def RK45_with_Langevin(self, ptcls):
-        pass
-
 
 def Verlet(ptcls, params):
     """ 
@@ -114,11 +54,11 @@ def Verlet(ptcls, params):
 
     Parameters
     ----------
-    ptcls: class
-        Particles data. See ``S_particles.py`` for more info.
+    ptcls: object
+        Particles data.
     
-    params : class
-        Simulation's parameters. See ``S_params.py`` for more info.
+    params:  object
+        Simulation's parameters.
 
     Returns
     -------
@@ -137,8 +77,8 @@ def Verlet(ptcls, params):
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
         # Compute total potential energy and acceleration for second half step velocity update
         U = calc_pot_acc(ptcls, params)
-    else:
-        U = calc_pot_acc_fmm(ptcls, params)
+    # else:
+    #     U = calc_pot_acc_fmm(ptcls, params)
 
     # Second half step velocity update
     ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
@@ -148,27 +88,26 @@ def Verlet(ptcls, params):
 
 def Magnetic_Verlet(ptcls, params):
     """
-     Update particles' positions and velocities based on velocity verlet method in the case of a
-     constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [1]_
+    Update particles' positions and velocities based on velocity verlet method in the case of a
+    constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [Chin2008]_
 
-     Parameters
-     ----------
-     ptlcs: class
-            Particles data. See ``S_particles.py`` for more info.
+    Parameters
+    ----------
+    ptcls: object
+        Particles data.
 
-     params : class
-             Simulation's parameters. See ``S_params.py`` for more info.
+    params:  object
+        Simulation's parameters.
 
-     Returns
-     -------
-     U : float
+    Returns
+    -------
+    U : float
          Total potential energy.
 
-     References
-     ----------
-     .. [1] `Chin Phys Rev E 77, 066401 (2008) <https://doi.org/10.1103/PhysRevE.77.066401>`_
-
-     """
+    References
+    ----------
+    .. [Chin2008] `Chin Phys Rev E 77, 066401 (2008) <https://doi.org/10.1103/PhysRevE.77.066401>`_
+    """
     # Time step
     dt = params.Control.dt
     half_dt = 0.5 * dt
@@ -248,27 +187,23 @@ def Magnetic_Verlet(ptcls, params):
 
 def Boris_Magnetic_integrator(ptcls, params):
     """
-     Update particles' positions and velocities using the Boris algorithm in the case of a
-     constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. [1]_
+    Update particles' positions and velocities using the Boris algorithm in the case of a
+    constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. [Chin2008]_
 
-     Parameters
-     ----------
-     ptlcs: class
-            Particles data. See ``S_particles.py`` for more info.
+    Parameters
+    ----------
+    ptcls: object
+        Particles data.
 
-     params : class
-             Simulation's parameters. See ``S_params.py`` for more info.
+    params:  object
+        Simulation's parameters.
 
-     Returns
-     -------
-     U : float
+    Returns
+    -------
+    U : float
          Total potential energy.
 
-     References
-     ----------
-     .. [1] `Chin Phys Rev E 77, 066401 (2008) <https://doi.org/10.1103/PhysRevE.77.066401>`_
-
-     """
+    """
     # Time step
     dt = params.Control.dt
     half_dt = 0.5 * dt
@@ -356,11 +291,11 @@ def calc_pot_acc(ptcls, params):
 
     Parameters
     ----------
-    ptcls : class
-        Particles' data. See ``S_particles.py`` for more information.
+    ptcls: object
+        Particles data.
 
-    params : class
-        Simulation's parameters. See ``S_params.py`` for more information.
+    params:  object
+        Simulation's parameters.
 
     Returns
     -------

@@ -15,8 +15,8 @@ class Particles:
 
     Parameters
     ----------
-    params : class
-        Simulation's parameters. See ``S_params.py`` for more info.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------

@@ -15,7 +15,7 @@ their choosing.
    :caption: Getting Started:
    
    installation
-   tutorial
+   tutorial/tutorial
 
 .. toctree::
    :maxdepth: 2

@@ -1,8 +1,7 @@
   
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,18 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -30,14 +35,10 @@
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Thermostats" href="thermostats.html" />
-    <link rel="prev" title="Sarkas module" href="../api/Sarkas.html" /> 
+    <link rel="prev" title="sarkas.tools.testing module" href="../api/sarkas.tools.testing.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,7 +52,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Sarkas
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Sarkas
           
 
           
@@ -74,6 +75,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -84,11 +86,11 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">sarkas</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul class="current">
@@ -97,7 +99,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#yukawa-potential">Yukawa Potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#quantum-statistical-potential">Quantum Statistical Potential</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
@@ -107,6 +108,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -145,7 +147,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Potentials</li>
     
@@ -205,7 +207,7 @@ Notice that when <span class="math notranslate nohighlight">\(\kappa = 0\)</span
 </div>
 <div class="section" id="exact-gradient-corrected-screened-yukawa-potential">
 <h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
-<p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo <a class="reference internal" href="#stanton2015" id="id2"><span>[Stanton2015]</span></a>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
+<p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo <a class="reference internal" href="../api/sarkas.potentials.yukawa.html#stanton2015" id="id2"><span>[Stanton2015]</span></a>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[\nu = - 3 \lambda \frac{4\pi \bar{e}^2 \beta }{ 4 \pi \Lambda_{e}} \mathcal I_{-3/2}(\eta),\]</div>
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a correction factor; <span class="math notranslate nohighlight">\(\lambda = 1/9\)</span> for the true gradient corrected Thomas-Fermi model and <span class="math notranslate nohighlight">\(\lambda = 1\)</span> for the traditional  von Weissaecker model. In the case <span class="math notranslate nohighlight">\(\nu &lt; 1\)</span> the EGS potential takes the form</p>
@@ -242,15 +244,9 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 <p>and</p>
 <div class="math notranslate nohighlight">
 \[\mu_{ab} = \frac{m_a m_b}{m_a + m_b}\]</div>
-<p>is the thermal de Broglie wavelength between particles <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>. The last term, present only in the interaction between two electrons, accounts for spin-averaged effects. The choice of this potential is due to its widespread use in the High Energy Density Physics community.</p>
-</div>
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<dl class="citation">
-<dt class="label" id="stanton2015"><span class="brackets"><a class="fn-backref" href="#id2">Stanton2015</a></span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.91.033104">L. Stanton and M. Murillo Phys Rev E 91 033104 (2015)</a></p>
-</dd>
-</dl>
+<p>is the thermal de Broglie wavelength between particles <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>. The last term, present only in the
+interaction between two electrons, accounts for spin-averaged effects. The choice of this potential is due to its
+widespread use in the High Energy Density Physics community.</p>
 </div>
 </div>
 
@@ -265,7 +261,7 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
         <a href="thermostats.html" class="btn btn-neutral float-right" title="Thermostats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../api/Sarkas.html" class="btn btn-neutral float-left" title="Sarkas module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../api/sarkas.tools.testing.html" class="btn btn-neutral float-left" title="sarkas.tools.testing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -274,14 +270,22 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 17, 2020.
+        Last updated on Jul, 24, 2020.
       </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -292,7 +296,6 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

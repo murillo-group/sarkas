@@ -1,10 +1,5 @@
 """
-Module for handling EGS Potential as described in Ref. [1]_
-
-References
-----------
-.. [1] `Stanton and Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
-
+Module for handling EGS Potential as described in Ref. [Stanton2015]_
 """
 import numpy as np
 import numba as nb
@@ -13,19 +8,52 @@ import fdint
 import yaml
 
 
-def setup(params, filename):
+def setup(params, read_input=True):
     """
     Updates ``params`` class with EGS potential parameters.
 
     Parameters
     ----------
-    params : class
-        Simulation's parameters. See S_params.py for more info.
+    read_input: bool
+        Flag to read inputs from YAML input file.
 
-    filename : str
-        Input filename.
+    params : object
+        Simulation's parameters
 
     """
+
+    # open the input file to read EGS parameters
+    if read_input:
+        with open(params.input_file, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+            for lkey in dics:
+                if lkey == "Potential":
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if key == "rc":  # cutoff
+                                params.Potential.rc = float(value)
+
+                            # electron temperature for screening parameter calculation
+                            if key == "elec_temperature":
+                                params.Te = float(value)
+
+                            if key == "elec_temperature_eV":
+                                params.Te = params.eV2K * float(value)
+
+    update_params(params)
+
+
+def update_params(params):
+    """
+    Create potential dependent simulation's parameters.
+
+    Parameters
+    ----------
+    params : object
+        Simulation's parameters
+
+    """
+
     """
     EGS_matrix[0,i,j] : kappa = 1.0/lambda_TF or given as input. Same value for all species.
     EGS_matrix[1,i,j] : nu = eq.(14) of Ref
@@ -33,29 +61,21 @@ def setup(params, filename):
     EGS_matrix[3:6,i,j] : other parameters see below.
     EGS_matrix[7,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
     """
-    # constants and conversion factors    
+    if not params.BC.open_axes:
+        params.Potential.LL_on = True  # linked list on
+        if not hasattr(params.Potential, "rc"):
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
+
+        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
+
+    # constants and conversion factors
     twopi = 2.0 * np.pi
     beta_i = 1.0 / (params.kB * params.Ti)
-
-    # open the input file to read Yukawa parameters
-    with open(filename, 'r') as stream:
-        dics = yaml.load(stream, Loader=yaml.FullLoader)
-        for lkey in dics:
-            if lkey == "Potential":
-                for keyword in dics[lkey]:
-                    for key, value in keyword.items():
-                        if key == "kappa":  # screening
-                            params.Potential.kappa = float(value)
-
-                        if key == "Gamma":  # coupling
-                            params.Potential.Gamma = float(value)
-
-                        # electron temperature for screening parameter calculation
-                        if key == "elec_temperature":
-                            params.Te = float(value)
-
-                        if key == "elec_temperature_eV":
-                            params.Te = params.eV2K * float(value)
 
     if not hasattr(params, "Te"):
         print("Electron temperature is not defined. 1st species temperature ", params.species[0].temperature,
@@ -187,8 +207,6 @@ def setup(params, filename):
     if params.Potential.method == "P3M":
         print("\nERROR: P3M Algorithm not implemented yet. Good Bye!")
         sys.exit()
-
-    return
 
 
 @nb.njit

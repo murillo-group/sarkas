@@ -1,8 +1,7 @@
   
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,18 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -30,10 +35,6 @@
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
@@ -49,7 +50,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Sarkas
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Sarkas
           
 
           
@@ -72,6 +73,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -82,11 +84,11 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">sarkas</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
@@ -98,6 +100,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -136,7 +139,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Overview: module code</li>
     
@@ -154,24 +157,24 @@
            <div itemprop="articleBody">
             
   <h1>All modules for which code is available</h1>
-<ul><li><a href="S_calc_force_pm.html">S_calc_force_pm</a></li>
-<li><a href="S_calc_force_pp.html">S_calc_force_pp</a></li>
-<li><a href="S_checkpoint.html">S_checkpoint</a></li>
-<li><a href="S_force_error.html">S_force_error</a></li>
-<li><a href="S_integrator.html">S_integrator</a></li>
-<li><a href="S_params.html">S_params</a></li>
-<li><a href="S_particles.html">S_particles</a></li>
-<li><a href="S_postprocessing.html">S_postprocessing</a></li>
-<li><a href="S_pot_Coulomb.html">S_pot_Coulomb</a></li>
-<li><a href="S_pot_EGS.html">S_pot_EGS</a></li>
-<li><a href="S_pot_LJ.html">S_pot_LJ</a></li>
-<li><a href="S_pot_Moliere.html">S_pot_Moliere</a></li>
-<li><a href="S_pot_QSP.html">S_pot_QSP</a></li>
-<li><a href="S_pot_Yukawa.html">S_pot_Yukawa</a></li>
-<li><a href="S_simulation.html">S_simulation</a></li>
-<li><a href="S_testing.html">S_testing</a></li>
-<li><a href="S_thermostat.html">S_thermostat</a></li>
-<li><a href="S_verbose.html">S_verbose</a></li>
+<ul><li><a href="sarkas/algorithm/force_pm.html">sarkas.algorithm.force_pm</a></li>
+<li><a href="sarkas/algorithm/force_pp.html">sarkas.algorithm.force_pp</a></li>
+<li><a href="sarkas/integrators/integrator.html">sarkas.integrators.integrator</a></li>
+<li><a href="sarkas/io/checkpoint.html">sarkas.io.checkpoint</a></li>
+<li><a href="sarkas/io/verbose.html">sarkas.io.verbose</a></li>
+<li><a href="sarkas/potentials/coulomb.html">sarkas.potentials.coulomb</a></li>
+<li><a href="sarkas/potentials/egs.html">sarkas.potentials.egs</a></li>
+<li><a href="sarkas/potentials/lennardjones612.html">sarkas.potentials.lennardjones612</a></li>
+<li><a href="sarkas/potentials/moliere.html">sarkas.potentials.moliere</a></li>
+<li><a href="sarkas/potentials/qsp.html">sarkas.potentials.qsp</a></li>
+<li><a href="sarkas/potentials/yukawa.html">sarkas.potentials.yukawa</a></li>
+<li><a href="sarkas/simulation/params.html">sarkas.simulation.params</a></li>
+<li><a href="sarkas/simulation/particles.html">sarkas.simulation.particles</a></li>
+<li><a href="sarkas/simulation/simulation.html">sarkas.simulation.simulation</a></li>
+<li><a href="sarkas/thermostats/thermostat.html">sarkas.thermostats.thermostat</a></li>
+<li><a href="sarkas/tools/force_error.html">sarkas.tools.force_error</a></li>
+<li><a href="sarkas/tools/postprocessing.html">sarkas.tools.postprocessing</a></li>
+<li><a href="sarkas/tools/testing.html">sarkas.tools.testing</a></li>
 </ul>
 
            </div>
@@ -184,14 +187,22 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 17, 2020.
+        Last updated on Jul, 24, 2020.
       </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -202,7 +213,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

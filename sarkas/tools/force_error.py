@@ -45,7 +45,7 @@ def analytical_approx_pppm(params):
 
     Parameters
     ----------
-    params: class
+    params : object
         Simulation's parameters
 
     Returns
@@ -139,8 +139,8 @@ def optimal_green_function_timer(params):
 
     Parameters
     ----------
-    params : class
-        Simulation parameters
+    params : object
+        Simulation's parameters
 
     Returns
     -------
@@ -169,10 +169,10 @@ def acceleration_timer(params, ptcls, loops):
 
     Parameters
     ----------
-    params : class
-        Simulation parameters.
+    params : object
+        Simulation's parameters
 
-    ptcls : class
+    ptcls : object
         Particles data.
 
     loops : int
@@ -205,10 +205,10 @@ def pp_acceleration_timer(params, ptcls):
 
     Parameters
     ----------
-    params : class
-        Simulation parameters.
+    params : object
+        Simulation's parameters
 
-    ptcls : class
+    ptcls : object
         Particles data.
 
     Returns
@@ -238,10 +238,10 @@ def pm_acceleration_timer(params, ptcls):
 
     Parameters
     ----------
-    params : class
-        Simulation parameters.
+    params : object
+        Simulation's parameters
 
-    ptcls : class
+    ptcls : object
         Particles data.
 
     Returns

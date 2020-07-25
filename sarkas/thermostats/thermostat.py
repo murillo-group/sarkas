@@ -11,8 +11,8 @@ class Thermostat:
 
     Parameters
     ----------
-    params : class
-        Simulation's parameters.
+    params : object
+        Simulation's parameters
 
     Attributes
     ----------

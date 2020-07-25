@@ -234,8 +234,9 @@ def main(params, estimate=False):
     estimate: bool
         Flag for estimating optimal PPPM parameters.
 
-    params : class
-        Simulation parameters.
+    params: object
+        Simulation's parameters.
+
     """
     loops = 10
     if estimate:

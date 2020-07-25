@@ -110,10 +110,7 @@ and
 .. math::
    \mu_{ab} = \frac{m_a m_b}{m_a + m_b}
 
-is the thermal de Broglie wavelength between particles :math:`a` and :math:`b`. The last term, present only in the interaction between two electrons, accounts for spin-averaged effects. The choice of this potential is due to its widespread use in the High Energy Density Physics community.
-
-References
-----------
-.. [Stanton2015] `L. Stanton and M. Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
-    
+is the thermal de Broglie wavelength between particles :math:`a` and :math:`b`. The last term, present only in the
+interaction between two electrons, accounts for spin-averaged effects. The choice of this potential is due to its
+widespread use in the High Energy Density Physics community.
 

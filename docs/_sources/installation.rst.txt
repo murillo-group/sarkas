@@ -83,6 +83,18 @@ for creating the ``sarkas`` virtual environment.
 
         $ conda deactivate
 
+#. Activate your new sarkas environment enter the sarkas directory
+
+    .. code-block:: bash
+
+        $ cd sarkas
+
+    and install sarkas system wide via
+
+    .. code-block:: bash
+
+        $ python setup.py install
+
 Option 2: Docker Image
 ======================
 Alternatively, you can install a whole Sarkas package including all dependencies/preliminary-packages using Docker_.

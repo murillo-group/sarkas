@@ -1,8 +1,7 @@
   
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,18 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -30,10 +35,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" /> 
@@ -50,7 +51,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> Sarkas
+            <a href="#" class="icon icon-home" alt="Documentation Home"> Sarkas
           
 
           
@@ -73,6 +74,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -83,11 +85,11 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/modules.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">sarkas</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
@@ -99,6 +101,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -137,7 +140,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
         
       <li>Sarkas Documentation</li>
     
@@ -167,33 +170,14 @@ their choosing.</p>
 <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/modules.html">src</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/S_calc_force_pm.html">S_calc_force_pm module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_calc_force_pp.html">S_calc_force_pp module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_checkpoint.html">S_checkpoint module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_force_error.html">S_force_error module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_integrator.html">S_integrator module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_params.html">S_params module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_particles.html">S_particles module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_plots.html">S_plots module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_postprocessing.html">S_postprocessing module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_pot_Coulomb.html">S_pot_Coulomb module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_pot_EGS.html">S_pot_EGS module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_pot_LJ.html">S_pot_LJ module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_pot_Moliere.html">S_pot_Moliere module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_pot_QSP.html">S_pot_QSP module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_pot_Yukawa.html">S_pot_Yukawa module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_simulation.html">S_simulation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_testing.html">S_testing module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_thermostat.html">S_thermostat module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/S_verbose.html">S_verbose module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/Sarkas.html">Sarkas module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">sarkas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/sarkas.html">sarkas package</a></li>
 </ul>
 </li>
 </ul>
@@ -206,7 +190,6 @@ their choosing.</p>
 <li class="toctree-l2"><a class="reference internal" href="theory/potentials.html#yukawa-potential">Yukawa Potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="theory/potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="theory/potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
-<li class="toctree-l2"><a class="reference internal" href="theory/potentials.html#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="theory/thermostats.html">Thermostats</a><ul>
@@ -247,14 +230,22 @@ their choosing.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 17, 2020.
+        Last updated on Jul, 24, 2020.
       </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -265,7 +256,6 @@ their choosing.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

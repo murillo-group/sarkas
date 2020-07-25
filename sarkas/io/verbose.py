@@ -67,7 +67,7 @@ class Verbose:
 
     Parameters
     ----------
-    params : class
+    params : pbject
         Simulation's parameters
 
     """
@@ -111,8 +111,9 @@ class Verbose:
 
         Parameters
         ----------
-        params : class
-            Simulation parameters to print.
+        params : pbject
+            Simulation's parameters
+
         """
 
         screen = sys.stdout
@@ -356,7 +357,17 @@ class Verbose:
         f_log.close()
 
     def timing_study(self, params):
+        """
+        Info specific for timing study.
 
+        Parameters
+        ----------
+        params : object
+            Simulation's parameters
+
+
+
+        """
         screen = sys.stdout
         f_log = open(self.io_file, 'a+')
         repeat = 2 if self.verbose else 1

@@ -4,18 +4,50 @@ Module for handling Coulomb interaction
 
 import numpy as np
 from numba import njit
+import yaml  # IO
 import math as mt
 from sarkas.algorithm.force_pm import force_optimized_green_function as gf_opt
 
 
-def setup(params):
+def setup(params, read_input=True):
     """
     Update ``params`` class with Coulomb's parameters.
 
     Parameters
     ----------
-    params : class
-        Simulation's parameters. See ``S_params.py`` for more info.
+    params : object
+        Simulation's parameters
+
+    read_input: bool
+        Flag to read inputs from YAML input file.
+    """
+    # Do a bunch of checks
+    # P3M algorithm only
+    if not params.Potential.method == "P3M":
+        raise AttributeError('QSP interaction can only be calculated using P3M algorithm.')
+
+    # open the input file to read Yukawa parameters
+    if read_input:
+        with open(params.input_file, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+            for lkey in dics:
+                if lkey == "Potential":
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if key == "rc":  # cutoff
+                                params.Potential.rc = float(value)
+
+    update_params(params)
+
+
+def update_params(params):
+    """
+    Create potential dependent simulation's parameters.
+
+    Parameters
+    ----------
+    params : object
+        Simulation's parameters
 
     """
     """
@@ -25,10 +57,17 @@ def setup(params):
     Coulomb_matrix[1,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
     """
 
-    # Do a bunch of checks
-    # P3M algorithm only
-    if not params.Potential.method == "P3M":
-        raise AttributeError('QSP interaction can only be calculated using P3M algorithm.')
+    if not params.BC.open_axes:
+        params.Potential.LL_on = True  # linked list on
+        if not hasattr(params.Potential, "rc"):
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
+
+        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
 
     Coulomb_matrix = np.zeros((2, params.num_species, params.num_species))
 
@@ -64,7 +103,7 @@ def setup(params):
     wp_tot_sq = 0.0
     for i in range(params.num_species):
         wp2 = 4.0 * np.pi * params.species[i].charge ** 2 * params.species[i].num_density / (
-                    params.species[i].mass * params.fourpie0)
+                params.species[i].mass * params.fourpie0)
         params.species[i].wp = np.sqrt(wp2)
         wp_tot_sq += wp2
 
@@ -90,7 +129,6 @@ def setup(params):
 
     # Total Force Error
     params.P3M.F_err = np.sqrt(params.P3M.PM_err ** 2 + params.P3M.PP_err ** 2)
-    return
 
 
 @njit
@@ -105,8 +143,6 @@ def Coulomb_force_P3M(r, pot_matrix):
 
     pot_matrix : array
         It contains potential dependent variables.
-        pot_matrix[0] = q1*q2/(4*pi*eps0)
-        pot_matrix[1] = Ewald parameter alpha
 
     Returns
     -------
@@ -124,6 +160,6 @@ def Coulomb_force_P3M(r, pot_matrix):
     U_s_r = pot_matrix[0] * mt.erfc(alpha_r) / r
     f1 = mt.erfc(alpha_r) / r2
     f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(- alpha_r ** 2)
-    fr = pot_matrix[0] * (f1 + f2)/r
+    fr = pot_matrix[0] * (f1 + f2) / r
 
     return U_s_r, fr

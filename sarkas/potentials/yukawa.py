@@ -21,9 +21,6 @@ def Yukawa_force_P3M(r, pot_matrix):
 
     pot_matrix : array
         Potential matrix. See setup function above.
-        pot_matrix[0] : qi qj/(4pi esp0) Force factor between two particles.
-        pot_matrix[1] : kappa = 1.0/lambda_TF. Same value for all species.
-        pot_matrix[2] : Ewald parameter
 
     Returns
     -------
@@ -31,11 +28,8 @@ def Yukawa_force_P3M(r, pot_matrix):
         Potential value
                 
     fr : float
-        Force between two particles calculated using eq.(22) in Ref. [Dharuman2017]_
+        Force between two particles calculated using eq.(22) in Ref. [Dharuman2017]_ .
 
-    References
-    ----------
-    .. [Dharuman2017] `G. Dharuman et al. J Chem Phys 146 024112 (2017) <https://doi.org/10.1063/1.4973842>`_
     """
     kappa = pot_matrix[1]
     alpha = pot_matrix[2]  # Ewald parameter alpha
@@ -68,9 +62,7 @@ def Yukawa_force_PP(r, pot_matrix):
 
     pot_matrix : array
         It contains potential dependent variables.
-        pot_matrix[0] : qi qj/(4pi esp0) Force factor between two particles.
-        pot_matrix[1] : kappa = 1.0/lambda_TF or given as input. Same value for all species.
-                    
+
     Returns
     -------
     U : float
@@ -86,22 +78,18 @@ def Yukawa_force_PP(r, pot_matrix):
     return U, force
 
 
-def setup(params, filename):
+def setup(params, read_input=True):
     """ 
     Updates ``params`` class with Yukawa's parameters.
 
     Parameters
     ----------
-    params : class
-        Simulation's parameters. See S_params.py for more info.
+    read_input: bool
+        Flag to read inputs from YAML input file.
 
-    filename : str
-        Input filename.
+    params: object
+        Simulation's parameters.
 
-    References
-    ----------
-    .. [3] `Stanton and Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
-    .. [4] `T. Haxhimali et al. Phys Rev E 90 023104 (2014) <https://doi.org/10.1103/PhysRevE.90.023104>`_
     """
 
     """
@@ -113,21 +101,54 @@ def setup(params, filename):
     """
 
     # open the input file to read Yukawa parameters
-    with open(filename, 'r') as stream:
-        dics = yaml.load(stream, Loader=yaml.FullLoader)
-        for lkey in dics:
-            if lkey == "Potential":
-                for keyword in dics[lkey]:
-                    for key, value in keyword.items():
-                        if key == "kappa":  # screening
-                            params.Potential.kappa = float(value)
+    if read_input:
+        with open(params.input_file, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+            for lkey in dics:
+                if lkey == "Potential":
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if key == "kappa":  # screening
+                                params.Potential.kappa = float(value)
 
-                        # electron temperature for screening parameter calculation
-                        if key == "elec_temperature":
-                            params.Te = float(value)
+                            if key == "rc":  # cutoff
+                                params.Potential.rc = float(value)
 
-                        if key == "elec_temperature_eV":
-                            params.Te = params.eV2K * float(value)
+                            # electron temperature for screening parameter calculation
+                            if key == "elec_temperature":
+                                params.Te = float(value)
+
+                            if key == "elec_temperature_eV":
+                                params.Te = params.eV2K * float(value)
+
+    update_params(params)
+
+
+def update_params(params):
+    """
+    Create potential dependent simulation's parameters.
+
+    Parameters
+    ----------
+    params: object
+        Simulation's parameters.
+
+    References
+    ----------
+    .. [Stanton2015] `Stanton and Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
+    .. [Haxhimali2014] `T. Haxhimali et al. Phys Rev E 90 023104 (2014) <https://doi.org/10.1103/PhysRevE.90.023104>`_
+    """
+    if not params.BC.open_axes:
+        params.Potential.LL_on = True  # linked list on
+        if not hasattr(params.Potential, "rc"):
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
+
+        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
 
     if params.P3M.on:
         Yukawa_matrix = np.zeros((3, params.num_species, params.num_species))
@@ -158,9 +179,9 @@ def setup(params, filename):
         beta = 1. / (params.kB * params.Te)
         thermal_wavelength = np.sqrt(2.0 * np.pi * params.hbar2 * beta / params.me)
         lambda3 = thermal_wavelength ** 3
-        # chemical potential of electron gas/(kB T). See eq.(4) in Ref.[3]_
+        # chemical potential of electron gas/(kB T). See eq.(4) in Ref.[Stanton2015]_
         eta = fdint_ifd1h_vec(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
-        # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
+        # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [Stanton2015]_
         lambda_TF = np.sqrt(params.fourpie0 * np.sqrt(np.pi) * lambda3 / (
                 8.0 * np.pi * params.qe ** 2 * beta * fdint_fdk_vec(k=-0.5, phi=eta)))
     # Calculate the Potential Matrix
@@ -185,7 +206,7 @@ def setup(params, filename):
             Yukawa_matrix[0, i, j] = (Zi * Zj) * params.qe ** 2 / params.fourpie0
 
     # Effective Coupling Parameter in case of multi-species
-    # see eq.(3) in Ref.[4]_
+    # see eq.(3) in Ref.[Haxhimali2014]_
     params.Potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
     params.QFactor /= params.fourpie0
 
@@ -202,14 +223,13 @@ def setup(params, filename):
 
     params.wp = np.sqrt(wp_tot_sq)
 
-    if params.Potential.method == "PP" or params.Potential.method == "brute":
+    if params.Potential.method == "PP":
         params.force = Yukawa_force_PP
         # Force error calculated from eq.(43) in Ref.[1]_
         params.PP_err = np.sqrt(twopi / params.lambda_TF) * np.exp(-params.Potential.rc / params.lambda_TF)
         # Renormalize
         params.PP_err *= params.aws ** 2 * np.sqrt(params.N / params.box_volume)
-
-    if params.Potential.method == "P3M":
+    elif params.Potential.method == "P3M":
         params.force = Yukawa_force_P3M
         # P3M parameters
         params.P3M.hx = params.Lx / float(params.P3M.Mx)
@@ -232,4 +252,3 @@ def setup(params, filename):
         # Total force error
         params.P3M.F_err = np.sqrt(params.P3M.PM_err ** 2 + params.P3M.PP_err ** 2)
 
-    return

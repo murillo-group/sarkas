@@ -127,8 +127,8 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
   
     Parameters
     ----------
-    force: func
-        Force function.
+    force: float, float
+        Potential and force values.
 
     potential_matrix: array
         Potential parameters.
@@ -137,7 +137,7 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
         Cut-off radius.
 
     Lv: array
-        Array of box sides' lentgh.
+        Array of box sides' length.
 
     mass_ij: array
         Mass of each particle.

@@ -1,0 +1,406 @@
+  
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sarkas.tools.force_error module &mdash; Sarkas 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sarkas.tools.postprocessing module" href="sarkas.tools.postprocessing.html" />
+    <link rel="prev" title="sarkas.tools package" href="sarkas.tools.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sarkas.algorithm.html">sarkas.algorithm package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.integrators.html">sarkas.integrators package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.plotting.html">sarkas.plotting package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.thermostats.html">sarkas.thermostats package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#module-sarkas">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">sarkas</a> &raquo;</li>
+        
+          <li><a href="sarkas.html">sarkas package</a> &raquo;</li>
+        
+          <li><a href="sarkas.tools.html">sarkas.tools package</a> &raquo;</li>
+        
+      <li>sarkas.tools.force_error module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/sarkas.tools.force_error.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-sarkas.tools.force_error">
+<span id="sarkas-tools-force-error-module"></span><h1>sarkas.tools.force_error module<a class="headerlink" href="#module-sarkas.tools.force_error" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="sarkas.tools.force_error.Gk">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">Gk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">alpha</span></em>, <em class="sig-param"><span class="n">kappa</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#Gk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.Gk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Green’s function of Coulomb/Yukawa potential.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.acceleration_timer">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">acceleration_timer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">loops</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#acceleration_timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.acceleration_timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the average time for force calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Particles data.</p></li>
+<li><p><strong>loops</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of loops for averaging.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>PP_force_time</strong> (<em>array</em>) – Times for the PP force calculation.</p></li>
+<li><p><strong>PM_force_time</strong> (<em>array</em>) – Times for the PM force calculation.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.analytical_approx_pp">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">analytical_approx_pp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#analytical_approx_pp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.analytical_approx_pp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate PP force error.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.analytical_approx_pppm">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">analytical_approx_pppm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#analytical_approx_pppm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.analytical_approx_pppm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the total force error as given in Dharuman et al. J Chem Phys 146 024112 (2017).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>Tot_DeltaF</strong> (<em>ndarray</em>) – Total force error approximation.</p></li>
+<li><p><strong>DeltaF_PP</strong> (<em>ndarray</em>) – PP force error.</p></li>
+<li><p><strong>DeltaF_PM</strong> (<em>ndarray</em>) – PM force error.</p></li>
+<li><p><strong>rcuts</strong> (<em>array</em>) – Cut off values.</p></li>
+<li><p><strong>alphas</strong> (<em>array</em>) – Ewald parameters.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.analytical_approx_pppm_single">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">analytical_approx_pppm_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kappa</span></em>, <em class="sig-param"><span class="n">rc</span></em>, <em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">alpha</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#analytical_approx_pppm_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.analytical_approx_pppm_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the total force error for a given value of <code class="docutils literal notranslate"><span class="pre">rc</span></code> and <code class="docutils literal notranslate"><span class="pre">alpha</span></code>. See similar function above.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.betamp">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">betamp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">m</span></em>, <em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">alpha</span></em>, <em class="sig-param"><span class="n">kappa</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#betamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.betamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate <span class="math notranslate nohighlight">\(eta(m)\)</span> of eq.(37) in Dharuman et al. J Chem Phys 146 024112 (2017)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.optimal_green_function_timer">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">optimal_green_function_timer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#optimal_green_function_timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.optimal_green_function_timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Optimal Green Function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>green_function_time</strong> – Calculation time.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.pm_acceleration_timer">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">pm_acceleration_timer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#pm_acceleration_timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.pm_acceleration_timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the average time for force calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Particles data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>PM_force_time</strong> – Times for the PP force calculation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.pp_acceleration_timer">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">pp_acceleration_timer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#pp_acceleration_timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.pp_acceleration_timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the average time for force calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Particles data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>PP_force_time</strong> – Times for the PP force calculation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.force_error.print_time_report">
+<code class="sig-prename descclassname">sarkas.tools.force_error.</code><code class="sig-name descname">print_time_report</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">str_id</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">loops</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/force_error.html#print_time_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.force_error.print_time_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print times estimates of simulation.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sarkas.tools.postprocessing.html" class="btn btn-neutral float-right" title="sarkas.tools.postprocessing module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sarkas.tools.html" class="btn btn-neutral float-left" title="sarkas.tools package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Jul, 24, 2020.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

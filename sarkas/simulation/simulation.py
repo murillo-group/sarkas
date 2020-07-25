@@ -22,10 +22,11 @@ def run(params):
     """
     Run a Molecular Dynamics simulation with the parameters given by the input YAML file.
 
-    Paramaters
+    Parameters
     ----------
-    params : class
-        Simulation parameters.
+    params: object
+        Simulation's parameters.
+
     """
     time0 = time.time()
     # For restart and pva backups.
@@ -177,7 +178,7 @@ def run(params):
     ##############################################
     rdf = RadialDistributionFunction(params)
     rdf.save(ptcls.rdf_hist)
-    rdf.plot()
+    rdf.plot(show=False)
 
     # Print elapsed times to screen
     time_tot = time.time()

@@ -12,7 +12,15 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('../sarkas'))
+sys.path.insert(0, os.path.abspath('../sarkas/algorithm'))
+sys.path.insert(0, os.path.abspath('../sarkas/integrators'))
+sys.path.insert(0, os.path.abspath('../sarkas/io'))
+sys.path.insert(0, os.path.abspath('../sarkas/plotting'))
+sys.path.insert(0, os.path.abspath('../sarkas/potentials'))
+sys.path.insert(0, os.path.abspath('../sarkas/simulation'))
+sys.path.insert(0, os.path.abspath('../sarkas/thermostats'))
+sys.path.insert(0, os.path.abspath('../sarkas/tools'))
 
 intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
@@ -63,7 +71,7 @@ napoleon_use_param = True
 napoleon_use_rtype = True
 
 autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
-                        'pyfftw', 'pyfiglet', 'tqdm', 'fmm3dpy', 'Sarkas']
+                        'pyfftw', 'pyfiglet', 'tqdm', 'fmm3dpy']
 
 
 html_last_updated_fmt = '%b, %d, %Y'
@@ -74,7 +82,12 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build',
+                    'notebooks',
+                    'scripts',
+                    'tests',
+                    'Thumbs.db',
+                    '.DS_Store']
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -88,9 +101,10 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+import sarkas
 
 # -- APIDoc configuration -----------------------------------------------------
-apidoc_module_dir = '../src'
+apidoc_module_dir = '../sarkas'
 apidoc_output_dir = 'api'
-# apidoc_excluded_paths = ['*tests*', '*setup_package*']
-# apidoc_separate_modules = True
+apidoc_excluded_paths = ['*tests*', '*notebooks*']
+apidoc_separate_modules = True

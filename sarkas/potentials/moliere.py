@@ -1,9 +1,5 @@
 """
-Module for handling Moliere Potential as given by Ref. [1]_
-
-References
-----------
-.. [1] `W.D. Wilson et al., Phys Rev B 15, 2458 (1977) <https://doi.org/10.1103/PhysRevB.15.2458>`_
+Module for handling Moliere Potential
 """
 import numpy as np
 import numba as nb
@@ -11,41 +7,69 @@ import sys
 import yaml
 
 
-def Moliere_setup(params, filename):
+def setup(params, read_input=True):
     """
-    Updates ``params`` class with Moliere potential paramters.
+    Updates ``params`` class with Moliere's parameters as given by Ref. [Wilson1977]_ .
 
     Parameters
     ----------
-    params : class
-        Simulation's parameters. See ``S_params.py`` for more info.
+    read_input: bool
+        Flag to read inputs from YAML input file.
 
-    filename : string
-        Input filename.
+    params : Params class
+        Simulation's parameters.
+
+    References
+    ----------
+    .. [Wilson1977] `W.D. Wilson et al., Phys Rev B 15, 2458 (1977) <https://doi.org/10.1103/PhysRevB.15.2458>`_
+    """
+    if read_input:
+        with open(params.input_file, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+
+            for lkey in dics:
+                if lkey == "Potential":
+                    for keyword in dics[lkey]:
+                        for key, value in keyword.items():
+                            if key == "C":
+                                params.Potential.C_params = np.array(value)
+
+                            if key == "rc":  # cutoff
+                                params.Potential.rc = float(value)
+
+                            if key == "b":
+                                params.Potential.b_params = np.array(value)
+
+    update_params(params)
+
+
+def update_params(params):
+    """
+    Create potential dependent simulation's parameters as given by Ref. [Wilson1977]_ .
+
+    Parameters
+    ----------
+    params : Params class
+        Simulation's parameters.
 
     """
-
     twopi = 2.0 * np.pi
     beta_i = 1.0 / (params.kB * params.Ti)
+    if not params.BC.open_axes:
+        params.Potential.LL_on = True  # linked list on
+        if not hasattr(params.Potential, "rc"):
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
 
-    with open(filename, 'r') as stream:
-        dics = yaml.load(stream, Loader=yaml.FullLoader)
+        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
+            params.Potential.rc = params.Lv.min() / 2.
+            params.Potential.LL_on = False  # linked list off
 
-        for lkey in dics:
-            if lkey == "Potential":
-                for keyword in dics[lkey]:
-                    for key, value in keyword.items():
-                        if key == "C":
-                            C_params = np.array(value)
+    params_len = int(2 * len(params.Potential.C_params))
 
-                        if key == "b":
-                            b_params = np.array(value)
-
-    params_len = int(2 * len(C_params))
-    if params.P3M.on:
-        Moliere_matrix = np.zeros((params_len + 2, params.num_species, params.num_species))
-    else:
-        Moliere_matrix = np.zeros((params_len + 1, params.num_species, params.num_species))
+    Moliere_matrix = np.zeros((params_len + 1, params.num_species, params.num_species))
 
     Z53 = 0.0
     Z_avg = 0.0
@@ -64,8 +88,8 @@ def Moliere_setup(params, filename):
             else:
                 Zj = 1.0
 
-            Moliere_matrix[0:len(C_params), i, j] = C_params
-            Moliere_matrix[len(C_params):params_len, i, j] = b_params
+            Moliere_matrix[0:len(params.Potential.C_params), i, j] = params.Potential.C_params
+            Moliere_matrix[len(params.Potential.C_params):params_len, i, j] = params.Potential.b_params
             Moliere_matrix[params_len, i, j] = (Zi * Zj) * params.qe * params.qe / params.fourpie0
 
     # Effective Coupling Parameter in case of multi-species
@@ -87,15 +111,10 @@ def Moliere_setup(params, filename):
         params.force = Moliere_force_PP
 
         # Force error calculated from eq.(43) in Ref.[1]_
-        params.PP_err = np.sqrt(twopi / b_params.min()) * np.exp(-params.Potential.rc / b_params.min())
+        params.PP_err = np.sqrt(twopi / params.Potential.b_params.min()) \
+                        * np.exp(-params.Potential.rc / params.Potential.b_params.min())
         # Renormalize
         params.PP_err = params.PP_err * params.aws ** 2 * np.sqrt(params.N / params.box_volume)
-
-    if params.Potential.method == "P3M":
-        print("\nP3M Algorithm not implemented yet. Good Bye!")
-        sys.exit()
-
-    return
 
 
 @nb.njit

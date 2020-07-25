@@ -14,131 +14,131 @@ class Params:
     
     Attributes
     ----------
-        aws : float
-            Wigner-Seitz radius. Calculated from the ``total_num_density`` .
+    aws : float
+        Wigner-Seitz radius. Calculated from the ``total_num_density`` .
 
-        box_volume : float
-            Box volume.
+    box_volume : float
+        Box volume.
 
-        dimensions : int
-            Number of non-zero dimensions.
+    dimensions : int
+        Number of non-zero dimensions.
 
-        fourpie0: float
-            Electrostatic constant :math: `4\pi \espilon_0`.
+    fourpie0: float
+        Electrostatic constant :math: `4\pi \espilon_0`.
 
-        species : list
-            List of Species objects with species' information.
+    species : list
+        List of Species objects with species' information.
 
-        load_method : str
-            Particles loading described in Species.
-        
-        load_rand_seed : int
-            Seed of random number generator.
+    load_method : str
+        Particles loading described in Species.
 
-        load_restart_step : int
-            Restart time step.
+    load_rand_seed : int
+        Seed of random number generator.
 
-        load_r_reject : float
-            Rejection radius to avoid placing particles to close to each other.
+    load_restart_step : int
+        Restart time step.
 
-        load_perturb : float
-            Strength of initial perturbation.
+    load_r_reject : float
+        Rejection radius to avoid placing particles to close to each other.
 
-        load_halton_bases : array, shape(3)
-            Array of 3 ints each of which is a base for the Halton sequence.
+    load_perturb : float
+        Strength of initial perturbation.
 
-        num_species : int
-            Number of species.
+    load_halton_bases : array, shape(3)
+        Array of 3 ints each of which is a base for the Halton sequence.
 
-        kB : float
-            Boltzmann constant obtained from ``scipy.constants``.
+    num_species : int
+        Number of species.
 
-        hbar : float
-            Reduced Planck's constant.
+    kB : float
+        Boltzmann constant obtained from ``scipy.constants``.
 
-        hbar2 : float
-            Square of reduced Planck's constant.
+    hbar : float
+        Reduced Planck's constant.
 
-        a0 : float
-            Bohr Radius.
+    hbar2 : float
+        Square of reduced Planck's constant.
 
-        c0 : float
-            Speed of light.
+    a0 : float
+        Bohr Radius.
 
-        qe : float
-            Elementary charge.
+    c0 : float
+        Speed of light.
 
-        me : float
-            Electron mass.
+    qe : float
+        Elementary charge.
 
-        eps0 : float
-            Vacuum electrical permittivity.
+    me : float
+        Electron mass.
 
-        eV2K : float
-            Conversion factor from eV to Kelvin obtained from ``scipy.constants``.
+    eps0 : float
+        Vacuum electrical permittivity.
 
-        J2erg : float
-            Conversion factor from Joules to erg. Needed for cgs units.
+    eV2K : float
+        Conversion factor from eV to Kelvin obtained from ``scipy.constants``.
 
-        QFactor : float
-            Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2` .
-        
-        L : float
-            Smallest box length.
+    J2erg : float
+        Conversion factor from Joules to erg. Needed for cgs units.
 
-        Lx : float
-            Box length in the :math:`x` direction.
+    QFactor : float
+        Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2` .
 
-        Ly : float
-            Box length in the :math:`y` direction.
+    L : float
+        Smallest box length.
 
-        Lz : float
-            Box length in the :math:`z` direction.
+    Lx : float
+        Box length in the :math:`x` direction.
 
-        Lv : array, shape(3)
-            Box length in each direction.
+    Ly : float
+        Box length in the :math:`y` direction.
 
-        e1 : float
-            Unit vector in the :math:`x` direction.
+    Lz : float
+        Box length in the :math:`z` direction.
 
-        e2 : float
-            Unit vector in the :math:`y` direction.
+    Lv : array, shape(3)
+        Box length in each direction.
 
-        e3 : float
-            Unit vector in the :math:`z` direction.
+    e1 : float
+        Unit vector in the :math:`x` direction.
 
-        N : int
-            Total number of particles same as ``tot_num_ptcls``.
+    e2 : float
+        Unit vector in the :math:`y` direction.
 
-        P3M : class
-            P3M algorithm's parameters.
+    e3 : float
+        Unit vector in the :math:`z` direction.
 
-        ptcls_input_file : str
-            User defined input file containing particles' data.
+    N : int
+        Total number of particles same as ``tot_num_ptcls``.
 
-        Te : float
-            Equilibrium electron temperature. Defined in Potential module.
+    ptcls_input_file : str
+        User defined input file containing particles' data.
 
-        Ti : float
-            Total Equilibrium Ion temperature.
+    input_file : str
+        YAML Input file with all the simulation's parameters.
 
-        T_desired : float
-            Equilibrium temperature.
+    Te : float
+        Equilibrium electron temperature. Defined in Potential module.
 
-        tot_net_charge : float
-            Total charge in the system.
+    Ti : float
+        Total Equilibrium Ion temperature.
 
-        total_num_density : float
-            Total number density. Calculated from the sum of ``Species.num_density``.
+    T_desired : float
+        Equilibrium temperature.
 
-        total_num_ptcls : int
-            Total number of particles. Calculated from the sum of ``Species.num``.
+    tot_net_charge : float
+        Total charge in the system.
 
-        wp : float
-            Total Plasma frequency. Defined in Potential module.
+    total_num_density : float
+        Total number density. Calculated from the sum of ``Species.num_density``.
 
-        force : func
-            Function for force calculation. Assigned in Potential module.
+    total_num_ptcls : int
+        Total number of particles. Calculated from the sum of ``Species.num``.
+
+    wp : float
+        Total Plasma frequency. Defined in Potential module.
+
+    force : func
+        Function for force calculation. Assigned in Potential module.
     """
 
     def __init__(self):
@@ -277,19 +277,19 @@ class Params:
 
         Attributes
         ----------
-            matrix : array
-                Potential's parameters.
+        matrix : array
+            Potential's parameters.
 
-            method : str
-                Algorithm to use for force calculations.
-                "PP" = Linked Cell List (default).
-                "P3M" = Particle-Particle Particle-Mesh.
-            
-            rc : float
-                Cutoff radius.
-            
-            type : str
-                Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.
+        method : str
+            Algorithm to use for force calculations.
+            "PP" = Linked Cell List (default).
+            "P3M" = Particle-Particle Particle-Mesh.
+
+        rc : float
+            Cutoff radius.
+
+        type : str
+            Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.
 
         """
 
@@ -302,68 +302,68 @@ class Params:
 
         Attributes
         ----------
-            aliases : array, shape(3)
-                Number of aliases in each direction.
+        aliases : array, shape(3)
+            Number of aliases in each direction.
 
-            cao : int
-                Charge assignment order. 
+        cao : int
+            Charge assignment order.
 
-            on : bool
-                Flag. 
+        on : bool
+            Flag.
 
-            MGrid : array, shape(3), int
-                Number of mesh point in each direction.
+        MGrid : array, shape(3), int
+            Number of mesh point in each direction.
 
-            Mx : int
-                Number of mesh point along the :math:`x` axis.
+        Mx : int
+            Number of mesh point along the :math:`x` axis.
 
-            My : int
-                Number of mesh point along the :math:`y` axis.
+        My : int
+            Number of mesh point along the :math:`y` axis.
 
-            Mz : int
-                Number of mesh point along the :math:`z` axis.
-            
-            mx_max : int 
-                Number of aliases along the reciprocal :math:`x` direction.
+        Mz : int
+            Number of mesh point along the :math:`z` axis.
 
-            my_max : int 
-                Number of aliases along the reciprocal :math:`y` direction.
-            
-            mz_max : int 
-                Number of aliases along the reciprocal :math:`z` direction.
-            
-            G_ew : float
-                Ewald parameter.
+        mx_max : int
+            Number of aliases along the reciprocal :math:`x` direction.
 
-            G_k : array
-                Optimized Green's function.
+        my_max : int
+            Number of aliases along the reciprocal :math:`y` direction.
 
-            hx : float
-                Mesh spacing in :math:`x` direction.
+        mz_max : int
+            Number of aliases along the reciprocal :math:`z` direction.
 
-            hy : float
-                Mesh spacing in :math:`y` direction.
+        G_ew : float
+            Ewald parameter.
 
-            hz : float
-                Mesh spacing in :math:`z` direction.
-            
-            PP_err : float
-                Force error due to short range cutoff.
+        G_k : array
+            Optimized Green's function.
 
-            PM_err : float
-                Force error due to long range cutoff.
+        hx : float
+            Mesh spacing in :math:`x` direction.
 
-            F_err : float
-                Total force error.
+        hy : float
+            Mesh spacing in :math:`y` direction.
 
-            kx_v : array
-                Array of :math:`k_x` values.
+        hz : float
+            Mesh spacing in :math:`z` direction.
 
-            ky_v : array
-                Array of :math:`k_y` values.
+        PP_err : float
+            Force error due to short range cutoff.
 
-            kz_v : array
-                Array of :math:`k_z` values.
+        PM_err : float
+            Force error due to long range cutoff.
+
+        F_err : float
+            Total force error.
+
+        kx_v : array
+            Array of :math:`k_x` values.
+
+        ky_v : array
+            Array of :math:`k_y` values.
+
+        kz_v : array
+            Array of :math:`k_z` values.
 
         """
 
@@ -519,10 +519,10 @@ class Params:
         args : dict
             Input arguments
         """
-        filename = args["input_file"]
+        self.input_file = args["input_file"]
 
         # Parse parameters from input file
-        self.common_parser(filename)
+        self.common_parser(self.input_file)
         self.create_directories(args)
         self.assign_attributes()
 
@@ -534,39 +534,27 @@ class Params:
         # Yukawa potential
         if self.Potential.type == "Yukawa":
             from sarkas.potentials import yukawa as Yukawa
-            Yukawa.setup(self, filename)
+            Yukawa.setup(self)
 
         # exact gradient-corrected screening (EGS) potential
         if self.Potential.type == "EGS":
             from sarkas.potentials import egs as EGS
-            EGS.setup(self, filename)
+            EGS.setup(self)
 
         # Lennard-Jones potential
         if self.Potential.type == "LJ":
             from sarkas.potentials import lennardjones612 as LJ
-            LJ.setup(self, filename)
+            LJ.setup(self)
 
         # Moliere potential
         if self.Potential.type == "Moliere":
             from sarkas.potentials import moliere as Moliere
-            Moliere.Moliere_setup(self, filename)
+            Moliere.setup(self)
 
         # QSP potential
         if self.Potential.type == "QSP":
             from sarkas.potentials import qsp as QSP
-            QSP.setup(self, filename)
-
-        if not self.BC.open_axes:
-            self.Potential.LL_on = 1  # linked list on
-            if not hasattr(self.Potential, "rc"):
-                print("\nWARNING: The cut-off radius is not defined. L/2 = ", self.Lv.min() / 2, "will be used as rc")
-                self.Potential.rc = self.Lv.min() / 2.
-                self.Potential.LL_on = 0  # linked list off
-
-            if self.Potential.method == "PP" and self.Potential.rc > self.Lv.min() / 2.:
-                print("\nWARNING: The cut-off radius is > L/2. L/2 = ", self.Lv.min() / 2, "will be used as rc")
-                self.Potential.rc = self.Lv.min() / 2.
-                self.Potential.LL_on = 0  # linked list off
+            QSP.setup(self)
 
         return
 
