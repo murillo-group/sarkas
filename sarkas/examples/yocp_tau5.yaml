@@ -31,8 +31,8 @@ Thermostat:
 
 Control:
     - units: mks                    # units
-    - dt: 1.87773e-12            # sec
-    - Neq: 5000                      # number of timesteps for the equilibrium
+    - dt: 1.87773e-11            # sec
+    - Neq: 1000                      # number of timesteps for the equilibrium
     - Nsteps: 0                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step

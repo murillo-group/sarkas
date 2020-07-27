@@ -894,7 +894,7 @@ class HermiteCoefficients:
             self.no_bins = params.PostProcessing.hermite_nbins  # number of ka values
 
         if not hasattr(params.PostProcessing, 'hermite_order'):
-            self.hermite_order = 5
+            self.hermite_order = 7
         else:
             self.hermite_order = params.PostProcessing.hermite_order
         self.dump_dir = params.Control.dump_dir
@@ -916,12 +916,15 @@ class HermiteCoefficients:
         self.wp = params.wp
         self.kB = params.kB
         self.species_np = np.zeros(self.no_species)  # Number of particles of each species
+        self.species_masses = np.zeros(self.no_species)  # Number of particles of each species
         self.species_names = []
         self.dt = params.Control.dt
+        self.species_temperatures = params.Thermostat.temperatures
 
-        for i in range(self.no_species):
-            self.species_np[i] = int(params.species[i].num)
-            self.species_names.append(params.species[i].name)
+        for i, sp in enumerate(params.species):
+            self.species_np[i] = int(sp.num)
+            self.species_names.append(sp.name)
+            self.species_masses[i] = sp.mass
 
     def compute(self):
         """
@@ -936,7 +939,7 @@ class HermiteCoefficients:
 
         time = np.zeros(self.no_dumps)
         print("Computing Hermite Coefficients ...")
-        for it in range(self.no_dumps - 1):
+        for it in range(self.no_dumps):
             time[it] = it * self.dt * self.dump_step
             dump = int(it * self.dump_step)
             datap = load_from_restart(self.dump_dir, dump)
@@ -1005,29 +1008,54 @@ class HermiteCoefficients:
             self.species_plots_dirs = [self.plots_dir]
 
         for sp, name in enumerate(self.species_names):
-            fig, ax = plt.subplots(2, 3, sharex=True, constrained_layout=True, figsize=(16, 9))
-            for ip in range(2):
-                for jp in range(3):
-                    indx = (ip * 3 + jp)
-                    xcolumn = "{} Hermite x Coeff a{}".format(name, indx)
-                    ycolumn = "{} Hermite y Coeff a{}".format(name, indx)
-                    zcolumn = "{} Hermite z Coeff a{}".format(name, indx)
-                    xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"], np.array([1.0]),
-                                                                           'Time', 'none', self.units)
-                    ax[ip, jp].plot(self.dataframe["Time"] * xmul, self.dataframe[xcolumn], label=r"$x$ Coeff")
-                    ax[ip, jp].plot(self.dataframe["Time"] * xmul, self.dataframe[ycolumn], label=r"$y$ Coeff")
-                    ax[ip, jp].plot(self.dataframe["Time"] * xmul, self.dataframe[zcolumn], label=r"$z$ Coeff")
-                    ax[ip, jp].set_title(r'Coefficient $a_{}$'.format(indx))
+            fig, ax = plt.subplots(1, 2, sharex=True, constrained_layout=True, figsize=(16, 9))
+            for indx in range(self.hermite_order):
+                xcolumn = "{} Hermite x Coeff a{}".format(name, indx)
+                ycolumn = "{} Hermite y Coeff a{}".format(name, indx)
+                zcolumn = "{} Hermite z Coeff a{}".format(name, indx)
+                xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"], np.array([1.0]),
+                                                                       'Time', 'none', self.units)
+                ia = int(indx % 2)
+                ax[ia].plot(self.dataframe["Time"] * xmul, self.dataframe[xcolumn] + ia * (indx - 1),
+                            ls='-', label=r"$a_{" + str(indx) + " , x}$")
+                ax[ia].plot(self.dataframe["Time"] * xmul, self.dataframe[ycolumn] + ia * (indx - 1),
+                            ls='--', label=r"$a_{" + str(indx) + " , y}$")
+                ax[ia].plot(self.dataframe["Time"] * xmul, self.dataframe[zcolumn] + ia * (indx - 1),
+                            ls='-.', label=r"$a_{" + str(indx) + " , z}$")
 
-                    if ip == 1:
-                        ax[ip, jp].set_xlabel(r'$t$' + xlbl)
+            ax[0].set_title(r'Even Coefficients')
+            ax[1].set_title(r'Odd Coefficients')
 
-            ax[0, 0].legend(loc='best')
-            ax[0, 0].set_ylim(0, 2)
-            # ax[0, 1].set_ylim(-0.1, 0.1)
-            # ax[1, 0].set_ylim(-0.1, 0.1)
-            # ax[1, 2].set_ylim(-0.2, 0.2)
-            # ratio = self.species_np[1] / self.species_np[0]
+            ax[0].set_xlabel(r'$t$' + xlbl)
+            ax[1].set_xlabel(r'$t$' + xlbl)
+
+            sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp]) / (self.a_ws * self.wp)
+
+            for i in range(0, self.hermite_order, 2):
+                coeff = np.zeros(i + 1)
+                coeff[-1] = 1.0
+                print("Equilibrium a{} = {:1.2f} ".format(i, np.polynomial.hermite_e.hermeval(sigma, coeff) ))
+
+            # t_end = self.dataframe["Time"].iloc[-1] * xmul/2
+            # ax[0].text(t_end, 1.1, r"$a_{0,\rm{eq}} = 1 $", transform=ax[0].transData)
+            # # ax[0].axhline(1, ls=':', c='k', label=r"$a_{0,\rm{eq}}$")
+            #
+            # ax[0].text(t_end, a2_eq * 0.97, r"$a_{2,\rm{eq}} = " + "{:1.2f}".format(a2_eq) +"$",
+            #            transform=ax[0].transData)
+            #
+            # if self.hermite_order > 3:
+            #     ax[0].text(t_end, a4_eq * 1.1, r"$a_{4,\rm{eq}} = " + "{:1.2f}".format(a4_eq) + "$",
+            #                transform=ax[0].transData)
+            #
+            # if self.hermite_order > 5:
+            #     ax[0].text(t_end, a6_eq * .98, r"$a_{6,\rm{eq}} = " + "{:1.2f}".format(a6_eq) + "$",
+            #                transform=ax[0].transData)
+
+            ax[0].legend(loc='best', ncol=int( self.hermite_order / 2 + self.hermite_order % 2))
+            ax[1].legend(loc='best', ncol=int( self.hermite_order / 2))
+            yt = np.arange(0, self.hermite_order + self.hermite_order % 2, 2)
+            ax[1].set_yticks(yt)
+            ax[1].set_yticklabels( np.zeros(len(yt)) )
             fig.suptitle("Hermite Coefficients of {}".format(name))
             plot_name = os.path.join(self.species_plots_dirs[sp], '{}_HermCoeffPlot_'.format(name)
                                      + self.fname_app + '.png')
@@ -2699,8 +2727,8 @@ class VelocityMoments:
             self.dataframe["{} vz 4th moment".format(sp)] = moments[:, int(9 * i) + 7]
             self.dataframe["{} vz 6th moment".format(sp)] = moments[:, int(9 * i) + 8]
 
-            self.ratios_dataframe["{} 4-2 moment ratio".format(sp)] = ratios[i, 0, :]
-            self.ratios_dataframe["{} 6-2 moment ratio".format(sp)] = ratios[i, 1, :]
+            self.dataframe["{} 4-2 moment ratio".format(sp)] = ratios[i, 0, :]
+            self.dataframe["{} 6-2 moment ratio".format(sp)] = ratios[i, 1, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -3895,10 +3923,9 @@ def read_pickle(params_dir):
         Params dictionary.
 
     """
-    
+
     pickle_file = os.path.join(params_dir, "S_parameters.pickle")
 
     data = np.load(pickle_file, allow_pickle=True)
 
     return data
-

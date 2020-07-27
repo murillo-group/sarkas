@@ -158,6 +158,7 @@ class Params:
         self.hbar2 = self.hbar ** 2
         self.c0 = const.physical_constants["speed of light in vacuum"][0]
         self.eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
+        self.eV2J = const.physical_constants["electron volt-joule relationship"][0]
         self.a0 = const.physical_constants["Bohr radius"][0]
         self.kB = const.Boltzmann
         self.aws = 0.0
@@ -568,6 +569,8 @@ class Params:
             Input file's name.
 
         """
+        self.input_file = filename
+
         with open(filename, 'r') as stream:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
 
