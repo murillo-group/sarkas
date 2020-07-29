@@ -12,6 +12,7 @@ Submodules
    sarkas.potentials.lennardjones612
    sarkas.potentials.moliere
    sarkas.potentials.qsp
+   sarkas.potentials.tabulated
    sarkas.potentials.yukawa
 
 Module contents

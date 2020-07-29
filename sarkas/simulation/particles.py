@@ -68,7 +68,8 @@ class Particles:
         Initialize the attributes
         """
         self.params = params
-        self.checkpoint_dir = os.path.join(params.Control.checkpoint_dir,"Particles_Data")
+        self.checkpoint_dir = params.Control.dump_dir
+        self.therm_checkpoint_dir = params.Control.therm_dump_dir
         self.box_lengths = params.Lv
         self.tot_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
@@ -83,9 +84,9 @@ class Particles:
 
         self.species_name = np.empty(self.tot_num_ptcls, dtype='object')
         self.species_id = np.zeros((self.tot_num_ptcls,), dtype=int)
-        self.species_num = np.zeros(self.params.num_species, dtype=int)
-        self.species_conc = np.zeros(self.params.num_species)
-        self.species_mass = np.zeros(self.params.num_species)
+        self.species_num = np.zeros(params.num_species, dtype=int)
+        self.species_conc = np.zeros(params.num_species)
+        self.species_mass = np.zeros(params.num_species)
 
         self.mass = np.zeros(self.tot_num_ptcls)  # mass of each particle
         self.charge = np.zeros(self.tot_num_ptcls)  # charge of each particle
@@ -136,13 +137,20 @@ class Particles:
             if not type(params.load_restart_step) is int:
                 raise TypeError("Only integers are allowed.")
             self.load_from_restart(params.load_restart_step)
+        elif params.load_method == 'therm_restart':
+            if params.load_therm_restart_step is None:
+                raise AttributeError("Therm Restart step not defined. Please define restart_step in YAML file.")
+            if not type(params.load_therm_restart_step) is int:
+                raise TypeError("Only integers are allowed.")
+            self.load_from_therm_restart(params.load_therm_restart_step)
+
         elif params.load_method == 'file':
             if params.ptcls_input_file is None:
                 raise AttributeError('Input file not defined. Please define particle_input_file in YAML file.')
             self.load_from_file(params.ptcls_input_file)
         else:
             # Particles Velocities Initialization
-            if self.params.Control.verbose:
+            if params.Control.verbose:
                 print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
 
             Vsigma = np.zeros(params.num_species)
@@ -266,6 +274,24 @@ class Particles:
         self.acc = data["acc"]
         self.pbc_cntr = data["cntr"]
         self.rdf_hist = data["rdf_hist"]
+
+    def load_from_therm_restart(self, it):
+        """
+        Load particles' data from a checkpoint of a previous run
+
+        Parameters
+        ----------
+        it : int
+            Timestep.
+
+        """
+        file_name = os.path.join(self.therm_checkpoint_dir, "S_checkpoint_" + str(it) + ".npz")
+        data = np.load(file_name, allow_pickle=True)
+        self.species_id = data["species_id"]
+        self.species_name = data["species_name"]
+        self.pos = data["pos"]
+        self.vel = data["vel"]
+        self.acc = data["acc"]
 
     def load_from_file(self, f_name):
         """

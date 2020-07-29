@@ -7,13 +7,12 @@ Module of various types of integrators
 import numpy as np
 import numba as nb
 # import fmm3dpy as fmm
-import sys
 from sarkas.algorithm import force_pp, force_pm
 
 
 class Integrator:
     """
-    Assign integrator type.
+    Class used to assign integrator type.
 
     Parameters
     ----------
@@ -32,10 +31,9 @@ class Integrator:
         if params.Integrator.type == "Verlet":
             if params.Langevin.on:
                 if params.Langevin.type == "BBK":
-                    self.update = self.Verlet_with_Langevin  # currently only BBK.
+                    self.update = Verlet_with_Langevin  # currently only BBK.
                 else:
-                    print("No such Langevin type.")
-                    sys.exit()
+                    raise AttributeError('Wrong Langevin type.')
             else:
                 self.update = Verlet
         elif params.Integrator.type == "Magnetic_Verlet":
@@ -82,6 +80,65 @@ def Verlet(ptcls, params):
 
     # Second half step velocity update
     ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
+
+    return U
+
+
+def Verlet_with_Langevin(ptcls, params):
+    """
+    Calculate particles dynamics using the Velocity Verlet algorithm and Langevin damping.
+
+    Parameters
+    ----------
+    ptcls: object
+        Particles data.
+
+    params:  object
+        Simulation's parameters.
+
+    Returns
+    -------
+    U : float
+        Total potential energy
+
+    """
+
+    beta = np.random.normal(0., 1., 3 * params.total_num_ptcls).reshape(params.total_num_ptcls, 3)
+
+    sp_start = 0  # start index for species loop
+    for ic in range(params.num_species):
+        sp_end = sp_start + params.species[ic].num
+        # sigma
+        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.Thermostat.temperatures[ic] / params.species[ic].mass)
+
+        c1 = (1. - 0.5 * params.Langevin.gamma * params.Control.dt)
+        # c2 = 1./(1. + 0.5*g*dt)
+
+        ptcls.pos[sp_start:sp_end, :] += c1 * params.Control.dt * ptcls.vel[sp_start:sp_end, :] \
+                                         + 0.5 * params.Contro.dt ** 2 * ptcls.acc[sp_start:sp_end, :] \
+                                         + 0.5 * sig * params.Control.dt ** 1.5 * beta
+
+    # Periodic boundary condition
+    if params.Control.PBC == 1:
+        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
+
+    acc_old = np.copy(ptcls.acc)
+    U = calc_pot_acc(ptcls, params)
+
+    sp_start = 0
+    for ic in range(params.num_species):
+        sp_end = sp_start + params.species[ic].num
+        # sigma
+        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.Thermostat.temperatures[ic] / params.species[ic].mass)
+
+        c1 = (1. - 0.5 * params.Langevin.gamma * params.Control.dt)
+        c2 = 1. / (1. + 0.5 * params.Langevin.gamma * params.Control.dt)
+
+        ptcls.vel[sp_start:sp_end, :] = c1 * c2 * ptcls.vel[sp_start:sp_end, :] \
+                                        + 0.5 * c2 * params.Control.dt * (ptcls.acc[sp_start:sp_end, :]
+                                                                     + acc_old[sp_start:sp_end,:]) \
+                                        + c2 * sig * np.sqrt(params.Control.dt) * beta
+        sp_start = sp_end
 
     return U
 
@@ -336,7 +393,6 @@ def calc_pot_acc(ptcls, params):
         U += 2.0 * np.pi * np.sum(dipole ** 2) / (3.0 * params.box_volume * params.fourpie0)
 
     return U
-
 
 # def calc_pot_acc_fmm(ptcls, params):
 #     """

@@ -31,14 +31,14 @@ Particles:
 Potential:
     - type: Yukawa                 # potential type
     - method: P3M                    # Linked-cell
-    - rc: 2.279968e-08              # cut-off radius, centimeter
+    - rc: 6.8951e-08             # cut-off radius, centimeter
     - elec_temperature_eV: 200.0
 
 P3M:
-    - MGrid: [6,6,6]
+    - MGrid: [112, 112, 112]
     - aliases: [3,3,3]
-    - cao: 7
-    - alpha_ewald: 4.386027e+06    # 1/cm
+    - cao: 6
+    - alpha_ewald: 6.1615e+07    # 1/cm
 
 BoundaryConditions:
     - periodic: ["x", "y", "z"]
@@ -58,8 +58,8 @@ Control:
     - Neq: 10000                      # number of timesteps for the equilibrium
     - Nsteps: 10000                    # number of timesteps after the equilibrium
     - writexyz: no                  # no xyz output
-    - dump_step: 10                # dump time step
-    - therm_dump_step: 10
+    - dump_step: 20                # dump time step
+    - therm_dump_step: 20
     - verbose: no
     - output_dir: ICF        # dir name to save data. The default is "Checkpoint"
 

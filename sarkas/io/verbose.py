@@ -67,7 +67,7 @@ class Verbose:
 
     Parameters
     ----------
-    params : pbject
+    params : object
         Simulation's parameters
 
     """
@@ -94,7 +94,7 @@ class Verbose:
         self.io_file = self.f_pre_run if params.Control.pre_run else self.f_log_name
 
         # Print figlet to file if not a restart run
-        if not params.load_method == "restart":
+        if not params.load_method == "restart" and not params.load_method == "therm_restart":
             with open(self.io_file, "w+") as f_log:
                 figlet_obj = Figlet(font='starwars')
                 print(figlet_obj.renderText('Sarkas'), file=f_log)
@@ -128,26 +128,10 @@ class Verbose:
 
             if params.load_method == 'restart':
                 print('\n\n--------------------------- Restart -------------------------------------')
-                print('Time step = {:2.6e} [s]'.format(params.Control.dt))
-                if params.Potential.type == 'Yukawa' or params.Potential.type == 'EGS':
-                    print('(total) ion plasma frequency = {:1.6e} [Hz]'.format(params.wp))
-                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
-                elif params.Potential.type == 'Coulomb' or params.Potential.type == 'Moliere':
-                    print('(total) plasma frequency = {:1.6e} [Hz]'.format(params.wp))
-                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
-                elif params.Potential.type == 'QSP':
-                    print('e plasma frequency = {:2.6e} [Hz]'.format(params.species[0].wp))
-                    print('ion plasma frequency = {:2.6e} [Hz]'.format(params.species[1].wp))
-                    print('w_pe dt = {:2.4f}'.format(params.Control.dt * params.species[0].wp))
-                elif params.Potential.type == 'LJ':
-                    print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(params.wp))
-                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
-
-                print("Restart step: {}".format(params.load_restart_step))
-                print('Total post-equilibration steps = {} ~ {} wp T_prod'.format(
-                    params.Control.Nsteps, int(params.Control.Nsteps * params.wp * params.Control.dt)))
-                print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
-                    params.Control.dump_step, params.Control.dump_step * params.Control.dt * params.wp))
+                self.time_info(params)
+            elif params.load_method == 'therm_restart':
+                print('\n\n------------------------ Therm Restart ----------------------------------')
+                self.time_info(params)
             else:
                 # Choose the correct heading
                 if self.pre_run:
@@ -160,32 +144,12 @@ class Verbose:
                 print('Dump directory: ', params.Control.dump_dir)
                 print('\nUnits: ', params.Control.units)
                 print('Total No. of particles = ', params.total_num_ptcls)
-                print('No. of species = ', len(params.species))
-                for isp, sp in enumerate(params.species):
-                    print("Species {} : {}".format(isp + 1, sp.name))
-                    print("\tSpecies ID: {}".format(isp))
-                    print("\tNo. of particles = {} ".format(sp.num))
-                    print("\tNumber density = {:2.6e} ".format(sp.num_density), end='')
-                    print("[N/cc]" if params.Control.units == "cgs" else "[N/m^3]")
-                    print("\tMass = {:2.6e} ".format(sp.mass), end='')
-                    print("[g]" if params.Control.units == "cgs" else "[kg]")
-                    print('\tTemperature = {:2.6e} [K]'.format(sp.temperature))
+
+                print('\nParticle Species:')
+                self.species_info(params)
 
                 print('\nLengths scales:')
-                print('Wigner-Seitz radius = {:2.6e} '.format(params.aws), end='')
-                print("[cm]" if params.Control.units == "cgs" else "[m]")
-                print('No. of non-zero box dimensions = ', int(params.dimensions))
-                print('Box length along x axis = {:2.6e} a_ws = {:2.6e} '.format(params.Lv[0] / params.aws,
-                                                                                 params.Lv[0]), end='')
-                print("[cm]" if params.Control.units == "cgs" else "[m]")
-                print('Box length along y axis = {:2.6e} a_ws = {:2.6e} '.format(params.Lv[1] / params.aws,
-                                                                                 params.Lv[1]), end='')
-                print("[cm]" if params.Control.units == "cgs" else "[m]")
-                print('Box length along z axis = {:2.6e} a_ws = {:2.6e} '.format(params.Lv[2] / params.aws,
-                                                                                 params.Lv[2]), end='')
-                print("[cm]" if params.Control.units == "cgs" else "[m]")
-                print("The remaining lengths scales are given in ", end='')
-                print("[cm]" if params.Control.units == "cgs" else "[m]")
+                self.length_info(params)
 
                 print('\nBoundary conditions:')
                 if params.BC.pbc_axes:
@@ -198,59 +162,11 @@ class Verbose:
                 if params.Langevin.on:
                     print('Langevin model : ', params.Langevin.type)
 
-                print("\nIntegrator: ", params.Integrator.type)
                 print("\nThermostat: ", params.Thermostat.type)
-                print("Berendsen Relaxation rate: {:1.3f}".format(1.0 / params.Thermostat.tau))
-                # print("Thermostating Temperatures: ", params.Thermostat.temperatures)
+                self.thermostat_info(params)
 
                 print('\nPotential: ', params.Potential.type)
-                if params.Potential.type == 'Yukawa':
-                    print('kappa = {:1.4e}'.format(params.Potential.matrix[1, 0, 0] * params.aws))
-                    print('lambda_TF = {:1.4e}'.format(params.lambda_TF))
-                    print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff))
-
-                elif params.Potential.type == 'EGS':
-                    print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff))
-                    print('lambda_TF = {:1.4e}'.format(params.lambda_TF))
-                    print('kappa = {:1.4e}'.format(params.Potential.matrix[0, 0, 0] * params.aws))
-                    print('nu = {:1.4e}'.format(params.Potential.nu))
-                    if params.Potential.nu < 1:
-                        print('Exponential decay:')
-                        print('lambda_p = {:1.4e}'.format(params.Potential.lambda_p))
-                        print('lambda_m = {:1.4e}'.format(params.Potential.lambda_m))
-                        print('alpha = {:1.4e}'.format(params.Potential.alpha))
-                        print('Theta = {:1.4e}'.format(params.Potential.theta))
-                        print('b = {:1.4e}'.format(params.Potential.b))
-
-                    else:
-                        print('Oscillatory potential:')
-                        print('gamma_p = {:1.4e}'.format(params.Potential.gamma_p))
-                        print('gamma_m = {:1.4e}'.format(params.Potential.gamma_m))
-                        print('alpha = {:1.4e}'.format(params.Potential.alphap))
-                        print('Theta = {:1.4e}'.format(params.Potential.theta))
-                        print('b = {:1.4e}'.format(params.Potential.b))
-
-                elif params.Potential.type == 'Coulomb':
-                    print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff))
-
-                elif params.Potential.type == 'LJ':
-                    print('epsilon = {:2.6e}'.format(params.Potential.matrix[0, 0, 0]))
-                    print('sigma = {:2.6e}'.format(params.Potential.matrix[1, 0, 0]))
-
-                elif params.Potential.type == "QSP":
-                    print("e de Broglie wavelength = {:2.4f} ai = {:2.6e} ".format(
-                        2.0 * np.pi / params.Potential.matrix[1, 0, 0] / (np.sqrt(2.0) * params.ai),
-                        2.0 * np.pi / params.Potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
-                    print("[cm]" if params.Control.units == "cgs" else "[m]")
-                    print("e-e screening parameter = {:2.4f}".format(params.Potential.matrix[1, 0, 0] * params.aws))
-                    print("ion de Broglie wavelength  = {:2.4f} ai = {:2.6e} ".format(
-                        2.0 * np.pi / params.Potential.matrix[1, 0, 0] / (np.sqrt(2.0) * params.ai),
-                        2.0 * np.pi / params.Potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
-                    print("[cm]" if params.Control.units == "cgs" else "[m]")
-                    print("i-i screening parameter = {:2.4f}".format(params.Potential.matrix[1, 1, 1] * params.aws))
-                    print("e-i screening parameter = {:2.4f}".format(params.Potential.matrix[1, 0, 1] * params.aws))
-                    print("e-i Coupling Parameter = {:3.3f} ".format(params.Potential.Gamma_eff))
-                    print("rs Coupling Parameter = {:3.3f} ".format(params.rs))
+                self.potential_info(params)
 
                 if params.Magnetic.on:
                     print('\nMagnetized Plasma:')
@@ -260,67 +176,13 @@ class Verbose:
                         print('beta_c of Species {:2} = {:2.6e}'.format(ic + 1,
                                                                         params.species[ic].omega_c / params.species[
                                                                             ic].wp))
-
                 print("\nAlgorithm: ", params.Potential.method)
-                if params.Potential.method == 'P3M':
-                    print('Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(params.P3M.G_ew * params.aws,
-                                                                                     params.P3M.G_ew), end='')
-                    print("[1/cm]" if params.Control.units == "cgs" else "[1/m]")
-                    print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f} ~ 1/{} '.format(
-                        params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))), )
-                    print(
-                        'rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
-                        end='')
-                    print("[cm]" if params.Control.units == "cgs" else "[m]")
-                    print('Mesh = {} x {} x {}'.format(*params.P3M.MGrid))
-                    print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
-                        int(params.Lv[0] / params.Potential.rc),
-                        int(params.Lv[1] / params.Potential.rc),
-                        int(params.Lv[2] / params.Potential.rc)))
-                    print('No. of particles in PP loop = {:6}'.format(
-                        int(params.total_num_density * (3 * params.Potential.rc) ** 3)))
-                    print('No. of PP neighbors per particle = {:6}'.format(
-                        int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
-                                params.Potential.rc / params.Lv.min()) ** 3.0)))
-                    print('PM Force Error = {:2.6e}'.format(params.P3M.PM_err))
-                    print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err))
-                    print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err))
-                elif params.Potential.method == 'PP':
-                    print(
-                        'rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
-                        end='')
-                    print("[cm]" if params.Control.units == "cgs" else "[m]")
-                    print(
-                        'No. of cells per dimension = {:2}, {:2}, {:2}'.format(int(params.Lv[0] / params.Potential.rc),
-                                                                               int(params.Lv[1] / params.Potential.rc),
-                                                                               int(params.Lv[2] / params.Potential.rc)))
-                    print('No. of neighbors per particle = {:4}'.format(
-                        int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
-                                params.Potential.rc / params.Lv.min()) ** 3.0)))
-                    print('PP Force Error = {:2.6e}'.format(params.PP_err))
+                self.algorithm_info(params)
+
+                print("\nIntegrator: ", params.Integrator.type)
 
                 print("\nTime scales:")
-                print('Time step = {:2.6e} [s]'.format(params.Control.dt))
-                if params.Potential.type == 'Yukawa' or params.Potential.type == 'EGS':
-                    print('(total) ion plasma frequency = {:1.6e} [Hz]'.format(params.wp))
-                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
-                elif params.Potential.type == 'Coulomb' or params.Potential.type == 'Moliere':
-                    print('(total) plasma frequency = {:1.6e} [Hz]'.format(params.wp))
-                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
-                elif params.Potential.type == 'QSP':
-                    print('e plasma frequency = {:2.6e} [Hz]'.format(params.species[0].wp))
-                    print('ion plasma frequency = {:2.6e} [Hz]'.format(params.species[1].wp))
-                    print('w_pe dt = {:2.4f}'.format(params.Control.dt * params.species[0].wp))
-                elif params.Potential.type == 'LJ':
-                    print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(params.wp))
-                    print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
-
-                print('No. of equilibration steps = {} ~ {} wp T_eq'.format(
-                    params.Control.Neq, int(params.Control.Neq * params.wp * params.Control.dt)))
-                print('No. of post-equilibration steps = {} ~ {} wp T_prod'.format(
-                    params.Control.Nsteps, int(params.Control.Nsteps * params.wp * params.Control.dt)))
-                print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
-                    params.Control.dump_step, params.Control.dump_step * params.Control.dt * params.wp))
+                self.time_info(params)
 
             repeat -= 1
             sys.stdout = screen  # Restore the original sys.stdout
@@ -365,8 +227,6 @@ class Verbose:
         params : object
             Simulation's parameters
 
-
-
         """
         screen = sys.stdout
         f_log = open(self.io_file, 'a+')
@@ -387,33 +247,233 @@ class Verbose:
                                                                     params.Potential.rc), end='')
             print("[cm]" if params.Control.units == "cgs" else "[m]")
 
-            print("\nAlgorithm : ", params.Potential.method)
-            if params.Potential.method == 'P3M':
-                print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f} ~ 1/{} '.format(
-                    params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))))
-                print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
-                    int(params.Lv[0] / params.Potential.rc),
-                    int(params.Lv[1] / params.Potential.rc),
-                    int(params.Lv[2] / params.Potential.rc)))
-                print('No. of particles in PP loop = {:6}'.format(
-                    int(params.total_num_density * (3 * params.Potential.rc) ** 3)))
-                print('No. of PP neighbors per particle = {:6}'.format(
-                    int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (params.Potential.rc / params.Lv.min()) ** 3.0)))
-                print('PM Force Error = {:2.6e}'.format(params.P3M.PM_err))
-                print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err))
-                print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err))
-            elif params.Potential.method == 'PP':
-                print('rcut/a_ws = {:2.6e}'.format(params.Potential.rc / params.aws))
-                print(
-                    'No. of cells per dimension = {:2}, {:2}, {:2}'.format(int(params.Lv[0] / params.Potential.rc),
-                                                                           int(params.Lv[1] / params.Potential.rc),
-                                                                           int(params.Lv[2] / params.Potential.rc)))
-                print('No. of neighbors per particle = {:4}'.format(
-                    int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
-                            params.Potential.rc / params.Lv.min()) ** 3.0)))
-                print('PP Force Error = {:2.6e}'.format(params.PP_err))
+            self.algorithm_info(self, params)
+            # print("\nAlgorithm : ", params.Potential.method)
+            # if params.Potential.method == 'P3M':
+            #     print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f} ~ 1/{} '.format(
+            #         params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))))
+            #     print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
+            #         int(params.Lv[0] / params.Potential.rc),
+            #         int(params.Lv[1] / params.Potential.rc),
+            #         int(params.Lv[2] / params.Potential.rc)))
+            #     print('No. of particles in PP loop = {:6}'.format(
+            #         int(params.total_num_density * (3 * params.Potential.rc) ** 3)))
+            #     print('No. of PP neighbors per particle = {:6}'.format(
+            #         int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (params.Potential.rc / params.Lv.min()) ** 3.0)))
+            #     print('PM Force Error = {:2.6e}'.format(params.P3M.PM_err))
+            #     print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err))
+            #     print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err))
+            # elif params.Potential.method == 'PP':
+            #     print('rcut/a_ws = {:2.6e}'.format(params.Potential.rc / params.aws))
+            #     print(
+            #         'No. of cells per dimension = {:2}, {:2}, {:2}'.format(int(params.Lv[0] / params.Potential.rc),
+            #                                                                int(params.Lv[1] / params.Potential.rc),
+            #                                                                int(params.Lv[2] / params.Potential.rc)))
+            #     print('No. of neighbors per particle = {:4}'.format(
+            #         int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
+            #                 params.Potential.rc / params.Lv.min()) ** 3.0)))
+            #     print('PP Force Error = {:2.6e}'.format(params.PP_err))
 
             repeat -= 1
             sys.stdout = screen  # Restore the original sys.stdout
 
         f_log.close()
+
+    def time_info(self, params):
+        """
+        Print time simulation's parameters.
+
+        Parameters
+        ----------
+        params: object
+            Simulation's parameters.
+
+        """
+        print('Time step = {:2.6e} [s]'.format(params.Control.dt))
+        if params.Potential.type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
+            print('(total) plasma frequency = {:1.6e} [Hz]'.format(params.wp))
+            print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
+        elif params.Potential.type == 'QSP':
+            print('e plasma frequency = {:2.6e} [Hz]'.format(params.species[0].wp))
+            print('ion plasma frequency = {:2.6e} [Hz]'.format(params.species[1].wp))
+            print('w_pe dt = {:2.4f}'.format(params.Control.dt * params.species[0].wp))
+        elif params.Potential.type == 'LJ':
+            print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(params.wp))
+            print('wp dt = {:2.4f}'.format(params.Control.dt * params.wp))
+
+        if params.load_method == 'restart':
+            print("Restart step: {}".format(params.load_restart_step))
+            print('Total post-equilibration steps = {} ~ {} wp T_prod'.format(
+                params.Control.Nsteps, int(params.Control.Nsteps * params.wp * params.Control.dt)))
+            print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+                params.Control.dump_step, params.Control.dump_step * params.Control.dt * params.wp))
+        elif params.load_method == 'therm_restart':
+            print("Restart step: {}".format(params.load_therm_restart_step))
+            print('Total thermalization steps = {} ~ {} wp T_prod'.format(
+                params.Control.Nsteps, int(params.Control.Nsteps * params.wp * params.Control.dt)))
+            print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+                params.Control.dump_step, params.Control.dump_step * params.Control.dt * params.wp))
+        else:
+            print('No. of equilibration steps = {} ~ {} wp T_eq'.format(
+                params.Control.Neq, int(params.Control.Neq * params.wp * params.Control.dt)))
+            print('No. of post-equilibration steps = {} ~ {} wp T_prod'.format(
+                params.Control.Nsteps, int(params.Control.Nsteps * params.wp * params.Control.dt)))
+            print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+                params.Control.dump_step, params.Control.dump_step * params.Control.dt * params.wp))
+
+    def algorithm_info(self, params):
+        """
+        Print algorithm information.
+
+        Parameters
+        ----------
+        params: object
+            Simulation's parameters.
+
+
+        """
+        if params.Potential.method == 'P3M':
+            print('Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(params.P3M.G_ew * params.aws,
+                                                                             params.P3M.G_ew), end='')
+            print("[1/cm]" if params.Control.units == "cgs" else "[1/m]")
+            print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f} ~ 1/{} '.format(
+                params.P3M.hx * params.P3M.G_ew, int(1. / (params.P3M.hx * params.P3M.G_ew))), )
+            print(
+                'rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
+                end='')
+            print("[cm]" if params.Control.units == "cgs" else "[m]")
+            print('Mesh = {} x {} x {}'.format(*params.P3M.MGrid))
+            print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
+                int(params.Lv[0] / params.Potential.rc),
+                int(params.Lv[1] / params.Potential.rc),
+                int(params.Lv[2] / params.Potential.rc)))
+            print('No. of particles in PP loop = {:6}'.format(
+                int(params.total_num_density * (3 * params.Potential.rc) ** 3)))
+            print('No. of PP neighbors per particle = {:6}'.format(
+                int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
+                        params.Potential.rc / params.Lv.min()) ** 3.0)))
+            print('PM Force Error = {:2.6e}'.format(params.P3M.PM_err))
+            print('PP Force Error = {:2.6e}'.format(params.P3M.PP_err))
+            print('Tot Force Error = {:2.6e}'.format(params.P3M.F_err))
+        elif params.Potential.method == 'PP':
+            print(
+                'rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
+                end='')
+            print("[cm]" if params.Control.units == "cgs" else "[m]")
+            print(
+                'No. of cells per dimension = {:2}, {:2}, {:2}'.format(int(params.Lv[0] / params.Potential.rc),
+                                                                       int(params.Lv[1] / params.Potential.rc),
+                                                                       int(params.Lv[2] / params.Potential.rc)))
+            print('No. of neighbors per particle = {:4}'.format(
+                int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
+                        params.Potential.rc / params.Lv.min()) ** 3.0)))
+            print('PP Force Error = {:2.6e}'.format(params.PP_err))
+
+    def potential_info(self, params):
+        """
+        Print potential information.
+
+        Parameters
+        ----------
+        params: object
+            Simulation's parameters.
+
+        """
+        if params.Potential.type == 'Yukawa':
+            print('kappa = {:1.4e}'.format(params.Potential.matrix[1, 0, 0] * params.aws))
+            print('lambda_TF = {:1.4e}'.format(params.lambda_TF))
+            print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff))
+
+        elif params.Potential.type == 'EGS':
+            print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff))
+            print('lambda_TF = {:1.4e}'.format(params.lambda_TF))
+            print('kappa = {:1.4e}'.format(params.Potential.matrix[0, 0, 0] * params.aws))
+            print('nu = {:1.4e}'.format(params.Potential.nu))
+            if params.Potential.nu < 1:
+                print('Exponential decay:')
+                print('lambda_p = {:1.4e}'.format(params.Potential.lambda_p))
+                print('lambda_m = {:1.4e}'.format(params.Potential.lambda_m))
+                print('alpha = {:1.4e}'.format(params.Potential.alpha))
+                print('Theta = {:1.4e}'.format(params.Potential.theta))
+                print('b = {:1.4e}'.format(params.Potential.b))
+
+            else:
+                print('Oscillatory potential:')
+                print('gamma_p = {:1.4e}'.format(params.Potential.gamma_p))
+                print('gamma_m = {:1.4e}'.format(params.Potential.gamma_m))
+                print('alpha = {:1.4e}'.format(params.Potential.alphap))
+                print('Theta = {:1.4e}'.format(params.Potential.theta))
+                print('b = {:1.4e}'.format(params.Potential.b))
+
+        elif params.Potential.type == 'Coulomb':
+            print('Gamma_eff = {:4.2f}'.format(params.Potential.Gamma_eff))
+
+        elif params.Potential.type == 'LJ':
+            print('epsilon = {:2.6e}'.format(params.Potential.matrix[0, 0, 0]))
+            print('sigma = {:2.6e}'.format(params.Potential.matrix[1, 0, 0]))
+
+        elif params.Potential.type == "QSP":
+            print("e de Broglie wavelength = {:2.4f} ai = {:2.6e} ".format(
+                2.0 * np.pi / params.Potential.matrix[1, 0, 0] / (np.sqrt(2.0) * params.ai),
+                2.0 * np.pi / params.Potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
+            print("[cm]" if params.Control.units == "cgs" else "[m]")
+            print("e-e screening parameter = {:2.4f}".format(params.Potential.matrix[1, 0, 0] * params.aws))
+            print("ion de Broglie wavelength  = {:2.4f} ai = {:2.6e} ".format(
+                2.0 * np.pi / params.Potential.matrix[1, 0, 0] / (np.sqrt(2.0) * params.ai),
+                2.0 * np.pi / params.Potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
+            print("[cm]" if params.Control.units == "cgs" else "[m]")
+            print("i-i screening parameter = {:2.4f}".format(params.Potential.matrix[1, 1, 1] * params.aws))
+            print("e-i screening parameter = {:2.4f}".format(params.Potential.matrix[1, 0, 1] * params.aws))
+            print("e-i Coupling Parameter = {:3.3f} ".format(params.Potential.Gamma_eff))
+            print("rs Coupling Parameter = {:3.3f} ".format(params.rs))
+
+    def thermostat_info(self, params):
+        """
+        Print thermostat information.
+
+        Parameters
+        ----------
+        params: object
+            Simulation's parameters.
+
+        """
+        print("Berendsen Relaxation rate: {:1.3f}".format(1.0 / params.Thermostat.tau))
+        print("Thermostating Temperatures: ", params.Thermostat.temperatures)
+
+    def length_info(self, params):
+        """
+        Print length information.
+
+        Parameters
+        ----------
+        params: object
+            Simulation's parameters.
+
+        """
+        print('Wigner-Seitz radius = {:2.6e} '.format(params.aws), end='')
+        print("[cm]" if params.Control.units == "cgs" else "[m]")
+        print('No. of non-zero box dimensions = ', int(params.dimensions))
+        print('Box length along x axis = {:2.6e} a_ws = {:2.6e} '.format(params.Lv[0] / params.aws,
+                                                                         params.Lv[0]), end='')
+        print("[cm]" if params.Control.units == "cgs" else "[m]")
+        print('Box length along y axis = {:2.6e} a_ws = {:2.6e} '.format(params.Lv[1] / params.aws,
+                                                                         params.Lv[1]), end='')
+        print("[cm]" if params.Control.units == "cgs" else "[m]")
+        print('Box length along z axis = {:2.6e} a_ws = {:2.6e} '.format(params.Lv[2] / params.aws,
+                                                                         params.Lv[2]), end='')
+        print("[cm]" if params.Control.units == "cgs" else "[m]")
+        print("The remaining lengths scales are given in ", end='')
+        print("[cm]" if params.Control.units == "cgs" else "[m]")
+
+    def species_info(self, params):
+        print('No. of species = ', len(params.species))
+        for isp, sp in enumerate(params.species):
+            print("Species {} : {}".format(isp + 1, sp.name))
+            print("\tSpecies ID: {}".format(isp))
+            print("\tNo. of particles = {} ".format(sp.num))
+            print("\tNumber density = {:2.6e} ".format(sp.num_density), end='')
+            print("[N/cc]" if params.Control.units == "cgs" else "[N/m^3]")
+            print("\tMass = {:2.6e} ".format(sp.mass), end='')
+            print("[g]" if params.Control.units == "cgs" else "[kg]")
+            print('\tTemperature = {:2.6e} [K]'.format(sp.temperature))
+

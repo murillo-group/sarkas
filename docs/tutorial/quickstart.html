@@ -36,7 +36,9 @@
 
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="Installation" href="../installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,8 +84,13 @@
             
             
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#old-school">Old School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#new-school">New School</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -162,296 +169,136 @@
             
   <div class="section" id="quickstart">
 <span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<p>Once installation is complete you can start running Sarkas.
-In the following we will run a quick example.
-Sarkas, like any other code, requires an input file containing all the simulation’s parameters.
-Examples of input files can be found in the <cite>example</cite> folder.
-More information on the input files can be found below <a class="reference internal" href="#inputfile">inputfile</a></p>
-<div class="section" id="running-sarkas">
-<h2>Running Sarkas<a class="headerlink" href="#running-sarkas" title="Permalink to this headline">¶</a></h2>
-<p>Once you have created your input file, say <cite>yukawa_mks.yaml</cite>, you can run Sarkas by simply typing the command
-(in the sarkas directory)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 src/Sarkas.py input.yaml
+<p>Once installation is complete you can start running Sarkas. In the following we will run a quick example comparing
+the old and new way to run plasma MD simulations. Sarkas allows the use of both methods so that we don’t loose the
+advantages of each method. The two ways in which we can run a simulation are</p>
+<ul class="simple">
+<li><p>Old school: using a terminal window and <code class="docutils literal notranslate"><span class="pre">bash</span></code> scripting</p></li>
+<li><p>New school: using a python script/jupyter notebook</p></li>
+</ul>
+<div class="section" id="old-school">
+<h2>Old School<a class="headerlink" href="#old-school" title="Permalink to this headline">¶</a></h2>
+<p>The original workflow of MD simulation looked something like this</p>
+<ol class="arabic simple">
+<li><p>Write your own MD code in a low-level language such as <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> or (even better) <code class="docutils literal notranslate"><span class="pre">Fortran</span></code> to exploit their computational speed.</p></li>
+<li><p>Write input file to be read by the MD code containing all the simulation’s parameters.</p></li>
+<li><p>Run multiple simulations with different initial conditions. This requires a different input file for each simulation depending on the MD code.</p></li>
+<li><p>Analyze the output of each simulation. This is usually done in a interpreted, high-level language like Python.</p></li>
+</ol>
+<p>Here we find the first advantage of Sarkas: removing the need to know multiple languages. Sarkas is not a Python wrapper
+around an existing MD code. It is entirely written in Python to allow the user to modify the codes for their specific needs.
+This choice, however, does not come to at the expense of speed. In fact, Sarkas makes heavy use of Numpy and Numba
+so that the code can run as fast, if not faster, than low-level languages like <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> and <code class="docutils literal notranslate"><span class="pre">Fortran</span></code>.</p>
+<p>First and foremost we run the help command in a terminal window</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sarkas_simulate -h
 </pre></div>
 </div>
-<p>Simulation’s data is stored in the folder given in <cite>Control:output_dir:</cite> option of the input file.
-In this example case <cite>Control:output_dir:YOCP_mks_pp</cite>. In this folder you can find a
-log file, containing simulations’ parameters, physical constants, and run times; a series of checkpoint files
-containing particles’ data needed for restarting the simulation; a file containing the radial distribution function,
-and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
-<div class="section" id="input-file">
-<span id="inputfile"></span><h3>Input file<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h3>
-<p>This file is responsible for specifying the simulation’s parameters such as the number of particles, number of timesteps, and initialization. Examples of input files can be found in the examples folder. There are several examples aimed at demonstrating the various capabilities of Sarkas. The names of each example file indicate the interacting potential used, the number of species, the system of units, and the force calculation algorithm, and whether the system is magnetized or not. In the following we will describe one of the example files.</p>
-<p>Let us open <cite>ybim_mks_p3m_mag.yaml</cite> file in a text editor. This file contains parameters for a simulation of a Carbon-Oxygen mixture interacting via a Yukawa potential and under the influence of a constant Magnetic field. The first thing to notice is that there are eight sections each of which contains a set of parameters. Each section corresponds to a subclass of the <cite>Params</cite> class. The order is relatively important since some section parameters might depend on a previous section. For example: the Magnetized section must come after the Integrator section since the option electrostatic_thermalization, if chosen to be True, it modifies the integrator type. Below we present a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: <cite>https://learn.getgrav.org/16/advanced/yaml</cite>.</p>
-<table class="colwidths-auto docutils align-default" id="id2">
-<caption><span class="caption-text">Table for “Particles - species” section key and value pairs in the input file</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value Data Type</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>name</p></td>
-<td><p>string</p></td>
-<td><p>Name for particle species (e.g. ion1, C, etc.).</p></td>
-</tr>
-<tr class="row-odd"><td><p>number_density</p></td>
-<td><p>float</p></td>
-<td><p>Number density of species.</p></td>
-</tr>
-<tr class="row-even"><td><p>mass</p></td>
-<td><p>float</p></td>
-<td><p>Mass of each particle of species.</p></td>
-</tr>
-<tr class="row-odd"><td><p>num</p></td>
-<td><p>int</p></td>
-<td><p>Number of simulation particles for desired species.</p></td>
-</tr>
-<tr class="row-even"><td><p>Z</p></td>
-<td><p>float</p></td>
-<td><p>Charge number of species.</p></td>
-</tr>
-<tr class="row-odd"><td><p>A</p></td>
-<td><p>float</p></td>
-<td><p>Atomic mass. Note that if the keyword <cite>mass</cite> is present <cite>A</cite> would not be used for calculating the mass of each particle.</p></td>
-</tr>
-<tr class="row-even"><td><p>temperature</p></td>
-<td><p>float</p></td>
-<td><p>Desired temperature of the system.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id3">
-<caption><span class="caption-text">Table for “Particles - load” section key and value pairs in the input file</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>key</p></th>
-<th class="head"><p>Value Data Type</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>method</p></td>
-<td><p>string</p></td>
-<td><p>Particle position initialization schemes. Options are ‘random_reject, random_no_reject, restart’</p></td>
-</tr>
-<tr class="row-odd"><td><p>rand_seed</p></td>
-<td><p>int</p></td>
-<td><p>Random seed for random_reject and lattice initialization schemes</p></td>
-</tr>
-<tr class="row-even"><td><p>r_reject</p></td>
-<td><p>float</p></td>
-<td><p>Rejection radius for ‘random_reject’ and ‘halton’ initilization schemes. (e.g, 0.1, 1e-2, 1, etc.)</p></td>
-</tr>
-<tr class="row-odd"><td><p>perturb</p></td>
-<td><p>float</p></td>
-<td><p>Perturbation for particle at lattice point for ‘lattice’ initialization scheme. Must be between 0 and 1.</p></td>
-</tr>
-<tr class="row-even"><td><p>halton_bases</p></td>
-<td><p>python list</p></td>
-<td><p>List of 3 numbers to be used as the ‘bases’ for the ‘halton_reject’ initialization scheme.</p></td>
-</tr>
-<tr class="row-odd"><td><p>restart_step</p></td>
-<td><p>int</p></td>
-<td><p>Step number from which to restart the simulation</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id4">
-<caption><span class="caption-text">Table for “Potential” section key and value pairs in the input file</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value Data Type</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>type</p></td>
-<td><p>string</p></td>
-<td><p>Name of desired potential. See &lt;link to potentials page&gt; for a list of supported potentials.</p></td>
-</tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>string</p></td>
-<td><p>Specify algorithm used (P3M or PP). See &lt;link to algorithms page&gt; for a list of supported algorithms.</p></td>
-</tr>
-<tr class="row-even"><td><p>rc</p></td>
-<td><p>float</p></td>
-<td><p>Short-range Potential cutoff radius. Contributions to force beyond this distance are ignored.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id5">
-<caption><span class="caption-text">Table for “P3M” section key and value pairs in the input file</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value Data Type</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>MGrid</p></td>
-<td><p>Int Array</p></td>
-<td><p>Number of mesh points in each of the cartesian direction [x,y,z]</p></td>
-</tr>
-<tr class="row-odd"><td><p>aliases</p></td>
-<td><p>int array</p></td>
-<td><p>Number of aliases to sum over</p></td>
-</tr>
-<tr class="row-even"><td><p>cao</p></td>
-<td><p>int</p></td>
-<td><p>Charge order parameter aka order of the B-Spline charge approximation</p></td>
-</tr>
-<tr class="row-odd"><td><p>alpha_ewald</p></td>
-<td><p>float</p></td>
-<td><p>Alpha parameter for Ewald decomposition See &lt;link to P3M page&gt; for more information</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id6">
-<caption><span class="caption-text">Table for “Integrator” section key and value pairs in the input file</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value Data Type</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>type</p></td>
-<td><p>string</p></td>
-<td><p>Type of integrator to be used</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id7">
-<caption><span class="caption-text">Table for “Magnetized” section key and value pairs in the input file</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>:Value Data Type”</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>B_Gauss</p></td>
-<td><p>float</p></td>
-<td><p>Magnitude of the magnetic field in Gauss units</p></td>
-</tr>
-<tr class="row-odd"><td><p>B_Tesla</p></td>
-<td><p>float</p></td>
-<td><p>Magnitude of the magnetic field in Tesla units</p></td>
-</tr>
-<tr class="row-even"><td><p>electrostatic_thermalization</p></td>
-<td><p>int</p></td>
-<td><p>Flag for magnetic thermalization. If 1 (True) the system will be first thermalized without magnetic field and then thermalized again with the magnetic field</p></td>
-</tr>
-<tr class="row-odd"><td><p>Neq_mag</p></td>
-<td><p>int</p></td>
-<td><p>Number of thermalization steps with a constant magnetic field</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id8">
-<caption><span class="caption-text">Table for “Thermostat” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value Data Type</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>type</p></td>
-<td><p>string</p></td>
-<td><p>Name of desired thermostat to be used during equilibration phase. See &lt;link to initilization/equlibration page&gt; for a list of supported thermostats</p></td>
-</tr>
-<tr class="row-odd"><td><p>tau</p></td>
-<td><p>float</p></td>
-<td><p>Berendsen parameter. It should be a positive number greater than zero. See &lt;link to Berendesen page&gt; for more information</p></td>
-</tr>
-<tr class="row-even"><td><p>timestep</p></td>
-<td><p>int</p></td>
-<td><p>Number of timesteps to wait before turning on the Berendsen thermostat. It should be less than the Neq</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id9">
-<caption><span class="caption-text">Table for “Langevin” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value Data Type</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>type</p></td>
-<td><p>string</p></td>
-<td><p>Name of desired Langevin model to be used.</p></td>
-</tr>
-<tr class="row-odd"><td><p>gamma</p></td>
-<td><p>float</p></td>
-<td><p>Magnitude of Langevin ‘kick’</p></td>
-</tr>
-</tbody>
-</table>
-<table class="colwidths-auto docutils align-default" id="id10">
-<caption><span class="caption-text">Table for “Control” section key and value pairs in the input.yaml file</span><a class="headerlink" href="#id10" title="Permalink to this table">¶</a></caption>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Value Data Type</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>units</p></td>
-<td><p>string</p></td>
-<td><p>Unit system to use. ‘cgs’ or ‘mks’</p></td>
-</tr>
-<tr class="row-odd"><td><p>dt</p></td>
-<td><p>float</p></td>
-<td><p>Size of timestep used in both equilibration and production phases (e.g. 0.1)</p></td>
-</tr>
-<tr class="row-even"><td><p>Neq</p></td>
-<td><p>int</p></td>
-<td><p>Number of equilibration steps (e.g. 1000)</p></td>
-</tr>
-<tr class="row-odd"><td><p>Nsteps</p></td>
-<td><p>int</p></td>
-<td><p>Number of production steps (e.g. 5000)</p></td>
-</tr>
-<tr class="row-even"><td><p>BC</p></td>
-<td><p>string</p></td>
-<td><p>Type of boundary conditions on all edges of simulation cell. Currently, ‘periodic’ is only supported boundary condition</p></td>
-</tr>
-<tr class="row-odd"><td><p>writexyz</p></td>
-<td><p>string</p></td>
-<td><p>Determines if .xyz file, following the ‘xyz’ formatting standards, will be generated during the extent of the simulation. Options are: ‘yes or no’</p></td>
-</tr>
-<tr class="row-even"><td><p>dump_step</p></td>
-<td><p>int</p></td>
-<td><p>Number of steps between saving particle data</p></td>
-</tr>
-<tr class="row-odd"><td><p>random_seed</p></td>
-<td><p>int</p></td>
-<td><p>Seed of random number generator</p></td>
-</tr>
-<tr class="row-even"><td><p>verbose</p></td>
-<td><p>string</p></td>
-<td><p>Flag for printing simulation information to screen. Options are ‘yes’ or ‘no’</p></td>
-</tr>
-<tr class="row-odd"><td><p>output_dir</p></td>
-<td><p>string</p></td>
-<td><p>Directory where to store checkpoint files for restart and post processing.</p></td>
-</tr>
-<tr class="row-even"><td><p>fname_app</p></td>
-<td><p>string</p></td>
-<td><p>Appendix to filenames. Default = output_dir</p></td>
-</tr>
-</tbody>
-</table>
+<p>This will produce the following output</p>
+<div class="figure align-default">
+<img alt="Figure not found" src="../_images/Help_output.png" />
+</div>
+<p>This output prints out the different options with which you can run Sarkas.</p>
 <ul class="simple">
-<li><p>lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that <cite>Num</cite> must be a perfect cube if using this method.</p></li>
-<li><p>random_reject: Places particles down by sampling a uniform distribution and uses a rejection radius to avoid placing particles too close together.</p></li>
-<li><p>halton_reject: Places particles down according to a Halton sequence for a choice of bases in addition to using a rejection radius.</p></li>
-<li><p>random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span></code> is required and is the path to the YAML input file of our simulation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span></code> which can be either <code class="docutils literal notranslate"><span class="pre">prod</span></code> or <code class="docutils literal notranslate"><span class="pre">therm</span></code> and indicates whether we want to check the thermalization or production phase of the run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span></code> is a boolean flag indicating whether to run a test of our input parameter or not.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span></code> is a boolean flag indicating whether to show plots to screen.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-v</span></code> boolean for verbose output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span></code> indicates the name of the directory where to save the simulation’s output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-j</span></code> refers to the name we want to append to each output file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> sets the random number seed.</p></li>
 </ul>
+<p>The last three option are not required and are mostly used in the case we want to run many simulations without creating
+multiple input files and only want to change only few control parameters. Very often we need to run many simulations
+with similar parameters but with different initial conditions. Hence we could write a bash script like so</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate sarkas
+
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">125125</span> -d run1
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">281756</span> -d run2
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">256158</span> -d run3
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">958762</span> -d run4
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">912856</span> -d run5
+
+conda deactivate
+</pre></div>
+</div>
+<p>If you are familiar with bash scripting you could make the above statements in a loop and make many more simulations.
+Once the simulations are done it’s time to analyze the data. This is usually done by a python script.
+This was the old way of running simulations.</p>
+</div>
+<div class="section" id="new-school">
+<h2>New School<a class="headerlink" href="#new-school" title="Permalink to this headline">¶</a></h2>
+<p>Sarkas was created with the idea of incorporating the entire simulation
+workflow in a single Python script. Let’s say we want to run 10 simulation of a Yukawa OCP and measure the velocity
+autocorrelation function. An example script looks like this</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">sarkas.simulation.params</span> <span class="kn">import</span> <span class="n">Params</span>
+<span class="kn">from</span> <span class="nn">sarkas.simulation</span> <span class="kn">import</span> <span class="n">simulation</span>
+<span class="kn">from</span> <span class="nn">sarkas.tools.postprocessing</span> <span class="kn">import</span> <span class="n">VelocityAutocorrelationFunction</span>
+
+<span class="c1"># Let&#39;s define some common variables</span>
+<span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="c1"># Assuming you are inside the directory where you downloaded the sarkas repo</span>
+<span class="n">args</span><span class="p">[</span><span class="s2">&quot;input_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span> <span class="p">)</span>
+
+
+<span class="c1"># Initialize the simulation parameter class</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">Params</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="c1"># Save each simulation&#39;s data into own its directory</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;job_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;YOCP_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yocp_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">123456789</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="c1"># Initialize the VACF object</span>
+    <span class="n">vacf</span> <span class="o">=</span> <span class="n">VelocityAutocorrelationFunction</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">vacf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>At the same time let’s assume we want to run many simulations to span a range of screening parameters</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">sarkas.simulation.params</span> <span class="kn">import</span> <span class="n">Params</span>
+<span class="kn">from</span> <span class="nn">sarkas.simulation</span> <span class="kn">import</span> <span class="n">simulation</span>
+<span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">yukawa</span>
+
+<span class="c1"># Let&#39;s define some common variables</span>
+<span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="c1"># Assuming you are inside the directory where you downloaded the sarkas repo</span>
+<span class="n">args</span><span class="p">[</span><span class="s2">&quot;input_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="n">kappas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kappas</span><span class="p">):</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;job_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;YOCP_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yocp_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">123456789</span><span class="p">)</span>
+
+    <span class="c1"># Initialize the simulation parameter class</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">Params</span><span class="p">()</span>
+    <span class="c1"># Read the common simulation&#39;s parameters</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">common_parser</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;input_file&quot;</span><span class="p">])</span>
+    <span class="c1"># Let&#39;s make sure we are not printing to screen</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># Create simulation&#39;s directories</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">create_directories</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="c1"># Create simulation&#39;s parameters</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">assign_attributes</span><span class="p">()</span>
+    <span class="c1"># Let&#39;s change the screening parameter</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="n">kappa</span>
+    <span class="c1"># Calculate potential dependent parameters</span>
+    <span class="n">yukawa</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Run the simulation</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="c1"># Delete params and restart</span>
+    <span class="k">del</span> <span class="n">params</span>
+</pre></div>
 </div>
 </div>
 </div>
@@ -462,6 +309,15 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
           </div>
           <footer>
   
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
 
   <hr/>
 
@@ -470,7 +326,7 @@ and a plot of the radial distribution function saved as a <cite>.png</cite>.</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 24, 2020.
+        Last updated on Jul, 29, 2020.
       </span>
 
     </p>

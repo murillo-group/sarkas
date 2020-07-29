@@ -3,130 +3,148 @@
 ==========
 Quickstart
 ==========
-Once installation is complete you can start running Sarkas.
-In the following we will run a quick example.
-Sarkas, like any other code, requires an input file containing all the simulation's parameters.
-Examples of input files can be found in the `example` folder.
-More information on the input files can be found below inputfile_
+Once installation is complete you can start running Sarkas. In the following we will run a quick example comparing
+the old and new way to run plasma MD simulations. Sarkas allows the use of both methods so that we don't loose the
+advantages of each method. The two ways in which we can run a simulation are
 
-Running Sarkas
-==============
-Once you have created your input file, say `yukawa_mks.yaml`, you can run Sarkas by simply typing the command
-(in the sarkas directory)
+- Old school: using a terminal window and ``bash`` scripting
+
+- New school: using a python script/jupyter notebook
+
+Old School
+==========
+The original workflow of MD simulation looked something like this
+
+#. Write your own MD code in a low-level language such as ``C/C++`` or (even better) ``Fortran`` to exploit their computational speed.
+
+#. Write input file to be read by the MD code containing all the simulation's parameters.
+
+#. Run multiple simulations with different initial conditions. This requires a different input file for each simulation depending on the MD code.
+
+#. Analyze the output of each simulation. This is usually done in a interpreted, high-level language like Python.
+
+Here we find the first advantage of Sarkas: removing the need to know multiple languages. Sarkas is not a Python wrapper
+around an existing MD code. It is entirely written in Python to allow the user to modify the codes for their specific needs.
+This choice, however, does not come to at the expense of speed. In fact, Sarkas makes heavy use of Numpy and Numba
+so that the code can run as fast, if not faster, than low-level languages like ``C/C++`` and ``Fortran``.
+
+First and foremost we run the help command in a terminal window
 
 .. code-block:: bash
-   
-   $ python3 src/Sarkas.py input.yaml
 
-Simulation's data is stored in the folder given in `Control:output_dir:` option of the input file.
-In this example case `Control:output_dir:YOCP_mks_pp`. In this folder you can find a
-log file, containing simulations' parameters, physical constants, and run times; a series of checkpoint files
-containing particles' data needed for restarting the simulation; a file containing the radial distribution function,
-and a plot of the radial distribution function saved as a `.png`.
+    $ sarkas_simulate -h
 
-.. _inputfile:
+This will produce the following output
 
-Input file
-~~~~~~~~~~~
+.. figure:: Help_output.png
+    :alt: Figure not found
 
-This file is responsible for specifying the simulation's parameters such as the number of particles, number of timesteps, and initialization. Examples of input files can be found in the examples folder. There are several examples aimed at demonstrating the various capabilities of Sarkas. The names of each example file indicate the interacting potential used, the number of species, the system of units, and the force calculation algorithm, and whether the system is magnetized or not. In the following we will describe one of the example files. 
+This output prints out the different options with which you can run Sarkas.
 
-Let us open `ybim_mks_p3m_mag.yaml` file in a text editor. This file contains parameters for a simulation of a Carbon-Oxygen mixture interacting via a Yukawa potential and under the influence of a constant Magnetic field. The first thing to notice is that there are eight sections each of which contains a set of parameters. Each section corresponds to a subclass of the `Params` class. The order is relatively important since some section parameters might depend on a previous section. For example: the Magnetized section must come after the Integrator section since the option electrostatic_thermalization, if chosen to be True, it modifies the integrator type. Below we present a description of what each keyword is used for in Sarkas. More information on .yaml files can be found here: `https://learn.getgrav.org/16/advanced/yaml`.
+- ``-i`` is required and is the path to the YAML input file of our simulation.
+- ``-c`` which can be either ``prod`` or ``therm`` and indicates whether we want to check the thermalization or production phase of the run.
+- ``-t`` is a boolean flag indicating whether to run a test of our input parameter or not.
+- ``-p`` is a boolean flag indicating whether to show plots to screen.
+- ``-v`` boolean for verbose output.
+- ``-d`` indicates the name of the directory where to save the simulation's output.
+- ``-j`` refers to the name we want to append to each output file.
+- ``-s`` sets the random number seed.
 
-.. csv-table:: Table for "Particles - species" section key and value pairs in the input file
-   :header: "Key", "Value Data Type", "Description"
-   :widths: auto
+The last three option are not required and are mostly used in the case we want to run many simulations without creating
+multiple input files and only want to change only few control parameters. Very often we need to run many simulations
+with similar parameters but with different initial conditions. Hence we could write a bash script like so
 
-   "name", "string", "Name for particle species (e.g. ion1, C, etc.)."
-   "number_density", "float", "Number density of species."
-   "mass", "float", "Mass of each particle of species."
-   "num", "int", "Number of simulation particles for desired species."
-   "Z", "float", "Charge number of species."
-   "A", "float", "Atomic mass. Note that if the keyword `mass` is present `A` would not be used for calculating the mass of each particle."
-   "temperature", "float", "Desired temperature of the system."
+.. code-block:: bash
 
-.. csv-table:: Table for "Particles - load" section key and value pairs in the input file
-   :header: "key", "Value Data Type", "Description"
-   :widths: auto
+    conda activate sarkas
 
-   "method", "string", "Particle position initialization schemes. Options are 'random_reject, random_no_reject, restart'"
-   "rand_seed", "int", "Random seed for random_reject and lattice initialization schemes"
-   "r_reject", "float", "Rejection radius for 'random_reject' and 'halton' initilization schemes. (e.g, 0.1, 1e-2, 1, etc.)"
-   "perturb", "float", "Perturbation for particle at lattice point for 'lattice' initialization scheme. Must be between 0 and 1."
-   "halton_bases", "python list", "List of 3 numbers to be used as the 'bases' for the 'halton_reject' initialization scheme."
-   "restart_step", "int", "Step number from which to restart the simulation"
+    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 125125 -d run1
+    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 281756 -d run2
+    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 256158 -d run3
+    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 958762 -d run4
+    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 912856 -d run5
 
-.. csv-table:: Table for "Potential" section key and value pairs in the input file
-   :header: "Key", "Value Data Type", "Description"
-   :widths: auto
+    conda deactivate
 
-   "type", "string", "Name of desired potential. See <link to potentials page> for a list of supported potentials."
-   "method", "string", "Specify algorithm used (P3M or PP). See <link to algorithms page> for a list of supported algorithms."
-   "rc", "float", "Short-range Potential cutoff radius. Contributions to force beyond this distance are ignored."
+If you are familiar with bash scripting you could make the above statements in a loop and make many more simulations.
+Once the simulations are done it's time to analyze the data. This is usually done by a python script.
+This was the old way of running simulations.
 
-.. csv-table:: Table for "P3M" section key and value pairs in the input file
-   :header: "Key", "Value Data Type", "Description"
-   :widths: auto
+New School
+==========
+Sarkas was created with the idea of incorporating the entire simulation
+workflow in a single Python script. Let's say we want to run 10 simulation of a Yukawa OCP and measure the velocity
+autocorrelation function. An example script looks like this
 
-   "MGrid", "Int Array", "Number of mesh points in each of the cartesian direction [x,y,z]"
-   "aliases", "int array", "Number of aliases to sum over"
-   "cao", "int", "Charge order parameter aka order of the B-Spline charge approximation"
-   "alpha_ewald", "float", "Alpha parameter for Ewald decomposition See <link to P3M page> for more information"
+.. code-block:: python
 
-.. csv-table:: Table for "Integrator" section key and value pairs in the input file
-   :header: "Key", "Value Data Type", "Description"
-   :widths: auto
+    import numpy as np
+    import os
+    from sarkas.simulation.params import Params
+    from sarkas.simulation import simulation
+    from sarkas.tools.postprocessing import VelocityAutocorrelationFunction
 
-   "type", "string", "Type of integrator to be used"
-
-.. csv-table:: Table for "Magnetized" section key and value pairs in the input file
-   :header: "Key", :Value Data Type", "Description"
-   :widths: auto
-
-   "B_Gauss", "float", "Magnitude of the magnetic field in Gauss units"
-   "B_Tesla", "float", "Magnitude of the magnetic field in Tesla units"
-   "electrostatic_thermalization", "int", "Flag for magnetic thermalization. If 1 (True) the system will be first thermalized without magnetic field and then thermalized again with the magnetic field"
-   "Neq_mag", "int", "Number of thermalization steps with a constant magnetic field"
-
-.. csv-table:: Table for "Thermostat" section key and value pairs in the input.yaml file
-   :header: "Key", "Value Data Type", "Description"
-   :widths: auto
-
-   "type", "string", "Name of desired thermostat to be used during equilibration phase. See <link to initilization/equlibration page> for a list of supported thermostats"
-   "tau", "float", "Berendsen parameter. It should be a positive number greater than zero. See <link to Berendesen page> for more information"
-   "timestep", "int", "Number of timesteps to wait before turning on the Berendsen thermostat. It should be less than the Neq"
-
-.. csv-table:: Table for "Langevin" section key and value pairs in the input.yaml file
-   :header: "Key", "Value Data Type", "Description"
-   :widths: auto
-
-   "type", "string", "Name of desired Langevin model to be used."
-   "gamma", "float", "Magnitude of Langevin 'kick'"
-
-.. csv-table:: Table for "Control" section key and value pairs in the input.yaml file
-   :header: "Key", "Value Data Type", "Description"
-   :widths: auto
-
-   "units", "string", "Unit system to use. 'cgs' or 'mks'"
-   "dt", "float", "Size of timestep used in both equilibration and production phases (e.g. 0.1)"
-   "Neq", "int", "Number of equilibration steps (e.g. 1000)"
-   "Nsteps", "int", "Number of production steps (e.g. 5000)"
-   "BC", "string", "Type of boundary conditions on all edges of simulation cell. Currently, 'periodic' is only supported boundary condition"
-   "writexyz", "string", "Determines if .xyz file, following the 'xyz' formatting standards, will be generated during the extent of the simulation. Options are: 'yes or no'"
-   "dump_step", "int", "Number of steps between saving particle data"
-   "random_seed", "int", "Seed of random number generator"
-   "verbose", "string", "Flag for printing simulation information to screen. Options are 'yes' or 'no'"
-   "output_dir", "string", "Directory where to store checkpoint files for restart and post processing."
-   "fname_app", "string", "Appendix to filenames. Default = output_dir"
+    # Let's define some common variables
+    args = dict()
+    # Assuming you are inside the directory where you downloaded the sarkas repo
+    args["input_file"] = os.path.join('sarkas',
+                            os.path.join('examples', 'yukawa_mks_p3m.yaml') )
 
 
-* lattice: Places particle down in a simple cubic lattice with a random perturbation. Note that `Num` must be a perfect cube if using this method.
-* random_reject: Places particles down by sampling a uniform distribution and uses a rejection radius to avoid placing particles too close together.
-* halton_reject: Places particles down according to a Halton sequence for a choice of bases in addition to using a rejection radius.
-* random: The default if no scheme is selected. Places particles down by sampling a uniform distribution. No rejection radius.
+    # Initialize the simulation parameter class
+    params = Params()
+
+    for i in range(10):
+        # Save each simulation's data into own its directory
+        args["job_dir"] = "YOCP_" + str(i)
+        args["job_id"] = "yocp_" + str(i)
+        args["seed"] = np.random.randint(0, high=123456789)
+
+        params.setup(args)
+        simulation.run(params)
+        # Initialize the VACF object
+        vacf = VelocityAutocorrelationFunction(params)
+        vacf.compute()
 
 
+At the same time let's assume we want to run many simulations to span a range of screening parameters
 
+.. code-block:: python
 
+    import numpy as np
+    import os
+    from sarkas.simulation.params import Params
+    from sarkas.simulation import simulation
+    from sarkas.potentials import yukawa
 
+    # Let's define some common variables
+    args = dict()
+    # Assuming you are inside the directory where you downloaded the sarkas repo
+    args["input_file"] = os.path.join('sarkas',
+                            os.path.join('examples', 'yukawa_mks_p3m.yaml') )
 
+    kappas = np.linspace(0.1, 1, 10)
+
+    for i, kappa in enumerate(kappas):
+        args["job_dir"] = "YOCP_" + str(i)
+        args["job_id"] = "yocp_" + str(i)
+        args["seed"] = np.random.randint(0, high=123456789)
+
+        # Initialize the simulation parameter class
+        params = Params()
+        # Read the common simulation's parameters
+        params.common_parser(args["input_file"])
+        # Let's make sure we are not printing to screen
+        params.Control.verbose = False
+        # Create simulation's directories
+        params.create_directories(args)
+        # Create simulation's parameters
+        params.assign_attributes()
+        # Let's change the screening parameter
+        params.Potential.kappa = kappa
+        # Calculate potential dependent parameters
+        yukawa.setup(params, False)
+        # Run the simulation
+        simulation.run(params)
+        # Delete params and restart
+        del params

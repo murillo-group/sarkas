@@ -76,10 +76,14 @@ def run(params):
     # Equilibration Phase
     ##############################################
     if not params.load_method == "restart":
-        checkpoint.therm_dump(ptcls, Ks, Tps, U_init, 0)
+        if params.load_method == "therm_restart":
+            it_start = params.load_therm_restart_step
+        else:
+            it_start = 0
+        checkpoint.therm_dump(ptcls, Ks, Tps, U_init, it_start)
         if params.Control.verbose:
             print("\n------------- Equilibration -------------")
-        for it in tqdm(range(params.Control.Neq), disable=not params.Control.verbose):
+        for it in tqdm(range(it_start, params.Control.Neq), disable=not params.Control.verbose):
             # Calculate the Potential energy and update particles' data
             U_therm = integrator.update(ptcls, params)
             if (it + 1) % params.Control.therm_dump_step == 0:

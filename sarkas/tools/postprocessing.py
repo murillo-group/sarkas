@@ -1002,12 +1002,15 @@ class HermiteCoefficients:
         if self.no_species > 1:
             self.species_plots_dirs = []
             for i, name in enumerate(self.species_names):
-                self.species_plots_dirs.append = os.path.join(self.plots_dir, "{}".format(name))
-                os.mkdir(os.path.join(self.plots_dir, "{}".format(name)))
+                new_dir = os.path.join(self.plots_dir, "{}".format(name))
+                self.species_plots_dirs.append(new_dir)
+                if not os.path.exists(new_dir):
+                    os.mkdir(os.path.join(self.plots_dir, "{}".format(name)))
         else:
             self.species_plots_dirs = [self.plots_dir]
 
         for sp, name in enumerate(self.species_names):
+            print("Species: {}".format(name))
             fig, ax = plt.subplots(1, 2, sharex=True, constrained_layout=True, figsize=(16, 9))
             for indx in range(self.hermite_order):
                 xcolumn = "{} Hermite x Coeff a{}".format(name, indx)
@@ -1034,7 +1037,7 @@ class HermiteCoefficients:
             for i in range(0, self.hermite_order, 2):
                 coeff = np.zeros(i + 1)
                 coeff[-1] = 1.0
-                print("Equilibrium a{} = {:1.2f} ".format(i, np.polynomial.hermite_e.hermeval(sigma, coeff) ))
+                print("Equilibrium a{} = {:1.2f} ".format(i, np.polynomial.hermite_e.hermeval(sigma, coeff)))
 
             # t_end = self.dataframe["Time"].iloc[-1] * xmul/2
             # ax[0].text(t_end, 1.1, r"$a_{0,\rm{eq}} = 1 $", transform=ax[0].transData)
@@ -1051,11 +1054,11 @@ class HermiteCoefficients:
             #     ax[0].text(t_end, a6_eq * .98, r"$a_{6,\rm{eq}} = " + "{:1.2f}".format(a6_eq) + "$",
             #                transform=ax[0].transData)
 
-            ax[0].legend(loc='best', ncol=int( self.hermite_order / 2 + self.hermite_order % 2))
-            ax[1].legend(loc='best', ncol=int( self.hermite_order / 2))
+            ax[0].legend(loc='best', ncol=int(self.hermite_order / 2 + self.hermite_order % 2))
+            ax[1].legend(loc='best', ncol=int(self.hermite_order / 2))
             yt = np.arange(0, self.hermite_order + self.hermite_order % 2, 2)
             ax[1].set_yticks(yt)
-            ax[1].set_yticklabels( np.zeros(len(yt)) )
+            ax[1].set_yticklabels(np.zeros(len(yt)))
             fig.suptitle("Hermite Coefficients of {}".format(name))
             plot_name = os.path.join(self.species_plots_dirs[sp], '{}_HermCoeffPlot_'.format(name)
                                      + self.fname_app + '.png')
@@ -2407,9 +2410,6 @@ class VelocityAutocorrelationFunctions:
     dt : float
         Timestep magnitude.
 
-    filename: str
-        Name of output files.
-
     fldr : str
         Folder containing dumps.
 
@@ -2760,8 +2760,10 @@ class VelocityMoments:
         if self.no_species > 1:
             self.species_plots_dirs = []
             for i, name in enumerate(self.species_names):
-                self.species_plots_dirs.append = os.path.join(self.plots_dir, "{}".format(name))
-                os.mkdir(os.path.join(self.plots_dir, "{}".format(name)))
+                new_dir = os.path.join(self.plots_dir, "{}".format(name))
+                self.species_plots_dirs.append(new_dir)
+                if not os.path.exists(new_dir):
+                    os.mkdir(os.path.join(self.plots_dir, "{}".format(name)))
         else:
             self.species_plots_dirs = [self.plots_dir]
 
@@ -2778,7 +2780,7 @@ class VelocityMoments:
             ax.legend(loc='upper right')
             #
             ax.set_xscale('log')
-            ax.set_yscale('log')
+            # ax.set_yscale('log')
             ax.set_xlabel(r'$t$' + xlbl)
             #
             ax.set_title("Moments ratios of {}".format(sp_name))

@@ -526,7 +526,7 @@ class Params:
         self.common_parser(self.input_file)
         self.create_directories(args)
         self.assign_attributes()
-
+        self.Control.verbose = args["verbose"]
         # Coulomb potential
         if self.Potential.type == "Coulomb":
             from sarkas.potentials import coulomb as Coulomb
@@ -624,6 +624,10 @@ class Params:
 
                                     if key == 'restart_step':
                                         self.load_restart_step = int(value)
+                                        self.load_rand_seed = 1
+
+                                    if key == 'therm_restart_step':
+                                        self.load_therm_restart_step = int(value)
                                         self.load_rand_seed = 1
 
                                     if key == 'r_reject':
@@ -886,8 +890,10 @@ class Params:
         self.Control.therm_dir = os.path.join(self.Control.checkpoint_dir, self.Control.therm_dir)
         if not os.path.exists(self.Control.therm_dir):
             os.mkdir(self.Control.therm_dir)
-        if not os.path.exists(os.path.join(self.Control.therm_dir, "dumps")):
-            os.mkdir(os.path.join(self.Control.therm_dir, "dumps"))
+
+        self.Control.therm_dump_dir = os.path.join(self.Control.therm_dir, "dumps")
+        if not os.path.exists(self.Control.therm_dump_dir):
+            os.mkdir(self.Control.therm_dump_dir)
 
         if self.Control.log_file is None:
             self.Control.log_file = os.path.join(self.Control.checkpoint_dir, 'log.out')

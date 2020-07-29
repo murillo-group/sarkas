@@ -84,6 +84,7 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -168,13 +169,12 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 <span class="c1"># import fmm3dpy as fmm</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">sarkas.algorithm</span> <span class="kn">import</span> <span class="n">force_pp</span><span class="p">,</span> <span class="n">force_pm</span>
 
 
 <div class="viewcode-block" id="Integrator"><a class="viewcode-back" href="../../../api/sarkas.integrators.integrator.html#sarkas.integrators.integrator.Integrator">[docs]</a><span class="k">class</span> <span class="nc">Integrator</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Assign integrator type.</span>
+<span class="sd">    Class used to assign integrator type.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -193,10 +193,9 @@
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Verlet&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;BBK&quot;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Verlet_with_Langevin</span>  <span class="c1"># currently only BBK.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="n">Verlet_with_Langevin</span>  <span class="c1"># currently only BBK.</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No such Langevin type.&quot;</span><span class="p">)</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+                    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Wrong Langevin type.&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="n">Verlet</span>
         <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">Integrator</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Magnetic_Verlet&quot;</span><span class="p">:</span>
@@ -243,6 +242,65 @@
 
     <span class="c1"># Second half step velocity update</span>
     <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span>
+
+    <span class="k">return</span> <span class="n">U</span></div>
+
+
+<div class="viewcode-block" id="Verlet_with_Langevin"><a class="viewcode-back" href="../../../api/sarkas.integrators.integrator.html#sarkas.integrators.integrator.Verlet_with_Langevin">[docs]</a><span class="k">def</span> <span class="nf">Verlet_with_Langevin</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate particles dynamics using the Velocity Verlet algorithm and Langevin damping.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ptcls: object</span>
+<span class="sd">        Particles data.</span>
+
+<span class="sd">    params:  object</span>
+<span class="sd">        Simulation&#39;s parameters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    U : float</span>
+<span class="sd">        Total potential energy</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># start index for species loop</span>
+    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="n">sp_end</span> <span class="o">=</span> <span class="n">sp_start</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+        <span class="c1"># sigma</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+
+        <span class="n">c1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+        <span class="c1"># c2 = 1./(1. + 0.5*g*dt)</span>
+
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> \
+                                         <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Contro</span><span class="o">.</span><span class="n">dt</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> \
+                                         <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">sig</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span> <span class="o">**</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">beta</span>
+
+    <span class="c1"># Periodic boundary condition</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">PBC</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span><span class="p">)</span>
+
+    <span class="n">acc_old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">)</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">calc_pot_acc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+        <span class="n">sp_end</span> <span class="o">=</span> <span class="n">sp_start</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+        <span class="c1"># sigma</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+
+        <span class="n">c1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+        <span class="n">c2</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Langevin</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> \
+                                        <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span>
+                                                                     <span class="o">+</span> <span class="n">acc_old</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,:])</span> \
+                                        <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">sig</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span> <span class="o">*</span> <span class="n">beta</span>
+        <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
 
     <span class="k">return</span> <span class="n">U</span></div>
 
@@ -498,7 +556,6 @@
 
     <span class="k">return</span> <span class="n">U</span></div>
 
-
 <span class="c1"># def calc_pot_acc_fmm(ptcls, params):</span>
 <span class="c1">#     &quot;&quot;&quot;</span>
 <span class="c1">#</span>
@@ -537,7 +594,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 24, 2020.
+        Last updated on Jul, 29, 2020.
       </span>
 
     </p>

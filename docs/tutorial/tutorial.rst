@@ -4,10 +4,9 @@
 Tutorial
 ========
 
-Here we provide a step-by-step guide to illustrate how to run Sarkas and how to obtain useful quantities
-from your simulation data once you run is complete. The topics that are listed in this tutorial are as follows
+Here we provide a step-by-step guide on how to run a typical MD simulation using Sarkas.
+The topics that are listed in this tutorial are as follows
 
-- Options
 - Input file
 - Testing
 - Running a simulation
@@ -15,121 +14,7 @@ from your simulation data once you run is complete. The topics that are listed i
 
 We will illustrate these steps using the example file ``yukawa_mks_p3m.yaml`` in the ``examples`` folder.
 This file contains parameters for a :math:`NVE` simulation of a One component strongly coupled plasma whose
-particles interact via a Yukawa potential, i.e. an YOCP. There are a couple of ways in which we can run a simulation.
-
-#. From a terminal window
-
-#. From a python script/jupyter notebook
-
-I will describe the first option for now
-
-Options
-=======
-First and foremost we run the help command in a terminal window
-
-.. code-block:: bash
-
-    $ sarkas_simulate -h
-
-This will produce the following output
-
-.. figure:: Help_output.png
-    :alt: Figure not found
-
-This output prints out the different options with which you can run Sarkas.
-
-- ``-i`` is required and is the path to the YAML input file of our simulation.
-- ``-c`` which can be either ``prod`` or ``therm`` and indicates whether we want to check the thermalization or production phase of the run.
-- ``-t`` is a boolean flag indicating whether to run a test of our input parameter or not.
-- ``-p`` is a boolean flag indicating whether to show plots to screen.
-- ``-v`` boolean for verbose output.
-- ``-d`` indicates the name of the directory where to save the simulation's output.
-- ``-j`` refers to the name we want to append to each output file.
-- ``-s`` sets the random number seed.
-
-The last three option are not required and are mostly used in the case we want to run many simulations without creating
-multiple input files and only want to change only few control parameters. Very often we need to run many simulations
-with similar parameters but with different initial conditions. Hence we could write a bash script like so
-
-.. code-block:: bash
-
-    conda activate sarkas
-
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 125125 -d run1
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 281756 -d run2
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 256158 -d run3
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 958762 -d run4
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 912856 -d run5
-
-    conda deactivate
-
-If you are familiar with bash scripting you could make the above statements in a loop and make many more simulations.
-
-This was the old way of running simulations. Sarkas allows you to run write a Python script to run and analyze all your
-runs. A simple script looks like this
-
-.. code-block:: python
-
-    import numpy as np
-
-    from sarkas.simulation.params import Params
-    from sarkas.simulation import simulation
-
-    # Let's define some common variables
-    args = dict()
-    args["input_file"] = "../sarkas/examples/yukawa_mks_p3m.yaml" # choose the right location
-
-
-    # Initialize the simulation parameter class
-    params = Params()
-
-    for i in range(10):
-        args["job_dir"] = "YOCP_" + str(i)
-        args["job_id"] = "yocp_" + str(i)
-        args["seed"] = np.random.randint(0, high=123456789)
-        params.setup(args)
-        simulation.run(params)
-
-At the same time let's assume we want to run many simulations to span a range of coupling parameters
-
-.. code-block:: python
-
-    import numpy as np
-
-    from sarkas.simulation.params import Params
-    from sarkas.simulation import simulation
-    from sarkas.potentials import yukawa
-
-    # Let's define some common variables
-    args = dict()
-    args["input_file"] = "../sarkas/examples/yukawa_mks_p3m.yaml" # choose the right location
-    kappas = np.linspace(0.1, 1, 10)
-
-    for i, kappa in enumerate(kappas):
-        args["job_dir"] = "YOCP_" + str(i)
-        args["job_id"] = "yocp_" + str(i)
-        args["seed"] = np.random.randint(0, high=123456789)
-
-        # Initialize the simulation parameter class
-        params = Params()
-        # Read the common simulation's parameters
-        params.common_parser(args["input_file"])
-        # Let's make sure we are not printing to screen
-        params.Control.verbose = False
-        # Create the directories of each simulation output
-        params.create_directories(args)
-        # Create simulation's parameters
-        params.assign_attributes()
-        # Let's change the screening parameter
-        params.Potential.kappa = kappa
-        # Calculate potential dependent parameters
-        yukawa.setup(params, False)
-        # Run the simulation
-        simulation.run(params)
-        # Delete params and restart
-        del params
-
-In the next section we will explain the input file.
+particles interact via a Yukawa potential, i.e. an YOCP.
 
 Input File
 ==========

@@ -32,8 +32,8 @@ Thermostat:
 Control:
     - units: cgs                    # units
     - dt: 1.519123e-17            # sec
-    - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nsteps: 50000                    # number of timesteps afater the equilibrium
+    - Neq: 10000                      # number of timesteps for thermalization
+    - Nsteps: 50000                    # number of timesteps for data production;;
     - writexyz: no                  # no xyz output
     - dump_step: 10                # dump time step
     - verbose: no

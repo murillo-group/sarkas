@@ -301,10 +301,9 @@ def main(params, estimate=False):
     kappa = params.Potential.matrix[1, 0, 0] if params.Potential.type == "Yukawa" else 0.0
     if estimate:
         print('\n\n----------------- Timing Study -----------------------')
-        Mg = np.array([6, 8, 16, 24, 32, 40, 48, 56], dtype=int)
+        Mg = np.array([16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
         max_cells = int(0.5 * params.Lv.min() / params.aws)
         Ncells = np.arange(3, max_cells, dtype=int)
-        print(Ncells)
         pm_times = np.zeros(len(Mg))
         pm_errs = np.zeros(len(Mg))
 
@@ -337,10 +336,10 @@ def main(params, estimate=False):
                 alpha_times_rcut = - (params.P3M.G_ew * params.Potential.rc) ** 2
                 params.P3M.PP_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(params.Potential.rc)
                 params.P3M.PP_err *= np.sqrt(params.N) * params.aws ** 2 / np.sqrt(params.box_volume)
-                print('rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
-                    end='')
-                print("[cm]" if params.Control.units == "cgs" else "[m]")
-                print('PP Err = {:1.4e}  '.format(params.P3M.PP_err) )
+                # print('rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
+                #     end='')
+                # print("[cm]" if params.Control.units == "cgs" else "[m]")
+                # print('PP Err = {:1.4e}  '.format(params.P3M.PP_err) )
                 pp_errs[i, j] = params.P3M.PP_err
                 DeltaF_map[i, j] = np.sqrt(params.P3M.PP_err ** 2 + params.P3M.PM_err ** 2)
 
@@ -356,10 +355,10 @@ def main(params, estimate=False):
                 Lagrangian[i, j] = abs(pp_errs[i, j] ** 2 * pp_times[i, j] - pm_errs[i] ** 2 * pm_times[i])
 
         best = np.unravel_index(Lagrangian.argmin(), Lagrangian.shape)
-        print(Mg.shape, Ncells.shape)
+        # print(Mg.shape, Ncells.shape)
         c_mesh, m_mesh = np.meshgrid(Ncells, Mg)
-        print(m_mesh.shape, c_mesh.shape)
-        print(m_mesh[best], c_mesh[best])
+        # print(m_mesh.shape, c_mesh.shape)
+        # print(m_mesh[best], c_mesh[best])
         # levels = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
         fig = plt.figure()
         ax = fig.add_subplot(111) # projection='3d')

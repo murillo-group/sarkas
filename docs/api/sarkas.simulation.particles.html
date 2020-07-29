@@ -86,6 +86,7 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -96,7 +97,6 @@
 <li class="toctree-l4"><a class="reference internal" href="sarkas.algorithm.html">sarkas.algorithm package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.integrators.html">sarkas.integrators package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.plotting.html">sarkas.plotting package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.thermostats.html">sarkas.thermostats package</a></li>
@@ -433,6 +433,17 @@ from a Maxwell-Boltzmann distribution.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.simulation.particles.Particles.load_from_therm_restart">
+<code class="sig-name descname">load_from_therm_restart</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/simulation/particles.html#Particles.load_from_therm_restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.simulation.particles.Particles.load_from_therm_restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load particles’ data from a checkpoint of a previous run</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Timestep.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.simulation.particles.Particles.random_no_reject">
 <code class="sig-name descname">random_no_reject</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/simulation/particles.html#Particles.random_no_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.simulation.particles.Particles.random_no_reject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomly distribute particles along each direction.</p>
@@ -511,7 +522,7 @@ Updates: N/A</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 24, 2020.
+        Last updated on Jul, 29, 2020.
       </span>
 
     </p>

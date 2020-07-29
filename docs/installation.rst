@@ -31,14 +31,14 @@ affecting the original project.
 
 #. Depending on your choice above
 
-        * a. Unzip the folder and enter the ``sarkas-master`` folder. Jump to point 6.
+        * a. Unzip the folder and enter the ``sarkas-master`` folder. Jump to point 8.
         * b. Open a terminal window and ``cd`` into the folder where you want to store your copy of Sarkas. Then type
 
         .. code-block:: bash
 
             $ git clone https://github.com/murillo-group/sarkas.git
 
-At this point you can choose to
+#. At this point you can choose to
 
     #. Create a virtual environment for you work
     #. Use the docker image
@@ -58,7 +58,7 @@ for creating the ``sarkas`` virtual environment.
 
         $ which conda
 
-    This command will print the path of your ``conda`` binaries. If nothing is printe then you need to install it. Visit
+    This command will print the path of your ``conda`` binaries. If nothing is printed then you need to install it. Visit
     Anaconda.org and download_ their Python 3.* installer.
 
 #. Create your virtual environment via
@@ -97,7 +97,7 @@ for creating the ``sarkas`` virtual environment.
 
 Option 2: Docker Image
 ======================
-Alternatively, you can install a whole Sarkas package including all dependencies/preliminary-packages using Docker_.
+Alternatively, you can install the whole sarkas package including all dependencies/preliminary-packages using Docker_.
 To install Sarkas using Docker, run the following commands:
 
 .. code-block:: bash

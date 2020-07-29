@@ -10,7 +10,6 @@ Subpackages
    sarkas.algorithm
    sarkas.integrators
    sarkas.io
-   sarkas.plotting
    sarkas.potentials
    sarkas.simulation
    sarkas.thermostats
