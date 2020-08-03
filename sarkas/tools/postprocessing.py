@@ -1466,7 +1466,7 @@ class StaticStructureFactor:
         ax.set_ylabel(r'$S(k)$')
         ax.set_xlabel(r'$ka$')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'StaticStructureFactor' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'StaticStructureFactor_' + self.fname_app + '.png'))
         if show:
             fig.show()
 
@@ -3408,7 +3408,7 @@ def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
     tot_mass_dens = np.sum(sp_num * sp_mass)
 
     sp_start = 0
-    for i in prange(no_species):
+    for i in range(no_species):
         sp_end = sp_start + sp_num[i]
         com_vel[i, :, :] = sp_mass[i] * np.sum(vel[:, sp_start: sp_end, :], axis=1) / tot_mass_dens
         sp_start = sp_end
