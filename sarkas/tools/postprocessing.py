@@ -4,7 +4,7 @@ Module for calculating physical quantities from Sarkas checkpoints.
 import os
 from tqdm import tqdm
 import numpy as np
-from numba import njit, prange
+from numba import njit
 import pandas as pd
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
@@ -298,8 +298,10 @@ class CurrentCorrelationFunctions:
         try:
             if longitudinal:
                 self.dataframe = pd.read_csv(self.l_filename_csv, index_col=False)
+                lbl = "L"
             else:
                 self.dataframe = pd.read_csv(self.t_filename_csv, index_col=False)
+                lbl = "T"
             k_data = np.load(self.k_file)
             self.k_list = k_data["k_list"]
             self.k_counts = k_data["k_counts"]
@@ -316,7 +318,7 @@ class CurrentCorrelationFunctions:
                     column = "{}-{} CCF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
                             np.fft.fftshift(self.dataframe[column]),
-                            label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
+                            label=r'$' + lbl +'_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
         else:
             column = "{}-{} CCF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
@@ -340,8 +342,8 @@ class CurrentCorrelationFunctions:
             fig_name = os.path.join(self.fldr, 'Tkw_' + self.fname_app + '.png')
 
         ax.set_xlabel(r'$\omega/\omega_p$')
-        fig.tight_layout(fig_name)
-        fig.savefig()
+        fig.tight_layout()
+        fig.savefig(fig_name)
         if show:
             fig.show()
 
@@ -683,10 +685,11 @@ class ElectricCurrent:
 
         Parameters
         ----------
-        params: S_params class
+        params: object
             Simulation's parameters.
         """
         self.dataframe = None
+        self.verbose = params.Control.verbose
         self.fldr = params.Control.checkpoint_dir
         self.fname_app = params.Control.fname_app
         self.units = params.Control.units
@@ -730,7 +733,7 @@ class ElectricCurrent:
         #
         print("Parsing particles' velocities.")
         time = np.zeros(self.no_dumps)
-        for it in tqdm(range(self.no_dumps)):
+        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
             dump = int(it * self.dump_step)
             time[it] = dump * self.dt
             datap = load_from_restart(self.dump_dir, dump)
@@ -2461,7 +2464,8 @@ class VelocityAutocorrelationFunctions:
         self.wp = params.wp
         self.a_ws = params.aws
         self.dt = params.Control.dt
-
+        self.verbose = params.Control.verbose
+        
     def parse(self):
         """
         Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
@@ -2483,7 +2487,7 @@ class VelocityAutocorrelationFunctions:
         #
         print("Parsing particles' velocities.")
         time = np.zeros(self.no_dumps)
-        for it in tqdm(range(self.no_dumps)):
+        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
             dump = int(it * self.dump_step)
             time[it] = dump * self.dt
             datap = load_from_restart(self.dump_dir, dump)
@@ -3262,7 +3266,7 @@ def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list):
     # Read particles' position for all times
     print("Calculating n(k,t).")
     nkt = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    for it in tqdm(range(no_dumps)):
+    for it in range(no_dumps):
         dump = int(it * dump_step)
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
@@ -3629,7 +3633,7 @@ def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list):
     vkt_perp_i = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
     vkt_perp_j = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
     vkt_perp_k = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    for it in tqdm(range(no_dumps)):
+    for it in range(no_dumps):
         dump = int(it * dump_step)
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
