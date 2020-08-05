@@ -89,7 +89,7 @@ class Particles:
         self.species_num = np.zeros(params.num_species, dtype=int)
         self.species_conc = np.zeros(params.num_species)
         self.species_mass = np.zeros(params.num_species)
-        self.species_init_vel = np.zeros((params.num.species, 3))
+        self.species_init_vel = np.zeros((params.num_species, 3))
 
         self.mass = np.zeros(self.tot_num_ptcls)  # mass of each particle
         self.charge = np.zeros(self.tot_num_ptcls)  # charge of each particle
