@@ -241,6 +241,8 @@ class Params:
             atomic_weight : float
                 Species atomic weight.
 
+            init_vel: array
+                Initial velocity in x,y,z directions.
         """
 
         def __init__(self):
@@ -608,6 +610,9 @@ class Params:
                                     if key == "A":
                                         self.species[ic].atomic_weight = float(value)
 
+                                    if key == 'initial_velocity':
+                                        self.species[ic].init_vel = np.array(value)
+
                                     if key == "mass_density":
                                         self.species[ic].mass_density = float(value)
 
@@ -698,6 +703,7 @@ class Params:
                                 else:
                                     self.Thermostat.temperatures = np.array([value], dtype=float)
                                 self.Thermostat.temperatures *= self.eV2K
+
                             if key == "temperatures":
                                 # Conversion factor from eV to Kelvin
                                 if isinstance(value, list):

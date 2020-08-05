@@ -89,6 +89,7 @@ class Particles:
         self.species_num = np.zeros(params.num_species, dtype=int)
         self.species_conc = np.zeros(params.num_species)
         self.species_mass = np.zeros(params.num_species)
+        self.species_init_vel = np.zeros((params.num.species, 3))
 
         self.mass = np.zeros(self.tot_num_ptcls)  # mass of each particle
         self.charge = np.zeros(self.tot_num_ptcls)  # charge of each particle
@@ -100,23 +101,26 @@ class Particles:
 
         # Assign particles attributes
         species_end = 0
-        for i in range(params.num_species):
+        for ic, sp in enumerate(params.species):
             species_start = species_end
-            species_end += params.species[i].num
+            species_end += sp.num
 
-            self.species_num[i] = params.species[i].num
-            self.species_conc[i] = params.species[i].num/self.tot_num_ptcls
-            self.species_mass[i] = params.species[i].mass
+            self.species_num[ic] = sp.num
+            self.species_conc[ic] = sp.num / self.tot_num_ptcls
+            self.species_mass[ic] = sp.mass
 
-            self.species_name[species_start:species_end] = params.species[i].name
-            self.mass[species_start:species_end] = params.species[i].mass
+            self.species_name[species_start:species_end] = sp.name
+            self.mass[species_start:species_end] = sp.mass
 
-            if hasattr(params.species[i], 'charge'):
-                self.charge[species_start:species_end] = params.species[i].charge
+            if hasattr(sp, 'charge'):
+                self.charge[species_start:species_end] = sp.charge
             else:
                 self.charge[species_start:species_end] = 1.0
 
-            self.species_id[species_start:species_end] = i
+            self.species_id[species_start:species_end] = ic
+
+            if sp.init_vel is not None:
+                self.species_init_vel[ic, :] = sp.init_vel
 
     def load(self, params):
         """
@@ -139,6 +143,7 @@ class Particles:
             if not type(params.load_restart_step) is int:
                 raise TypeError("Only integers are allowed.")
             self.load_from_restart(params.load_restart_step)
+
         elif params.load_method == 'therm_restart':
             if params.load_therm_restart_step is None:
                 raise AttributeError("Therm Restart step not defined. Please define restart_step in YAML file.")
@@ -155,29 +160,16 @@ class Particles:
             if params.Control.verbose:
                 print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
 
-            Vsigma = np.zeros(params.num_species)
-            for i in range(params.num_species):
-                Vsigma[i] = np.sqrt(params.kB * params.Ti / params.species[i].mass)
-
             species_end = 0
-            for ic in range(params.num_species):
-                Vsig = Vsigma[ic]
-                num_ptcls = params.species[ic].num
+            for ic, sp in enumerate(params.species):
+                Vsig = np.sqrt(params.kB * params.Thermostat.temperatures[ic] / sp.mass)
                 species_start = species_end
-                species_end = species_start + num_ptcls
+                species_end = species_start + sp.num
+                vel_0 = self.species_init_vel[ic, :]
 
-                self.vel[species_start:species_end, 0] = self.rnd_gen.normal(0.0, Vsig, num_ptcls)
-                self.vel[species_start:species_end, 1] = self.rnd_gen.normal(0.0, Vsig, num_ptcls)
-                self.vel[species_start:species_end, 2] = self.rnd_gen.normal(0.0, Vsig, num_ptcls)
-
-                # Enforce zero total momentum
-                vx_mean = np.mean(self.vel[species_start:species_end, 0])
-                vy_mean = np.mean(self.vel[species_start:species_end, 1])
-                vz_mean = np.mean(self.vel[species_start:species_end, 2])
-
-                self.vel[species_start:species_end, 0] -= vx_mean
-                self.vel[species_start:species_end, 1] -= vy_mean
-                self.vel[species_start:species_end, 2] -= vz_mean
+                self.vel[species_start:species_end, 0] = self.rnd_gen.normal(vel_0[0], Vsig, sp.num)
+                self.vel[species_start:species_end, 1] = self.rnd_gen.normal(vel_0[1], Vsig, sp.num)
+                self.vel[species_start:species_end, 2] = self.rnd_gen.normal(vel_0[2], Vsig, sp.num)
 
             # Particles Position Initialization
             if params.Control.verbose:
@@ -185,10 +177,10 @@ class Particles:
 
             # position distribution. 
             if load_method == 'lattice':
-                self.lattice(params.load_perturb, params.load_rand_seed)
+                self.lattice(params.load_perturb)
 
             elif load_method == 'random_reject':
-                self.random_reject(params.load_r_reject, params.load_rand_seed)
+                self.random_reject(params.load_r_reject)
 
             elif load_method == 'halton_reject':
                 self.halton_reject(params.load_halton_bases, params.load_r_reject)
@@ -226,34 +218,32 @@ class Particles:
 
         """
         species_end = 0
-        ic_species = 0
 
         self.species_name = np.empty(self.tot_num_ptcls, dtype='object')
         self.species_id = np.zeros((self.tot_num_ptcls,), dtype=int)
-        self.species_num = np.zeros(self.params.num_species, dtype=int)
-        self.species_mass = np.zeros(self.params.num_species)
-        self.species_conc = np.zeros(self.params.num_species)
+        self.species_num = np.zeros(params.num_species, dtype=int)
+        self.species_mass = np.zeros(params.num_species)
+        self.species_conc = np.zeros(params.num_species)
         self.mass = np.zeros(self.tot_num_ptcls)  # mass of each particle
         self.charge = np.zeros(self.tot_num_ptcls)  # charge of each particle
 
-        for i in range(params.num_species):
+        for ic, sp in range(params.species):
             species_start = species_end
-            species_end += params.species[i].num
+            species_end += sp.num
 
-            self.species_num[i] = params.species[i].num
-            self.species_mass[i] = params.species[i].mass
-            self.species_conc[i] = params.species[i].num/self.tot_num_ptcls
+            self.species_num[ic] = sp.num
+            self.species_mass[ic] = sp.mass
+            self.species_conc[ic] = sp.num / self.tot_num_ptcls
 
-            self.species_name[species_start:species_end] = params.species[i].name
-            self.mass[species_start:species_end] = params.species[i].mass
+            self.species_name[species_start:species_end] = sp.name
+            self.mass[species_start:species_end] = sp.mass
 
-            if hasattr(params.species[i], 'charge'):
-                self.charge[species_start:species_end] = params.species[i].charge
+            if hasattr(sp, 'charge'):
+                self.charge[species_start:species_end] = sp.charge
             else:
                 self.charge[species_start:species_end] = 1.0
 
-            self.species_id[species_start:species_end] = ic_species
-            ic_species += 1
+            self.species_id[species_start:species_end] = ic
 
         return
 
@@ -335,18 +325,15 @@ class Particles:
         self.pos[:, 1] = self.rnd_gen.uniform(0.0, self.box_lengths[1], self.tot_num_ptcls)
         self.pos[:, 2] = self.rnd_gen.uniform(0.0, self.box_lengths[2], self.tot_num_ptcls)
 
-    def lattice(self, perturb, rand_seed):
+    def lattice(self, perturb):
         """ 
-        Place particles in a simple cubic lattice with a slight perturbation ranging from 0 to 0.5 times the lattice spacing.
+        Place particles in a simple cubic lattice with a slight perturbation ranging
+        from 0 to 0.5 times the lattice spacing.
 
         Parameters
         ----------
         perturb : float
             Value of perturbation, p, such that 0 <= p <= 1.
-
-        rand_seed : int
-            Seed for random number generator. 
-            Default: 1.
 
         Notes
         -----    
@@ -388,9 +375,6 @@ class Particles:
         # Create a lattice with appropriate x, y, and z values based on arange
         X, Y, Z = np.meshgrid(x, y, z)
 
-        # Random seed
-        np.random.seed(rand_seed)  # Seed for random number generator
-
         # Perturb lattice
         X += self.rnd_gen.uniform(-0.5, 0.5, np.shape(X)) * perturb * dx_lattice
         Y += self.rnd_gen.uniform(-0.5, 0.5, np.shape(Y)) * perturb * dy_lattice
@@ -403,9 +387,9 @@ class Particles:
 
         # End timer
         end = time.time()
-        print('Lattice creation took: {:1.4e} sec'.format(end - start) )
+        print('Lattice creation took: {:1.4e} sec'.format(end - start))
 
-    def random_reject(self, r_reject, rand_seed):
+    def random_reject(self, r_reject):
         """ 
         Place particles by sampling a uniform distribution from 0 to L (the box length)
         and uses a rejection radius to avoid placing particles to close to each other.
@@ -415,10 +399,6 @@ class Particles:
         r_reject : float
             Value of rejection radius.
 
-        rand_seed : int
-            Seed for random number generator. 
-            Default: 1.
-
         Notes
         -----    
         Author: Luke Stanek
@@ -427,7 +407,6 @@ class Particles:
         Updates: N/A
 
         """
-
 
         # Initialize Arrays
         x = np.array([])
@@ -448,7 +427,6 @@ class Particles:
         i = 0
 
         start = time.time()  # Start timer for placing particles
-        bad_count = 0
         # Loop to place particles
         while i < self.tot_num_ptcls - 1:
 
