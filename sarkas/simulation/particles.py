@@ -74,8 +74,10 @@ class Particles:
         self.tot_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
 
-        iseed = params.load_rand_seed
-        np.random.seed(seed=iseed)
+        if params.load_rand_seed is not None:
+            self.rnd_gen = np.random.Generator(np.random.PCG64(params.load_rand_seed))
+        else:
+            self.rnd_gen = np.random.Generator(np.random.PCG64(123456789))
 
         self.pos = np.zeros((self.tot_num_ptcls, 3))
         self.vel = np.zeros((self.tot_num_ptcls, 3))
@@ -164,9 +166,9 @@ class Particles:
                 species_start = species_end
                 species_end = species_start + num_ptcls
 
-                self.vel[species_start:species_end, 0] = np.random.normal(0.0, Vsig, num_ptcls)
-                self.vel[species_start:species_end, 1] = np.random.normal(0.0, Vsig, num_ptcls)
-                self.vel[species_start:species_end, 2] = np.random.normal(0.0, Vsig, num_ptcls)
+                self.vel[species_start:species_end, 0] = self.rnd_gen.normal(0.0, Vsig, num_ptcls)
+                self.vel[species_start:species_end, 1] = self.rnd_gen.normal(0.0, Vsig, num_ptcls)
+                self.vel[species_start:species_end, 2] = self.rnd_gen.normal(0.0, Vsig, num_ptcls)
 
                 # Enforce zero total momentum
                 vx_mean = np.mean(self.vel[species_start:species_end, 0])
@@ -301,10 +303,6 @@ class Particles:
         ----------
         f_name : str
             Filename
-
-        N : int
-            Number of particles
-
         """
         pv_data = np.loadtxt(f_name)
         if not (pv_data.shape[0] == self.tot_num_ptcls):
@@ -333,9 +331,9 @@ class Particles:
 
         # np.random.seed(self.params.load_rand_seed) # Seed for random number generator
 
-        self.pos[:, 0] = np.random.uniform(0.0, self.box_lengths[0], self.tot_num_ptcls)
-        self.pos[:, 1] = np.random.uniform(0.0, self.box_lengths[1], self.tot_num_ptcls)
-        self.pos[:, 2] = np.random.uniform(0.0, self.box_lengths[2], self.tot_num_ptcls)
+        self.pos[:, 0] = self.rnd_gen.uniform(0.0, self.box_lengths[0], self.tot_num_ptcls)
+        self.pos[:, 1] = self.rnd_gen.uniform(0.0, self.box_lengths[1], self.tot_num_ptcls)
+        self.pos[:, 2] = self.rnd_gen.uniform(0.0, self.box_lengths[2], self.tot_num_ptcls)
 
     def lattice(self, perturb, rand_seed):
         """ 
@@ -394,9 +392,9 @@ class Particles:
         np.random.seed(rand_seed)  # Seed for random number generator
 
         # Perturb lattice
-        X += np.random.uniform(-0.5, 0.5, np.shape(X)) * perturb * dx_lattice
-        Y += np.random.uniform(-0.5, 0.5, np.shape(Y)) * perturb * dy_lattice
-        Z += np.random.uniform(-0.5, 0.5, np.shape(Z)) * perturb * dz_lattice
+        X += self.rnd_gen.uniform(-0.5, 0.5, np.shape(X)) * perturb * dx_lattice
+        Y += self.rnd_gen.uniform(-0.5, 0.5, np.shape(Y)) * perturb * dy_lattice
+        Z += self.rnd_gen.uniform(-0.5, 0.5, np.shape(Z)) * perturb * dz_lattice
 
         # Flatten the meshgrid values for plotting and computation
         self.pos[:, 0] = X.ravel()
@@ -430,8 +428,6 @@ class Particles:
 
         """
 
-        # Set random seed
-        np.random.seed(rand_seed)
 
         # Initialize Arrays
         x = np.array([])
@@ -439,9 +435,9 @@ class Particles:
         z = np.array([])
 
         # Set first x, y, and z positions
-        x_new = np.random.uniform(0, self.box_lengths[0])
-        y_new = np.random.uniform(0, self.box_lengths[1])
-        z_new = np.random.uniform(0, self.box_lengths[2])
+        x_new = self.rnd_gen.uniform(0, self.box_lengths[0])
+        y_new = self.rnd_gen.uniform(0, self.box_lengths[1])
+        z_new = self.rnd_gen.uniform(0, self.box_lengths[2])
 
         # Append to arrays
         x = np.append(x, x_new)
@@ -457,9 +453,9 @@ class Particles:
         while i < self.tot_num_ptcls - 1:
 
             # Set x, y, and z positions
-            x_new = np.random.uniform(0.0, self.box_lengths[0])
-            y_new = np.random.uniform(0.0, self.box_lengths[1])
-            z_new = np.random.uniform(0.0, self.box_lengths[2])
+            x_new = self.rnd_gen.uniform(0.0, self.box_lengths[0])
+            y_new = self.rnd_gen.uniform(0.0, self.box_lengths[1])
+            z_new = self.rnd_gen.uniform(0.0, self.box_lengths[2])
 
             # Check if particle was place too close relative to all other current particles
             for j in range(len(x)):
