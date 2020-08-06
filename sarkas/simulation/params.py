@@ -147,6 +147,7 @@ class Params:
         self.ne = 0.0
         self.L = 0.0
         self.Lv = []
+        self.input_file = None
         self.box_volume = 0.0
         self.dimensions = 3
         self.J2erg = 1.0e+7  # erg/J

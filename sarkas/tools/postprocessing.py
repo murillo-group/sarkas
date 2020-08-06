@@ -2450,6 +2450,7 @@ class VelocityAutocorrelationFunctions:
         self.dump_step = params.Control.dump_step
         self.no_dumps = len(os.listdir(params.Control.dump_dir))
         self.no_species = len(params.species)
+        self.no_vacf = int(self.no_species * (self.no_species + 1) / 2)
         self.species_names = []
         self.dt = params.Control.dt  # No of dump to skip
         self.species_np = np.zeros(self.no_species, dtype=int)
