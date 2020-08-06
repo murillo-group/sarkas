@@ -980,8 +980,7 @@ class Params:
         # Simulation Box Parameters
         self.N = self.total_num_ptcls
         if len(self.Control.np_per_side) != 0:
-            if int(np.prod(self.Control.np_per_side)) != self.total_num_ptcls:
-                raise ValueError("Number of particles per dimension does not match total number of particles.")
+            assert int(np.prod(self.Control.np_per_side)) == self.total_num_ptcls, "Number of particles per dimension does not match total number of particles."
 
             self.Lx = self.aws * self.Control.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
             self.Ly = self.aws * self.Control.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)

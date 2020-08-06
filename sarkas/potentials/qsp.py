@@ -43,20 +43,13 @@ def setup(params, read_input=True):
     """
     # Do a bunch of checks
     # P3M algorithm only
-    if not params.Potential.method == "P3M":
-        raise AttributeError('QSP interaction can only be calculated using P3M algorithm.')
+    assert params.Potential.method == "P3M", 'QSP interaction can only be calculated using P3M algorithm.'
 
     # Check for neutrality
-    if params.tot_net_charge > 0 or params.tot_net_charge < 0:
-        raise ValueError('Total net charge is not zero.')
+    assert params.tot_net_charge == 0, 'Total net charge is not zero.'
 
-    e_indx = 1
-    for isp, sp in enumerate(params.species):
-        if sp.name == 'e' or sp.name == 'electrons' or sp.name == 'electron':
-            e_indx = isp
-
-    if not e_indx == 0:
-        raise AttributeError('The 1st species are not electrons. Please redefine the 1st species as electrons.')
+    e_list = ['e', 'electrons', 'electron']
+    assert params.species[0].name in e_list, 'The 1st species are not electrons. Please redefine the 1st species as electrons.'
 
     # Default attributes
     params.Potential.QSP_type = 'Deutsch'
@@ -135,13 +128,13 @@ def update_params(params):
     beta_i = 1.0 / (params.kB * params.Ti)
 
     QSP_matrix = np.zeros((5, params.num_species, params.num_species))
-    for i in range(params.num_species):
-        m1 = params.species[i].mass
-        q1 = params.species[i].charge
+    for i, sp1 in enumerate(params.species):
+        m1 = sp1.mass
+        q1 = sp1.charge
 
-        for j in range(params.num_species):
-            m2 = params.species[j].mass
-            q2 = params.species[j].charge
+        for j, sp2 in enumerate(params.species):
+            m2 = sp2.mass
+            q2 = sp2.charge
             reduced = (m1 * m2) / (m1 + m2)
             if i == 0:
                 Lambda_dB = np.sqrt(two_pi * beta_e * params.hbar2 / reduced)

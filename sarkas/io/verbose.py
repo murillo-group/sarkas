@@ -193,7 +193,7 @@ class Verbose:
         """
         Print out to screen elapsed times. If verbose output, print to file first and then to screen.
 
-        Parameters
+        Para meters
         ----------
         time_stamp : array
             Array of time stamps.

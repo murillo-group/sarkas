@@ -55,8 +55,6 @@ def run(params):
     Tot_Kin = Ks.sum()
     Temperature = ptcls.species_conc.transpose() @ Tps
     E_init = U_init + Tot_Kin
-
-    remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
     #
     time_init = time.time()
     verbose.time_stamp("Initialization", time_init - time0)

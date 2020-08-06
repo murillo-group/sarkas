@@ -78,14 +78,14 @@ def update_params(params):
     wp_tot_sq = 0.0
     sigma2 = 0.0
     epsilon_tot = 0.0
-    for i in range(params.num_species):
-        params.species[i].epsilon = params.Potential.lj_eps[i]
-        params.species[i].sigma = params.Potential.lj_sigma[i]
+    for i, sp in enumerate(params.species):
+        sp.epsilon = params.Potential.lj_eps[i]
+        sp.sigma = params.Potential.lj_sigma[i]
 
-        wp2 = 48.0 * params.species[i].epsilon / params.species[i].sigma ** 2
-        params.species[i].wp = np.sqrt(wp2)
-        sigma2 += params.species[i].sigma
-        epsilon_tot += params.species[i].epsilon
+        wp2 = 48.0 * sp.epsilon / sp.sigma ** 2
+        sp.wp = np.sqrt(wp2)
+        sigma2 += sp.sigma
+        epsilon_tot += sp.epsilon
         wp_tot_sq += wp2
 
     params.wp = np.sqrt(wp_tot_sq)

@@ -178,10 +178,10 @@ class CurrentCorrelationFunctions:
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_names = []
         self.species_wp = np.zeros(self.no_species)
-        for i in range(self.no_species):
-            self.species_wp[i] = params.species[i].wp
-            self.species_np[i] = int(params.species[i].num)
-            self.species_names.append(params.species[i].name)
+        for i, sp in enumerate(params.species):
+            self.species_wp[i] = sp.wp
+            self.species_np[i] = int(sp.num)
+            self.species_names.append(sp.name)
 
         self.dt = params.Control.dt
         self.a_ws = params.aws
@@ -318,7 +318,8 @@ class CurrentCorrelationFunctions:
                     column = "{}-{} CCF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
                             np.fft.fftshift(self.dataframe[column]),
-                            label=r'$' + lbl +'_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
+                            label=r'$' + lbl + '_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,'
+                                                                                                            '\omega)$')
         else:
             column = "{}-{} CCF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
@@ -474,10 +475,10 @@ class DynamicStructureFactor:
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_names = []
         self.species_wp = np.zeros(self.no_species)
-        for i in range(self.no_species):
-            self.species_wp[i] = params.species[i].wp
-            self.species_np[i] = int(params.species[i].num)
-            self.species_names.append(params.species[i].name)
+        for i, sp in enumerate(params.species):
+            self.species_wp[i] = sp.wp
+            self.species_np[i] = int(sp.num)
+            self.species_names.append(sp.name)
 
         self.Nsteps = params.Control.Nsteps
         self.dt = params.Control.dt
@@ -702,10 +703,10 @@ class ElectricCurrent:
         self.species_names = []
         self.dt = params.Control.dt  # No of dump to skip
         self.species_charge = np.zeros(self.no_species)
-        for i in range(self.no_species):
-            self.species_np[i] = int(params.species[i].num)
-            self.species_charge[i] = params.species[i].charge
-            self.species_names.append(params.species[i].name)
+        for i, sp in enumerate(params.species):
+            self.species_np[i] = int(sp.num)
+            self.species_charge[i] = sp.charge
+            self.species_names.append(sp.name)
 
         self.tot_no_ptcls = params.total_num_ptcls
         self.wp = params.wp
@@ -1161,9 +1162,9 @@ class RadialDistributionFunction:
         self.species_np = np.zeros(self.no_species)  # Number of particles of each species
         self.species_names = []
 
-        for i in range(self.no_species):
-            self.species_np[i] = params.species[i].num
-            self.species_names.append(params.species[i].name)
+        for i, sp in enumerate(params.species):
+            self.species_np[i] = sp.num
+            self.species_names.append(sp.name)
 
     def save(self, rdf_hist):
         """
@@ -1362,9 +1363,9 @@ class StaticStructureFactor:
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_names = []
 
-        for i in range(self.no_species):
-            self.species_np[i] = params.species[i].num
-            self.species_names.append(params.species[i].name)
+        for i, sp in enumerate(params.species):
+            self.species_np[i] = sp.num
+            self.species_names.append(sp.name)
 
     def parse(self):
         """
@@ -1572,11 +1573,11 @@ class Thermodynamics:
         self.species_names = []
         self.species_masses = np.zeros(self.no_species)
         self.species_dens = np.zeros(self.no_species)
-        for i in range(self.no_species):
-            self.species_np[i] = params.species[i].num
-            self.species_names.append(params.species[i].name)
-            self.species_masses[i] = params.species[i].mass
-            self.species_dens[i] = params.species[i].num_density
+        for i, sp in enumerate(params.species):
+            self.species_np[i] = sp.num
+            self.species_names.append(sp.name)
+            self.species_masses[i] = sp.mass
+            self.species_dens[i] = sp.num_density
         # Output file with Energy and Temperature
         self.filename_csv = os.path.join(self.fldr, "Thermodynamics_" + self.fname_app + '.csv')
         # Constants
@@ -2019,11 +2020,11 @@ class Thermalization:
         self.species_names = []
         self.species_masses = np.zeros(self.no_species)
         self.species_dens = np.zeros(self.no_species)
-        for i in range(self.no_species):
-            self.species_np[i] = params.species[i].num
-            self.species_names.append(params.species[i].name)
-            self.species_masses[i] = params.species[i].mass
-            self.species_dens[i] = params.species[i].num_density
+        for i, sp in enumerate(params.species):
+            self.species_np[i] = sp.num
+            self.species_names.append(sp.name)
+            self.species_masses[i] = sp.mass
+            self.species_dens[i] = sp.num_density
         # Output file with Energy and Temperature
         self.filename_csv = os.path.join(self.fldr, "Thermalization_" + self.fname_app + '.csv')
         # Constants
@@ -2454,11 +2455,11 @@ class VelocityAutocorrelationFunctions:
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_masses = np.zeros(self.no_species)
         self.species_dens = np.zeros(self.no_species)
-        for i in range(self.no_species):
-            self.species_np[i] = int(params.species[i].num)
-            self.species_dens[i] = params.species[i].num_density
-            self.species_masses[i] = params.species[i].mass
-            self.species_names.append(params.species[i].name)
+        for i, sp in enumerate(params.species):
+            self.species_np[i] = int(sp.num)
+            self.species_dens[i] = sp.num_density
+            self.species_masses[i] = sp.mass
+            self.species_names.append(sp.name)
         self.tot_mass_density = self.species_masses.transpose() @ self.species_dens
         self.tot_no_ptcls = params.total_num_ptcls
         self.wp = params.wp
@@ -2690,9 +2691,9 @@ class VelocityMoments:
         self.max_no_moment = 3
         self.species_plots_dirs = None
         self.units = params.Control.units
-        for i in range(self.no_species):
-            self.species_np[i] = int(params.species[i].num)
-            self.species_names.append(params.species[i].name)
+        for i, sp in enumerate(params.species):
+            self.species_np[i] = int(sp.num)
+            self.species_names.append(sp.name)
 
     def compute(self):
         """

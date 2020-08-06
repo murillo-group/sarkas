@@ -144,10 +144,9 @@ def update_params(params):
 
     # Calculate the (total) plasma frequency
     wp_tot_sq = 0.0
-    for i in range(params.num_species):
-        wp2 = 4.0 * np.pi * params.species[i].charge ** 2 * params.species[i].num_density / (
-                    params.species[i].mass * params.fourpie0)
-        params.species[i].wp = np.sqrt(wp2)
+    for i, sp in enumerate(params.species):
+        wp2 = 4.0 * np.pi * sp.charge ** 2 * sp.num_density / (sp.mass * params.fourpie0)
+        sp.wp = np.sqrt(wp2)
         wp_tot_sq += wp2
 
     params.wp = np.sqrt(wp_tot_sq)
@@ -162,18 +161,18 @@ def update_params(params):
 
     Z53 = 0.0
     Z_avg = 0.0
-    for i in range(params.num_species):
-        if hasattr(params.species[i], "Z"):
-            Zi = params.species[i].Z
+    for i, sp1 in enumerate(params.species):
+        if hasattr(sp1, "Z"):
+            Zi = sp1.Z
         else:
             Zi = 1.0
 
-        Z53 += Zi ** (5. / 3.) * params.species[i].concentration
-        Z_avg += Zi * params.species[i].concentration
+        Z53 += Zi ** (5. / 3.) * sp1.concentration
+        Z_avg += Zi * sp1.concentration
 
-        for j in range(params.num_species):
-            if hasattr(params.species[j], "Z"):
-                Zj = params.species[j].Z
+        for j, sp2 in enumerate(params.species):
+            if hasattr(sp2, "Z"):
+                Zj = sp2.Z
             else:
                 Zj = 1.0
 

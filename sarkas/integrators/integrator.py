@@ -106,10 +106,10 @@ def Verlet_with_Langevin(ptcls, params):
     beta = np.random.normal(0., 1., 3 * params.total_num_ptcls).reshape(params.total_num_ptcls, 3)
 
     sp_start = 0  # start index for species loop
-    for ic in range(params.num_species):
-        sp_end = sp_start + params.species[ic].num
+    for ic, sp in enumerate(params.species):
+        sp_end = sp_start + sp.num
         # sigma
-        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.Thermostat.temperatures[ic] / params.species[ic].mass)
+        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.Thermostat.temperatures[ic] / sp.mass)
 
         c1 = (1. - 0.5 * params.Langevin.gamma * params.Control.dt)
         # c2 = 1./(1. + 0.5*g*dt)
@@ -126,10 +126,10 @@ def Verlet_with_Langevin(ptcls, params):
     U = calc_pot_acc(ptcls, params)
 
     sp_start = 0
-    for ic in range(params.num_species):
-        sp_end = sp_start + params.species[ic].num
+    for ic, sp in enumerate(params.species):
+        sp_end = sp_start + sp.num
         # sigma
-        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.Thermostat.temperatures[ic] / params.species[ic].mass)
+        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.Thermostat.temperatures[ic] / sp.mass)
 
         c1 = (1. - 0.5 * params.Langevin.gamma * params.Control.dt)
         c2 = 1. / (1. + 0.5 * params.Langevin.gamma * params.Control.dt)
@@ -175,16 +175,16 @@ def Magnetic_Verlet(ptcls, params):
     v_B = np.zeros((params.total_num_ptcls, params.dimensions))
     v_F = np.zeros((params.total_num_ptcls, params.dimensions))
 
-    for ic in range(params.num_species):
+    for ic, sp in enumerate(params.species):
         # Cyclotron frequency
-        omega_c = params.species[ic].omega_c
+        omega_c = sp.omega_c
         omc_dt = omega_c * half_dt
 
         sdt = np.sin(omc_dt)
         cdt = np.cos(omc_dt)
         ccodt = cdt - 1.0
 
-        sp_end = sp_start + params.species[ic].num
+        sp_end = sp_start + sp.num
         # First half step of velocity update
         v_B[sp_start:sp_end, 0] = ptcls.vel[sp_start:sp_end, 0] * cdt - ptcls.vel[sp_start:sp_end, 1] * sdt
         v_F[sp_start:sp_end, 0] = - ccodt / omega_c * ptcls.acc[sp_start:sp_end, 1] \
@@ -213,8 +213,8 @@ def Magnetic_Verlet(ptcls, params):
 
     sp_start = 0
 
-    for ic in range(params.num_species):
-        omega_c = params.species[ic].omega_c
+    for ic, sp in enumerate(params.species):
+        omega_c = sp.omega_c
 
         omc_dt = omega_c * dt
         sdt = np.sin(omc_dt)
@@ -222,7 +222,7 @@ def Magnetic_Verlet(ptcls, params):
 
         ccodt = cdt - 1.0
 
-        sp_end = sp_start + params.species[ic].num
+        sp_end = sp_start + sp.num
 
         # Second half step velocity update
         ptcls.vel[sp_start:sp_end, 0] = (v_B[sp_start:sp_end, 0] + v_F[sp_start:sp_end, 0]) * cdt \
@@ -275,15 +275,15 @@ def Boris_Magnetic_integrator(ptcls, params):
     ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
 
     # Rotate velocities
-    for ic in range(params.num_species):
+    for ic, sp in enumerate(params.species):
         # Cyclotron frequency
-        omega_c = params.species[ic].omega_c
+        omega_c = sp.omega_c
         omc_dt = omega_c * half_dt
 
         sdt = np.sin(omc_dt)
         cdt = np.cos(omc_dt)
 
-        sp_end = sp_start + params.species[ic].num
+        sp_end = sp_start + sp.num
         # First half step of velocity update
         v_B[sp_start:sp_end, 0] = ptcls.vel[sp_start:sp_end, 0] * cdt - ptcls.vel[sp_start:sp_end, 1] * sdt
 

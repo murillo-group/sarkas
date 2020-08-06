@@ -20,7 +20,7 @@ Particles:
 
     - load:
         method: random_no_reject    # loading method
-        rand_seed: 123456789        # random seed
+
 
 Potential: 
     - type: Yukawa                 # potential type

@@ -255,8 +255,7 @@ def main(params, estimate=False):
     ptcls.load(params)
 
     # Check for too large a cut off
-    if params.Potential.rc > params.Lv.min() / 2:
-        raise ValueError("Cut-off radius is larger than L/2! L/2 = {:1.4e}".format(params.Lv.min() / 2))
+    assert params.Potential.rc <= params.Lv.min() / 2, "Cut-off radius is larger than L/2! L/2 = {:1.4e}".format(params.Lv.min() / 2)
 
     print('\n\n----------------- Time -----------------------\n')
 

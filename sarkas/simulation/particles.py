@@ -119,7 +119,7 @@ class Particles:
 
             self.species_id[species_start:species_end] = ic
 
-            if sp.init_vel is not None:
+            if hasattr(sp, "init_vel"):
                 self.species_init_vel[ic, :] = sp.init_vel
 
     def load(self, params):
