@@ -28,7 +28,7 @@ class Integrator:
 
     def __init__(self, params):
 
-        if params.Integrator.type == "Verlet":
+        if params.integrator.type == "Verlet":
             if params.Langevin.on:
                 if params.Langevin.type == "BBK":
                     self.update = Verlet_with_Langevin  # currently only BBK.
@@ -36,9 +36,9 @@ class Integrator:
                     raise AttributeError('Wrong Langevin type.')
             else:
                 self.update = Verlet
-        elif params.Integrator.type == "Magnetic_Verlet":
+        elif params.integrator.type == "Magnetic_Verlet":
             self.update = Magnetic_Verlet
-        elif params.Integrator.type == "Magnetic_Boris":
+        elif params.integrator.type == "Magnetic_Boris":
             self.update = Boris_Magnetic_integrator
         else:
             print("Only Verlet integrator is supported. Check your input file, integrator part 2.")
@@ -66,12 +66,12 @@ def Verlet(ptcls, params):
     """
 
     # First half step velocity update
-    ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
+    ptcls.vel += 0.5 * ptcls.acc * params.control.dt
     # Full step position update
-    ptcls.pos += ptcls.vel * params.Control.dt
+    ptcls.pos += ptcls.vel * params.control.dt
 
     # Periodic boundary condition
-    if not params.Potential.method == 'FMM':
+    if not params.potential.method == 'FMM':
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
         # Compute total potential energy and acceleration for second half step velocity update
         U = calc_pot_acc(ptcls, params)
@@ -79,7 +79,7 @@ def Verlet(ptcls, params):
     #     U = calc_pot_acc_fmm(ptcls, params)
 
     # Second half step velocity update
-    ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
+    ptcls.vel += 0.5 * ptcls.acc * params.control.dt
 
     return U
 
@@ -109,17 +109,17 @@ def Verlet_with_Langevin(ptcls, params):
     for ic, sp in enumerate(params.species):
         sp_end = sp_start + sp.num
         # sigma
-        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.Thermostat.temperatures[ic] / sp.mass)
+        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.thermostat.temperatures[ic] / sp.mass)
 
-        c1 = (1. - 0.5 * params.Langevin.gamma * params.Control.dt)
+        c1 = (1. - 0.5 * params.Langevin.gamma * params.control.dt)
         # c2 = 1./(1. + 0.5*g*dt)
 
-        ptcls.pos[sp_start:sp_end, :] += c1 * params.Control.dt * ptcls.vel[sp_start:sp_end, :] \
+        ptcls.pos[sp_start:sp_end, :] += c1 * params.control.dt * ptcls.vel[sp_start:sp_end, :] \
                                          + 0.5 * params.Contro.dt ** 2 * ptcls.acc[sp_start:sp_end, :] \
-                                         + 0.5 * sig * params.Control.dt ** 1.5 * beta
+                                         + 0.5 * sig * params.control.dt ** 1.5 * beta
 
     # Periodic boundary condition
-    if params.Control.PBC == 1:
+    if params.control.PBC == 1:
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
 
     acc_old = np.copy(ptcls.acc)
@@ -129,15 +129,15 @@ def Verlet_with_Langevin(ptcls, params):
     for ic, sp in enumerate(params.species):
         sp_end = sp_start + sp.num
         # sigma
-        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.Thermostat.temperatures[ic] / sp.mass)
+        sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.thermostat.temperatures[ic] / sp.mass)
 
-        c1 = (1. - 0.5 * params.Langevin.gamma * params.Control.dt)
-        c2 = 1. / (1. + 0.5 * params.Langevin.gamma * params.Control.dt)
+        c1 = (1. - 0.5 * params.Langevin.gamma * params.control.dt)
+        c2 = 1. / (1. + 0.5 * params.Langevin.gamma * params.control.dt)
 
         ptcls.vel[sp_start:sp_end, :] = c1 * c2 * ptcls.vel[sp_start:sp_end, :] \
-                                        + 0.5 * c2 * params.Control.dt * (ptcls.acc[sp_start:sp_end, :]
+                                        + 0.5 * c2 * params.control.dt * (ptcls.acc[sp_start:sp_end, :]
                                                                      + acc_old[sp_start:sp_end,:]) \
-                                        + c2 * sig * np.sqrt(params.Control.dt) * beta
+                                        + c2 * sig * np.sqrt(params.control.dt) * beta
         sp_start = sp_end
 
     return U
@@ -166,7 +166,7 @@ def Magnetic_Verlet(ptcls, params):
     .. [Chin2008] `Chin Phys Rev E 77, 066401 (2008) <https://doi.org/10.1103/PhysRevE.77.066401>`_
     """
     # Time step
-    dt = params.Control.dt
+    dt = params.control.dt
     half_dt = 0.5 * dt
 
     sp_start = 0  # start index for species loop
@@ -262,7 +262,7 @@ def Boris_Magnetic_integrator(ptcls, params):
 
     """
     # Time step
-    dt = params.Control.dt
+    dt = params.control.dt
     half_dt = 0.5 * dt
 
     sp_start = 0  # start index for species loop
@@ -272,7 +272,7 @@ def Boris_Magnetic_integrator(ptcls, params):
     v_F = np.zeros((params.tot_num_ptcls, params.dimensions))
 
     # First step update velocities
-    ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
+    ptcls.vel += 0.5 * ptcls.acc * params.control.dt
 
     # Rotate velocities
     for ic, sp in enumerate(params.species):
@@ -295,10 +295,10 @@ def Boris_Magnetic_integrator(ptcls, params):
         sp_start = sp_end
 
     # Second step update velocities
-    ptcls.vel += 0.5 * ptcls.acc * params.Control.dt
+    ptcls.vel += 0.5 * ptcls.acc * params.control.dt
 
     # Full step position update
-    ptcls.pos += ptcls.vel * params.Control.dt
+    ptcls.pos += ptcls.vel * params.control.dt
 
     # Periodic boundary condition
     enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
@@ -360,33 +360,33 @@ def calc_pot_acc(ptcls, params):
         Total Potential.
 
     """
-    if params.Potential.LL_on:
+    if params.potential.LL_on:
         U_short, acc_s_r = force_pp.update(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv,
-                                           params.Potential.rc, params.Potential.matrix, params.force,
-                                           params.Control.measure, ptcls.rdf_hist)
+                                           params.potential.rc, params.potential.matrix, params.force,
+                                           params.control.measure, ptcls.rdf_hist)
     else:
         U_short, acc_s_r = force_pp.update_0D(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv,
-                                              params.Potential.rc, params.Potential.matrix, params.force,
-                                              params.Control.measure, ptcls.rdf_hist)
+                                              params.potential.rc, params.potential.matrix, params.force,
+                                              params.control.measure, ptcls.rdf_hist)
 
     ptcls.acc = acc_s_r
 
     U = U_short
 
-    if params.P3M.on:
+    if params.pppm.on:
         U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charge, ptcls.mass,
-                                          params.P3M.MGrid, params.Lv, params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v,
-                                          params.P3M.kz_v, params.P3M.cao)
+                                          params.pppm.MGrid, params.Lv, params.pppm.G_k, params.pppm.kx_v, params.pppm.ky_v,
+                                          params.pppm.kz_v, params.pppm.cao)
         # Ewald Self-energy
-        U_long += params.QFactor * params.P3M.G_ew / np.sqrt(np.pi)
+        U_long += params.QFactor * params.pppm.G_ew / np.sqrt(np.pi)
         # Neutrality condition
-        U_long += - np.pi * params.tot_net_charge ** 2.0 / (2.0 * params.box_volume * params.P3M.G_ew ** 2)
+        U_long += - np.pi * params.tot_net_charge ** 2.0 / (2.0 * params.box_volume * params.pppm.G_ew ** 2)
 
         U += U_long
 
         ptcls.acc += acc_l_r
 
-    if not (params.Potential.type == "LJ"):
+    if not (params.potential.type == "LJ"):
         # Mie Energy of charged systems
         # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
         dipole = ptcls.charge @ ptcls.pos
@@ -407,9 +407,9 @@ def calc_pot_acc(ptcls, params):
 #
 #     """
 #
-#     if params.Potential.type == 'Coulomb':
+#     if params.potential.type == 'Coulomb':
 #         out_fmm = fmm.lfmm3d(eps=1.0e-07, sources=np.transpose(ptcls.pos), charges=ptcls.charge, pg=2)
-#     elif params.Potential.type == 'Yukawa':
+#     elif params.potential.type == 'Yukawa':
 #         out_fmm = fmm.hfmm3d(eps=1.0e-05, zk=1j / params.lambda_TF, sources=np.transpose(ptcls.pos),
 #                          charges=ptcls.charge, pg=2)
 #

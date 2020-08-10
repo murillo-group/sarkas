@@ -135,13 +135,13 @@ At the same time let's assume we want to run many simulations to span a range of
         # Read the common simulation's parameters
         params.common_parser(args["input_file"])
         # Let's make sure we are not printing to screen
-        params.Control.verbose = False
+        params.control.verbose = False
         # Create simulation's directories
         params.create_directories(args)
         # Create simulation's parameters
         params.assign_attributes()
         # Let's change the screening parameter
-        params.Potential.kappa = kappa
+        params.potential.kappa = kappa
         # Calculate potential dependent parameters
         yukawa.setup(params, False)
         # Run the simulation

@@ -42,20 +42,20 @@ class Thermostat:
 
     """
     def __init__(self, params):
-        if params.Thermostat.on:
+        if params.thermostat.on:
             self.kB = params.kB
             self.no_species = len(params.species)
             self.species_np = np.zeros(self.no_species)
             self.species_masses = np.zeros(self.no_species)
-            self.relaxation_timestep = params.Thermostat.timestep
-            self.relaxation_rate = params.Thermostat.tau
-            self.T_desired = params.Thermostat.temperatures
+            self.relaxation_timestep = params.thermostat.timestep
+            self.relaxation_rate = params.thermostat.tau
+            self.T_desired = params.thermostat.temperatures
 
             for i in range(self.no_species):
                 self.species_np[i] = params.species[i].num
                 self.species_masses[i] = params.species[i].mass
 
-            if params.Thermostat.type == "Berendsen":
+            if params.thermostat.type == "Berendsen":
                 self.type = Berendsen
             else:
                 raise AttributeError("Only Berendsen thermostat is supported. Check your input file, thermostat part.")

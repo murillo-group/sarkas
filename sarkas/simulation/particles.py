@@ -68,14 +68,14 @@ class Particles:
         Initialize the attributes
         """
         self.params = params
-        self.checkpoint_dir = params.Control.dump_dir
-        self.therm_checkpoint_dir = params.Control.therm_dump_dir
+        self.checkpoint_dir = params.control.dump_dir
+        self.therm_checkpoint_dir = params.control.therm_dump_dir
         self.box_lengths = params.Lv
         self.tot_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
 
-        if params.load_rand_seed is not None:
-            self.rnd_gen = np.random.Generator(np.random.PCG64(params.load_rand_seed))
+        if params.rand_seed is not None:
+            self.rnd_gen = np.random.Generator(np.random.PCG64(params.rand_seed))
         else:
             self.rnd_gen = np.random.Generator(np.random.PCG64(123456789))
 
@@ -157,12 +157,12 @@ class Particles:
             self.load_from_file(params.ptcls_input_file)
         else:
             # Particles Velocities Initialization
-            if params.Control.verbose:
+            if params.control.verbose:
                 print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
 
             species_end = 0
             for ic, sp in enumerate(params.species):
-                Vsig = np.sqrt(params.kB * params.Thermostat.temperatures[ic] / sp.mass)
+                Vsig = np.sqrt(params.kB * params.thermostat.temperatures[ic] / sp.mass)
                 species_start = species_end
                 species_end = species_start + sp.num
                 vel_0 = self.species_init_vel[ic, :]
@@ -172,7 +172,7 @@ class Particles:
                 self.vel[species_start:species_end, 2] = self.rnd_gen.normal(vel_0[2], Vsig, sp.num)
 
             # Particles Position Initialization
-            if params.Control.verbose:
+            if params.control.verbose:
                 print('\nAssigning initial positions according to {}'.format(params.load_method))
 
             # position distribution. 
@@ -319,7 +319,7 @@ class Particles:
 
         """
 
-        # np.random.seed(self.params.load_rand_seed) # Seed for random number generator
+        # np.random.seed(self.params.rand_seed) # Seed for random number generator
 
         self.pos[:, 0] = self.rnd_gen.uniform(0.0, self.box_lengths[0], self.tot_num_ptcls)
         self.pos[:, 1] = self.rnd_gen.uniform(0.0, self.box_lengths[1], self.tot_num_ptcls)

@@ -305,10 +305,10 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Container of Species</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Lv</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">J2erg</span> <span class="o">=</span> <span class="mf">1.0e+7</span>  <span class="c1"># erg/J</span>
@@ -333,7 +333,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1">#</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">load</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">P3M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">P3M</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">BC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Magnetic</span><span class="p">()</span>
@@ -403,6 +402,8 @@
 <span class="sd">            atomic_weight : float</span>
 <span class="sd">                Species atomic weight.</span>
 
+<span class="sd">            init_vel: array</span>
+<span class="sd">                Initial velocity in x,y,z directions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -759,7 +760,7 @@
 
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;num&quot;</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span><span class="p">)</span>
 
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -769,6 +770,9 @@
 
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;A&quot;</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">atomic_weight</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+                                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;initial_velocity&#39;</span><span class="p">:</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">init_vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;mass_density&quot;</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">mass_density</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -781,16 +785,11 @@
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">load_method</span> <span class="o">=</span> <span class="n">value</span>
 
-                                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;rand_seed&quot;</span><span class="p">:</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">load_rand_seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;restart_step&#39;</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">load_restart_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">load_rand_seed</span> <span class="o">=</span> <span class="mi">1</span>
 
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;therm_restart_step&#39;</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">load_therm_restart_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">load_rand_seed</span> <span class="o">=</span> <span class="mi">1</span>
 
                                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;r_reject&#39;</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">load_r_reject</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -860,6 +859,7 @@
                                 <span class="k">else</span><span class="p">:</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">value</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eV2K</span>
+
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;temperatures&quot;</span><span class="p">:</span>
                                 <span class="c1"># Conversion factor from eV to Kelvin</span>
                                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -979,6 +979,9 @@
 
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;therm_dir&quot;</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">therm_dir</span> <span class="o">=</span> <span class="n">value</span>
+
+                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;rand_seed&quot;</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">rand_seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
                             <span class="c1"># Filenames appendix</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;job_id&quot;</span><span class="p">:</span>
@@ -1134,10 +1137,9 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">ne</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">Z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num_density</span>
 
         <span class="c1"># Simulation Box Parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">))</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of particles per dimension does not match total number of particles.&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Number of particles per dimension does not match total number of particles.&quot;</span>
+            <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">))</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">msg</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
@@ -1208,7 +1210,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 29, 2020.
+        Last updated on Aug, 10, 2020.
       </span>
 
     </p>

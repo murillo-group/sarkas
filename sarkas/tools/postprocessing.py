@@ -24,6 +24,7 @@ UNITS = [
      "Magnetic Field": 'T',
      "Current": "A",
      "Power": "erg/s",
+     "Pressure": "Pa",
      "none": ""},
     {"Energy": 'erg',
      "Time": 's',
@@ -35,6 +36,7 @@ UNITS = [
      "Magnetic Field": 'G',
      "Current": "esu/s",
      "Power": "erg/s",
+     "Pressure": "Ba",
      "none": ""}
 ]
 
@@ -158,20 +160,20 @@ class CurrentCorrelationFunctions:
         self.k_counts = None
         self.ka_values = None
         self.k_list = None
-        self.fldr = params.Control.checkpoint_dir
-        self.ptcls_fldr = params.Control.dump_dir
+        self.fldr = params.control.checkpoint_dir
+        self.ptcls_fldr = params.control.dump_dir
         self.k_fldr = os.path.join(self.fldr, "k_space_data")
         self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
         self.vkt_file = os.path.join(self.k_fldr, "vkt.npz")
-        self.fname_app = params.Control.fname_app
+        self.job_id = params.control.fname_app
         self.l_filename_csv = os.path.join(self.fldr,
-                                           "LongitudinalVelocityCorrelationFunction_" + self.fname_app + '.csv')
+                                           "LongitudinalVelocityCorrelationFunction_" + self.job_id + '.csv')
         self.t_filename_csv = os.path.join(self.fldr,
-                                           "TransverseVelocityCorrelationFunction_" + self.fname_app + '.csv')
+                                           "TransverseVelocityCorrelationFunction_" + self.job_id + '.csv')
 
         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
-        self.dump_step = params.Control.dump_step
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.dump_step = params.control.dump_step
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -183,7 +185,7 @@ class CurrentCorrelationFunctions:
             self.species_np[i] = int(sp.num)
             self.species_names.append(sp.name)
 
-        self.dt = params.Control.dt
+        self.dt = params.control.dt
         self.a_ws = params.aws
         self.wp = params.wp
 
@@ -337,10 +339,10 @@ class CurrentCorrelationFunctions:
         ax.set_xlim(0, 3)
         if longitudinal:
             ax.set_ylabel(r'$L(k,\omega)$')
-            fig_name = os.path.join(self.fldr, 'Lkw_' + self.fname_app + '.png')
+            fig_name = os.path.join(self.fldr, 'Lkw_' + self.job_id + '.png')
         else:
             ax.set_ylabel(r'$T(k,\omega)$')
-            fig_name = os.path.join(self.fldr, 'Tkw_' + self.fname_app + '.png')
+            fig_name = os.path.join(self.fldr, 'Tkw_' + self.job_id + '.png')
 
         ax.set_xlabel(r'$\omega/\omega_p$')
         fig.tight_layout()
@@ -364,9 +366,9 @@ class CurrentCorrelationFunctions:
             plt.tick_params(axis='both', which='major')
             fig.tight_layout()
             if longitudinal:
-                fig.savefig(os.path.join(self.fldr, 'Lkw_Dispersion_' + self.fname_app + '.png'))
+                fig.savefig(os.path.join(self.fldr, 'Lkw_Dispersion_' + self.job_id + '.png'))
             else:
-                fig.savefig(os.path.join(self.fldr, 'Tkw_Dispersion_' + self.fname_app + '.png'))
+                fig.savefig(os.path.join(self.fldr, 'Tkw_Dispersion_' + self.job_id + '.png'))
             if show:
                 fig.show()
 
@@ -458,17 +460,17 @@ class DynamicStructureFactor:
         params: S_params class
             Simulation's parameters.
         """
-        self.fldr = params.Control.checkpoint_dir
-        self.ptcls_fldr = params.Control.dump_dir
+        self.fldr = params.control.checkpoint_dir
+        self.ptcls_fldr = params.control.dump_dir
         self.k_fldr = os.path.join(self.fldr, "k_space_data")
         self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
         self.nkt_file = os.path.join(self.k_fldr, "nkt.npy")
-        self.fname_app = params.Control.fname_app
-        self.filename_csv = os.path.join(self.fldr, "DynamicStructureFactor_" + self.fname_app + '.csv')
+        self.job_id = params.control.fname_app
+        self.filename_csv = os.path.join(self.fldr, "DynamicStructureFactor_" + self.job_id + '.csv')
 
         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
-        self.dump_step = params.Control.dump_step
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.dump_step = params.control.dump_step
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -480,8 +482,8 @@ class DynamicStructureFactor:
             self.species_np[i] = int(sp.num)
             self.species_names.append(sp.name)
 
-        self.Nsteps = params.Control.Nsteps
-        self.dt = params.Control.dt
+        self.Nsteps = params.control.Nsteps
+        self.dt = params.control.dt
         self.no_Skw = int(self.no_species * (self.no_species + 1) / 2)
         self.a_ws = params.aws
         self.wp = params.wp
@@ -606,7 +608,7 @@ class DynamicStructureFactor:
         ax.set_ylabel(r'$S(k,\omega)$')
         ax.set_xlabel(r'$\omega/\omega_p$')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'Skw_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'Skw_' + self.job_id + '.png'))
         if show:
             fig.show()
 
@@ -626,7 +628,7 @@ class DynamicStructureFactor:
             plt.tick_params(axis='both', which='major')
             plt.title("$S(k, \omega)$")
             fig.tight_layout()
-            fig.savefig(os.path.join(self.fldr, 'Skw_Dispersion_' + self.fname_app + '.png'))
+            fig.savefig(os.path.join(self.fldr, 'Skw_Dispersion_' + self.job_id + '.png'))
             if show:
                 fig.show()
 
@@ -690,18 +692,18 @@ class ElectricCurrent:
             Simulation's parameters.
         """
         self.dataframe = None
-        self.verbose = params.Control.verbose
-        self.fldr = params.Control.checkpoint_dir
-        self.fname_app = params.Control.fname_app
-        self.units = params.Control.units
-        self.dump_dir = params.Control.dump_dir
-        self.filename_csv = os.path.join(self.fldr, "ElectricCurrent_" + self.fname_app + '.csv')
-        self.dump_step = params.Control.dump_step
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.verbose = params.control.verbose
+        self.fldr = params.control.checkpoint_dir
+        self.job_id = params.control.fname_app
+        self.units = params.control.units
+        self.dump_dir = params.control.dump_dir
+        self.filename_csv = os.path.join(self.fldr, "ElectricCurrent_" + self.job_id + '.csv')
+        self.dump_step = params.control.dump_step
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         self.no_species = len(params.species)
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_names = []
-        self.dt = params.Control.dt  # No of dump to skip
+        self.dt = params.control.dt  # No of dump to skip
         self.species_charge = np.zeros(self.no_species)
         for i, sp in enumerate(params.species):
             self.species_np[i] = int(sp.num)
@@ -711,7 +713,7 @@ class ElectricCurrent:
         self.tot_no_ptcls = params.total_num_ptcls
         self.wp = params.wp
         self.a_ws = params.aws
-        self.dt = params.Control.dt
+        self.dt = params.control.dt
 
     def parse(self):
         """
@@ -806,7 +808,7 @@ class ElectricCurrent:
         ax.set_xlabel('Time' + xlbl)
         ax.set_xscale('log')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'TotalCurrentACF_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'TotalCurrentACF_' + self.job_id + '.png'))
         if show:
             fig.show()
 
@@ -901,29 +903,29 @@ class HermiteCoefficients:
             self.hermite_order = 7
         else:
             self.hermite_order = params.PostProcessing.hermite_order
-        self.dump_dir = params.Control.dump_dir
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.dump_dir = params.control.dump_dir
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         #
-        self.fldr = os.path.join(params.Control.checkpoint_dir, 'HermiteExp_data')
+        self.fldr = os.path.join(params.control.checkpoint_dir, 'HermiteExp_data')
         if not os.path.exists(self.fldr):
             os.mkdir(self.fldr)
         self.plots_dir = os.path.join(self.fldr, 'Hermite_Plots')
-        self.fname_app = params.Control.fname_app
-        self.filename_csv = os.path.join(self.fldr, "HermiteCoefficients_" + self.fname_app + '.csv')
-        self.dump_step = params.Control.dump_step
-        self.units = params.Control.units
+        self.job_id = params.control.fname_app
+        self.filename_csv = os.path.join(self.fldr, "HermiteCoefficients_" + self.job_id + '.csv')
+        self.dump_step = params.control.dump_step
+        self.units = params.control.units
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
         self.no_dim = params.dimensions
-        self.no_steps = params.Control.Nsteps
+        self.no_steps = params.control.Nsteps
         self.a_ws = params.aws
         self.wp = params.wp
         self.kB = params.kB
         self.species_np = np.zeros(self.no_species)  # Number of particles of each species
         self.species_masses = np.zeros(self.no_species)  # Number of particles of each species
         self.species_names = []
-        self.dt = params.Control.dt
-        self.species_temperatures = params.Thermostat.temperatures
+        self.dt = params.control.dt
+        self.species_temperatures = params.thermostat.temperatures
 
         for i, sp in enumerate(params.species):
             self.species_np[i] = int(sp.num)
@@ -1065,7 +1067,7 @@ class HermiteCoefficients:
             ax[1].set_yticklabels(np.zeros(len(yt)))
             fig.suptitle("Hermite Coefficients of {}".format(name))
             plot_name = os.path.join(self.species_plots_dirs[sp], '{}_HermCoeffPlot_'.format(name)
-                                     + self.fname_app + '.png')
+                                     + self.job_id + '.png')
             fig.savefig(plot_name)
             if show:
                 fig.show()
@@ -1145,18 +1147,18 @@ class RadialDistributionFunction:
         """
         self.dataframe = None
         self.no_bins = params.PostProcessing.rdf_nbins  # number of ka values
-        self.fldr = params.Control.checkpoint_dir
-        self.fname_app = params.Control.fname_app
-        self.filename_csv = os.path.join(self.fldr, "RadialDistributionFunction_" + params.Control.fname_app + ".csv")
-        self.dump_step = params.Control.dump_step
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.fldr = params.control.checkpoint_dir
+        self.job_id = params.control.fname_app
+        self.filename_csv = os.path.join(self.fldr, "RadialDistributionFunction_" + params.control.fname_app + ".csv")
+        self.dump_step = params.control.dump_step
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         self.no_species = len(params.species)
         self.no_grs = int(params.num_species * (params.num_species + 1) / 2)
         self.tot_no_ptcls = params.total_num_ptcls
 
-        self.no_steps = params.Control.Nsteps
+        self.no_steps = params.control.Nsteps
         self.a_ws = params.aws
-        self.dr_rdf = params.Potential.rc / self.no_bins / self.a_ws
+        self.dr_rdf = params.potential.rc / self.no_bins / self.a_ws
         self.box_volume = params.box_volume / self.a_ws ** 3
         self.box_lengths = np.array([params.Lx / params.aws, params.Ly / params.aws, params.Lz / params.aws])
         self.species_np = np.zeros(self.no_species)  # Number of particles of each species
@@ -1248,7 +1250,7 @@ class RadialDistributionFunction:
         ax.set_xlabel(r'$r/a$')
         # ax.set_ylim(0, 5)
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'RDF_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'RDF_' + self.job_id + '.png'))
         if show:
             fig.show()
 
@@ -1337,16 +1339,16 @@ class StaticStructureFactor:
             Simulation's parameters.
         """
         self.dataframe = None
-        self.fldr = params.Control.checkpoint_dir
-        self.fname_app = params.Control.fname_app
-        self.ptcls_fldr = params.Control.dump_dir
+        self.fldr = params.control.checkpoint_dir
+        self.job_id = params.control.fname_app
+        self.ptcls_fldr = params.control.dump_dir
         self.k_fldr = os.path.join(self.fldr, "k_space_data")
         self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
         self.nkt_file = os.path.join(self.k_fldr, "nkt.npy")
 
-        self.filename_csv = os.path.join(self.fldr, "StaticStructureFunction_" + self.fname_app + ".csv")
-        self.dump_step = params.Control.dump_step
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.filename_csv = os.path.join(self.fldr, "StaticStructureFunction_" + self.job_id + ".csv")
+        self.dump_step = params.control.dump_step
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -1467,7 +1469,7 @@ class StaticStructureFactor:
         ax.set_ylabel(r'$S(k)$')
         ax.set_xlabel(r'$ka$')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'StaticStructureFactor_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'StaticStructureFactor_' + self.job_id + '.png'))
         if show:
             fig.show()
 
@@ -1548,18 +1550,19 @@ class Thermodynamics:
             Simulation's parameters.
         """
         self.dataframe = None
-        self.fldr = params.Control.checkpoint_dir
-        self.fname_app = params.Control.fname_app
-        self.dump_step = params.Control.dump_step
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.fldr = params.control.checkpoint_dir
+        self.ptcls_dumps = params.control.dump_dir
+        self.job_id = params.control.fname_app
+        self.dump_step = params.control.dump_step
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         self.no_dim = params.dimensions
-        self.units = params.Control.units
-        self.dt = params.Control.dt
-        self.potential = params.Potential.type
-        self.thermostat = params.Thermostat.type
-        self.thermostat_tau = params.Thermostat.tau
-        self.F_err = params.P3M.F_err
-        self.Nsteps = params.Control.Nsteps
+        self.units = params.control.units
+        self.dt = params.control.dt
+        self.potential = params.potential.type
+        self.thermostat = params.thermostat.type
+        self.thermostat_tau = params.thermostat.tau
+        self.F_err = params.pppm.F_err
+        self.Nsteps = params.control.Nsteps
         if params.load_method == "restart":
             self.restart_sim = True
         else:
@@ -1579,14 +1582,14 @@ class Thermodynamics:
             self.species_masses[i] = sp.mass
             self.species_dens[i] = sp.num_density
         # Output file with Energy and Temperature
-        self.filename_csv = os.path.join(self.fldr, "Thermodynamics_" + self.fname_app + '.csv')
+        self.filename_csv = os.path.join(self.fldr, "Thermodynamics_" + self.job_id + '.csv')
         # Constants
         self.wp = params.wp
         self.kB = params.kB
         self.eV2K = params.eV2K
         self.a_ws = params.aws
         self.T = params.T_desired
-        self.Gamma_eff = params.Potential.Gamma_eff
+        self.Gamma_eff = params.potential.Gamma_eff
 
     def compute_pressure_quantities(self):
         """
@@ -1603,7 +1606,7 @@ class Thermodynamics:
         for it in range(int(self.no_dumps)):
             dump = int(it * self.dump_step)
 
-            data = load_from_restart(self.fldr, dump)
+            data = load_from_restart(self.ptcls_dumps, dump)
             pos[0, :] = data["pos"][:, 0]
             pos[1, :] = data["pos"][:, 1]
             pos[2, :] = data["pos"][:, 2]
@@ -1620,17 +1623,17 @@ class Thermodynamics:
                                                                                 self.species_np, self.box_volume)
 
         self.dataframe["Pressure"] = pressure
+        self.dataframe["Pressure ACF"] = autocorrelationfunction_1D(pressure)
 
         if self.no_dim == 3:
-            dim_lbl = ['X', 'Y', 'Z']
+            dim_lbl = ['x', 'y', 'z']
 
         # Calculate the acf of the pressure tensor
-        for i in range(self.no_dim):
-            for j in range(self.no_dim):
-                self.dataframe["Pressure Tensor {}{}".format(dim_lbl[i], dim_lbl[j])] = pressure_tensor_temp[i, j, :]
+        for i, ax1 in enumerate(dim_lbl):
+            for j, ax2 in enumerate(dim_lbl):
+                self.dataframe["Pressure Tensor {}{}".format(ax1, ax2)] = pressure_tensor_temp[i, j, :]
                 pressure_tensor_acf_temp = autocorrelationfunction_1D(pressure_tensor_temp[i, j, :])
-                self.dataframe["Pressure Tensor ACF {}{}".format(dim_lbl[i], dim_lbl[j])] = pressure_tensor_acf_temp / \
-                                                                                            pressure_tensor_acf_temp[0]
+                self.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] = pressure_tensor_acf_temp
 
         # Save the pressure acf to file
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
@@ -1695,47 +1698,53 @@ class Thermodynamics:
         quantity : str
             Quantity to plot. Default = Total Energy.
         """
+
         self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+
+        plt.style.use('MSUstyle')
 
         if quantity[:8] == "Pressure":
             if not "Pressure" in self.dataframe.columns:
                 print("Calculating Pressure quantities ...")
                 self.compute_pressure_quantities()
 
+        xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["Time"],
+                                                               self.dataframe[quantity],
+                                                               "Time", quantity, self.units)
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        ylbl = {"Total Energy": r"$E_{tot}(t)$", "Kinetic Energy": r"$K_{tot}(t)$", "Potential Energy": r"$U_{tot}(t)$",
+        yq = {"Total Energy": r"$E_{tot}(t)$", "Kinetic Energy": r"$K_{tot}(t)$", "Potential Energy": r"$U_{tot}(t)$",
                 "Temperature": r"$T(t)$",
                 "Pressure Tensor ACF": r'$P_{\alpha\beta} = \langle P_{\alpha\beta}(0)P_{\alpha\beta}(t)\rangle$',
                 "Pressure Tensor": r"$P_{\alpha\beta}(t)$", "Gamma": r"$\Gamma(t)$", "Pressure": r"$P(t)$"}
-        dim_lbl = ['X', 'Y', 'Z']
+        dim_lbl = ['x', 'y', 'z']
 
         if quantity == "Pressure Tensor ACF":
-            for i in range(self.no_dim):
-                for j in range(self.no_dim):
-                    ax.plot(self.dataframe["Time"] * self.wp,
-                            self.dataframe["Pressure Tensor ACF {}{}".format(dim_lbl[i], dim_lbl[j])],
-                            label=r'$P_{' + dim_lbl[i] + dim_lbl[j] + '} (t)$')
+            for i, dim1 in enumerate(dim_lbl):
+                for j, dim2 in enumerate(dim_lbl):
+                    ax.plot(self.dataframe["Time"] * xmul,
+                            self.dataframe["Pressure Tensor ACF {}{}".format(dim1, dim2)] /
+                            self.dataframe["Pressure Tensor ACF {}{}".format(dim1, dim2)][0],
+                            label=r'$P_{' + dim1 + dim2 + '} (t)$')
             ax.set_xscale('log')
             ax.legend(loc='best', ncol=3)
             ax.set_ylim(-1, 1.5)
 
         elif quantity == "Pressure Tensor":
-            for i in range(self.no_dim):
-                for j in range(self.no_dim):
-                    ax.plot(self.dataframe["Time"] * self.wp,
-                            self.dataframe["Pressure Tensor {}{}".format(dim_lbl[i], dim_lbl[j])],
-                            label=r'$P_{' + dim_lbl[i] + dim_lbl[j] + '} (t)$')
+            for i, dim1 in enumerate(dim_lbl):
+                for j, dim2 in enumerate(dim_lbl):
+                    ax.plot(self.dataframe["Time"] * xmul,
+                            self.dataframe["Pressure Tensor {}{}".format(dim1, dim2)] * ymul,
+                            label=r'$P_{' + dim1 + dim2 + '} (t)$')
             ax.set_xscale('log')
             ax.legend(loc='best', ncol=3)
-
         else:
-            ax.plot(self.dataframe["Time"] * self.wp, self.dataframe[quantity])
+            ax.plot(self.dataframe["Time"] * xmul, self.dataframe[quantity] * ymul)
 
         ax.grid(True, alpha=0.3)
-        ax.set_ylabel(ylbl[quantity])
-        ax.set_xlabel(r'$\omega_p t$')
+        ax.set_ylabel(yq[quantity] + ylbl)
+        ax.set_xlabel(r'Time' + xlbl)
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, quantity + '_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, quantity + '_' + self.job_id + '.png'))
         if show:
             fig.show()
 
@@ -1745,7 +1754,7 @@ class Thermodynamics:
         """
         self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
 
-    def statistics(self, quantity="Total Energy", max_no_divisions=100, show=True):
+    def statistics(self, quantity="Total Energy", max_no_divisions=100, show=False):
         """
         ToDo:
         Parameters
@@ -1776,7 +1785,7 @@ class Thermodynamics:
         ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
         ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, quantity + 'StatisticalEfficiency_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, quantity + 'StatisticalEfficiency_' + self.job_id + '.png'))
 
         if show:
             fig.show()
@@ -1817,7 +1826,7 @@ class Thermodynamics:
         # Temperature plots
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Temperature"], "Time",
-                                                               "Temperature", params.Control.units)
+                                                               "Temperature", params.control.units)
         T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
 
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
@@ -1845,7 +1854,7 @@ class Thermodynamics:
         # Energy plots
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Total Energy"], "Time",
-                                                               "Total Energy", params.Control.units)
+                                                               "Total Energy", params.control.units)
         E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
 
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
@@ -1872,11 +1881,11 @@ class Thermodynamics:
 
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(np.array([self.dt]),
                                                                self.dataframe["Temperature"], "Time",
-                                                               "Temperature", params.Control.units)
+                                                               "Temperature", params.control.units)
         Info_plot.axis([0, 10, 0, 10])
         Info_plot.grid(False)
         fsz = 14
-        Info_plot.text(0., 10, "Job ID: {}".format(self.fname_app), fontsize=fsz)
+        Info_plot.text(0., 10, "Job ID: {}".format(self.job_id), fontsize=fsz)
         Info_plot.text(0., 9.5, "No. of species = {}".format(len(self.species_np)), fontsize=fsz)
         y_coord = 9.0
         for isp, sp in enumerate(self.species_names):
@@ -1889,21 +1898,22 @@ class Thermodynamics:
 
         y_coord -= 0.25
         Info_plot.text(0., y_coord, "Total $N$ = {}".format(params.total_num_ptcls), fontsize=fsz)
-        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.Thermostat.type), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.Thermostat.tau), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.Potential.type), fontsize=fsz)
-        if params.P3M.on:
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.P3M.F_err), fontsize=fsz)
+        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.thermostat.type), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.thermostat.tau), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.potential.type), fontsize=fsz)
+        if params.pppm.on:
+            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.pppm.F_err), fontsize=fsz)
         else:
             Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.PP_err), fontsize=fsz)
 
-        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.Control.dt, xlbl), fontsize=fsz)
-        Info_plot.text(0., y_coord - 3.5, "{:1.2f} % Production Completed".format(
-            100 * self.dump_step * (self.no_dumps - 1) / params.Control.Nsteps), fontsize=fsz)
+        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.control.dt, xlbl), fontsize=fsz)
+        Info_plot.text(0., y_coord - 3., "Tot Prod. steps = {}".format(params.control.Nsteps))
+        Info_plot.text(0., y_coord - 4., "{:1.2f} % Production Completed".format(
+            100 * self.dump_step * (self.no_dumps - 1) / params.control.Nsteps), fontsize=fsz)
 
         Info_plot.axis('off')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'EnsembleCheckPlot_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'EnsembleCheckPlot_' + self.job_id + '.png'))
         if show:
             fig.show()
 
@@ -1991,22 +2001,22 @@ class Thermalization:
         params: S_params class
             Simulation's parameters.
         """
-        self.fldr = params.Control.therm_dir
+        self.fldr = params.control.therm_dir
         self.dump_dir = os.path.join(self.fldr, "dumps")
-        self.fname_app = params.Control.fname_app
-        self.dump_step = params.Control.therm_dump_step
-        self.no_dumps = len(os.listdir(params.Control.therm_dir))
+        self.job_id = params.control.fname_app
+        self.dump_step = params.control.therm_dump_step
+        self.no_dumps = len(os.listdir(params.control.therm_dir))
         self.no_dim = params.dimensions
-        self.units = params.Control.units
-        self.dt = params.Control.dt
-        self.potential = params.Potential.type
-        self.thermostat = params.Thermostat.type
-        self.thermostat_tau = params.Thermostat.tau
-        if not hasattr(params.P3M, 'F_err'):
+        self.units = params.control.units
+        self.dt = params.control.dt
+        self.potential = params.potential.type
+        self.thermostat = params.thermostat.type
+        self.thermostat_tau = params.thermostat.tau
+        if not hasattr(params.pppm, 'F_err'):
             self.F_err = params.PP_err
         else:
-            self.F_err = params.P3M.F_err
-        self.Nsteps = params.Control.Neq
+            self.F_err = params.pppm.F_err
+        self.Nsteps = params.control.Neq
         if params.load_method == "restart":
             self.restart_sim = True
         else:
@@ -2026,14 +2036,14 @@ class Thermalization:
             self.species_masses[i] = sp.mass
             self.species_dens[i] = sp.num_density
         # Output file with Energy and Temperature
-        self.filename_csv = os.path.join(self.fldr, "Thermalization_" + self.fname_app + '.csv')
+        self.filename_csv = os.path.join(self.fldr, "Thermalization_" + self.job_id + '.csv')
         # Constants
         self.wp = params.wp
         self.kB = params.kB
         self.eV2K = params.eV2K
         self.a_ws = params.aws
         self.T = params.T_desired
-        self.Gamma_eff = params.Potential.Gamma_eff
+        self.Gamma_eff = params.potential.Gamma_eff
 
     def parse(self):
         """
@@ -2041,7 +2051,7 @@ class Thermalization:
         """
         self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
 
-    def statistics(self, quantity="Total Energy", max_no_divisions=100, show=True):
+    def statistics(self, quantity="Total Energy", max_no_divisions=100, show=False):
 
         self.parse()
         run_avg = self.dataframe[quantity].mean()
@@ -2061,7 +2071,7 @@ class Thermalization:
         ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
         ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, quantity + 'StatisticalEfficiency_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, quantity + 'StatisticalEfficiency_' + self.job_id + '.png'))
 
         if show:
             fig.show()
@@ -2209,11 +2219,11 @@ class Thermalization:
 
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(np.array([self.dt]),
                                                                self.dataframe["Temperature"], "Time",
-                                                               "Temperature", params.Control.units)
+                                                               "Temperature", params.control.units)
         Info_plot.axis([0, 10, 0, 10])
         Info_plot.grid(False)
         fsz = 14
-        Info_plot.text(0., 10, "Job ID: {}".format(self.fname_app))
+        Info_plot.text(0., 10, "Job ID: {}".format(self.job_id))
         Info_plot.text(0., 9.5, "No. of species = {}".format(len(self.species_np)))
         y_coord = 9.0
         for isp, sp in enumerate(self.species_names):
@@ -2229,26 +2239,27 @@ class Thermalization:
 
         y_coord -= 0.25
         Info_plot.text(0., y_coord, "Total $N$ = {}".format(params.total_num_ptcls))
-        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.Thermostat.type))
-        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.Thermostat.tau))
-        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.Potential.type))
-        if params.P3M.on:
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.P3M.F_err))
+        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.thermostat.type))
+        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.thermostat.tau))
+        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.potential.type))
+        if params.pppm.on:
+            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.pppm.F_err))
         else:
             Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.PP_err))
 
-        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.Control.dt, xlbl))
-        Info_plot.text(0., y_coord - 3.5, "{:1.2f} % Thermalization Completed".format(
-            100 * (self.dump_step * (self.no_dumps - 1)) / params.Control.Neq))
+        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.control.dt, xlbl))
+        Info_plot.text(0., y_coord - 3., "Tot Eq. steps = {}".format(params.control.Neq))
+        Info_plot.text(0., y_coord - 4., "{:1.2f} % Thermalization Completed".format(
+            100 * (self.dump_step * (self.no_dumps - 1)) / params.control.Neq))
 
         Info_plot.axis('off')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'TempEnergyPlot_' + self.fname_app + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'TempEnergyPlot_' + self.job_id + '.png'))
         if show:
             fig.show()
 
 
-class TransportCoefficients:
+class Transport:
     """
     Transport Coefficients class
 
@@ -2264,7 +2275,7 @@ class TransportCoefficients:
 
     """
 
-    def __init__(self, params):
+    def __init__(self):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -2273,39 +2284,38 @@ class TransportCoefficients:
         params: S_params class
             Simulation's parameters.
         """
-        self.params = params
-        self.transport_coefficients = {}
-        return
+        self.dataframe = pd.DataFrame()
+        self.filename_csv = 'TransportCoefficients.csv'
+        pass
 
-    def compute(self, quantity="Electrical Conductivity", show=True):
+    def compute(self, params, quantity="Electrical Conductivity", show=False):
         """
         Calculate the desired transport coefficient
 
         Parameters
         ----------
-        show
+        show : bool
+            Flag for prompting plots to screen.
+
         quantity: str
             Desired transport coefficient to calculate.
-
-        tau: float
-            Upper limit of time integration.
-
-        Returns
-        -------
-
-        transport_coeff : float
-            Desired transport coefficient value scaled by appropriate units
-
         """
+        self.filename_csv = os.path.join(params.control.checkpoint_dir, self.filename_csv)
+        try:
+            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+        except FileNotFoundError:
+            print("\nFile {} not found!".format(self.filename_csv))
+
+        plt.style.use('MSUstyle')
         if quantity == "Electrical Conductivity":
-            J = ElectricCurrent(self.params)
-            J.plot(show=True)
+            J = ElectricCurrent(params)
+            J.plot(show)
             sigma = np.zeros(J.no_dumps)
             integrand = np.array(J.dataframe["Total Current ACF"])
             time = np.array(J.dataframe["Time"])
             for it in range(1, J.no_dumps):
                 sigma[it] = np.trapz(integrand[:it], x=time[:it]) / 3.0
-            self.transport_coefficients["Electrical Conductivity"] = sigma
+            self.dataframe["Electrical Conductivity"] = sigma
             # Plot the transport coefficient at different integration times
             fig, ax = plt.subplots(1, 1, figsize=(10, 7))
             ax.plot(time, sigma, label=r'$\sigma (t)$')
@@ -2314,22 +2324,21 @@ class TransportCoefficients:
             ax.set_ylabel(r'$\sigma(t)$')
             ax.set_xlabel(r'$\omega_p t$')
             fig.tight_layout()
-            fig.savefig(os.path.join(self.params.Control.checkpoint_dir,
-                                     'ConductivityPlot_' + self.params.Control.fname_app + '.png'))
+            fig.savefig(os.path.join(params.control.checkpoint_dir,
+                                     'ConductivityPlot_' + params.control.fname_app + '.png'))
             if show:
                 fig.show()
 
         elif quantity == "Diffusion":
-            Z = VelocityAutocorrelationFunctions(self.params)
-            Z.plot(show=True)
-            no_int = int(self.params.Control.Nsteps / self.params.Control.dump_step) + 1
-            D = np.zeros((self.params.num_species, no_int))
+            Z = VelocityAutocorrelationFunctions(params)
+            Z.plot(show)
+            D = np.zeros((params.num_species, Z.no_dumps))
             fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-            for i, sp in enumerate(self.params.species):
+            for i, sp in enumerate(params.species):
                 integrand = np.array(Z.dataframe["{} Total Velocity ACF".format(sp.name)])
                 time = np.array(Z.dataframe["Time"])
                 const = 1.0 / 3.0 / Z.tot_mass_density
-                for it in range(1, no_int):
+                for it in range(1, Z.no_dumps):
                     D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
 
                 # Sk = StaticStructureFactor(self.params)
@@ -2340,12 +2349,12 @@ class TransportCoefficients:
                 # Take the determinant of the matrix
                 # Take the limit k --> 0 .
 
-                self.transport_coefficients["{} Diffusion".format(sp.name)] = D[i, :]
+                self.dataframe["{} Diffusion".format(sp.name)] = D[i, :]
                 # Find the minimum slope. This would be the ideal value
                 # indx = np.gradient(D[i, :]).argmin()
                 # lgnd_label = r'$D_{' + sp.name + '} =' + '{:1.4f}$'.format(D[i, indx]) \
                 #              + " @ $t = {:2.2f}$".format(time[half_t + indx]*self.params.wp)
-                ax.plot(time * self.params.wp, D[i, :], label=r'$D_{' + sp.name + '}(t)$')
+                ax.plot(time * params.wp, D[i, :], label=r'$D_{' + sp.name + '}(t)$')
                 # ax2.semilogy(time*self.params.wp, -np.gradient(np.gradient(D[i, :])), ls='--', lw=LW - 1,
                 #          label=r'$\nabla D_{' + sp.name + '}(t)$')
             # Complete figure
@@ -2359,34 +2368,125 @@ class TransportCoefficients:
             # ax2.set_ylabel(r'$\nabla D_{\alpha}(t)/(a^2\omega_{\alpha})$')
 
             fig.tight_layout()
-            fig.savefig(os.path.join(self.params.Control.checkpoint_dir,
-                                     'DiffusionPlot_' + self.params.Control.fname_app + '.png'))
+            fig.savefig(os.path.join(params.control.checkpoint_dir,
+                                     'DiffusionPlot_' + params.control.fname_app + '.png'))
             if show:
                 fig.show()
 
         elif quantity == "Interdiffusion":
-            Z = VelocityAutocorrelationFunctions(self.params)
-            Z.plot(show=True)
+            Z = VelocityAutocorrelationFunctions(params)
+            Z.plot(show)
             no_int = Z.no_dumps
             no_dij = int(Z.no_species * (Z.no_species - 1) / 2)
             D_ij = np.zeros((no_dij, no_int))
 
-            fig, ax = plt.subplots(1, 1, figsize=(10, 7))
             indx = 0
-            for i, sp1 in enumerate(self.params.species):
-                for j in range(i + 1, self.params.num_species):
+            for i, sp1 in enumerate(params.species):
+                for j in range(i + 1, params.num_species):
                     integrand = np.array(Z.dataframe["{}-{} Total Current ACF".format(sp1.name,
-                                                                                      self.params.species[j].name)])
+                                                                                      params.species[j].name)])
                     time = np.array(Z.dataframe["Time"])
-                    const = 1.0 / (3.0 * self.params.wp * self.params.aws ** 2)
-                    const /= (sp1.concentration * self.params.species[j].concentration)
+                    const = 1.0 / (3.0 * params.wp * params.aws ** 2)
+                    const /= (sp1.concentration * params.species[j].concentration)
                     for it in range(1, no_int):
                         D_ij[indx, it] = const * np.trapz(integrand[:it], x=time[:it])
 
-                    self.transport_coefficients["{}-{} Inter Diffusion".format(sp1.name,
-                                                                               self.params.species[j].name)] = D_ij[i,
-                                                                                                               :]
+                    self.dataframe["{}-{} Inter Diffusion".format(sp1.name,params.species[j].name)] = D_ij[i,:]
 
+        elif quantity == "Viscosity":
+            therm = Thermodynamics(params)
+            therm.parse()
+            time = therm.dataframe["Time"]
+            dim_lbl = ['x', 'y', 'z']
+            shear_viscosity = np.zeros((params.dimensions, params.dimensions, therm.no_dumps))
+            bulk_viscosity = np.zeros(therm.no_dumps)
+            const = params.box_volume / params.kB
+            if not 'Pressure Tensor ACF xy' in therm.dataframe.columns:
+                print('Pressure not yet calculated')
+                print("Calculating Pressure quantities ...")
+                therm.compute_pressure_quantities()
+
+            xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(therm.dataframe["Time"], 1.0,
+                                                               "Time", "Pressure", params.control.units)
+            # Calculate the acf of the pressure tensor
+
+            fig, axes = plt.subplots(2, 3, figsize=(16, 9))
+            for i, ax1 in enumerate(dim_lbl):
+                for j, ax2 in enumerate(dim_lbl):
+                    integrand = np.array(therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)]) \
+                                / np.array(therm.dataframe["Temperature"])
+                    for it in range(1, therm.no_dumps):
+                        shear_viscosity[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+
+                    self.dataframe["{}{} Shear Viscosity Tensor".format(ax1, ax2)] = shear_viscosity[i, j, :]
+                    if "{}{}".format(ax1, ax2) in ["yx", "xy"]:
+                        axes[0, 0].semilogx(xmul * therm.dataframe["Time"],
+                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] /
+                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)][0],
+                                            label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
+                        axes[1, 0].semilogx(xmul * therm.dataframe["Time"],
+                                            self.dataframe["{}{} Shear Viscosity Tensor".format(ax1, ax2)],
+                                            label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
+                    elif "{}{}".format(ax1, ax2) in ["xz", "zx"]:
+                        axes[0, 1].semilogx(xmul * therm.dataframe["Time"],
+                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] /
+                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)][0],
+                                            label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
+                        axes[1, 1].semilogx(xmul * therm.dataframe["Time"],
+                                            self.dataframe["{}{} Shear Viscosity Tensor".format(ax1, ax2)],
+                                            label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
+
+                    elif "{}{}".format(ax1, ax2) in ["yz", "zy"]:
+                        axes[0, 2].semilogx(xmul * therm.dataframe["Time"],
+                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] /
+                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)][0],
+                                            label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
+                        axes[1, 2].semilogx(xmul * therm.dataframe["Time"],
+                                            self.dataframe["{}{} Shear Viscosity Tensor".format(ax1, ax2)],
+                                            label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
+                axes[0, 0].legend()
+                axes[0, 1].legend()
+                axes[0, 2].legend()
+                axes[1, 0].legend()
+                axes[1, 1].legend()
+                axes[1, 2].legend()
+                axes[1, 0].set_xlabel(r"Time " + xlbl)
+                axes[1, 1].set_xlabel(r"Time " + xlbl)
+                axes[1, 2].set_xlabel(r"Time " + xlbl)
+
+                axes[0, 0].set_ylabel(r"Pressure Tensor ACF")
+                axes[1, 0].set_ylabel(r"Shear Viscosity")
+
+                fig.tight_layout()
+                fig.savefig(os.path.join(params.control.checkpoint_dir, "ShearViscosity_Plots.png"))
+                if show:
+                    fig.show()
+
+            # Calculate Bulk Viscosity
+            pressure_acf = autocorrelationfunction_1D(np.array(therm.dataframe["Pressure"])
+                                                        - therm.dataframe["Pressure"].mean())
+            bulk_integrand = pressure_acf / np.array(therm.dataframe["Temperature"])
+            for it in range(1, therm.no_dumps):
+                bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
+
+            self.dataframe["Bulk Viscosity"] = bulk_viscosity
+
+            fig, ax = plt.subplots(2, 1)
+            ax[0].semilogx(xmul * therm.dataframe["Time"], pressure_acf / pressure_acf[0], label=r"$P(t)$")
+            ax[1].semilogx(xmul * therm.dataframe["Time"], self.dataframe["Bulk Viscosity"],
+                           label=r"$\eta_{V}(t)$")
+
+            ax[1].set_xlabel(r"Time " + xlbl)
+            ax[0].set_ylabel(r"Pressure ACF")
+            ax[1].set_ylabel(r"Bulk Viscosity")
+            ax[0].legend()
+            ax[1].legend()
+            fig.tight_layout()
+            fig.savefig(os.path.join(params.control.checkpoint_dir, "BulkViscosity_Plots.png"))
+            if show:
+                fig.show()
+
+        self.dataframe.to_csv("TransportCoefficients.csv", index=False, encoding='utf-8')
         return
 
 
@@ -2443,16 +2543,16 @@ class VelocityAutocorrelationFunctions:
             Simulation's parameters.
         """
         self.dataframe = None
-        self.fldr = params.Control.checkpoint_dir
-        self.dump_dir = params.Control.dump_dir
-        self.fname_app = params.Control.fname_app
-        self.filename_csv = os.path.join(self.fldr, "VelocityACF_" + self.fname_app + '.csv')
-        self.dump_step = params.Control.dump_step
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.fldr = params.control.checkpoint_dir
+        self.dump_dir = params.control.dump_dir
+        self.job_id = params.control.fname_app
+        self.filename_csv = os.path.join(self.fldr, "VelocityACF_" + self.job_id + '.csv')
+        self.dump_step = params.control.dump_step
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         self.no_species = len(params.species)
         self.no_vacf = int(self.no_species * (self.no_species + 1) / 2)
         self.species_names = []
-        self.dt = params.Control.dt  # No of dump to skip
+        self.dt = params.control.dt  # No of dump to skip
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_masses = np.zeros(self.no_species)
         self.species_dens = np.zeros(self.no_species)
@@ -2465,9 +2565,9 @@ class VelocityAutocorrelationFunctions:
         self.tot_no_ptcls = params.total_num_ptcls
         self.wp = params.wp
         self.a_ws = params.aws
-        self.dt = params.Control.dt
-        self.verbose = params.Control.verbose
-        
+        self.dt = params.control.dt
+        self.verbose = params.control.verbose
+
     def parse(self):
         """
         Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
@@ -2558,7 +2658,7 @@ class VelocityAutocorrelationFunctions:
             ax.set_xscale('log')
             ax.set_ylim(-0.2, 1.2)
             fig.tight_layout()
-            fig.savefig(os.path.join(self.fldr, 'InterCurrentACF_' + self.fname_app + '.png'))
+            fig.savefig(os.path.join(self.fldr, 'InterCurrentACF_' + self.job_id + '.png'))
             if show:
                 fig.show()
         else:
@@ -2574,7 +2674,7 @@ class VelocityAutocorrelationFunctions:
             ax.set_xscale('log')
             ax.set_ylim(-0.2, 1.2)
             fig.tight_layout()
-            fig.savefig(os.path.join(self.fldr, 'TotalVelocityACF_' + self.fname_app + '.png'))
+            fig.savefig(os.path.join(self.fldr, 'TotalVelocityACF_' + self.job_id + '.png'))
             if show:
                 fig.show()
 
@@ -2668,30 +2768,30 @@ class VelocityMoments:
             self.no_bins = int(0.05 * params.total_num_ptcls)
         else:
             self.no_bins = params.PostProcessing.mom_nbins
-        self.dump_dir = params.Control.dump_dir
+        self.dump_dir = params.control.dump_dir
         self.no_dumps = len(os.listdir(self.dump_dir))
         #
-        self.fldr = os.path.join(params.Control.checkpoint_dir, "MomentRatios_Data")
+        self.fldr = os.path.join(params.control.checkpoint_dir, "MomentRatios_Data")
         if not os.path.exists(self.fldr):
             os.mkdir(self.fldr)
         self.plots_dir = os.path.join(self.fldr, 'Plots')
-        self.fname_app = params.Control.fname_app
-        self.filename_csv = os.path.join(self.fldr, "VelocityMoments_" + self.fname_app + '.csv')
+        self.job_id = params.control.fname_app
+        self.filename_csv = os.path.join(self.fldr, "VelocityMoments_" + self.job_id + '.csv')
         #
-        self.dump_step = params.Control.dump_step
+        self.dump_step = params.control.dump_step
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
         self.no_dim = params.dimensions
-        self.units = params.Control.units
-        self.no_steps = params.Control.Nsteps
+        self.units = params.control.units
+        self.no_steps = params.control.Nsteps
         self.a_ws = params.aws
         self.wp = params.wp
         self.species_np = np.zeros(self.no_species)  # Number of particles of each species
         self.species_names = []
-        self.dt = params.Control.dt
+        self.dt = params.control.dt
         self.max_no_moment = 3
         self.species_plots_dirs = None
-        self.units = params.Control.units
+        self.units = params.control.units
         for i, sp in enumerate(params.species):
             self.species_np[i] = int(sp.num)
             self.species_names.append(sp.name)
@@ -2790,7 +2890,7 @@ class VelocityMoments:
             ax.set_xlabel(r'$t$' + xlbl)
             #
             ax.set_title("Moments ratios of {}".format(sp_name))
-            fig.savefig(os.path.join(self.species_plots_dirs[sp], "MomentRatios_" + self.fname_app + '.png'))
+            fig.savefig(os.path.join(self.species_plots_dirs[sp], "MomentRatios_" + self.job_id + '.png'))
             if show:
                 fig.show()
             else:
@@ -2846,16 +2946,16 @@ class XYZWriter:
         params: S_params class
             Simulation's parameters.
         """
-        self.fldr = params.Control.checkpoint_dir
-        self.dump_dir = params.Control.dump_dir
-        self.filename = os.path.join(self.fldr, "pva_" + params.Control.fname_app + '.xyz')
-        self.dump_step = params.Control.dump_step
-        self.no_dumps = len(os.listdir(params.Control.dump_dir))
+        self.fldr = params.control.checkpoint_dir
+        self.dump_dir = params.control.dump_dir
+        self.filename = os.path.join(self.fldr, "pva_" + params.control.fname_app + '.xyz')
+        self.dump_step = params.control.dump_step
+        self.no_dumps = len(os.listdir(params.control.dump_dir))
         self.dump_skip = 1
         self.tot_no_ptcls = params.total_num_ptcls
         self.a_ws = params.aws
         self.wp = params.wp
-        self.verbose = params.Control.verbose
+        self.verbose = params.control.verbose
 
     def save(self, dump_skip=1):
         """
@@ -3315,8 +3415,6 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
         Pressure tensor. Shape(``no_dim``,``no_dim``)
 
     """
-    no_dim = pos.shape[0]
-    pressure_tensor = np.zeros((no_dim, no_dim))
     sp_start = 0
     # Rescale vel and acc of each particle by their individual mass
     for sp in range(len(species_np)):
@@ -3325,11 +3423,8 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
         acc[:, sp_start: sp_end] *= species_mass[sp]  # force
         sp_start = sp_end
 
-    pressure = 0.0
-    for i in range(no_dim):
-        for j in range(no_dim):
-            pressure_tensor[i, j] = np.sum(vel[i, :] * vel[j, :] + pos[i, :] * acc[j, :]) / box_volume
-        pressure += pressure_tensor[i, i] / 3.0
+    pressure_tensor = (vel @ np.transpose(vel) + pos @ np.transpose(acc)) / box_volume
+    pressure = np.trace(pressure_tensor) / 3.0
 
     return pressure, pressure_tensor
 
@@ -3870,8 +3965,15 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         Y label units.
 
     """
-    xmax = xdata.max()
-    ymax = ydata.max()
+    if isinstance(xdata, (np.ndarray, pd.core.series.Series)):
+        xmax = xdata.max()
+    else:
+        xmax = xdata
+
+    if isinstance(ydata, (np.ndarray, pd.core.series.Series)):
+        ymax = ydata.max()
+    else:
+        ymax = ydata
 
     x_str = np.format_float_scientific(xmax)
     y_str = np.format_float_scientific(ymax)
@@ -3905,13 +4007,36 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
 
     # Find the correct Units
     units_dict = UNITS[1] if units == 'cgs' else UNITS[0]
-    for key in units_dict:
-        if key in ylbl:
-            ylabel = ' [' + yprefix + units_dict[key] + ']'
 
-    for key in units_dict:
-        if key in xlbl:
-            xlabel = ' [' + xprefix + units_dict[key] + ']'
+    if "Energy" in ylbl:
+        yname = "Energy"
+    else:
+        yname = ylbl
+
+    if "Pressure" in ylbl:
+        yname = "Pressure"
+    else:
+        yname = ylbl
+
+    if yname in units_dict:
+        ylabel = ' [' + yprefix + units_dict[yname] + ']'
+    else:
+        ylabel = ''
+
+    if "Energy" in xlbl:
+        xname = "Energy"
+    else:
+        xname = xlbl
+
+    if "Pressure" in xlbl:
+        xname = "Pressure"
+    else:
+        xname = xlbl
+
+    if xname in units_dict:
+        xlabel = ' [' + xprefix + units_dict[xname] + ']'
+    else:
+        xlabel = ''
 
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
 

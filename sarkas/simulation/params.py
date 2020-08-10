@@ -143,7 +143,6 @@ class Params:
 
     def __init__(self):
         # Container of Species
-        self.N = 0
         self.ne = 0.0
         self.L = 0.0
         self.Lv = []
@@ -172,14 +171,13 @@ class Params:
         self.total_num_ptcls = 0
         self.species = []
         #
-        self.load = []
-        self.P3M = self.P3M()
+        self.pppm = self.P3M()
         self.BC = self.BC()
         self.Magnetic = self.Magnetic()
-        self.Potential = self.Potential()
-        self.Integrator = self.Integrator()
-        self.Control = self.Control()
-        self.Thermostat = self.Thermostat()
+        self.potential = self.Potential()
+        self.integrator = self.Integrator()
+        self.control = self.Control()
+        self.thermostat = self.Thermostat()
         self.Langevin = self.Langevin()
         self.PostProcessing = self.PostProcessing()
 
@@ -497,11 +495,13 @@ class Params:
             self.therm_dump_step = 1
             self.writexyz = False
             self.verbose = True
-            self.simulations_dir = None
-            self.dump_dir = None
-            self.therm_dir = None
-            self.checkpoint_dir = None
-            self.fname_app = None
+            self.simulations_dir = "Simulations"
+            self.job_dir = None
+            self.production_dir = None
+            self.equilibration_dir = None
+            self.preprocessing_dir = "PreProcessing"
+            self.postprocessing_dir = "PostProcessing"
+            self.job_id = None
             self.log_file = None
             self.np_per_side = []
             self.pre_run = False
@@ -529,34 +529,35 @@ class Params:
         self.common_parser(self.input_file)
         self.create_directories(args)
         self.assign_attributes()
-        self.Control.verbose = args["verbose"]
+        self.from_input_dict(args)
+        self.control.verbose = args["verbose"]
         # Coulomb potential
-        if self.Potential.type == "Coulomb":
+        if self.potential.type == "Coulomb":
             from sarkas.potentials import coulomb as Coulomb
             Coulomb.setup(self)
 
         # Yukawa potential
-        if self.Potential.type == "Yukawa":
+        if self.potential.type == "Yukawa":
             from sarkas.potentials import yukawa as Yukawa
             Yukawa.setup(self)
 
         # exact gradient-corrected screening (EGS) potential
-        if self.Potential.type == "EGS":
+        if self.potential.type == "EGS":
             from sarkas.potentials import egs as EGS
             EGS.setup(self)
 
         # Lennard-Jones potential
-        if self.Potential.type == "LJ":
+        if self.potential.type == "LJ":
             from sarkas.potentials import lennardjones612 as LJ
             LJ.setup(self)
 
         # Moliere potential
-        if self.Potential.type == "Moliere":
+        if self.potential.type == "Moliere":
             from sarkas.potentials import moliere as Moliere
             Moliere.setup(self)
 
         # QSP potential
-        if self.Potential.type == "QSP":
+        if self.potential.type == "QSP":
             from sarkas.potentials import qsp as QSP
             QSP.setup(self)
 
@@ -600,7 +601,7 @@ class Params:
 
                                     if key == "num":
                                         self.species[ic].num = int(value)
-                                        self.total_num_ptcls += self.species[ic].num
+                                        self.total_num_ptcls += int(self.species[ic].num)
 
                                     if key == "Z":
                                         self.species[ic].Z = float(value)
@@ -625,16 +626,11 @@ class Params:
                                     if key == "method":
                                         self.load_method = value
 
-                                    if key == "rand_seed":
-                                        self.load_rand_seed = int(value)
-
                                     if key == 'restart_step':
                                         self.load_restart_step = int(value)
-                                        self.load_rand_seed = 1
 
                                     if key == 'therm_restart_step':
                                         self.load_therm_restart_step = int(value)
-                                        self.load_rand_seed = 1
 
                                     if key == 'r_reject':
                                         self.load_r_reject = float(value)
@@ -652,65 +648,65 @@ class Params:
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == "type":
-                                self.Potential.type = value
+                                self.potential.type = value
 
                             if key == "method":
-                                self.Potential.method = value
+                                self.potential.method = value
 
                             if key == "rc":
-                                self.Potential.rc = float(value)
+                                self.potential.rc = float(value)
 
                 if lkey == "P3M":
-                    self.P3M.on = True
+                    self.pppm.on = True
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == "MGrid":
-                                self.P3M.MGrid = np.array(value)
-                                self.P3M.Mx = self.P3M.MGrid[0]
-                                self.P3M.My = self.P3M.MGrid[1]
-                                self.P3M.Mz = self.P3M.MGrid[2]
+                                self.pppm.MGrid = np.array(value)
+                                self.pppm.Mx = self.pppm.MGrid[0]
+                                self.pppm.My = self.pppm.MGrid[1]
+                                self.pppm.Mz = self.pppm.MGrid[2]
                             if key == "cao":
-                                self.P3M.cao = int(value)
+                                self.pppm.cao = int(value)
                             if key == "aliases":
-                                self.P3M.aliases = np.array(value, dtype=int)
-                                self.P3M.mx_max = self.P3M.aliases[0]
-                                self.P3M.my_max = self.P3M.aliases[1]
-                                self.P3M.mz_max = self.P3M.aliases[2]
+                                self.pppm.aliases = np.array(value, dtype=int)
+                                self.pppm.mx_max = self.pppm.aliases[0]
+                                self.pppm.my_max = self.pppm.aliases[1]
+                                self.pppm.mz_max = self.pppm.aliases[2]
                             if key == "alpha_ewald":
-                                self.P3M.G_ew = float(value)
+                                self.pppm.G_ew = float(value)
 
                 if lkey == "Thermostat":
-                    self.Thermostat.on = 1
+                    self.thermostat.on = 1
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == 'type':
-                                self.Thermostat.type = value
+                                self.thermostat.type = value
 
                             # If Berendsen
                             if key == 'tau':
                                 if float(value) > 0.0:
-                                    self.Thermostat.tau = float(value)
+                                    self.thermostat.tau = float(value)
                                 else:
                                     print("\nBerendsen tau parameter must be positive")
                                     sys.exit()
 
                             if key == 'timestep':
                                 # Number of timesteps to wait before turning on Berendsen
-                                self.Thermostat.timestep = int(value)
+                                self.thermostat.timestep = int(value)
 
                             if key == "temperatures_eV":
                                 if isinstance(value, list):
-                                    self.Thermostat.temperatures = np.array(value, dtype=float)
+                                    self.thermostat.temperatures = np.array(value, dtype=float)
                                 else:
-                                    self.Thermostat.temperatures = np.array([value], dtype=float)
-                                self.Thermostat.temperatures *= self.eV2K
+                                    self.thermostat.temperatures = np.array([value], dtype=float)
+                                self.thermostat.temperatures *= self.eV2K
 
                             if key == "temperatures":
                                 # Conversion factor from eV to Kelvin
                                 if isinstance(value, list):
-                                    self.Thermostat.temperatures = np.array(value, dtype=float)
+                                    self.thermostat.temperatures = np.array(value, dtype=float)
                                 else:
-                                    self.Thermostat.temperatures = np.array([value], dtype=float)
+                                    self.thermostat.temperatures = np.array([value], dtype=float)
 
                 if lkey == "Magnetized":
                     self.Magnetic.on = True
@@ -735,7 +731,7 @@ class Params:
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == 'type':
-                                self.Integrator.type = value
+                                self.integrator.type = value
 
                 if lkey == "Langevin":
                     self.Langevin.on = 1
@@ -773,72 +769,72 @@ class Params:
                         for key, value in keyword.items():
                             # Units
                             if key == "units":
-                                self.Control.units = value
+                                self.control.units = value
 
                             # timestep
                             if key == "dt":
-                                self.Control.dt = float(value)
+                                self.control.dt = float(value)
 
                             # Number of simulation timesteps    
                             if key == "Nsteps":
-                                self.Control.Nsteps = int(value)
+                                self.control.Nsteps = int(value)
 
                             # Number of equilibration timesteps
                             if key == "Neq":
-                                self.Control.Neq = int(value)
+                                self.control.Neq = int(value)
 
                             if key == "Np_per_side":
-                                self.Control.np_per_side = np.array(value, dtype=int)
+                                self.control.np_per_side = np.array(value, dtype=int)
 
                             # Saving interval
                             if key == "dump_step":
-                                self.Control.dump_step = int(value)
+                                self.control.dump_step = int(value)
 
                             if key == "therm_dump_step":
-                                self.Control.therm_dump_step = int(value)
+                                self.control.therm_dump_step = int(value)
 
                             # Write the XYZ file, Yes/No
                             if key == "writexyz":
                                 if value is False:
-                                    self.Control.writexyz = 0
+                                    self.control.writexyz = 0
                                 if value is True:
-                                    self.Control.writexyz = 1
+                                    self.control.writexyz = 1
 
                             # verbose screen print out
                             if key == "verbose":
                                 if value is False:
-                                    self.Control.verbose = 0
+                                    self.control.verbose = 0
                                 if value is True:
-                                    self.Control.verbose = 1
+                                    self.control.verbose = 1
 
                             # Directory where to store Checkpoint files
                             if key == "simulations_dir":
-                                self.Control.simulations_dir = value
+                                self.control.simulations_dir = value
 
                             # Directory where to store Checkpoint files
-                            if key == "output_dir":
-                                self.Control.checkpoint_dir = value
+                            if key == "job_dir":
+                                self.control.job_dir = value
 
-                            if key == "dump_dir":
-                                self.Control.dump_dir = value
+                            if key == "equilibration_dir":
+                                self.control.equilibration_dir = value
 
-                            if key == "therm_dir":
-                                self.Control.therm_dir = value
+                            if key == "rand_seed":
+                                self.rand_seed = int(value)
 
                             # Filenames appendix
                             if key == "job_id":
-                                self.Control.fname_app = value
+                                self.control.job_id = value
 
         # Check for conflicts in case of magnetic field
         if self.Magnetic.on and self.Magnetic.elec_therm:
-            self.Integrator.mag_type = value
-            self.Integrator.type = 'Verlet'
+            self.integrator.mag_type = value
+            self.integrator.type = 'Verlet'
 
         # Check for thermostat temperatures
-        if not hasattr(self.Thermostat, 'temperatures'):
-            self.Thermostat.temperatures = np.zeros(len(self.species))
+        if not hasattr(self.thermostat, 'temperatures'):
+            self.thermostat.temperatures = np.zeros(len(self.species))
             for i, sp in enumerate(self.species):
-                self.Thermostat.temperatures[i] = sp.temperature
+                self.thermostat.temperatures[i] = sp.temperature
 
     def create_directories(self, args):
         """
@@ -851,68 +847,60 @@ class Params:
 
         """
         # Check for directories
-        if self.Control.simulations_dir is None:
-            self.Control.simulations_dir = 'Simulations'
 
-        if self.Control.checkpoint_dir is None:
+        if self.control.job_dir is None:
             if args["job_dir"] is None:
-                self.Control.checkpoint_dir = 'Output'
+                self.control.job_dir = 'job_dir'
             else:
-                self.Control.checkpoint_dir = args["job_dir"]
+                self.control.job_dir = args["job_dir"]
         else:
             # Input option supersedes YAML file
             if not args["job_dir"] is None:
-                self.Control.checkpoint_dir = args["job_dir"]
+                self.control.job_dir = args["job_dir"]
 
-        if self.Control.dump_dir is None:
-            self.Control.dump_dir = 'Production'
-
-        if self.Control.therm_dir is None:
-            self.Control.therm_dir = 'Thermalization'
-
-        if self.Control.fname_app is None:
+        if self.control.job_id is None:
             if args["job_id"] is None and args["job_dir"] is None:
-                self.Control.fname_app = "jobid"
+                self.control.job_id = "jobid"
             elif args["job_id"] is None and args["job_dir"] is not None:
-                self.Control.fname_app = args["job_dir"]
+                self.control.job_id = args["job_dir"]
             else:
-                self.Control.fname_app = args["job_id"]
+                self.control.job_id = args["job_id"]
         else:
             # Input option supersedes YAML file
             if args["job_id"] is not None:
-                self.Control.fname_app = args["job_id"]
+                self.control.job_id = args["job_id"]
 
         # Check if the directories exist
-        if not os.path.exists(self.Control.simulations_dir):
-            os.mkdir(self.Control.simulations_dir)
+        if not os.path.exists(self.control.simulations_dir):
+            os.mkdir(self.control.simulations_dir)
 
-        self.Control.checkpoint_dir = os.path.join(self.Control.simulations_dir, self.Control.checkpoint_dir)
-        if not os.path.exists(self.Control.checkpoint_dir):
-            os.mkdir(self.Control.checkpoint_dir)
+        self.control.job_dir = os.path.join(self.control.simulations_dir, self.control.job_dir)
+        if not os.path.exists(self.control.job_dir):
+            os.mkdir(self.control.job_dir)
 
-        self.Control.dump_dir = os.path.join(self.Control.checkpoint_dir, self.Control.dump_dir)
-        if not os.path.exists(self.Control.dump_dir):
-            os.mkdir(self.Control.dump_dir)
+        self.control.dump_dir = os.path.join(self.control.job_dir, self.control.dump_dir)
+        if not os.path.exists(self.control.dump_dir):
+            os.mkdir(self.control.dump_dir)
 
-        self.Control.therm_dir = os.path.join(self.Control.checkpoint_dir, self.Control.therm_dir)
-        if not os.path.exists(self.Control.therm_dir):
-            os.mkdir(self.Control.therm_dir)
+        self.control.therm_dir = os.path.join(self.control.job_dir, self.control.therm_dir)
+        if not os.path.exists(self.control.therm_dir):
+            os.mkdir(self.control.therm_dir)
 
-        self.Control.therm_dump_dir = os.path.join(self.Control.therm_dir, "dumps")
-        if not os.path.exists(self.Control.therm_dump_dir):
-            os.mkdir(self.Control.therm_dump_dir)
+        self.control.therm_dump_dir = os.path.join(self.control.therm_dir, "dumps")
+        if not os.path.exists(self.control.therm_dump_dir):
+            os.mkdir(self.control.therm_dump_dir)
 
-        if self.Control.log_file is None:
-            self.Control.log_file = os.path.join(self.Control.checkpoint_dir, 'log.out')
+        if self.control.log_file is None:
+            self.control.log_file = os.path.join(self.control.job_dir, 'log.out')
 
     def assign_attributes(self):
         """ Assign the parsed parameters"""
         self.num_species = len(self.species)
         # Physical constants
-        if self.Control.units == "cgs":
+        if self.control.units == "cgs":
             self.kB *= self.J2erg
             self.c0 *= 1e2  # cm/s
-            if not (self.Potential.type == "LJ"):
+            if not (self.potential.type == "LJ"):
                 # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
                 C2statC = 1.0e-01 * self.c0
                 self.hbar = self.J2erg * self.hbar
@@ -930,9 +918,9 @@ class Params:
                 # u = const.physical_constants["atomic mass constant"][0]
                 mp = const.physical_constants["proton mass"][0]
 
-                if self.Control.units == "cgs":
+                if self.control.units == "cgs":
                     self.species[ic].mass = mp * 1e3 * self.species[ic].atomic_weight
-                elif self.Control.units == "mks":
+                elif self.control.units == "mks":
                     self.species[ic].mass = mp * self.species[ic].atomic_weight
 
             if hasattr(self.species[ic], "mass_density"):
@@ -948,7 +936,7 @@ class Params:
         # Wigner-Seitz radius calculated from the total density
         self.aws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
 
-        if not (self.Potential.type == "LJ"):
+        if not (self.potential.type == "LJ"):
             for ic in range(self.num_species):
 
                 self.species[ic].charge = self.qe
@@ -957,12 +945,12 @@ class Params:
                     self.species[ic].charge *= self.species[ic].Z
 
                 if self.Magnetic.on:
-                    if self.Control.units == "cgs":
+                    if self.control.units == "cgs":
                         #  See https://en.wikipedia.org/wiki/Lorentz_force
                         self.species[ic].omega_c = self.species[ic].charge * self.Magnetic.BField / self.species[
                             ic].mass
                         self.species[ic].omega_c = self.species[ic].omega_c / self.c0
-                    elif self.Control.units == "mks":
+                    elif self.control.units == "mks":
                         self.species[ic].omega_c = self.species[ic].charge * self.Magnetic.BField / self.species[
                             ic].mass
 
@@ -973,19 +961,19 @@ class Params:
                 self.tot_net_charge += self.species[ic].charge * self.species[ic].num
 
         # Calculate electron number density from the charge neutrality condition in case of Yukawa or EGS potential
-        if self.Potential.type == "Yukawa" or self.Potential.type == "EGS":
+        if self.potential.type == "Yukawa" or self.potential.type == "EGS":
             for ic in range(self.num_species):
                 if hasattr(self.species[ic], "Z"):
                     self.ne += self.species[ic].Z * self.species[ic].num_density
 
         # Simulation Box Parameters
-        self.N = self.total_num_ptcls
-        if len(self.Control.np_per_side) != 0:
-            assert int(np.prod(self.Control.np_per_side)) == self.total_num_ptcls, "Number of particles per dimension does not match total number of particles."
+        if len(self.control.np_per_side) != 0:
+            msg = "Number of particles per dimension does not match total number of particles."
+            assert int(np.prod(self.control.np_per_side)) == self.total_num_ptcls, msg
 
-            self.Lx = self.aws * self.Control.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Ly = self.aws * self.Control.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Lz = self.aws * self.Control.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lx = self.aws * self.control.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.aws * self.control.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.aws * self.control.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
         else:
             self.Lx = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
             self.Ly = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
@@ -1037,3 +1025,17 @@ class Params:
                 elif bc == "z":
                     self.BC.open_axes_indx[ij] = 2
         return
+
+    def from_input_dict(self, args):
+        """
+
+        Parameters
+        ----------
+        args
+
+        Returns
+        -------
+
+        """
+
+

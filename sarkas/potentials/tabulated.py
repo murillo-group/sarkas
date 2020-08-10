@@ -94,13 +94,13 @@ def setup(params, read_input=True):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == "tabulated_file":  # screening
-                                params.Potential.tabulated_file = value
+                                params.potential.tabulated_file = value
 
                             if key == "rc":  # cutoff
-                                params.Potential.rc = float(value)
+                                params.potential.rc = float(value)
 
                             if key == "interpolation_order":
-                                params.Potential.tab_interp_kind = value
+                                params.potential.tab_interp_kind = value
 
     update_params(params)
 
@@ -120,16 +120,16 @@ def update_params(params):
     .. [Haxhimali2014] `T. Haxhimali et al. Phys Rev E 90 023104 (2014) <https://doi.org/10.1103/PhysRevE.90.023104>`_
     """
     if not params.BC.open_axes:
-        params.Potential.LL_on = True  # linked list on
-        if not hasattr(params.Potential, "rc"):
+        params.potential.LL_on = True  # linked list on
+        if not hasattr(params.potential, "rc"):
             print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
-        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
             print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
     twopi = 2.0 * np.pi
     beta_i = 1.0 / (params.kB * params.Ti)
@@ -155,10 +155,10 @@ def update_params(params):
 
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Ref.[Haxhimali2014]_
-    params.Potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
+    params.potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
     params.QFactor /= params.fourpie0
 
-    params.Potential.matrix = np.array([params.Potential.tab_interp_ord])
+    params.potential.matrix = np.array([params.potential.tab_interp_ord])
 
     # Calculate the (total) plasma frequency
     wp_tot_sq = 0.0
@@ -169,9 +169,9 @@ def update_params(params):
 
     params.wp = np.sqrt(wp_tot_sq)
 
-    indx, r, u_r, f_r = np.loadtxt(params.Potential.tabulated_file, skiprows=7, unpack=True)
+    indx, r, u_r, f_r = np.loadtxt(params.potential.tabulated_file, skiprows=7, unpack=True)
 
-    if params.Control.units == 'cgs':
+    if params.control.units == 'cgs':
         r *= 1e-8
         u_r *= params.eV2J * params.J2erg
         f_r *= 1e-8 / 1e-12 ** 2
@@ -183,9 +183,9 @@ def update_params(params):
     # Interpolate
 
 
-    if params.Potential.method == "PP":
+    if params.potential.method == "PP":
         params.force = Yukawa_force_PP
         # Force error calculated from eq.(43) in Ref.[1]_
-        params.Potential.F_err = np.sqrt(twopi / params.lambda_TF) * np.exp(-params.Potential.rc / params.lambda_TF)
+        params.potential.F_err = np.sqrt(twopi / params.lambda_TF) * np.exp(-params.potential.rc / params.lambda_TF)
         # Renormalize
-        params.Potential.F_err *= params.aws ** 2 * np.sqrt(params.N / params.box_volume)
+        params.potential.F_err *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)

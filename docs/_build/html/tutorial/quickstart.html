@@ -285,13 +285,13 @@ autocorrelation function. An example script looks like this</p>
     <span class="c1"># Read the common simulation&#39;s parameters</span>
     <span class="n">params</span><span class="o">.</span><span class="n">common_parser</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;input_file&quot;</span><span class="p">])</span>
     <span class="c1"># Let&#39;s make sure we are not printing to screen</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="c1"># Create simulation&#39;s directories</span>
     <span class="n">params</span><span class="o">.</span><span class="n">create_directories</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="c1"># Create simulation&#39;s parameters</span>
     <span class="n">params</span><span class="o">.</span><span class="n">assign_attributes</span><span class="p">()</span>
     <span class="c1"># Let&#39;s change the screening parameter</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="n">kappa</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="n">kappa</span>
     <span class="c1"># Calculate potential dependent parameters</span>
     <span class="n">yukawa</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="c1"># Run the simulation</span>
@@ -326,7 +326,7 @@ autocorrelation function. An example script looks like this</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 29, 2020.
+        Last updated on Aug, 10, 2020.
       </span>
 
     </p>

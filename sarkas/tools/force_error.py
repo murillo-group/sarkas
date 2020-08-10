@@ -25,10 +25,10 @@ def analytical_approx_pp(params):
     Calculate PP force error.
     """
 
-    kappa = 0.0 if params.Potential.type == "Coulomb" else params.aws / params.lambda_TF
+    kappa = 0.0 if params.potential.type == "Coulomb" else params.aws / params.lambda_TF
 
-    r_min = params.Potential.rc * 0.5
-    r_max = params.Potential.rc * 1.5
+    r_min = params.potential.rc * 0.5
+    r_max = params.potential.rc * 1.5
 
     rcuts = np.linspace(r_min, r_max, 101) / params.aws
 
@@ -66,17 +66,17 @@ def analytical_approx_pppm(params):
         Ewald parameters.
     """
 
-    kappa = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0] * params.aws
+    kappa = 0.0 if params.potential.type == "Coulomb" else params.potential.matrix[1, 0, 0] * params.aws
 
-    p = params.P3M.cao
+    p = params.pppm.cao
     L = params.Lv[0] / params.aws
-    h = L / params.P3M.MGrid[0]
+    h = L / params.pppm.MGrid[0]
 
-    a_min = params.P3M.G_ew * 0.5
-    a_max = params.P3M.G_ew * 1.5
+    a_min = params.pppm.G_ew * 0.5
+    a_max = params.pppm.G_ew * 1.5
 
-    r_min = params.Potential.rc * 0.5
-    r_max = params.Potential.rc * 1.5
+    r_min = params.potential.rc * 0.5
+    r_max = params.potential.rc * 1.5
 
     alphas = params.aws * np.linspace(a_min, a_max, 101)
     rcuts = np.linspace(r_min, r_max, 101) / params.aws
@@ -114,7 +114,7 @@ def analytical_approx_pppm(params):
     DeltaF_PM *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
 
     # Calculate the analytic PP error and the total force error
-    if params.Potential.type == "QSP":
+    if params.potential.type == "QSP":
         for (ir, rc) in enumerate(rcuts):
             DeltaF_PP[:, ir] = np.sqrt(2.0 * np.pi * kappa) * np.exp(- rc * kappa)
             DeltaF_PP[:, ir] *= np.sqrt(params.total_num_ptcls * params.aws ** 3 / params.box_volume)
@@ -150,13 +150,13 @@ def optimal_green_function_timer(params):
     # Dev notes. I am rewriting the functions here because I need to put a counter around it.
     # Optimized Green's Function
 
-    kappa_Y = 1./params.lambda_TF if params.Potential.type == "Yukawa" else 0.0
-    constants = np.array([kappa_Y, params.P3M.G_ew, params.fourpie0])
+    kappa_Y = 1./params.lambda_TF if params.potential.type == "Yukawa" else 0.0
+    constants = np.array([kappa_Y, params.pppm.G_ew, params.fourpie0])
     start = timer.time()
-    params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err = force_pm.force_optimized_green_function(
-        params.P3M.MGrid, params.P3M.aliases, params.Lv, params.P3M.cao, constants)
+    params.pppm.G_k, params.pppm.kx_v, params.pppm.ky_v, params.pppm.kz_v, params.pppm.PM_err = force_pm.force_optimized_green_function(
+        params.pppm.MGrid, params.pppm.aliases, params.Lv, params.pppm.cao, constants)
 
-    params.P3M.PM_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
+    params.pppm.PM_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
 
     green_time = timer.time() - start
 
@@ -217,17 +217,17 @@ def pp_acceleration_timer(params, ptcls):
         Times for the PP force calculation.
     """
     # Dev notes. I am rewriting the functions here because I need to put a counter around it.
-    if params.Potential.LL_on:
+    if params.potential.LL_on:
         start = timer.time()
         U_short, acc_s_r = force_pp.update(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv,
-                                           params.Potential.rc, params.Potential.matrix, params.force,
-                                           params.Control.measure, ptcls.rdf_hist)
+                                           params.potential.rc, params.potential.matrix, params.force,
+                                           params.control.measure, ptcls.rdf_hist)
         PP_force_time = timer.time() - start
     else:
         start = timer.time()
         U_short, acc_s_r = force_pp.update_0D(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv,
-                                              params.Potential.rc, params.Potential.matrix, params.force,
-                                              params.Control.measure, ptcls.rdf_hist)
+                                              params.potential.rc, params.potential.matrix, params.force,
+                                              params.control.measure, ptcls.rdf_hist)
         PP_force_time = timer.time() - start
     return PP_force_time
 
@@ -251,9 +251,9 @@ def pm_acceleration_timer(params, ptcls):
     """
     start = timer.time()
     U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charge, ptcls.mass,
-                                      params.P3M.MGrid, params.Lv, params.P3M.G_k, params.P3M.kx_v,
-                                      params.P3M.ky_v,
-                                      params.P3M.kz_v, params.P3M.cao)
+                                      params.pppm.MGrid, params.Lv, params.pppm.G_k, params.pppm.kx_v,
+                                      params.pppm.ky_v,
+                                      params.pppm.kz_v, params.pppm.cao)
     PM_force_time = timer.time() - start
     return PM_force_time
 

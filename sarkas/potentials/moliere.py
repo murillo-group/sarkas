@@ -32,13 +32,13 @@ def setup(params, read_input=True):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == "C":
-                                params.Potential.C_params = np.array(value)
+                                params.potential.C_params = np.array(value)
 
                             if key == "rc":  # cutoff
-                                params.Potential.rc = float(value)
+                                params.potential.rc = float(value)
 
                             if key == "b":
-                                params.Potential.b_params = np.array(value)
+                                params.potential.b_params = np.array(value)
 
     update_params(params)
 
@@ -56,18 +56,18 @@ def update_params(params):
     twopi = 2.0 * np.pi
     beta_i = 1.0 / (params.kB * params.Ti)
     if not params.BC.open_axes:
-        params.Potential.LL_on = True  # linked list on
-        if not hasattr(params.Potential, "rc"):
+        params.potential.LL_on = True  # linked list on
+        if not hasattr(params.potential, "rc"):
             print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
-        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
             print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
-    params_len = int(2 * len(params.Potential.C_params))
+    params_len = int(2 * len(params.potential.C_params))
 
     Moliere_matrix = np.zeros((params_len + 1, params.num_species, params.num_species))
 
@@ -88,15 +88,15 @@ def update_params(params):
             else:
                 Zj = 1.0
 
-            Moliere_matrix[0:len(params.Potential.C_params), i, j] = params.Potential.C_params
-            Moliere_matrix[len(params.Potential.C_params):params_len, i, j] = params.Potential.b_params
+            Moliere_matrix[0:len(params.potential.C_params), i, j] = params.potential.C_params
+            Moliere_matrix[len(params.potential.C_params):params_len, i, j] = params.potential.b_params
             Moliere_matrix[params_len, i, j] = (Zi * Zj) * params.qe * params.qe / params.fourpie0
 
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)
-    params.Potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
+    params.potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
     params.QFactor = params.QFactor / params.fourpie0
-    params.Potential.matrix = Moliere_matrix
+    params.potential.matrix = Moliere_matrix
 
     # Calculate the (total) plasma frequency
     wp_tot_sq = 0.0
@@ -107,14 +107,14 @@ def update_params(params):
 
     params.wp = np.sqrt(wp_tot_sq)
 
-    if params.Potential.method == "PP":
+    if params.potential.method == "PP":
         params.force = Moliere_force_PP
 
         # Force error calculated from eq.(43) in Ref.[1]_
-        params.PP_err = np.sqrt(twopi / params.Potential.b_params.min()) \
-                        * np.exp(-params.Potential.rc / params.Potential.b_params.min())
+        params.PP_err = np.sqrt(twopi / params.potential.b_params.min()) \
+                        * np.exp(-params.potential.rc / params.potential.b_params.min())
         # Renormalize
-        params.PP_err = params.PP_err * params.aws ** 2 * np.sqrt(params.N / params.box_volume)
+        params.PP_err = params.PP_err * params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
 
 
 @nb.njit

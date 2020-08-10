@@ -30,13 +30,13 @@ def setup(params, read_input=True):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == "rc":  # cutoff
-                                params.Potential.rc = float(value)
+                                params.potential.rc = float(value)
 
                             if key == "epsilon":
-                                params.Potential.lj_eps = np.array(value)
+                                params.potential.lj_eps = np.array(value)
 
                             if key == "sigma":
-                                params.Potential.lj_sigma = np.array(value)
+                                params.potential.lj_sigma = np.array(value)
 
     update_params(params)
 
@@ -52,26 +52,26 @@ def update_params(params):
 
     """
     if not params.BC.open_axes:
-        params.Potential.LL_on = True  # linked list on
-        if not hasattr(params.Potential, "rc"):
+        params.potential.LL_on = True  # linked list on
+        if not hasattr(params.potential, "rc"):
             print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
-        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
             print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
     LJ_matrix = np.zeros((2, params.num_species, params.num_species))
 
     for j in range(params.num_species):
         for i in range(params.num_species):
             idx = i * params.num_species + j
-            LJ_matrix[0, i, j] = params.Potential.lj_eps[idx]
-            LJ_matrix[1, i, j] = params.Potential.lj_sigma[idx]
+            LJ_matrix[0, i, j] = params.potential.lj_eps[idx]
+            LJ_matrix[1, i, j] = params.potential.lj_sigma[idx]
 
-    params.Potential.matrix = LJ_matrix
+    params.potential.matrix = LJ_matrix
     params.force = LJ_force_PP
 
     # Calculate the (total) plasma frequency
@@ -79,8 +79,8 @@ def update_params(params):
     sigma2 = 0.0
     epsilon_tot = 0.0
     for i, sp in enumerate(params.species):
-        sp.epsilon = params.Potential.lj_eps[i]
-        sp.sigma = params.Potential.lj_sigma[i]
+        sp.epsilon = params.potential.lj_eps[i]
+        sp.sigma = params.potential.lj_sigma[i]
 
         wp2 = 48.0 * sp.epsilon / sp.sigma ** 2
         sp.wp = np.sqrt(wp2)
@@ -90,9 +90,9 @@ def update_params(params):
 
     params.wp = np.sqrt(wp_tot_sq)
 
-    params.PP_err = np.sqrt(np.pi * sigma2 ** 12 / (13.0 * params.Potential.rc ** 13))
-    params.PP_err *= np.sqrt(params.N / params.box_volume) * params.aws ** 2
-    params.Potential.Gamma_eff = epsilon_tot/(params.kB*params.T_desired)
+    params.PP_err = np.sqrt(np.pi * sigma2 ** 12 / (13.0 * params.potential.rc ** 13))
+    params.PP_err *= np.sqrt(params.total_num_ptcls / params.box_volume) * params.aws ** 2
+    params.potential.Gamma_eff = epsilon_tot/(params.kB*params.T_desired)
 
 
 @nb.njit

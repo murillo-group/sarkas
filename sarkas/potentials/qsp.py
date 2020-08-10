@@ -43,7 +43,7 @@ def setup(params, read_input=True):
     """
     # Do a bunch of checks
     # P3M algorithm only
-    assert params.Potential.method == "P3M", 'QSP interaction can only be calculated using P3M algorithm.'
+    assert params.potential.method == "P3M", 'QSP interaction can only be calculated using P3M algorithm.'
 
     # Check for neutrality
     assert params.tot_net_charge == 0, 'Total net charge is not zero.'
@@ -52,8 +52,8 @@ def setup(params, read_input=True):
     assert params.species[0].name in e_list, 'The 1st species are not electrons. Please redefine the 1st species as electrons.'
 
     # Default attributes
-    params.Potential.QSP_type = 'Deutsch'
-    params.Potential.QSP_Pauli = True
+    params.potential.QSP_type = 'Deutsch'
+    params.potential.QSP_Pauli = True
     if read_input:
         # open the input file to read Yukawa parameters
         with open(params.input_file, 'r') as stream:
@@ -63,13 +63,13 @@ def setup(params, read_input=True):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == "QSP_type":
-                                params.Potential.QSP_type = value
+                                params.potential.QSP_type = value
 
                             if key == "QSP_Pauli":
-                                params.Potential.QSP_Pauli = value
+                                params.potential.QSP_Pauli = value
 
                             if key == "rc":  # cutoff
-                                params.Potential.rc = float(value)
+                                params.potential.rc = float(value)
 
     update_params(params)
 
@@ -95,16 +95,16 @@ def update_params(params):
     """
 
     if not params.BC.open_axes:
-        params.Potential.LL_on = True  # linked list on
-        if not hasattr(params.Potential, "rc"):
+        params.potential.LL_on = True  # linked list on
+        if not hasattr(params.potential, "rc"):
             print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
-        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
             print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
     two_pi = 2.0 * np.pi
     four_pi = 2.0 * two_pi
@@ -148,11 +148,11 @@ def update_params(params):
             QSP_matrix[1, i, j] = two_pi / Lambda_dB
 
     params.QFactor /= params.fourpie0
-    if not params.Potential.QSP_Pauli:
+    if not params.potential.QSP_Pauli:
         QSP_matrix[2, :, :] = 0.0
 
-    params.Potential.matrix = QSP_matrix
-    params.Potential.Gamma_eff = abs(params.Potential.matrix[0, 0, 1]) / (params.ai * params.kB * params.Ti)
+    params.potential.matrix = QSP_matrix
+    params.potential.Gamma_eff = abs(params.potential.matrix[0, 0, 1]) / (params.ai * params.kB * params.Ti)
 
     # Calculate the (total) plasma frequency
     wp_tot_sq = 0.0
@@ -163,33 +163,33 @@ def update_params(params):
 
     params.wp = np.sqrt(wp_tot_sq)
 
-    if params.Potential.QSP_type == "Deutsch":
+    if params.potential.QSP_type == "Deutsch":
         params.force = Deutsch_force_P3M
         # Calculate the PP Force error from the e-e diffraction term only.
-        params.P3M.PP_err = np.sqrt(two_pi * params.Potential.matrix[1, 0, 0])
-        params.P3M.PP_err *= np.exp(- params.Potential.rc * params.Potential.matrix[1, 0, 0])
+        params.pppm.PP_err = np.sqrt(two_pi * params.potential.matrix[1, 0, 0])
+        params.pppm.PP_err *= np.exp(- params.potential.rc * params.potential.matrix[1, 0, 0])
 
-    elif params.Potential.QSP_type == "Kelbg":
+    elif params.potential.QSP_type == "Kelbg":
         params.force = Kelbg_force_P3M
         # TODO: Calculate the PP Force error from the e-e diffraction term only.
-        params.P3M.PP_err = np.sqrt(two_pi * params.Potential.matrix[1, 0, 0])
-        params.P3M.PP_err *= np.exp(- params.Potential.rc * params.Potential.matrix[1, 0, 0])
+        params.pppm.PP_err = np.sqrt(two_pi * params.potential.matrix[1, 0, 0])
+        params.pppm.PP_err *= np.exp(- params.potential.rc * params.potential.matrix[1, 0, 0])
 
     # P3M parameters
-    params.P3M.hx = params.Lx / params.P3M.Mx
-    params.P3M.hy = params.Ly / params.P3M.My
-    params.P3M.hz = params.Lz / params.P3M.Mz
-    params.Potential.matrix[4, :, :] = params.P3M.G_ew
+    params.pppm.hx = params.Lx / params.pppm.Mx
+    params.pppm.hy = params.Ly / params.pppm.My
+    params.pppm.hz = params.Lz / params.pppm.Mz
+    params.potential.matrix[4, :, :] = params.pppm.G_ew
     # Calculate the Optimized Green's Function
-    constants = np.array([0.0, params.P3M.G_ew, params.fourpie0])
-    params.P3M.G_k, params.P3M.kx_v, params.P3M.ky_v, params.P3M.kz_v, params.P3M.PM_err = gf_opt(
-        params.P3M.MGrid, params.P3M.aliases, params.Lv, params.P3M.cao, constants)
+    constants = np.array([0.0, params.pppm.G_ew, params.fourpie0])
+    params.pppm.G_k, params.pppm.kx_v, params.pppm.ky_v, params.pppm.kz_v, params.pppm.PM_err = gf_opt(
+        params.pppm.MGrid, params.pppm.aliases, params.Lv, params.pppm.cao, constants)
 
     # Complete PM and PP Force error calculation
-    params.P3M.PM_err *= np.sqrt(params.N) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
-    params.P3M.PP_err *= params.aws ** 2 * np.sqrt(params.N / params.box_volume)
+    params.pppm.PM_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
+    params.pppm.PP_err *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
     # Calculate the total force error
-    params.P3M.F_err = np.sqrt(params.P3M.PM_err ** 2 + params.P3M.PP_err ** 2)
+    params.pppm.F_err = np.sqrt(params.pppm.PM_err ** 2 + params.pppm.PP_err ** 2)
 
     return
 

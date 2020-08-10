@@ -31,7 +31,7 @@ def setup(params, read_input=True):
                     for keyword in dics[lkey]:
                         for key, value in keyword.items():
                             if key == "rc":  # cutoff
-                                params.Potential.rc = float(value)
+                                params.potential.rc = float(value)
 
                             # electron temperature for screening parameter calculation
                             if key == "elec_temperature":
@@ -62,16 +62,16 @@ def update_params(params):
     EGS_matrix[7,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
     """
     if not params.BC.open_axes:
-        params.Potential.LL_on = True  # linked list on
-        if not hasattr(params.Potential, "rc"):
+        params.potential.LL_on = True  # linked list on
+        if not hasattr(params.potential, "rc"):
             print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
-        if params.Potential.method == "PP" and params.Potential.rc > params.Lv.min() / 2.:
+        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
             print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.Potential.rc = params.Lv.min() / 2.
-            params.Potential.LL_on = False  # linked list off
+            params.potential.rc = params.Lv.min() / 2.
+            params.potential.LL_on = False  # linked list off
 
     # constants and conversion factors
     twopi = 2.0 * np.pi
@@ -84,7 +84,7 @@ def update_params(params):
 
     # lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi
     lmbda = 1.0 / 9.0
-    params.Potential.lmbda = lmbda
+    params.potential.lmbda = lmbda
 
     fdint_fdk_vec = np.vectorize(fdint.fdk)
     fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
@@ -122,25 +122,25 @@ def update_params(params):
     else:
         b = 1.0
 
-    params.Potential.b = b
-    params.Potential.theta = theta
+    params.potential.b = b
+    params.potential.theta = theta
 
     params.lambda_TF = lambda_TF
     # Monotonic decay
     if nu <= 1:
         # eq. (29) of Ref. [1]_
-        params.Potential.lambda_p = lambda_TF * np.sqrt(nu / (2.0 * b + 2.0 * np.sqrt(b ** 2 - nu)))
-        params.Potential.lambda_m = lambda_TF * np.sqrt(nu / (2.0 * b - 2.0 * np.sqrt(b ** 2 - nu)))
-        params.Potential.alpha = b / np.sqrt(b - nu)
+        params.potential.lambda_p = lambda_TF * np.sqrt(nu / (2.0 * b + 2.0 * np.sqrt(b ** 2 - nu)))
+        params.potential.lambda_m = lambda_TF * np.sqrt(nu / (2.0 * b - 2.0 * np.sqrt(b ** 2 - nu)))
+        params.potential.alpha = b / np.sqrt(b - nu)
 
     # Oscillatory behavior
     if nu > 1:
         # eq. (29) of Ref. [1]_
-        params.Potential.gamma_m = lambda_TF * np.sqrt(nu / (np.sqrt(nu) - b))
-        params.Potential.gamma_p = lambda_TF * np.sqrt(nu / (np.sqrt(nu) + b))
-        params.Potential.alphap = b / np.sqrt(nu - b)
+        params.potential.gamma_m = lambda_TF * np.sqrt(nu / (np.sqrt(nu) - b))
+        params.potential.gamma_p = lambda_TF * np.sqrt(nu / (np.sqrt(nu) + b))
+        params.potential.alphap = b / np.sqrt(nu - b)
 
-    params.Potential.nu = nu
+    params.potential.nu = nu
 
     # Calculate the (total) plasma frequency
     wp_tot_sq = 0.0
@@ -151,13 +151,13 @@ def update_params(params):
 
     params.wp = np.sqrt(wp_tot_sq)
 
-    if params.P3M.on:
+    if params.pppm.on:
         EGS_matrix = np.zeros((7, params.num_species, params.num_species))
     else:
         EGS_matrix = np.zeros((8, params.num_species, params.num_species))
 
     EGS_matrix[0, :, :] = 1.0 / params.lambda_TF
-    EGS_matrix[1, :, :] = params.Potential.nu
+    EGS_matrix[1, :, :] = params.potential.nu
 
     Z53 = 0.0
     Z_avg = 0.0
@@ -178,32 +178,32 @@ def update_params(params):
 
             if nu <= 1:
                 EGS_matrix[2, i, j] = (Zi * Zj) * params.qe * params.qe / (2.0 * params.fourpie0)
-                EGS_matrix[3, i, j] = (1.0 + params.Potential.alpha)
-                EGS_matrix[4, i, j] = (1.0 - params.Potential.alpha)
-                EGS_matrix[5, i, j] = params.Potential.lambda_m
-                EGS_matrix[6, i, j] = params.Potential.lambda_p
+                EGS_matrix[3, i, j] = (1.0 + params.potential.alpha)
+                EGS_matrix[4, i, j] = (1.0 - params.potential.alpha)
+                EGS_matrix[5, i, j] = params.potential.lambda_m
+                EGS_matrix[6, i, j] = params.potential.lambda_p
 
             if nu > 1:
                 EGS_matrix[2, i, j] = (Zi * Zj) * params.qe * params.qe / params.fourpie0
                 EGS_matrix[3, i, j] = 1.0
-                EGS_matrix[4, i, j] = params.Potential.alphap
-                EGS_matrix[5, i, j] = params.Potential.gamma_m
-                EGS_matrix[6, i, j] = params.Potential.gamma_p
+                EGS_matrix[4, i, j] = params.potential.alphap
+                EGS_matrix[5, i, j] = params.potential.gamma_m
+                EGS_matrix[6, i, j] = params.potential.gamma_p
 
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)
-    params.Potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
+    params.potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
     params.QFactor = params.QFactor / params.fourpie0
 
-    params.Potential.matrix = EGS_matrix
+    params.potential.matrix = EGS_matrix
 
-    if params.Potential.method == "PP":
+    if params.potential.method == "PP":
         params.force = EGS_force_PP
-        params.PP_err = np.sqrt(twopi / params.lambda_TF) * np.exp(-params.Potential.rc / params.lambda_TF)
+        params.PP_err = np.sqrt(twopi / params.lambda_TF) * np.exp(-params.potential.rc / params.lambda_TF)
         # Renormalize
-        params.PP_err *= params.aws ** 2 * np.sqrt(params.N / params.box_volume)
+        params.PP_err *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
 
-    if params.Potential.method == "P3M":
+    if params.potential.method == "P3M":
         print("\nERROR: P3M Algorithm not implemented yet. Good Bye!")
         sys.exit()
 

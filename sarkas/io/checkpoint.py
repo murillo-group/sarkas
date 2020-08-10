@@ -41,21 +41,21 @@ class Checkpoint:
     """
 
     def __init__(self, params):
-        self.dt = params.Control.dt
-        self.checkpoint_dir = params.Control.checkpoint_dir
+        self.dt = params.control.dt
+        self.checkpoint_dir = params.control.checkpoint_dir
         self.params_pickle = os.path.join(self.checkpoint_dir, "S_parameters.pickle")
         # Production directory and filenames
-        self.dump_dir = params.Control.dump_dir
-        self.energy_filename = os.path.join(self.checkpoint_dir, "Thermodynamics_" + params.Control.fname_app + '.csv')
+        self.dump_dir = params.control.dump_dir
+        self.energy_filename = os.path.join(self.checkpoint_dir, "Thermodynamics_" + params.control.fname_app + '.csv')
         self.ptcls_file_name = os.path.join(self.dump_dir, "S_checkpoint_")
         # Thermalization directory and filenames
-        self.therm_dir = params.Control.therm_dir
-        self.therm_dump_dir = params.Control.therm_dump_dir
-        self.therm_filename = os.path.join(self.therm_dir, "Thermalization_" + params.Control.fname_app + '.csv')
+        self.therm_dir = params.control.therm_dir
+        self.therm_dump_dir = params.control.therm_dump_dir
+        self.therm_filename = os.path.join(self.therm_dir, "Thermalization_" + params.control.fname_app + '.csv')
         self.therm_ptcls_file_name = os.path.join(self.therm_dump_dir, "S_checkpoint_")
 
         self.species_names = []
-        self.Gamma_eff = params.Potential.Gamma_eff * params.T_desired
+        self.Gamma_eff = params.potential.Gamma_eff * params.T_desired
 
         for i in range(params.num_species):
             self.species_names.append(params.species[i].name)

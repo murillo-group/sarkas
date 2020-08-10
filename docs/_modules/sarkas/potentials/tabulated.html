@@ -350,7 +350,7 @@
         <span class="c1"># Force error calculated from eq.(43) in Ref.[1]_</span>
         <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">F_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span>
         <span class="c1"># Renormalize</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">F_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">N</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span></div>
+        <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">F_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -366,7 +366,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 29, 2020.
+        Last updated on Aug, 10, 2020.
       </span>
 
     </p>

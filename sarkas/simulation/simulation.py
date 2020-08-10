@@ -42,11 +42,11 @@ def run(params):
     ptcls = Particles(params)
     ptcls.load(params)
 
-    if params.Control.verbose:
+    if params.control.verbose:
         print('\nParticles initialized.')
 
     # Calculate initial kinetic energy and temperature
-    if not params.Potential.method == "FMM":
+    if not params.potential.method == "FMM":
         U_init = calc_pot_acc(ptcls, params)
     # else:
         # U_init = calc_pot_acc_fmm(ptcls, params)
@@ -59,9 +59,9 @@ def run(params):
     time_init = time.time()
     verbose.time_stamp("Initialization", time_init - time0)
     #
-    f_log = open(params.Control.log_file, 'a+')
+    f_log = open(params.control.log_file, 'a+')
     print("\nInitial State:", file=f_log)
-    if params.Control.units == "cgs":
+    if params.control.units == "cgs":
         print("T = {:2.6e} [K], E = {:2.6e} [erg], K = {:2.6e} [erg], U = {:2.6e} [erg]".format(Temperature,
                                                                                                 E_init, Tot_Kin,
                                                                                                 U_init), file=f_log)
@@ -79,12 +79,12 @@ def run(params):
         else:
             it_start = 0
         checkpoint.therm_dump(ptcls, Ks, Tps, U_init, it_start)
-        if params.Control.verbose:
+        if params.control.verbose:
             print("\n------------- Equilibration -------------")
-        for it in tqdm(range(it_start, params.Control.Neq), disable=not params.Control.verbose):
+        for it in tqdm(range(it_start, params.control.Neq), disable=not params.control.verbose):
             # Calculate the Potential energy and update particles' data
             U_therm = integrator.update(ptcls, params)
-            if (it + 1) % params.Control.therm_dump_step == 0:
+            if (it + 1) % params.control.therm_dump_step == 0:
                 Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
                 checkpoint.therm_dump(ptcls, Ks, Tps, U_therm, it + 1)
             # Thermostate
@@ -102,13 +102,13 @@ def run(params):
     ##############################################
     # Turn on magnetic field, if not on already, and thermalize
     if params.Magnetic.on and params.Magnetic.elec_therm:
-        params.Integrator.type = params.Integrator.mag_type
+        params.integrator.type = params.integrator.mag_type
         integrator = Integrator(params)
 
-        if params.Control.verbose:
+        if params.control.verbose:
             print("\n------------- Magnetic Equilibration -------------")
 
-        for it in tqdm(range(params.Magnetic.Neq_mag), disable=(not params.Control.verbose)):
+        for it in tqdm(range(params.Magnetic.Neq_mag), disable=(not params.control.verbose)):
             # Calculate the Potential energy and update particles' data
             U_therm = integrator.update(ptcls, params)
             # Thermostate
@@ -130,41 +130,41 @@ def run(params):
     # Open output files
     if params.load_method == "restart":
         it_start = params.load_restart_step
-        if params.Control.writexyz:
+        if params.control.writexyz:
             # Particles' positions, velocities, accelerations for OVITO
-            f_xyz = open(params.Control.checkpoint_dir + "/" + "pva_" + params.Control.fname_app + ".xyz", "a+")
+            f_xyz = open(params.control.checkpoint_dir + "/" + "pva_" + params.control.fname_app + ".xyz", "a+")
     else:
         it_start = 0
         # Restart the pbc counter
 
         ptcls.pbc_cntr.fill(0.0)
         # Create array for storing energy information
-        if params.Control.writexyz:
+        if params.control.writexyz:
             # Particles' positions, velocities, accelerations for OVITO
-            f_xyz = open(params.Control.checkpoint_dir + "/" + "pva_" + params.Control.fname_app + ".xyz", "w+")
+            f_xyz = open(params.control.checkpoint_dir + "/" + "pva_" + params.control.fname_app + ".xyz", "w+")
 
     pscale = 1.0 / params.aws
     vscale = 1.0 / (params.aws * params.wp)
     ascale = 1.0 / (params.aws * params.wp ** 2)
 
     # Update measurement flag for rdf
-    params.Control.measure = True
+    params.control.measure = True
 
     ##############################################
     # Production Phase
     ##############################################
-    if params.Control.verbose:
+    if params.control.verbose:
         print("\n------------- Production -------------")
     time_eq = time.time()
-    for it in tqdm(range(it_start, params.Control.Nsteps), disable=(not params.Control.verbose)):
+    for it in tqdm(range(it_start, params.control.Nsteps), disable=(not params.control.verbose)):
         # Move the particles and calculate the potential
         U_prod = integrator.update(ptcls, params)
-        if (it + 1) % params.Control.dump_step == 0:
+        if (it + 1) % params.control.dump_step == 0:
             # Save particles' data for restart
             Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
             checkpoint.dump(ptcls, Ks, Tps, U_prod, it + 1)
             # Write particles' data to XYZ file for OVITO Visualization
-            if params.Control.writexyz:
+            if params.control.writexyz:
                 f_xyz.writelines("{0:d}\n".format(params.total_num_ptcls))
                 f_xyz.writelines("name x y z vx vy vz ax ay az\n")
                 np.savetxt(f_xyz,
@@ -173,7 +173,7 @@ def run(params):
     # Save production time
     time_prod = time.time()
     verbose.time_stamp("Production", time_prod - time_eq)
-    if params.Control.writexyz:
+    if params.control.writexyz:
         f_xyz.close()
     ##############################################
     # Finalization Phase
@@ -216,13 +216,13 @@ if __name__ == '__main__':
     # Read initial conditions and setup parameters
     # Update rand seed with option. This supersedes the input file.
     if options.seed:
-        params.load_rand_seed = int(options.seed)
+        params.rand_seed = int(options.seed)
 
     # Verbose output. This does not supersede the input file if False.
     # That is if you don't give this option and the input file has Control.verbose=Yes, then you will
     # still have a verbose output
     if options.verbose:
-        params.Control.verbose = True
+        params.control.verbose = True
 
     if options.restart is not None:
         params.load_method = 'restart'

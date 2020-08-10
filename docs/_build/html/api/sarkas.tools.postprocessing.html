@@ -1940,7 +1940,7 @@ options: “Total Energy”, “Potential Energy”, “Kinetic Energy”, “Te
 
 <dl class="py method">
 <dt id="sarkas.tools.postprocessing.Thermalization.statistics">
-<code class="sig-name descname">statistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">'Total Energy'</span></em>, <em class="sig-param"><span class="n">max_no_divisions</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Thermalization.statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Thermalization.statistics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">statistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">'Total Energy'</span></em>, <em class="sig-param"><span class="n">max_no_divisions</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Thermalization.statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Thermalization.statistics" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2209,7 +2209,7 @@ options: “Total Energy”, “Potential Energy”, “Kinetic Energy”, “Te
 
 <dl class="py method">
 <dt id="sarkas.tools.postprocessing.Thermodynamics.statistics">
-<code class="sig-name descname">statistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">'Total Energy'</span></em>, <em class="sig-param"><span class="n">max_no_divisions</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Thermodynamics.statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Thermodynamics.statistics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">statistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">'Total Energy'</span></em>, <em class="sig-param"><span class="n">max_no_divisions</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Thermodynamics.statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Thermodynamics.statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>ToDo:
 :param quantity:
 :param max_no_divisions:
@@ -2233,8 +2233,8 @@ options: “Total Energy”, “Potential Energy”, “Kinetic Energy”, “Te
 </dd></dl>
 
 <dl class="py class">
-<dt id="sarkas.tools.postprocessing.TransportCoefficients">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">TransportCoefficients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#TransportCoefficients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.TransportCoefficients" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.postprocessing.Transport">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">Transport</code><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Transport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Transport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Transport Coefficients class</p>
 <dl class="field-list simple">
@@ -2243,8 +2243,8 @@ options: “Total Energy”, “Potential Energy”, “Kinetic Energy”, “Te
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="sarkas.tools.postprocessing.TransportCoefficients.params">
-<code class="sig-name descname">params</code><a class="headerlink" href="#sarkas.tools.postprocessing.TransportCoefficients.params" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.postprocessing.Transport.params">
+<code class="sig-name descname">params</code><a class="headerlink" href="#sarkas.tools.postprocessing.Transport.params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2254,22 +2254,15 @@ options: “Total Energy”, “Potential Energy”, “Kinetic Energy”, “Te
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.tools.postprocessing.TransportCoefficients.compute">
-<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">'Electrical Conductivity'</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#TransportCoefficients.compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.TransportCoefficients.compute" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.postprocessing.Transport.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">'Electrical Conductivity'</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Transport.compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Transport.compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the desired transport coefficient</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>show</strong> – </p></li>
+<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Flag for prompting plots to screen.</p></li>
 <li><p><strong>quantity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Desired transport coefficient to calculate.</p></li>
-<li><p><strong>tau</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Upper limit of time integration.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>transport_coeff</strong> – Desired transport coefficient value scaled by appropriate units</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -3332,7 +3325,7 @@ of the simulation.</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Jul, 29, 2020.
+        Last updated on Aug, 10, 2020.
       </span>
 
     </p>

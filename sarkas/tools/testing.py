@@ -90,10 +90,10 @@ def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
 
     """
     # Plot the calculate Force error
-    kappa_title = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0]
+    kappa_title = 0.0 if params.potential.type == "Coulomb" else params.potential.matrix[1, 0, 0]
 
     # Plot the results
-    fig_path = params.Control.pre_run_dir
+    fig_path = params.control.pre_run_dir
 
     fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
     ax[0].plot(rcuts, DeltaF_tot[30, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
@@ -105,7 +105,7 @@ def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     ax[0].set_xlabel(r'$r_c/a_{ws}$')
     ax[0].set_yscale('log')
     ax[0].axvline(chosen_rcut, ls='--', c='k')
-    ax[0].axhline(params.P3M.F_err, ls='--', c='k')
+    ax[0].axhline(params.pppm.F_err, ls='--', c='k')
     if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
         ax[0].axvline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
     ax[0].grid(True, alpha=0.3)
@@ -118,16 +118,16 @@ def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     ax[1].plot(alphas, DeltaF_tot[:, 70], label=r'$r_c = {:2.2f}'.format(rcuts[70]) + ' a_{ws}$')
     ax[1].set_xlabel(r'$\alpha \; a_{ws}$')
     ax[1].set_yscale('log')
-    ax[1].axhline(params.P3M.F_err, ls='--', c='k')
+    ax[1].axhline(params.pppm.F_err, ls='--', c='k')
     ax[1].axvline(chosen_alpha, ls='--', c='k')
     ax[1].grid(True, alpha=0.3)
     ax[1].legend(loc='best')
     fig.suptitle(
         r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
             params.total_num_ptcls,
-            params.P3M.MGrid[0],
+            params.pppm.MGrid[0],
             kappa_title * params.aws))
-    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.Control.fname_app + '.png'))
+    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.control.fname_app + '.png'))
     fig.show()
 
 
@@ -157,10 +157,10 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
 
     """
     # Plot the calculate Force error
-    kappa_title = 0.0 if params.Potential.type == "Coulomb" else params.Potential.matrix[1, 0, 0]
+    kappa_title = 0.0 if params.potential.type == "Coulomb" else params.potential.matrix[1, 0, 0]
 
     # Plot the results
-    fig_path = params.Control.pre_run_dir
+    fig_path = params.control.pre_run_dir
 
     r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
     fig, ax = plt.subplots(1, 1, figsize=(10, 7))
@@ -179,10 +179,10 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     ax.set_ylabel(r'$r_c/a_{ws}$')
     ax.set_title(
         r'$\Delta F^{approx}_{tot}(r_c,\alpha)$' + r'  for  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
-            params.total_num_ptcls, params.P3M.MGrid[0], kappa_title * params.aws))
+            params.total_num_ptcls, params.pppm.MGrid[0], kappa_title * params.aws))
     fig.colorbar(CS)
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.Control.fname_app + '.png'))
+    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.control.fname_app + '.png'))
     fig.show()
 
 
@@ -242,8 +242,8 @@ def main(params, estimate=False):
     if estimate:
         plt.close('all')
     # Change verbose params for printing to screen
-    params.Control.verbose = True
-    params.Control.pre_run = True
+    params.control.verbose = True
+    params.control.pre_run = True
     params.load_method = 'random_no_reject'
 
     verbose = Verbose(params)
@@ -251,18 +251,18 @@ def main(params, estimate=False):
 
     # Initialize particles and all their attributes. Needed for force calculation
     ptcls = Particles(params)
-    params.Control.verbose = False  # Turn it off so it doesnt print S_particles print statements
+    params.control.verbose = False  # Turn it off so it doesnt print S_particles print statements
     ptcls.load(params)
 
     # Check for too large a cut off
-    assert params.Potential.rc <= params.Lv.min() / 2, "Cut-off radius is larger than L/2! L/2 = {:1.4e}".format(params.Lv.min() / 2)
+    assert params.potential.rc <= params.Lv.min() / 2, "Cut-off radius is larger than L/2! L/2 = {:1.4e}".format(params.Lv.min() / 2)
 
     print('\n\n----------------- Time -----------------------\n')
 
-    if params.P3M.on:
+    if params.pppm.on:
 
-        chosen_alpha = params.P3M.G_ew * params.aws
-        chosen_rcut = params.Potential.rc / params.aws
+        chosen_alpha = params.pppm.G_ew * params.aws
+        chosen_rcut = params.potential.rc / params.aws
         green_time = force_error.optimal_green_function_timer(params)
         force_error.print_time_report("GF", green_time, 0)
 
@@ -283,21 +283,21 @@ def main(params, estimate=False):
     PP_mean_time = np.mean(PP_acc_time[1:])
     PM_mean_time = np.mean(PM_acc_time[1:])
     force_error.print_time_report("PP", PP_mean_time, loops)
-    if params.P3M.on:
+    if params.pppm.on:
         force_error.print_time_report("PM", PM_mean_time, loops)
 
     # Print estimate of run times
-    eq_time = (PP_mean_time + PM_mean_time) * params.Control.Neq
+    eq_time = (PP_mean_time + PM_mean_time) * params.control.Neq
     verbose.time_stamp('Thermalization', eq_time)
 
-    prod_time = (PP_mean_time + PM_mean_time) * params.Control.Nsteps
+    prod_time = (PP_mean_time + PM_mean_time) * params.control.Nsteps
     verbose.time_stamp('Production', prod_time)
 
     tot_time = eq_time + prod_time
     verbose.time_stamp('Total Run', tot_time)
 
     # Plot the calculate Force error
-    kappa = params.Potential.matrix[1, 0, 0] if params.Potential.type == "Yukawa" else 0.0
+    kappa = params.potential.matrix[1, 0, 0] if params.potential.type == "Yukawa" else 0.0
     if estimate:
         print('\n\n----------------- Timing Study -----------------------')
         Mg = np.array([16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
@@ -316,34 +316,34 @@ def main(params, estimate=False):
 
         # Average the PM time
         for i, m in enumerate(Mg):
-            params.P3M.MGrid = m * np.ones(3, dtype=int)
-            params.P3M.G_ew = 0.25 * m / params.Lv.min()
+            params.pppm.MGrid = m * np.ones(3, dtype=int)
+            params.pppm.G_ew = 0.25 * m / params.Lv.min()
             green_time = force_error.optimal_green_function_timer(params)
-            pm_errs[i] = params.P3M.PM_err
-            print('\n\nMesh = {} x {} x {} : '.format(*params.P3M.MGrid))
-            print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(params.P3M.G_ew * params.aws, params.P3M.G_ew))
-            print('PM Err = {:1.4e}  '.format(params.P3M.PM_err), end='')
+            pm_errs[i] = params.pppm.PM_err
+            print('\n\nMesh = {} x {} x {} : '.format(*params.pppm.MGrid))
+            print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(params.pppm.G_ew * params.aws, params.pppm.G_ew))
+            print('PM Err = {:1.4e}  '.format(params.pppm.PM_err), end='')
 
             force_error.print_time_report("GF", green_time, 0)
-            pm_xlabels.append("{}x{}x{}".format(*params.P3M.MGrid))
+            pm_xlabels.append("{}x{}x{}".format(*params.pppm.MGrid))
             for it in range(3):
                 pm_times[i] += force_error.pm_acceleration_timer(params, ptcls) / 3.0
 
             for j, c in enumerate(Ncells):
-                params.Potential.rc = params.Lv.min() / c
-                kappa_over_alpha = - 0.25 * (kappa / params.P3M.G_ew) ** 2
-                alpha_times_rcut = - (params.P3M.G_ew * params.Potential.rc) ** 2
-                params.P3M.PP_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(params.Potential.rc)
-                params.P3M.PP_err *= np.sqrt(params.N) * params.aws ** 2 / np.sqrt(params.box_volume)
-                # print('rcut = {:2.4f} a_ws = {:2.6e} '.format(params.Potential.rc / params.aws, params.Potential.rc),
+                params.potential.rc = params.Lv.min() / c
+                kappa_over_alpha = - 0.25 * (kappa / params.pppm.G_ew) ** 2
+                alpha_times_rcut = - (params.pppm.G_ew * params.potential.rc) ** 2
+                params.pppm.PP_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(params.potential.rc)
+                params.pppm.PP_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 / np.sqrt(params.box_volume)
+                # print('rcut = {:2.4f} a_ws = {:2.6e} '.format(params.potential.rc / params.aws, params.potential.rc),
                 #     end='')
-                # print("[cm]" if params.Control.units == "cgs" else "[m]")
-                # print('PP Err = {:1.4e}  '.format(params.P3M.PP_err) )
-                pp_errs[i, j] = params.P3M.PP_err
-                DeltaF_map[i, j] = np.sqrt(params.P3M.PP_err ** 2 + params.P3M.PM_err ** 2)
+                # print("[cm]" if params.control.units == "cgs" else "[m]")
+                # print('PP Err = {:1.4e}  '.format(params.pppm.PP_err) )
+                pp_errs[i, j] = params.pppm.PP_err
+                DeltaF_map[i, j] = np.sqrt(params.pppm.PP_err ** 2 + params.pppm.PM_err ** 2)
 
                 if j == 0:
-                    pp_xlabels.append("{:1.2f}".format(params.Potential.rc / params.aws))
+                    pp_xlabels.append("{:1.2f}".format(params.potential.rc / params.aws))
 
                 for it in range(3):
                     pp_times[i, j] += force_error.pp_acceleration_timer(params, ptcls) / 3.0
@@ -370,7 +370,7 @@ def main(params, estimate=False):
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('2D Lagrangian')
-        fig.savefig(os.path.join(params.Control.pre_run_dir, '2D_Lagrangian.png'))
+        fig.savefig(os.path.join(params.control.pre_run_dir, '2D_Lagrangian.png'))
         fig.show()
 
         fig, ax = plt.subplots(1, 1, figsize=(11, 7))
@@ -386,28 +386,28 @@ def main(params, estimate=False):
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('Force Error')
-        fig.savefig(os.path.join(params.Control.pre_run_dir, 'ForceMap.png'))
+        fig.savefig(os.path.join(params.control.pre_run_dir, 'ForceMap.png'))
         fig.show()
 
-        params.P3M.MGrid = Mg[best[0]] * np.ones(3, dtype=int)
-        params.Potential.rc = params.Lv.min() / Ncells[best[1]]
-        params.P3M.G_ew = 0.25 * m_mesh[best] / params.Lv.min()
-        params.P3M.Mx = params.P3M.MGrid[0]
-        params.P3M.My = params.P3M.MGrid[1]
-        params.P3M.Mz = params.P3M.MGrid[2]
-        params.P3M.hx = params.Lx / float(params.P3M.Mx)
-        params.P3M.hy = params.Ly / float(params.P3M.My)
-        params.P3M.hz = params.Lz / float(params.P3M.Mz)
-        params.P3M.PM_err = pm_errs[best[0]]
-        params.P3M.PP_err = pp_errs[best]
-        params.P3M.F_err = np.sqrt(params.P3M.PM_err ** 2 + params.P3M.PP_err ** 2)
+        params.pppm.MGrid = Mg[best[0]] * np.ones(3, dtype=int)
+        params.potential.rc = params.Lv.min() / Ncells[best[1]]
+        params.pppm.G_ew = 0.25 * m_mesh[best] / params.Lv.min()
+        params.pppm.Mx = params.pppm.MGrid[0]
+        params.pppm.My = params.pppm.MGrid[1]
+        params.pppm.Mz = params.pppm.MGrid[2]
+        params.pppm.hx = params.Lx / float(params.pppm.Mx)
+        params.pppm.hy = params.Ly / float(params.pppm.My)
+        params.pppm.hz = params.Lz / float(params.pppm.Mz)
+        params.pppm.PM_err = pm_errs[best[0]]
+        params.pppm.PP_err = pp_errs[best]
+        params.pppm.F_err = np.sqrt(params.pppm.PM_err ** 2 + params.pppm.PP_err ** 2)
         verbose.timing_study(params)
 
         predicted_times = pp_times[best] + pm_times[best[0]]
         # Print estimate of run times
-        verbose.time_stamp('Thermalization', predicted_times * params.Control.Neq)
-        verbose.time_stamp('Production', predicted_times * params.Control.Nsteps)
-        verbose.time_stamp('Total Run', predicted_times * (params.Control.Neq + params.Control.Nsteps))
+        verbose.time_stamp('Thermalization', predicted_times * params.control.Neq)
+        verbose.time_stamp('Production', predicted_times * params.control.Nsteps)
+        verbose.time_stamp('Total Run', predicted_times * (params.control.Neq + params.control.Nsteps))
 
 
 if __name__ == '__main__':
