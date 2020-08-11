@@ -3,7 +3,6 @@ Module for running the simulation.
 """
 
 # Python modules
-import numpy as np
 import time
 # Progress bar
 from tqdm import tqdm
@@ -11,8 +10,8 @@ from tqdm import tqdm
 # Sarkas MD modules
 # from sarkas.simulation.params import Params
 from sarkas.simulation.particles import Particles
-from sarkas.thermostats.thermostat import Thermostat, calc_kin_temp, remove_drift
-from sarkas.integrators.integrator import Integrator, calc_pot_acc#, #calc_pot_acc_fmm
+from sarkas.time_evolution.thermostats import Thermostat, calc_kin_temp, remove_drift
+from sarkas.time_evolution.integrators import Integrator, calc_pot_acc#, #calc_pot_acc_fmm
 from sarkas.io.verbose import Verbose
 from sarkas.io.checkpoint import Checkpoint
 from sarkas.tools.postprocessing import RadialDistributionFunction
@@ -74,29 +73,18 @@ def run(params):
     # Equilibration Phase
     ##############################################
     if not params.load_method == "restart":
-        if params.load_method == "therm_restart":
-            it_start = params.load_therm_restart_step
-        else:
-            it_start = 0
-        checkpoint.therm_dump(ptcls, Ks, Tps, U_init, it_start)
         if params.control.verbose:
             print("\n------------- Equilibration -------------")
-        for it in tqdm(range(it_start, params.control.Neq), disable=not params.control.verbose):
-            # Calculate the Potential energy and update particles' data
-            U_therm = integrator.update(ptcls, params)
-            if (it + 1) % params.control.therm_dump_step == 0:
-                Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
-                checkpoint.therm_dump(ptcls, Ks, Tps, U_therm, it + 1)
-            # Thermostate
-            thermostat.update(ptcls.vel, it)
-        remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
-        # Save the current state
-        Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
-        U_therm = U_init
-        checkpoint.dump(ptcls, Ks, Tps, U_therm, 0)
+        integrator.equilibrate(ptcls, params, thermostat, checkpoint)
 
-    time_eq = time.time()
-    verbose.time_stamp("Equilibration", time_eq - time_init)
+        # Save the current state
+        Ks, Tps = thermostat.calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
+        U_therm = U_init
+        checkpoint.dump(True, ptcls, Ks, Tps, U_therm, 0)
+
+        time_eq = time.time()
+        verbose.time_stamp("Equilibration", time_eq - time_init)
+
     ##############################################
     # Magnetic Equilibration Phase
     ##############################################
@@ -117,59 +105,15 @@ def run(params):
         remove_drift(ptcls.vel, ptcls.species_num, ptcls.species_mass)
         # Save the current state
         Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
-        checkpoint.dump(ptcls, Ks, Tps, U_therm, 0)
+        checkpoint.dump(False, ptcls, Ks, Tps, U_therm, 0)
         #
         time_mag = time.time()
         verbose.time_stamp("Magnetic Equilibration", time_mag - time_eq)
         time_eq = time_mag
-
-    ##############################################
-    # Prepare for Production Phase
-    ##############################################
-
-    # Open output files
-    if params.load_method == "restart":
-        it_start = params.load_restart_step
-        if params.control.writexyz:
-            # Particles' positions, velocities, accelerations for OVITO
-            f_xyz = open(params.control.checkpoint_dir + "/" + "pva_" + params.control.fname_app + ".xyz", "a+")
-    else:
-        it_start = 0
-        # Restart the pbc counter
-
-        ptcls.pbc_cntr.fill(0.0)
-        # Create array for storing energy information
-        if params.control.writexyz:
-            # Particles' positions, velocities, accelerations for OVITO
-            f_xyz = open(params.control.checkpoint_dir + "/" + "pva_" + params.control.fname_app + ".xyz", "w+")
-
-    pscale = 1.0 / params.aws
-    vscale = 1.0 / (params.aws * params.wp)
-    ascale = 1.0 / (params.aws * params.wp ** 2)
-
-    # Update measurement flag for rdf
-    params.control.measure = True
-
-    ##############################################
-    # Production Phase
-    ##############################################
     if params.control.verbose:
         print("\n------------- Production -------------")
     time_eq = time.time()
-    for it in tqdm(range(it_start, params.control.Nsteps), disable=(not params.control.verbose)):
-        # Move the particles and calculate the potential
-        U_prod = integrator.update(ptcls, params)
-        if (it + 1) % params.control.dump_step == 0:
-            # Save particles' data for restart
-            Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
-            checkpoint.dump(ptcls, Ks, Tps, U_prod, it + 1)
-            # Write particles' data to XYZ file for OVITO Visualization
-            if params.control.writexyz:
-                f_xyz.writelines("{0:d}\n".format(params.total_num_ptcls))
-                f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-                np.savetxt(f_xyz,
-                           np.c_[ptcls.species_name, ptcls.pos * pscale, ptcls.vel * vscale, ptcls.acc * ascale],
-                           fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+    integrator.produce(ptcls, params, checkpoint)
     # Save production time
     time_prod = time.time()
     verbose.time_stamp("Production", time_prod - time_eq)

@@ -68,8 +68,8 @@ class Particles:
         Initialize the attributes
         """
         self.params = params
-        self.checkpoint_dir = params.control.dump_dir
-        self.therm_checkpoint_dir = params.control.therm_dump_dir
+        self.prod_dump_dir = params.control.prod_dump_dir
+        self.eq_dump_dir = params.control.eq_dump_dir
         self.box_lengths = params.Lv
         self.tot_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
@@ -84,7 +84,7 @@ class Particles:
         self.acc = np.zeros((self.tot_num_ptcls, 3))
         self.pbc_cntr = np.zeros((self.tot_num_ptcls, 3))
 
-        self.species_name = np.empty(self.tot_num_ptcls, dtype='object')
+        self.species_name = np.empty(self.tot_num_ptcls)
         self.species_id = np.zeros((self.tot_num_ptcls,), dtype=int)
         self.species_num = np.zeros(params.num_species, dtype=int)
         self.species_conc = np.zeros(params.num_species)
@@ -129,75 +129,73 @@ class Particles:
         from a Maxwell-Boltzmann distribution.
 
         """
+        # Particles Position Initialization
+        if params.control.verbose:
+            print('\nAssigning initial positions according to {}'.format(params.load_method))
 
-        """
-        Dev Notes: Here numba does not help at all. In fact loading is slower with numba. 
-        It could be made faster if we made load a function and not a method of Particles.
-        but in that case we would have to pass each parameter individually.
-        """
-
-        load_method = params.load_method
         if params.load_method == 'restart':
-            if params.load_restart_step is None:
-                raise AttributeError("Restart step not defined. Please define restart_step in YAML file.")
-            if not type(params.load_restart_step) is int:
-                raise TypeError("Only integers are allowed.")
-            self.load_from_restart(params.load_restart_step)
+            msg = "Restart step not defined. Please define restart_step."
+            assert params.load_restart_step is not None, msg
+            assert type(params.load_restart_step) is int, "Only integers are allowed."
+
+            self.load_from_restart(False, params.load_restart_step)
 
         elif params.load_method == 'therm_restart':
-            if params.load_therm_restart_step is None:
-                raise AttributeError("Therm Restart step not defined. Please define restart_step in YAML file.")
-            if not type(params.load_therm_restart_step) is int:
-                raise TypeError("Only integers are allowed.")
-            self.load_from_therm_restart(params.load_therm_restart_step)
+            msg = "Therm Restart step not defined. Please define restart_step"
+            assert params.load_therm_restart_step is not None, msg
+            assert type(params.load_therm_restart_step) is int, "Only integers are allowed."
+
+            self.load_from_restart(True, params.load_therm_restart_step)
 
         elif params.load_method == 'file':
-            if params.ptcls_input_file is None:
-                raise AttributeError('Input file not defined. Please define particle_input_file in YAML file.')
+            msg = 'Input file not defined. Please define particle_input_file.'
+            assert params.ptcls_input_file is not None, msg
             self.load_from_file(params.ptcls_input_file)
+            self.load_vel(params)
+        # position distribution.
+        elif params.load_method == 'lattice':
+            self.lattice(params.load_perturb)
+            self.load_vel(params)
+
+        elif params.load_method == 'random_reject':
+            self.random_reject(params.load_r_reject)
+            self.load_vel(params)
+
+        elif params.load_method == 'halton_reject':
+            self.halton_reject(params.load_halton_bases, params.load_r_reject)
+            self.load_vel(params)
+
+        elif params.load_method == 'random_no_reject':
+            self.random_no_reject()
+            self.load_vel(params)
         else:
-            # Particles Velocities Initialization
-            if params.control.verbose:
-                print('\nAssigning initial velocities from a Maxwell-Boltzmann distribution')
+            raise AttributeError('Incorrect particle placement scheme specified.')
 
-            species_end = 0
-            for ic, sp in enumerate(params.species):
-                Vsig = np.sqrt(params.kB * params.thermostat.temperatures[ic] / sp.mass)
-                species_start = species_end
-                species_end = species_start + sp.num
-                vel_0 = self.species_init_vel[ic, :]
+    def load_vel(self, params):
+        """Initialize particles' velocities according to a Maxwell-Boltzmann distribution.
 
-                self.vel[species_start:species_end, 0] = self.rnd_gen.normal(vel_0[0], Vsig, sp.num)
-                self.vel[species_start:species_end, 1] = self.rnd_gen.normal(vel_0[1], Vsig, sp.num)
-                self.vel[species_start:species_end, 2] = self.rnd_gen.normal(vel_0[2], Vsig, sp.num)
+        Parameters
+        ----------
+        params : cls
+            Simulations' parameters.
+        """
+        species_end = 0
+        for ic, sp in enumerate(params.species):
+            Vsig = np.sqrt(params.kB * params.thermostat.temperatures[ic] / sp.mass)
+            species_start = species_end
+            species_end = species_start + sp.num
+            vel_0 = self.species_init_vel[ic, :]
 
-            # Particles Position Initialization
-            if params.control.verbose:
-                print('\nAssigning initial positions according to {}'.format(params.load_method))
+            self.vel[species_start:species_end, 0] = self.rnd_gen.normal(vel_0[0], Vsig, sp.num)
+            self.vel[species_start:species_end, 1] = self.rnd_gen.normal(vel_0[1], Vsig, sp.num)
+            self.vel[species_start:species_end, 2] = self.rnd_gen.normal(vel_0[2], Vsig, sp.num)
 
-            # position distribution. 
-            if load_method == 'lattice':
-                self.lattice(params.load_perturb)
-
-            elif load_method == 'random_reject':
-                self.random_reject(params.load_r_reject)
-
-            elif load_method == 'halton_reject':
-                self.halton_reject(params.load_halton_bases, params.load_r_reject)
-
-            elif load_method == 'random_no_reject':
-                self.random_no_reject()
-
-            else:
-                raise AttributeError('Incorrect particle placement scheme specified.')
-
-        return
-
-    def add(self):
+    def add_species(self, species):
         """ 
         Add more particles: specific species, and number of particles
         
         """
+
         pass
 
     def remove(self):
@@ -245,9 +243,7 @@ class Particles:
 
             self.species_id[species_start:species_end] = ic
 
-        return
-
-    def load_from_restart(self, it):
+    def load_from_restart(self, equilibration, it):
         """
         Load particles' data from a checkpoint of a previous run
 
@@ -256,34 +252,29 @@ class Particles:
         it : int
             Timestep.
 
-        """
-        file_name = os.path.join(self.checkpoint_dir, "S_checkpoint_" + str(it) + ".npz")
-        data = np.load(file_name, allow_pickle=True)
-        self.species_id = data["species_id"]
-        self.species_name = data["species_name"]
-        self.pos = data["pos"]
-        self.vel = data["vel"]
-        self.acc = data["acc"]
-        self.pbc_cntr = data["cntr"]
-        self.rdf_hist = data["rdf_hist"]
-
-    def load_from_therm_restart(self, it):
-        """
-        Load particles' data from a checkpoint of a previous run
-
-        Parameters
-        ----------
-        it : int
-            Timestep.
+        equilibration: bool
+            Flag for restart phase.
 
         """
-        file_name = os.path.join(self.therm_checkpoint_dir, "S_checkpoint_" + str(it) + ".npz")
-        data = np.load(file_name, allow_pickle=True)
-        self.species_id = data["species_id"]
-        self.species_name = data["species_name"]
-        self.pos = data["pos"]
-        self.vel = data["vel"]
-        self.acc = data["acc"]
+        if equilibration:
+            file_name = os.path.join(self.eq_dump_dir, "S_checkpoint_" + str(it) + ".npz")
+            data = np.load(file_name, allow_pickle=True)
+            self.species_id = data["species_id"]
+            self.species_name = data["species_name"]
+            self.pos = data["pos"]
+            self.vel = data["vel"]
+            self.acc = data["acc"]
+
+        else:
+            file_name = os.path.join(self.prod_dump_dir, "S_checkpoint_" + str(it) + ".npz")
+            data = np.load(file_name, allow_pickle=True)
+            self.species_id = data["species_id"]
+            self.species_name = data["species_name"]
+            self.pos = data["pos"]
+            self.vel = data["vel"]
+            self.acc = data["acc"]
+            self.pbc_cntr = data["cntr"]
+            self.rdf_hist = data["rdf_hist"]
 
     def load_from_file(self, f_name):
         """

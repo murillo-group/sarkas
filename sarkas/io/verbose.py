@@ -39,7 +39,7 @@ def screen_figlet():
     # bg = BG_COLORS[np.random.randint(0, len(BG_COLORS))]
     fnt = FONTS[np.random.randint(0, len(FONTS))]
     clr = fg  # + ':' + bg
-    print_figlet('\n\tSarkas\n', font=fnt, colors=clr)
+    print_figlet('\nSarkas\n', font=fnt, colors=clr)
 
     print("\nAn open-source pure-python molecular dynamics code for non-ideal plasmas.")
 
@@ -76,17 +76,17 @@ class Verbose:
         self.verbose = params.control.verbose
         self.pre_run = params.control.pre_run
         # Create job folder if non existent
-        if not os.path.exists(params.control.checkpoint_dir):
-            os.mkdir(params.control.checkpoint_dir)
+        if not os.path.exists(params.control.job_dir):
+            os.mkdir(params.control.job_dir)
 
-        pre_run_path = os.path.join(params.control.checkpoint_dir, 'Pre_Run_Test')
+        pre_run_path = os.path.join(params.control.job_dir, 'Pre_Run_Test')
         if not os.path.exists(pre_run_path):
             os.mkdir(pre_run_path)
         params.control.pre_run_dir = pre_run_path
         # Pre run file name
-        self.f_pre_run = os.path.join(params.control.pre_run_dir, 'pre_run_' + params.control.fname_app + '.out')
+        self.f_pre_run = os.path.join(params.control.pre_run_dir, 'pre_run_' + params.control.job_id + '.out')
         # Log File name
-        self.f_log_name = os.path.join(params.control.checkpoint_dir, "log_" + params.control.fname_app + ".out")
+        self.f_log_name = os.path.join(params.control.job_dir, "log_" + params.control.job_id + ".out")
         # Save it in params too
         params.control.log_file = self.f_log_name
 
@@ -94,7 +94,7 @@ class Verbose:
         self.io_file = self.f_pre_run if params.control.pre_run else self.f_log_name
 
         # Print figlet to file if not a restart run
-        if not params.load_method == "restart" and not params.load_method == "therm_restart":
+        if not params.control.restart == "restart" and not params.control.restart == "therm_restart":
             with open(self.io_file, "w+") as f_log:
                 figlet_obj = Figlet(font='starwars')
                 print(figlet_obj.renderText('Sarkas'), file=f_log)
@@ -119,17 +119,17 @@ class Verbose:
         screen = sys.stdout
         f_log = open(self.io_file, 'a+')
         repeat = 2 if self.verbose else 1
-
+        print(repeat)
         # redirect printing to file
         sys.stdout = f_log
 
         # Print to file first then to screen if repeat == 2
         while repeat > 0:
 
-            if params.load_method == 'restart':
+            if params.control.restart == 'restart':
                 print('\n\n--------------------------- Restart -------------------------------------')
                 self.time_info(params)
-            elif params.load_method == 'therm_restart':
+            elif params.control.restart == 'therm_restart':
                 print('\n\n------------------------ Therm Restart ----------------------------------')
                 self.time_info(params)
             else:
@@ -139,9 +139,9 @@ class Verbose:
                 else:
                     print('\n\n----------------- Simulation -----------------------')
 
-                print('\nJob ID: ', params.control.fname_app)
-                print('Job directory: ', params.control.checkpoint_dir)
-                print('Dump directory: ', params.control.dump_dir)
+                print('\nJob ID: ', params.control.job_id)
+                print('Job directory: ', params.control.job_dir)
+                print('Dump directory: ', params.control.prod_dump_dir)
                 print('\nUnits: ', params.control.units)
                 print('Total No. of particles = ', params.total_num_ptcls)
 
@@ -185,6 +185,7 @@ class Verbose:
                 self.time_info(params)
 
             repeat -= 1
+            print(repeat)
             sys.stdout = screen  # Restore the original sys.stdout
 
         f_log.close()
@@ -279,7 +280,8 @@ class Verbose:
 
         f_log.close()
 
-    def time_info(self, params):
+    @staticmethod
+    def time_info(params):
         """
         Print time simulation's parameters.
 
@@ -289,39 +291,40 @@ class Verbose:
             Simulation's parameters.
 
         """
-        print('Time step = {:2.6e} [s]'.format(params.control.dt))
+        print('Time step = {:2.6e} [s]'.format(params.integrator.dt))
         if params.potential.type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
             print('(total) plasma frequency = {:1.6e} [Hz]'.format(params.wp))
-            print('wp dt = {:2.4f}'.format(params.control.dt * params.wp))
+            print('wp dt = {:2.4f}'.format(params.integrator.dt * params.wp))
         elif params.potential.type == 'QSP':
             print('e plasma frequency = {:2.6e} [Hz]'.format(params.species[0].wp))
             print('ion plasma frequency = {:2.6e} [Hz]'.format(params.species[1].wp))
-            print('w_pe dt = {:2.4f}'.format(params.control.dt * params.species[0].wp))
+            print('w_pe dt = {:2.4f}'.format(params.integrator.dt * params.species[0].wp))
         elif params.potential.type == 'LJ':
             print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(params.wp))
-            print('wp dt = {:2.4f}'.format(params.control.dt * params.wp))
+            print('wp dt = {:2.4f}'.format(params.integrator.dt * params.wp))
 
-        if params.load_method == 'restart':
+        if params.control.restart == 'restart':
             print("Restart step: {}".format(params.load_restart_step))
             print('Total post-equilibration steps = {} ~ {} wp T_prod'.format(
-                params.control.Nsteps, int(params.control.Nsteps * params.wp * params.control.dt)))
+                params.integrator.nsteps_prod, int(params.integrator.nsteps_prod * params.wp * params.integrator.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
-                params.control.dump_step, params.control.dump_step * params.control.dt * params.wp))
-        elif params.load_method == 'therm_restart':
+                params.integrator.prod_dump_step, params.integrator.prod_dump_step * params.integrator.dt * params.wp))
+        elif params.control.restart == 'therm_restart':
             print("Restart step: {}".format(params.load_therm_restart_step))
             print('Total thermalization steps = {} ~ {} wp T_prod'.format(
-                params.control.Nsteps, int(params.control.Nsteps * params.wp * params.control.dt)))
+                params.integrator.nsteps_prod, int(params.integrator.nsteps_prod * params.wp * params.integrator.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
-                params.control.dump_step, params.control.dump_step * params.control.dt * params.wp))
+                params.integrator.prod_dump_step, params.integrator.prod_dump_step * params.integrator.dt * params.wp))
         else:
             print('No. of equilibration steps = {} ~ {} wp T_eq'.format(
-                params.control.Neq, int(params.control.Neq * params.wp * params.control.dt)))
+                params.integrator.nsteps_eq, int(params.integrator.nsteps_eq * params.wp * params.integrator.dt)))
             print('No. of post-equilibration steps = {} ~ {} wp T_prod'.format(
-                params.control.Nsteps, int(params.control.Nsteps * params.wp * params.control.dt)))
+                params.integrator.nsteps_prod, int(params.integrator.nsteps_prod * params.wp * params.integrator.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
-                params.control.dump_step, params.control.dump_step * params.control.dt * params.wp))
+                params.integrator.prod_dump_step, params.integrator.prod_dump_step * params.integrator.dt * params.wp))
 
-    def algorithm_info(self, params):
+    @staticmethod
+    def algorithm_info(params):
         """
         Print algorithm information.
 
@@ -369,7 +372,8 @@ class Verbose:
                         params.potential.rc / params.Lv.min()) ** 3.0)))
             print('PP Force Error = {:2.6e}'.format(params.PP_err))
 
-    def potential_info(self, params):
+    @staticmethod
+    def potential_info(params):
         """
         Print potential information.
 
@@ -427,7 +431,8 @@ class Verbose:
             print("e-i Coupling Parameter = {:3.3f} ".format(params.potential.Gamma_eff))
             print("rs Coupling Parameter = {:3.3f} ".format(params.rs))
 
-    def thermostat_info(self, params):
+    @staticmethod
+    def thermostat_info(params):
         """
         Print thermostat information.
 
@@ -437,10 +442,11 @@ class Verbose:
             Simulation's parameters.
 
         """
-        print("Berendsen Relaxation rate: {:1.3f}".format(1.0 / params.thermostat.tau))
+        print("Berendsen Relaxation rate: {:1.3f}".format(1.0 / params.thermostat.relaxation_rate))
         print("Thermostating Temperatures: ", params.thermostat.temperatures)
 
-    def length_info(self, params):
+    @staticmethod
+    def length_info(params):
         """
         Print length information.
 
@@ -465,13 +471,14 @@ class Verbose:
         print("The remaining lengths scales are given in ", end='')
         print("[cm]" if params.control.units == "cgs" else "[m]")
 
-    def species_info(self, params):
+    @staticmethod
+    def species_info(params):
         print('No. of species = ', len(params.species))
         for isp, sp in enumerate(params.species):
             print("Species {} : {}".format(isp + 1, sp.name))
             print("\tSpecies ID: {}".format(isp))
             print("\tNo. of particles = {} ".format(sp.num))
-            print("\tNumber density = {:2.6e} ".format(sp.num_density), end='')
+            print("\tNumber density = {:2.6e} ".format(sp.number_density), end='')
             print("[N/cc]" if params.control.units == "cgs" else "[N/m^3]")
             print("\tMass = {:2.6e} ".format(sp.mass), end='')
             print("[g]" if params.control.units == "cgs" else "[kg]")

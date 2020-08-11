@@ -127,7 +127,7 @@ def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
             params.total_num_ptcls,
             params.pppm.MGrid[0],
             kappa_title * params.aws))
-    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.control.fname_app + '.png'))
+    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.control.job_id + '.png'))
     fig.show()
 
 
@@ -182,7 +182,7 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
             params.total_num_ptcls, params.pppm.MGrid[0], kappa_title * params.aws))
     fig.colorbar(CS)
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.control.fname_app + '.png'))
+    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.control.job_id + '.png'))
     fig.show()
 
 
@@ -287,10 +287,10 @@ def main(params, estimate=False):
         force_error.print_time_report("PM", PM_mean_time, loops)
 
     # Print estimate of run times
-    eq_time = (PP_mean_time + PM_mean_time) * params.control.Neq
+    eq_time = (PP_mean_time + PM_mean_time) * params.integrator.nsteps_eq
     verbose.time_stamp('Thermalization', eq_time)
 
-    prod_time = (PP_mean_time + PM_mean_time) * params.control.Nsteps
+    prod_time = (PP_mean_time + PM_mean_time) * params.integrator.nsteps_prod
     verbose.time_stamp('Production', prod_time)
 
     tot_time = eq_time + prod_time
@@ -405,9 +405,9 @@ def main(params, estimate=False):
 
         predicted_times = pp_times[best] + pm_times[best[0]]
         # Print estimate of run times
-        verbose.time_stamp('Thermalization', predicted_times * params.control.Neq)
-        verbose.time_stamp('Production', predicted_times * params.control.Nsteps)
-        verbose.time_stamp('Total Run', predicted_times * (params.control.Neq + params.control.Nsteps))
+        verbose.time_stamp('Thermalization', predicted_times * params.integrator.nsteps_eq)
+        verbose.time_stamp('Production', predicted_times * params.integrator.nsteps_prod)
+        verbose.time_stamp('Total Run', predicted_times * (params.integrator.nsteps_eq + params.integrator.nsteps_prod))
 
 
 if __name__ == '__main__':

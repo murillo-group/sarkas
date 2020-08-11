@@ -104,19 +104,16 @@ def setup(params, read_input=True):
     if read_input:
         with open(params.input_file, 'r') as stream:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
-            for lkey in dics:
-                if lkey == "Potential":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            if key == "kappa":  # screening
-                                params.potential.kappa = float(value)
+            for key, value in dics["Potential"].items():
+                if key == "kappa":  # screening
+                    params.potential.kappa = float(value)
 
-                            # electron temperature for screening parameter calculation
-                            if key == "elec_temperature":
-                                params.Te = float(value)
+                # electron temperature for screening parameter calculation
+                if key == "elec_temperature":
+                    params.Te = float(value)
 
-                            if key == "elec_temperature_eV":
-                                params.Te = params.eV2K * float(value)
+                if key == "elec_temperature_eV":
+                    params.Te = params.eV2K * float(value)
 
     update_params(params)
 
@@ -214,7 +211,7 @@ def update_params(params):
     # Calculate the (total) plasma frequency
     wp_tot_sq = 0.0
     for i, sp in enumerate(params.species):
-        wp2 = 4.0 * np.pi * sp.charge ** 2 * sp.num_density / (sp.mass * params.fourpie0)
+        wp2 = 4.0 * np.pi * sp.charge ** 2 * sp.number_density / (sp.mass * params.fourpie0)
         sp.wp = np.sqrt(wp2)
         wp_tot_sq += wp2
 

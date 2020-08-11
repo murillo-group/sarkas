@@ -7,6 +7,9 @@ import os.path
 import sys
 import scipy.constants as const
 
+from sarkas.time_evolution.integrators import Integrator
+from sarkas.time_evolution.thermostats import Thermostat
+
 
 class Params:
     """
@@ -175,9 +178,9 @@ class Params:
         self.BC = self.BC()
         self.Magnetic = self.Magnetic()
         self.potential = self.Potential()
-        self.integrator = self.Integrator()
+        self.integrator = Integrator()
         self.control = self.Control()
-        self.thermostat = self.Thermostat()
+        self.thermostat = Thermostat()
         self.Langevin = self.Langevin()
         self.PostProcessing = self.PostProcessing()
 
@@ -245,6 +248,12 @@ class Params:
         """
 
         def __init__(self):
+            self.name = None
+            self.number_density = None
+            self.charge = None
+            self.mass = None
+            self.num = None
+            self.load_method = None
             pass
 
     class Magnetic:
@@ -372,43 +381,6 @@ class Params:
         def __init__(self):
             self.on = False
 
-    class Integrator:
-        """
-        Integrator's parameters.
-
-        Attributes
-        ----------
-            type : str
-                Integrator type. 
-        """
-
-        def __init__(self):
-            pass
-
-    class Thermostat:
-        """
-        Thermostat's parameters
-
-        Attributes
-        ----------
-            on : int
-                Flag. 1 = True, 0 = False.
-
-            type : int
-                Berendsen only.
-
-            tau : float
-                Berendsen parameter :math:`\tau`.
-
-            timestep : int
-                Number of timesteps to wait before turning on Berendsen.
-                (default) = 0
-        """
-
-        def __init__(self):
-            self.on = 0
-            self.timestep = 0
-
     class Langevin:
         """
         Parameters for Langevin Dynamics.
@@ -486,19 +458,13 @@ class Params:
         """
 
         def __init__(self):
-            self.units = None
             self.measure = False
-            self.dt = None
-            self.Nsteps = None
-            self.Neq = None
-            self.dump_step = 1
-            self.therm_dump_step = 1
             self.writexyz = False
             self.verbose = True
             self.simulations_dir = "Simulations"
             self.job_dir = None
-            self.production_dir = None
-            self.equilibration_dir = None
+            self.production_dir = 'Production'
+            self.equilibration_dir = 'Equilibration'
             self.preprocessing_dir = "PreProcessing"
             self.postprocessing_dir = "PostProcessing"
             self.job_id = None
@@ -527,39 +493,38 @@ class Params:
 
         # Parse parameters from input file
         self.common_parser(self.input_file)
-        self.create_directories(args)
         self.assign_attributes()
-        self.from_input_dict(args)
-        self.control.verbose = args["verbose"]
+        self.create_directories(args)
+
         # Coulomb potential
         if self.potential.type == "Coulomb":
-            from sarkas.potentials import coulomb as Coulomb
-            Coulomb.setup(self)
+            from sarkas.potentials import coulomb
+            coulomb.setup(self)
 
         # Yukawa potential
         if self.potential.type == "Yukawa":
-            from sarkas.potentials import yukawa as Yukawa
-            Yukawa.setup(self)
+            from sarkas.potentials import yukawa
+            yukawa.setup(self)
 
         # exact gradient-corrected screening (EGS) potential
         if self.potential.type == "EGS":
-            from sarkas.potentials import egs as EGS
-            EGS.setup(self)
+            from sarkas.potentials import egs
+            egs.setup(self)
 
         # Lennard-Jones potential
         if self.potential.type == "LJ":
-            from sarkas.potentials import lennardjones612 as LJ
-            LJ.setup(self)
+            from sarkas.potentials import lennardjones612 as lj
+            lj.setup(self)
 
         # Moliere potential
         if self.potential.type == "Moliere":
-            from sarkas.potentials import moliere as Moliere
-            Moliere.setup(self)
+            from sarkas.potentials import moliere
+            moliere.setup(self)
 
         # QSP potential
         if self.potential.type == "QSP":
-            from sarkas.potentials import qsp as QSP
-            QSP.setup(self)
+            from sarkas.potentials import qsp
+            qsp.setup(self)
 
         return
 
@@ -577,84 +542,23 @@ class Params:
 
         with open(filename, 'r') as stream:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
-
             for lkey in dics:
                 if lkey == "Particles":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-
-                            if key == "species":
-                                spec = self.Species()
-                                self.species.append(spec)
-                                ic = len(self.species) - 1
-
-                                for key, value in value.items():
-                                    if key == "name":
-                                        self.species[ic].name = value
-
-                                    if key == "number_density":
-                                        self.species[ic].num_density = float(value)
-                                        self.total_num_density += self.species[ic].num_density
-
-                                    if key == "mass":
-                                        self.species[ic].mass = float(value)
-
-                                    if key == "num":
-                                        self.species[ic].num = int(value)
-                                        self.total_num_ptcls += int(self.species[ic].num)
-
-                                    if key == "Z":
-                                        self.species[ic].Z = float(value)
-
-                                    if key == "temperature":
-                                        self.species[ic].temperature = float(value)
-
-                                    if key == "A":
-                                        self.species[ic].atomic_weight = float(value)
-
-                                    if key == 'initial_velocity':
-                                        self.species[ic].init_vel = np.array(value)
-
-                                    if key == "mass_density":
-                                        self.species[ic].mass_density = float(value)
-
-                                    if key == "temperature_eV":
-                                        self.species[ic].temperature = float(value) * self.eV2K
-
-                            if key == "load":
-                                for key, value in value.items():
-                                    if key == "method":
-                                        self.load_method = value
-
-                                    if key == 'restart_step':
-                                        self.load_restart_step = int(value)
-
-                                    if key == 'therm_restart_step':
-                                        self.load_therm_restart_step = int(value)
-
-                                    if key == 'r_reject':
-                                        self.load_r_reject = float(value)
-
-                                    if key == 'perturb':
-                                        self.load_perturb = float(value)
-
-                                    if key == 'halton_bases':
-                                        self.load_halton_bases = np.array(value)
-
-                                    if key == 'particle_input_file':
-                                        self.ptcls_input_file = value
+                    for species in dics["Particles"]:
+                        spec = self.Species()
+                        for key, value in species["Species"].items():
+                            if hasattr(spec, key):
+                                spec.__dict__[key] = value
+                            else:
+                                setattr(spec, key, value)
+                        self.species.append(spec)
 
                 if lkey == "Potential":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            if key == "type":
-                                self.potential.type = value
-
-                            if key == "method":
-                                self.potential.method = value
-
-                            if key == "rc":
-                                self.potential.rc = float(value)
+                    for key, value in dics[lkey].items():
+                        if hasattr(self.potential, key):
+                            self.potential.__dict__[key] = value
+                        else:
+                            setattr(self.potential, key, value)
 
                 if lkey == "P3M":
                     self.pppm.on = True
@@ -676,37 +580,11 @@ class Params:
                                 self.pppm.G_ew = float(value)
 
                 if lkey == "Thermostat":
-                    self.thermostat.on = 1
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            if key == 'type':
-                                self.thermostat.type = value
-
-                            # If Berendsen
-                            if key == 'tau':
-                                if float(value) > 0.0:
-                                    self.thermostat.tau = float(value)
-                                else:
-                                    print("\nBerendsen tau parameter must be positive")
-                                    sys.exit()
-
-                            if key == 'timestep':
-                                # Number of timesteps to wait before turning on Berendsen
-                                self.thermostat.timestep = int(value)
-
-                            if key == "temperatures_eV":
-                                if isinstance(value, list):
-                                    self.thermostat.temperatures = np.array(value, dtype=float)
-                                else:
-                                    self.thermostat.temperatures = np.array([value], dtype=float)
-                                self.thermostat.temperatures *= self.eV2K
-
-                            if key == "temperatures":
-                                # Conversion factor from eV to Kelvin
-                                if isinstance(value, list):
-                                    self.thermostat.temperatures = np.array(value, dtype=float)
-                                else:
-                                    self.thermostat.temperatures = np.array([value], dtype=float)
+                    for key, value in dics[lkey].items():
+                        if hasattr(self.thermostat, key):
+                            self.thermostat.__dict__[key] = value
+                        else:
+                            setattr(self.thermostat, key, value)
 
                 if lkey == "Magnetized":
                     self.Magnetic.on = True
@@ -728,10 +606,11 @@ class Params:
                                 self.Magnetic.Neq_mag = int(value)
 
                 if lkey == "Integrator":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            if key == 'type':
-                                self.integrator.type = value
+                    for key, value in dics[lkey].items():
+                        if hasattr(self.integrator, key):
+                            self.integrator.__dict__[key] = value
+                        else:
+                            setattr(self.integrator, key, value)
 
                 if lkey == "Langevin":
                     self.Langevin.on = 1
@@ -753,8 +632,7 @@ class Params:
                                 self.PostProcessing.dsf_no_ka_values = value
 
                 if lkey == "BoundaryConditions":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
+                    for key, value in dics[lkey].items():
                             if key == "periodic":
                                 self.BC.pbc_axes = value
 
@@ -765,65 +643,11 @@ class Params:
                                 self.BC.open_axes = value
 
                 if lkey == "Control":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            # Units
-                            if key == "units":
-                                self.control.units = value
-
-                            # timestep
-                            if key == "dt":
-                                self.control.dt = float(value)
-
-                            # Number of simulation timesteps    
-                            if key == "Nsteps":
-                                self.control.Nsteps = int(value)
-
-                            # Number of equilibration timesteps
-                            if key == "Neq":
-                                self.control.Neq = int(value)
-
-                            if key == "Np_per_side":
-                                self.control.np_per_side = np.array(value, dtype=int)
-
-                            # Saving interval
-                            if key == "dump_step":
-                                self.control.dump_step = int(value)
-
-                            if key == "therm_dump_step":
-                                self.control.therm_dump_step = int(value)
-
-                            # Write the XYZ file, Yes/No
-                            if key == "writexyz":
-                                if value is False:
-                                    self.control.writexyz = 0
-                                if value is True:
-                                    self.control.writexyz = 1
-
-                            # verbose screen print out
-                            if key == "verbose":
-                                if value is False:
-                                    self.control.verbose = 0
-                                if value is True:
-                                    self.control.verbose = 1
-
-                            # Directory where to store Checkpoint files
-                            if key == "simulations_dir":
-                                self.control.simulations_dir = value
-
-                            # Directory where to store Checkpoint files
-                            if key == "job_dir":
-                                self.control.job_dir = value
-
-                            if key == "equilibration_dir":
-                                self.control.equilibration_dir = value
-
-                            if key == "rand_seed":
-                                self.rand_seed = int(value)
-
-                            # Filenames appendix
-                            if key == "job_id":
-                                self.control.job_id = value
+                    for key, value in dics[lkey].items():
+                        if hasattr(self.control, key):
+                            self.control.__dict__[key] = value
+                        else:
+                            setattr(self.control, key, value)
 
         # Check for conflicts in case of magnetic field
         if self.Magnetic.on and self.Magnetic.elec_therm:
@@ -847,28 +671,9 @@ class Params:
 
         """
         # Check for directories
-
-        if self.control.job_dir is None:
-            if args["job_dir"] is None:
-                self.control.job_dir = 'job_dir'
-            else:
-                self.control.job_dir = args["job_dir"]
-        else:
-            # Input option supersedes YAML file
-            if not args["job_dir"] is None:
-                self.control.job_dir = args["job_dir"]
-
-        if self.control.job_id is None:
-            if args["job_id"] is None and args["job_dir"] is None:
-                self.control.job_id = "jobid"
-            elif args["job_id"] is None and args["job_dir"] is not None:
-                self.control.job_id = args["job_dir"]
-            else:
-                self.control.job_id = args["job_id"]
-        else:
-            # Input option supersedes YAML file
-            if args["job_id"] is not None:
-                self.control.job_id = args["job_id"]
+        for key, value in args.items():
+            if hasattr(self.control, key):
+                self.control.__dict__[key] = value
 
         # Check if the directories exist
         if not os.path.exists(self.control.simulations_dir):
@@ -878,24 +683,34 @@ class Params:
         if not os.path.exists(self.control.job_dir):
             os.mkdir(self.control.job_dir)
 
-        self.control.dump_dir = os.path.join(self.control.job_dir, self.control.dump_dir)
-        if not os.path.exists(self.control.dump_dir):
-            os.mkdir(self.control.dump_dir)
+        # Equilibration directory and sub_dir
+        self.control.equilibration_dir = os.path.join(self.control.job_dir, self.control.equilibration_dir)
+        if not os.path.exists(self.control.equilibration_dir):
+            os.mkdir(self.control.equilibration_dir)
 
-        self.control.therm_dir = os.path.join(self.control.job_dir, self.control.therm_dir)
-        if not os.path.exists(self.control.therm_dir):
-            os.mkdir(self.control.therm_dir)
+        self.control.eq_dump_dir = os.path.join(self.control.equilibration_dir, 'dumps')
+        if not os.path.exists(self.control.eq_dump_dir):
+            os.mkdir(self.control.eq_dump_dir)
 
-        self.control.therm_dump_dir = os.path.join(self.control.therm_dir, "dumps")
-        if not os.path.exists(self.control.therm_dump_dir):
-            os.mkdir(self.control.therm_dump_dir)
+        # Production dir and sub_dir
+        self.control.production_dir = os.path.join(self.control.job_dir, self.control.production_dir)
+        if not os.path.exists(self.control.production_dir):
+            os.mkdir(self.control.production_dir)
+
+        self.control.prod_dump_dir = os.path.join(self.control.production_dir, "dumps")
+        if not os.path.exists(self.control.prod_dump_dir):
+            os.mkdir(self.control.prod_dump_dir)
+
+        # Postprocessing dir
+        self.control.postprocessing_dir = os.path.join(self.control.job_dir, self.control.postprocessing_dir)
+        if not os.path.exists(self.control.postprocessing_dir):
+            os.mkdir(self.control.postprocessing_dir)
 
         if self.control.log_file is None:
             self.control.log_file = os.path.join(self.control.job_dir, 'log.out')
 
     def assign_attributes(self):
         """ Assign the parsed parameters"""
-        self.num_species = len(self.species)
         # Physical constants
         if self.control.units == "cgs":
             self.kB *= self.J2erg
@@ -910,28 +725,35 @@ class Params:
                 self.eps0 = 1.0
                 self.fourpie0 = 1.0
                 self.a0 *= 1e2
+        if self.control.job_id is None:
+            self.control.job_id = self.control.job_dir
+        self.num_species = len(self.species)
+        # Loop over species and assign missing attributes
+        for i, sp in enumerate(self.species):
+            self.total_num_ptcls += sp.num
+            if hasattr(sp, "number_density"):
+                self.total_num_density += sp.number_density
 
-        # Check mass input
-        for ic in range(self.num_species):
-            if hasattr(self.species[ic], "atomic_weight"):
+            if hasattr(sp, "atomic_weight"):
                 # Choose between atomic mass constant or proton mass
                 # u = const.physical_constants["atomic mass constant"][0]
-                mp = const.physical_constants["proton mass"][0]
+                self.mp = const.physical_constants["proton mass"][0]
 
                 if self.control.units == "cgs":
-                    self.species[ic].mass = mp * 1e3 * self.species[ic].atomic_weight
+                    self.mp *= 1e3
+                    sp.mass = self.mp * sp.atomic_weight
                 elif self.control.units == "mks":
-                    self.species[ic].mass = mp * self.species[ic].atomic_weight
+                    sp.mass = self.mp * sp.atomic_weight
 
-            if hasattr(self.species[ic], "mass_density"):
+            if hasattr(sp, "mass_density"):
                 Av = const.physical_constants["Avogadro constant"][0]
-                self.species[ic].num_density = self.species[ic].mass_density * Av / self.species[ic].atomic_weight
-                self.total_num_density += self.species[ic].num_density
+                sp.number_density = sp.mass_density * Av / sp.atomic_weight
+                self.total_num_density += sp.number_density
         # Concentrations arrays and ions' total temperature
         self.Ti = 0.0
-        for ic in range(self.num_species):
-            self.species[ic].concentration = self.species[ic].num / self.total_num_ptcls
-            self.Ti += self.species[ic].concentration * self.species[ic].temperature
+        for i, sp in enumerate(self.species):
+            sp.concentration = sp.num / self.total_num_ptcls
+            self.Ti += sp.concentration * sp.temperature
 
         # Wigner-Seitz radius calculated from the total density
         self.aws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
@@ -964,7 +786,7 @@ class Params:
         if self.potential.type == "Yukawa" or self.potential.type == "EGS":
             for ic in range(self.num_species):
                 if hasattr(self.species[ic], "Z"):
-                    self.ne += self.species[ic].Z * self.species[ic].num_density
+                    self.ne += self.species[ic].Z * self.species[ic].number_density
 
         # Simulation Box Parameters
         if len(self.control.np_per_side) != 0:
@@ -1024,18 +846,3 @@ class Params:
                     self.BC.open_axes_indx[ij] = 1
                 elif bc == "z":
                     self.BC.open_axes_indx[ij] = 2
-        return
-
-    def from_input_dict(self, args):
-        """
-
-        Parameters
-        ----------
-        args
-
-        Returns
-        -------
-
-        """
-
-

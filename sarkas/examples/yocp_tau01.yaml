@@ -1,44 +1,44 @@
 # keywords: OCP, Yukawa, P3M, mks, random_no_reject
 Particles:
-    - species:
+    - Species:
         name: H
         number_density: 1.000e+18       # /m^3
         mass: 1.673e-27                # kg, ptcl mass of ion1
         num: 8000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
         temperature: 0.2
-
-    - load:
-        method: random_no_reject    # loading method
-        rand_seed: 123456789        # random seed
+        
 
 Potential:
-    - type: Yukawa                  # potential type
-    - method: PP
-    - rc: 4.0000e-6             # cut-off radius, meter
-    - kappa: 2.0
+    type: Yukawa                  # potential type
+    method: PP
+    rc: 4.0000e-6             # cut-off radius, meter
+    kappa: 2.0
 
 BoundaryConditions:
-    - periodic: ["x", "y", "z"]
+    periodic: ["x", "y", "z"]
 
 Integrator:
-    - type: Verlet       # velocity integrator type
+    type: Verlet       # velocity integrator type
+    dt: 1.87773e-12            # sec
+    nsteps_prod: 5000                      # number of timesteps for the equilibrium
+    nsteps_eq: 5000
+    prod_dump_step: 10                # dump time step
+    eq_dump_step: 10
 
 Thermostat:
-    - type: Berendsen               # thermostat type
-    - timestep: 0
-    - tau: 0.1
+    type: Berendsen               # thermostat type
+    relaxation_timestep: 0
+    relaxation_rate: 0.1
+    temperatures: 0.2
 
 Control:
-    - units: mks                    # units
-    - dt: 1.87773e-12            # sec
-    - Neq: 5000                      # number of timesteps for the equilibrium
-    - Nsteps: 0                    # number of timesteps after the equilibrium
-    - writexyz: no                  # no xyz output
-    - dump_step: 10                # dump time step
-    - therm_dump_step: 10
-    - verbose: yes
-    - output_dir: YOCP_tau01        # dir name to save data. The default is "Checkpoint"
+    units: mks                    # units
+    writexyz: True                  # no xyz output
+    verbose: True
+    restart: no
+    load_method: random_no_reject    # loading method
+    job_dir: YOCP_tau01        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
     - rdf_nbins: 500

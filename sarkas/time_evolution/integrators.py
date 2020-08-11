@@ -1,60 +1,26 @@
 """
-Module of various types of integrators
+Module of various types of time_evolution
 
 
 """
 
 import numpy as np
-import numba as nb
+from numba import njit
 # import fmm3dpy as fmm
 from sarkas.algorithm import force_pp, force_pm
 
 
-class Integrator:
+def verlet(ptcls, params):
     """
-    Class used to assign integrator type.
-
-    Parameters
-    ----------
-    params:  object
-        Simulation's parameters.
-
-    Attributes
-    ----------
-    update: func
-        Integrator choice. 'Verlet' or 'Magnetic_Verlet'.
-
-    """
-
-    def __init__(self, params):
-
-        if params.integrator.type == "Verlet":
-            if params.Langevin.on:
-                if params.Langevin.type == "BBK":
-                    self.update = Verlet_with_Langevin  # currently only BBK.
-                else:
-                    raise AttributeError('Wrong Langevin type.')
-            else:
-                self.update = Verlet
-        elif params.integrator.type == "Magnetic_Verlet":
-            self.update = Magnetic_Verlet
-        elif params.integrator.type == "Magnetic_Boris":
-            self.update = Boris_Magnetic_integrator
-        else:
-            print("Only Verlet integrator is supported. Check your input file, integrator part 2.")
-
-
-def Verlet(ptcls, params):
-    """ 
     Update particle position and velocity based on velocity verlet method.
     More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration
-    or on the Sarkas website. 
+    or on the Sarkas website.
 
     Parameters
     ----------
     ptcls: object
         Particles data.
-    
+
     params:  object
         Simulation's parameters.
 
@@ -62,13 +28,13 @@ def Verlet(ptcls, params):
     -------
     U : float
         Total potential energy
-    
+
     """
 
     # First half step velocity update
-    ptcls.vel += 0.5 * ptcls.acc * params.control.dt
+    ptcls.vel += 0.5 * ptcls.acc * params.integrator.dt
     # Full step position update
-    ptcls.pos += ptcls.vel * params.control.dt
+    ptcls.pos += ptcls.vel * params.integrator.dt
 
     # Periodic boundary condition
     if not params.potential.method == 'FMM':
@@ -79,14 +45,14 @@ def Verlet(ptcls, params):
     #     U = calc_pot_acc_fmm(ptcls, params)
 
     # Second half step velocity update
-    ptcls.vel += 0.5 * ptcls.acc * params.control.dt
+    ptcls.vel += 0.5 * ptcls.acc * params.integrator.dt
 
     return U
 
 
-def Verlet_with_Langevin(ptcls, params):
+def verlet_langevin(ptcls, params):
     """
-    Calculate particles dynamics using the Velocity Verlet algorithm and Langevin damping.
+    Calculate particles dynamics using the Velocity verlet algorithm and Langevin damping.
 
     Parameters
     ----------
@@ -111,12 +77,12 @@ def Verlet_with_Langevin(ptcls, params):
         # sigma
         sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.thermostat.temperatures[ic] / sp.mass)
 
-        c1 = (1. - 0.5 * params.Langevin.gamma * params.control.dt)
+        c1 = (1. - 0.5 * params.Langevin.gamma * params.integrator.dt)
         # c2 = 1./(1. + 0.5*g*dt)
 
-        ptcls.pos[sp_start:sp_end, :] += c1 * params.control.dt * ptcls.vel[sp_start:sp_end, :] \
+        ptcls.pos[sp_start:sp_end, :] += c1 * params.integrator.dt * ptcls.vel[sp_start:sp_end, :] \
                                          + 0.5 * params.Contro.dt ** 2 * ptcls.acc[sp_start:sp_end, :] \
-                                         + 0.5 * sig * params.control.dt ** 1.5 * beta
+                                         + 0.5 * sig * params.integrator.dt ** 1.5 * beta
 
     # Periodic boundary condition
     if params.control.PBC == 1:
@@ -131,19 +97,19 @@ def Verlet_with_Langevin(ptcls, params):
         # sigma
         sig = np.sqrt(2. * params.Langevin.gamma * params.kB * params.thermostat.temperatures[ic] / sp.mass)
 
-        c1 = (1. - 0.5 * params.Langevin.gamma * params.control.dt)
-        c2 = 1. / (1. + 0.5 * params.Langevin.gamma * params.control.dt)
+        c1 = (1. - 0.5 * params.Langevin.gamma * params.integrator.dt)
+        c2 = 1. / (1. + 0.5 * params.Langevin.gamma * params.integrator.dt)
 
         ptcls.vel[sp_start:sp_end, :] = c1 * c2 * ptcls.vel[sp_start:sp_end, :] \
-                                        + 0.5 * c2 * params.control.dt * (ptcls.acc[sp_start:sp_end, :]
-                                                                     + acc_old[sp_start:sp_end,:]) \
-                                        + c2 * sig * np.sqrt(params.control.dt) * beta
+                                        + 0.5 * c2 * params.integrator.dt * (ptcls.acc[sp_start:sp_end, :]
+                                                                             + acc_old[sp_start:sp_end, :]) \
+                                        + c2 * sig * np.sqrt(params.integrator.dt) * beta
         sp_start = sp_end
 
     return U
 
 
-def Magnetic_Verlet(ptcls, params):
+def magnetic_verlet(ptcls, params):
     """
     Update particles' positions and velocities based on velocity verlet method in the case of a
     constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [Chin2008]_
@@ -166,7 +132,7 @@ def Magnetic_Verlet(ptcls, params):
     .. [Chin2008] `Chin Phys Rev E 77, 066401 (2008) <https://doi.org/10.1103/PhysRevE.77.066401>`_
     """
     # Time step
-    dt = params.control.dt
+    dt = params.integrator.dt
     half_dt = 0.5 * dt
 
     sp_start = 0  # start index for species loop
@@ -242,7 +208,7 @@ def Magnetic_Verlet(ptcls, params):
     return U
 
 
-def Boris_Magnetic_integrator(ptcls, params):
+def magnetic_boris(ptcls, params):
     """
     Update particles' positions and velocities using the Boris algorithm in the case of a
     constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. [Chin2008]_
@@ -262,7 +228,7 @@ def Boris_Magnetic_integrator(ptcls, params):
 
     """
     # Time step
-    dt = params.control.dt
+    dt = params.integrator.dt
     half_dt = 0.5 * dt
 
     sp_start = 0  # start index for species loop
@@ -272,7 +238,7 @@ def Boris_Magnetic_integrator(ptcls, params):
     v_F = np.zeros((params.tot_num_ptcls, params.dimensions))
 
     # First step update velocities
-    ptcls.vel += 0.5 * ptcls.acc * params.control.dt
+    ptcls.vel += 0.5 * ptcls.acc * params.integrator.dt
 
     # Rotate velocities
     for ic, sp in enumerate(params.species):
@@ -295,10 +261,10 @@ def Boris_Magnetic_integrator(ptcls, params):
         sp_start = sp_end
 
     # Second step update velocities
-    ptcls.vel += 0.5 * ptcls.acc * params.control.dt
+    ptcls.vel += 0.5 * ptcls.acc * params.integrator.dt
 
     # Full step position update
-    ptcls.pos += ptcls.vel * params.control.dt
+    ptcls.pos += ptcls.vel * params.integrator.dt
 
     # Periodic boundary condition
     enforce_pbc(ptcls.pos, ptcls.pbc_cntr, params.Lv)
@@ -309,7 +275,7 @@ def Boris_Magnetic_integrator(ptcls, params):
     return U
 
 
-@nb.njit
+@njit
 def enforce_pbc(pos, cntr, BoxVector):
     """ 
     Enforce Periodic Boundary conditions. 
@@ -375,7 +341,8 @@ def calc_pot_acc(ptcls, params):
 
     if params.pppm.on:
         U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charge, ptcls.mass,
-                                          params.pppm.MGrid, params.Lv, params.pppm.G_k, params.pppm.kx_v, params.pppm.ky_v,
+                                          params.pppm.MGrid, params.Lv, params.pppm.G_k, params.pppm.kx_v,
+                                          params.pppm.ky_v,
                                           params.pppm.kz_v, params.pppm.cao)
         # Ewald Self-energy
         U_long += params.QFactor * params.pppm.G_ew / np.sqrt(np.pi)

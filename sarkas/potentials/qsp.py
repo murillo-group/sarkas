@@ -157,7 +157,7 @@ def update_params(params):
     # Calculate the (total) plasma frequency
     wp_tot_sq = 0.0
     for i, sp in enumerate(params.species):
-        wp2 = four_pi * sp.charge ** 2 * sp.num_density / (sp.mass * params.fourpie0)
+        wp2 = four_pi * sp.charge ** 2 * sp.number_density / (sp.mass * params.fourpie0)
         sp.wp = np.sqrt(wp2)
         wp_tot_sq += wp2
 

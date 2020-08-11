@@ -160,12 +160,12 @@ class CurrentCorrelationFunctions:
         self.k_counts = None
         self.ka_values = None
         self.k_list = None
-        self.fldr = params.control.checkpoint_dir
-        self.ptcls_fldr = params.control.dump_dir
+        self.fldr = params.control.job_dir
+        self.ptcls_fldr = params.integrator.prod_dump_dir
         self.k_fldr = os.path.join(self.fldr, "k_space_data")
         self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
         self.vkt_file = os.path.join(self.k_fldr, "vkt.npz")
-        self.job_id = params.control.fname_app
+        self.job_id = params.control.job_id
         self.l_filename_csv = os.path.join(self.fldr,
                                            "LongitudinalVelocityCorrelationFunction_" + self.job_id + '.csv')
         self.t_filename_csv = os.path.join(self.fldr,
@@ -173,7 +173,7 @@ class CurrentCorrelationFunctions:
 
         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
         self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -185,7 +185,7 @@ class CurrentCorrelationFunctions:
             self.species_np[i] = int(sp.num)
             self.species_names.append(sp.name)
 
-        self.dt = params.control.dt
+        self.dt = params.integrator.dt
         self.a_ws = params.aws
         self.wp = params.wp
 
@@ -460,17 +460,17 @@ class DynamicStructureFactor:
         params: S_params class
             Simulation's parameters.
         """
-        self.fldr = params.control.checkpoint_dir
-        self.ptcls_fldr = params.control.dump_dir
+        self.fldr = params.control.job_dir
+        self.ptcls_fldr = params.integrator.prod_dump_dir
         self.k_fldr = os.path.join(self.fldr, "k_space_data")
         self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
         self.nkt_file = os.path.join(self.k_fldr, "nkt.npy")
-        self.job_id = params.control.fname_app
+        self.job_id = params.control.job_id
         self.filename_csv = os.path.join(self.fldr, "DynamicStructureFactor_" + self.job_id + '.csv')
 
         self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
         self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -482,8 +482,8 @@ class DynamicStructureFactor:
             self.species_np[i] = int(sp.num)
             self.species_names.append(sp.name)
 
-        self.Nsteps = params.control.Nsteps
-        self.dt = params.control.dt
+        self.Nsteps = params.integrator.nsteps_prod
+        self.dt = params.integrator.dt
         self.no_Skw = int(self.no_species * (self.no_species + 1) / 2)
         self.a_ws = params.aws
         self.wp = params.wp
@@ -693,17 +693,17 @@ class ElectricCurrent:
         """
         self.dataframe = None
         self.verbose = params.control.verbose
-        self.fldr = params.control.checkpoint_dir
-        self.job_id = params.control.fname_app
+        self.fldr = params.control.job_dir
+        self.job_id = params.control.job_id
         self.units = params.control.units
-        self.dump_dir = params.control.dump_dir
+        self.dump_dir = params.integrator.prod_dump_dir
         self.filename_csv = os.path.join(self.fldr, "ElectricCurrent_" + self.job_id + '.csv')
         self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         self.no_species = len(params.species)
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_names = []
-        self.dt = params.control.dt  # No of dump to skip
+        self.dt = params.integrator.dt  # No of dump to skip
         self.species_charge = np.zeros(self.no_species)
         for i, sp in enumerate(params.species):
             self.species_np[i] = int(sp.num)
@@ -713,7 +713,7 @@ class ElectricCurrent:
         self.tot_no_ptcls = params.total_num_ptcls
         self.wp = params.wp
         self.a_ws = params.aws
-        self.dt = params.control.dt
+        self.dt = params.integrator.dt
 
     def parse(self):
         """
@@ -903,28 +903,28 @@ class HermiteCoefficients:
             self.hermite_order = 7
         else:
             self.hermite_order = params.PostProcessing.hermite_order
-        self.dump_dir = params.control.dump_dir
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.dump_dir = params.integrator.prod_dump_dir
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         #
-        self.fldr = os.path.join(params.control.checkpoint_dir, 'HermiteExp_data')
+        self.fldr = os.path.join(params.control.job_dir, 'HermiteExp_data')
         if not os.path.exists(self.fldr):
             os.mkdir(self.fldr)
         self.plots_dir = os.path.join(self.fldr, 'Hermite_Plots')
-        self.job_id = params.control.fname_app
+        self.job_id = params.control.job_id
         self.filename_csv = os.path.join(self.fldr, "HermiteCoefficients_" + self.job_id + '.csv')
         self.dump_step = params.control.dump_step
         self.units = params.control.units
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
         self.no_dim = params.dimensions
-        self.no_steps = params.control.Nsteps
+        self.no_steps = params.integrator.nsteps_prod
         self.a_ws = params.aws
         self.wp = params.wp
         self.kB = params.kB
         self.species_np = np.zeros(self.no_species)  # Number of particles of each species
         self.species_masses = np.zeros(self.no_species)  # Number of particles of each species
         self.species_names = []
-        self.dt = params.control.dt
+        self.dt = params.integrator.dt
         self.species_temperatures = params.thermostat.temperatures
 
         for i, sp in enumerate(params.species):
@@ -1147,16 +1147,16 @@ class RadialDistributionFunction:
         """
         self.dataframe = None
         self.no_bins = params.PostProcessing.rdf_nbins  # number of ka values
-        self.fldr = params.control.checkpoint_dir
-        self.job_id = params.control.fname_app
-        self.filename_csv = os.path.join(self.fldr, "RadialDistributionFunction_" + params.control.fname_app + ".csv")
+        self.fldr = params.control.job_dir
+        self.job_id = params.control.job_id
+        self.filename_csv = os.path.join(self.fldr, "RadialDistributionFunction_" + params.control.job_id + ".csv")
         self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         self.no_species = len(params.species)
         self.no_grs = int(params.num_species * (params.num_species + 1) / 2)
         self.tot_no_ptcls = params.total_num_ptcls
 
-        self.no_steps = params.control.Nsteps
+        self.no_steps = params.integrator.nsteps_prod
         self.a_ws = params.aws
         self.dr_rdf = params.potential.rc / self.no_bins / self.a_ws
         self.box_volume = params.box_volume / self.a_ws ** 3
@@ -1339,16 +1339,16 @@ class StaticStructureFactor:
             Simulation's parameters.
         """
         self.dataframe = None
-        self.fldr = params.control.checkpoint_dir
-        self.job_id = params.control.fname_app
-        self.ptcls_fldr = params.control.dump_dir
+        self.fldr = params.control.job_dir
+        self.job_id = params.control.job_id
+        self.ptcls_fldr = params.integrator.prod_dump_dir
         self.k_fldr = os.path.join(self.fldr, "k_space_data")
         self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
         self.nkt_file = os.path.join(self.k_fldr, "nkt.npy")
 
         self.filename_csv = os.path.join(self.fldr, "StaticStructureFunction_" + self.job_id + ".csv")
         self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         self.no_species = len(params.species)
         self.tot_no_ptcls = params.total_num_ptcls
 
@@ -1550,19 +1550,19 @@ class Thermodynamics:
             Simulation's parameters.
         """
         self.dataframe = None
-        self.fldr = params.control.checkpoint_dir
-        self.ptcls_dumps = params.control.dump_dir
-        self.job_id = params.control.fname_app
+        self.fldr = params.control.job_dir
+        self.ptcls_dumps = params.integrator.prod_dump_dir
+        self.job_id = params.control.job_id
         self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         self.no_dim = params.dimensions
         self.units = params.control.units
-        self.dt = params.control.dt
+        self.dt = params.integrator.dt
         self.potential = params.potential.type
         self.thermostat = params.thermostat.type
         self.thermostat_tau = params.thermostat.tau
         self.F_err = params.pppm.F_err
-        self.Nsteps = params.control.Nsteps
+        self.Nsteps = params.integrator.nsteps_prod
         if params.load_method == "restart":
             self.restart_sim = True
         else:
@@ -1580,7 +1580,7 @@ class Thermodynamics:
             self.species_np[i] = sp.num
             self.species_names.append(sp.name)
             self.species_masses[i] = sp.mass
-            self.species_dens[i] = sp.num_density
+            self.species_dens[i] = sp.number_density
         # Output file with Energy and Temperature
         self.filename_csv = os.path.join(self.fldr, "Thermodynamics_" + self.job_id + '.csv')
         # Constants
@@ -1906,10 +1906,10 @@ class Thermodynamics:
         else:
             Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.PP_err), fontsize=fsz)
 
-        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.control.dt, xlbl), fontsize=fsz)
-        Info_plot.text(0., y_coord - 3., "Tot Prod. steps = {}".format(params.control.Nsteps))
+        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.integrator.dt, xlbl), fontsize=fsz)
+        Info_plot.text(0., y_coord - 3., "Tot Prod. steps = {}".format(params.integrator.nsteps_prod))
         Info_plot.text(0., y_coord - 4., "{:1.2f} % Production Completed".format(
-            100 * self.dump_step * (self.no_dumps - 1) / params.control.Nsteps), fontsize=fsz)
+            100 * self.dump_step * (self.no_dumps - 1) / params.integrator.nsteps_prod), fontsize=fsz)
 
         Info_plot.axis('off')
         fig.tight_layout()
@@ -2003,12 +2003,12 @@ class Thermalization:
         """
         self.fldr = params.control.therm_dir
         self.dump_dir = os.path.join(self.fldr, "dumps")
-        self.job_id = params.control.fname_app
+        self.job_id = params.control.job_id
         self.dump_step = params.control.therm_dump_step
         self.no_dumps = len(os.listdir(params.control.therm_dir))
         self.no_dim = params.dimensions
         self.units = params.control.units
-        self.dt = params.control.dt
+        self.dt = params.integrator.dt
         self.potential = params.potential.type
         self.thermostat = params.thermostat.type
         self.thermostat_tau = params.thermostat.tau
@@ -2016,7 +2016,7 @@ class Thermalization:
             self.F_err = params.PP_err
         else:
             self.F_err = params.pppm.F_err
-        self.Nsteps = params.control.Neq
+        self.Nsteps = params.integrator.nsteps_eq
         if params.load_method == "restart":
             self.restart_sim = True
         else:
@@ -2034,7 +2034,7 @@ class Thermalization:
             self.species_np[i] = sp.num
             self.species_names.append(sp.name)
             self.species_masses[i] = sp.mass
-            self.species_dens[i] = sp.num_density
+            self.species_dens[i] = sp.number_density
         # Output file with Energy and Temperature
         self.filename_csv = os.path.join(self.fldr, "Thermalization_" + self.job_id + '.csv')
         # Constants
@@ -2247,10 +2247,10 @@ class Thermalization:
         else:
             Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.PP_err))
 
-        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.control.dt, xlbl))
-        Info_plot.text(0., y_coord - 3., "Tot Eq. steps = {}".format(params.control.Neq))
+        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.integrator.dt, xlbl))
+        Info_plot.text(0., y_coord - 3., "Tot Eq. steps = {}".format(params.integrator.nsteps_eq))
         Info_plot.text(0., y_coord - 4., "{:1.2f} % Thermalization Completed".format(
-            100 * (self.dump_step * (self.no_dumps - 1)) / params.control.Neq))
+            100 * (self.dump_step * (self.no_dumps - 1)) / params.integrator.nsteps_eq))
 
         Info_plot.axis('off')
         fig.tight_layout()
@@ -2300,7 +2300,7 @@ class Transport:
         quantity: str
             Desired transport coefficient to calculate.
         """
-        self.filename_csv = os.path.join(params.control.checkpoint_dir, self.filename_csv)
+        self.filename_csv = os.path.join(params.control.job_dir, self.filename_csv)
         try:
             self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
         except FileNotFoundError:
@@ -2324,8 +2324,8 @@ class Transport:
             ax.set_ylabel(r'$\sigma(t)$')
             ax.set_xlabel(r'$\omega_p t$')
             fig.tight_layout()
-            fig.savefig(os.path.join(params.control.checkpoint_dir,
-                                     'ConductivityPlot_' + params.control.fname_app + '.png'))
+            fig.savefig(os.path.join(params.control.job_dir,
+                                     'ConductivityPlot_' + params.control.job_id + '.png'))
             if show:
                 fig.show()
 
@@ -2368,8 +2368,8 @@ class Transport:
             # ax2.set_ylabel(r'$\nabla D_{\alpha}(t)/(a^2\omega_{\alpha})$')
 
             fig.tight_layout()
-            fig.savefig(os.path.join(params.control.checkpoint_dir,
-                                     'DiffusionPlot_' + params.control.fname_app + '.png'))
+            fig.savefig(os.path.join(params.control.job_dir,
+                                     'DiffusionPlot_' + params.control.job_id + '.png'))
             if show:
                 fig.show()
 
@@ -2458,7 +2458,7 @@ class Transport:
                 axes[1, 0].set_ylabel(r"Shear Viscosity")
 
                 fig.tight_layout()
-                fig.savefig(os.path.join(params.control.checkpoint_dir, "ShearViscosity_Plots.png"))
+                fig.savefig(os.path.join(params.control.job_dir, "ShearViscosity_Plots.png"))
                 if show:
                     fig.show()
 
@@ -2482,7 +2482,7 @@ class Transport:
             ax[0].legend()
             ax[1].legend()
             fig.tight_layout()
-            fig.savefig(os.path.join(params.control.checkpoint_dir, "BulkViscosity_Plots.png"))
+            fig.savefig(os.path.join(params.control.job_dir, "BulkViscosity_Plots.png"))
             if show:
                 fig.show()
 
@@ -2543,29 +2543,29 @@ class VelocityAutocorrelationFunctions:
             Simulation's parameters.
         """
         self.dataframe = None
-        self.fldr = params.control.checkpoint_dir
-        self.dump_dir = params.control.dump_dir
-        self.job_id = params.control.fname_app
+        self.fldr = params.control.job_dir
+        self.dump_dir = params.integrator.prod_dump_dir
+        self.job_id = params.control.job_id
         self.filename_csv = os.path.join(self.fldr, "VelocityACF_" + self.job_id + '.csv')
         self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         self.no_species = len(params.species)
         self.no_vacf = int(self.no_species * (self.no_species + 1) / 2)
         self.species_names = []
-        self.dt = params.control.dt  # No of dump to skip
+        self.dt = params.integrator.dt  # No of dump to skip
         self.species_np = np.zeros(self.no_species, dtype=int)
         self.species_masses = np.zeros(self.no_species)
         self.species_dens = np.zeros(self.no_species)
         for i, sp in enumerate(params.species):
             self.species_np[i] = int(sp.num)
-            self.species_dens[i] = sp.num_density
+            self.species_dens[i] = sp.number_density
             self.species_masses[i] = sp.mass
             self.species_names.append(sp.name)
         self.tot_mass_density = self.species_masses.transpose() @ self.species_dens
         self.tot_no_ptcls = params.total_num_ptcls
         self.wp = params.wp
         self.a_ws = params.aws
-        self.dt = params.control.dt
+        self.dt = params.integrator.dt
         self.verbose = params.control.verbose
 
     def parse(self):
@@ -2768,14 +2768,14 @@ class VelocityMoments:
             self.no_bins = int(0.05 * params.total_num_ptcls)
         else:
             self.no_bins = params.PostProcessing.mom_nbins
-        self.dump_dir = params.control.dump_dir
+        self.dump_dir = params.integrator.prod_dump_dir
         self.no_dumps = len(os.listdir(self.dump_dir))
         #
-        self.fldr = os.path.join(params.control.checkpoint_dir, "MomentRatios_Data")
+        self.fldr = os.path.join(params.control.job_dir, "MomentRatios_Data")
         if not os.path.exists(self.fldr):
             os.mkdir(self.fldr)
         self.plots_dir = os.path.join(self.fldr, 'Plots')
-        self.job_id = params.control.fname_app
+        self.job_id = params.control.job_id
         self.filename_csv = os.path.join(self.fldr, "VelocityMoments_" + self.job_id + '.csv')
         #
         self.dump_step = params.control.dump_step
@@ -2783,12 +2783,12 @@ class VelocityMoments:
         self.tot_no_ptcls = params.total_num_ptcls
         self.no_dim = params.dimensions
         self.units = params.control.units
-        self.no_steps = params.control.Nsteps
+        self.no_steps = params.integrator.nsteps_prod
         self.a_ws = params.aws
         self.wp = params.wp
         self.species_np = np.zeros(self.no_species)  # Number of particles of each species
         self.species_names = []
-        self.dt = params.control.dt
+        self.dt = params.integrator.dt
         self.max_no_moment = 3
         self.species_plots_dirs = None
         self.units = params.control.units
@@ -2946,11 +2946,11 @@ class XYZWriter:
         params: S_params class
             Simulation's parameters.
         """
-        self.fldr = params.control.checkpoint_dir
-        self.dump_dir = params.control.dump_dir
-        self.filename = os.path.join(self.fldr, "pva_" + params.control.fname_app + '.xyz')
+        self.fldr = params.control.job_dir
+        self.dump_dir = params.integrator.prod_dump_dir
+        self.filename = os.path.join(self.fldr, "pva_" + params.control.job_id + '.xyz')
         self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.control.dump_dir))
+        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
         self.dump_skip = 1
         self.tot_no_ptcls = params.total_num_ptcls
         self.a_ws = params.aws
