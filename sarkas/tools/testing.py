@@ -127,7 +127,7 @@ def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
             params.total_num_ptcls,
             params.pppm.MGrid[0],
             kappa_title * params.aws))
-    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.control.fname_app + '.png'))
+    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.control.job_id + '.png'))
     fig.show()
 
 
@@ -182,7 +182,7 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
             params.total_num_ptcls, params.pppm.MGrid[0], kappa_title * params.aws))
     fig.colorbar(CS)
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.control.fname_app + '.png'))
+    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.control.job_id + '.png'))
     fig.show()
 
 

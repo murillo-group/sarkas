@@ -30,15 +30,15 @@ Thermostat:
     - tau: 0.1
 
 Control:
-    - units: mks                    # units
-    - dt: 1.87773e-12            # sec
-    - Neq: 5000                      # number of timesteps for the equilibrium
-    - Nsteps: 0                    # number of timesteps after the equilibrium
-    - writexyz: no                  # no xyz output
-    - dump_step: 10                # dump time step
-    - therm_dump_step: 10
-    - verbose: yes
-    - output_dir: YOCP_tau01        # dir name to save data. The default is "Checkpoint"
+    units: mks                    # units
+    dt: 1.87773e-12            # sec
+    Neq: 10000                      # number of timesteps for the equilibrium
+    Nsteps: 10000                    # number of timesteps after the equilibrium
+    writexyz: no                  # no xyz output
+    prod_dump_step: 100                # dump time step
+    eq_dump_step: 100
+    verbose: yes
+    job_dir: YOCP_tau01        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
     - rdf_nbins: 500

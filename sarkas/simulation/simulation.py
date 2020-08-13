@@ -84,7 +84,7 @@ def run(params):
         for it in tqdm(range(it_start, params.control.Neq), disable=not params.control.verbose):
             # Calculate the Potential energy and update particles' data
             U_therm = integrator.update(ptcls, params)
-            if (it + 1) % params.control.therm_dump_step == 0:
+            if (it + 1) % params.control.eq_dump_step == 0:
                 Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
                 checkpoint.therm_dump(ptcls, Ks, Tps, U_therm, it + 1)
             # Thermostate
@@ -132,7 +132,7 @@ def run(params):
         it_start = params.load_restart_step
         if params.control.writexyz:
             # Particles' positions, velocities, accelerations for OVITO
-            f_xyz = open(params.control.checkpoint_dir + "/" + "pva_" + params.control.fname_app + ".xyz", "a+")
+            f_xyz = open(params.control.job_dir + "/" + "pva_" + params.control.job_id + ".xyz", "a+")
     else:
         it_start = 0
         # Restart the pbc counter
@@ -141,7 +141,7 @@ def run(params):
         # Create array for storing energy information
         if params.control.writexyz:
             # Particles' positions, velocities, accelerations for OVITO
-            f_xyz = open(params.control.checkpoint_dir + "/" + "pva_" + params.control.fname_app + ".xyz", "w+")
+            f_xyz = open(params.control.job_dir + "/" + "pva_" + params.control.job_id + ".xyz", "w+")
 
     pscale = 1.0 / params.aws
     vscale = 1.0 / (params.aws * params.wp)
@@ -159,7 +159,7 @@ def run(params):
     for it in tqdm(range(it_start, params.control.Nsteps), disable=(not params.control.verbose)):
         # Move the particles and calculate the potential
         U_prod = integrator.update(ptcls, params)
-        if (it + 1) % params.control.dump_step == 0:
+        if (it + 1) % params.control.prod_dump_step == 0:
             # Save particles' data for restart
             Ks, Tps = calc_kin_temp(ptcls.vel, ptcls.species_num, ptcls.species_mass, params.kB)
             checkpoint.dump(ptcls, Ks, Tps, U_prod, it + 1)

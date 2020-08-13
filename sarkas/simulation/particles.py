@@ -68,16 +68,13 @@ class Particles:
         Initialize the attributes
         """
         self.params = params
-        self.checkpoint_dir = params.control.dump_dir
-        self.therm_checkpoint_dir = params.control.therm_dump_dir
+        self.prod_dump_dir = params.control.prod_dump_dir
+        self.eq_dump_dir = params.control.eq_dump_dir
         self.box_lengths = params.Lv
         self.tot_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
 
-        if params.rand_seed is not None:
-            self.rnd_gen = np.random.Generator(np.random.PCG64(params.rand_seed))
-        else:
-            self.rnd_gen = np.random.Generator(np.random.PCG64(123456789))
+        self.rnd_gen = np.random.Generator(np.random.PCG64(params.rand_seed))
 
         self.pos = np.zeros((self.tot_num_ptcls, 3))
         self.vel = np.zeros((self.tot_num_ptcls, 3))
@@ -257,7 +254,7 @@ class Particles:
             Timestep.
 
         """
-        file_name = os.path.join(self.checkpoint_dir, "S_checkpoint_" + str(it) + ".npz")
+        file_name = os.path.join(self.prod_dump_dir, "S_checkpoint_" + str(it) + ".npz")
         data = np.load(file_name, allow_pickle=True)
         self.species_id = data["species_id"]
         self.species_name = data["species_name"]
@@ -277,7 +274,7 @@ class Particles:
             Timestep.
 
         """
-        file_name = os.path.join(self.therm_checkpoint_dir, "S_checkpoint_" + str(it) + ".npz")
+        file_name = os.path.join(self.eq_dump_dir, "S_checkpoint_" + str(it) + ".npz")
         data = np.load(file_name, allow_pickle=True)
         self.species_id = data["species_id"]
         self.species_name = data["species_name"]

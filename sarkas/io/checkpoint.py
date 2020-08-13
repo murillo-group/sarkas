@@ -41,18 +41,14 @@ class Checkpoint:
     """
 
     def __init__(self, params):
-        self.dt = params.control.dt
-        self.checkpoint_dir = params.control.checkpoint_dir
-        self.params_pickle = os.path.join(self.checkpoint_dir, "S_parameters.pickle")
+        self.__dict__.update(params.control.__dict__)
+        self.params_pickle = os.path.join(self.job_dir, "S_parameters.pickle")
         # Production directory and filenames
-        self.dump_dir = params.control.dump_dir
-        self.energy_filename = os.path.join(self.checkpoint_dir, "Thermodynamics_" + params.control.fname_app + '.csv')
-        self.ptcls_file_name = os.path.join(self.dump_dir, "S_checkpoint_")
+        self.prod_energy_filename = os.path.join(self.production_dir, "Thermodynamics_" + self.job_id + '.csv')
+        self.prod_ptcls_filename = os.path.join(self.prod_dump_dir, "S_checkpoint_")
         # Thermalization directory and filenames
-        self.therm_dir = params.control.therm_dir
-        self.therm_dump_dir = params.control.therm_dump_dir
-        self.therm_filename = os.path.join(self.therm_dir, "Thermalization_" + params.control.fname_app + '.csv')
-        self.therm_ptcls_file_name = os.path.join(self.therm_dump_dir, "S_checkpoint_")
+        self.eq_energy_filename = os.path.join(self.equilibration_dir, "Thermalization_" + self.job_id + '.csv')
+        self.eq_ptcls_filename = os.path.join(self.eq_dump_dir, "S_checkpoint_")
 
         self.species_names = []
         self.Gamma_eff = params.potential.Gamma_eff * params.T_desired
@@ -61,14 +57,13 @@ class Checkpoint:
             self.species_names.append(params.species[i].name)
 
         # Check the existence of locations
-        if not (os.path.exists(self.checkpoint_dir)):
-            os.mkdir(self.checkpoint_dir)
-        if not (os.path.exists(self.dump_dir)):
-            os.mkdir(self.dump_dir)
-        if not (os.path.exists(self.therm_dir)):
-            os.mkdir(self.therm_dir)
+        if not (os.path.exists(self.prod_dump_dir)):
+            os.mkdir(self.prod_dump_dir)
 
-        if not os.path.exists(self.energy_filename):
+        if not (os.path.exists(self.equilibration_dir)):
+            os.mkdir(self.equilibration_dir)
+
+        if not os.path.exists(self.prod_energy_filename):
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
             if len(params.species) > 1:
@@ -78,11 +73,11 @@ class Checkpoint:
             dkeys.append("Gamma")
             data = dict.fromkeys(dkeys)
 
-            with open(self.energy_filename, 'w+') as f:
+            with open(self.prod_energy_filename, 'w+') as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
-        if not os.path.exists(self.therm_filename) and not params.load_method == 'restart':
+        if not os.path.exists(self.eq_energy_filename) and not params.load_method == 'restart':
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
             if len(params.species) > 1:
@@ -92,7 +87,7 @@ class Checkpoint:
             dkeys.append("Gamma")
             data = dict.fromkeys(dkeys)
 
-            with open(self.therm_filename, 'w+') as f:
+            with open(self.eq_energy_filename, 'w+') as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
@@ -131,7 +126,7 @@ class Checkpoint:
         it : int
             Timestep number.
         """
-        fle_name = self.ptcls_file_name + str(it)
+        fle_name = self.prod_ptcls_filename + str(it)
         tme = it * self.dt
         savez(fle_name,
               species_id=ptcls.species_id,
@@ -155,7 +150,7 @@ class Checkpoint:
                 data["{} Kinetic Energy".format(self.species_names[sp])] = kinetic_energies[sp]
                 data["{} Temperature".format(self.species_names[sp])] = temperatures[sp]
         data["Gamma"] = self.Gamma_eff / temperature
-        with open(self.energy_filename, 'a') as f:
+        with open(self.prod_energy_filename, 'a') as f:
             w = csv.writer(f)
             w.writerow(data.values())
 
@@ -180,7 +175,7 @@ class Checkpoint:
         it : int
             Timestep number.
         """
-        fle_name = self.therm_ptcls_file_name + str(it)
+        fle_name = self.eq_ptcls_filename + str(it)
         tme = it * self.dt
         savez(fle_name,
               species_id=ptcls.species_id,
@@ -201,6 +196,6 @@ class Checkpoint:
                 data["{} Kinetic Energy".format(self.species_names[sp])] = kinetic_energies[sp]
                 data["{} Temperature".format(self.species_names[sp])] = temperatures[sp]
         data["Gamma"] = self.Gamma_eff / temperature
-        with open(self.therm_filename, 'a') as f:
+        with open(self.eq_energy_filename, 'a') as f:
             w = csv.writer(f)
             w.writerow(data.values())

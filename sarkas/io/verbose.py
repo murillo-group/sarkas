@@ -76,17 +76,13 @@ class Verbose:
         self.verbose = params.control.verbose
         self.pre_run = params.control.pre_run
         # Create job folder if non existent
-        if not os.path.exists(params.control.checkpoint_dir):
-            os.mkdir(params.control.checkpoint_dir)
+        if not os.path.exists(params.control.job_dir):
+            os.mkdir(params.control.job_dir)
 
-        pre_run_path = os.path.join(params.control.checkpoint_dir, 'Pre_Run_Test')
-        if not os.path.exists(pre_run_path):
-            os.mkdir(pre_run_path)
-        params.control.pre_run_dir = pre_run_path
         # Pre run file name
-        self.f_pre_run = os.path.join(params.control.pre_run_dir, 'pre_run_' + params.control.fname_app + '.out')
+        self.f_pre_run = os.path.join(params.control.preprocessing_dir, 'pre_run_' + params.control.job_id + '.out')
         # Log File name
-        self.f_log_name = os.path.join(params.control.checkpoint_dir, "log_" + params.control.fname_app + ".out")
+        self.f_log_name = os.path.join(params.control.job_dir, "log_" + params.control.job_id + ".out")
         # Save it in params too
         params.control.log_file = self.f_log_name
 
@@ -139,9 +135,9 @@ class Verbose:
                 else:
                     print('\n\n----------------- Simulation -----------------------')
 
-                print('\nJob ID: ', params.control.fname_app)
-                print('Job directory: ', params.control.checkpoint_dir)
-                print('Dump directory: ', params.control.dump_dir)
+                print('\nJob ID: ', params.control.job_id)
+                print('Job directory: ', params.control.job_dir)
+                print('Dump directory: ', params.control.prod_dump_dir)
                 print('\nUnits: ', params.control.units)
                 print('Total No. of particles = ', params.total_num_ptcls)
 
@@ -248,31 +244,6 @@ class Verbose:
             print("[cm]" if params.control.units == "cgs" else "[m]")
 
             self.algorithm_info(self, params)
-            # print("\nAlgorithm : ", params.potential.method)
-            # if params.potential.method == 'P3M':
-            #     print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f} ~ 1/{} '.format(
-            #         params.pppm.hx * params.pppm.G_ew, int(1. / (params.pppm.hx * params.pppm.G_ew))))
-            #     print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
-            #         int(params.Lv[0] / params.potential.rc),
-            #         int(params.Lv[1] / params.potential.rc),
-            #         int(params.Lv[2] / params.potential.rc)))
-            #     print('No. of particles in PP loop = {:6}'.format(
-            #         int(params.total_num_density * (3 * params.potential.rc) ** 3)))
-            #     print('No. of PP neighbors per particle = {:6}'.format(
-            #         int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (params.potential.rc / params.Lv.min()) ** 3.0)))
-            #     print('PM Force Error = {:2.6e}'.format(params.pppm.PM_err))
-            #     print('PP Force Error = {:2.6e}'.format(params.pppm.PP_err))
-            #     print('Tot Force Error = {:2.6e}'.format(params.pppm.F_err))
-            # elif params.potential.method == 'PP':
-            #     print('rcut/a_ws = {:2.6e}'.format(params.potential.rc / params.aws))
-            #     print(
-            #         'No. of cells per dimension = {:2}, {:2}, {:2}'.format(int(params.Lv[0] / params.potential.rc),
-            #                                                                int(params.Lv[1] / params.potential.rc),
-            #                                                                int(params.Lv[2] / params.potential.rc)))
-            #     print('No. of neighbors per particle = {:4}'.format(
-            #         int(params.total_num_ptcls * 4.0 / 3.0 * np.pi * (
-            #                 params.potential.rc / params.Lv.min()) ** 3.0)))
-            #     print('PP Force Error = {:2.6e}'.format(params.PP_err))
 
             repeat -= 1
             sys.stdout = screen  # Restore the original sys.stdout
@@ -306,20 +277,22 @@ class Verbose:
             print('Total post-equilibration steps = {} ~ {} wp T_prod'.format(
                 params.control.Nsteps, int(params.control.Nsteps * params.wp * params.control.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
-                params.control.dump_step, params.control.dump_step * params.control.dt * params.wp))
+                params.control.prod_dump_step, params.control.prod_dump_step * params.control.dt * params.wp))
         elif params.load_method == 'therm_restart':
             print("Restart step: {}".format(params.load_therm_restart_step))
             print('Total thermalization steps = {} ~ {} wp T_prod'.format(
                 params.control.Nsteps, int(params.control.Nsteps * params.wp * params.control.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
-                params.control.dump_step, params.control.dump_step * params.control.dt * params.wp))
+                params.control.prod_dump_step, params.control.prod_dump_step * params.control.dt * params.wp))
         else:
             print('No. of equilibration steps = {} ~ {} wp T_eq'.format(
                 params.control.Neq, int(params.control.Neq * params.wp * params.control.dt)))
-            print('No. of post-equilibration steps = {} ~ {} wp T_prod'.format(
+            print('Equilibration snapshot interval = {} = {:1.3f} wp T_snap'.format(
+                params.control.eq_dump_step, params.control.eq_dump_step * params.control.dt * params.wp))
+            print('No. of production steps = {} ~ {} wp T_prod'.format(
                 params.control.Nsteps, int(params.control.Nsteps * params.wp * params.control.dt)))
-            print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
-                params.control.dump_step, params.control.dump_step * params.control.dt * params.wp))
+            print('Production snapshot interval = {} = {:1.3f} wp T_snap'.format(
+                params.control.prod_dump_step, params.control.prod_dump_step * params.control.dt * params.wp))
 
     def algorithm_info(self, params):
         """

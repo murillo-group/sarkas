@@ -161,6 +161,7 @@ class Params:
         self.eV2J = const.physical_constants["electron volt-joule relationship"][0]
         self.a0 = const.physical_constants["Bohr radius"][0]
         self.kB = const.Boltzmann
+        self.rand_seed = 123456789
         self.aws = 0.0
         self.tot_net_charge = 0.0
         self.QFactor = 0.0
@@ -446,10 +447,10 @@ class Params:
             BC : str
                 Boundary Condition. 'Periodic' only.
 
-            dump_step : int
+            prod_dump_step : int
                 Production Snapshot interval.
 
-            therm_dump_step : int
+            eq_dump_step : int
                 Thermalization Snapshot interval.
 
             np_per_side : array
@@ -491,14 +492,16 @@ class Params:
             self.dt = None
             self.Nsteps = None
             self.Neq = None
-            self.dump_step = 1
-            self.therm_dump_step = 1
             self.writexyz = False
             self.verbose = True
+            self.prod_dump_step = 1
+            self.eq_dump_step = 1
             self.simulations_dir = "Simulations"
             self.job_dir = None
-            self.production_dir = None
-            self.equilibration_dir = None
+            self.production_dir = "Production"
+            self.equilibration_dir = 'Equilibration'
+            self.prod_dump_dir = None
+            self.eq_dump_dir = None
             self.preprocessing_dir = "PreProcessing"
             self.postprocessing_dir = "PostProcessing"
             self.job_id = None
@@ -529,8 +532,6 @@ class Params:
         self.common_parser(self.input_file)
         self.create_directories(args)
         self.assign_attributes()
-        self.from_input_dict(args)
-        self.control.verbose = args["verbose"]
         # Coulomb potential
         if self.potential.type == "Coulomb":
             from sarkas.potentials import coulomb as Coulomb
@@ -765,70 +766,12 @@ class Params:
                                 self.BC.open_axes = value
 
                 if lkey == "Control":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            # Units
-                            if key == "units":
-                                self.control.units = value
-
-                            # timestep
-                            if key == "dt":
-                                self.control.dt = float(value)
-
-                            # Number of simulation timesteps    
-                            if key == "Nsteps":
-                                self.control.Nsteps = int(value)
-
-                            # Number of equilibration timesteps
-                            if key == "Neq":
-                                self.control.Neq = int(value)
-
-                            if key == "Np_per_side":
-                                self.control.np_per_side = np.array(value, dtype=int)
-
-                            # Saving interval
-                            if key == "dump_step":
-                                self.control.dump_step = int(value)
-
-                            if key == "therm_dump_step":
-                                self.control.therm_dump_step = int(value)
-
-                            # Write the XYZ file, Yes/No
-                            if key == "writexyz":
-                                if value is False:
-                                    self.control.writexyz = 0
-                                if value is True:
-                                    self.control.writexyz = 1
-
-                            # verbose screen print out
-                            if key == "verbose":
-                                if value is False:
-                                    self.control.verbose = 0
-                                if value is True:
-                                    self.control.verbose = 1
-
-                            # Directory where to store Checkpoint files
-                            if key == "simulations_dir":
-                                self.control.simulations_dir = value
-
-                            # Directory where to store Checkpoint files
-                            if key == "job_dir":
-                                self.control.job_dir = value
-
-                            if key == "equilibration_dir":
-                                self.control.equilibration_dir = value
-
-                            if key == "rand_seed":
-                                self.rand_seed = int(value)
-
-                            # Filenames appendix
-                            if key == "job_id":
-                                self.control.job_id = value
+                    self.control.__dict__.update(dics[lkey])
 
         # Check for conflicts in case of magnetic field
         if self.Magnetic.on and self.Magnetic.elec_therm:
             self.integrator.mag_type = value
-            self.integrator.type = 'Verlet'
+            self.integrator.type = 'verlet'
 
         # Check for thermostat temperatures
         if not hasattr(self.thermostat, 'temperatures'):
@@ -846,29 +789,8 @@ class Params:
             Input arguments.
 
         """
-        # Check for directories
-
-        if self.control.job_dir is None:
-            if args["job_dir"] is None:
-                self.control.job_dir = 'job_dir'
-            else:
-                self.control.job_dir = args["job_dir"]
-        else:
-            # Input option supersedes YAML file
-            if not args["job_dir"] is None:
-                self.control.job_dir = args["job_dir"]
-
-        if self.control.job_id is None:
-            if args["job_id"] is None and args["job_dir"] is None:
-                self.control.job_id = "jobid"
-            elif args["job_id"] is None and args["job_dir"] is not None:
-                self.control.job_id = args["job_dir"]
-            else:
-                self.control.job_id = args["job_id"]
-        else:
-            # Input option supersedes YAML file
-            if args["job_id"] is not None:
-                self.control.job_id = args["job_id"]
+        # override YAML inputs with manual input
+        self.control.__dict__.update(args)
 
         # Check if the directories exist
         if not os.path.exists(self.control.simulations_dir):
@@ -878,17 +800,25 @@ class Params:
         if not os.path.exists(self.control.job_dir):
             os.mkdir(self.control.job_dir)
 
-        self.control.dump_dir = os.path.join(self.control.job_dir, self.control.dump_dir)
-        if not os.path.exists(self.control.dump_dir):
-            os.mkdir(self.control.dump_dir)
+        self.control.production_dir = os.path.join(self.control.job_dir, self.control.production_dir,)
+        if not os.path.exists(self.control.production_dir):
+            os.mkdir(self.control.production_dir)
 
-        self.control.therm_dir = os.path.join(self.control.job_dir, self.control.therm_dir)
-        if not os.path.exists(self.control.therm_dir):
-            os.mkdir(self.control.therm_dir)
+        self.control.prod_dump_dir = os.path.join(self.control.production_dir, "dumps")
+        if not os.path.exists(self.control.prod_dump_dir):
+            os.mkdir(self.control.prod_dump_dir)
 
-        self.control.therm_dump_dir = os.path.join(self.control.therm_dir, "dumps")
-        if not os.path.exists(self.control.therm_dump_dir):
-            os.mkdir(self.control.therm_dump_dir)
+        self.control.equilibration_dir = os.path.join(self.control.job_dir, self.control.equilibration_dir)
+        if not os.path.exists(self.control.equilibration_dir):
+            os.mkdir(self.control.equilibration_dir)
+
+        self.control.eq_dump_dir = os.path.join(self.control.equilibration_dir, "dumps")
+        if not os.path.exists(self.control.eq_dump_dir):
+            os.mkdir(self.control.eq_dump_dir)
+
+        self.control.postprocessing_dir = os.path.join(self.control.job_dir, self.control.postprocessing_dir)
+        if not os.path.exists(self.control.postprocessing_dir):
+            os.mkdir(self.control.postprocessing_dir)
 
         if self.control.log_file is None:
             self.control.log_file = os.path.join(self.control.job_dir, 'log.out')
@@ -928,11 +858,11 @@ class Params:
                 self.species[ic].num_density = self.species[ic].mass_density * Av / self.species[ic].atomic_weight
                 self.total_num_density += self.species[ic].num_density
         # Concentrations arrays and ions' total temperature
-        self.Ti = 0.0
-        for ic in range(self.num_species):
-            self.species[ic].concentration = self.species[ic].num / self.total_num_ptcls
-            self.Ti += self.species[ic].concentration * self.species[ic].temperature
-
+        self.T_desired = 0.0
+        for ic, sp in enumerate(self.species):
+            sp.concentration = sp.num / self.total_num_ptcls
+            self.T_desired += sp.concentration * sp.temperature
+        self.Ti = self.T_desired
         # Wigner-Seitz radius calculated from the total density
         self.aws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
 
@@ -990,7 +920,7 @@ class Params:
 
         self.dimensions = np.count_nonzero(self.Lv)  # no. of dimensions
 
-        self.T_desired = self.Ti
+
 
         # boundary Conditions
         if self.BC.pbc_axes:
@@ -1025,17 +955,3 @@ class Params:
                 elif bc == "z":
                     self.BC.open_axes_indx[ij] = 2
         return
-
-    def from_input_dict(self, args):
-        """
-
-        Parameters
-        ----------
-        args
-
-        Returns
-        -------
-
-        """
-
-

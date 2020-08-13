@@ -5,7 +5,7 @@ Particles:
         name: Al
         number_density: 6.0e+22       # /cc^3
         mass: 4.512991e-23             # g, proton mass * Al mass number
-        num: 500                   # total number of particles of ion1
+        num: 10000                   # total number of particles of ion1
         Z: 3                        # degree of ionization
         temperature_eV: 0.5         # eV Temperature
 
@@ -27,19 +27,20 @@ Integrator:
 
 Thermostat:
     - type: Berendsen               # thermostat type
-    - tau: 10.
-    - timestep: 2000
+    - tau: 2.
+    - timestep: 1
 
 Control:
-    - units: cgs                    # units
-    - dt: 1.064305707e-16            # sec
-    - Neq: 30000                     # number of timesteps for the equilibrium
-    - Nsteps: 30000                  # number of timesteps afater the equilibrium
-    - writexyz: yes                  # no xyz output
-    - dump_step: 1                # dump time step
-    - verbose: yes
-    - output_dir: EGS_cgs        # dir name to save data. The default is "Checkpoint"
+    units: cgs                    # units
+    dt: 1.064305707e-16            # sec
+    Neq: 10000                     # number of timesteps for the equilibrium
+    Nsteps: 50000                  # number of timesteps afater the equilibrium
+    writexyz: no                  # no xyz output
+    prod_dump_step: 10                # dump time step
+    eq_dump_step: 10
+    verbose: yes
+    job_dir: egs        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 500
-    - ssf_no_ka_values: 30
+    - rdf_nbins: 250
+    - no_ka_values: 20
