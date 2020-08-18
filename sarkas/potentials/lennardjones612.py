@@ -54,13 +54,13 @@ def update_params(params):
     if not params.BC.open_axes:
         params.potential.LL_on = True  # linked list on
         if not hasattr(params.potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.potential.rc = params.Lv.min() / 2.
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
+            params.potential.rc = params.box_lengths.min() / 2.
             params.potential.LL_on = False  # linked list off
 
-        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.potential.rc = params.Lv.min() / 2.
+        if params.potential.method == "PP" and params.potential.rc > params.box_lengths.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
+            params.potential.rc = params.box_lengths.min() / 2.
             params.potential.LL_on = False  # linked list off
 
     LJ_matrix = np.zeros((2, params.num_species, params.num_species))
@@ -88,7 +88,7 @@ def update_params(params):
         epsilon_tot += sp.epsilon
         wp_tot_sq += wp2
 
-    params.wp = np.sqrt(wp_tot_sq)
+    params.total_plasma_frequency = np.sqrt(wp_tot_sq)
 
     params.PP_err = np.sqrt(np.pi * sigma2 ** 12 / (13.0 * params.potential.rc ** 13))
     params.PP_err *= np.sqrt(params.total_num_ptcls / params.box_volume) * params.aws ** 2

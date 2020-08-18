@@ -94,15 +94,14 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="sarkas.algorithm.html">sarkas.algorithm package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.integrators.html">sarkas.integrators package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.thermostats.html">sarkas.thermostats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.html#module-sarkas">Module contents</a></li>
 </ul>
 </li>
@@ -189,68 +188,15 @@
 <span id="sarkas-potentials-yukawa-module"></span><h1>sarkas.potentials.yukawa module<a class="headerlink" href="#module-sarkas.potentials.yukawa" title="Permalink to this headline">¶</a></h1>
 <p>Module for handling Yukawa interaction</p>
 <dl class="py function">
-<dt id="sarkas.potentials.yukawa.Yukawa_force_P3M">
-<code class="sig-prename descclassname">sarkas.potentials.yukawa.</code><code class="sig-name descname">Yukawa_force_P3M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/yukawa.html#Yukawa_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.yukawa.Yukawa_force_P3M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Potential and Force between two particles when the P3M algorithm is chosen.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – Potential matrix. See setup function above.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>U_s_r</strong> (<em>float</em>) – Potential value</p></li>
-<li><p><strong>fr</strong> (<em>float</em>) – Force between two particles calculated using eq.(22) in Ref. <a class="reference internal" href="sarkas.algorithm.force_pm.html#dharuman2017" id="id1"><span>[Dharuman2017]</span></a> .</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="sarkas.potentials.yukawa.Yukawa_force_PP">
-<code class="sig-prename descclassname">sarkas.potentials.yukawa.</code><code class="sig-name descname">Yukawa_force_PP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/yukawa.html#Yukawa_force_PP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.yukawa.Yukawa_force_PP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Potential and Force between two particles.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
-<li><p><strong>force</strong> (<em>float</em>) – Force between two particles.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="sarkas.potentials.yukawa.setup">
-<code class="sig-prename descclassname">sarkas.potentials.yukawa.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">read_input</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/yukawa.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.yukawa.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Yukawa’s parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Flag to read inputs from YAML input file.</p></li>
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="sarkas.potentials.yukawa.update_params">
-<code class="sig-prename descclassname">sarkas.potentials.yukawa.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/yukawa.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.yukawa.update_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sarkas.potentials.yukawa.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potential</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/yukawa.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.yukawa.update_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create potential dependent simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>potential</strong> – </p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters.</p></li>
+</ul>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -260,6 +206,48 @@
 </dd>
 <dt class="label" id="haxhimali2014"><span class="brackets">Haxhimali2014</span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.90.023104">T. Haxhimali et al. Phys Rev E 90 023104 (2014)</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.potentials.yukawa.yukawa_force">
+<code class="sig-prename descclassname">sarkas.potentials.yukawa.</code><code class="sig-name descname">yukawa_force</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/yukawa.html#yukawa_force"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.yukawa.yukawa_force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Potential and Force between two particles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – It contains potential dependent variables.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>U</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Potential.</p></li>
+<li><p><strong>force</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Force between two particles.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.potentials.yukawa.yukawa_force_pppm">
+<code class="sig-prename descclassname">sarkas.potentials.yukawa.</code><code class="sig-name descname">yukawa_force_pppm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/yukawa.html#yukawa_force_pppm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.yukawa.yukawa_force_pppm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Potential and Force between two particles when the P3M algorithm is chosen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Potential matrix. See setup function above.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>U_s_r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Potential value</p></li>
+<li><p><strong>fr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Force between two particles calculated using eq.(22) in Ref. <a class="reference internal" href="../tutorial/tutorial.html#dharuman2017" id="id1"><span>[Dharuman2017]</span></a> .</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -289,7 +277,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 10, 2020.
+        Last updated on Aug, 18, 2020.
       </span>
 
     </p>

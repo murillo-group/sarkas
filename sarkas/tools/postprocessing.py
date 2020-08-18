@@ -9,10 +9,6 @@ import pandas as pd
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 
-#
-# plt.style.use(
-#     os.path.join(os.path.join(os.getcwd(), 'src'), 'PUBstyle'))
-
 UNITS = [
     {"Energy": 'J',
      "Time": 's',
@@ -25,6 +21,9 @@ UNITS = [
      "Current": "A",
      "Power": "erg/s",
      "Pressure": "Pa",
+     "Conductivity": "S/m",
+     "Diffusion": r"m$^2$/s",
+     "Viscosity": r"Pa s",
      "none": ""},
     {"Energy": 'erg',
      "Time": 's',
@@ -37,6 +36,9 @@ UNITS = [
      "Current": "esu/s",
      "Power": "erg/s",
      "Pressure": "Ba",
+     "Conductivity": "mho/cm",
+     "Diffusion": r"cm$^2$/s",
+     "Viscosity": r"Ba s",
      "none": ""}
 ]
 
@@ -62,7 +64,37 @@ PREFIXES = {
 }
 
 
-class CurrentCorrelationFunctions:
+class Observables:
+
+    def __init__(self):
+        self.species = []
+
+    def setup(self, params, species):
+        self.__dict__.update(params.__dict__)
+        for sp in species:
+            self.species.append(sp)
+
+        # Create the lists of k vectors
+        if hasattr(self, 'no_ka_vectors'):
+            if len(self.no_ka_vectors) == 0:
+                self.no_ka_vectors = np.ones(3, dtype=int) * self.no_ka_vectors
+        else:
+            self.no_ka_vectors = [5, 5, 5]
+
+        self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
+        self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
+        self.nkt_file = os.path.join(self.k_space_dir, "nkt.npy")
+        self.vkt_file = os.path.join(self.k_space_dir, "vkt.npz")
+
+        self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
+        self.prod_no_dumps = len(os.listdir(self.prod_dump_dir))
+        self.eq_no_dumps = len(os.listdir(self.eq_dump_dir))
+
+        if hasattr(params, 'mpl_style'):
+            plt.style.use(params.mpl_style)
+
+
+class CurrentCorrelationFunctions(Observables):
     """
     Current Correlation Functions: :math:`L(k,\\omega)` and :math:`T(k,\\omega)`.
 
@@ -73,62 +105,17 @@ class CurrentCorrelationFunctions:
 
     Attributes
     ----------
-    a_ws : float
-        Wigner-Seitz radius.
-
-    wp : float
-        Total plasma frequency.
-
-    dump_step : int
-        Dump step frequency.
-
-    dataframe_l : Pandas dataframe
+    dataframe_longitudinal : Pandas dataframe
         Dataframe of the longitudinal velocity correlation functions.
 
-    dataframe_t : Pandas dataframe
+    dataframe_transverse : Pandas dataframe
         Dataframe of the transverse velocity correlation functions.
 
-    l_filename_csv: str
+    filename_csv_longitudinal: str
         Name of file for the longitudinal velocities fluctuation correlation function.
 
-    t_filename_csv: str
+    filename_csv_transverse: str
         Name of file for the transverse velocities fluctuation correlation function.
-
-    fldr : str
-        Job's directory.
-
-    no_dumps : int
-        Number of dumps.
-
-    no_species : int
-        Number of species.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    dt : float
-        Timestep's value normalized by the total plasma frequency.
-
-    species_names : list
-        Names of particle species.
-
-    species_wp : array
-        Plasma frequency of each species.
-
-    tot_no_ptcls : int
-        Total number of particles.
-
-    ptcls_fldr : str
-        Directory of Sarkas dumps.
-
-    k_fldr : str
-        Directory of :math:`k`-space fluctuations.
-
-    vkt_file : str
-        Name of file containing velocity fluctuations functions of each species.
-
-    k_file : str
-        Name of file containing ``k_list``, ``k_counts``, ``ka_values``.
 
     k_list : list
         List of all possible :math:`k` vectors with their corresponding magnitudes and indexes.
@@ -142,8 +129,6 @@ class CurrentCorrelationFunctions:
     no_ka_values: int
         Length of ``ka_values`` array.
 
-    box_lengths : array
-        Length of each box side.
     """
 
     def __init__(self, params):
@@ -152,50 +137,24 @@ class CurrentCorrelationFunctions:
 
         Parameters
         ----------
-        params: S_params class
+        params: cls
             Simulation's parameters.
         """
-        self.dataframe_l = None
-        self.dataframe_t = None
-        self.k_counts = None
+        super().__init__(params)
         self.ka_values = None
         self.k_list = None
-        self.fldr = params.control.job_dir
-        self.ptcls_fldr = params.integrator.prod_dump_dir
-        self.k_fldr = os.path.join(self.fldr, "k_space_data")
-        self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
-        self.vkt_file = os.path.join(self.k_fldr, "vkt.npz")
-        self.job_id = params.control.job_id
-        self.l_filename_csv = os.path.join(self.fldr,
-                                           "LongitudinalVelocityCorrelationFunction_" + self.job_id + '.csv')
-        self.t_filename_csv = os.path.join(self.fldr,
-                                           "TransverseVelocityCorrelationFunction_" + self.job_id + '.csv')
+        self.k_counts = None
+        self.no_ka_values = None
 
-        self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
-        self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
-        self.no_species = len(params.species)
-        self.tot_no_ptcls = params.total_num_ptcls
-
-        self.species_np = np.zeros(self.no_species, dtype=int)
-        self.species_names = []
-        self.species_wp = np.zeros(self.no_species)
-        for i, sp in enumerate(params.species):
-            self.species_wp[i] = sp.wp
-            self.species_np[i] = int(sp.num)
-            self.species_names.append(sp.name)
-
-        self.dt = params.integrator.dt
-        self.a_ws = params.aws
-        self.wp = params.wp
-
-        # Create the lists of k vectors
-        if len(params.PostProcessing.dsf_no_ka_values) == 0:
-            self.no_ka = np.array([params.PostProcessing.dsf_no_ka_values,
-                                   params.PostProcessing.dsf_no_ka_values,
-                                   params.PostProcessing.dsf_no_ka_values], dtype=int)
-        else:
-            self.no_ka = params.PostProcessing.dsf_no_ka_values  # number of ka values
+        self.dataframe_longitudinal = pd.DataFrame()
+        self.dataframe_transverse = pd.DataFrame()
+        self.saving_dir = os.path.join(self.postprocessing_dir, 'CurrentCorrelationFunctions')
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
+        self.filename_csv_longitudinal = os.path.join(self.saving_dir,
+                                                      "LongitudinalCurrentCorrelationFunction_" + self.job_id + '.csv')
+        self.filename_csv_transverse = os.path.join(self.saving_dir,
+                                                    "TransverseCurrentCorrelationFunction_" + self.job_id + '.csv')
 
     def parse(self):
         """
@@ -217,10 +176,10 @@ class CurrentCorrelationFunctions:
         """
         Calculate the velocity fluctuations correlation functions.
         """
-        data = {"Frequencies": 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)}
-        data2 = {"Frequencies": 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)}
-        self.dataframe_l = pd.DataFrame(data)
-        self.dataframe_t = pd.DataFrame(data2)
+        self.dataframe_longitudinal["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.prod_no_dumps,
+                                                                                  self.dt * self.prod_dump_step)
+        self.dataframe_transverse["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.prod_no_dumps,
+                                                                                self.dt * self.prod_dump_step)
         # Parse vkt otherwise calculate them
         try:
             data = np.load(self.vkt_file)
@@ -235,19 +194,20 @@ class CurrentCorrelationFunctions:
             self.no_ka_values = len(self.ka_values)
 
         except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
+            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_vectors, self.box_lengths)
+            self.ka_values = 2.0 * np.pi * k_unique * self.aws
             self.no_ka_values = len(self.ka_values)
 
-            if not (os.path.exists(self.k_fldr)):
-                os.mkdir(self.k_fldr)
+            if not (os.path.exists(self.k_space_dir)):
+                os.mkdir(self.k_space_dir)
 
             np.savez(self.k_file,
                      k_list=self.k_list,
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.ptcls_fldr, self.no_dumps, self.dump_step, self.species_np,
+            vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.prod_dump_dir, self.prod_no_dumps, self.prod_dump_step,
+                                                self.species_num,
                                                 self.k_list)
             np.savez(self.vkt_file,
                      longitudinal=vkt,
@@ -256,32 +216,33 @@ class CurrentCorrelationFunctions:
                      transverse_k=vkt_k)
 
         # Calculate Lkw
-        Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_np, self.no_dumps, self.dt, self.dump_step)
-        Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_np, self.no_dumps, self.dt, self.dump_step)
-        Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_np, self.no_dumps, self.dt, self.dump_step)
-        Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_np, self.no_dumps, self.dt, self.dump_step)
+        Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
+                       self.prod_dump_step)
+        Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
+                         self.prod_dump_step)
+        Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
+                         self.prod_dump_step)
+        Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
+                         self.prod_dump_step)
         Tkw = (Tkw_i + Tkw_j + Tkw_k) / 3.0
         print("Saving L(k,w) and T(k,w)")
         sp_indx = 0
-        for sp_i in range(self.no_species):
-            for sp_j in range(sp_i, self.no_species):
+        for i, sp1 in enumerate(self.species):
+            for j, sp2 in enumerate(self.species[i:]):
                 for ik in range(len(self.k_counts)):
                     if ik == 0:
-                        column = "{}-{} CCF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
+                        column = "{}-{} CCF ka_min".format(sp1.name, sp2.name)
                     else:
-                        column = "{}-{} CCF {} ka_min".format(self.species_names[sp_i],
-                                                              self.species_names[sp_j], ik + 1)
+                        column = "{}-{} CCF {} ka_min".format(sp1.name, sp2.name, ik + 1)
 
-                    self.dataframe_l[column] = Lkw[sp_indx, ik, :]
-                    self.dataframe_t[column] = Tkw[sp_indx, ik, :]
+                    self.dataframe_longitudinal[column] = Lkw[sp_indx, ik, :]
+                    self.dataframe_transverse[column] = Tkw[sp_indx, ik, :]
                 sp_indx += 1
 
-        self.dataframe_l.to_csv(self.l_filename_csv, index=False, encoding='utf-8')
-        self.dataframe_t.to_csv(self.t_filename_csv, index=False, encoding='utf-8')
+        self.dataframe_longitudinal.to_csv(self.filename_csv_transverse, index=False, encoding='utf-8')
+        self.dataframe_transverse.to_csv(self.filename_csv_longitudinal, index=False, encoding='utf-8')
 
-        return
-
-    def plot(self, longitudinal=True, show=False, dispersion=False):
+    def plot(self, show=False, longitudinal=True, dispersion=False):
         """
         Plot velocity fluctuations correlation functions and save the figure.
 
@@ -299,10 +260,10 @@ class CurrentCorrelationFunctions:
         """
         try:
             if longitudinal:
-                self.dataframe = pd.read_csv(self.l_filename_csv, index_col=False)
+                self.dataframe = pd.read_csv(self.filename_csv_longitudinal, index_col=False)
                 lbl = "L"
             else:
-                self.dataframe = pd.read_csv(self.t_filename_csv, index_col=False)
+                self.dataframe = pd.read_csv(self.filename_csv_transverse, index_col=False)
                 lbl = "T"
             k_data = np.load(self.k_file)
             self.k_list = k_data["k_list"]
@@ -312,16 +273,22 @@ class CurrentCorrelationFunctions:
         except FileNotFoundError:
             print("Computing L(k,w), T(k,w)")
             self.compute()
+            if longitudinal:
+                self.dataframe = pd.read_csv(self.filename_csv_longitudinal, index_col=False)
+                lbl = "L"
+            else:
+                self.dataframe = pd.read_csv(self.filename_csv_transverse, index_col=False)
+                lbl = "T"
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        if self.no_species > 1:
-            for sp_i in range(self.no_species):
-                for sp_j in range(sp_i, self.no_species):
-                    column = "{}-{} CCF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
+        if self.num_species > 1:
+            for i, sp1 in enumerate(self.species):
+                for j, sp2 in enumerate(self.species[i:]):
+                    column = "{}-{} CCF ka_min".format(sp1.name, sp2.name)
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
                             np.fft.fftshift(self.dataframe[column]),
-                            label=r'$' + lbl + '_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,'
-                                                                                                            '\omega)$')
+                            label=r'$' + lbl + '_{' + sp1.name + sp2.name + '}(k,'
+                                                                            '\omega)$')
         else:
             column = "{}-{} CCF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
@@ -339,10 +306,10 @@ class CurrentCorrelationFunctions:
         ax.set_xlim(0, 3)
         if longitudinal:
             ax.set_ylabel(r'$L(k,\omega)$')
-            fig_name = os.path.join(self.fldr, 'Lkw_' + self.job_id + '.png')
+            fig_name = os.path.join(self.saving_dir, 'Lkw_' + self.job_id + '.png')
         else:
             ax.set_ylabel(r'$T(k,\omega)$')
-            fig_name = os.path.join(self.fldr, 'Tkw_' + self.job_id + '.png')
+            fig_name = os.path.join(self.saving_dir, 'Tkw_' + self.job_id + '.png')
 
         ax.set_xlabel(r'$\omega/\omega_p$')
         fig.tight_layout()
@@ -366,90 +333,26 @@ class CurrentCorrelationFunctions:
             plt.tick_params(axis='both', which='major')
             fig.tight_layout()
             if longitudinal:
-                fig.savefig(os.path.join(self.fldr, 'Lkw_Dispersion_' + self.job_id + '.png'))
+                fig.savefig(os.path.join(self.saving_dir, 'Lkw_Dispersion_' + self.job_id + '.png'))
             else:
-                fig.savefig(os.path.join(self.fldr, 'Tkw_Dispersion_' + self.job_id + '.png'))
+                fig.savefig(os.path.join(self.saving_dir, 'Tkw_Dispersion_' + self.job_id + '.png'))
             if show:
                 fig.show()
 
 
-class DynamicStructureFactor:
+class DynamicStructureFactor(Observables):
     """
     Dynamic Structure factor.
 
     Parameters
     ----------
-    params : object
+    params : cls
         Simulation's parameters
 
     Attributes
     ----------
-        a_ws : float
-            Wigner-Seitz radius.
 
-        wp : float
-            Total plasma frequency.
-
-        dump_step : int
-            Dump step frequency.
-
-        dataframe : Pandas dataframe
-            Dataframe of the dynamic structure functions.
-
-        filename_csv: str
-            Filename in which to store the Dynamic structure functions.
-
-        fldr : str
-            Job's directory.
-
-        no_dumps : int
-            Number of dumps.
-
-        no_species : int
-            Number of species.
-
-        species_np: array
-            Array of integers with the number of particles for each species.
-
-        dt : float
-            Timestep's value normalized by the total plasma frequency.
-
-        species_names : list
-            Names of particle species.
-
-        species_wp : array
-            Plasma frequency of each species.
-
-        tot_no_ptcls : int
-            Total number of particles.
-
-        ptcls_fldr : str
-            Directory of Sarkas dumps.
-
-        k_fldr : str
-            Directory of :math:`k`-space fluctuations.
-
-        nkt_file : str
-            Name of file containing density fluctuations functions of each species.
-
-        k_file : str
-            Name of file containing ``k_list``, ``k_counts``, ``ka_values``.
-
-        k_list : list
-            List of all possible :math:`k` vectors with their corresponding magnitudes and indexes.
-
-        k_counts : array
-            Number of occurrences of each :math:`k` magnitude.
-
-        ka_values : array
-            Magnitude of each allowed :math:`ka` vector.
-
-        no_ka_values: int
-            Length of ``ka_values`` array.
-
-        box_lengths : array
-            Length of each box side.
-        """
+   """
 
     def __init__(self, params):
         """
@@ -460,41 +363,17 @@ class DynamicStructureFactor:
         params: S_params class
             Simulation's parameters.
         """
-        self.fldr = params.control.job_dir
-        self.ptcls_fldr = params.integrator.prod_dump_dir
-        self.k_fldr = os.path.join(self.fldr, "k_space_data")
-        self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
-        self.nkt_file = os.path.join(self.k_fldr, "nkt.npy")
-        self.job_id = params.control.job_id
-        self.filename_csv = os.path.join(self.fldr, "DynamicStructureFactor_" + self.job_id + '.csv')
+        super().__init__(params)
+        self.ka_values = None
+        self.k_list = None
+        self.k_counts = None
+        self.no_ka_values = None
 
-        self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
-        self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
-        self.no_species = len(params.species)
-        self.tot_no_ptcls = params.total_num_ptcls
-
-        self.species_np = np.zeros(self.no_species, dtype=int)
-        self.species_names = []
-        self.species_wp = np.zeros(self.no_species)
-        for i, sp in enumerate(params.species):
-            self.species_wp[i] = sp.wp
-            self.species_np[i] = int(sp.num)
-            self.species_names.append(sp.name)
-
-        self.Nsteps = params.integrator.nsteps_prod
-        self.dt = params.integrator.dt
-        self.no_Skw = int(self.no_species * (self.no_species + 1) / 2)
-        self.a_ws = params.aws
-        self.wp = params.wp
-
-        # Create the lists of k vectors
-        if len(params.PostProcessing.dsf_no_ka_values) == 0:
-            self.no_ka = np.array([params.PostProcessing.dsf_no_ka_values,
-                                   params.PostProcessing.dsf_no_ka_values,
-                                   params.PostProcessing.dsf_no_ka_values], dtype=int)
-        else:
-            self.no_ka = params.PostProcessing.dsf_no_ka_values  # number of ka values
+        self.dataframe = pd.DataFrame()
+        self.saving_dir = os.path.join(self.postprocessing_dir, 'DynamicStructureFactor')
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
+        self.filename_csv = os.path.join(self.saving_dir, "DynamicStructureFactor_" + self.job_id + '.csv')
 
     def parse(self):
         """
@@ -519,8 +398,7 @@ class DynamicStructureFactor:
         ``self.Skw``. Shape = (``no_ws``, ``no_Sij``)
         """
 
-        data = {"Frequencies": 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)}
-        self.dataframe = pd.DataFrame(data)
+        self.dataframe["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.prod_no_dumps, self.dt * self.prod_dump_step)
 
         # Parse nkt otherwise calculate it
         try:
@@ -530,42 +408,40 @@ class DynamicStructureFactor:
             self.k_counts = k_data["k_counts"]
             self.ka_values = k_data["ka_values"]
             self.no_ka_values = len(self.ka_values)
-            print("Loaded")
+            print("n(k,t) Loaded")
             print(nkt.shape)
         except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
+            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_vectors, self.box_lengths)
+            self.ka_values = 2.0 * np.pi * k_unique * self.aws
             self.no_ka_values = len(self.ka_values)
 
-            if not (os.path.exists(self.k_fldr)):
-                os.mkdir(self.k_fldr)
+            if not (os.path.exists(self.k_space_dir)):
+                os.mkdir(self.k_space_dir)
 
             np.savez(self.k_file,
                      k_list=self.k_list,
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            nkt = calc_nkt(self.ptcls_fldr, self.no_dumps, self.dump_step, self.species_np, self.k_list)
+            nkt = calc_nkt(self.prod_dump_dir, self.prod_no_dumps, self.prod_dump_step, self.species_num, self.k_list)
             np.save(self.nkt_file, nkt)
 
         # Calculate Skw
-        Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_np, self.no_dumps, self.dt, self.dump_step)
+        Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
+                       self.prod_dump_step)
         print("Saving S(k,w)")
         sp_indx = 0
-        for sp_i in range(self.no_species):
-            for sp_j in range(sp_i, self.no_species):
+        for i, sp1 in enumerate(self.species):
+            for j, sp2 in enumerate(self.species[i:]):
                 for ik in range(len(self.k_counts)):
                     if ik == 0:
-                        column = "{}-{} DSF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
+                        column = "{}-{} DSF ka_min".format(sp1.name, sp2.name)
                     else:
-                        column = "{}-{} DSF {} ka_min".format(self.species_names[sp_i],
-                                                              self.species_names[sp_j], ik + 1)
+                        column = "{}-{} DSF {} ka_min".format(sp1.name, sp2.name, ik + 1)
                     self.dataframe[column] = Skw[sp_indx, ik, :]
                 sp_indx += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-
-        return
 
     def plot(self, show=False, dispersion=False):
         """
@@ -582,21 +458,21 @@ class DynamicStructureFactor:
             print("Computing S(k,w)")
             self.compute()
 
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        if self.no_species > 1:
-            for sp_i in range(self.no_species):
-                for sp_j in range(sp_i, self.no_species):
-                    column = "{}-{} DSF ka_min".format(self.species_names[sp_i], self.species_names[sp_j])
+        fig, ax = plt.subplots(1, 1)
+        if self.num_species > 1:
+            for i, sp1 in enumerate(self.species):
+                for j, sp2 in enumerate(self.species[i:]):
+                    column = "{}-{} DSF ka_min".format(sp1.name, sp2.name)
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
                             np.fft.fftshift(self.dataframe[column]),
-                            label=r'$S_{' + self.species_names[sp_i] + self.species_names[sp_j] + '}(k,\omega)$')
+                            label=r'$S_{' + sp1.name + sp2.name + '}(k,\omega)$')
         else:
             column = "{}-{} DSF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
                     np.fft.fftshift(self.dataframe[column]),
                     label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
             for i in range(1, 5):
-                column = "{}-{} DSF {} ka_min".format(self.species_names[0], self.species_names[0], i + 1)
+                column = "{}-{} DSF {} ka_min".format(self.species[0].name, self.species[0].name, i + 1)
                 ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
                         np.fft.fftshift(self.dataframe[column]),
                         label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
@@ -608,7 +484,7 @@ class DynamicStructureFactor:
         ax.set_ylabel(r'$S(k,\omega)$')
         ax.set_xlabel(r'$\omega/\omega_p$')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'Skw_' + self.job_id + '.png'))
+        fig.savefig(os.path.join(self.saving_dir, 'Skw_' + self.job_id + '.png'))
         if show:
             fig.show()
 
@@ -626,14 +502,14 @@ class DynamicStructureFactor:
             plt.ylabel(r'$\omega/\omega_p$')
             plt.ylim(0, 2)
             plt.tick_params(axis='both', which='major')
-            plt.title("$S(k, \omega)$")
+            plt.title(r"$S(k,\omega)$")
             fig.tight_layout()
-            fig.savefig(os.path.join(self.fldr, 'Skw_Dispersion_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, 'Skw_Dispersion_' + self.job_id + '.png'))
             if show:
                 fig.show()
 
 
-class ElectricCurrent:
+class ElectricCurrent(Observables):
     """
     Electric Current Auto-correlation function.
 
@@ -691,29 +567,12 @@ class ElectricCurrent:
         params: object
             Simulation's parameters.
         """
-        self.dataframe = None
-        self.verbose = params.control.verbose
-        self.fldr = params.control.job_dir
-        self.job_id = params.control.job_id
-        self.units = params.control.units
-        self.dump_dir = params.integrator.prod_dump_dir
-        self.filename_csv = os.path.join(self.fldr, "ElectricCurrent_" + self.job_id + '.csv')
-        self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
-        self.no_species = len(params.species)
-        self.species_np = np.zeros(self.no_species, dtype=int)
-        self.species_names = []
-        self.dt = params.integrator.dt  # No of dump to skip
-        self.species_charge = np.zeros(self.no_species)
-        for i, sp in enumerate(params.species):
-            self.species_np[i] = int(sp.num)
-            self.species_charge[i] = sp.charge
-            self.species_names.append(sp.name)
-
-        self.tot_no_ptcls = params.total_num_ptcls
-        self.wp = params.wp
-        self.a_ws = params.aws
-        self.dt = params.integrator.dt
+        super().__init__(params)
+        self.dataframe = pd.DataFrame()
+        self.saving_dir = os.path.join(self.postprocessing_dir, 'ElectricCurrent')
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
+        self.filename_csv = os.path.join(self.saving_dir, "ElectricCurrent_" + self.job_id + '.csv')
 
     def parse(self):
         """
@@ -732,22 +591,22 @@ class ElectricCurrent:
         """
 
         # Parse the particles from the dump files
-        vel = np.zeros((self.no_dumps, 3, self.tot_no_ptcls))
+        vel = np.zeros((self.prod_no_dumps, 3, self.total_num_ptcls))
         #
         print("Parsing particles' velocities.")
-        time = np.zeros(self.no_dumps)
-        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
-            dump = int(it * self.dump_step)
+        time = np.zeros(self.prod_no_dumps)
+        for it in tqdm(range(self.prod_no_dumps), disable=(not self.verbose)):
+            dump = int(it * self.prod_dump_step)
             time[it] = dump * self.dt
-            datap = load_from_restart(self.dump_dir, dump)
+            datap = load_from_restart(self.prod_dump_dir, dump)
             vel[it, 0, :] = datap["vel"][:, 0]
             vel[it, 1, :] = datap["vel"][:, 1]
             vel[it, 2, :] = datap["vel"][:, 2]
         #
         print("Calculating Electric current quantities.")
-        species_current, total_current = calc_elec_current(vel, self.species_charge, self.species_np)
-        data_dic = {"Time": time}
-        self.dataframe = pd.DataFrame(data_dic)
+        species_current, total_current = calc_elec_current(vel, self.species_charges, self.species_num)
+
+        self.dataframe["Time"] = time
 
         self.dataframe["Total Current X"] = total_current[0, :]
         self.dataframe["Total Current Y"] = total_current[1, :]
@@ -759,29 +618,28 @@ class ElectricCurrent:
 
         tot_cur_acf = autocorrelationfunction(total_current)
         # Normalize and save
-        self.dataframe["X Current ACF"] = cur_acf_xx / cur_acf_xx[0]
-        self.dataframe["Y Current ACF"] = cur_acf_yy / cur_acf_yy[0]
-        self.dataframe["Z Current ACF"] = cur_acf_zz / cur_acf_zz[0]
-        self.dataframe["Total Current ACF"] = tot_cur_acf / tot_cur_acf[0]
-        for sp in range(self.no_species):
-            tot_acf = autocorrelationfunction(species_current[sp, :, :])
-            acf_xx = autocorrelationfunction_1D(species_current[sp, 0, :])
-            acf_yy = autocorrelationfunction_1D(species_current[sp, 1, :])
-            acf_zz = autocorrelationfunction_1D(species_current[sp, 2, :])
+        self.dataframe["X Current ACF"] = cur_acf_xx
+        self.dataframe["Y Current ACF"] = cur_acf_yy
+        self.dataframe["Z Current ACF"] = cur_acf_zz
+        self.dataframe["Total Current ACF"] = tot_cur_acf
+        for i, sp in enumerate(self.species):
+            tot_acf = autocorrelationfunction(species_current[i, :, :])
+            acf_xx = autocorrelationfunction_1D(species_current[i, 0, :])
+            acf_yy = autocorrelationfunction_1D(species_current[i, 1, :])
+            acf_zz = autocorrelationfunction_1D(species_current[i, 2, :])
 
-            self.dataframe["{} Total Current".format(self.species_names[sp])] = np.sqrt(
-                species_current[sp, 0, :] ** 2 + species_current[sp, 1, :] ** 2 + species_current[sp, 2, :] ** 2)
-            self.dataframe["{} X Current".format(self.species_names[sp])] = species_current[sp, 0, :]
-            self.dataframe["{} Y Current".format(self.species_names[sp])] = species_current[sp, 1, :]
-            self.dataframe["{} Z Current".format(self.species_names[sp])] = species_current[sp, 2, :]
+            self.dataframe["{} Total Current".format(sp.name)] = np.sqrt(
+                species_current[i, 0, :] ** 2 + species_current[i, 1, :] ** 2 + species_current[i, 2, :] ** 2)
+            self.dataframe["{} X Current".format(sp.name)] = species_current[i, 0, :]
+            self.dataframe["{} Y Current".format(sp.name)] = species_current[i, 1, :]
+            self.dataframe["{} Z Current".format(sp.name)] = species_current[i, 2, :]
 
-            self.dataframe["{} Total Current ACF".format(self.species_names[sp])] = tot_acf / tot_acf[0]
-            self.dataframe["{} X Current ACF".format(self.species_names[sp])] = acf_xx / acf_xx[0]
-            self.dataframe["{} Y Current ACF".format(self.species_names[sp])] = acf_yy / acf_yy[0]
-            self.dataframe["{} Z Current ACF".format(self.species_names[sp])] = acf_zz / acf_zz[0]
+            self.dataframe["{} Total Current ACF".format(sp.name)] = tot_acf
+            self.dataframe["{} X Current ACF".format(sp.name)] = acf_xx
+            self.dataframe["{} Y Current ACF".format(sp.name)] = acf_yy
+            self.dataframe["{} Z Current ACF".format(sp.name)] = acf_zz
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-        return
 
     def plot(self, show=False):
         """
@@ -797,23 +655,27 @@ class ElectricCurrent:
         except FileNotFoundError:
             self.compute()
 
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+        # plt.style.use(style)
+
+        fig, ax = plt.subplots(1, 1)
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Total Current ACF"], "Time", "none",
                                                                self.units)
-        ax.plot(xmul * self.dataframe["Time"], self.dataframe["Total Current ACF"], '--o', label=r'$J_{tot} (t)$')
+        ax.plot(xmul * self.dataframe["Time"],
+                self.dataframe["Total Current ACF"] / self.dataframe["Total Current ACF"][0],
+                '--o', label=r'$J_{tot} (t)$')
 
         ax.legend(loc='upper right')
         ax.set_ylabel(r'$J(t)$')
         ax.set_xlabel('Time' + xlbl)
         ax.set_xscale('log')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'TotalCurrentACF_' + self.job_id + '.png'))
+        fig.savefig(os.path.join(self.saving_dir, 'TotalCurrentACF_' + self.job_id + '.png'))
         if show:
             fig.show()
 
 
-class HermiteCoefficients:
+class HermiteCoefficients(Observables):
     """
     Hermite coefficients of the Hermite expansion.
 
@@ -892,8 +754,16 @@ class HermiteCoefficients:
         params: S_params class
             Simulation's parameters.
         """
-        self.dataframe = None
-        self.species_plots_dirs = None
+        super().__init__(params)
+        self.dataframe = pd.DataFrame()
+        self.saving_dir = os.path.join(self.postprocessing_dir, 'HermiteExpansion')
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
+        self.plots_dir = os.path.join(self.saving_dir, 'Hermite_Plots')
+        if not os.path.exists(self.plots_dir):
+            os.mkdir(self.plots_dir)
+        self.filename_csv = os.path.join(self.saving_dir, "HermiteCoefficients_" + self.job_id + '.csv')
+
         if not hasattr(params.PostProcessing, 'hermite_nbins'):
             self.no_bins = int(0.05 * params.total_num_ptcls)
         else:
@@ -903,59 +773,33 @@ class HermiteCoefficients:
             self.hermite_order = 7
         else:
             self.hermite_order = params.PostProcessing.hermite_order
-        self.dump_dir = params.integrator.prod_dump_dir
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
-        #
-        self.fldr = os.path.join(params.control.job_dir, 'HermiteExp_data')
-        if not os.path.exists(self.fldr):
-            os.mkdir(self.fldr)
-        self.plots_dir = os.path.join(self.fldr, 'Hermite_Plots')
-        self.job_id = params.control.job_id
-        self.filename_csv = os.path.join(self.fldr, "HermiteCoefficients_" + self.job_id + '.csv')
-        self.dump_step = params.control.dump_step
-        self.units = params.control.units
-        self.no_species = len(params.species)
-        self.tot_no_ptcls = params.total_num_ptcls
-        self.no_dim = params.dimensions
-        self.no_steps = params.integrator.nsteps_prod
-        self.a_ws = params.aws
-        self.wp = params.wp
-        self.kB = params.kB
-        self.species_np = np.zeros(self.no_species)  # Number of particles of each species
-        self.species_masses = np.zeros(self.no_species)  # Number of particles of each species
-        self.species_names = []
-        self.dt = params.integrator.dt
-        self.species_temperatures = params.thermostat.temperatures
 
-        for i, sp in enumerate(params.species):
-            self.species_np[i] = int(sp.num)
-            self.species_names.append(sp.name)
-            self.species_masses[i] = sp.mass
+        self.species_plots_dirs = None
 
     def compute(self):
         """
         Calculate Hermite coefficients and save the pandas dataframe.
         """
-        vscale = 1.0 / (self.a_ws * self.wp)
-        vel = np.zeros((self.no_dim, self.tot_no_ptcls))
+        vscale = 1.0 / (self.aws * self.wp)
+        vel = np.zeros((self.dimensions, self.total_num_ptcls))
 
-        xcoeff = np.zeros((self.no_species, self.no_dumps, self.hermite_order + 1))
-        ycoeff = np.zeros((self.no_species, self.no_dumps, self.hermite_order + 1))
-        zcoeff = np.zeros((self.no_species, self.no_dumps, self.hermite_order + 1))
+        xcoeff = np.zeros((self.num_species, self.prod_no_dumps, self.hermite_order + 1))
+        ycoeff = np.zeros((self.num_species, self.prod_no_dumps, self.hermite_order + 1))
+        zcoeff = np.zeros((self.num_species, self.prod_no_dumps, self.hermite_order + 1))
 
-        time = np.zeros(self.no_dumps)
+        time = np.zeros(self.prod_no_dumps)
         print("Computing Hermite Coefficients ...")
-        for it in range(self.no_dumps):
-            time[it] = it * self.dt * self.dump_step
-            dump = int(it * self.dump_step)
-            datap = load_from_restart(self.dump_dir, dump)
+        for it in range(self.prod_no_dumps):
+            time[it] = it * self.dt * self.prod_dump_step
+            dump = int(it * self.prod_dump_step)
+            datap = load_from_restart(self.prod_dump_dir, dump)
             vel[0, :] = datap["vel"][:, 0]
             vel[1, :] = datap["vel"][:, 1]
             vel[2, :] = datap["vel"][:, 2]
 
             sp_start = 0
-            for sp in range(self.no_species):
-                sp_end = int(sp_start + self.species_np[sp])
+            for sp in range(self.num_species):
+                sp_end = int(sp_start + self.species_num[sp])
                 x_hist, xbins = np.histogram(vel[0, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
                 y_hist, ybins = np.histogram(vel[1, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
                 z_hist, zbins = np.histogram(vel[2, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
@@ -974,11 +818,11 @@ class HermiteCoefficients:
         data = {"Time": time}
         self.dataframe = pd.DataFrame(data)
 
-        for sp in range(self.no_species):
+        for i, sp in enumerate(self.species):
             for hi in range(self.hermite_order + 1):
-                self.dataframe["{} Hermite x Coeff a{}".format(self.species_names[sp], hi)] = xcoeff[sp, :, hi]
-                self.dataframe["{} Hermite y Coeff a{}".format(self.species_names[sp], hi)] = ycoeff[sp, :, hi]
-                self.dataframe["{} Hermite z Coeff a{}".format(self.species_names[sp], hi)] = zcoeff[sp, :, hi]
+                self.dataframe["{} Hermite x Coeff a{}".format(sp.name, hi)] = xcoeff[i, :, hi]
+                self.dataframe["{} Hermite y Coeff a{}".format(sp.name, hi)] = ycoeff[i, :, hi]
+                self.dataframe["{} Hermite z Coeff a{}".format(sp.name, hi)] = zcoeff[i, :, hi]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -1005,7 +849,7 @@ class HermiteCoefficients:
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
 
-        if self.no_species > 1:
+        if self.num_species > 1:
             self.species_plots_dirs = []
             for i, name in enumerate(self.species_names):
                 new_dir = os.path.join(self.plots_dir, "{}".format(name))
@@ -1022,7 +866,7 @@ class HermiteCoefficients:
                 xcolumn = "{} Hermite x Coeff a{}".format(name, indx)
                 ycolumn = "{} Hermite y Coeff a{}".format(name, indx)
                 zcolumn = "{} Hermite z Coeff a{}".format(name, indx)
-                xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"], np.array([1.0]),
+                xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"], 1.0,
                                                                        'Time', 'none', self.units)
                 ia = int(indx % 2)
                 ax[ia].plot(self.dataframe["Time"] * xmul, self.dataframe[xcolumn] + ia * (indx - 1),
@@ -1038,7 +882,7 @@ class HermiteCoefficients:
             ax[0].set_xlabel(r'$t$' + xlbl)
             ax[1].set_xlabel(r'$t$' + xlbl)
 
-            sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp]) / (self.a_ws * self.wp)
+            sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp]) / (self.aws * self.wp)
 
             for i in range(0, self.hermite_order, 2):
                 coeff = np.zeros(i + 1)
@@ -1073,7 +917,7 @@ class HermiteCoefficients:
                 fig.show()
 
 
-class RadialDistributionFunction:
+class RadialDistributionFunction(Observables):
     """
     Radial Distribution Function.
 
@@ -1136,7 +980,7 @@ class RadialDistributionFunction:
         Size of each bin.
     """
 
-    def __init__(self, params):
+    def __init__(self, params, species, potential_rc):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -1145,28 +989,17 @@ class RadialDistributionFunction:
         params: S_params class
             Simulation's parameters.
         """
-        self.dataframe = None
-        self.no_bins = params.PostProcessing.rdf_nbins  # number of ka values
-        self.fldr = params.control.job_dir
-        self.job_id = params.control.job_id
-        self.filename_csv = os.path.join(self.fldr, "RadialDistributionFunction_" + params.control.job_id + ".csv")
-        self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
-        self.no_species = len(params.species)
-        self.no_grs = int(params.num_species * (params.num_species + 1) / 2)
-        self.tot_no_ptcls = params.total_num_ptcls
+        super().setup(params, species)
+        self.dataframe = pd.DataFrame()
+        self.saving_dir = os.path.join(self.postprocessing_dir, 'RadialDistributionFunction')
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
 
-        self.no_steps = params.integrator.nsteps_prod
-        self.a_ws = params.aws
-        self.dr_rdf = params.potential.rc / self.no_bins / self.a_ws
-        self.box_volume = params.box_volume / self.a_ws ** 3
-        self.box_lengths = np.array([params.Lx / params.aws, params.Ly / params.aws, params.Lz / params.aws])
-        self.species_np = np.zeros(self.no_species)  # Number of particles of each species
-        self.species_names = []
+        self.filename_csv = os.path.join(self.saving_dir,
+                                         "RadialDistributionFunction_" + self.job_id + ".csv")
 
-        for i, sp in enumerate(params.species):
-            self.species_np[i] = sp.num
-            self.species_names.append(sp.name)
+        self.no_bins = super().rdf_no_bins  # number of ka values
+        self.dr_rdf = potential_rc / self.no_bins
 
     def save(self, rdf_hist):
         """
@@ -1177,16 +1010,17 @@ class RadialDistributionFunction:
 
         """
         # Initialize all the workhorse arrays
-        ra_values = np.zeros(self.no_bins)
+        r_values = np.zeros(self.no_bins)
         bin_vol = np.zeros(self.no_bins)
-        pair_density = np.zeros((self.no_species, self.no_species))
-        gr = np.zeros((self.no_bins, self.no_grs))
+        pair_density = np.zeros((self.num_species, self.num_species))
+        gr = np.zeros((self.no_bins, self.no_obs))
 
         # No. of pairs per volume
-        for i in range(self.no_species):
-            pair_density[i, i] = self.species_np[i] * (self.species_np[i] - 1) / (2.0 * self.box_volume)
-            for j in range(i + 1, self.no_species):
-                pair_density[i, j] = self.species_np[i] * self.species_np[j] / self.box_volume
+        for i, sp1 in enumerate(self.species):
+            pair_density[i, i] = sp1.num * (sp1.num - 1) / (2.0 * self.box_volume)
+            if self.num_species > 1:
+                for j, sp2 in enumerate(self.species[i + 1:]):
+                    pair_density[i, j] = sp1.num * sp2.num / self.box_volume
         # Calculate each bin's volume
         sphere_shell_const = 4.0 * np.pi / 3.0
         bin_vol[0] = sphere_shell_const * self.dr_rdf ** 3
@@ -1194,22 +1028,21 @@ class RadialDistributionFunction:
             r1 = ir * self.dr_rdf
             r2 = (ir + 1) * self.dr_rdf
             bin_vol[ir] = sphere_shell_const * (r2 ** 3 - r1 ** 3)
-            ra_values[ir] = (ir + 0.5) * self.dr_rdf
+            r_values[ir] = (ir + 0.5) * self.dr_rdf
 
-        data = {"ra values": ra_values}
-        self.dataframe = pd.DataFrame(data)
+        self.dataframe["distance"] = r_values
 
         gr_ij = 0
-        for i in range(self.no_species):
-            for j in range(i, self.no_species):
+        for i, sp1 in enumerate(self.species):
+            for j, sp2 in enumerate(self.species[i:]):
                 if j == i:
                     pair_density[i, j] *= 2.0
                 for ibin in range(self.no_bins):
                     gr[ibin, gr_ij] = (rdf_hist[ibin, i, j] + rdf_hist[ibin, j, i]) / (bin_vol[ibin]
                                                                                        * pair_density[i, j]
-                                                                                       * self.no_steps)
+                                                                                       * self.Nsteps)
 
-                self.dataframe['{}-{} RDF'.format(self.species_names[i], self.species_names[j])] = gr[:, gr_ij]
+                self.dataframe['{}-{} RDF'.format(sp1.name, sp2.name)] = gr[:, gr_ij]
                 gr_ij += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
@@ -1220,43 +1053,56 @@ class RadialDistributionFunction:
         """
         self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
 
-    def plot(self, show=False):
+    def plot(self, normalized=False, show=False):
         """
         Plot :math: `g_{ij}(r)` and save the figure.
 
         Parameters
         ----------
+        normalized: bool
+            Flag for normalizing distances.
+
         show : bool
             Flag for prompting the plot to screen. Default=False
         """
         self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
 
         indx = 0
+        xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["distance"], 1, 'Length', 'none', self.units)
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        for i in range(self.no_species):
-            for j in range(i, self.no_species):
-                subscript = self.species_names[i] + self.species_names[j]
-                ax.plot(self.dataframe["ra values"],
-                        self.dataframe["{}-{} RDF".format(self.species_names[i], self.species_names[j])],
-                        label=r'$g_{' + subscript + '} (r)$')
+        for i, sp1 in enumerate(self.species):
+            for j, sp2 in enumerate(self.species[i:]):
+                subscript = sp1.name + sp2.name
+                if normalized:
+                    ax.plot(self.dataframe["distance"] / self.aws,
+                            self.dataframe["{}-{} RDF".format(sp1.name, sp2.name)],
+                            label=r'$g_{' + subscript + '} (r)$')
+                else:
+                    ax.plot(self.dataframe["distance"] * xmul,
+                            self.dataframe["{}-{} RDF".format(sp1.name, sp2.name)],
+                            label=r'$g_{' + subscript + '} (r)$')
+
                 indx += 1
         ax.grid(True, alpha=0.3)
-        if self.no_species > 2:
-            ax.legend(loc='best', ncol=(self.no_species - 1))
+        if self.num_species > 2:
+            ax.legend(loc='best', ncol=(self.num_species - 1))
         else:
             ax.legend(loc='best')
 
         ax.set_ylabel(r'$g(r)$')
-        ax.set_xlabel(r'$r/a$')
+        if normalized:
+            ax.set_xlabel(r'$r/a$')
+        else:
+            ax.set_xlabel(r'$r$' + xlbl)
         # ax.set_ylim(0, 5)
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'RDF_' + self.job_id + '.png'))
+        fig.savefig(os.path.join(self.saving_dir, 'RDF_' + self.job_id + '.png'))
         if show:
             fig.show()
 
 
-class StaticStructureFactor:
-    """ Static Structure Factors :math:`S_{ij}(k)`.
+class StaticStructureFactor(Observables):
+    """Static Structure Factors :math:`S_{ij}(k)`.
 
     Parameters
     ----------
@@ -1338,36 +1184,17 @@ class StaticStructureFactor:
         params: S_params class
             Simulation's parameters.
         """
-        self.dataframe = None
-        self.fldr = params.control.job_dir
-        self.job_id = params.control.job_id
-        self.ptcls_fldr = params.integrator.prod_dump_dir
-        self.k_fldr = os.path.join(self.fldr, "k_space_data")
-        self.k_file = os.path.join(self.k_fldr, "k_arrays.npz")
-        self.nkt_file = os.path.join(self.k_fldr, "nkt.npy")
+        super().__init__(params)
+        self.ka_values = None
+        self.k_list = None
+        self.k_counts = None
 
-        self.filename_csv = os.path.join(self.fldr, "StaticStructureFunction_" + self.job_id + ".csv")
-        self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
-        self.no_species = len(params.species)
-        self.tot_no_ptcls = params.total_num_ptcls
+        self.dataframe = pd.DataFrame()
+        self.saving_dir = os.path.join(self.postprocessing_dir, 'StaticStructureFunction')
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
 
-        if len(params.PostProcessing.ssf_no_ka_values) == 0:
-            self.no_ka = np.array([params.PostProcessing.ssf_no_ka_values,
-                                   params.PostProcessing.ssf_no_ka_values,
-                                   params.PostProcessing.ssf_no_ka_values], dtype=int)
-        else:
-            self.no_ka = params.PostProcessing.ssf_no_ka_values  # number of ka values
-
-        self.no_Sk = int(self.no_species * (self.no_species + 1) / 2)
-        self.a_ws = params.aws
-        self.box_lengths = np.array([params.Lx, params.Ly, params.Lz])
-        self.species_np = np.zeros(self.no_species, dtype=int)
-        self.species_names = []
-
-        for i, sp in enumerate(params.species):
-            self.species_np[i] = sp.num
-            self.species_names.append(sp.name)
+        self.filename_csv = os.path.join(self.saving_dir, "StaticStructureFunction_" + self.job_id + ".csv")
 
     def parse(self):
         """
@@ -1394,34 +1221,33 @@ class StaticStructureFactor:
             self.no_ka_values = len(self.ka_values)
             print("n(k,t) Loaded")
         except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
+            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_vectors, self.box_lengths)
+            self.ka_values = 2.0 * np.pi * k_unique * self.aws
             self.no_ka_values = len(self.ka_values)
 
-            if not (os.path.exists(self.k_fldr)):
-                os.mkdir(self.k_fldr)
+            if not (os.path.exists(self.k_space_dir)):
+                os.mkdir(self.k_space_dir)
 
             np.savez(self.k_file,
                      k_list=self.k_list,
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            nkt = calc_nkt(self.ptcls_fldr, self.no_dumps, self.dump_step, self.species_np, self.k_list)
+            nkt = calc_nkt(self.prod_dump_dir, self.prod_no_dumps, self.prod_dump_step, self.species_num, self.k_list)
             np.save(self.nkt_file, nkt)
 
-        data = {"ka values": self.ka_values}
-        self.dataframe = pd.DataFrame(data)
+        self.dataframe["ka values"] = self.ka_values
 
         print("Calculating S(k) ...")
-        Sk_all = calc_Sk(nkt, self.k_list, self.k_counts, self.species_np, self.no_dumps)
+        Sk_all = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps)
         Sk = np.mean(Sk_all, axis=-1)
         Sk_err = np.std(Sk_all, axis=-1)
 
         sp_indx = 0
-        for sp_i in range(self.no_species):
-            for sp_j in range(sp_i, self.no_species):
-                column = "{}-{} SSF".format(self.species_names[sp_i], self.species_names[sp_j])
-                err_column = "{}-{} SSF Errorbar".format(self.species_names[sp_i], self.species_names[sp_j])
+        for i, sp1 in enumerate(self.species):
+            for j, sp2 in enumerate(self.species[i:]):
+                column = "{}-{} SSF".format(sp1.name, sp2.name)
+                err_column = "{}-{} SSF Errorbar".format(sp1.name, sp2.name)
                 self.dataframe[column] = Sk[sp_indx, :]
                 self.dataframe[err_column] = Sk_err[sp_indx, :]
 
@@ -1429,9 +1255,7 @@ class StaticStructureFactor:
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
-        return
-
-    def plot(self, errorbars=False, show=False):
+    def plot(self, show=False, errorbars=False):
         """
         Plot :math:`S_{ij}(k)` and save the figure.
 
@@ -1449,19 +1273,19 @@ class StaticStructureFactor:
         except FileNotFoundError:
             self.compute()
 
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        for i in range(self.no_species):
-            for j in range(i, self.no_species):
-                subscript = self.species_names[i] + self.species_names[j]
+        fig, ax = plt.subplots(1, 1)
+        for i, sp1 in enumerate(self.species):
+            for j, sp2 in enumerate(self.species[i:]):
+                subscript = sp1.name + sp2.name
                 if errorbars:
                     ax.errorbar(self.dataframe["ka values"],
-                                self.dataframe["{}-{} SSF".format(self.species_names[i], self.species_names[j])],
+                                self.dataframe["{}-{} SSF".format(sp1.name, sp2.name)],
                                 yerr=self.dataframe[
-                                    "{}-{} SSF Errorbar".format(self.species_names[i], self.species_names[j])],
+                                    "{}-{} SSF Errorbar".format(sp1.name, sp2.name)],
                                 ls='--', marker='o', label=r'$S_{ ' + subscript + '} (k)$')
                 else:
                     ax.plot(self.dataframe["ka values"],
-                            self.dataframe["{}-{} SSF".format(self.species_names[i], self.species_names[j])],
+                            self.dataframe["{}-{} SSF".format(sp1.name, sp2.name)],
                             label=r'$S_{ ' + subscript + '} (k)$')
 
         ax.grid(True, alpha=0.3)
@@ -1469,12 +1293,12 @@ class StaticStructureFactor:
         ax.set_ylabel(r'$S(k)$')
         ax.set_xlabel(r'$ka$')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'StaticStructureFactor_' + self.job_id + '.png'))
+        fig.savefig(os.path.join(self.saving_dir, 'StaticStructureFactor_' + self.job_id + '.png'))
         if show:
             fig.show()
 
 
-class Thermodynamics:
+class Thermodynamics(Observables):
     """
     Thermodynamic functions.
 
@@ -1549,64 +1373,41 @@ class Thermodynamics:
         params: S_params class
             Simulation's parameters.
         """
-        self.dataframe = None
-        self.fldr = params.control.job_dir
-        self.ptcls_dumps = params.integrator.prod_dump_dir
-        self.job_id = params.control.job_id
-        self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
-        self.no_dim = params.dimensions
-        self.units = params.control.units
-        self.dt = params.integrator.dt
-        self.potential = params.potential.type
+        super().__init__(params)
+        self.dataframe = pd.DataFrame()
         self.thermostat = params.thermostat.type
         self.thermostat_tau = params.thermostat.tau
-        self.F_err = params.pppm.F_err
-        self.Nsteps = params.integrator.nsteps_prod
+        if params.pppm.on:
+            self.F_err = params.pppm.F_err
+        else:
+            self.F_err = params.PP_err
+
         if params.load_method == "restart":
             self.restart_sim = True
         else:
             self.restart_sim = False
-        self.box_lengths = params.Lv
-        self.box_volume = params.box_volume
-        self.tot_no_ptcls = params.total_num_ptcls
 
-        self.no_species = len(params.species)
-        self.species_np = np.zeros(self.no_species)
-        self.species_names = []
-        self.species_masses = np.zeros(self.no_species)
-        self.species_dens = np.zeros(self.no_species)
-        for i, sp in enumerate(params.species):
-            self.species_np[i] = sp.num
-            self.species_names.append(sp.name)
-            self.species_masses[i] = sp.mass
-            self.species_dens[i] = sp.number_density
         # Output file with Energy and Temperature
-        self.filename_csv = os.path.join(self.fldr, "Thermodynamics_" + self.job_id + '.csv')
-        # Constants
-        self.wp = params.wp
-        self.kB = params.kB
-        self.eV2K = params.eV2K
-        self.a_ws = params.aws
-        self.T = params.T_desired
-        self.Gamma_eff = params.potential.Gamma_eff
+        self.filename_csv_prod = os.path.join(self.production_dir, "Thermodynamics_" + self.job_id + '.csv')
+        self.filename_csv_eq = os.path.join(self.equilibration_dir, "Thermalization_" + self.job_id + '.csv')
 
     def compute_pressure_quantities(self):
         """
         Calculate Pressure, Pressure Tensor, Pressure Tensor Auto Correlation Function.
         """
-        pos = np.zeros((self.no_dim, self.tot_no_ptcls))
-        vel = np.zeros((self.no_dim, self.tot_no_ptcls))
-        acc = np.zeros((self.no_dim, self.tot_no_ptcls))
+        self.parse('production')
+        pos = np.zeros((self.dimensions, self.total_num_ptcls))
+        vel = np.zeros((self.dimensions, self.total_num_ptcls))
+        acc = np.zeros((self.dimensions, self.total_num_ptcls))
 
-        pressure = np.zeros(self.no_dumps)
-        pressure_tensor_temp = np.zeros((3, 3, self.no_dumps))
+        pressure = np.zeros(self.prod_no_dumps)
+        pressure_tensor_temp = np.zeros((3, 3, self.prod_no_dumps))
 
         # Collect particles' positions, velocities and accelerations
-        for it in range(int(self.no_dumps)):
-            dump = int(it * self.dump_step)
+        for it in range(int(self.prod_no_dumps)):
+            dump = int(it * self.prod_dump_step)
 
-            data = load_from_restart(self.ptcls_dumps, dump)
+            data = load_from_restart(self.prod_dump_dir, dump)
             pos[0, :] = data["pos"][:, 0]
             pos[1, :] = data["pos"][:, 1]
             pos[2, :] = data["pos"][:, 2]
@@ -1620,12 +1421,12 @@ class Thermodynamics:
             acc[2, :] = data["acc"][:, 2]
 
             pressure[it], pressure_tensor_temp[:, :, it] = calc_pressure_tensor(pos, vel, acc, self.species_masses,
-                                                                                self.species_np, self.box_volume)
+                                                                                self.species_num, self.box_volume)
 
         self.dataframe["Pressure"] = pressure
         self.dataframe["Pressure ACF"] = autocorrelationfunction_1D(pressure)
 
-        if self.no_dim == 3:
+        if self.dimensions == 3:
             dim_lbl = ['x', 'y', 'z']
 
         # Calculate the acf of the pressure tensor
@@ -1636,7 +1437,7 @@ class Thermodynamics:
                 self.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] = pressure_tensor_acf_temp
 
         # Save the pressure acf to file
-        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+        self.dataframe.to_csv(self.filename_csv_prod, index=False, encoding='utf-8')
 
     def compute_pressure_from_rdf(self, r, gr, potential, potential_matrix):
         """
@@ -1662,7 +1463,7 @@ class Thermodynamics:
             Pressure divided by :math:`k_BT`.
 
         """
-        r *= self.a_ws
+        r *= self.aws
         r2 = r * r
         r3 = r2 * r
 
@@ -1709,13 +1510,13 @@ class Thermodynamics:
                 self.compute_pressure_quantities()
 
         xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                               self.dataframe[quantity],
-                                                               "Time", quantity, self.units)
+                                                           self.dataframe[quantity],
+                                                           "Time", quantity, self.units)
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
         yq = {"Total Energy": r"$E_{tot}(t)$", "Kinetic Energy": r"$K_{tot}(t)$", "Potential Energy": r"$U_{tot}(t)$",
-                "Temperature": r"$T(t)$",
-                "Pressure Tensor ACF": r'$P_{\alpha\beta} = \langle P_{\alpha\beta}(0)P_{\alpha\beta}(t)\rangle$',
-                "Pressure Tensor": r"$P_{\alpha\beta}(t)$", "Gamma": r"$\Gamma(t)$", "Pressure": r"$P(t)$"}
+              "Temperature": r"$T(t)$",
+              "Pressure Tensor ACF": r'$P_{\alpha\beta} = \langle P_{\alpha\beta}(0)P_{\alpha\beta}(t)\rangle$',
+              "Pressure Tensor": r"$P_{\alpha\beta}(t)$", "Gamma": r"$\Gamma(t)$", "Pressure": r"$P(t)$"}
         dim_lbl = ['x', 'y', 'z']
 
         if quantity == "Pressure Tensor ACF":
@@ -1744,15 +1545,20 @@ class Thermodynamics:
         ax.set_ylabel(yq[quantity] + ylbl)
         ax.set_xlabel(r'Time' + xlbl)
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, quantity + '_' + self.job_id + '.png'))
+        fig.savefig(os.path.join(self.postproc_dir, quantity + '_' + self.job_id + '.png'))
         if show:
             fig.show()
 
-    def parse(self):
+    def parse(self, phase):
         """
         Grab the pandas dataframe from the saved csv file.
         """
-        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+        if phase == 'equilibration':
+            self.dataframe = pd.read_csv(self.filename_csv_eq, index_col=False)
+            self.fldr = self.equilibration_dir
+        else:
+            self.dataframe = pd.read_csv(self.filename_csv_prod, index_col=False)
+            self.fldr = self.production_dir
 
     def statistics(self, quantity="Total Energy", max_no_divisions=100, show=False):
         """
@@ -1775,7 +1581,7 @@ class Thermodynamics:
         # Loop over the blocks
         tau_blk, sigma2_blk, statistical_efficiency = calc_statistical_efficiency(observable,
                                                                                   run_avg, run_std,
-                                                                                  max_no_divisions, self.no_dumps)
+                                                                                  max_no_divisions, self.prod_no_dumps)
         # Plot the statistical efficiency
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
         ax.plot(1 / tau_blk[2:], statistical_efficiency[2:], '--o', label=quantity)
@@ -1785,19 +1591,22 @@ class Thermodynamics:
         ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
         ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, quantity + 'StatisticalEfficiency_' + self.job_id + '.png'))
+        fig.savefig(os.path.join(self.postproc_dir, quantity + 'StatisticalEfficiency_' + self.job_id + '.png'))
 
         if show:
             fig.show()
 
         return
 
-    def temp_energy_plot(self, params, show=False):
+    def temp_energy_plot(self, params, phase='equilibration', show=False):
         """
         Plot Temperature and Energy as a function of time with their cumulative sum and average.
 
         Parameters
         ----------
+        phase: str
+            Phase to plot. "equilibration" or "production".
+
         show: bool
             Flag for displaying the figure.
 
@@ -1805,351 +1614,21 @@ class Thermodynamics:
            Simulation's parameters.
 
         """
-        self.parse()
+        self.parse(phase)
 
         fig = plt.figure(figsize=(16, 9))
         gs = GridSpec(4, 8)
-        # quantity = "Temperature"
+
         self.no_dumps = len(self.dataframe["Time"])
-        nbins = int(0.05 * self.no_dumps)
-
-        Info_plot = fig.add_subplot(gs[0:4, 0:2])
-
-        T_hist_plot = fig.add_subplot(gs[1:4, 2])
-        T_delta_plot = fig.add_subplot(gs[0, 3:5])
-        T_main_plot = fig.add_subplot(gs[1:4, 3:5])
-
-        E_delta_plot = fig.add_subplot(gs[0, 5:7])
-        E_main_plot = fig.add_subplot(gs[1:4, 5:7])
-        E_hist_plot = fig.add_subplot(gs[1:4, 7])
-
-        # Temperature plots
-        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                               self.dataframe["Temperature"], "Time",
-                                                               "Temperature", params.control.units)
-        T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
-
-        T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
-        T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
-        T_main_plot.axhline(ymul * params.T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
-
-        Delta_T = (self.dataframe["Temperature"] - self.T) * 100 / self.T
-        Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps + 1)]
-        T_delta_plot.plot(self.dataframe["Time"], Delta_T, alpha=0.5)
-        T_delta_plot.plot(self.dataframe["Time"], Delta_T_cum_avg, alpha=0.8)
-
-        T_delta_plot.get_xaxis().set_ticks([])
-        T_delta_plot.set_ylabel(r'Deviation [%]')
-        T_delta_plot.tick_params(labelsize=12)
-        T_main_plot.tick_params(labelsize=14)
-        T_main_plot.legend(loc='best')
-        T_main_plot.set_ylabel("Temperature" + ylbl)
-        T_main_plot.set_xlabel("Time" + xlbl)
-        T_hist_plot.hist(self.dataframe['Temperature'], bins=nbins, density=True, orientation='horizontal',
-                         alpha=0.75)
-        T_hist_plot.get_xaxis().set_ticks([])
-        T_hist_plot.get_yaxis().set_ticks([])
-        T_hist_plot.set_xlim(T_hist_plot.get_xlim()[::-1])
-
-        # Energy plots
-        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                               self.dataframe["Total Energy"], "Time",
-                                                               "Total Energy", params.control.units)
-        E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
-
-        E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
-        E_main_plot.plot(xmul * self.dataframe["Time"], ymul * E_cumavg, label='Cum Avg')
-        E_main_plot.axhline(ymul * self.dataframe["Total Energy"].mean(), ls='--', c='r', alpha=0.7, label='Avg')
-
-        Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"][0]) * 100 / \
-                  self.dataframe["Total Energy"][0]
-        Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps + 1)]
-        E_delta_plot.plot(self.dataframe["Time"], Delta_E, alpha=0.5)
-        E_delta_plot.plot(self.dataframe["Time"], Delta_E_cum_avg, alpha=0.8)
-
-        E_delta_plot.get_xaxis().set_ticks([])
-        E_delta_plot.set_ylabel(r'Deviation [%]')
-        E_delta_plot.tick_params(labelsize=12)
-        E_main_plot.tick_params(labelsize=14)
-        E_main_plot.legend(loc='best')
-        E_main_plot.set_ylabel("Total Energy" + ylbl)
-        E_main_plot.set_xlabel("Time" + xlbl)
-        E_hist_plot.hist(xmul * self.dataframe['Total Energy'], bins=nbins, density=True,
-                         orientation='horizontal', alpha=0.75)
-        E_hist_plot.get_xaxis().set_ticks([])
-        E_hist_plot.get_yaxis().set_ticks([])
-
-        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(np.array([self.dt]),
-                                                               self.dataframe["Temperature"], "Time",
-                                                               "Temperature", params.control.units)
-        Info_plot.axis([0, 10, 0, 10])
-        Info_plot.grid(False)
-        fsz = 14
-        Info_plot.text(0., 10, "Job ID: {}".format(self.job_id), fontsize=fsz)
-        Info_plot.text(0., 9.5, "No. of species = {}".format(len(self.species_np)), fontsize=fsz)
-        y_coord = 9.0
-        for isp, sp in enumerate(self.species_names):
-            Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp), fontsize=fsz)
-            Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(self.species_np[isp]), fontsize=fsz)
-            Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(
-                ymul * self.dataframe['{} Temperature'.format(sp)].iloc[-1],
-                ylbl), fontsize=fsz)
-            y_coord -= 1.5
-
-        y_coord -= 0.25
-        Info_plot.text(0., y_coord, "Total $N$ = {}".format(params.total_num_ptcls), fontsize=fsz)
-        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.thermostat.type), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.thermostat.tau), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.potential.type), fontsize=fsz)
-        if params.pppm.on:
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.pppm.F_err), fontsize=fsz)
+        if phase == 'equilibration':
+            self.fldr = self.equilibration_dir
+            self.no_steps = self.Neq
+            self.dump_step = self.eq_dump_step
         else:
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.PP_err), fontsize=fsz)
-
-        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.integrator.dt, xlbl), fontsize=fsz)
-        Info_plot.text(0., y_coord - 3., "Tot Prod. steps = {}".format(params.integrator.nsteps_prod))
-        Info_plot.text(0., y_coord - 4., "{:1.2f} % Production Completed".format(
-            100 * self.dump_step * (self.no_dumps - 1) / params.integrator.nsteps_prod), fontsize=fsz)
-
-        Info_plot.axis('off')
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'EnsembleCheckPlot_' + self.job_id + '.png'))
-        if show:
-            fig.show()
-
-
-class Thermalization:
-    """
-    Thermalization tool for checking whether the system is thermalizing.
-
-    Parameters
-    ----------
-    params : object
-        Simulation's parameters
-
-    Attributes
-    ----------
-    a_ws : float
-        Wigner-Seitz radius.
-
-    box_volume: float
-        Box Volume
-
-    dataframe : pandas dataframe
-        It contains all the thermodynamics functions.
-        options: "Total Energy", "Potential Energy", "Kinetic Energy", "Temperature", "time", "Pressure",
-        "Pressure Tensor ACF", "Pressure Tensor", "Gamma", "{species name} Temperature",
-        "{species name} Kinetic Energy".
-
-    dump_step : int
-        Dump step frequency.
-
-    filename_csv : str
-        Name of csv output file.
-
-    fldr : str
-        Folder containing dumps.
-
-    eV2K : float
-        Conversion factor from eV to Kelvin.
-
-    no_dim : int
-        Number of non-zero dimensions.
-
-    no_dumps : int
-        Number of dumps.
-
-    no_species : int
-        Number of species.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    species_names : list
-        Names of particle species.
-
-    species_masses : list
-        Names of particle species.
-
-    tot_no_ptcls : int
-        Total number of particles.
-
-    wp : float
-        Plasma frequency.
-
-    kB : float
-        Boltzmann constant.
-
-    units : str
-        System of units used in the simulation. mks or cgs.
-
-    F_err : float
-        Dimensionless force error.
-
-    Nsteps: int
-        Total number of thermalization/equilibration steps.
-
-    potential:
-    """
-
-    def __init__(self, params):
-        """
-        Initialize the attributes from simulation's parameters.
-
-        Parameters
-        ----------
-        params: S_params class
-            Simulation's parameters.
-        """
-        self.fldr = params.control.therm_dir
-        self.dump_dir = os.path.join(self.fldr, "dumps")
-        self.job_id = params.control.job_id
-        self.dump_step = params.control.therm_dump_step
-        self.no_dumps = len(os.listdir(params.control.therm_dir))
-        self.no_dim = params.dimensions
-        self.units = params.control.units
-        self.dt = params.integrator.dt
-        self.potential = params.potential.type
-        self.thermostat = params.thermostat.type
-        self.thermostat_tau = params.thermostat.tau
-        if not hasattr(params.pppm, 'F_err'):
-            self.F_err = params.PP_err
-        else:
-            self.F_err = params.pppm.F_err
-        self.Nsteps = params.integrator.nsteps_eq
-        if params.load_method == "restart":
-            self.restart_sim = True
-        else:
-            self.restart_sim = False
-        self.box_lengths = params.Lv
-        self.box_volume = params.box_volume
-        self.tot_no_ptcls = params.total_num_ptcls
-
-        self.no_species = len(params.species)
-        self.species_np = np.zeros(self.no_species)
-        self.species_names = []
-        self.species_masses = np.zeros(self.no_species)
-        self.species_dens = np.zeros(self.no_species)
-        for i, sp in enumerate(params.species):
-            self.species_np[i] = sp.num
-            self.species_names.append(sp.name)
-            self.species_masses[i] = sp.mass
-            self.species_dens[i] = sp.number_density
-        # Output file with Energy and Temperature
-        self.filename_csv = os.path.join(self.fldr, "Thermalization_" + self.job_id + '.csv')
-        # Constants
-        self.wp = params.wp
-        self.kB = params.kB
-        self.eV2K = params.eV2K
-        self.a_ws = params.aws
-        self.T = params.T_desired
-        self.Gamma_eff = params.potential.Gamma_eff
-
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file.
-        """
-        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-
-    def statistics(self, quantity="Total Energy", max_no_divisions=100, show=False):
-
-        self.parse()
-        run_avg = self.dataframe[quantity].mean()
-        run_std = self.dataframe[quantity].std()
-
-        observable = np.array(self.dataframe[quantity])
-        # Loop over the blocks
-        tau_blk, sigma2_blk, statistical_efficiency = calc_statistical_efficiency(observable,
-                                                                                  run_avg, run_std,
-                                                                                  max_no_divisions, self.no_dumps)
-        # Plot the statistical efficiency
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        ax.plot(1 / tau_blk[2:], statistical_efficiency[2:], '--o', label=quantity)
-        ax.grid(True, alpha=0.3)
-        ax.legend(loc='best')
-        ax.set_xscale('log')
-        ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
-        ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, quantity + 'StatisticalEfficiency_' + self.job_id + '.png'))
-
-        if show:
-            fig.show()
-
-        return
-
-    def hermite_plot(self, params, show=False):
-        """
-        Calculate Hermite Coefficients and save the plots.
-
-        Parameters
-        ----------
-        params : object
-            Simulation's parameters
-
-        show: bool
-            Flag for showing plots
-
-        Returns
-        -------
-        hc: object
-            Hermite Coefficient object.
-
-        """
-        hc = HermiteCoefficients(params)
-        hc.dump_dir = self.dump_dir
-        hc.no_dumps = len(os.listdir(self.dump_dir))
-        hc.compute()
-        hc.plot(show)
-
-        return hc
-
-    def moment_ratios_plot(self, params, show=False):
-        """
-        Calculate, plot, and save velocity moments.
-
-        Parameters
-        ----------
-        params : object
-           Simulation's parameters.
-
-        show: bool
-            Flag for showing plots to screen
-
-        Returns
-        -------
-        vm: object
-            Velocity moments object.
-
-        """
-        vm = VelocityMoments(params)
-        vm.dump_dir = self.dump_dir
-        vm.no_dumps = len(os.listdir(self.dump_dir))
-        vm.compute()
-        vm.plot_ratios(show)
-
-        return vm
-
-    def temp_energy_plot(self, params, show=False):
-        """
-        Plot Temperature and Energy as a function of time with their cumulative sum and average.
-
-        Parameters
-        ----------
-        show: bool
-            Flag for displaying the figure.
-
-        params : object
-           Simulation's parameters.
-
-        """
-        self.parse()
-
-        fig = plt.figure(figsize=(16, 9))
-        gs = GridSpec(4, 8)
-        # quantity = "Temperature"
-        self.no_dumps = len(self.dataframe["Time"])
-        nbins = int(0.05 * self.no_dumps)
+            self.fldr = self.production_dir
+            self.no_steps = self.Nsteps
+            self.dump_step = self.prod_dump_step
+        nbins = int(0.05 * self.prod_no_dumps)
 
         Info_plot = fig.add_subplot(gs[0:4, 0:2])
 
@@ -2169,12 +1648,12 @@ class Thermalization:
 
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
-        T_main_plot.axhline(ymul * self.T, ls='--', c='r', alpha=0.7, label='Desired T')
+        T_main_plot.axhline(ymul * self.T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
 
-        Delta_T = (self.dataframe["Temperature"] - self.T) * 100 / self.T
+        Delta_T = (self.dataframe["Temperature"] - self.T_desired) * 100 / self.T_desired
         Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps + 1)]
-        T_delta_plot.plot(self.dataframe["Time"], Delta_T, alpha=0.5)
-        T_delta_plot.plot(self.dataframe["Time"], Delta_T_cum_avg, alpha=0.8)
+        T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T, alpha=0.5)
+        T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T_cum_avg, alpha=0.8)
 
         T_delta_plot.get_xaxis().set_ticks([])
         T_delta_plot.set_ylabel(r'Deviation [%]')
@@ -2202,8 +1681,8 @@ class Thermalization:
         Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"][0]) * 100 / \
                   self.dataframe["Total Energy"][0]
         Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps + 1)]
-        E_delta_plot.plot(self.dataframe["Time"], Delta_E, alpha=0.5)
-        E_delta_plot.plot(self.dataframe["Time"], Delta_E_cum_avg, alpha=0.8)
+        E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E, alpha=0.5)
+        E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E_cum_avg, alpha=0.8)
 
         E_delta_plot.get_xaxis().set_ticks([])
         E_delta_plot.set_ylabel(r'Deviation [%]')
@@ -2219,42 +1698,40 @@ class Thermalization:
 
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(np.array([self.dt]),
                                                                self.dataframe["Temperature"], "Time",
-                                                               "Temperature", params.control.units)
+                                                               "Temperature", self.units)
         Info_plot.axis([0, 10, 0, 10])
         Info_plot.grid(False)
         fsz = 14
-        Info_plot.text(0., 10, "Job ID: {}".format(self.job_id))
-        Info_plot.text(0., 9.5, "No. of species = {}".format(len(self.species_np)))
+        Info_plot.text(0., 10, "Job ID: {}".format(self.job_id), fontsize=fsz)
+        Info_plot.text(0., 9.5, "No. of species = {}".format(len(self.species_num)), fontsize=fsz)
         y_coord = 9.0
-        for isp, sp in enumerate(self.species_names):
-            Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp))
-            Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(self.species_np[isp]))
-            if self.no_species > 1:
-                Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(
-                    ymul * self.dataframe['{} Temperature'.format(sp)].iloc[-1], ylbl))
-            else:
-                Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(
-                    ymul * self.dataframe['Temperature'].iloc[-1], ylbl))
+        for isp, sp in enumerate(self.species):
+            Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp.name), fontsize=fsz)
+            Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num), fontsize=fsz)
+            Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(sp.temperature, ylbl), fontsize=fsz)
             y_coord -= 1.5
 
         y_coord -= 0.25
-        Info_plot.text(0., y_coord, "Total $N$ = {}".format(params.total_num_ptcls))
-        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.thermostat.type))
-        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.thermostat.tau))
-        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.potential.type))
+        Info_plot.text(0., y_coord, "Total $N$ = {}".format(self.total_num_ptcls), fontsize=fsz)
+        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.thermostat.type), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.thermostat.tau), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.potential.type), fontsize=fsz)
         if params.pppm.on:
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.pppm.F_err))
+            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.pppm.F_err), fontsize=fsz)
         else:
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.PP_err))
+            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.PP_err), fontsize=fsz)
 
-        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * params.integrator.dt, xlbl))
-        Info_plot.text(0., y_coord - 3., "Tot Eq. steps = {}".format(params.integrator.nsteps_eq))
-        Info_plot.text(0., y_coord - 4., "{:1.2f} % Thermalization Completed".format(
-            100 * (self.dump_step * (self.no_dumps - 1)) / params.integrator.nsteps_eq))
+        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * self.dt, xlbl), fontsize=fsz)
+        Info_plot.text(0., y_coord - 3., "{} step interval = {}".format(phase, self.dump_step), fontsize=fsz)
+        Info_plot.text(0., y_coord - 3.5, "{} completed steps = {}".format(phase, self.dump_step * (self.no_dumps - 1)),
+                       fontsize=fsz)
+        Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(phase, self.no_steps), fontsize=fsz)
+        Info_plot.text(0., y_coord - 4.5, "{:1.2f} % {} Completed".format(
+            100 * self.dump_step * (self.no_dumps - 1) / self.no_steps, phase), fontsize=fsz)
 
         Info_plot.axis('off')
         fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'TempEnergyPlot_' + self.job_id + '.png'))
+        fig.savefig(os.path.join(self.fldr, 'EnsembleCheckPlot_' + self.job_id + '.png'))
         if show:
             fig.show()
 
@@ -2276,221 +1753,253 @@ class Transport:
     """
 
     def __init__(self):
-        """
-        Initialize the attributes from simulation's parameters.
-
-        Parameters
-        ----------
-        params: S_params class
-            Simulation's parameters.
-        """
-        self.dataframe = pd.DataFrame()
-        self.filename_csv = 'TransportCoefficients.csv'
         pass
 
-    def compute(self, params, quantity="Electrical Conductivity", show=False):
+    @staticmethod
+    def electrical_conductivity(params, show=False):
         """
-        Calculate the desired transport coefficient
+        """
+        coefficient = pd.DataFrame()
+        energies = Thermodynamics(params)
+        energies.parse('production')
+        beta = (energies.kB * energies.dataframe["Temperature"].mean()) ** (-1.0)
+        j_current = ElectricCurrent(params)
+        j_current.parse()
+        sigma = np.zeros(j_current.prod_no_dumps)
+        integrand = np.array(j_current.dataframe["Total Current ACF"] / j_current.dataframe["Total Current ACF"][0])
+        time = np.array(j_current.dataframe["Time"])
+        const = params.total_plasma_frequency ** 2
+        for it in range(1, j_current.prod_no_dumps):
+            sigma[it] = np.trapz(integrand[:it], x=time[:it])
+        coefficient["Time"] = time
+        coefficient["Electrical Conductivity"] = const * sigma
+        # Plot the transport coefficient at different integration times
+        xmul, ymul, _, _, xlbl, ylbl = plot_labels(j_current.dataframe["Time"], sigma, "Time", "Conductivity",
+                                                j_current.units)
+        fig, [ax1, ax2] = plt.subplots(2, 1)
+        ax1.semilogx(xmul * time, integrand, label=r'$j(t)$')
+        ax1.grid(True, alpha=0.3)
+        ax1.legend(loc='best')
+        ax1.set_ylabel(r'Total Current ACF $j(t)$')
+        ax1.set_xlabel(r'Time' + xlbl)
+
+        ax2.semilogx(ymul * sigma, label=r'$\sigma (t)$')
+        ax2.grid(True, alpha=0.3)
+        ax2.legend(loc='best')
+        ax2.set_ylabel(r'Conductivity' + ylbl)
+        ax2.set_xlabel(r'Dumps')
+        fig.tight_layout()
+        fig.savefig(os.path.join(j_current.saving_dir, 'ConductivityPlot_' + j_current.job_id + '.png'))
+        if show:
+            fig.show()
+
+        coefficient.to_csv(os.path.join(j_current.saving_dir, 'Conductivity_' + j_current.job_id + '.png'),
+                            index=False, encoding='utf-8')
+
+        return coefficient
+
+    @staticmethod
+    def diffusion(params, show=False):
+        coefficient = pd.DataFrame()
+        vacf = VelocityAutocorrelationFunctions(params)
+        vacf.parse()
+        time = np.array(vacf.dataframe["Time"])
+        D = np.zeros((params.num_species, len(time) ) )
+        fig, [ax1, ax2] = plt.subplots(2, 1)
+        const = 1.0 / 3.0
+        if params.num_species > 1:
+            const *= params.tot_mass_dens
+        for i, sp in enumerate(params.species):
+            integrand = np.array(vacf.dataframe["{} Total Velocity ACF".format(sp.name)])
+            for it in range(1, len(time)):
+                D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
+
+            coefficient["Time"] = time
+            coefficient["{} Diffusion".format(sp.name)] = D[i, :]
+
+            xmul, ymul, _, _, xlbl, ylbl = plot_labels(vacf.dataframe["Time"], D[i, :],
+                                                       "Time", "Diffusion", vacf.units)
+            ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp.name + '}(t)$')
+            ax2.semilogx(ymul * D[i, :], label=r'$D_{' + sp.name + '}(t)$')
+
+        # Complete figure
+        ax1.grid(True, alpha=0.3)
+        ax1.legend(loc='best')
+        ax1.set_ylabel(r'Velocity ACF' + ylbl)
+        ax1.set_xlabel(r'Time' + xlbl)
+        ax2.grid(True, alpha=0.3)
+        ax2.legend(loc='best')
+        ax2.set_ylabel(r'Diffusion' + ylbl)
+        ax2.set_xlabel(r'Dumps')
+        fig.tight_layout()
+        fig.savefig(os.path.join(vacf.saving_dir, 'DiffusionPlot_' + vacf.job_id + '.png'))
+        if show:
+            fig.show()
+
+        return coefficient
+
+    @staticmethod
+    def interdiffusion(params, show=True):
+        """
 
         Parameters
         ----------
-        show : bool
-            Flag for prompting plots to screen.
+        params
+        show
 
-        quantity: str
-            Desired transport coefficient to calculate.
+        Returns
+        -------
+
         """
-        self.filename_csv = os.path.join(params.control.job_dir, self.filename_csv)
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            print("\nFile {} not found!".format(self.filename_csv))
+        coefficient = pd.DataFrame()
+        vacf = VelocityAutocorrelationFunctions(params)
+        vacf.parse()
+        no_int = vacf.prod_no_dumps
+        no_dij = vacf.no_obs
+        D_ij = np.zeros((no_dij, no_int))
 
-        plt.style.use('MSUstyle')
-        if quantity == "Electrical Conductivity":
-            J = ElectricCurrent(params)
-            J.plot(show)
-            sigma = np.zeros(J.no_dumps)
-            integrand = np.array(J.dataframe["Total Current ACF"])
-            time = np.array(J.dataframe["Time"])
-            for it in range(1, J.no_dumps):
-                sigma[it] = np.trapz(integrand[:it], x=time[:it]) / 3.0
-            self.dataframe["Electrical Conductivity"] = sigma
-            # Plot the transport coefficient at different integration times
-            fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-            ax.plot(time, sigma, label=r'$\sigma (t)$')
-            ax.grid(True, alpha=0.3)
-            ax.legend(loc='best')
-            ax.set_ylabel(r'$\sigma(t)$')
-            ax.set_xlabel(r'$\omega_p t$')
+        indx = 0
+        fig, [ax1, ax2] = plt.subplots(2, 1)
+        for i, sp1 in enumerate(params.species):
+            for j, sp2 in enumerate(params.species[i + 1:]):
+                integrand = np.array(vacf.dataframe["{}-{} Total Current ACF".format(sp1.name, sp2.name)])
+                time = np.array(vacf.dataframe["Time"])
+                # const = 1.0 / (3.0 * params.total_plasma_frequency * params.aws ** 2)
+                const = 1. / (3.0 * sp1.concentration * sp2.concentration)
+                for it in range(1, no_int):
+                    D_ij[indx, it] = const * np.trapz(integrand[:it], x=time[:it])
+
+                coefficient["{}-{} Inter Diffusion".format(sp1.name, sp2.name)] = D_ij[i,:]
+
+                xmul, ymul, _, _, xlbl, ylbl = plot_labels(vacf.dataframe["Time"], D_ij[i, :],
+                                                           "Time", "Diffusion", vacf.units)
+                ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp1.name + sp2.name + '}(t)$')
+                ax2.semilogx(ymul * D_ij[i, :], label=r'$D_{' + sp1.name + sp2.name + '}(t)$')
+
+        # Complete figure
+        ax1.grid(True, alpha=0.3)
+        ax1.legend(loc='best')
+        ax1.set_ylabel(r'Inter Current ACF' + ylbl)
+        ax1.set_xlabel(r'Time' + xlbl)
+        ax2.grid(True, alpha=0.3)
+        ax2.legend(loc='best')
+        ax2.set_ylabel(r'Inter Diffusion' + ylbl)
+        ax2.set_xlabel(r'Dumps')
+        fig.tight_layout()
+        fig.savefig(os.path.join(vacf.saving_dir, 'InterDiffusionPlot_' + vacf.job_id + '.png'))
+        if show:
+            fig.show()
+
+        return coefficient
+
+    @staticmethod
+    def viscosity(params, show=False):
+        """
+
+        Parameters
+        ----------
+        params
+        show
+
+        Returns
+        -------
+
+        """
+        coefficient = pd.DataFrame()
+        energies = Thermodynamics(params)
+        energies.parse('production')
+        beta = (energies.kB * energies.dataframe["Temperature"].mean()) ** (-1.0)
+        time = np.array(energies.dataframe["Time"])
+        coefficient["Time"] = time
+        dim_lbl = ['x', 'y', 'z']
+        shear_viscosity = np.zeros((params.dimensions, params.dimensions, energies.prod_no_dumps))
+        bulk_viscosity = np.zeros(energies.prod_no_dumps)
+        const = params.box_volume * beta
+        if not 'Pressure Tensor ACF xy' in energies.dataframe.columns:
+            print('Pressure not yet calculated')
+            print("Calculating Pressure quantities ...")
+            energies.compute_pressure_quantities()
+
+        # Calculate the acf of the pressure tensor
+
+        fig, axes = plt.subplots(2, 3, figsize=(16, 9))
+        for i, ax1 in enumerate(dim_lbl):
+            for j, ax2 in enumerate(dim_lbl):
+                integrand = np.array(energies.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)])
+                for it in range(1, energies.prod_no_dumps):
+                    shear_viscosity[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+
+                coefficient["{}{} Shear Viscosity Tensor".format(ax1, ax2)] = shear_viscosity[i, j, :]
+                xmul, ymul, _, _, xlbl, ylbl = plot_labels(time, shear_viscosity[i, j, :],
+                                                           "Time", "Viscosity", energies.units)
+                if "{}{}".format(ax1, ax2) in ["yx", "xy"]:
+                    axes[0, 0].semilogx(xmul * time, integrand / integrand[0],
+                                        label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
+                    axes[1, 0].semilogx(xmul * time, ymul * shear_viscosity[i,j, :],
+                                        label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
+
+                elif "{}{}".format(ax1, ax2) in ["xz", "zx"]:
+                    axes[0, 1].semilogx(xmul * time, integrand / integrand[0],
+                                        label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
+                    axes[1, 1].semilogx(xmul * time, ymul * shear_viscosity[i, j, :],
+                                        label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
+
+                elif "{}{}".format(ax1, ax2) in ["yz", "zy"]:
+                    axes[0, 2].semilogx(xmul * time, integrand / integrand[0],
+                                        label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
+                    axes[1, 2].semilogx(xmul * time, ymul * shear_viscosity[i, j, :],
+                                        label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
+            axes[0, 0].legend()
+            axes[0, 1].legend()
+            axes[0, 2].legend()
+            axes[1, 0].legend()
+            axes[1, 1].legend()
+            axes[1, 2].legend()
+            axes[0, 0].set_xlabel(r"Time " + xlbl)
+            axes[0, 1].set_xlabel(r"Time " + xlbl)
+            axes[0, 2].set_xlabel(r"Time " + xlbl)
+
+            axes[1, 0].set_xlabel(r"Dumps")
+            axes[1, 1].set_xlabel(r"Dumps")
+            axes[1, 2].set_xlabel(r"Dumps")
+
+            axes[0, 0].set_ylabel(r"Pressure Tensor ACF")
+            axes[1, 0].set_ylabel(r"Shear Viscosity" + ylbl)
+
             fig.tight_layout()
-            fig.savefig(os.path.join(params.control.job_dir,
-                                     'ConductivityPlot_' + params.control.job_id + '.png'))
+            fig.savefig(os.path.join(energies.fldr, "ShearViscosity_Plots_" + energies.job_id + ".png") )
             if show:
                 fig.show()
 
-        elif quantity == "Diffusion":
-            Z = VelocityAutocorrelationFunctions(params)
-            Z.plot(show)
-            D = np.zeros((params.num_species, Z.no_dumps))
-            fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-            for i, sp in enumerate(params.species):
-                integrand = np.array(Z.dataframe["{} Total Velocity ACF".format(sp.name)])
-                time = np.array(Z.dataframe["Time"])
-                const = 1.0 / 3.0 / Z.tot_mass_density
-                for it in range(1, Z.no_dumps):
-                    D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
+        # Calculate Bulk Viscosity
+        pressure_acf = autocorrelationfunction_1D(np.array(energies.dataframe["Pressure"])
+                                                    - energies.dataframe["Pressure"].mean())
+        bulk_integrand = pressure_acf
+        for it in range(1, energies.prod_no_dumps):
+            bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
 
-                # Sk = StaticStructureFactor(self.params)
-                # try:
-                #     Sk.dataframe = pd.read_csv(Sk.filename_csv, index_col=False)
-                # except FileNotFoundError:
-                #     Sk.compute()
-                # Take the determinant of the matrix
-                # Take the limit k --> 0 .
+        coefficient["Bulk Viscosity"] = bulk_viscosity
 
-                self.dataframe["{} Diffusion".format(sp.name)] = D[i, :]
-                # Find the minimum slope. This would be the ideal value
-                # indx = np.gradient(D[i, :]).argmin()
-                # lgnd_label = r'$D_{' + sp.name + '} =' + '{:1.4f}$'.format(D[i, indx]) \
-                #              + " @ $t = {:2.2f}$".format(time[half_t + indx]*self.params.wp)
-                ax.plot(time * params.wp, D[i, :], label=r'$D_{' + sp.name + '}(t)$')
-                # ax2.semilogy(time*self.params.wp, -np.gradient(np.gradient(D[i, :])), ls='--', lw=LW - 1,
-                #          label=r'$\nabla D_{' + sp.name + '}(t)$')
-            # Complete figure
-            ax.grid(True, alpha=0.3)
-            ax.legend(loc='best')
-            ax.set_ylabel(r'$D_{\alpha}(t)/(a^2\omega_{\alpha})$')
-            ax.set_xlabel(r'$\omega_p t$')
+        fig, ax = plt.subplots(2, 1)
+        xmul, ymul, _, _, xlbl, ylbl = plot_labels(time, bulk_viscosity, "Time", "Viscosity", energies.units)
+        ax[0].semilogx(xmul * time, bulk_integrand / bulk_integrand[0], label=r"$P(t)$")
+        ax[1].semilogx(xmul * time, ymul * bulk_viscosity, label=r"$\eta_{V}(t)$")
 
-            # ax2.legend(loc='best')
-            # ax2.tick_params(labelsize=FSZ)
-            # ax2.set_ylabel(r'$\nabla D_{\alpha}(t)/(a^2\omega_{\alpha})$')
+        ax[0].set_xlabel(r"Time" + xlbl)
+        ax[1].set_xlabel(r"Dumps")
+        ax[0].set_ylabel(r"Pressure ACF")
+        ax[1].set_ylabel(r"Bulk Viscosity" + ylbl)
+        ax[0].legend()
+        ax[1].legend()
+        fig.tight_layout()
+        fig.savefig(os.path.join(energies.fldr, "BulkViscosity_Plots_" + energies.job_id + ".png"))
+        if show:
+            fig.show()
 
-            fig.tight_layout()
-            fig.savefig(os.path.join(params.control.job_dir,
-                                     'DiffusionPlot_' + params.control.job_id + '.png'))
-            if show:
-                fig.show()
-
-        elif quantity == "Interdiffusion":
-            Z = VelocityAutocorrelationFunctions(params)
-            Z.plot(show)
-            no_int = Z.no_dumps
-            no_dij = int(Z.no_species * (Z.no_species - 1) / 2)
-            D_ij = np.zeros((no_dij, no_int))
-
-            indx = 0
-            for i, sp1 in enumerate(params.species):
-                for j in range(i + 1, params.num_species):
-                    integrand = np.array(Z.dataframe["{}-{} Total Current ACF".format(sp1.name,
-                                                                                      params.species[j].name)])
-                    time = np.array(Z.dataframe["Time"])
-                    const = 1.0 / (3.0 * params.wp * params.aws ** 2)
-                    const /= (sp1.concentration * params.species[j].concentration)
-                    for it in range(1, no_int):
-                        D_ij[indx, it] = const * np.trapz(integrand[:it], x=time[:it])
-
-                    self.dataframe["{}-{} Inter Diffusion".format(sp1.name,params.species[j].name)] = D_ij[i,:]
-
-        elif quantity == "Viscosity":
-            therm = Thermodynamics(params)
-            therm.parse()
-            time = therm.dataframe["Time"]
-            dim_lbl = ['x', 'y', 'z']
-            shear_viscosity = np.zeros((params.dimensions, params.dimensions, therm.no_dumps))
-            bulk_viscosity = np.zeros(therm.no_dumps)
-            const = params.box_volume / params.kB
-            if not 'Pressure Tensor ACF xy' in therm.dataframe.columns:
-                print('Pressure not yet calculated')
-                print("Calculating Pressure quantities ...")
-                therm.compute_pressure_quantities()
-
-            xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(therm.dataframe["Time"], 1.0,
-                                                               "Time", "Pressure", params.control.units)
-            # Calculate the acf of the pressure tensor
-
-            fig, axes = plt.subplots(2, 3, figsize=(16, 9))
-            for i, ax1 in enumerate(dim_lbl):
-                for j, ax2 in enumerate(dim_lbl):
-                    integrand = np.array(therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)]) \
-                                / np.array(therm.dataframe["Temperature"])
-                    for it in range(1, therm.no_dumps):
-                        shear_viscosity[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
-
-                    self.dataframe["{}{} Shear Viscosity Tensor".format(ax1, ax2)] = shear_viscosity[i, j, :]
-                    if "{}{}".format(ax1, ax2) in ["yx", "xy"]:
-                        axes[0, 0].semilogx(xmul * therm.dataframe["Time"],
-                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] /
-                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)][0],
-                                            label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
-                        axes[1, 0].semilogx(xmul * therm.dataframe["Time"],
-                                            self.dataframe["{}{} Shear Viscosity Tensor".format(ax1, ax2)],
-                                            label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
-                    elif "{}{}".format(ax1, ax2) in ["xz", "zx"]:
-                        axes[0, 1].semilogx(xmul * therm.dataframe["Time"],
-                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] /
-                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)][0],
-                                            label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
-                        axes[1, 1].semilogx(xmul * therm.dataframe["Time"],
-                                            self.dataframe["{}{} Shear Viscosity Tensor".format(ax1, ax2)],
-                                            label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
-
-                    elif "{}{}".format(ax1, ax2) in ["yz", "zy"]:
-                        axes[0, 2].semilogx(xmul * therm.dataframe["Time"],
-                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] /
-                                            therm.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)][0],
-                                            label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
-                        axes[1, 2].semilogx(xmul * therm.dataframe["Time"],
-                                            self.dataframe["{}{} Shear Viscosity Tensor".format(ax1, ax2)],
-                                            label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
-                axes[0, 0].legend()
-                axes[0, 1].legend()
-                axes[0, 2].legend()
-                axes[1, 0].legend()
-                axes[1, 1].legend()
-                axes[1, 2].legend()
-                axes[1, 0].set_xlabel(r"Time " + xlbl)
-                axes[1, 1].set_xlabel(r"Time " + xlbl)
-                axes[1, 2].set_xlabel(r"Time " + xlbl)
-
-                axes[0, 0].set_ylabel(r"Pressure Tensor ACF")
-                axes[1, 0].set_ylabel(r"Shear Viscosity")
-
-                fig.tight_layout()
-                fig.savefig(os.path.join(params.control.job_dir, "ShearViscosity_Plots.png"))
-                if show:
-                    fig.show()
-
-            # Calculate Bulk Viscosity
-            pressure_acf = autocorrelationfunction_1D(np.array(therm.dataframe["Pressure"])
-                                                        - therm.dataframe["Pressure"].mean())
-            bulk_integrand = pressure_acf / np.array(therm.dataframe["Temperature"])
-            for it in range(1, therm.no_dumps):
-                bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
-
-            self.dataframe["Bulk Viscosity"] = bulk_viscosity
-
-            fig, ax = plt.subplots(2, 1)
-            ax[0].semilogx(xmul * therm.dataframe["Time"], pressure_acf / pressure_acf[0], label=r"$P(t)$")
-            ax[1].semilogx(xmul * therm.dataframe["Time"], self.dataframe["Bulk Viscosity"],
-                           label=r"$\eta_{V}(t)$")
-
-            ax[1].set_xlabel(r"Time " + xlbl)
-            ax[0].set_ylabel(r"Pressure ACF")
-            ax[1].set_ylabel(r"Bulk Viscosity")
-            ax[0].legend()
-            ax[1].legend()
-            fig.tight_layout()
-            fig.savefig(os.path.join(params.control.job_dir, "BulkViscosity_Plots.png"))
-            if show:
-                fig.show()
-
-        self.dataframe.to_csv("TransportCoefficients.csv", index=False, encoding='utf-8')
-        return
+        return coefficient
 
 
-class VelocityAutocorrelationFunctions:
+class VelocityAutocorrelationFunctions(Observables):
     """
     Velocity Auto-correlation function.
 
@@ -2542,31 +2051,13 @@ class VelocityAutocorrelationFunctions:
         params: S_params class
             Simulation's parameters.
         """
-        self.dataframe = None
-        self.fldr = params.control.job_dir
-        self.dump_dir = params.integrator.prod_dump_dir
-        self.job_id = params.control.job_id
-        self.filename_csv = os.path.join(self.fldr, "VelocityACF_" + self.job_id + '.csv')
-        self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
-        self.no_species = len(params.species)
-        self.no_vacf = int(self.no_species * (self.no_species + 1) / 2)
-        self.species_names = []
-        self.dt = params.integrator.dt  # No of dump to skip
-        self.species_np = np.zeros(self.no_species, dtype=int)
-        self.species_masses = np.zeros(self.no_species)
-        self.species_dens = np.zeros(self.no_species)
-        for i, sp in enumerate(params.species):
-            self.species_np[i] = int(sp.num)
-            self.species_dens[i] = sp.number_density
-            self.species_masses[i] = sp.mass
-            self.species_names.append(sp.name)
-        self.tot_mass_density = self.species_masses.transpose() @ self.species_dens
-        self.tot_no_ptcls = params.total_num_ptcls
-        self.wp = params.wp
-        self.a_ws = params.aws
-        self.dt = params.integrator.dt
-        self.verbose = params.control.verbose
+        super().__init__(params)
+        self.dataframe = pd.DataFrame()
+        self.saving_dir = os.path.join(self.postprocessing_dir, 'VelocityAutoCorrelationFunction')
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
+
+        self.filename_csv = os.path.join(self.saving_dir, "VelocityACF_" + self.job_id + '.csv')
 
     def parse(self):
         """
@@ -2585,47 +2076,43 @@ class VelocityAutocorrelationFunctions:
         """
 
         # Parse the particles from the dump files
-        vel = np.zeros((3, self.tot_no_ptcls, self.no_dumps))
+        vel = np.zeros((self.dimensions, self.total_num_ptcls, self.prod_no_dumps))
         #
         print("Parsing particles' velocities.")
-        time = np.zeros(self.no_dumps)
-        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
-            dump = int(it * self.dump_step)
+        time = np.zeros(self.prod_no_dumps)
+        for it in tqdm(range(self.prod_no_dumps), disable=(not self.verbose)):
+            dump = int(it * self.prod_dump_step)
             time[it] = dump * self.dt
-            datap = load_from_restart(self.dump_dir, dump)
+            datap = load_from_restart(self.prod_dump_dir, dump)
             vel[0, :, it] = datap["vel"][:, 0]
             vel[1, :, it] = datap["vel"][:, 1]
             vel[2, :, it] = datap["vel"][:, 2]
         #
-
-        data_dic = {"Time": time}
-        self.dataframe = pd.DataFrame(data_dic)
+        self.dataframe["Time"] = time
         if time_averaging:
             print("Calculating vacf with time averaging on...")
         else:
             print("Calculating vacf with time averaging off...")
-        vacf = calc_vacf(vel, self.species_np, self.species_masses, time_averaging, it_skip)
 
+        if self.num_species > 1:
+            vacf = calc_vacf(vel, self.species_num, self.species_masses, time_averaging, it_skip)
+        else:
+            vacf = calc_vacf_single(vel, self.species_num, time_averaging, it_skip)
         # Save to csv
         v_ij = 0
-        for sp in range(self.no_species):
-            self.dataframe["{} X Velocity ACF".format(self.species_names[sp])] = vacf[v_ij, 0, :]
-            self.dataframe["{} Y Velocity ACF".format(self.species_names[sp])] = vacf[v_ij, 1, :]
-            self.dataframe["{} Z Velocity ACF".format(self.species_names[sp])] = vacf[v_ij, 2, :]
-            self.dataframe["{} Total Velocity ACF".format(self.species_names[sp])] = vacf[v_ij, 3, :]
-            for sp2 in range(sp + 1, self.no_species):
+        for i, sp1 in enumerate(self.species):
+            self.dataframe["{} X Velocity ACF".format(sp1.name)] = vacf[v_ij, 0, :]
+            self.dataframe["{} Y Velocity ACF".format(sp1.name)] = vacf[v_ij, 1, :]
+            self.dataframe["{} Z Velocity ACF".format(sp1.name)] = vacf[v_ij, 2, :]
+            self.dataframe["{} Total Velocity ACF".format(sp1.name)] = vacf[v_ij, 3, :]
+            for j, sp2 in enumerate(self.species[i + 1:]):
                 v_ij += 1
-                self.dataframe["{}-{} X Current ACF".format(self.species_names[sp],
-                                                            self.species_names[sp2])] = vacf[v_ij, 0, :]
-                self.dataframe["{}-{} Y Current ACF".format(self.species_names[sp],
-                                                            self.species_names[sp2])] = vacf[v_ij, 1, :]
-                self.dataframe["{}-{} Z Current ACF".format(self.species_names[sp],
-                                                            self.species_names[sp2])] = vacf[v_ij, 2, :]
-                self.dataframe["{}-{} Total Current ACF".format(self.species_names[sp],
-                                                                self.species_names[sp2])] = vacf[v_ij, 3, :]
+                self.dataframe["{}-{} X Current ACF".format(sp1.name, sp2.name)] = vacf[v_ij, 0, :]
+                self.dataframe["{}-{} Y Current ACF".format(sp1.name, sp2.name)] = vacf[v_ij, 1, :]
+                self.dataframe["{}-{} Z Current ACF".format(sp1.name, sp2.name)] = vacf[v_ij, 2, :]
+                self.dataframe["{}-{} Total Current ACF".format(sp1.name, sp2.name)] = vacf[v_ij, 3, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-        return
 
     def plot(self, intercurrent=False, show=False):
         """
@@ -2647,7 +2134,7 @@ class VelocityAutocorrelationFunctions:
         if intercurrent:
             fig, ax = plt.subplots(1, 1)
             for i, sp_name in enumerate(self.species_names):
-                for j in range(i + 1, self.no_species):
+                for j in range(i + 1, self.num_species):
                     J = self.dataframe["{}-{} Total Current ACF".format(sp_name, self.species_names[j])]
                     ax.plot(self.dataframe["Time"] * self.wp,
                             J / J[0], label=r'$J_{' + sp_name + self.species_names[j] + '} (t)$')
@@ -2658,28 +2145,30 @@ class VelocityAutocorrelationFunctions:
             ax.set_xscale('log')
             ax.set_ylim(-0.2, 1.2)
             fig.tight_layout()
-            fig.savefig(os.path.join(self.fldr, 'InterCurrentACF_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, 'InterCurrentACF_' + self.job_id + '.png'))
             if show:
                 fig.show()
         else:
+
+            xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["Time"], 1.0,
+                                                               "Time", 'none', self.units)
             fig, ax = plt.subplots(1, 1)
-            for i, sp_name in enumerate(self.species_names):
-                Z = self.dataframe["{} Total Velocity ACF".format(sp_name)]
-                ax.plot(self.dataframe["Time"] * self.wp,
-                        Z / Z[0], label=r'$Z_{' + sp_name + '} (t)$')
+            for i, sp in enumerate(self.species):
+                Z = self.dataframe["{} Total Velocity ACF".format(sp.name)]
+                ax.plot(self.dataframe["Time"] * xmul, Z / Z[0], label=r'$Z_{' + sp.name + '} (t)$')
             ax.grid(True, alpha=0.3)
             ax.legend(loc='upper right')
             ax.set_ylabel(r'$Z(t)$')
-            ax.set_xlabel(r'$\omega_p t$')
+            ax.set_xlabel(r'Time' + xlbl)
             ax.set_xscale('log')
             ax.set_ylim(-0.2, 1.2)
             fig.tight_layout()
-            fig.savefig(os.path.join(self.fldr, 'TotalVelocityACF_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, 'TotalVelocityACF_' + self.job_id + '.png'))
             if show:
                 fig.show()
 
 
-class VelocityMoments:
+class VelocityMoments(Observables):
     """
     Moments of the velocity distributions defined as
 
@@ -2762,51 +2251,38 @@ class VelocityMoments:
         params: S_params class
             Simulation's parameters.
         """
-        self.dataframe = None
+        super().__init__(params)
+        self.dataframe = pd.DataFrame()
+        self.saving_dir = os.path.join(self.postprocessing_dir, 'VelocityMoments')
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
+        self.plots_dir = os.path.join(self.saving_dir, 'Plots')
+        #
+        if not os.path.exists(self.plots_dir):
+            os.mkdir(self.plots_dir)
+
         if not hasattr(params.PostProcessing, 'mom_nbins'):
             # choose the number of bins as 5% of the number of particles
             self.no_bins = int(0.05 * params.total_num_ptcls)
         else:
             self.no_bins = params.PostProcessing.mom_nbins
-        self.dump_dir = params.integrator.prod_dump_dir
-        self.no_dumps = len(os.listdir(self.dump_dir))
+
+        self.filename_csv = os.path.join(self.saving_dir, "VelocityMoments_" + self.job_id + '.csv')
         #
-        self.fldr = os.path.join(params.control.job_dir, "MomentRatios_Data")
-        if not os.path.exists(self.fldr):
-            os.mkdir(self.fldr)
-        self.plots_dir = os.path.join(self.fldr, 'Plots')
-        self.job_id = params.control.job_id
-        self.filename_csv = os.path.join(self.fldr, "VelocityMoments_" + self.job_id + '.csv')
-        #
-        self.dump_step = params.control.dump_step
-        self.no_species = len(params.species)
-        self.tot_no_ptcls = params.total_num_ptcls
-        self.no_dim = params.dimensions
-        self.units = params.control.units
-        self.no_steps = params.integrator.nsteps_prod
-        self.a_ws = params.aws
-        self.wp = params.wp
-        self.species_np = np.zeros(self.no_species)  # Number of particles of each species
-        self.species_names = []
-        self.dt = params.integrator.dt
         self.max_no_moment = 3
         self.species_plots_dirs = None
-        self.units = params.control.units
-        for i, sp in enumerate(params.species):
-            self.species_np[i] = int(sp.num)
-            self.species_names.append(sp.name)
 
     def compute(self):
         """
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
         """
-        vscale = 1. / (self.a_ws * self.wp)
-        vel = np.zeros((self.no_dumps, self.tot_no_ptcls, 3))
+        vscale = 1. / (self.aws * self.wp)
+        vel = np.zeros((self.prod_no_dumps, self.total_num_ptcls, 3))
 
-        time = np.zeros(self.no_dumps)
-        for it in range(self.no_dumps):
-            dump = int(it * self.dump_step)
-            datap = load_from_restart(self.dump_dir, dump)
+        time = np.zeros(self.prod_no_dumps)
+        for it in range(self.prod_no_dumps):
+            dump = int(it * self.prod_dump_step)
+            datap = load_from_restart(self.prod_dump_dir, dump)
             vel[it, :, 0] = datap["vel"][:, 0] * vscale
             vel[it, :, 1] = datap["vel"][:, 1] * vscale
             vel[it, :, 2] = datap["vel"][:, 2] * vscale
@@ -2815,26 +2291,26 @@ class VelocityMoments:
         data = {"Time": time}
         self.dataframe = pd.DataFrame(data)
         print("Calculating velocity moments ...")
-        moments = calc_moments(vel, self.no_bins, self.species_np)
+        moments = calc_moments(vel, self.no_bins, self.species_num)
 
         print("Calculating ratios ...")
-        ratios = calc_moment_ratios(moments, self.species_np, self.no_dumps)
+        ratios = calc_moment_ratios(moments, self.species_num, self.prod_no_dumps)
         # Save the dataframe
-        for i, sp in enumerate(self.species_names):
-            self.dataframe["{} vx 2nd moment".format(sp)] = moments[:, int(9 * i)]
-            self.dataframe["{} vx 4th moment".format(sp)] = moments[:, int(9 * i) + 1]
-            self.dataframe["{} vx 6th moment".format(sp)] = moments[:, int(9 * i) + 2]
+        for i, sp in enumerate(self.species):
+            self.dataframe["{} vx 2nd moment".format(sp.name)] = moments[:, int(9 * i)]
+            self.dataframe["{} vx 4th moment".format(sp.name)] = moments[:, int(9 * i) + 1]
+            self.dataframe["{} vx 6th moment".format(sp.name)] = moments[:, int(9 * i) + 2]
 
-            self.dataframe["{} vy 2nd moment".format(sp)] = moments[:, int(9 * i) + 3]
-            self.dataframe["{} vy 4th moment".format(sp)] = moments[:, int(9 * i) + 4]
-            self.dataframe["{} vy 6th moment".format(sp)] = moments[:, int(9 * i) + 5]
+            self.dataframe["{} vy 2nd moment".format(sp.name)] = moments[:, int(9 * i) + 3]
+            self.dataframe["{} vy 4th moment".format(sp.name)] = moments[:, int(9 * i) + 4]
+            self.dataframe["{} vy 6th moment".format(sp.name)] = moments[:, int(9 * i) + 5]
 
-            self.dataframe["{} vz 2nd moment".format(sp)] = moments[:, int(9 * i) + 6]
-            self.dataframe["{} vz 4th moment".format(sp)] = moments[:, int(9 * i) + 7]
-            self.dataframe["{} vz 6th moment".format(sp)] = moments[:, int(9 * i) + 8]
+            self.dataframe["{} vz 2nd moment".format(sp.name)] = moments[:, int(9 * i) + 6]
+            self.dataframe["{} vz 4th moment".format(sp.name)] = moments[:, int(9 * i) + 7]
+            self.dataframe["{} vz 6th moment".format(sp.name)] = moments[:, int(9 * i) + 8]
 
-            self.dataframe["{} 4-2 moment ratio".format(sp)] = ratios[i, 0, :]
-            self.dataframe["{} 6-2 moment ratio".format(sp)] = ratios[i, 1, :]
+            self.dataframe["{} 4-2 moment ratio".format(sp.name)] = ratios[i, 0, :]
+            self.dataframe["{} 6-2 moment ratio".format(sp.name)] = ratios[i, 1, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -2863,24 +2339,24 @@ class VelocityMoments:
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
 
-        if self.no_species > 1:
+        if self.num_species > 1:
             self.species_plots_dirs = []
-            for i, name in enumerate(self.species_names):
-                new_dir = os.path.join(self.plots_dir, "{}".format(name))
+            for i, sp in enumerate(self.species):
+                new_dir = os.path.join(self.plots_dir, "{}".format(sp.name))
                 self.species_plots_dirs.append(new_dir)
                 if not os.path.exists(new_dir):
-                    os.mkdir(os.path.join(self.plots_dir, "{}".format(name)))
+                    os.mkdir(os.path.join(self.plots_dir, "{}".format(sp.name)))
         else:
             self.species_plots_dirs = [self.plots_dir]
 
-        for sp, sp_name in enumerate(self.species_names):
+        for i, sp in enumerate(self.species):
             fig, ax = plt.subplots(1, 1)
             xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                    np.array([1]), 'Time', 'none', self.units)
             ax.plot(self.dataframe["Time"] * xmul,
-                    self.dataframe["{} 4-2 moment ratio".format(sp_name)], label=r"4/2 ratio")
+                    self.dataframe["{} 4-2 moment ratio".format(sp.name)], label=r"4/2 ratio")
             ax.plot(self.dataframe["Time"] * xmul,
-                    self.dataframe["{} 6-2 moment ratio".format(sp_name)], label=r"6/2 ratio")
+                    self.dataframe["{} 6-2 moment ratio".format(sp.name)], label=r"6/2 ratio")
             ax.axhline(1.0, ls='--', c='k', label='Equilibrium')
             ax.grid(True, alpha=0.3)
             ax.legend(loc='upper right')
@@ -2889,8 +2365,8 @@ class VelocityMoments:
             # ax.set_yscale('log')
             ax.set_xlabel(r'$t$' + xlbl)
             #
-            ax.set_title("Moments ratios of {}".format(sp_name))
-            fig.savefig(os.path.join(self.species_plots_dirs[sp], "MomentRatios_" + self.job_id + '.png'))
+            ax.set_title("Moments ratios of {}".format(sp.name))
+            fig.savefig(os.path.join(self.species_plots_dirs[i], "MomentRatios_" + self.job_id + '.png'))
             if show:
                 fig.show()
             else:
@@ -2946,16 +2422,10 @@ class XYZWriter:
         params: S_params class
             Simulation's parameters.
         """
-        self.fldr = params.control.job_dir
-        self.dump_dir = params.integrator.prod_dump_dir
-        self.filename = os.path.join(self.fldr, "pva_" + params.control.job_id + '.xyz')
-        self.dump_step = params.control.dump_step
-        self.no_dumps = len(os.listdir(params.integrator.prod_dump_dir))
+        self.saving_dir = params.job_dir
+        self.prod_dump_dir = params.prod_dump_dir
+        self.filename = os.path.join(self.saving_dir, "pva_" + params.job_id + '.xyz')
         self.dump_skip = 1
-        self.tot_no_ptcls = params.total_num_ptcls
-        self.a_ws = params.aws
-        self.wp = params.wp
-        self.verbose = params.control.verbose
 
     def save(self, dump_skip=1):
         """
@@ -2972,16 +2442,16 @@ class XYZWriter:
         f_xyz = open(self.filename, "w+")
 
         # Rescale constants. This is needed since OVITO has a small number limit.
-        pscale = 1.0 / self.a_ws
-        vscale = 1.0 / (self.a_ws * self.wp)
-        ascale = 1.0 / (self.a_ws * self.wp ** 2)
+        pscale = 1.0 / self.aws
+        vscale = 1.0 / (self.aws * self.wp)
+        ascale = 1.0 / (self.aws * self.wp ** 2)
 
-        for it in tqdm(range(int(self.no_dumps / self.dump_skip)), disable=not self.verbose):
-            dump = int(it * self.dump_step * self.dump_skip)
+        for it in tqdm(range(int(self.prod_no_dumps / self.dump_skip)), disable=not self.verbose):
+            dump = int(it * self.prod_dump_step * self.dump_skip)
 
-            data = load_from_restart(self.dump_dir, dump)
+            data = load_from_restart(self.prod_dump_dir, dump)
 
-            f_xyz.writelines("{0:d}\n".format(self.tot_no_ptcls))
+            f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
             f_xyz.writelines("name x y z vx vy vz ax ay az\n")
             np.savetxt(f_xyz,
                        np.c_[data["species_name"], data["pos"] * pscale, data["vel"] * vscale, data["acc"] * ascale],
@@ -3417,8 +2887,8 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
     """
     sp_start = 0
     # Rescale vel and acc of each particle by their individual mass
-    for sp in range(len(species_np)):
-        sp_end = sp_start + species_np[sp]
+    for sp, num in enumerate(species_np):
+        sp_end = sp_start + num
         vel[:, sp_start: sp_end] *= np.sqrt(species_mass[sp])
         acc[:, sp_start: sp_end] *= species_mass[sp]  # force
         sp_start = sp_end
@@ -3552,7 +3022,7 @@ def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
 
 
 @njit
-def calc_vacf_single(vel, sp_num, sp_mass, time_averaging, it_skip=100):
+def calc_vacf_single(vel, sp_num, time_averaging, it_skip):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
 
@@ -3918,7 +3388,7 @@ def load_from_restart(fldr, it):
         Particles' data.
     """
 
-    file_name = os.path.join(fldr, "S_checkpoint_" + str(it) + ".npz")
+    file_name = os.path.join(fldr, "checkpoint_" + str(it) + ".npz")
     data = np.load(file_name, allow_pickle=True)
     return data
 
@@ -4041,7 +3511,7 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
 
 
-def read_pickle(params_dir):
+def read_pickle(job_dir):
     """
     Read Pickle File containing params.
 
@@ -4057,7 +3527,7 @@ def read_pickle(params_dir):
 
     """
 
-    pickle_file = os.path.join(params_dir, "S_parameters.pickle")
+    pickle_file = os.path.join(job_dir, "simulation_parameters.pickle")
 
     data = np.load(pickle_file, allow_pickle=True)
 

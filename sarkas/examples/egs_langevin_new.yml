@@ -1,0 +1,45 @@
+# keywords: OCP, EGS, PP, mks, random_no_reject
+Particles:
+    - Species:
+        name: Li 
+        number_density: 4.450883e+28       # N/cc
+        mass: 1.15258e-26                # g, ptcl mass of ion1
+        num: 10000                    # total number of particles of ion1
+        Z: 1.0                        # degree of ionization
+        temperature: 600.0
+
+Potential: 
+  type: EGS                     # potential type
+  method: PP                    # Linked-cell
+  rc: 1.e-09             # cut-off radius, cm
+
+
+Integrator:
+  type: Verlet_Langevin                  # velocity integrator type
+  langevin_type: BBK
+  langevin_gamma: 1.0e+14
+  equilibration_steps: 500                     # number of timesteps for the equilibrium
+  production_steps: 500                  # number of timesteps afater the equilibrium
+  prod_dump_step: 10
+  dt: 9.45e-17            # sec
+
+Thermostat:
+  type: Berendsen               # thermostat type
+  relaxation_rate: 0.1
+  relaxation_timestep: 2000
+  temperatures: 600
+
+
+Parameters:
+  units: mks                    # units
+  writexyz: no                  # no xyz output
+  verbose: yes
+  job_dir: egs        # dir name to save data. The default is "Checkpoint"
+  load_method: random_no_reject
+  load_restart_step: 100
+  boundary_conditions: periodic
+  rdf_no_bins: 500
+
+PostProcessing:
+  observables: ["radialdistributionfunction", "velocityautocorrelationfunctions"]
+  rdf_no_bins: 500

@@ -41,7 +41,7 @@ def run(params):
     ptcls = Particles(params)
     ptcls.load(params)
 
-    if params.control.verbose:
+    if params.verbose:
         print('\nParticles initialized.')
 
     # Calculate initial kinetic energy and temperature
@@ -58,9 +58,9 @@ def run(params):
     time_init = time.time()
     verbose.time_stamp("Initialization", time_init - time0)
     #
-    f_log = open(params.control.log_file, 'a+')
+    f_log = open(params.log_file, 'a+')
     print("\nInitial State:", file=f_log)
-    if params.control.units == "cgs":
+    if params.units == "cgs":
         print("T = {:2.6e} [K], E = {:2.6e} [erg], K = {:2.6e} [erg], U = {:2.6e} [erg]".format(Temperature,
                                                                                                 E_init, Tot_Kin,
                                                                                                 U_init), file=f_log)
@@ -73,7 +73,7 @@ def run(params):
     # Equilibration Phase
     ##############################################
     if not params.load_method == "restart":
-        if params.control.verbose:
+        if params.verbose:
             print("\n------------- Equilibration -------------")
         integrator.equilibrate(ptcls, params, thermostat, checkpoint)
 
@@ -93,10 +93,10 @@ def run(params):
         params.integrator.type = params.integrator.mag_type
         integrator = Integrator(params)
 
-        if params.control.verbose:
+        if params.verbose:
             print("\n------------- Magnetic Equilibration -------------")
 
-        for it in tqdm(range(params.Magnetic.Neq_mag), disable=(not params.control.verbose)):
+        for it in tqdm(range(params.Magnetic.Neq_mag), disable=(not params.verbose)):
             # Calculate the Potential energy and update particles' data
             U_therm = integrator.update(ptcls, params)
             # Thermostate
@@ -110,14 +110,14 @@ def run(params):
         time_mag = time.time()
         verbose.time_stamp("Magnetic Equilibration", time_mag - time_eq)
         time_eq = time_mag
-    if params.control.verbose:
+    if params.verbose:
         print("\n------------- Production -------------")
     time_eq = time.time()
     integrator.produce(ptcls, params, checkpoint)
     # Save production time
     time_prod = time.time()
     verbose.time_stamp("Production", time_prod - time_eq)
-    if params.control.writexyz:
+    if params.writexyz:
         f_xyz.close()
     ##############################################
     # Finalization Phase
@@ -166,7 +166,7 @@ if __name__ == '__main__':
     # That is if you don't give this option and the input file has Control.verbose=Yes, then you will
     # still have a verbose output
     if options.verbose:
-        params.control.verbose = True
+        params.verbose = True
 
     if options.restart is not None:
         params.load_method = 'restart'

@@ -3,10 +3,7 @@ Module for handling Yukawa interaction
 """
 import numpy as np
 from numba import njit
-import math as mt
 import yaml  # IO
-import fdint  # Fermi integrals calculation
-from sarkas.algorithm.force_pm import force_optimized_green_function as gf_opt
 
 
 @njit
@@ -122,17 +119,17 @@ def update_params(params):
     if not params.BC.open_axes:
         params.potential.LL_on = True  # linked list on
         if not hasattr(params.potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.potential.rc = params.Lv.min() / 2.
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
+            params.potential.rc = params.box_lengths.min() / 2.
             params.potential.LL_on = False  # linked list off
 
-        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.potential.rc = params.Lv.min() / 2.
+        if params.potential.method == "PP" and params.potential.rc > params.box_lengths.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
+            params.potential.rc = params.box_lengths.min() / 2.
             params.potential.LL_on = False  # linked list off
 
     twopi = 2.0 * np.pi
-    beta_i = 1.0 / (params.kB * params.Ti)
+    beta_i = 1.0 / (params.kB * params.total_ion_temperature)
 
     # Calculate the Potential Matrix
     Z53 = 0.0
@@ -167,11 +164,11 @@ def update_params(params):
         sp.wp = np.sqrt(wp2)
         wp_tot_sq += wp2
 
-    params.wp = np.sqrt(wp_tot_sq)
+    params.total_plasma_frequency = np.sqrt(wp_tot_sq)
 
     indx, r, u_r, f_r = np.loadtxt(params.potential.tabulated_file, skiprows=7, unpack=True)
 
-    if params.control.units == 'cgs':
+    if params.units == 'cgs':
         r *= 1e-8
         u_r *= params.eV2J * params.J2erg
         f_r *= 1e-8 / 1e-12 ** 2

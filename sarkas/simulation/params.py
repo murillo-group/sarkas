@@ -168,7 +168,7 @@ class Params:
         self.tot_net_charge = 0.0
         self.QFactor = 0.0
         self.num_species = 1
-        self.Ti = 0.0
+        self.total_ion_temperature = 0.0
         self.T_desired = 0.0
         self.total_num_density = 0
         self.total_num_ptcls = 0
@@ -489,42 +489,9 @@ class Params:
         args : dict
             Input arguments
         """
-        self.input_file = args["input_file"]
-
-        # Parse parameters from input file
-        self.common_parser(self.input_file)
-        self.assign_attributes()
+        self.calculate_parameters()
         self.create_directories(args)
 
-        # Coulomb potential
-        if self.potential.type == "Coulomb":
-            from sarkas.potentials import coulomb
-            coulomb.setup(self)
-
-        # Yukawa potential
-        if self.potential.type == "Yukawa":
-            from sarkas.potentials import yukawa
-            yukawa.setup(self)
-
-        # exact gradient-corrected screening (EGS) potential
-        if self.potential.type == "EGS":
-            from sarkas.potentials import egs
-            egs.setup(self)
-
-        # Lennard-Jones potential
-        if self.potential.type == "LJ":
-            from sarkas.potentials import lennardjones612 as lj
-            lj.setup(self)
-
-        # Moliere potential
-        if self.potential.type == "Moliere":
-            from sarkas.potentials import moliere
-            moliere.setup(self)
-
-        # QSP potential
-        if self.potential.type == "QSP":
-            from sarkas.potentials import qsp
-            qsp.setup(self)
 
         return
 
@@ -645,7 +612,7 @@ class Params:
                 if lkey == "Control":
                     for key, value in dics[lkey].items():
                         if hasattr(self.control, key):
-                            self.control.__dict__[key] = value
+                            self.__dict__[key] = value
                         else:
                             setattr(self.control, key, value)
 
@@ -673,46 +640,46 @@ class Params:
         # Check for directories
         for key, value in args.items():
             if hasattr(self.control, key):
-                self.control.__dict__[key] = value
+                self.__dict__[key] = value
 
         # Check if the directories exist
-        if not os.path.exists(self.control.simulations_dir):
-            os.mkdir(self.control.simulations_dir)
+        if not os.path.exists(self.simulations_dir):
+            os.mkdir(self.simulations_dir)
 
-        self.control.job_dir = os.path.join(self.control.simulations_dir, self.control.job_dir)
-        if not os.path.exists(self.control.job_dir):
-            os.mkdir(self.control.job_dir)
+        self.job_dir = os.path.join(self.simulations_dir, self.job_dir)
+        if not os.path.exists(self.job_dir):
+            os.mkdir(self.job_dir)
 
         # Equilibration directory and sub_dir
-        self.control.equilibration_dir = os.path.join(self.control.job_dir, self.control.equilibration_dir)
-        if not os.path.exists(self.control.equilibration_dir):
-            os.mkdir(self.control.equilibration_dir)
+        self.equilibration_dir = os.path.join(self.job_dir, self.equilibration_dir)
+        if not os.path.exists(self.equilibration_dir):
+            os.mkdir(self.equilibration_dir)
 
-        self.control.eq_dump_dir = os.path.join(self.control.equilibration_dir, 'dumps')
-        if not os.path.exists(self.control.eq_dump_dir):
-            os.mkdir(self.control.eq_dump_dir)
+        self.eq_dump_dir = os.path.join(self.equilibration_dir, 'dumps')
+        if not os.path.exists(self.eq_dump_dir):
+            os.mkdir(self.eq_dump_dir)
 
         # Production dir and sub_dir
-        self.control.production_dir = os.path.join(self.control.job_dir, self.control.production_dir)
-        if not os.path.exists(self.control.production_dir):
-            os.mkdir(self.control.production_dir)
+        self.production_dir = os.path.join(self.job_dir, self.production_dir)
+        if not os.path.exists(self.production_dir):
+            os.mkdir(self.production_dir)
 
-        self.control.prod_dump_dir = os.path.join(self.control.production_dir, "dumps")
-        if not os.path.exists(self.control.prod_dump_dir):
-            os.mkdir(self.control.prod_dump_dir)
+        self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
+        if not os.path.exists(self.prod_dump_dir):
+            os.mkdir(self.prod_dump_dir)
 
         # Postprocessing dir
-        self.control.postprocessing_dir = os.path.join(self.control.job_dir, self.control.postprocessing_dir)
-        if not os.path.exists(self.control.postprocessing_dir):
-            os.mkdir(self.control.postprocessing_dir)
+        self.postprocessing_dir = os.path.join(self.job_dir, self.postprocessing_dir)
+        if not os.path.exists(self.postprocessing_dir):
+            os.mkdir(self.postprocessing_dir)
 
-        if self.control.log_file is None:
-            self.control.log_file = os.path.join(self.control.job_dir, 'log.out')
+        if self.log_file is None:
+            self.log_file = os.path.join(self.job_dir, 'log.out')
 
     def assign_attributes(self):
         """ Assign the parsed parameters"""
         # Physical constants
-        if self.control.units == "cgs":
+        if self.units == "cgs":
             self.kB *= self.J2erg
             self.c0 *= 1e2  # cm/s
             if not (self.potential.type == "LJ"):
@@ -725,8 +692,8 @@ class Params:
                 self.eps0 = 1.0
                 self.fourpie0 = 1.0
                 self.a0 *= 1e2
-        if self.control.job_id is None:
-            self.control.job_id = self.control.job_dir
+        if self.job_id is None:
+            self.job_id = self.job_dir
         self.num_species = len(self.species)
         # Loop over species and assign missing attributes
         for i, sp in enumerate(self.species):
@@ -739,10 +706,10 @@ class Params:
                 # u = const.physical_constants["atomic mass constant"][0]
                 self.mp = const.physical_constants["proton mass"][0]
 
-                if self.control.units == "cgs":
+                if self.units == "cgs":
                     self.mp *= 1e3
                     sp.mass = self.mp * sp.atomic_weight
-                elif self.control.units == "mks":
+                elif self.units == "mks":
                     sp.mass = self.mp * sp.atomic_weight
 
             if hasattr(sp, "mass_density"):
@@ -750,10 +717,10 @@ class Params:
                 sp.number_density = sp.mass_density * Av / sp.atomic_weight
                 self.total_num_density += sp.number_density
         # Concentrations arrays and ions' total temperature
-        self.Ti = 0.0
+        self.total_ion_temperature = 0.0
         for i, sp in enumerate(self.species):
             sp.concentration = sp.num / self.total_num_ptcls
-            self.Ti += sp.concentration * sp.temperature
+            self.total_ion_temperature += sp.concentration * sp.temperature
 
         # Wigner-Seitz radius calculated from the total density
         self.aws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
@@ -767,12 +734,12 @@ class Params:
                     self.species[ic].charge *= self.species[ic].Z
 
                 if self.Magnetic.on:
-                    if self.control.units == "cgs":
+                    if self.units == "cgs":
                         #  See https://en.wikipedia.org/wiki/Lorentz_force
                         self.species[ic].omega_c = self.species[ic].charge * self.Magnetic.BField / self.species[
                             ic].mass
                         self.species[ic].omega_c = self.species[ic].omega_c / self.c0
-                    elif self.control.units == "mks":
+                    elif self.units == "mks":
                         self.species[ic].omega_c = self.species[ic].charge * self.Magnetic.BField / self.species[
                             ic].mass
 
@@ -789,13 +756,13 @@ class Params:
                     self.ne += self.species[ic].Z * self.species[ic].number_density
 
         # Simulation Box Parameters
-        if len(self.control.np_per_side) != 0:
+        if len(self.np_per_side) != 0:
             msg = "Number of particles per dimension does not match total number of particles."
-            assert int(np.prod(self.control.np_per_side)) == self.total_num_ptcls, msg
+            assert int(np.prod(self.np_per_side)) == self.total_num_ptcls, msg
 
-            self.Lx = self.aws * self.control.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Ly = self.aws * self.control.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Lz = self.aws * self.control.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lx = self.aws * self.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.aws * self.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.aws * self.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
         else:
             self.Lx = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
             self.Ly = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
@@ -812,7 +779,7 @@ class Params:
 
         self.dimensions = np.count_nonzero(self.Lv)  # no. of dimensions
 
-        self.T_desired = self.Ti
+        self.T_desired = self.total_ion_temperature
 
         # boundary Conditions
         if self.BC.pbc_axes:

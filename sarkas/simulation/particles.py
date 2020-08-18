@@ -68,9 +68,9 @@ class Particles:
         Initialize the attributes
         """
         self.params = params
-        self.prod_dump_dir = params.control.prod_dump_dir
-        self.eq_dump_dir = params.control.eq_dump_dir
-        self.box_lengths = params.Lv
+        self.prod_dump_dir = params.prod_dump_dir
+        self.eq_dump_dir = params.eq_dump_dir
+        self.box_lengths = params.box_lengths
         self.tot_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
 
@@ -130,7 +130,7 @@ class Particles:
 
         """
         # Particles Position Initialization
-        if params.control.verbose:
+        if params.verbose:
             print('\nAssigning initial positions according to {}'.format(params.load_method))
 
         if params.load_method == 'restart':

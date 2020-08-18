@@ -45,7 +45,7 @@ params = Params()
 params.setup(vars(options))
 
 if options.check is not None:
-    params = PostProc.read_pickle(params.control.checkpoint_dir)
+    params = PostProc.read_pickle(params.checkpoint_dir)
 else:
     # Update rand seed with option. This supersedes the input file.
     if options.seed:
@@ -55,7 +55,7 @@ else:
     # That is if you don't give this option and the input file has Control.verbose=Yes, then you will
     # still have a verbose output
     if options.verbose:
-        params.control.verbose = True
+        params.verbose = True
         
     if options.restart is not None:
         params.load_method = 'restart'

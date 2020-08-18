@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 import time as timer
-from sarkas.algorithm import force_pp, force_pm
+from sarkas.potentials import force_pm, force_pp
 
 
 @njit
@@ -69,7 +69,7 @@ def analytical_approx_pppm(params):
     kappa = 0.0 if params.potential.type == "Coulomb" else params.potential.matrix[1, 0, 0] * params.aws
 
     p = params.pppm.cao
-    L = params.Lv[0] / params.aws
+    L = params.box_lengths[0] / params.aws
     h = L / params.pppm.MGrid[0]
 
     a_min = params.pppm.G_ew * 0.5
@@ -154,7 +154,7 @@ def optimal_green_function_timer(params):
     constants = np.array([kappa_Y, params.pppm.G_ew, params.fourpie0])
     start = timer.time()
     params.pppm.G_k, params.pppm.kx_v, params.pppm.ky_v, params.pppm.kz_v, params.pppm.PM_err = force_pm.force_optimized_green_function(
-        params.pppm.MGrid, params.pppm.aliases, params.Lv, params.pppm.cao, constants)
+        params.pppm.MGrid, params.pppm.aliases, params.box_lengths, params.pppm.cao, constants)
 
     params.pppm.PM_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
 
@@ -219,15 +219,15 @@ def pp_acceleration_timer(params, ptcls):
     # Dev notes. I am rewriting the functions here because I need to put a counter around it.
     if params.potential.LL_on:
         start = timer.time()
-        U_short, acc_s_r = force_pp.update(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv,
+        U_short, acc_s_r = force_pp.update(ptcls.pos, ptcls.species_id, ptcls.mass, params.box_lengths,
                                            params.potential.rc, params.potential.matrix, params.force,
-                                           params.control.measure, ptcls.rdf_hist)
+                                           params.measure, ptcls.rdf_hist)
         PP_force_time = timer.time() - start
     else:
         start = timer.time()
-        U_short, acc_s_r = force_pp.update_0D(ptcls.pos, ptcls.species_id, ptcls.mass, params.Lv,
+        U_short, acc_s_r = force_pp.update_0D(ptcls.pos, ptcls.species_id, ptcls.mass, params.box_lengths,
                                               params.potential.rc, params.potential.matrix, params.force,
-                                              params.control.measure, ptcls.rdf_hist)
+                                              params.measure, ptcls.rdf_hist)
         PP_force_time = timer.time() - start
     return PP_force_time
 
@@ -250,8 +250,8 @@ def pm_acceleration_timer(params, ptcls):
         Times for the PP force calculation.
     """
     start = timer.time()
-    U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charge, ptcls.mass,
-                                      params.pppm.MGrid, params.Lv, params.pppm.G_k, params.pppm.kx_v,
+    U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charges, ptcls.mass,
+                                      params.pppm.MGrid, params.box_lengths, params.pppm.G_k, params.pppm.kx_v,
                                       params.pppm.ky_v,
                                       params.pppm.kz_v, params.pppm.cao)
     PM_force_time = timer.time() - start

@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="sarkas.io.verbose module" href="sarkas.io.verbose.html" />
-    <link rel="prev" title="sarkas.io package" href="sarkas.io.html" /> 
+    <link rel="prev" title="sarkas.io.base module" href="sarkas.io.base.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,15 +94,14 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="sarkas.algorithm.html">sarkas.algorithm package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.integrators.html">sarkas.integrators package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.thermostats.html">sarkas.thermostats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.html#module-sarkas">Module contents</a></li>
 </ul>
 </li>
@@ -187,141 +186,6 @@
             
   <div class="section" id="module-sarkas.io.checkpoint">
 <span id="sarkas-io-checkpoint-module"></span><h1>sarkas.io.checkpoint module<a class="headerlink" href="#module-sarkas.io.checkpoint" title="Permalink to this headline">¶</a></h1>
-<p>Module handling restarting/checkpoint</p>
-<dl class="py class">
-<dt id="sarkas.io.checkpoint.Checkpoint">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.io.checkpoint.</code><code class="sig-name descname">Checkpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/io/checkpoint.html#Checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Class to handle restart dumps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters.</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt id="sarkas.io.checkpoint.Checkpoint.dt">
-<code class="sig-name descname">dt</code><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.dt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simulation timestep.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.io.checkpoint.Checkpoint.dump_dir">
-<code class="sig-name descname">dump_dir</code><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.dump_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Path to directory where simulations dump will be stored.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.io.checkpoint.Checkpoint.energy_filename">
-<code class="sig-name descname">energy_filename</code><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.energy_filename" title="Permalink to this definition">¶</a></dt>
-<dd><p>CSV file for storing energy values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.io.checkpoint.Checkpoint.ptcls_file_name">
-<code class="sig-name descname">ptcls_file_name</code><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.ptcls_file_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prefix of dumps filenames.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.io.checkpoint.Checkpoint.params_pickle">
-<code class="sig-name descname">params_pickle</code><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.params_pickle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pickle file where all simulation parameters will be stored.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.io.checkpoint.Checkpoint.species_names">
-<code class="sig-name descname">species_names</code><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.species_names" title="Permalink to this definition">¶</a></dt>
-<dd><p>Names of each particle species.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.io.checkpoint.Checkpoint.checkpoint_dir">
-<code class="sig-name descname">checkpoint_dir</code><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.checkpoint_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output directory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.io.checkpoint.Checkpoint.dump">
-<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">kinetic_energies</span></em>, <em class="sig-param"><span class="n">temperatures</span></em>, <em class="sig-param"><span class="n">potential_energy</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/io/checkpoint.html#Checkpoint.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.dump" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save particles’ data to binary file for future restart.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Particles data.</p></li>
-<li><p><strong>kinetic_energies</strong> (<em>array</em>) – Kinetic energy of each species.</p></li>
-<li><p><strong>temperatures</strong> (<em>array</em>) – Temperature of each species.</p></li>
-<li><p><strong>potential_energy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Potential energy.</p></li>
-<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Timestep number.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.io.checkpoint.Checkpoint.save_pickle">
-<code class="sig-name descname">save_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/io/checkpoint.html#Checkpoint.save_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.save_pickle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save all simulations parameters in a pickle file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.io.checkpoint.Checkpoint.therm_dump">
-<code class="sig-name descname">therm_dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">kinetic_energies</span></em>, <em class="sig-param"><span class="n">temperatures</span></em>, <em class="sig-param"><span class="n">potential_energy</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/io/checkpoint.html#Checkpoint.therm_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.io.checkpoint.Checkpoint.therm_dump" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save particles’ data to binary file for future restart.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Particles’ data.</p></li>
-<li><p><strong>kinetic_energies</strong> (<em>array</em>) – Kinetic energy of each species.</p></li>
-<li><p><strong>temperatures</strong> (<em>array</em>) – Temperature of each species.</p></li>
-<li><p><strong>potential_energy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Potential energy.</p></li>
-<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Timestep number.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 
 
@@ -335,7 +199,7 @@
         <a href="sarkas.io.verbose.html" class="btn btn-neutral float-right" title="sarkas.io.verbose module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="sarkas.io.html" class="btn btn-neutral float-left" title="sarkas.io package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="sarkas.io.base.html" class="btn btn-neutral float-left" title="sarkas.io.base module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -347,7 +211,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 10, 2020.
+        Last updated on Aug, 18, 2020.
       </span>
 
     </p>

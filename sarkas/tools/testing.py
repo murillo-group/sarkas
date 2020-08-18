@@ -93,7 +93,7 @@ def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     kappa_title = 0.0 if params.potential.type == "Coulomb" else params.potential.matrix[1, 0, 0]
 
     # Plot the results
-    fig_path = params.control.pre_run_dir
+    fig_path = params.pre_run_dir
 
     fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
     ax[0].plot(rcuts, DeltaF_tot[30, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
@@ -106,8 +106,8 @@ def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     ax[0].set_yscale('log')
     ax[0].axvline(chosen_rcut, ls='--', c='k')
     ax[0].axhline(params.pppm.F_err, ls='--', c='k')
-    if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
-        ax[0].axvline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
+    if rcuts[-1] * params.aws > 0.5 * params.box_lengths.min():
+        ax[0].axvline(0.5 * params.box_lengths.min() / params.aws, c='r', label=r'$L/2$')
     ax[0].grid(True, alpha=0.3)
     ax[0].legend(loc='best')
 
@@ -127,7 +127,7 @@ def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
             params.total_num_ptcls,
             params.pppm.MGrid[0],
             kappa_title * params.aws))
-    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.control.job_id + '.png'))
+    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.job_id + '.png'))
     fig.show()
 
 
@@ -160,7 +160,7 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     kappa_title = 0.0 if params.potential.type == "Coulomb" else params.potential.matrix[1, 0, 0]
 
     # Plot the results
-    fig_path = params.control.pre_run_dir
+    fig_path = params.pre_run_dir
 
     r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
     fig, ax = plt.subplots(1, 1, figsize=(10, 7))
@@ -172,8 +172,8 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
     CS2 = ax.contour(CS, colors='w')
     ax.clabel(CS2, fmt='%1.0e', colors='w')
     ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
-    if rcuts[-1] * params.aws > 0.5 * params.Lv.min():
-        ax.axhline(0.5 * params.Lv.min() / params.aws, c='r', label=r'$L/2$')
+    if rcuts[-1] * params.aws > 0.5 * params.box_lengths.min():
+        ax.axhline(0.5 * params.box_lengths.min() / params.aws, c='r', label=r'$L/2$')
     # ax.tick_params(labelsize=fsz)
     ax.set_xlabel(r'$\alpha \;a_{ws}$')
     ax.set_ylabel(r'$r_c/a_{ws}$')
@@ -182,7 +182,7 @@ def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
             params.total_num_ptcls, params.pppm.MGrid[0], kappa_title * params.aws))
     fig.colorbar(CS)
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.control.job_id + '.png'))
+    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.job_id + '.png'))
     fig.show()
 
 
@@ -242,8 +242,8 @@ def main(params, estimate=False):
     if estimate:
         plt.close('all')
     # Change verbose params for printing to screen
-    params.control.verbose = True
-    params.control.pre_run = True
+    params.verbose = True
+    params.pre_run = True
     params.load_method = 'random_no_reject'
 
     verbose = Verbose(params)
@@ -251,11 +251,11 @@ def main(params, estimate=False):
 
     # Initialize particles and all their attributes. Needed for force calculation
     ptcls = Particles(params)
-    params.control.verbose = False  # Turn it off so it doesnt print S_particles print statements
+    params.verbose = False  # Turn it off so it doesnt print S_particles print statements
     ptcls.load(params)
 
     # Check for too large a cut off
-    assert params.potential.rc <= params.Lv.min() / 2, "Cut-off radius is larger than L/2! L/2 = {:1.4e}".format(params.Lv.min() / 2)
+    assert params.potential.rc <= params.box_lengths.min() / 2, "Cut-off radius is larger than L/2! L/2 = {:1.4e}".format(params.box_lengths.min() / 2)
 
     print('\n\n----------------- Time -----------------------\n')
 
@@ -301,7 +301,7 @@ def main(params, estimate=False):
     if estimate:
         print('\n\n----------------- Timing Study -----------------------')
         Mg = np.array([16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
-        max_cells = int(0.5 * params.Lv.min() / params.aws)
+        max_cells = int(0.5 * params.box_lengths.min() / params.aws)
         Ncells = np.arange(3, max_cells, dtype=int)
         pm_times = np.zeros(len(Mg))
         pm_errs = np.zeros(len(Mg))
@@ -317,7 +317,7 @@ def main(params, estimate=False):
         # Average the PM time
         for i, m in enumerate(Mg):
             params.pppm.MGrid = m * np.ones(3, dtype=int)
-            params.pppm.G_ew = 0.25 * m / params.Lv.min()
+            params.pppm.G_ew = 0.25 * m / params.box_lengths.min()
             green_time = force_error.optimal_green_function_timer(params)
             pm_errs[i] = params.pppm.PM_err
             print('\n\nMesh = {} x {} x {} : '.format(*params.pppm.MGrid))
@@ -330,14 +330,14 @@ def main(params, estimate=False):
                 pm_times[i] += force_error.pm_acceleration_timer(params, ptcls) / 3.0
 
             for j, c in enumerate(Ncells):
-                params.potential.rc = params.Lv.min() / c
+                params.potential.rc = params.box_lengths.min() / c
                 kappa_over_alpha = - 0.25 * (kappa / params.pppm.G_ew) ** 2
                 alpha_times_rcut = - (params.pppm.G_ew * params.potential.rc) ** 2
                 params.pppm.PP_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(params.potential.rc)
                 params.pppm.PP_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 / np.sqrt(params.box_volume)
                 # print('rcut = {:2.4f} a_ws = {:2.6e} '.format(params.potential.rc / params.aws, params.potential.rc),
                 #     end='')
-                # print("[cm]" if params.control.units == "cgs" else "[m]")
+                # print("[cm]" if params.units == "cgs" else "[m]")
                 # print('PP Err = {:1.4e}  '.format(params.pppm.PP_err) )
                 pp_errs[i, j] = params.pppm.PP_err
                 DeltaF_map[i, j] = np.sqrt(params.pppm.PP_err ** 2 + params.pppm.PM_err ** 2)
@@ -370,7 +370,7 @@ def main(params, estimate=False):
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('2D Lagrangian')
-        fig.savefig(os.path.join(params.control.pre_run_dir, '2D_Lagrangian.png'))
+        fig.savefig(os.path.join(params.pre_run_dir, '2D_Lagrangian.png'))
         fig.show()
 
         fig, ax = plt.subplots(1, 1, figsize=(11, 7))
@@ -386,12 +386,12 @@ def main(params, estimate=False):
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('Force Error')
-        fig.savefig(os.path.join(params.control.pre_run_dir, 'ForceMap.png'))
+        fig.savefig(os.path.join(params.pre_run_dir, 'ForceMap.png'))
         fig.show()
 
         params.pppm.MGrid = Mg[best[0]] * np.ones(3, dtype=int)
-        params.potential.rc = params.Lv.min() / Ncells[best[1]]
-        params.pppm.G_ew = 0.25 * m_mesh[best] / params.Lv.min()
+        params.potential.rc = params.box_lengths.min() / Ncells[best[1]]
+        params.pppm.G_ew = 0.25 * m_mesh[best] / params.box_lengths.min()
         params.pppm.Mx = params.pppm.MGrid[0]
         params.pppm.My = params.pppm.MGrid[1]
         params.pppm.Mz = params.pppm.MGrid[2]

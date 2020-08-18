@@ -7,6 +7,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   sarkas.io.base
    sarkas.io.checkpoint
    sarkas.io.verbose
 

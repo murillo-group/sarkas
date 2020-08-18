@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sarkas.algorithm package" href="sarkas.algorithm.html" />
+    <link rel="next" title="sarkas.io package" href="sarkas.io.html" />
     <link rel="prev" title="sarkas" href="modules.html" /> 
 </head>
 
@@ -94,13 +94,15 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">sarkas package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.algorithm.html">sarkas.algorithm package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.integrators.html">sarkas.integrators package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.thermostats.html">sarkas.thermostats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.base.html">sarkas.base module</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-sarkas">Module contents</a></li>
@@ -187,25 +189,9 @@
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="sarkas.algorithm.html">sarkas.algorithm package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sarkas.algorithm.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="sarkas.algorithm.force_pm.html">sarkas.algorithm.force_pm module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sarkas.algorithm.force_pp.html">sarkas.algorithm.force_pp module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="sarkas.algorithm.html#module-sarkas.algorithm">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="sarkas.integrators.html">sarkas.integrators package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sarkas.integrators.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="sarkas.integrators.integrator.html">sarkas.integrators.integrator module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="sarkas.integrators.html#module-sarkas.integrators">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sarkas.io.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.io.base.html">sarkas.io.base module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.io.checkpoint.html">sarkas.io.checkpoint module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.io.verbose.html">sarkas.io.verbose module</a></li>
 </ul>
@@ -215,8 +201,11 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sarkas.potentials.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.base.html">sarkas.potentials.base module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.force_pp.html">sarkas.potentials.force_pp module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.lennardjones612.html">sarkas.potentials.lennardjones612 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
@@ -237,12 +226,14 @@
 <li class="toctree-l2"><a class="reference internal" href="sarkas.simulation.html#module-sarkas.simulation">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="sarkas.thermostats.html">sarkas.thermostats package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sarkas.thermostats.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="sarkas.thermostats.thermostat.html">sarkas.thermostats.thermostat module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sarkas.time_evolution.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.time_evolution.base.html">sarkas.time_evolution.base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.time_evolution.integrators.html">sarkas.time_evolution.integrators module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.time_evolution.thermostats.html">sarkas.time_evolution.thermostats module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="sarkas.thermostats.html#module-sarkas.thermostats">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sarkas.time_evolution.html#module-sarkas.time_evolution">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a><ul>
@@ -255,6 +246,14 @@
 <li class="toctree-l2"><a class="reference internal" href="sarkas.tools.html#module-sarkas.tools">Module contents</a></li>
 </ul>
 </li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sarkas.base.html">sarkas.base module</a></li>
 </ul>
 </div>
 </div>
@@ -271,7 +270,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sarkas.algorithm.html" class="btn btn-neutral float-right" title="sarkas.algorithm package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="sarkas.io.html" class="btn btn-neutral float-right" title="sarkas.io package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="modules.html" class="btn btn-neutral float-left" title="sarkas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -286,7 +285,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 10, 2020.
+        Last updated on Aug, 18, 2020.
       </span>
 
     </p>

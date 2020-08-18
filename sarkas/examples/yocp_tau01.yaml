@@ -15,8 +15,6 @@ Potential:
     rc: 4.0000e-6             # cut-off radius, meter
     kappa: 2.0
 
-BoundaryConditions:
-    periodic: ["x", "y", "z"]
 
 Integrator:
     type: Verlet       # velocity integrator type
@@ -25,6 +23,8 @@ Integrator:
     nsteps_eq: 5000
     prod_dump_step: 10                # dump time step
     eq_dump_step: 10
+    boundary_conditions: 'periodic'
+    bc_axes: ["x", "y", "z"]
 
 Thermostat:
     type: Berendsen               # thermostat type
@@ -32,7 +32,7 @@ Thermostat:
     relaxation_rate: 0.1
     temperatures: 0.2
 
-Control:
+Parameters:
     units: mks                    # units
     writexyz: True                  # no xyz output
     verbose: True
@@ -41,4 +41,4 @@ Control:
     job_dir: YOCP_tau01        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 500
+    rdf_nbins: 500

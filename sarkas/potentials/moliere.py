@@ -54,17 +54,17 @@ def update_params(params):
 
     """
     twopi = 2.0 * np.pi
-    beta_i = 1.0 / (params.kB * params.Ti)
+    beta_i = 1.0 / (params.kB * params.total_ion_temperature)
     if not params.BC.open_axes:
         params.potential.LL_on = True  # linked list on
         if not hasattr(params.potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.potential.rc = params.Lv.min() / 2.
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
+            params.potential.rc = params.box_lengths.min() / 2.
             params.potential.LL_on = False  # linked list off
 
-        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.potential.rc = params.Lv.min() / 2.
+        if params.potential.method == "PP" and params.potential.rc > params.box_lengths.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
+            params.potential.rc = params.box_lengths.min() / 2.
             params.potential.LL_on = False  # linked list off
 
     params_len = int(2 * len(params.potential.C_params))
@@ -105,7 +105,7 @@ def update_params(params):
         sp.wp = np.sqrt(wp2)
         wp_tot_sq += wp2
 
-    params.wp = np.sqrt(wp_tot_sq)
+    params.total_plasma_frequency = np.sqrt(wp_tot_sq)
 
     if params.potential.method == "PP":
         params.force = Moliere_force_PP

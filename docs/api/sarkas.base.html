@@ -1,0 +1,1261 @@
+  
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sarkas.base module &mdash; Sarkas 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Potentials" href="../theory/potentials.html" />
+    <link rel="prev" title="sarkas.tools.testing module" href="sarkas.tools.testing.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">sarkas.base module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#module-sarkas">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">sarkas</a> &raquo;</li>
+        
+          <li><a href="sarkas.html">sarkas package</a> &raquo;</li>
+        
+      <li>sarkas.base module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/sarkas.base.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-sarkas.base">
+<span id="sarkas-base-module"></span><h1>sarkas.base module<a class="headerlink" href="#module-sarkas.base" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="sarkas.base.Parameters">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Parameters</code><a class="reference internal" href="../_modules/sarkas/base.html#Parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Simulation’s Parameters.</p>
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.aws">
+<code class="sig-name descname">aws</code><a class="headerlink" href="#sarkas.base.Parameters.aws" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wigner-Seitz radius. Calculated from the <code class="docutils literal notranslate"><span class="pre">total_num_density</span></code> .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.box_volume">
+<code class="sig-name descname">box_volume</code><a class="headerlink" href="#sarkas.base.Parameters.box_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box volume.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.dimensions">
+<code class="sig-name descname">dimensions</code><a class="headerlink" href="#sarkas.base.Parameters.dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of non-zero dimensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.fourpie0">
+<code class="sig-name descname">fourpie0</code><a class="headerlink" href="#sarkas.base.Parameters.fourpie0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Electrostatic constant :math: <cite>4pi espilon_0</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.species">
+<code class="sig-name descname">species</code><a class="headerlink" href="#sarkas.base.Parameters.species" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of Species objects with species’ information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.load_method">
+<code class="sig-name descname">load_method</code><a class="headerlink" href="#sarkas.base.Parameters.load_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Particles loading described in Species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.load_rand_seed">
+<code class="sig-name descname">load_rand_seed</code><a class="headerlink" href="#sarkas.base.Parameters.load_rand_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seed of random number generator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.load_restart_step">
+<code class="sig-name descname">load_restart_step</code><a class="headerlink" href="#sarkas.base.Parameters.load_restart_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restart time step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.load_r_reject">
+<code class="sig-name descname">load_r_reject</code><a class="headerlink" href="#sarkas.base.Parameters.load_r_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rejection radius to avoid placing particles to close to each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.load_perturb">
+<code class="sig-name descname">load_perturb</code><a class="headerlink" href="#sarkas.base.Parameters.load_perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strength of initial perturbation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.load_halton_bases">
+<code class="sig-name descname">load_halton_bases</code><a class="headerlink" href="#sarkas.base.Parameters.load_halton_bases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of 3 ints each of which is a base for the Halton sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">shape(3)</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.num_species">
+<code class="sig-name descname">num_species</code><a class="headerlink" href="#sarkas.base.Parameters.num_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.kB">
+<code class="sig-name descname">kB</code><a class="headerlink" href="#sarkas.base.Parameters.kB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boltzmann constant obtained from <code class="docutils literal notranslate"><span class="pre">scipy.constants</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.hbar">
+<code class="sig-name descname">hbar</code><a class="headerlink" href="#sarkas.base.Parameters.hbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduced Planck’s constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.hbar2">
+<code class="sig-name descname">hbar2</code><a class="headerlink" href="#sarkas.base.Parameters.hbar2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Square of reduced Planck’s constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.a0">
+<code class="sig-name descname">a0</code><a class="headerlink" href="#sarkas.base.Parameters.a0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bohr Radius.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.c0">
+<code class="sig-name descname">c0</code><a class="headerlink" href="#sarkas.base.Parameters.c0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Speed of light.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.qe">
+<code class="sig-name descname">qe</code><a class="headerlink" href="#sarkas.base.Parameters.qe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementary charge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.me">
+<code class="sig-name descname">me</code><a class="headerlink" href="#sarkas.base.Parameters.me" title="Permalink to this definition">¶</a></dt>
+<dd><p>Electron mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.eps0">
+<code class="sig-name descname">eps0</code><a class="headerlink" href="#sarkas.base.Parameters.eps0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vacuum electrical permittivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.eV2K">
+<code class="sig-name descname">eV2K</code><a class="headerlink" href="#sarkas.base.Parameters.eV2K" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conversion factor from eV to Kelvin obtained from <code class="docutils literal notranslate"><span class="pre">scipy.constants</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.J2erg">
+<code class="sig-name descname">J2erg</code><a class="headerlink" href="#sarkas.base.Parameters.J2erg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conversion factor from Joules to erg. Needed for cgs units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.QFactor">
+<code class="sig-name descname">QFactor</code><a class="headerlink" href="#sarkas.base.Parameters.QFactor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge Factor defined as <span class="math notranslate nohighlight">\(\mathcal Q = \sum_{i}^{N} q_{i}^2\)</span> .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.L">
+<code class="sig-name descname">L</code><a class="headerlink" href="#sarkas.base.Parameters.L" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smallest box length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.Lx">
+<code class="sig-name descname">Lx</code><a class="headerlink" href="#sarkas.base.Parameters.Lx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box length in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.Ly">
+<code class="sig-name descname">Ly</code><a class="headerlink" href="#sarkas.base.Parameters.Ly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box length in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.Lz">
+<code class="sig-name descname">Lz</code><a class="headerlink" href="#sarkas.base.Parameters.Lz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box length in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.Lv">
+<code class="sig-name descname">Lv</code><a class="headerlink" href="#sarkas.base.Parameters.Lv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box length in each direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">shape(3)</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.e1">
+<code class="sig-name descname">e1</code><a class="headerlink" href="#sarkas.base.Parameters.e1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit vector in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.e2">
+<code class="sig-name descname">e2</code><a class="headerlink" href="#sarkas.base.Parameters.e2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit vector in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.e3">
+<code class="sig-name descname">e3</code><a class="headerlink" href="#sarkas.base.Parameters.e3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit vector in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.N">
+<code class="sig-name descname">N</code><a class="headerlink" href="#sarkas.base.Parameters.N" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of particles same as <code class="docutils literal notranslate"><span class="pre">tot_num_ptcls</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.ptcls_input_file">
+<code class="sig-name descname">ptcls_input_file</code><a class="headerlink" href="#sarkas.base.Parameters.ptcls_input_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>User defined input file containing particles’ data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.input_file">
+<code class="sig-name descname">input_file</code><a class="headerlink" href="#sarkas.base.Parameters.input_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>YAML Input file with all the simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.Te">
+<code class="sig-name descname">Te</code><a class="headerlink" href="#sarkas.base.Parameters.Te" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equilibrium electron temperature. Defined in Potential module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.Ti">
+<code class="sig-name descname">Ti</code><a class="headerlink" href="#sarkas.base.Parameters.Ti" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total Equilibrium Ion temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.T_desired">
+<code class="sig-name descname">T_desired</code><a class="headerlink" href="#sarkas.base.Parameters.T_desired" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equilibrium temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.tot_net_charge">
+<code class="sig-name descname">tot_net_charge</code><a class="headerlink" href="#sarkas.base.Parameters.tot_net_charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total charge in the system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.total_num_density">
+<code class="sig-name descname">total_num_density</code><a class="headerlink" href="#sarkas.base.Parameters.total_num_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number density. Calculated from the sum of <code class="docutils literal notranslate"><span class="pre">Species.num_density</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.total_num_ptcls">
+<code class="sig-name descname">total_num_ptcls</code><a class="headerlink" href="#sarkas.base.Parameters.total_num_ptcls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of particles. Calculated from the sum of <code class="docutils literal notranslate"><span class="pre">Species.num</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.wp">
+<code class="sig-name descname">wp</code><a class="headerlink" href="#sarkas.base.Parameters.wp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total Plasma frequency. Defined in Potential module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Parameters.force">
+<code class="sig-name descname">force</code><a class="headerlink" href="#sarkas.base.Parameters.force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for force calculation. Assigned in Potential module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">func</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Parameters.calc_coupling_constant">
+<code class="sig-name descname">calc_coupling_constant</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.calc_coupling_constant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.calc_coupling_constant" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Parameters.calc_electron_properties">
+<code class="sig-name descname">calc_electron_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.calc_electron_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.calc_electron_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Parameters.calc_parameters">
+<code class="sig-name descname">calc_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.calc_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.calc_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign the parsed parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Parameters.create_directories">
+<code class="sig-name descname">create_directories</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.create_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.create_directories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for undefined control variables and create output directory and its subdirectories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Input arguments.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Parameters.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">args</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup simulations’ parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – </p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Input arguments</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="sarkas.base.Particles">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Particles</code><a class="reference internal" href="../_modules/sarkas/base.html#Particles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Particles class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.pos">
+<code class="sig-name descname">pos</code><a class="headerlink" href="#sarkas.base.Particles.pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Particles’ positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.vel">
+<code class="sig-name descname">vel</code><a class="headerlink" href="#sarkas.base.Particles.vel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Particles’ velocities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.acc">
+<code class="sig-name descname">acc</code><a class="headerlink" href="#sarkas.base.Particles.acc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Particles’ accelerations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.params">
+<code class="sig-name descname">params</code><a class="headerlink" href="#sarkas.base.Particles.params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">class</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.tot_num_ptcls">
+<code class="sig-name descname">tot_num_ptcls</code><a class="headerlink" href="#sarkas.base.Particles.tot_num_ptcls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of particles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.box_lengths">
+<code class="sig-name descname">box_lengths</code><a class="headerlink" href="#sarkas.base.Particles.box_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box sides’ lengths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.mass">
+<code class="sig-name descname">mass</code><a class="headerlink" href="#sarkas.base.Particles.mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mass of each particle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.charge">
+<code class="sig-name descname">charge</code><a class="headerlink" href="#sarkas.base.Particles.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge of each particle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.species_id">
+<code class="sig-name descname">species_id</code><a class="headerlink" href="#sarkas.base.Particles.species_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species identifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">shape(N,)</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.species_name">
+<code class="sig-name descname">species_name</code><a class="headerlink" href="#sarkas.base.Particles.species_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species’ names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.species_num">
+<code class="sig-name descname">species_num</code><a class="headerlink" href="#sarkas.base.Particles.species_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of particles of each species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.rdf_nbins">
+<code class="sig-name descname">rdf_nbins</code><a class="headerlink" href="#sarkas.base.Particles.rdf_nbins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of bins for radial pair distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.no_grs">
+<code class="sig-name descname">no_grs</code><a class="headerlink" href="#sarkas.base.Particles.no_grs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of independent <span class="math notranslate nohighlight">\(g_{ij}(r)\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Particles.rdf_hist">
+<code class="sig-name descname">rdf_hist</code><a class="headerlink" href="#sarkas.base.Particles.rdf_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Histogram array for the radial pair distribution function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.gaussian">
+<code class="sig-name descname">gaussian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mean</span></em>, <em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">num_ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.gaussian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.gaussian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize particles’ velocities according to a Maxwell-Boltzmann distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_ptcls</strong> – </p></li>
+<li><p><strong>mean</strong> – </p></li>
+<li><p><strong>sigma</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.halton_reject">
+<code class="sig-name descname">halton_reject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bases</span></em>, <em class="sig-param"><span class="n">r_reject</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.halton_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.halton_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place particles according to a Halton sequence from 0 to L (the box length)
+and uses a rejection radius to avoid placing particles to close to each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Array of 3 ints each of which is a base for the Halton sequence.
+Defualt: bases = np.array([2,3,5])</p></li>
+<li><p><strong>r_reject</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Value of rejection radius.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Author: Luke Stanek
+Date Created: 5/6/19
+Date Updated: N/A
+Updates: N/A</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.kinetic_temperature">
+<code class="sig-name descname">kinetic_temperature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kB</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.kinetic_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.kinetic_temperature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.lattice">
+<code class="sig-name descname">lattice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">perturb</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place particles in a simple cubic lattice with a slight perturbation ranging
+from 0 to 0.5 times the lattice spacing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>perturb</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Value of perturbation, p, such that 0 &lt;= p &lt;= 1.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Author: Luke Stanek
+Date Created: 5/6/19
+Date Updated: 6/2/19
+Updates: Added to S_init_schemes.py for Sarkas import</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize particles’ positions and velocities.
+Positions are initialized based on the load method while velocities are chosen
+from a Maxwell-Boltzmann distribution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.load_from_file">
+<code class="sig-name descname">load_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.load_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.load_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load particles’ data from a specific file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>f_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.load_from_restart">
+<code class="sig-name descname">load_from_restart</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">equilibration</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.load_from_restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.load_from_restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load particles’ data from a checkpoint of a previous run</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Timestep.</p></li>
+<li><p><strong>equilibration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for restart phase.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.random_reject">
+<code class="sig-name descname">random_reject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r_reject</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.random_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.random_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place particles by sampling a uniform distribution from 0 to L (the box length)
+and uses a rejection radius to avoid placing particles to close to each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>r_reject</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Value of rejection radius.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Author: Luke Stanek
+Date Created: 5/6/19
+Date Updated: N/A
+Updates: N/A</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.remove_drift">
+<code class="sig-name descname">remove_drift</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.remove_drift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.remove_drift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enforce conservation of total linear momentum. Updates <code class="docutils literal notranslate"><span class="pre">ptcls.vel</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Particles’ velocities.</p></li>
+<li><p><strong>nums</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Number of particles of each species.</p></li>
+<li><p><strong>masses</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Mass of each species.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the attributes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.uniform_no_reject">
+<code class="sig-name descname">uniform_no_reject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mins</span></em>, <em class="sig-param"><span class="n">maxs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.uniform_no_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.uniform_no_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Randomly distribute particles along each direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>pos</strong> – Particles’ positions.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Particles.update_attributes">
+<code class="sig-name descname">update_attributes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">kB</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Particles.update_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Particles.update_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="sarkas.base.Simulation">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Simulation</code><a class="reference internal" href="../_modules/sarkas/base.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="sarkas.base.Simulation.common_parser">
+<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.common_parser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.equilibrate">
+<code class="sig-name descname">equilibrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">it_start</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.equilibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.equilibrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.evolve">
+<code class="sig-name descname">evolve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potential_energy</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.evolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.evolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time evolution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.initialization">
+<code class="sig-name descname">initialization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.initialization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.initialization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.post_processing">
+<code class="sig-name descname">post_processing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.post_processing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.post_processing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.pre_processing">
+<code class="sig-name descname">pre_processing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.pre_processing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.pre_processing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup all simulations subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span> <span class="pre">(optional)</span></code>) – Dictionary with additional simulations options.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="sarkas.base.Species">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Species</code><a class="reference internal" href="../_modules/sarkas/base.html#Species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Particle Species.</p>
+<dl class="py attribute">
+<dt id="sarkas.base.Species.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#sarkas.base.Species.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species’ name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Species.number_density">
+<code class="sig-name descname">number_density</code><a class="headerlink" href="#sarkas.base.Species.number_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species number density in appropriate units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Species.num">
+<code class="sig-name descname">num</code><a class="headerlink" href="#sarkas.base.Species.num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of particles of Species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Species.mass">
+<code class="sig-name descname">mass</code><a class="headerlink" href="#sarkas.base.Species.mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species’ mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Species.charge">
+<code class="sig-name descname">charge</code><a class="headerlink" href="#sarkas.base.Species.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species’ charge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Species.Z">
+<code class="sig-name descname">Z</code><a class="headerlink" href="#sarkas.base.Species.Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species charge number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Species.atomic_weight">
+<code class="sig-name descname">atomic_weight</code><a class="headerlink" href="#sarkas.base.Species.atomic_weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species atomic weight.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Species.initial_velocity">
+<code class="sig-name descname">initial_velocity</code><a class="headerlink" href="#sarkas.base.Species.initial_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial velocity in x,y,z directions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Species.calc_coupling">
+<code class="sig-name descname">calc_coupling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">aws</span></em>, <em class="sig-param"><span class="n">z_avg</span></em>, <em class="sig-param"><span class="n">const</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.calc_coupling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species.calc_coupling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Species.calc_cyclotron_frequency">
+<code class="sig-name descname">calc_cyclotron_frequency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">magnetic_field_strength</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.calc_cyclotron_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species.calc_cyclotron_frequency" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Species.calc_debye_length">
+<code class="sig-name descname">calc_debye_length</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kB</span></em>, <em class="sig-param"><span class="n">fourpie0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.calc_debye_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species.calc_debye_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Species.calc_plasma_frequency">
+<code class="sig-name descname">calc_plasma_frequency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fourpie0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.calc_plasma_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species.calc_plasma_frequency" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../theory/potentials.html" class="btn btn-neutral float-right" title="Potentials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sarkas.tools.testing.html" class="btn btn-neutral float-left" title="sarkas.tools.testing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Aug, 18, 2020.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>
