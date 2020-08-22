@@ -37,10 +37,10 @@ def yukawa_force_pppm(r, pot_matrix):
     U_s_r = pot_matrix[0] * (0.5 / r) * (np.exp(kappa_r) * mt.erfc(alpha_r + 0.5 * kappa_alpha)
                                          + np.exp(-kappa_r) * mt.erfc(alpha_r - 0.5 * kappa_alpha))
     # Derivative of the exponential term and 1/r
-    f1 = (0.5 / r ** 2) * np.exp(kappa * r) * mt.erfc(alpha_r + 0.5 * kappa_alpha) * (1.0 / r - kappa)
-    f2 = (0.5 / r ** 2) * np.exp(-kappa * r) * mt.erfc(alpha_r - 0.5 * kappa_alpha) * (1.0 / r + kappa)
+    f1 = (0.5 / r) * np.exp(kappa * r) * mt.erfc(alpha_r + 0.5 * kappa_alpha) * (1.0 / r - kappa)
+    f2 = (0.5 / r) * np.exp(-kappa * r) * mt.erfc(alpha_r - 0.5 * kappa_alpha) * (1.0 / r + kappa)
     # Derivative of erfc(a r) = 2a/sqrt(pi) e^{-a^2 r^2}* (x/r)
-    f3 = (alpha / np.sqrt(np.pi) / r ** 2) * (np.exp(-(alpha_r + 0.5 * kappa_alpha) ** 2) * np.exp(kappa_r)
+    f3 = (alpha / np.sqrt(np.pi) / r) * (np.exp(-(alpha_r + 0.5 * kappa_alpha) ** 2) * np.exp(kappa_r)
                                               + np.exp(-(alpha_r - 0.5 * kappa_alpha) ** 2) * np.exp(-kappa_r))
     fr = pot_matrix[0] * (f1 + f2 + f3)
 
@@ -70,7 +70,7 @@ def yukawa_force(r, pot_matrix):
     
     """
     U = pot_matrix[0] * np.exp(-pot_matrix[1] * r) / r
-    force = U * (1 / r + pot_matrix[1]) / r
+    force = U * (1 / r + pot_matrix[1])
 
     return U, force
 

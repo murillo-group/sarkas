@@ -7,7 +7,7 @@ import sys
 import scipy.constants as const
 import fdint
 from dataclasses import dataclass, field
-from typing import Callable, ClassVar, Dict, Optional
+from typing import Optional
 
 # Sarkas modules
 import sarkas.io as io
@@ -181,7 +181,7 @@ class Simulation:
             Dictionary with additional simulations options.
 
         """
-        if other_inputs is not None:
+        if other_inputs:
             if not isinstance(other_inputs, dict):
                 raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
 
@@ -475,17 +475,17 @@ class Parameters:
         for i, sp in enumerate(species):
             self.total_num_ptcls += sp.num
 
-            if sp.atomic_weight is not None:
+            if sp.atomic_weight :
                 # Choose between atomic mass constant or proton mass
                 # u = const.physical_constants["atomic mass constant"][0]
                 sp.mass = self.mp * sp.atomic_weight
 
-            if sp.mass_density is not None:
+            if sp.mass_density:
                 Av = const.physical_constants["Avogadro constant"][0]
                 sp.number_density = sp.mass_density * Av / sp.atomic_weight
                 self.total_num_density += sp.number_density
 
-            assert sp.number_density is not None, "{} number density not defined".format(sp.name)
+            assert sp.number_density, "{} number density not defined".format(sp.name)
 
             self.total_num_density += sp.number_density
 
@@ -497,10 +497,10 @@ class Parameters:
 
             self.species_temperatures[i] = sp.temperature
 
-            if sp.charge is not None:
+            if sp.charge:
                 self.species_charges[i] = sp.charge
                 sp.Z = sp.charge / self.qe
-            elif sp.Z is not None:
+            elif sp.Z:
                 self.species_charges[i] = sp.Z * self.qe
                 sp.charge = sp.Z * self.qe
             else:
@@ -810,21 +810,21 @@ class Particles:
 
         if params.load_method == 'prod_restart':
             msg = "Restart step not defined. Please define restart_step."
-            assert params.load_restart_step is not None, msg
+            assert params.load_restart_step, msg
             assert type(params.load_restart_step) is int, "Only integers are allowed."
 
             self.load_from_restart(False, params.load_restart_step)
 
         elif params.load_method == 'eq_restart':
             msg = "Therm Restart step not defined. Please define restart_step"
-            assert params.load_therm_restart_step is not None, msg
+            assert params.load_therm_restart_step, msg
             assert type(params.load_therm_restart_step) is int, "Only integers are allowed."
 
             self.load_from_restart(True, params.load_therm_restart_step)
 
         elif params.load_method == 'file':
             msg = 'Input file not defined. Please define particle_input_file.'
-            assert params.ptcls_input_file is not None, msg
+            assert params.ptcls_input_file, msg
             self.load_from_file(params.ptcls_input_file)
 
         # position distribution.
