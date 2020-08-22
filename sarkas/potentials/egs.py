@@ -130,7 +130,7 @@ def EGS_force_PP(r, pot_matrix):
         temp2 = pot_matrix[3] * np.exp(-r * pot_matrix[5])
         U = (temp1 + temp2) * pot_matrix[0] / r
         fr = U / r + pot_matrix[0] * (temp1 * pot_matrix[4] + temp2 * pot_matrix[5]) / r
-        fr /= r
+
     else:
         # pot_matrix[0] = Charge factor
         # pot_matrix[2] = 1.0
@@ -144,6 +144,5 @@ def EGS_force_PP(r, pot_matrix):
         fr = U / r   # derivative of 1/r
         fr += U * pot_matrix[5]   # derivative of exp
         fr += pot_matrix[4] * (sin - pot_matrix[3] * cos) * exp / r
-        fr /= r
 
     return U, fr

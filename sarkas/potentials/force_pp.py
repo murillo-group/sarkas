@@ -121,7 +121,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
 
 
 @nb.njit
-def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hist):
+def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure, rdf_hist):
     """ 
     Update the force on the particles based on a linked cell-list (LCL) algorithm.
   
@@ -136,13 +136,13 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
     rc: float
         Cut-off radius.
 
-    Lv: array
+    box_lengths: array
         Array of box sides' length.
 
-    mass_ij: array
+    p_mass: array
         Mass of each particle.
 
-    id_ij: array
+    p_id: array
         Id of each particle
 
     pos: array
@@ -175,26 +175,17 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
     N = pos.shape[0]  # Number of particles
     d = pos.shape[1]  # Number of dimensions
     rshift = np.zeros(d)  # Shifts for array flattening
-    Lx = Lv[0]  # X length of box
-    Ly = Lv[1]  # Y length of box
-    Lz = Lv[2]  # Z length of box
 
     # Initialize
     U_s_r = 0.0  # Short-ranges potential energy accumulator
     ls = np.arange(N)  # List of particle indices in a given cell
 
     # The number of cells in each dimension
-    Nxd = int(Lx / rc)
-    Nyd = int(Ly / rc)
-    Nzd = int(Lz / rc)
-
-    # Width of each cell
-    rc_x = Lx / Nxd
-    rc_y = Ly / Nyd
-    rc_z = Lz / Nzd
+    cells_per_dim = (box_lengths / rc).astype(np.int64)
+    cell_length_per_dim = box_lengths / cells_per_dim
 
     # Total number of cells in volume
-    Ncell = Nxd * Nyd * Nzd
+    Ncell = cells_per_dim.prod()
     head = np.arange(Ncell)  # List of head particles
     empty = -50  # value for empty list and head arrays
     head.fill(empty)  # Make head list empty until population
@@ -205,11 +196,11 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
     # Loop over all particles and place them in cells
     for i in range(N):
         # Determine what cell, in each direction, the i-th particle is in
-        cx = int(pos[i, 0] / rc_x)  # X cell
-        cy = int(pos[i, 1] / rc_y)  # Y cell
-        cz = int(pos[i, 2] / rc_z)  # Z cell
+        cx = int(pos[i, 0] / cell_length_per_dim[0])  # X cell
+        cy = int(pos[i, 1] / cell_length_per_dim[1])  # Y cell
+        cz = int(pos[i, 2] / cell_length_per_dim[2])  # Z cell
         # Determine cell in 3D volume for i-th particle
-        c = cx + cy * Nxd + cz * Nxd * Nyd
+        c = cx + cy * cells_per_dim[0] + cz * cells_per_dim[0] * cells_per_dim[1]
         # List of particle indices occupying a given cell
         ls[i] = head[c]
 
@@ -217,62 +208,60 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
         head[c] = i
 
     # Loop over all cells in x, y, and z direction
-    for cx in range(Nxd):
-        for cy in range(Nyd):
-            for cz in range(Nzd):
+    for cx in range(cells_per_dim[0]):
+        for cy in range(cells_per_dim[1]):
+            for cz in range(cells_per_dim[2]):
 
                 # Compute the cell in 3D volume
-                c = cx + cy * Nxd + cz * Nxd * Nyd
+                c = cx + cy * cells_per_dim[0] + cz * cells_per_dim[0] * cells_per_dim[1]
+                i = head[c]
 
                 # Loop over all cell pairs (N-1 and N+1)
                 for cz_N in range(cz - 1, cz + 2):
-                    for cy_N in range(cy - 1, cy + 2):
-                        for cx_N in range(cx - 1, cx + 2):
+                    # z cells
+                    # Check periodicity: needed for 0th cell
+                    if cz_N < 0:
+                        cz_shift = cells_per_dim[2]
+                        rshift[2] = -box_lengths[2]
+                    # Check periodicity: needed for Nth cell
+                    elif cz_N >= cells_per_dim[2]:
+                        cz_shift = -cells_per_dim[2]
+                        rshift[2] = box_lengths[2]
+                    else:
+                        cz_shift = 0
+                        rshift[2] = 0.0
 
-                            ## x cells ##
-                            # Check if periodicity is needed for 0th cell
+                    for cy_N in range(cy - 1, cy + 2):
+                        # y cells
+                        # Check periodicity
+                        if cy_N < 0:
+                            cy_shift = cells_per_dim[1]
+                            rshift[1] = -box_lengths[1]
+                        elif cy_N >= cells_per_dim[1]:
+                            cy_shift = -cells_per_dim[1]
+                            rshift[1] = box_lengths[1]
+                        else:
+                            cy_shift = 0
+                            rshift[1] = 0.0
+
+                        for cx_N in range(cx - 1, cx + 2):
+                            # x cells
+                            # Check periodicity
                             if cx_N < 0:
-                                cx_shift = Nxd
-                                rshift[0] = -Lx
-                            # Check if periodicity is needed for Nth cell
-                            elif cx_N >= Nxd:
-                                cx_shift = -Nxd
-                                rshift[0] = Lx
+                                cx_shift = cells_per_dim[0]
+                                rshift[0] = -box_lengths[0]
+                            elif cx_N >= cells_per_dim[0]:
+                                cx_shift = -cells_per_dim[0]
+                                rshift[0] = box_lengths[0]
                             else:
                                 cx_shift = 0
                                 rshift[0] = 0.0
 
-                            ## y cells ##
-                            # Check periodicity
-                            if cy_N < 0:
-                                cy_shift = Nyd
-                                rshift[1] = -Ly
-                            # Check periodicity
-                            elif cy_N >= Nyd:
-                                cy_shift = -Nyd
-                                rshift[1] = Ly
-                            else:
-                                cy_shift = 0
-                                rshift[1] = 0.0
-
-                            ## z cells ##
-                            # Check periodicity
-                            if cz_N < 0:
-                                cz_shift = Nzd
-                                rshift[2] = -Lz
-                            # Check periodicity
-                            elif cz_N >= Nzd:
-                                cz_shift = -Nzd
-                                rshift[2] = Lz
-                            else:
-                                cz_shift = 0
-                                rshift[2] = 0.0
-
                             # Compute the location of the N-th cell based on shifts
-                            c_N = (cx_N + cx_shift) + (cy_N + cy_shift) * Nxd + (cz_N + cz_shift) * Nxd * Nyd
+                            c_N = (cx_N + cx_shift) + (cy_N + cy_shift) * cells_per_dim[0] \
+                                  + (cz_N + cz_shift) * cells_per_dim[0] * cells_per_dim[1]
 
-                            i = head[c]
-
+                            # Recall i = head[c]
                             # First compute interaction of head particle with neighboring cell head particles
                             # Then compute interactions of head particle within a specific cell
                             while i != empty:
@@ -294,29 +283,26 @@ def update(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hi
                                         r = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
 
                                         if measure and int(r / dr_rdf) < rdf_nbins:
-                                            rdf_hist[int(r / dr_rdf), id_ij[i], id_ij[j]] += 1
+                                            rdf_hist[int(r / dr_rdf), p_id[i], p_id[j]] += 1
 
                                         # If below the cutoff radius, compute the force
                                         if r < rc:
-                                            id_i = id_ij[i]
-                                            id_j = id_ij[j]
-                                            mass_i = mass_ij[i]
-                                            mass_j = mass_ij[j]
-                                            p_matrix = potential_matrix[:, id_i, id_j]
+                                            p_matrix = potential_matrix[:, p_id[i], p_id[j]]
 
                                             # Compute the short-ranged force
                                             pot, fr = force(r, p_matrix)
+                                            fr /= r
                                             U_s_r += pot
 
                                             # Update the acceleration for i particles in each dimension
 
-                                            acc_ix = dx * fr / mass_i
-                                            acc_iy = dy * fr / mass_i
-                                            acc_iz = dz * fr / mass_i
+                                            acc_ix = dx * fr / p_mass[i]
+                                            acc_iy = dy * fr / p_mass[i]
+                                            acc_iz = dz * fr / p_mass[i]
 
-                                            acc_jx = dx * fr / mass_j
-                                            acc_jy = dy * fr / mass_j
-                                            acc_jz = dz * fr / mass_j
+                                            acc_jx = dx * fr / p_mass[j]
+                                            acc_jy = dy * fr / p_mass[j]
+                                            acc_jz = dz * fr / p_mass[j]
 
                                             acc_s_r[i, 0] += acc_ix
                                             acc_s_r[i, 1] += acc_iy

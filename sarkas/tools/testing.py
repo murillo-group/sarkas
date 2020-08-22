@@ -3,22 +3,625 @@ Module for testing simulation parameters
 """
 # Python modules
 import numpy as np
+from numba import njit
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import os
-from optparse import OptionParser
-from scipy.optimize import curve_fit
-from mpl_toolkits.mplot3d import Axes3D
-from tqdm import tqdm
+import yaml
 
 # Sarkas modules
-from sarkas.io.verbose import Verbose
-from sarkas.simulation.params import Params
-from sarkas.simulation.particles import Particles
-from sarkas.tools import force_error
+import sarkas.io as io
+from sarkas.potentials.base import Potential
+from sarkas.time_evolution.integrators import Integrator
+from sarkas.time_evolution.thermostats import Thermostat
+from sarkas.base import SarkasTimer, Particles, Parameters, Species
 
-#
-# plt.style.use(os.path.join(os.path.join(os.getcwd(), 'src'), 'MSUstyle.mplstyle'))
+
+class PreProcess:
+    
+    def __init__(self):
+        self.potential = Potential()
+        self.integrator = Integrator()
+        self.thermostat = Thermostat()
+        self.parameters = Parameters()
+        self.particles = Particles()
+        self.species = []
+        self.input_file = None
+        self.loops = 10
+        self.estimate = False
+        self.pm_meshes = np.array([16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
+        self.pp_cells = np.arange(3, 16, dtype=int)
+
+    def common_parser(self, filename):
+
+        self.input_file = filename
+        self.parameters.input_file = filename
+        with open(filename, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+            for lkey in dics:
+                if lkey == "Particles":
+                    for species in dics["Particles"]:
+                        spec = Species()
+                        for key, value in species["Species"].items():
+                            if hasattr(spec, key):
+                                spec.__dict__[key] = value
+                            else:
+                                setattr(spec, key, value)
+                        self.species.append(spec)
+
+                if lkey == "Potential":
+                    for key, value in dics[lkey].items():
+                        if hasattr(self.potential, key):
+                            self.potential.__dict__[key] = value
+                        else:
+                            setattr(self.potential, key, value)
+
+                if lkey == "Thermostat":
+                    for key, value in dics[lkey].items():
+                        if hasattr(self.thermostat, key):
+                            self.thermostat.__dict__[key] = value
+                        else:
+                            setattr(self.thermostat, key, value)
+
+                if lkey == "Integrator":
+                    for key, value in dics[lkey].items():
+                        if hasattr(self.integrator, key):
+                            self.integrator.__dict__[key] = value
+                        else:
+                            setattr(self.integrator, key, value)
+
+                if lkey == "Parameters":
+                    for key, value in dics[lkey].items():
+                        if hasattr(self.parameters, key):
+                            self.parameters.__dict__[key] = value
+                        else:
+                            setattr(self.parameters, key, value)
+
+    def setup(self, loops=None, estimate=None, other_inputs=None):
+        """
+        Setup simulations subclasses.
+
+        Parameters
+        ----------
+        estimate
+        loops: int (optional)
+            Number of loops over which to average.
+
+        other_inputs : dict (optional)
+            Dictionary with additional simulations options.
+
+        """
+        if loops:
+            self.loops = loops
+
+        if estimate:
+            self.estimate = estimate
+
+        if other_inputs:
+            if not isinstance(other_inputs, dict):
+                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
+
+            for class_name, class_attr in other_inputs.items():
+                if not class_name == 'Particles':
+                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
+
+        self.timer = SarkasTimer()
+
+        # save some general info
+        self.parameters.potential_type = self.potential.type
+        self.parameters.cutoff_radius = self.potential.rc
+        self.parameters.magnetized = self.integrator.magnetized
+        self.parameters.integrator = self.integrator.type
+        self.parameters.thermostat = self.thermostat.type
+
+        self.parameters.setup(self.species, other_inputs)
+
+        self.checkpoint = io.Checkpoint(self.parameters, self.species)
+        self.verbose = io.Verbose(self.parameters)
+
+        self.timer.start()
+        self.potential.setup(self.parameters)
+        self.thermostat.setup(self.parameters)
+        self.integrator.setup(self.parameters, self.thermostat, self.potential)
+        self.particles.setup(self.parameters, self.species)
+        self.verbose.sim_setting_summary(self)  # simulation setting summary
+        time_end = self.timer.stop()
+
+        self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
+
+        self.verbose.time_stamp("Initialization", time_end)
+
+    def green_function_timer(self):
+
+        self.timer.start()
+        self.potential.pppm_setup(self.parameters)
+        return self.timer.stop()
+
+    def run(self):
+
+        if self.potential.pppm_on:
+            self.make_pppm_approximation_plots()
+            green_time = self.green_function_timer()
+            print('\n\n----------------- Force Calculation Times -----------------------\n')
+            self.print_time_report("GF", green_time, 0)
+        else:
+            total_force_error, rcuts = self.analytical_approx_pp()
+            print('\n\n----------------- Force Calculation Times -----------------------\n')
+
+        self.time_acceleration()
+
+        if self.estimate:
+            self.estimate_best_parameters()
+
+    def estimate_best_parameters(self):
+        """Estimate the best number of mesh points and cutoff radius."""
+
+        print('\n\n----------------- Timing Study -----------------------')
+
+        max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.aws)
+        if max_cells != len(self.pp_cells):
+            self.pp_cells = np.arange(3, max_cells, dtype=int)
+
+        pm_times = np.zeros(len(self.pm_meshes))
+        pm_errs = np.zeros(len(self.pm_meshes))
+
+        pp_times = np.zeros((len(self.pm_meshes), len(self.pp_cells)))
+        pp_errs = np.zeros((len(self.pm_meshes), len(self.pp_cells)))
+
+        pm_xlabels = []
+        pp_xlabels = []
+
+        self.force_error_map = np.zeros((len(self.pm_meshes), len(self.pp_cells)))
+
+        # Average the PM time
+        for i, m in enumerate(self.pm_meshes):
+
+            self.potential.pppm_mesh = m * np.ones(3, dtype=int)
+            self.potential.pppm_alpha_ewald = 0.25 * m / self.parameters.box_lengths.min()
+            green_time = self.green_function_timer()
+            pm_errs[i] = self.potential.pppm_pm_err
+            print('\n\nMesh = {} x {} x {} : '.format(*self.potential.pppm_mesh))
+            print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(self.potential.pppm_alpha_ewald * self.parameters.aws,
+                                                             self.potential.pppm_alpha_ewald))
+            print('PM Err = {:1.4e}  '.format(self.potential.pppm_pm_err), end='')
+
+            self.print_time_report("GF", green_time, 0)
+            pm_xlabels.append("{}x{}x{}".format(*self.potential.pppm_mesh))
+            for it in range(3):
+                self.timer.start()
+                self.potential.update_pm(self.particles)
+                pm_times[i] += self.timer.stop() / 3.0
+
+            for j, c in enumerate(self.pp_cells):
+                self.potential.rc = self.parameters.box_lengths.min() / c
+                kappa_over_alpha = - 0.25 * (self.kappa / self.potential.pppm_alpha_ewald) ** 2
+                alpha_times_rcut = - (self.potential.pppm_alpha_ewald * self.potential.rc) ** 2
+                self.potential.pppm_pp_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(
+                    self.potential.rc)
+                self.potential.pppm_pp_err *= np.sqrt(self.parameters.total_num_ptcls) * self.parameters.aws ** 2 \
+                                              / np.sqrt(self.parameters.box_volume)
+
+                pp_errs[i, j] = self.potential.pppm_pp_err
+                self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err ** 2
+                                                     + self.potential.pppm_pm_err ** 2)
+
+                if j == 0:
+                    pp_xlabels.append("{:1.2f}".format(self.potential.rc / self.parameters.aws))
+
+                for it in range(3):
+                    self.timer.start()
+                    self.potential.update_linked_list(self.particles)
+                    pp_times[i, j] += self.timer.stop() / 3.0
+
+        self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))
+        for i in range(len(self.pm_meshes)):
+            for j in range(len(self.pp_cells)):
+                self.lagrangian[i, j] = abs(pp_errs[i, j] ** 2 * pp_times[i, j] - pm_errs[i] ** 2 * pm_times[i])
+
+        best = np.unravel_index(self.lagrangian.argmin(), self.lagrangian.shape)
+        self.best_mesh = self.pm_meshes[best[0]]
+        self.best_cells = self.pp_cells[best[1]]
+
+        # set the best parameter
+        self.potential.pppm_mesh = self.best_mesh * np.ones(3, dtype=int)
+        self.potential.rc = self.parameters.box_lengths.min() / self.best_cells
+        self.potential.pppm_alpha_ewald = 0.25 * self.best_mesh / self.parameters.box_lengths.min()
+        self.potential.pppm_setup(self.parameters)
+
+        # print report
+        self.verbose.timing_study(self)
+        # time prediction
+        predicted_times = pp_times[best] + pm_times[best[0]]
+        # Print estimate of run times
+        self.verbose.time_stamp('Equilibration', predicted_times * self.parameters.equilibration_steps)
+        self.verbose.time_stamp('Production', predicted_times * self.parameters.production_steps)
+        self.verbose.time_stamp('Total Run',
+                                predicted_times * (self.parameters.equilibration_steps
+                                                    + self.parameters.production_steps) )
+
+    def make_lagrangian_plot(self):
+
+        c_mesh, m_mesh = np.meshgrid(self.self.pp_cells, self.self.pm_meshes)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)  # projection='3d')
+        # CS = ax.plot_surface(m_mesh, c_mesh, self.lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+        CS = ax.contourf(m_mesh,
+                         c_mesh,
+                         self.lagrangian,
+                         norm=LogNorm(vmin=self.lagrangian.min(), vmax=self.lagrangian.max()))
+        CS2 = ax.contour(CS, colors='w')
+        ax.clabel(CS2, fmt='%1.0e', colors='w')
+        fig.colorbar(CS)
+        ax.scatter(self.best_mesh, self.best_cells, s=200, c='k')
+        ax.set_xlabel('Mesh size')
+        ax.set_ylabel(r'No. Cells = $1/r_c$')
+        ax.set_title('2D self.lagrangian')
+        fig.savefig(os.path.join(self.parameters.pre_run_dir, '2D_Lagrangian.png'))
+        fig.show()
+
+    def make_force_error_map_plot(self):
+        c_mesh, m_mesh = np.meshgrid(self.self.pp_cells, self.self.pm_meshes)
+        fig, ax = plt.subplots(1, 1, figsize=(11, 7))
+        if self.force_error_map.min() == 0.0:
+            minv = 1e-120
+        else:
+            minv = self.force_error_map.min()
+        CS = ax.contourf(m_mesh,
+                         c_mesh,
+                         self.force_error_map,
+                         norm=LogNorm(vmin=minv, vmax=self.force_error_map.max()))
+        CS2 = ax.contour(CS, colors='w')
+        ax.scatter(self.best_mesh, self.best_cells, s=200, c='k')
+        ax.clabel(CS2, fmt='%1.0e', colors='w')
+        fig.colorbar(CS)
+        ax.set_xlabel('Mesh size')
+        ax.set_ylabel(r'No. Cells = $1/r_c$')
+        ax.set_title('Force Error')
+        fig.savefig(os.path.join(self.parameters.pre_run_dir, 'ForceMap.png'))
+        fig.show()
+
+    def time_acceleration(self):
+
+        pp_acc_time = np.zeros(self.loops)
+        pm_acc_time = np.zeros(self.loops)
+        for i in range(self.loops):
+            self.timer.start()
+            self.potential.update_linked_list(self.particles)
+            pp_acc_time[i] = self.timer.stop()
+            self.timer.start()
+            self.potential.update_pm(self.particles)
+            pm_acc_time[i] = self.timer.stop()
+
+        # Calculate the mean excluding the first value because that time include numba compilation time
+        pp_mean_time = np.mean(pp_acc_time[1:])
+        pm_mean_time = np.mean(pm_acc_time[1:])
+        self.print_time_report("PP", pp_mean_time, self.loops)
+        if self.potential.pppm_on:
+            self.print_time_report("PM", pm_mean_time, self.loops)
+
+        print('\n\n----------------- Estimated Simulation Times -----------------------\n')
+        # Print estimate of run times
+        eq_time = (pp_mean_time + pm_mean_time) * self.parameters.equilibration_steps
+        self.verbose.time_stamp('Equilibration', eq_time)
+
+        prod_time = (pp_mean_time + pm_mean_time) * self.parameters.production_steps
+        self.verbose.time_stamp('Production', prod_time)
+
+        tot_time = eq_time + prod_time
+        self.verbose.time_stamp('Total Run', tot_time)
+
+    def make_pppm_approximation_plots(self):
+        chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.aws
+        chosen_rcut = self.potential.rc / self.parameters.aws
+        # Calculate Force error from analytic approximation given in Dharuman et al. J Chem Phys 2017
+        total_force_error, pp_force_error, pm_force_error, rcuts, alphas = self.analytical_approx_pppm()
+
+        # Color Map
+        self.make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error)
+
+        # Line Plot
+        self.make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error)
+
+    def make_line_plot(self, rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error):
+        """
+        Plot selected values of the total force error approximation.
+
+        Parameters
+        ----------
+        rcuts: array
+            Cut off distances.
+        alphas: array
+            Ewald parameters.
+
+        chosen_alpha: float
+            Chosen Ewald parameter.
+
+        chosen_rcut: float
+            Chosen cut off radius.
+
+        total_force_error: ndarray
+            Force error matrix.
+
+        parameters: class
+            Simulation's parameters.
+
+        """
+        # Plot the results
+        fig_path = self.parameters.pre_run_dir
+
+        fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
+        ax[0].plot(rcuts, total_force_error[30, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
+        ax[0].plot(rcuts, total_force_error[40, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[40]))
+        ax[0].plot(rcuts, total_force_error[50, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[50]))
+        ax[0].plot(rcuts, total_force_error[60, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[60]))
+        ax[0].plot(rcuts, total_force_error[70, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[70]))
+        ax[0].set_ylabel(r'$\Delta F^{approx}_{tot}$')
+        ax[0].set_xlabel(r'$r_c/a_{ws}$')
+        ax[0].set_yscale('log')
+        ax[0].axvline(chosen_rcut, ls='--', c='k')
+        ax[0].axhline(self.parameters.force_error, ls='--', c='k')
+        if rcuts[-1] * self.parameters.aws > 0.5 * self.parameters.box_lengths.min():
+            ax[0].axvline(0.5 * self.parameters.box_lengths.min() / self.parameters.aws, c='r', label=r'$L/2$')
+        ax[0].grid(True, alpha=0.3)
+        ax[0].legend(loc='best')
+
+        ax[1].plot(alphas, total_force_error[:, 30], label=r'$r_c = {:2.2f}'.format(rcuts[30]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 40], label=r'$r_c = {:2.2f}'.format(rcuts[40]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 50], label=r'$r_c = {:2.2f}'.format(rcuts[50]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 60], label=r'$r_c = {:2.2f}'.format(rcuts[60]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 70], label=r'$r_c = {:2.2f}'.format(rcuts[70]) + ' a_{ws}$')
+        ax[1].set_xlabel(r'$\alpha \; a_{ws}$')
+        ax[1].set_yscale('log')
+        ax[1].axhline(self.parameters.force_error, ls='--', c='k')
+        ax[1].axvline(chosen_alpha, ls='--', c='k')
+        ax[1].grid(True, alpha=0.3)
+        ax[1].legend(loc='best')
+        fig.suptitle(
+            r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:.2f}$'.format(
+                self.parameters.total_num_ptcls,
+                self.potential.pppm_mesh[0],
+                self.kappa * self.parameters.aws))
+        fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + self.parameters.job_id + '.png'))
+        fig.show()
+
+    def make_color_map(self, rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error):
+        """
+        Plot a color map of the total force error approximation.
+
+        Parameters
+        ----------
+        rcuts: array
+            Cut off distances.
+
+        alphas: array
+            Ewald parameters.
+
+        chosen_alpha: float
+            Chosen Ewald parameter.
+
+        chosen_rcut: float
+            Chosen cut off radius.
+
+        total_force_error: ndarray
+            Force error matrix.
+        """
+        # Plot the results
+        fig_path = self.parameters.pre_run_dir
+
+        r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
+        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+        if total_force_error.min() == 0.0:
+            minv = 1e-120
+        else:
+            minv = total_force_error.min()
+        total_force_error[ total_force_error == 0.0 ] = minv
+        CS = ax.contourf(a_mesh, r_mesh, total_force_error, norm=LogNorm(vmin=minv, vmax=total_force_error.max()))
+        CS2 = ax.contour(CS, colors='w')
+        ax.clabel(CS2, fmt='%1.0e', colors='w')
+        ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
+        if rcuts[-1] * self.parameters.aws > 0.5 * self.parameters.box_lengths.min():
+            ax.axhline(0.5 * self.parameters.box_lengths.min() / self.parameters.aws, c='r', label=r'$L/2$')
+        # ax.tick_parameters(labelsize=fsz)
+        ax.set_xlabel(r'$\alpha \;a_{ws}$')
+        ax.set_ylabel(r'$r_c/a_{ws}$')
+        ax.set_title(
+            r'$\Delta F^{approx}_{tot}(r_c,\alpha)$' + r'  for  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
+                self.parameters.total_num_ptcls, self.potential.pppm_mesh[0], self.kappa * self.parameters.aws))
+        fig.colorbar(CS)
+        fig.tight_layout()
+        fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + self.parameters.job_id + '.png'))
+        fig.show()
+
+    @staticmethod
+    def print_time_report(str_id, t, loops):
+        """Print times estimates of simulation."""
+        if str_id == "GF":
+            print("Optimal Green's Function Time = {:1.3f} sec \n".format(t))
+        elif str_id == "PP":
+            print('Average time of PP acceleration calculation over {} loops: {:1.3f} msec \n'.format(loops, t * 1e3))
+        elif str_id == "PM":
+            print('Average time of PM acceleration calculation over {} loops: {:1.3f} msec \n'.format(loops, t * 1e3))
+    
+    def analytical_approx_pp(self):
+        """Calculate PP force error."""
+
+        r_min = self.potential.rc * 0.5
+        r_max = self.potential.rc * 1.5
+
+        rcuts = np.linspace(r_min, r_max, 101) / self.parameters.aws
+
+        # Calculate the analytic PP error and the total force error
+        pp_force_error = np.sqrt(2.0 * np.pi * self.kappa) * np.exp(- rcuts * self.kappa)
+        pp_force_error *= np.sqrt(self.parameters.total_num_ptcls *
+                                  self.parameters.aws ** 3 / self.parameters.box_volume)
+
+        return pp_force_error, rcuts
+
+    def analytical_approx_pppm(self):
+        """Calculate the total force error as given in Dharuman et al. J Chem Phys 146 024112 (2017)."""
+
+        p = self.potential.pppm_cao
+        L = self.parameters.box_lengths[0] / self.parameters.aws
+        h = L / self.potential.pppm_mesh[0]
+
+        a_min = self.potential.pppm_alpha_ewald * 0.5
+        a_max = self.potential.pppm_alpha_ewald * 1.5
+
+        r_min = self.potential.rc * 0.5
+        r_max = self.potential.rc * 1.5
+
+        alphas = self.parameters.aws * np.linspace(a_min, a_max, 101)
+        rcuts = np.linspace(r_min, r_max, 101) / self.parameters.aws
+
+        pm_force_error = np.zeros(len(alphas))
+        pp_force_error = np.zeros((len(alphas), len(rcuts)))
+        total_force_error = np.zeros((len(alphas), len(rcuts)))
+
+        # Coefficient from Deserno and Holm J Chem Phys 109 7694 (1998)
+        if p == 1:
+            Cmp = np.array([2 / 3])
+        elif p == 2:
+            Cmp = np.array([2 / 45, 8 / 189])
+        elif p == 3:
+            Cmp = np.array([4 / 495, 2 / 225, 8 / 1485])
+        elif p == 4:
+            Cmp = np.array([2 / 4725, 16 / 10395, 5528 / 3869775, 32 / 42525])
+        elif p == 5:
+            Cmp = np.array([4 / 93555, 2764 / 11609325, 8 / 25515, 7234 / 32531625, 350936 / 3206852775])
+        elif p == 6:
+            Cmp = np.array([2764 / 638512875, 16 / 467775, 7234 / 119282625, 1403744 / 25196700375,
+                            1396888 / 40521009375, 2485856 / 152506344375])
+        elif p == 7:
+            Cmp = np.array([8 / 18243225, 7234 / 1550674125, 701872 / 65511420975, 2793776 / 225759909375,
+                            1242928 / 132172165125, 1890912728 / 352985880121875, 21053792 / 8533724574375])
+
+        kappa = self.kappa * self.parameters.aws
+
+        for ia, alpha in enumerate(alphas):
+            somma = 0.0
+            for m in np.arange(p):
+                expp = 2 * (m + p)
+                somma += Cmp[m] * (2 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.) ** expp
+            # eq.(36) in Dharuman J Chem Phys 146 024112 (2017)
+            pm_force_error[ia] = np.sqrt(3.0 * somma) / (2.0 * np.pi)
+        # eq.(35)
+        pm_force_error *= np.sqrt(self.parameters.total_num_ptcls *
+                                  self.parameters.aws ** 3 / self.parameters.box_volume)
+        # Calculate the analytic PP error and the total force error
+        if self.potential.type == "QSP":
+            for (ir, rc) in enumerate(rcuts):
+                pp_force_error[:, ir] = np.sqrt(2.0 * np.pi * kappa) * np.exp(- rc * kappa)
+                pp_force_error[:, ir] *= np.sqrt(self.parameters.total_num_ptcls
+                                                 * self.parameters.aws ** 3 / self.parameters.box_volume)
+                for (ia, alfa) in enumerate(alphas):
+                    # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
+                    total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
+        else:
+            for (ir, rc) in enumerate(rcuts):
+                for (ia, alfa) in enumerate(alphas):
+                    # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
+                    pp_force_error[ia, ir] = 2.0 * np.exp(-(0.5 * kappa / alfa) ** 2
+                                                          - alfa ** 2 * rc ** 2) / np.sqrt(rc)
+                    pp_force_error[ia, ir] *= np.sqrt(self.parameters.total_num_ptcls *
+                                                      self.parameters.aws ** 3 / self.parameters.box_volume)
+                    # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
+                    total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
+
+        return total_force_error, pp_force_error, pm_force_error, rcuts, alphas
+
+    @staticmethod
+    def make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels, fig_path):
+        """
+        Make a dual plot of the fitted functions.
+        """
+        fig, ax = plt.subplots(1, 2, figsize=(12, 7))
+        ax[0].plot(pm_xdata, pm_times.mean(axis=-1), 'o', label='Measured times')
+        ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), '--r', label="Fit $f(x) = a + b x + c x^2$")
+        ax[1].plot(pp_xdata, pp_times.mean(axis=-1), 'o', label='Measured times')
+        ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), '--r', label="Fit $f(x) = a x$")
+
+        ax[0].set_xscale('log')
+        ax[0].set_yscale('log')
+
+        ax[1].set_xscale('log')
+        ax[1].set_yscale('log')
+
+        ax[0].legend()
+        ax[1].legend()
+
+        ax[0].set_xticks(pm_xdata)
+        ax[0].set_xticklabels(pm_xlabels)
+        # Rotate the tick labels and set their alignment.
+        plt.setp(ax[0].get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+
+        ax[1].set_xticks(pp_xdata[0:-1:3])
+        ax[1].set_xticklabels(pp_xlabels)
+        # Rotate the tick labels and set their alignment.
+        plt.setp(ax[1].get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+
+        ax[0].set_title("PM calculation")
+        ax[1].set_title("PP calculation")
+
+        ax[0].set_xlabel('Mesh sizes')
+        ax[1].set_xlabel(r'$r_c / a_{ws}$')
+        fig.tight_layout()
+        fig.savefig(os.path.join(fig_path, 'Timing_Fit.png'))
+        fig.show()
+
+
+@njit
+def Gk(x, alpha, kappa):
+    """
+    Green's function of Coulomb/Yukawa potential.
+    """
+    return 4.0 * np.pi * np.exp(-(x ** 2 + kappa ** 2) / (2 * alpha) ** 2) / (kappa ** 2 + x ** 2)
+
+
+@njit
+def betamp(m, p, alpha, kappa):
+    """
+    Calculate :math:`\beta(m)` of eq.(37) in Dharuman et al. J Chem Phys 146 024112 (2017)
+    """
+    xa = np.linspace(0.0001, 500, 5000)
+    return np.trapz(Gk(xa, alpha, kappa) * Gk(xa, alpha, kappa) * xa ** (2 * (m + p + 2)), x=xa)
+
+
+@njit
+def analytical_approx_pppm_single(kappa, rc, p, h, alpha):
+    """
+    Calculate the total force error for a given value of ``rc`` and ``alpha``. See similar function above.
+    """
+    # Coefficient from Deserno and Holm J Chem Phys 109 7694 (1998)
+    if p == 1:
+        Cmp = np.array([2 / 3])
+    elif p == 2:
+        Cmp = np.array([2 / 45, 8 / 189])
+    elif p == 3:
+        Cmp = np.array([4 / 495, 2 / 225, 8 / 1485])
+    elif p == 4:
+        Cmp = np.array([2 / 4725, 16 / 10395, 5528 / 3869775, 32 / 42525])
+    elif p == 5:
+        Cmp = np.array([4 / 93555, 2764 / 11609325, 8 / 25515, 7234 / 32531625, 350936 / 3206852775])
+    elif p == 6:
+        Cmp = np.array([2764 / 638512875, 16 / 467775, 7234 / 119282625, 1403744 / 25196700375,
+                        1396888 / 40521009375, 2485856 / 152506344375])
+    elif p == 7:
+        Cmp = np.array([8 / 18243225, 7234 / 1550674125, 701872 / 65511420975, 2793776 / 225759909375,
+                        1242928 / 132172165125, 1890912728 / 352985880121875, 21053792 / 8533724574375])
+
+    somma = 0.0
+    for m in np.arange(p):
+        expp = 2 * (m + p)
+        somma += Cmp[m] * (2 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.) ** expp
+    # eq.(36) in Dharuman J Chem Phys 146 024112 (2017)
+    pm_force_error = np.sqrt(3.0 * somma) / (2.0 * np.pi)
+
+    # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
+    pp_force_error = 2.0 * np.exp(-(0.5 * kappa / alpha) ** 2 - alpha ** 2 * rc ** 2) / np.sqrt(rc)
+    # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
+    Tot_DeltaF = np.sqrt(pm_force_error ** 2 + pp_force_error ** 2)
+
+    return Tot_DeltaF, pp_force_error, pm_force_error
 
 
 def quadratic(x, a, b, c):
@@ -64,372 +667,3 @@ def linear(x, a):
     """
     return a * x
 
-
-def make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params):
-    """
-    Plot selected values of the total force error approximation.
-
-    Parameters
-    ----------
-    rcuts: array
-        Cut off distances.
-    alphas: array
-        Ewald parameters.
-
-    chosen_alpha: float
-        Chosen Ewald parameter.
-
-    chosen_rcut: float
-        Chosen cut off radius.
-
-    DeltaF_tot: ndarray
-        Force error matrix.
-
-    params: class
-        Simulation's parameters.
-
-    """
-    # Plot the calculate Force error
-    kappa_title = 0.0 if params.potential.type == "Coulomb" else params.potential.matrix[1, 0, 0]
-
-    # Plot the results
-    fig_path = params.pre_run_dir
-
-    fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
-    ax[0].plot(rcuts, DeltaF_tot[30, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
-    ax[0].plot(rcuts, DeltaF_tot[40, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[40]))
-    ax[0].plot(rcuts, DeltaF_tot[50, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[50]))
-    ax[0].plot(rcuts, DeltaF_tot[60, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[60]))
-    ax[0].plot(rcuts, DeltaF_tot[70, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[70]))
-    ax[0].set_ylabel(r'$\Delta F^{approx}_{tot}$')
-    ax[0].set_xlabel(r'$r_c/a_{ws}$')
-    ax[0].set_yscale('log')
-    ax[0].axvline(chosen_rcut, ls='--', c='k')
-    ax[0].axhline(params.pppm.F_err, ls='--', c='k')
-    if rcuts[-1] * params.aws > 0.5 * params.box_lengths.min():
-        ax[0].axvline(0.5 * params.box_lengths.min() / params.aws, c='r', label=r'$L/2$')
-    ax[0].grid(True, alpha=0.3)
-    ax[0].legend(loc='best')
-
-    ax[1].plot(alphas, DeltaF_tot[:, 30], label=r'$r_c = {:2.2f}'.format(rcuts[30]) + ' a_{ws}$')
-    ax[1].plot(alphas, DeltaF_tot[:, 40], label=r'$r_c = {:2.2f}'.format(rcuts[40]) + ' a_{ws}$')
-    ax[1].plot(alphas, DeltaF_tot[:, 50], label=r'$r_c = {:2.2f}'.format(rcuts[50]) + ' a_{ws}$')
-    ax[1].plot(alphas, DeltaF_tot[:, 60], label=r'$r_c = {:2.2f}'.format(rcuts[60]) + ' a_{ws}$')
-    ax[1].plot(alphas, DeltaF_tot[:, 70], label=r'$r_c = {:2.2f}'.format(rcuts[70]) + ' a_{ws}$')
-    ax[1].set_xlabel(r'$\alpha \; a_{ws}$')
-    ax[1].set_yscale('log')
-    ax[1].axhline(params.pppm.F_err, ls='--', c='k')
-    ax[1].axvline(chosen_alpha, ls='--', c='k')
-    ax[1].grid(True, alpha=0.3)
-    ax[1].legend(loc='best')
-    fig.suptitle(
-        r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
-            params.total_num_ptcls,
-            params.pppm.MGrid[0],
-            kappa_title * params.aws))
-    fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + params.job_id + '.png'))
-    fig.show()
-
-
-def make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params):
-    """
-    Plot a color map of the total force error approximation.
-
-    Parameters
-    ----------
-    rcuts: array
-        Cut off distances.
-
-    alphas: array
-        Ewald parameters.
-
-    chosen_alpha: float
-        Chosen Ewald parameter.
-
-    chosen_rcut: float
-        Chosen cut off radius.
-
-    DeltaF_tot: ndarray
-        Force error matrix.
-
-    params: class
-        Simulation's parameters.
-
-    """
-    # Plot the calculate Force error
-    kappa_title = 0.0 if params.potential.type == "Coulomb" else params.potential.matrix[1, 0, 0]
-
-    # Plot the results
-    fig_path = params.pre_run_dir
-
-    r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
-    fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-    if DeltaF_tot.min() == 0.0:
-        minv = 1e-120
-    else:
-        minv = DeltaF_tot.min()
-    CS = ax.contourf(a_mesh, r_mesh, DeltaF_tot, norm=LogNorm(vmin=minv, vmax=DeltaF_tot.max()))
-    CS2 = ax.contour(CS, colors='w')
-    ax.clabel(CS2, fmt='%1.0e', colors='w')
-    ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
-    if rcuts[-1] * params.aws > 0.5 * params.box_lengths.min():
-        ax.axhline(0.5 * params.box_lengths.min() / params.aws, c='r', label=r'$L/2$')
-    # ax.tick_params(labelsize=fsz)
-    ax.set_xlabel(r'$\alpha \;a_{ws}$')
-    ax.set_ylabel(r'$r_c/a_{ws}$')
-    ax.set_title(
-        r'$\Delta F^{approx}_{tot}(r_c,\alpha)$' + r'  for  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
-            params.total_num_ptcls, params.pppm.MGrid[0], kappa_title * params.aws))
-    fig.colorbar(CS)
-    fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + params.job_id + '.png'))
-    fig.show()
-
-
-def make_fit_plot(pp_xdata, pm_xdata, pp_times, pm_times, pp_opt, pm_opt, pp_xlabels, pm_xlabels, fig_path):
-    """
-    Make a dual plot of the fitted functions.
-    """
-    fig, ax = plt.subplots(1, 2, figsize=(12, 7))
-    ax[0].plot(pm_xdata, pm_times.mean(axis=-1), 'o', label='Measured times')
-    ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), '--r', label="Fit $f(x) = a + b x + c x^2$")
-    ax[1].plot(pp_xdata, pp_times.mean(axis=-1), 'o', label='Measured times')
-    ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), '--r', label="Fit $f(x) = a x$")
-
-    ax[0].set_xscale('log')
-    ax[0].set_yscale('log')
-
-    ax[1].set_xscale('log')
-    ax[1].set_yscale('log')
-
-    ax[0].legend()
-    ax[1].legend()
-
-    ax[0].set_xticks(pm_xdata)
-    ax[0].set_xticklabels(pm_xlabels)
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax[0].get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
-
-    ax[1].set_xticks(pp_xdata[0:-1:3])
-    ax[1].set_xticklabels(pp_xlabels)
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax[1].get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
-
-    ax[0].set_title("PM calculation")
-    ax[1].set_title("PP calculation")
-
-    ax[0].set_xlabel('Mesh sizes')
-    ax[1].set_xlabel(r'$r_c / a_{ws}$')
-    fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'Timing_Fit.png'))
-    fig.show()
-
-
-def main(params, estimate=False):
-    """
-    Run a test to check the force error and estimate run time.
-
-    Parameters
-    ----------
-    estimate: bool
-        Flag for estimating optimal PPPM parameters.
-
-    params: object
-        Simulation's parameters.
-
-    """
-    loops = 10
-    if estimate:
-        plt.close('all')
-    # Change verbose params for printing to screen
-    params.verbose = True
-    params.pre_run = True
-    params.load_method = 'random_no_reject'
-
-    verbose = Verbose(params)
-    verbose.sim_setting_summary(params)  # simulation setting summary
-
-    # Initialize particles and all their attributes. Needed for force calculation
-    ptcls = Particles(params)
-    params.verbose = False  # Turn it off so it doesnt print S_particles print statements
-    ptcls.load(params)
-
-    # Check for too large a cut off
-    assert params.potential.rc <= params.box_lengths.min() / 2, "Cut-off radius is larger than L/2! L/2 = {:1.4e}".format(params.box_lengths.min() / 2)
-
-    print('\n\n----------------- Time -----------------------\n')
-
-    if params.pppm.on:
-
-        chosen_alpha = params.pppm.G_ew * params.aws
-        chosen_rcut = params.potential.rc / params.aws
-        green_time = force_error.optimal_green_function_timer(params)
-        force_error.print_time_report("GF", green_time, 0)
-
-        # Calculate Force error from analytic approximation given in Dharuman et al. J Chem Phys 2017
-        DeltaF_tot, DeltaF_PP, DeltaF_PM, rcuts, alphas = force_error.analytical_approx_pppm(params)
-
-        # Color Map
-        make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
-
-        # Line Plot
-        make_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, DeltaF_tot, params)
-    else:
-        DeltaF_tot, rcuts = force_error.analytical_approx_pp(params)
-
-    # Calculate the average over several force calculations
-    PP_acc_time, PM_acc_time = force_error.acceleration_timer(params, ptcls, loops)
-    # Calculate the mean excluding the first value because that time include numba compilation time
-    PP_mean_time = np.mean(PP_acc_time[1:])
-    PM_mean_time = np.mean(PM_acc_time[1:])
-    force_error.print_time_report("PP", PP_mean_time, loops)
-    if params.pppm.on:
-        force_error.print_time_report("PM", PM_mean_time, loops)
-
-    # Print estimate of run times
-    eq_time = (PP_mean_time + PM_mean_time) * params.integrator.nsteps_eq
-    verbose.time_stamp('Thermalization', eq_time)
-
-    prod_time = (PP_mean_time + PM_mean_time) * params.integrator.nsteps_prod
-    verbose.time_stamp('Production', prod_time)
-
-    tot_time = eq_time + prod_time
-    verbose.time_stamp('Total Run', tot_time)
-
-    # Plot the calculate Force error
-    kappa = params.potential.matrix[1, 0, 0] if params.potential.type == "Yukawa" else 0.0
-    if estimate:
-        print('\n\n----------------- Timing Study -----------------------')
-        Mg = np.array([16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
-        max_cells = int(0.5 * params.box_lengths.min() / params.aws)
-        Ncells = np.arange(3, max_cells, dtype=int)
-        pm_times = np.zeros(len(Mg))
-        pm_errs = np.zeros(len(Mg))
-
-        pp_times = np.zeros((len(Mg), len(Ncells)))
-        pp_errs = np.zeros((len(Mg), len(Ncells)))
-
-        pm_xlabels = []
-        pp_xlabels = []
-
-        DeltaF_map = np.zeros((len(Mg), len(Ncells)))
-
-        # Average the PM time
-        for i, m in enumerate(Mg):
-            params.pppm.MGrid = m * np.ones(3, dtype=int)
-            params.pppm.G_ew = 0.25 * m / params.box_lengths.min()
-            green_time = force_error.optimal_green_function_timer(params)
-            pm_errs[i] = params.pppm.PM_err
-            print('\n\nMesh = {} x {} x {} : '.format(*params.pppm.MGrid))
-            print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(params.pppm.G_ew * params.aws, params.pppm.G_ew))
-            print('PM Err = {:1.4e}  '.format(params.pppm.PM_err), end='')
-
-            force_error.print_time_report("GF", green_time, 0)
-            pm_xlabels.append("{}x{}x{}".format(*params.pppm.MGrid))
-            for it in range(3):
-                pm_times[i] += force_error.pm_acceleration_timer(params, ptcls) / 3.0
-
-            for j, c in enumerate(Ncells):
-                params.potential.rc = params.box_lengths.min() / c
-                kappa_over_alpha = - 0.25 * (kappa / params.pppm.G_ew) ** 2
-                alpha_times_rcut = - (params.pppm.G_ew * params.potential.rc) ** 2
-                params.pppm.PP_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(params.potential.rc)
-                params.pppm.PP_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 / np.sqrt(params.box_volume)
-                # print('rcut = {:2.4f} a_ws = {:2.6e} '.format(params.potential.rc / params.aws, params.potential.rc),
-                #     end='')
-                # print("[cm]" if params.units == "cgs" else "[m]")
-                # print('PP Err = {:1.4e}  '.format(params.pppm.PP_err) )
-                pp_errs[i, j] = params.pppm.PP_err
-                DeltaF_map[i, j] = np.sqrt(params.pppm.PP_err ** 2 + params.pppm.PM_err ** 2)
-
-                if j == 0:
-                    pp_xlabels.append("{:1.2f}".format(params.potential.rc / params.aws))
-
-                for it in range(3):
-                    pp_times[i, j] += force_error.pp_acceleration_timer(params, ptcls) / 3.0
-
-        Lagrangian = np.empty((len(Mg), len(Ncells)))
-        for i in range(len(Mg)):
-            for j in range(len(Ncells)):
-                Lagrangian[i, j] = abs(pp_errs[i, j] ** 2 * pp_times[i, j] - pm_errs[i] ** 2 * pm_times[i])
-
-        best = np.unravel_index(Lagrangian.argmin(), Lagrangian.shape)
-        # print(Mg.shape, Ncells.shape)
-        c_mesh, m_mesh = np.meshgrid(Ncells, Mg)
-        # print(m_mesh.shape, c_mesh.shape)
-        # print(m_mesh[best], c_mesh[best])
-        # levels = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
-        fig = plt.figure()
-        ax = fig.add_subplot(111) # projection='3d')
-        # CS = ax.plot_surface(m_mesh, c_mesh, Lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-        CS = ax.contourf(m_mesh, c_mesh, Lagrangian, norm=LogNorm(vmin=Lagrangian.min(), vmax=Lagrangian.max()))
-        CS2 = ax.contour(CS, colors='w')
-        ax.clabel(CS2, fmt='%1.0e', colors='w')
-        fig.colorbar(CS)
-        ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='k')
-        ax.set_xlabel('Mesh size')
-        ax.set_ylabel(r'No. Cells = $1/r_c$')
-        ax.set_title('2D Lagrangian')
-        fig.savefig(os.path.join(params.pre_run_dir, '2D_Lagrangian.png'))
-        fig.show()
-
-        fig, ax = plt.subplots(1, 1, figsize=(11, 7))
-        if DeltaF_tot.min() == 0.0:
-            minv = 1e-120
-        else:
-            minv = DeltaF_tot.min()
-        CS = ax.contourf(m_mesh, c_mesh, DeltaF_map, norm=LogNorm(vmin=minv, vmax=DeltaF_tot.max()))
-        CS2 = ax.contour(CS, colors='w')
-        ax.scatter(Mg[best[0]], Ncells[best[1]], s=200, c='k')
-        ax.clabel(CS2, fmt='%1.0e', colors='w')
-        fig.colorbar(CS)
-        ax.set_xlabel('Mesh size')
-        ax.set_ylabel(r'No. Cells = $1/r_c$')
-        ax.set_title('Force Error')
-        fig.savefig(os.path.join(params.pre_run_dir, 'ForceMap.png'))
-        fig.show()
-
-        params.pppm.MGrid = Mg[best[0]] * np.ones(3, dtype=int)
-        params.potential.rc = params.box_lengths.min() / Ncells[best[1]]
-        params.pppm.G_ew = 0.25 * m_mesh[best] / params.box_lengths.min()
-        params.pppm.Mx = params.pppm.MGrid[0]
-        params.pppm.My = params.pppm.MGrid[1]
-        params.pppm.Mz = params.pppm.MGrid[2]
-        params.pppm.hx = params.Lx / float(params.pppm.Mx)
-        params.pppm.hy = params.Ly / float(params.pppm.My)
-        params.pppm.hz = params.Lz / float(params.pppm.Mz)
-        params.pppm.PM_err = pm_errs[best[0]]
-        params.pppm.PP_err = pp_errs[best]
-        params.pppm.F_err = np.sqrt(params.pppm.PM_err ** 2 + params.pppm.PP_err ** 2)
-        verbose.timing_study(params)
-
-        predicted_times = pp_times[best] + pm_times[best[0]]
-        # Print estimate of run times
-        verbose.time_stamp('Thermalization', predicted_times * params.integrator.nsteps_eq)
-        verbose.time_stamp('Production', predicted_times * params.integrator.nsteps_prod)
-        verbose.time_stamp('Total Run', predicted_times * (params.integrator.nsteps_eq + params.integrator.nsteps_prod))
-
-
-if __name__ == '__main__':
-    # Construct the option parser
-    op = OptionParser()
-
-    # Add the arguments to the parser
-    op.add_option("-t", "--pre_run_testing", action='store_true', dest='test', default=False,
-                  help="Test input parameters")
-    op.add_option("-v", "--verbose", action='store_true', dest='verbose', default=False, help="Verbose output")
-    op.add_option("-p", "--plot_show", action='store_true', dest='plot_show', default=False, help="Show plots")
-    op.add_option("-c", "--check", type='choice', choices=['therm', 'prod'],
-                  action='store', dest='check', help="Check current state of run")
-    op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Directory")
-    op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
-    op.add_option("-s", "--seed", action='store', dest='seed', type='int', help="Random Number Seed")
-    op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
-    op.add_option("-r", "--restart", action='store', dest='restart', help="Restart step")
-    op.add_option("-e", "--estimate", action='store_true', dest='estimate', help="Estimate optimal parameters")
-    options, pot = op.parse_args()
-
-    params = Params()
-    params.setup(vars(options))  # Read initial conditions and setup parameters
-
-    main(params, options.estimate)

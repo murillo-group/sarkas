@@ -5,7 +5,7 @@ Particles:
         name: Al
         number_density: 6.0e+22       # /cc^3
         mass: 4.512991e-23             # g, proton mass * Al mass number
-        num: 500                   # total number of particles of ion1
+        num: 10000                   # total number of particles of ion1
         Z: 3                        # degree of ionization
         temperature_eV: 0.5         # eV Temperature
 
@@ -16,13 +16,8 @@ Potential:
     elec_temperature_eV: 0.5
 
 
-Integrator:
-    type: Verlet                  # velocity integrator type
-    dt: 1.064305707e-16            # sec
-    production_steps: 50000         # number of timesteps for the equilibrium
-    equilibration_steps: 10000      # number of timesteps afater the equilibrium
-    prod_dump_step: 10
-    eq_dump_step: 10
+# Integrator:
+#     type: Verlet                  # velocity integrator type
 
 Thermostat:
     type: Berendsen               # thermostat type
@@ -32,14 +27,18 @@ Thermostat:
 
 Parameters:
     units: cgs                    # units
-    load_method: random_no_reject    # loading method
     rand_seed: 13546565              # random seed               # dump time step
     verbose: yes
     job_dir: egs_cgs_new       # dir name to save data. The default is "Checkpoint"
     boundary_conditions: periodic
+    load_method: random_no_reject
+    dt: 1.064305707e-16            # sec
     rdf_nbins: 500
+    production_steps: 20000         # number of timesteps for the equilibrium
+    equilibration_steps: 10000      # number of timesteps afater the equilibrium
+    prod_dump_step: 10
+    eq_dump_step: 10
 
 PostProcessing:
-    no_ka_vectors: 30    
-    RadialDistributionFunction:
-        - rdf_no_bins: 500
+    - RadialDistributionFunction:
+        no_bins: 500

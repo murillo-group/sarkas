@@ -1,3 +1,4 @@
+import pickle
 import time
 import yaml
 import numpy as np
@@ -5,9 +6,12 @@ import os.path
 import sys
 import scipy.constants as const
 import fdint
+from dataclasses import dataclass, field
+from typing import Callable, ClassVar, Dict, Optional
 
-from sarkas.io.base import Checkpoint, Verbose
-from sarkas.tools import postprocessing
+# Sarkas modules
+import sarkas.io as io
+from sarkas.tools.postprocessing import PostProcess
 from sarkas.potentials.base import Potential
 from sarkas.time_evolution.integrators import Integrator
 from sarkas.time_evolution.thermostats import Thermostat
@@ -20,17 +24,16 @@ class Simulation:
         self.potential = Potential()
         self.integrator = Integrator()
         self.thermostat = Thermostat()
-        self.params = Parameters()
-        self.ptcls = Particles()
+        self.parameters = Parameters()
+        self.particles = Particles()
         self.species = []
-        # self.checkpoint = Checkpoint()
-        # self.verbose = Verbose()
         self.input_file = None
+        self.timer = SarkasTimer()
 
     def common_parser(self, filename):
 
         self.input_file = filename
-        self.params.input_file = filename
+        self.parameters.input_file = filename
         with open(filename, 'r') as stream:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
             for lkey in dics:
@@ -67,32 +70,23 @@ class Simulation:
 
                 if lkey == "Parameters":
                     for key, value in dics[lkey].items():
-                        if hasattr(self.params, key):
-                            self.params.__dict__[key] = value
+                        if hasattr(self.parameters, key):
+                            self.parameters.__dict__[key] = value
                         else:
-                            setattr(self.params, key, value)
-
-                if lkey == "PostProcessing":
-                    for key, value in dics[lkey].items():
-                        if key == 'RadialDistributionFunction':
-                            self.post_proc.rdf = postprocessing.RadialDistributionFunction()
-                        if hasattr(self.postproc, key):
-                            self.postproc.__dict__[key] = value
-                        else:
-                            setattr(self.postproc, key, value)
+                            setattr(self.parameters, key, value)
 
     def equilibrate(self, it_start):
 
-        if self.params.verbose:
+        if self.parameters.verbose:
             print("\n------------- Equilibration -------------")
-        time_init = time.time()
-        potential_energy = self.integrator.equilibrate(it_start, self.ptcls, self.checkpoint)
-        time_eq = time.time()
-        self.verbose.time_stamp("Equilibration", time_eq - time_init)
+        self.timer.start()
+        self.integrator.equilibrate(it_start, self.particles, self.checkpoint)
+        time_eq = self.timer.stop()
+        self.verbose.time_stamp("Equilibration", time_eq)
 
-        return potential_energy
+        return
 
-    def evolve(self, potential_energy):
+    def evolve(self):
         """Time evolution.
 
         """
@@ -101,43 +95,40 @@ class Simulation:
         ##############################################
 
         # Open output files
-        if self.params.load_method == "restart":
-            it_start = self.params.load_restart_step
+        if self.parameters.load_method == "prod_restart":
+            it_start = self.parameters.load_restart_step
         else:
             it_start = 0
             # Restart the pbc counter
-            self.ptcls.pbc_cntr.fill(0.0)
+            self.particles.pbc_cntr.fill(0.0)
+            self.checkpoint.dump(True, self.particles, 0)
 
-        if self.params.verbose:
+        if self.parameters.verbose:
             print("\n------------- Production -------------")
 
         # Update measurement flag for rdf
         self.potential.measure = True
-        self.checkpoint.dump(True, self.ptcls, potential_energy, 0)
 
-        time_init = time.time()
-        potential_energy = self.integrator.produce(it_start, self.ptcls, self.checkpoint)
-        time_end = time.time()
-
-        self.verbose.time_stamp("Production", time_end - time_init)
-
-        return potential_energy
+        self.timer.start()
+        self.integrator.produce(it_start, self.particles, self.checkpoint)
+        time_end = self.timer.stop()
+        self.verbose.time_stamp("Production", time_end)
 
     def initialization(self):
-        time_start = time.time()
-        self.integrator.setup(self.params, self.thermostat, self.potential)
-        self.thermostat.setup(self.params)
-        self.potential.setup(self.params)
 
-        self.ptcls.setup(self.params, self.species)
+        self.timer.start()
+        self.potential.setup(self.parameters)
+        self.thermostat.setup(self.parameters)
+        self.integrator.setup(self.parameters, self.thermostat, self.potential)
+        self.particles.setup(self.parameters, self.species)
 
         # For restart and pva backups.
-        self.checkpoint.save_pickle(self.params)
+        self.save_pickle()
         self.verbose.sim_setting_summary(self)  # simulation setting summary
-        time_end = time.time()
-        self.verbose.time_stamp("Initialization", time_start - time_end)
+        time_end = self.timer.stop()
+        self.verbose.time_stamp("Initialization", time_end)
 
-    def pre_processing(self):
+    def pre_processing(self, filename=None, other_inputs=None, loops=10):
         pass
 
     def post_processing(self, time0):
@@ -145,23 +136,27 @@ class Simulation:
         ##############################################
         # Finalization Phase
         ##############################################
-        time_init = time.time()
-        rdf = postprocessing.RadialDistributionFunction(self.params, self.species, self.potential.rc)
-        rdf.save(self.ptcls.rdf_hist)
-        rdf.plot(show=False)
-        time_end = time.time()
-        self.verbose.time_stamp("Post Processing", time_end - time_init)
+        self.timer.start()
+        postproc = PostProcess()
+        postproc.common_parser(self.input_file)
+        postproc.rdf.setup(self.parameters, self.species, self.potential.rc)
+        postproc.rdf.save(self.particles.rdf_hist)
+        postproc.rdf.plot(show=False)
+        time_end = self.timer.stop()
+        self.verbose.time_stamp("Post Processing", time_end)
 
-        time_tot = time.time()
+        time_tot = self.timer.current()
         self.verbose.time_stamp("Total", time_tot - time0)
+
+        return postproc
 
     def run(self):
 
-        time0 = time.time()
+        time0 = self.timer.current()
         self.initialization()
-        if not self.params.load_method == 'prod_restart':
-            if self.params.load_method == "therm_restart":
-                it_start = self.params.load_therm_restart_step
+        if not self.parameters.load_method == 'prod_restart':
+            if self.parameters.load_method == "therm_restart":
+                it_start = self.parameters.load_therm_restart_step
             else:
                 it_start = 0
 
@@ -170,11 +165,11 @@ class Simulation:
         else:
 
             if not self.potential.method == "FMM":
-                potential_energy = self.potential.calc_pot_acc(self.ptcls)
+                potential_energy = self.potential.calc_pot_acc(self.particles)
             # else:
-            # potential_energy = self.potential.calc_pot_acc_fmm(self.ptcls, self.params)
+            # potential_energy = self.potential.calc_pot_acc_fmm(self.particles, self.parameters)
 
-        self.evolve(potential_energy)
+        self.evolve()
         self.post_processing(time0)
 
     def setup(self, other_inputs=None):
@@ -186,19 +181,50 @@ class Simulation:
             Dictionary with additional simulations options.
 
         """
-        # save the type
-        self.params.potential_type = self.potential.type
-        self.params.magnetized = self.integrator.magnetized
-        self.params.integrator = self.integrator.type
-        self.params.dt = self.integrator.dt
-        self.params.thermostat = self.thermostat.type
+        if other_inputs is not None:
+            if not isinstance(other_inputs, dict):
+                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
 
-        self.params.setup(self.species, other_inputs)
+            for class_name, class_attr in other_inputs.items():
+                if not class_name == 'Particles':
+                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
 
-        self.checkpoint = Checkpoint(self.params, self.species)
-        self.verbose = Verbose(self.params)
+        # save some general info
+        self.parameters.potential_type = self.potential.type
+        self.parameters.cutoff_radius = self.potential.rc
+        self.parameters.magnetized = self.integrator.magnetized
+        self.parameters.integrator = self.integrator.type
+        self.parameters.thermostat = self.thermostat.type
 
-        self.postproc.setup(self.params, self.species)
+        self.parameters.setup(self.species, other_inputs)
+
+        self.checkpoint = io.Checkpoint(self.parameters, self.species)
+        self.verbose = io.Verbose(self.parameters)
+
+    def save_pickle(self):
+        """
+        Save all simulations parameters in pickle files.
+        """
+        file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']
+        filename = os.path.join(self.parameters.job_dir, self.parameters.job_id)
+        for fl in file_list:
+            pickle_file = open(filename + "_" + fl + ".pickle", "wb")
+            pickle.dump(self.__dict__[fl], pickle_file)
+            pickle_file.close()
+
+    def read_pickle(self, job_dir, job_id):
+        """
+        Load simulation data from pickle files.
+
+        Parameters
+        ----------
+        job_dir: str
+            Directory of stored data.
+
+        job_id: str
+            Pickle filename.
+        """
+        pass
 
 
 class Parameters:
@@ -340,6 +366,7 @@ class Parameters:
         self.Lx = 0.0
         self.Ly = 0.0
         self.Lz = 0.0
+        self.boundary_conditions = 'periodic'
         self.box_lengths = []
         self.box_volume = 0.0
         self.input_file = None
@@ -415,6 +442,7 @@ class Parameters:
         if self.units == "cgs":
             self.kB *= self.J2erg
             self.c0 *= 1e2  # cm/s
+            self.mp *= 1e3
             # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
             C2statC = 1.0e-01 * self.c0
             self.hbar = self.J2erg * self.hbar
@@ -450,11 +478,7 @@ class Parameters:
             if sp.atomic_weight is not None:
                 # Choose between atomic mass constant or proton mass
                 # u = const.physical_constants["atomic mass constant"][0]
-                if self.units == "cgs":
-                    self.mp *= 1e3
-                    sp.mass = self.mp * sp.atomic_weight
-                elif self.units == "mks":
-                    sp.mass = self.mp * sp.atomic_weight
+                sp.mass = self.mp * sp.atomic_weight
 
             if sp.mass_density is not None:
                 Av = const.physical_constants["Avogadro constant"][0]
@@ -483,14 +507,13 @@ class Parameters:
                 self.species_charges[i] = 0.0
                 sp.charge = 0.0
                 sp.Z = 0.0
-
             # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008)
             sp.QFactor = sp.num * sp.charge ** 2
             self.QFactor += sp.QFactor / self.fourpie0
 
             if self.magnetized:
                 if self.units == "cgs":
-                    sp.calc_cyclotron_frequency(self.magnetic_field_strength/self.c0)
+                    sp.calc_cyclotron_frequency(self.magnetic_field_strength / self.c0)
                 else:
                     sp.calc_cyclotron_frequency(self.magnetic_field_strength)
                 self.species_cyclotron_frequencies[i] = sp.omega_c
@@ -653,12 +676,12 @@ class Parameters:
                 8.0 * np.pi * self.qe ** 2 * beta_e * fdint_fdk_vec(k=-0.5, phi=self.eta_e)))
 
         self.rs = self.aws / self.a0
-        kF = (3.0 * np.pi**2 * self.ne) ** (1./3.)
+        kF = (3.0 * np.pi ** 2 * self.ne) ** (1. / 3.)
         self.fermi_energy = self.hbar2 * kF ** 2 / (2.0 * self.me)
         self.electron_degeneracy_parameter = self.kB * self.Te / self.fermi_energy
         self.relativistic_parameter = self.hbar * kF / (self.me * self.c0)
 
-    def calc_coupling_constant(self,species):
+    def calc_coupling_constant(self, species):
 
         z_avg = np.transpose(self.species_charges) @ self.species_concentrations
         self.species_couplings = np.zeros(self.num_species)
@@ -705,10 +728,10 @@ class Particles:
     charge : array
         Charge of each particle.
 
-    species_id : array, shape(N,)
+    id : array, shape(N,)
         Species identifier.
 
-    species_name : list
+    names : list
         Species' names.
 
     species_num : array
@@ -725,7 +748,7 @@ class Particles:
     """
 
     def __init__(self):
-        pass
+        self.potential_energy = 0.0
 
     def setup(self, params, species):
         """
@@ -761,7 +784,13 @@ class Particles:
 
         # No. of independent rdf
         self.no_grs = int(self.num_species * (self.num_species + 1) / 2)
-        self.rdf_nbins = params.rdf_nbins
+        if hasattr(params, 'rdf_nbins'):
+            self.rdf_nbins = params.rdf_nbins
+        else:
+            # nbins = 5% of the number of particles.
+            self.rdf_nbins = int(0.05 * params.total_num_ptcls)
+            params.rdf_nbins = self.rdf_nbins
+
         self.rdf_hist = np.zeros((self.rdf_nbins, self.num_species, self.num_species))
 
         self.update_attributes(species, params.kB)
@@ -869,8 +898,8 @@ class Particles:
         if equilibration:
             file_name = os.path.join(self.eq_dump_dir, "checkpoint_" + str(it) + ".npz")
             data = np.load(file_name, allow_pickle=True)
-            self.id = data["species_id"]
-            self.names = data["species_name"]
+            self.id = data["id"]
+            self.names = data["names"]
             self.pos = data["pos"]
             self.vel = data["vel"]
             self.acc = data["acc"]
@@ -878,8 +907,8 @@ class Particles:
         else:
             file_name = os.path.join(self.prod_dump_dir, "checkpoint_" + str(it) + ".npz")
             data = np.load(file_name, allow_pickle=True)
-            self.id = data["species_id"]
-            self.species_name = data["species_name"]
+            self.id = data["id"]
+            self.species_name = data["names"]
             self.pos = data["pos"]
             self.vel = data["vel"]
             self.acc = data["acc"]
@@ -920,7 +949,7 @@ class Particles:
 
         """
 
-        return self.rnd_gen.uniform( mins, maxs, (self.total_num_ptcls,3))
+        return self.rnd_gen.uniform(mins, maxs, (self.total_num_ptcls, 3))
 
     def lattice(self, perturb):
         """
@@ -1300,16 +1329,54 @@ class Species:
         self.initial_velocity = np.zeros(3)
 
     def calc_plasma_frequency(self, fourpie0):
-        self.wp = np.sqrt(4.0 * np.pi * self.charge ** 2 * self.number_density / (self.mass * fourpie0) )
+        self.wp = np.sqrt(4.0 * np.pi * self.charge ** 2 * self.number_density / (self.mass * fourpie0))
 
     def calc_debye_length(self, kB, fourpie0):
-        self.debye_length = np.sqrt( (self.temperature * kB * fourpie0)
-                                     / (4.0 * np.pi * self.charge ** 2 * self.number_density) )
+        self.debye_length = np.sqrt((self.temperature * kB * fourpie0)
+                                    / (4.0 * np.pi * self.charge ** 2 * self.number_density))
 
     def calc_cyclotron_frequency(self, magnetic_field_strength):
         #  See https://en.wikipedia.org/wiki/Lorentz_force
         self.omega_c = self.charge * magnetic_field_strength / self.mass
 
     def calc_coupling(self, aws, z_avg, const):
-        self.ai = (self.charge / z_avg) ** (1./3.) * aws
+        self.ai = (self.charge / z_avg) ** (1. / 3.) * aws
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)
+
+
+class TimerError(Exception):
+    """A custom exception used to report errors in use of Timer class"""
+
+
+@dataclass
+class SarkasTimer:
+    name: Optional[str] = None
+    _start_time: Optional[float] = field(default=None, init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        """Add timer to dict of timers after initialization"""
+        if self.name is not None:
+            self.timers.setdefault(self.name, 0)
+
+    def start(self) -> None:
+        """Start a new timer"""
+        if self._start_time is not None:
+            raise TimerError(f"Timer is running. Use .stop() to stop it")
+
+        self._start_time = time.perf_counter()
+
+    def stop(self) -> float:
+        """Stop the timer, and report the elapsed time"""
+        if self._start_time is None:
+            raise TimerError(f"Timer is not running. Use .start() to start it")
+
+        # Calculate elapsed time
+        elapsed_time = time.perf_counter() - self._start_time
+        self._start_time = None
+
+        return elapsed_time
+
+    @staticmethod
+    def current() -> float:
+        return time.perf_counter()
+

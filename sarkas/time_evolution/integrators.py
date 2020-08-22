@@ -48,11 +48,26 @@ class Integrator:
         self.species_num = params.species_num
         self.verbose = params.verbose
 
+        if self.dt is None:
+            self.dt = params.dt
+
+        if self.production_steps is None:
+            self.production_steps = params.production_steps
+
+        if self.equilibration_steps is None:
+            self.equilibration_steps = params.equilibration_steps
+
         if self.prod_dump_step is None:
-            self.prod_dump_step = int(0.01 * self.production_steps)
+            if hasattr(params, 'prod_dump_step'):
+                self.prod_dump_step = params.prod_dump_step
+            else:
+                self.prod_dump_step = int(0.01 * self.production_steps)
 
         if self.eq_dump_step is None:
-            self.eq_dump_step = self.prod_dump_step
+            if hasattr(params, 'eq_dump_step'):
+                self.eq_dump_step = params.eq_dump_step
+            else:
+                self.eq_dump_step = int(0.01 * self.equilibration_steps)
 
         # Run some checks
         if self.type.lower() == "verlet":
@@ -87,9 +102,15 @@ class Integrator:
             print("Only verlet integrator is supported. Check your input file, integrator part 2.")
 
         if not potential.method == 'FMM':
-            self.update_accelerations = potential.calc_pot_acc
+            if potential.pppm_on:
+                self.update_accelerations = potential.update_pppm
+            else:
+                if potential.linked_list_on:
+                    self.update_accelerations = potential.update_linked_list
+                else:
+                    self.update_accelerations = potential.update_brute
         else:
-            self.update_accelerations = potential.calc_pot_acc_fmm
+            self.update_accelerations = potential.update_fmm
 
         self.thermostate = thermostat.update
 
@@ -97,14 +118,12 @@ class Integrator:
 
         for it in tqdm(range(it_start, self.equilibration_steps), disable=not self.verbose):
             # Calculate the Potential energy and update particles' data
-            U_therm = self.update(ptcls)
+            self.update(ptcls)
             if (it + 1) % self.eq_dump_step == 0:
-                checkpoint.dump(False, ptcls, U_therm, it + 1)
+                checkpoint.dump(False, ptcls, it + 1)
             self.thermostate(ptcls, it)
 
         ptcls.remove_drift()
-
-        return U_therm
 
     def produce(self, it_start, ptcls, checkpoint):
         ##############################################
@@ -113,10 +132,10 @@ class Integrator:
         for it in tqdm(range(it_start, self.production_steps), disable=(not self.verbose)):
 
             # Move the particles and calculate the potential
-            U_prod = self.update(ptcls)
+            self.update(ptcls)
             if (it + 1) % self.prod_dump_step == 0:
                 # Save particles' data for restart
-                checkpoint.dump(True, ptcls, U_prod, it + 1)
+                checkpoint.dump(True, ptcls, it + 1)
 
     def verlet_langevin(self, ptcls):
         """
@@ -149,7 +168,7 @@ class Integrator:
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
 
         acc_old = np.copy(ptcls.acc)
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         sp_start = 0
         sp_end = 0
@@ -161,8 +180,6 @@ class Integrator:
                                                                          + acc_old[sp_start:sp_end, :]) \
                                             + self.c2 * self.sigma[ic] * np.sqrt(self.dt) * beta
             sp_start = sp_end
-
-        return potential_energy
 
     def verlet(self, ptcls):
         """
@@ -190,12 +207,10 @@ class Integrator:
         # Periodic boundary condition
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Second half step velocity update
         ptcls.vel += 0.5 * ptcls.acc * self.dt
-
-        return potential_energy
 
     def magnetic_verlet(self, ptcls):
         """

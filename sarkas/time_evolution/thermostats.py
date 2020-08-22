@@ -54,6 +54,9 @@ class Thermostat:
 
         # run some checks
         if hasattr(self, 'temperatures_eV'):
+            if not isinstance(self.temperatures_eV, np.ndarray):
+                self.temperatures_eV = np.array(self.temperatures_eV)
+
             self.temperatures = params.eV2K * self.temperatures_eV
 
         if not isinstance(self.temperatures, np.ndarray):

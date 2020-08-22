@@ -2,6 +2,7 @@
 Module for calculating physical quantities from Sarkas checkpoints.
 """
 import os
+import yaml
 from tqdm import tqdm
 import numpy as np
 from numba import njit
@@ -64,7 +65,23 @@ PREFIXES = {
 }
 
 
-class Observables:
+class PostProcess:
+    def __init__(self):
+        pass
+
+    def common_parser(self, filename):
+        self.input_file = filename
+
+        with open(filename, 'r') as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+            for observable in dics['PostProcessing']:
+                for key, sub_dict in observable.items():
+                    if key == 'RadialDistributionFunction':
+                        self.rdf = RadialDistributionFunction()
+                        self.rdf.__dict__.update(sub_dict)
+
+
+class Observable:
 
     def __init__(self):
         self.species = []
@@ -94,7 +111,7 @@ class Observables:
             plt.style.use(params.mpl_style)
 
 
-class CurrentCorrelationFunctions(Observables):
+class CurrentCorrelationFunctions(Observable):
     """
     Current Correlation Functions: :math:`L(k,\\omega)` and :math:`T(k,\\omega)`.
 
@@ -340,7 +357,7 @@ class CurrentCorrelationFunctions(Observables):
                 fig.show()
 
 
-class DynamicStructureFactor(Observables):
+class DynamicStructureFactor(Observable):
     """
     Dynamic Structure factor.
 
@@ -509,7 +526,7 @@ class DynamicStructureFactor(Observables):
                 fig.show()
 
 
-class ElectricCurrent(Observables):
+class ElectricCurrent(Observable):
     """
     Electric Current Auto-correlation function.
 
@@ -675,7 +692,7 @@ class ElectricCurrent(Observables):
             fig.show()
 
 
-class HermiteCoefficients(Observables):
+class HermiteCoefficients(Observable):
     """
     Hermite coefficients of the Hermite expansion.
 
@@ -917,7 +934,7 @@ class HermiteCoefficients(Observables):
                 fig.show()
 
 
-class RadialDistributionFunction(Observables):
+class RadialDistributionFunction(Observable):
     """
     Radial Distribution Function.
 
@@ -980,7 +997,7 @@ class RadialDistributionFunction(Observables):
         Size of each bin.
     """
 
-    def __init__(self, params, species, potential_rc):
+    def setup(self, params, species, potential_rc):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -997,9 +1014,10 @@ class RadialDistributionFunction(Observables):
 
         self.filename_csv = os.path.join(self.saving_dir,
                                          "RadialDistributionFunction_" + self.job_id + ".csv")
+        self.rc = potential_rc
 
-        self.no_bins = super().rdf_no_bins  # number of ka values
-        self.dr_rdf = potential_rc / self.no_bins
+        if hasattr(self, 'no_bins'):
+            self.dr_rdf = self.rc / self.no_bins
 
     def save(self, rdf_hist):
         """
@@ -1010,6 +1028,10 @@ class RadialDistributionFunction(Observables):
 
         """
         # Initialize all the workhorse arrays
+        if not hasattr(self, 'no_bins'):
+            self.no_bins = rdf_hist.shape[0]
+            self.dr_rdf = self.rc / self.no_bins
+
         r_values = np.zeros(self.no_bins)
         bin_vol = np.zeros(self.no_bins)
         pair_density = np.zeros((self.num_species, self.num_species))
@@ -1040,7 +1062,7 @@ class RadialDistributionFunction(Observables):
                 for ibin in range(self.no_bins):
                     gr[ibin, gr_ij] = (rdf_hist[ibin, i, j] + rdf_hist[ibin, j, i]) / (bin_vol[ibin]
                                                                                        * pair_density[i, j]
-                                                                                       * self.Nsteps)
+                                                                                       * self.production_steps)
 
                 self.dataframe['{}-{} RDF'.format(sp1.name, sp2.name)] = gr[:, gr_ij]
                 gr_ij += 1
@@ -1101,7 +1123,7 @@ class RadialDistributionFunction(Observables):
             fig.show()
 
 
-class StaticStructureFactor(Observables):
+class StaticStructureFactor(Observable):
     """Static Structure Factors :math:`S_{ij}(k)`.
 
     Parameters
@@ -1298,7 +1320,7 @@ class StaticStructureFactor(Observables):
             fig.show()
 
 
-class Thermodynamics(Observables):
+class Thermodynamics(Observable):
     """
     Thermodynamic functions.
 
@@ -1999,7 +2021,7 @@ class Transport:
         return coefficient
 
 
-class VelocityAutocorrelationFunctions(Observables):
+class VelocityAutocorrelationFunctions(Observable):
     """
     Velocity Auto-correlation function.
 
@@ -2168,7 +2190,7 @@ class VelocityAutocorrelationFunctions(Observables):
                 fig.show()
 
 
-class VelocityMoments(Observables):
+class VelocityMoments(Observable):
     """
     Moments of the velocity distributions defined as
 

@@ -15,7 +15,7 @@ Michigan State University
 # Python modules
 from optparse import OptionParser
 # Sarkas modules
-from sarkas.simulation.params import Params
+from sarkas.base import Simulation
 import sarkas.tools.postprocessing as PostProc
 
 # Construct the argument parser

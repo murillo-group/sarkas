@@ -91,7 +91,7 @@ def update_params(potential, params):
     .. [Haxhimali2014] `T. Haxhimali et al. Phys Rev E 90 023104 (2014) <https://doi.org/10.1103/PhysRevE.90.023104>`_
     """
 
-    if params.pppm.on:
+    if potential.method == "P3M":
         potential.matrix = np.zeros((3, params.num_species, params.num_species))
     else:
         potential.matrix = np.zeros((2, params.num_species, params.num_species))
@@ -106,13 +106,14 @@ def update_params(potential, params):
     if potential.method == "PP":
         potential.force = yukawa_force
         # Force error calculated from eq.(43) in Ref.[1]_
-        params.force_error = np.sqrt(twopi / params.lambda_TF) * np.exp(-params.potential.rc / params.lambda_TF)
+        params.force_error = np.sqrt( twopi / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)
         # Renormalize
-        params.PP_err *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+        params.force_error *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
     elif potential.method == "P3M":
         potential.force = yukawa_force_pppm
+        potential.matrix[2, 0, 0] = potential.pppm_alpha_ewald
         # PP force error calculation. Note that the equation was derived for a single component plasma.
-        kappa_over_alpha = - 0.25 * (params.potential.matrix[1, 0, 0] / params.potential.matrix[2, 0, 0]) ** 2
-        alpha_times_rcut = - (params.potential.matrix[2, 0, 0] * params.potential.rc) ** 2
-        params.pppm_pp_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(params.potential.rc)
+        kappa_over_alpha = - 0.25 * (potential.matrix[1, 0, 0] / potential.matrix[2, 0, 0]) ** 2
+        alpha_times_rcut = - (potential.matrix[2, 0, 0] * potential.rc) ** 2
+        params.pppm_pp_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(potential.rc)
         params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 / np.sqrt(params.box_volume)
