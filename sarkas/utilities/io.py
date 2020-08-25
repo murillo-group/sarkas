@@ -645,7 +645,7 @@ class InputOutput:
         production: bool
             Flag indicating whether to phase production or equilibration data.
 
-        ptcls: object
+        ptcls: sarkas.base.Particles
             Particles data.
 
         potential_energy : float

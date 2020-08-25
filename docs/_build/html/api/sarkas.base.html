@@ -37,8 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Potentials" href="../theory/potentials.html" />
-    <link rel="prev" title="sarkas.tools.testing module" href="sarkas.tools.testing.html" /> 
+    <link rel="prev" title="sarkas.utilities.verbose module" href="sarkas.utilities.verbose.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,8 +85,6 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
@@ -103,12 +100,6 @@
 </li>
 </ul>
 </li>
-</ul>
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -184,7 +175,7 @@
 <dt id="sarkas.base.Parameters">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Parameters</code><a class="reference internal" href="../_modules/sarkas/base.html#Parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Simulation’s Parameters.</p>
+<p>Class containing all the constants and physical constants of the simulation.</p>
 <dl class="py attribute">
 <dt id="sarkas.base.Parameters.aws">
 <code class="sig-name descname">aws</code><a class="headerlink" href="#sarkas.base.Parameters.aws" title="Permalink to this definition">¶</a></dt>
@@ -247,17 +238,6 @@
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.base.Parameters.load_rand_seed">
-<code class="sig-name descname">load_rand_seed</code><a class="headerlink" href="#sarkas.base.Parameters.load_rand_seed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Seed of random number generator.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -527,28 +507,6 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.base.Parameters.N">
-<code class="sig-name descname">N</code><a class="headerlink" href="#sarkas.base.Parameters.N" title="Permalink to this definition">¶</a></dt>
-<dd><p>Total number of particles same as <code class="docutils literal notranslate"><span class="pre">tot_num_ptcls</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.base.Parameters.ptcls_input_file">
-<code class="sig-name descname">ptcls_input_file</code><a class="headerlink" href="#sarkas.base.Parameters.ptcls_input_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>User defined input file containing particles’ data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
 <dt id="sarkas.base.Parameters.input_file">
 <code class="sig-name descname">input_file</code><a class="headerlink" href="#sarkas.base.Parameters.input_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>YAML Input file with all the simulation’s parameters.</p>
@@ -628,21 +586,10 @@
 <dl class="py attribute">
 <dt id="sarkas.base.Parameters.wp">
 <code class="sig-name descname">wp</code><a class="headerlink" href="#sarkas.base.Parameters.wp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Total Plasma frequency. Defined in Potential module.</p>
+<dd><p>Total Plasma frequency.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.base.Parameters.force">
-<code class="sig-name descname">force</code><a class="headerlink" href="#sarkas.base.Parameters.force" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for force calculation. Assigned in Potential module.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">func</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -653,30 +600,20 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.base.Parameters.calc_electron_properties">
-<code class="sig-name descname">calc_electron_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.calc_electron_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.calc_electron_properties" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt id="sarkas.base.Parameters.calc_parameters">
 <code class="sig-name descname">calc_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.calc_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.calc_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign the parsed parameters</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.base.Parameters.create_directories">
-<code class="sig-name descname">create_directories</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.create_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.create_directories" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check for undefined control variables and create output directory and its subdirectories.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Input arguments.</p>
-</dd>
-</dl>
+<dt id="sarkas.base.Parameters.check_units">
+<code class="sig-name descname">check_units</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.check_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.check_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether units are cgs or mks and adjust accordingly.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.base.Parameters.setup">
-<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">args</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup simulations’ parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -789,8 +726,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.base.Particles.species_id">
-<code class="sig-name descname">species_id</code><a class="headerlink" href="#sarkas.base.Particles.species_id" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.base.Particles.id">
+<code class="sig-name descname">id</code><a class="headerlink" href="#sarkas.base.Particles.id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Species identifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -800,8 +737,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.base.Particles.species_name">
-<code class="sig-name descname">species_name</code><a class="headerlink" href="#sarkas.base.Particles.species_name" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.base.Particles.names">
+<code class="sig-name descname">names</code><a class="headerlink" href="#sarkas.base.Particles.names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Species’ names.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1008,26 +945,51 @@ Updates: N/A</p>
 <dt id="sarkas.base.Simulation">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Simulation</code><a class="reference internal" href="../_modules/sarkas/base.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.</p>
 <dl class="py method">
 <dt id="sarkas.base.Simulation.common_parser">
 <code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.common_parser" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parse simulation parameters from YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Input YAML file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.create_directories">
+<code class="sig-name descname">create_directories</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.create_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.create_directories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for undefined control variables and create output directory and its subdirectories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Input arguments.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.base.Simulation.equilibrate">
 <code class="sig-name descname">equilibrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">it_start</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.equilibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.equilibrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Initial step number of the equilibration loop.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.base.Simulation.evolve">
-<code class="sig-name descname">evolve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potential_energy</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.evolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.evolve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Time evolution.</p>
+<code class="sig-name descname">evolve</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.evolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.evolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the time integrator to evolve the system for the duration of the production phase.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.base.Simulation.initialization">
 <code class="sig-name descname">initialization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.initialization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.initialization" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize all the sub classes of the simulation and save simulation details to log file.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.base.Simulation.post_processing">
@@ -1036,8 +998,22 @@ Updates: N/A</p>
 
 <dl class="py method">
 <dt id="sarkas.base.Simulation.pre_processing">
-<code class="sig-name descname">pre_processing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.pre_processing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.pre_processing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pre_processing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">loops</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.pre_processing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.pre_processing" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Simulation.read_pickle">
+<code class="sig-name descname">read_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">job_dir</span></em>, <em class="sig-param"><span class="n">job_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.read_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.read_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load simulation data from pickle files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>job_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Directory of stored data.</p></li>
+<li><p><strong>job_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Pickle filename.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.base.Simulation.run">
@@ -1047,7 +1023,7 @@ Updates: N/A</p>
 <dl class="py method">
 <dt id="sarkas.base.Simulation.setup">
 <code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup all simulations subclasses.</p>
+<dd><p>Setup all simulations parameters subclass.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>other_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span> <span class="pre">(optional)</span></code>) – Dictionary with additional simulations options.</p>
@@ -1061,7 +1037,7 @@ Updates: N/A</p>
 <dt id="sarkas.base.Species">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Species</code><a class="reference internal" href="../_modules/sarkas/base.html#Species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Particle Species.</p>
+<p>Class used to store all the information of the particles’ species.</p>
 <dl class="py attribute">
 <dt id="sarkas.base.Species.name">
 <code class="sig-name descname">name</code><a class="headerlink" href="#sarkas.base.Species.name" title="Permalink to this definition">¶</a></dt>
@@ -1145,7 +1121,7 @@ Updates: N/A</p>
 <dd><p>Initial velocity in x,y,z directions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1182,10 +1158,8 @@ Updates: N/A</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../theory/potentials.html" class="btn btn-neutral float-right" title="Potentials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="sarkas.tools.testing.html" class="btn btn-neutral float-left" title="sarkas.tools.testing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="sarkas.utilities.verbose.html" class="btn btn-neutral float-left" title="sarkas.utilities.verbose module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -1197,7 +1171,7 @@ Updates: N/A</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 18, 2020.
+        Last updated on Aug, 25, 2020.
       </span>
 
     </p>

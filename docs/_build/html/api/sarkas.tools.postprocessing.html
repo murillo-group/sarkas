@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sarkas.tools.testing module" href="sarkas.tools.testing.html" />
+    <link rel="next" title="sarkas.tools.preprocessing module" href="sarkas.tools.preprocessing.html" />
     <link rel="prev" title="sarkas.tools.force_error module" href="sarkas.tools.force_error.html" /> 
 </head>
 
@@ -86,19 +86,16 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.utilities.html">sarkas.utilities package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
@@ -107,12 +104,6 @@
 </li>
 </ul>
 </li>
-</ul>
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -190,7 +181,7 @@
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.CurrentCorrelationFunctions">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">CurrentCorrelationFunctions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#CurrentCorrelationFunctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.CurrentCorrelationFunctions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Current Correlation Functions: <span class="math notranslate nohighlight">\(L(k,\omega)\)</span> and <span class="math notranslate nohighlight">\(T(k,\omega)\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -317,7 +308,7 @@
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.DynamicStructureFactor">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">DynamicStructureFactor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#DynamicStructureFactor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.DynamicStructureFactor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Dynamic Structure factor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -348,7 +339,7 @@
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.ElectricCurrent">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">ElectricCurrent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#ElectricCurrent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.ElectricCurrent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Electric Current Auto-correlation function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -515,7 +506,7 @@
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.HermiteCoefficients">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">HermiteCoefficients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#HermiteCoefficients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.HermiteCoefficients" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Hermite coefficients of the Hermite expansion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -752,20 +743,31 @@
 </dd></dl>
 
 <dl class="py class">
-<dt id="sarkas.tools.postprocessing.Observables">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">Observables</code><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Observables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Observables" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.postprocessing.Observable">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">Observable</code><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Observable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Observable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
-<dt id="sarkas.tools.postprocessing.Observables.setup">
-<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Observables.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Observables.setup" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.postprocessing.Observable.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Observable.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Observable.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="sarkas.tools.postprocessing.PostProcess">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">PostProcess</code><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#PostProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.PostProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="sarkas.tools.postprocessing.PostProcess.common_parser">
+<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#PostProcess.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.PostProcess.common_parser" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.RadialDistributionFunction">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">RadialDistributionFunction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">potential_rc</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#RadialDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.RadialDistributionFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">RadialDistributionFunction</code><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#RadialDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.RadialDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Radial Distribution Function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -989,12 +991,23 @@
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt id="sarkas.tools.postprocessing.RadialDistributionFunction.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">potential_rc</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#RadialDistributionFunction.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.RadialDistributionFunction.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the attributes from simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">S_params</span> <span class="pre">class</span></code>) – Simulation’s parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.StaticStructureFactor">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">StaticStructureFactor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#StaticStructureFactor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.StaticStructureFactor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Static Structure Factors <span class="math notranslate nohighlight">\(S_{ij}(k)\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1263,7 +1276,7 @@
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.Thermodynamics">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">Thermodynamics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Thermodynamics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Thermodynamics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Thermodynamic functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1596,7 +1609,7 @@ options: “Total Energy”, “Potential Energy”, “Kinetic Energy”, “Te
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.VelocityAutocorrelationFunctions">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">VelocityAutocorrelationFunctions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#VelocityAutocorrelationFunctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.VelocityAutocorrelationFunctions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Velocity Auto-correlation function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1744,7 +1757,7 @@ options: “Total Energy”, “Potential Energy”, “Kinetic Energy”, “Te
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.VelocityMoments">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">VelocityMoments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#VelocityMoments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.VelocityMoments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observables" title="sarkas.tools.postprocessing.Observables"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observables</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Moments of the velocity distributions defined as</p>
 <div class="math notranslate nohighlight">
 \[\langle v^{lpha} \rangle = \int_{-\infty}^{\infty} d v \, f(v) v^{2 lpha}.\]</div>
@@ -2634,7 +2647,7 @@ of the simulation.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sarkas.tools.testing.html" class="btn btn-neutral float-right" title="sarkas.tools.testing module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="sarkas.tools.preprocessing.html" class="btn btn-neutral float-right" title="sarkas.tools.preprocessing module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="sarkas.tools.force_error.html" class="btn btn-neutral float-left" title="sarkas.tools.force_error module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -2649,7 +2662,7 @@ of the simulation.</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 18, 2020.
+        Last updated on Aug, 25, 2020.
       </span>
 
     </p>

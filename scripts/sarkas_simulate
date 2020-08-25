@@ -64,7 +64,7 @@ else:
 # Test/Check/Run
 if options.test:
     #
-    import sarkas.tools.testing as pre_run_test
+    import sarkas.tools.preprocessing as pre_run_test
     pre_run_test.main(params, options.estimate)
 elif options.check is not None:
     #

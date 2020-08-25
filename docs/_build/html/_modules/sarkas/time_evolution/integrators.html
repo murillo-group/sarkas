@@ -84,18 +84,10 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">sarkas</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../theory/potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../theory/thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -177,15 +169,49 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to assign integrator type.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    params:  object</span>
-<span class="sd">        Simulation&#39;s parameters.</span>
-
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
+<span class="sd">    dt: float</span>
+<span class="sd">        Timestep.</span>
+
+<span class="sd">    equilibration_steps: int</span>
+<span class="sd">        Total number of equilibration timesteps.</span>
+
+<span class="sd">    eq_dump_step: int</span>
+<span class="sd">        Equilibration dump interval.</span>
+
+<span class="sd">    kB: float</span>
+<span class="sd">        Boltzmann constant.</span>
+
+<span class="sd">    magnetized: bool</span>
+<span class="sd">        Magnetized simulation flag.</span>
+
+<span class="sd">    production_steps: int</span>
+<span class="sd">        Total number of production timesteps.</span>
+
+<span class="sd">    prod_dump_step: int</span>
+<span class="sd">        Production dump interval.</span>
+
+<span class="sd">    species_num: numpy.ndarray</span>
+<span class="sd">        Number of particles of each species. copy of ``parameters.species_num``.</span>
+
+<span class="sd">    box_lengths: numpy.ndarray</span>
+<span class="sd">        Length of each box side.</span>
+
+<span class="sd">    verbose: bool</span>
+<span class="sd">        Verbose output flag.</span>
+
+<span class="sd">    type: str</span>
+<span class="sd">        Integrator type.</span>
+
 <span class="sd">    update: func</span>
 <span class="sd">        Integrator choice. &#39;verlet&#39; or &#39;magnetic_verlet&#39;.</span>
+
+<span class="sd">    update_accelerations: func</span>
+<span class="sd">        Link to the correct potential update function.</span>
+
+<span class="sd">    thermostate: func</span>
+<span class="sd">        Link to the correct thermostat function.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -204,17 +230,46 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="Integrator.setup"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">thermostat</span><span class="p">,</span> <span class="n">potential</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign attributes.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params: sarkas.parameters</span>
+<span class="sd">            Parameters class.</span>
+
+<span class="sd">        thermostat: sarkas.thermostat</span>
+<span class="sd">            Thermostat class</span>
+
+<span class="sd">        potential: sarkas.potentials.base.Potential</span>
+<span class="sd">            Potential class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_num</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">verbose</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">dt</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">production_steps</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">equilibration_steps</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.01</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s1">&#39;prod_dump_step&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">prod_dump_step</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.01</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s1">&#39;eq_dump_step&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eq_dump_step</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.01</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">)</span>
 
         <span class="c1"># Run some checks</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;verlet&quot;</span><span class="p">:</span>
@@ -249,24 +304,28 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only verlet integrator is supported. Check your input file, integrator part 2.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;FMM&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">calc_pot_acc</span>
+            <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">pppm_on</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">update_pppm</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">linked_list_on</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">update_linked_list</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">update_brute</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">calc_pot_acc_fmm</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">update_fmm</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">thermostate</span> <span class="o">=</span> <span class="n">thermostat</span><span class="o">.</span><span class="n">update</span></div>
 
 <div class="viewcode-block" id="Integrator.equilibrate"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.equilibrate">[docs]</a>    <span class="k">def</span> <span class="nf">equilibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it_start</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
             <span class="c1"># Calculate the Potential energy and update particles&#39; data</span>
-            <span class="n">U_therm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">checkpoint</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">U_therm</span><span class="p">,</span> <span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">checkpoint</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">thermostate</span><span class="p">(</span><span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
 
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">remove_drift</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">U_therm</span></div>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">remove_drift</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Integrator.produce"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.produce">[docs]</a>    <span class="k">def</span> <span class="nf">produce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it_start</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">):</span>
         <span class="c1">##############################################</span>
@@ -275,10 +334,10 @@
         <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)):</span>
 
             <span class="c1"># Move the particles and calculate the potential</span>
-            <span class="n">U_prod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># Save particles&#39; data for restart</span>
-                <span class="n">checkpoint</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">U_prod</span><span class="p">,</span> <span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+                <span class="n">checkpoint</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Integrator.verlet_langevin"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.verlet_langevin">[docs]</a>    <span class="k">def</span> <span class="nf">verlet_langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -286,7 +345,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls: object</span>
+<span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
 
 <span class="sd">        params:  object</span>
@@ -311,7 +370,7 @@
         <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
 
         <span class="n">acc_old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">)</span>
-        <span class="n">potential_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
         <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">sp_end</span> <span class="o">=</span> <span class="mi">0</span>
@@ -322,9 +381,7 @@
                                             <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span>
                                                                          <span class="o">+</span> <span class="n">acc_old</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:])</span> \
                                             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span> <span class="o">*</span> <span class="n">beta</span>
-            <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
-
-        <span class="k">return</span> <span class="n">potential_energy</span></div>
+            <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span></div>
 
 <div class="viewcode-block" id="Integrator.verlet"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.verlet">[docs]</a>    <span class="k">def</span> <span class="nf">verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -334,7 +391,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls: object</span>
+<span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
 
 <span class="sd">        Returns</span>
@@ -352,12 +409,10 @@
         <span class="c1"># Periodic boundary condition</span>
         <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
         <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
-        <span class="n">potential_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
         <span class="c1"># Second half step velocity update</span>
-        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
-
-        <span class="k">return</span> <span class="n">potential_energy</span></div>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span></div>
 
 <div class="viewcode-block" id="Integrator.magnetic_verlet"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.magnetic_verlet">[docs]</a>    <span class="k">def</span> <span class="nf">magnetic_verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -366,7 +421,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls: object</span>
+<span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
 
 <span class="sd">        Returns</span>
@@ -443,7 +498,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls: object</span>
+<span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
 
 <span class="sd">        Returns</span>
@@ -497,13 +552,13 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    pos : array</span>
-<span class="sd">        particles&#39; positions. See ``S_particles.py`` for more info.</span>
+<span class="sd">    pos: numpy.ndarray</span>
+<span class="sd">        Particles&#39; positions.</span>
 
-<span class="sd">    cntr: array</span>
+<span class="sd">    cntr: numpy.ndarray</span>
 <span class="sd">        Counter for the number of times each particle get folded back into the main simulation box</span>
 
-<span class="sd">    BoxVector : array</span>
+<span class="sd">    BoxVector: numpy.ndarray</span>
 <span class="sd">        Box Dimensions.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -519,70 +574,23 @@
             <span class="c1"># If particle is outside of box in negative direction, wrap to positive side</span>
             <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">+=</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
-                <span class="n">cntr</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
-    <span class="k">return</span></div>
-
-
-<div class="viewcode-block" id="calc_kin_temp"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.calc_kin_temp">[docs]</a><span class="nd">@njit</span>
-<span class="k">def</span> <span class="nf">calc_kin_temp</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="n">masses</span><span class="p">,</span> <span class="n">kB</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates the kinetic energy and temperature.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    kB: float</span>
-<span class="sd">        Boltzmann constant in chosen units.</span>
-
-<span class="sd">    masses: array</span>
-<span class="sd">        Mass of each species.</span>
-
-<span class="sd">    nums: array</span>
-<span class="sd">        Number of particles of each species.</span>
-
-<span class="sd">    vel: array</span>
-<span class="sd">        Particles&#39; velocities.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    K : array</span>
-<span class="sd">        Kinetic energy of each species.</span>
-
-<span class="sd">    T : array</span>
-<span class="sd">        Temperature of each species.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">num_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
-
-    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_species</span><span class="p">)</span>
-    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_species</span><span class="p">)</span>
-    <span class="n">const</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">kB</span> <span class="o">*</span> <span class="n">num_species</span> <span class="o">*</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">kinetic_energies</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">masses</span> <span class="o">*</span> <span class="n">vel</span> <span class="o">*</span> <span class="n">vel</span>
-
-    <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nums</span><span class="p">):</span>
-        <span class="n">species_end</span> <span class="o">+=</span> <span class="n">num</span>
-        <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kinetic_energies</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:])</span>
-        <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
-
-    <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">T</span></div>
+                <span class="n">cntr</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span></div>
 
 
 <div class="viewcode-block" id="remove_drift"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.remove_drift">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">remove_drift</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="n">masses</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Enforce conservation of total linear momentum. Updates ``ptcls.vel``</span>
+<span class="sd">    Enforce conservation of total linear momentum. Updates ``particles.vel``</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    vel: array</span>
+<span class="sd">    vel: numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocities.</span>
 
-<span class="sd">    nums: array</span>
+<span class="sd">    nums: numpy.ndarray</span>
 <span class="sd">        Number of particles of each species.</span>
 
-<span class="sd">    masses: array</span>
+<span class="sd">    masses: numpy.ndarray</span>
 <span class="sd">        Mass of each species.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -617,7 +625,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 18, 2020.
+        Last updated on Aug, 25, 2020.
       </span>
 
     </p>

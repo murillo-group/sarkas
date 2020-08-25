@@ -1,7 +1,0 @@
-sarkas.time\_evolution.base module
-==================================
-
-.. automodule:: sarkas.time_evolution.base
-   :members:
-   :undoc-members:
-   :show-inheritance:

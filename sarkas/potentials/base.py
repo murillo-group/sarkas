@@ -209,7 +209,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls: object
+        ptcls: sarkas.base.Particles
             Particles data.
 
         Returns

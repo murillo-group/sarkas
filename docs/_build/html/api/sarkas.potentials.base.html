@@ -86,19 +86,16 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.utilities.html">sarkas.utilities package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
@@ -107,12 +104,6 @@
 </li>
 </ul>
 </li>
-</ul>
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -469,12 +460,32 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.potentials.base.Potential.calc_pot_acc">
-<code class="sig-name descname">calc_pot_acc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.calc_pot_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.calc_pot_acc" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.potentials.base.Potential.calc_electron_properties">
+<code class="sig-name descname">calc_electron_properties</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.calc_electron_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.calc_electron_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.pppm_setup">
+<code class="sig-name descname">pppm_setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.pppm_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.pppm_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.update_brute">
+<code class="sig-name descname">update_brute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_brute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_brute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.update_linked_list">
+<code class="sig-name descname">update_linked_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_linked_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_linked_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Potential and update particles’ accelerations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Particles data.</p>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>U</strong> – Total Potential.</p>
@@ -486,8 +497,13 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.potentials.base.Potential.setup">
-<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.setup" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.potentials.base.Potential.update_pm">
+<code class="sig-name descname">update_pm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_pm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_pm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.update_pppm">
+<code class="sig-name descname">update_pppm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_pppm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_pppm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -517,7 +533,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 18, 2020.
+        Last updated on Aug, 25, 2020.
       </span>
 
     </p>

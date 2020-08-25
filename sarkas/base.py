@@ -294,7 +294,7 @@ class Simulation:
 
 class Parameters:
     """
-    Simulation's Parameters.
+    Class containing all the constants and physical constants of the simulation.
 
     Attributes
     ----------
@@ -315,9 +315,6 @@ class Parameters:
 
     load_method : str
         Particles loading described in Species.
-
-    load_rand_seed : int
-        Seed of random number generator.
 
     load_restart_step : int
         Restart time step.
@@ -391,12 +388,6 @@ class Parameters:
     e3 : float
         Unit vector in the :math:`z` direction.
 
-    N : int
-        Total number of particles same as ``tot_num_ptcls``.
-
-    ptcls_input_file : str
-        User defined input file containing particles' data.
-
     input_file : str
         YAML Input file with all the simulation's parameters.
 
@@ -419,10 +410,8 @@ class Parameters:
         Total number of particles. Calculated from the sum of ``Species.num``.
 
     wp : float
-        Total Plasma frequency. Defined in Potential module.
+        Total Plasma frequency.
 
-    force : func
-        Function for force calculation. Assigned in Potential module.
     """
 
     def __init__(self):
@@ -1209,36 +1198,37 @@ class Particles:
 
 class Species:
     """
-    Particle Species.
+    Class used to store all the information of the particles' species.
 
     Attributes
     ----------
-        name : str
-            Species' name.
+    name : str
+        Species' name.
 
-        number_density : float
-            Species number density in appropriate units.
+    number_density : float
+        Species number density in appropriate units.
 
-        num : int
-            Number of particles of Species.
+    num : int
+        Number of particles of Species.
 
-        mass : float
-            Species' mass.
+    mass : float
+        Species' mass.
 
-        charge : float
-            Species' charge.
+    charge : float
+        Species' charge.
 
-        Z : float
-            Species charge number.
+    Z : float
+        Species charge number.
 
-        atomic_weight : float
-            Species atomic weight.
+    atomic_weight : float
+        Species atomic weight.
 
-        initial_velocity: array
-            Initial velocity in x,y,z directions.
+    initial_velocity: numpy.ndarray
+        Initial velocity in x,y,z directions.
     """
 
     def __init__(self):
+        """Assign default values."""
         self.name = None
         self.number_density = None
         self.charge = None

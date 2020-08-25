@@ -15,15 +15,49 @@ class Integrator:
     """
     Class used to assign integrator type.
 
-    Parameters
-    ----------
-    params:  object
-        Simulation's parameters.
-
     Attributes
     ----------
+    dt: float
+        Timestep.
+
+    equilibration_steps: int
+        Total number of equilibration timesteps.
+
+    eq_dump_step: int
+        Equilibration dump interval.
+
+    kB: float
+        Boltzmann constant.
+
+    magnetized: bool
+        Magnetized simulation flag.
+
+    production_steps: int
+        Total number of production timesteps.
+
+    prod_dump_step: int
+        Production dump interval.
+
+    species_num: numpy.ndarray
+        Number of particles of each species. copy of ``parameters.species_num``.
+
+    box_lengths: numpy.ndarray
+        Length of each box side.
+
+    verbose: bool
+        Verbose output flag.
+
+    type: str
+        Integrator type.
+
     update: func
         Integrator choice. 'verlet' or 'magnetic_verlet'.
+
+    update_accelerations: func
+        Link to the correct potential update function.
+
+    thermostate: func
+        Link to the correct thermostat function.
 
     """
 
@@ -42,7 +76,21 @@ class Integrator:
         self.verbose = False
 
     def setup(self, params, thermostat, potential):
+        """
+        Assign attributes.
 
+        Parameters
+        ----------
+        params: sarkas.base.parameters
+            Parameters class.
+
+        thermostat: sarkas.time_evolution.thermostat
+            Thermostat class
+
+        potential: sarkas.potentials.base.Potential
+            Potential class.
+
+        """
         self.box_lengths = params.box_lengths
         self.kB = params.kB
         self.species_num = params.species_num
@@ -115,7 +163,21 @@ class Integrator:
         self.thermostate = thermostat.update
 
     def equilibrate(self, it_start, ptcls, checkpoint):
+        """
+        Loop over the equilibration steps.
 
+        Parameters
+        ----------
+        it_start: int
+            Initial step of equilibration.
+
+        ptcls: sarkas.base.Particles
+            Particles' class.
+
+        checkpoint: sarkas.utilities.InputOutput
+            IO class for saving dumps.
+
+        """
         for it in tqdm(range(it_start, self.equilibration_steps), disable=not self.verbose):
             # Calculate the Potential energy and update particles' data
             self.update(ptcls)
@@ -126,9 +188,21 @@ class Integrator:
         ptcls.remove_drift()
 
     def produce(self, it_start, ptcls, checkpoint):
-        ##############################################
-        # Production Phase
-        ##############################################
+        """
+        Loop over the production steps.
+
+        Parameters
+        ----------
+        it_start: int
+            Initial step of equilibration.
+
+        ptcls: sarkas.base.Particles
+            Particles' class.
+
+        checkpoint: sarkas.utilities.InputOutput
+            IO class for saving dumps.
+
+        """
         for it in tqdm(range(it_start, self.production_steps), disable=(not self.verbose)):
 
             # Move the particles and calculate the potential
@@ -139,20 +213,13 @@ class Integrator:
 
     def verlet_langevin(self, ptcls):
         """
-        Calculate particles dynamics using the Velocity verlet algorithm and Langevin damping.
+        Update particles class using the velocity verlet algorithm and Langevin damping.
 
         Parameters
         ----------
-        ptcls: object
+        ptcls: sarkas.base.Particles
             Particles data.
 
-        params:  object
-            Simulation's parameters.
-
-        Returns
-        -------
-        potential_energy : float
-            Total potential energy
 
         """
         beta = ptcls.gaussian(0., 1., ptcls.pos.shape[0])
@@ -183,22 +250,16 @@ class Integrator:
 
     def verlet(self, ptcls):
         """
-        Update particle position and velocity based on velocity verlet method.
+        Update particles' class based on velocity verlet algorithm.
         More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration
         or on the Sarkas website.
 
         Parameters
         ----------
-        ptcls: object
+        ptcls: sarkas.base.Particles
             Particles data.
 
-        Returns
-        -------
-        potential_energy : float
-            Total potential energy
-
         """
-
         # First half step velocity update
         ptcls.vel += 0.5 * ptcls.acc * self.dt
         # Full step position update
@@ -214,18 +275,13 @@ class Integrator:
 
     def magnetic_verlet(self, ptcls):
         """
-        Update particles' positions and velocities based on velocity verlet method in the case of a
+        Update particles' class based on velocity verlet method in the case of a
         constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [Chin2008]_
 
         Parameters
         ----------
-        ptcls: object
+        ptcls: sarkas.base.Particles
             Particles data.
-
-        Returns
-        -------
-        potential_energy : float
-             Total potential energy.
 
         References
         ----------
@@ -291,12 +347,12 @@ class Integrator:
 
     def magnetic_boris(self, ptcls):
         """
-        Update particles' positions and velocities using the Boris algorithm in the case of a
+        Update particles' class using the Boris algorithm in the case of a
         constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. [Chin2008]_
 
         Parameters
         ----------
-        ptcls: object
+        ptcls: sarkas.base.Particles
             Particles data.
 
         Returns
@@ -350,13 +406,13 @@ def enforce_pbc(pos, cntr, BoxVector):
 
     Parameters
     ----------
-    pos : array
-        particles' positions. See ``S_particles.py`` for more info.
+    pos: numpy.ndarray
+        Particles' positions.
 
-    cntr: array
+    cntr: numpy.ndarray
         Counter for the number of times each particle get folded back into the main simulation box
 
-    BoxVector : array
+    BoxVector: numpy.ndarray
         Box Dimensions.
 
     """
@@ -373,69 +429,22 @@ def enforce_pbc(pos, cntr, BoxVector):
             if pos[p, d] < 0.0:
                 pos[p, d] += BoxVector[d]
                 cntr[p, d] -= 1
-    return
-
-
-@njit
-def calc_kin_temp(vel, nums, masses, kB):
-    """
-    Calculates the kinetic energy and temperature.
-
-    Parameters
-    ----------
-    kB: float
-        Boltzmann constant in chosen units.
-
-    masses: array
-        Mass of each species.
-
-    nums: array
-        Number of particles of each species.
-
-    vel: array
-        Particles' velocities.
-
-    Returns
-    -------
-    K : array
-        Kinetic energy of each species.
-
-    T : array
-        Temperature of each species.
-    """
-
-    num_species = len(nums)
-
-    K = np.zeros(num_species)
-    T = np.zeros(num_species)
-    const = 2.0 / (kB * num_species * vel.shape[1])
-    kinetic_energies = 0.5 * masses * vel * vel
-
-    species_start = 0
-    species_end = 0
-    for i, num in range(nums):
-        species_end += num
-        K[i] = np.sum(kinetic_energies[species_start:species_end, :])
-        T[i] = const[i] * K[i]
-        species_start = species_end
-
-    return K, T
 
 
 @njit
 def remove_drift(vel, nums, masses):
     """
-    Enforce conservation of total linear momentum. Updates ``ptcls.vel``
+    Enforce conservation of total linear momentum. Updates ``particles.vel``
 
     Parameters
     ----------
-    vel: array
+    vel: numpy.ndarray
         Particles' velocities.
 
-    nums: array
+    nums: numpy.ndarray
         Number of particles of each species.
 
-    masses: array
+    masses: numpy.ndarray
         Mass of each species.
 
     """

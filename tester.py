@@ -1,5 +1,5 @@
 from sarkas.base import Simulation
-from sarkas.tools.testing import PreProcess
+from sarkas.tools.preprocessing import PreProcess
 input_file_name = 'sarkas/examples/binary_unp.yaml'
 
 args = {"input_file": input_file_name}

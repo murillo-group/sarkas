@@ -86,19 +86,16 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.utilities.html">sarkas.utilities package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
@@ -107,12 +104,6 @@
 </li>
 </ul>
 </li>
-</ul>
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -290,7 +281,7 @@
 <dl class="py function">
 <dt id="sarkas.potentials.force_pm.force_optimized_green_function">
 <code class="sig-prename descclassname">sarkas.potentials.force_pm.</code><code class="sig-name descname">force_optimized_green_function</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">box_lengths</span></em>, <em class="sig-param"><span class="n">mesh_sizes</span></em>, <em class="sig-param"><span class="n">aliases</span></em>, <em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">constants</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/force_pm.html#force_optimized_green_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.force_pm.force_optimized_green_function" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. <a class="reference internal" href="../tutorial/tutorial.html#stern2008" id="id3"><span>[Stern2008]</span></a>.</p>
+<dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. <a class="reference internal" href="#stern2008" id="id3"><span>[Stern2008]</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -307,8 +298,8 @@
 <li><p><strong>kx_v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – array of reciprocal space vectors along the x-axis</p></li>
 <li><p><strong>ky_v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – array of reciprocal space vectors along the y-axis</p></li>
 <li><p><strong>kz_v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – array of reciprocal space vectors along the z-axis</p></li>
-<li><p><strong>PM_err</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Error in the force calculation due to the optimized Green’s function. eq.(28) of Ref. <a class="reference internal" href="../tutorial/tutorial.html#dharuman2017" id="id4"><span>[Dharuman2017]</span></a></p></li>
-<li><p><strong>PP_err</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Error in the force calculation due to the distance cutoff. eq.(30) of Ref. <a class="reference internal" href="../tutorial/tutorial.html#stern2008" id="id5"><span>[Stern2008]</span></a></p></li>
+<li><p><strong>PM_err</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Error in the force calculation due to the optimized Green’s function. eq.(28) of Ref. <a class="reference internal" href="#dharuman2017" id="id4"><span>[Dharuman2017]</span></a></p></li>
+<li><p><strong>PP_err</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Error in the force calculation due to the distance cutoff. eq.(30) of Ref. <a class="reference internal" href="#stern2008" id="id5"><span>[Stern2008]</span></a></p></li>
 </ul>
 </p>
 </dd>
@@ -378,7 +369,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 18, 2020.
+        Last updated on Aug, 25, 2020.
       </span>
 
     </p>
