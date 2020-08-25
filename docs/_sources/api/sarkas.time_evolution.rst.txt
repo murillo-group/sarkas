@@ -7,7 +7,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   sarkas.time_evolution.base
    sarkas.time_evolution.integrators
    sarkas.time_evolution.thermostats
 

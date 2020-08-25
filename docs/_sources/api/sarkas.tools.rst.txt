@@ -9,7 +9,7 @@ Submodules
 
    sarkas.tools.force_error
    sarkas.tools.postprocessing
-   sarkas.tools.testing
+   sarkas.tools.preprocessing
 
 Module contents
 ---------------

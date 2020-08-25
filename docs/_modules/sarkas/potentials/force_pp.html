@@ -283,7 +283,7 @@
 
 
 <div class="viewcode-block" id="update"><a class="viewcode-back" href="../../../api/sarkas.potentials.force_pp.html#sarkas.potentials.force_pp.update">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
-<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">id_ij</span><span class="p">,</span> <span class="n">mass_ij</span><span class="p">,</span> <span class="n">Lv</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">measure</span><span class="p">,</span> <span class="n">rdf_hist</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">p_id</span><span class="p">,</span> <span class="n">p_mass</span><span class="p">,</span> <span class="n">box_lengths</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">measure</span><span class="p">,</span> <span class="n">rdf_hist</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">    Update the force on the particles based on a linked cell-list (LCL) algorithm.</span>
 <span class="sd">  </span>
@@ -298,13 +298,13 @@
 <span class="sd">    rc: float</span>
 <span class="sd">        Cut-off radius.</span>
 
-<span class="sd">    Lv: array</span>
+<span class="sd">    box_lengths: array</span>
 <span class="sd">        Array of box sides&#39; length.</span>
 
-<span class="sd">    mass_ij: array</span>
+<span class="sd">    p_mass: array</span>
 <span class="sd">        Mass of each particle.</span>
 
-<span class="sd">    id_ij: array</span>
+<span class="sd">    p_id: array</span>
 <span class="sd">        Id of each particle</span>
 
 <span class="sd">    pos: array</span>
@@ -337,26 +337,17 @@
     <span class="n">N</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Number of particles</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Number of dimensions</span>
     <span class="n">rshift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>  <span class="c1"># Shifts for array flattening</span>
-    <span class="n">Lx</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># X length of box</span>
-    <span class="n">Ly</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Y length of box</span>
-    <span class="n">Lz</span> <span class="o">=</span> <span class="n">Lv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># Z length of box</span>
 
     <span class="c1"># Initialize</span>
     <span class="n">U_s_r</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># Short-ranges potential energy accumulator</span>
     <span class="n">ls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>  <span class="c1"># List of particle indices in a given cell</span>
 
     <span class="c1"># The number of cells in each dimension</span>
-    <span class="n">Nxd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Lx</span> <span class="o">/</span> <span class="n">rc</span><span class="p">)</span>
-    <span class="n">Nyd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Ly</span> <span class="o">/</span> <span class="n">rc</span><span class="p">)</span>
-    <span class="n">Nzd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Lz</span> <span class="o">/</span> <span class="n">rc</span><span class="p">)</span>
-
-    <span class="c1"># Width of each cell</span>
-    <span class="n">rc_x</span> <span class="o">=</span> <span class="n">Lx</span> <span class="o">/</span> <span class="n">Nxd</span>
-    <span class="n">rc_y</span> <span class="o">=</span> <span class="n">Ly</span> <span class="o">/</span> <span class="n">Nyd</span>
-    <span class="n">rc_z</span> <span class="o">=</span> <span class="n">Lz</span> <span class="o">/</span> <span class="n">Nzd</span>
+    <span class="n">cells_per_dim</span> <span class="o">=</span> <span class="p">(</span><span class="n">box_lengths</span> <span class="o">/</span> <span class="n">rc</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">cell_length_per_dim</span> <span class="o">=</span> <span class="n">box_lengths</span> <span class="o">/</span> <span class="n">cells_per_dim</span>
 
     <span class="c1"># Total number of cells in volume</span>
-    <span class="n">Ncell</span> <span class="o">=</span> <span class="n">Nxd</span> <span class="o">*</span> <span class="n">Nyd</span> <span class="o">*</span> <span class="n">Nzd</span>
+    <span class="n">Ncell</span> <span class="o">=</span> <span class="n">cells_per_dim</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
     <span class="n">head</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Ncell</span><span class="p">)</span>  <span class="c1"># List of head particles</span>
     <span class="n">empty</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span>  <span class="c1"># value for empty list and head arrays</span>
     <span class="n">head</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>  <span class="c1"># Make head list empty until population</span>
@@ -367,11 +358,11 @@
     <span class="c1"># Loop over all particles and place them in cells</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
         <span class="c1"># Determine what cell, in each direction, the i-th particle is in</span>
-        <span class="n">cx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">rc_x</span><span class="p">)</span>  <span class="c1"># X cell</span>
-        <span class="n">cy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">rc_y</span><span class="p">)</span>  <span class="c1"># Y cell</span>
-        <span class="n">cz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">rc_z</span><span class="p">)</span>  <span class="c1"># Z cell</span>
+        <span class="n">cx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">cell_length_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># X cell</span>
+        <span class="n">cy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">cell_length_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># Y cell</span>
+        <span class="n">cz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">cell_length_per_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Z cell</span>
         <span class="c1"># Determine cell in 3D volume for i-th particle</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">cy</span> <span class="o">*</span> <span class="n">Nxd</span> <span class="o">+</span> <span class="n">cz</span> <span class="o">*</span> <span class="n">Nxd</span> <span class="o">*</span> <span class="n">Nyd</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">cy</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">cz</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="c1"># List of particle indices occupying a given cell</span>
         <span class="n">ls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">head</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
 
@@ -379,62 +370,60 @@
         <span class="n">head</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
 
     <span class="c1"># Loop over all cells in x, y, and z direction</span>
-    <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nxd</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">cy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nyd</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">cz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nzd</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">cy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">cz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
 
                 <span class="c1"># Compute the cell in 3D volume</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">cy</span> <span class="o">*</span> <span class="n">Nxd</span> <span class="o">+</span> <span class="n">cz</span> <span class="o">*</span> <span class="n">Nxd</span> <span class="o">*</span> <span class="n">Nyd</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">cy</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">cz</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">head</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
 
                 <span class="c1"># Loop over all cell pairs (N-1 and N+1)</span>
                 <span class="k">for</span> <span class="n">cz_N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cz</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
-                    <span class="k">for</span> <span class="n">cy_N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cy</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cy</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
-                        <span class="k">for</span> <span class="n">cx_N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="c1"># z cells</span>
+                    <span class="c1"># Check periodicity: needed for 0th cell</span>
+                    <span class="k">if</span> <span class="n">cz_N</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">cz_shift</span> <span class="o">=</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="n">rshift</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="c1"># Check periodicity: needed for Nth cell</span>
+                    <span class="k">elif</span> <span class="n">cz_N</span> <span class="o">&gt;=</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                        <span class="n">cz_shift</span> <span class="o">=</span> <span class="o">-</span><span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="n">rshift</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">cz_shift</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">rshift</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-                            <span class="c1">## x cells ##</span>
-                            <span class="c1"># Check if periodicity is needed for 0th cell</span>
+                    <span class="k">for</span> <span class="n">cy_N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cy</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cy</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+                        <span class="c1"># y cells</span>
+                        <span class="c1"># Check periodicity</span>
+                        <span class="k">if</span> <span class="n">cy_N</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">cy_shift</span> <span class="o">=</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="n">rshift</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">elif</span> <span class="n">cy_N</span> <span class="o">&gt;=</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="n">cy_shift</span> <span class="o">=</span> <span class="o">-</span><span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="n">rshift</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">cy_shift</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="n">rshift</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+                        <span class="k">for</span> <span class="n">cx_N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+                            <span class="c1"># x cells</span>
+                            <span class="c1"># Check periodicity</span>
                             <span class="k">if</span> <span class="n">cx_N</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                                <span class="n">cx_shift</span> <span class="o">=</span> <span class="n">Nxd</span>
-                                <span class="n">rshift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Lx</span>
-                            <span class="c1"># Check if periodicity is needed for Nth cell</span>
-                            <span class="k">elif</span> <span class="n">cx_N</span> <span class="o">&gt;=</span> <span class="n">Nxd</span><span class="p">:</span>
-                                <span class="n">cx_shift</span> <span class="o">=</span> <span class="o">-</span><span class="n">Nxd</span>
-                                <span class="n">rshift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lx</span>
+                                <span class="n">cx_shift</span> <span class="o">=</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="n">rshift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="k">elif</span> <span class="n">cx_N</span> <span class="o">&gt;=</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                                <span class="n">cx_shift</span> <span class="o">=</span> <span class="o">-</span><span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="n">rshift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="n">cx_shift</span> <span class="o">=</span> <span class="mi">0</span>
                                 <span class="n">rshift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-                            <span class="c1">## y cells ##</span>
-                            <span class="c1"># Check periodicity</span>
-                            <span class="k">if</span> <span class="n">cy_N</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                                <span class="n">cy_shift</span> <span class="o">=</span> <span class="n">Nyd</span>
-                                <span class="n">rshift</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Ly</span>
-                            <span class="c1"># Check periodicity</span>
-                            <span class="k">elif</span> <span class="n">cy_N</span> <span class="o">&gt;=</span> <span class="n">Nyd</span><span class="p">:</span>
-                                <span class="n">cy_shift</span> <span class="o">=</span> <span class="o">-</span><span class="n">Nyd</span>
-                                <span class="n">rshift</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ly</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="n">cy_shift</span> <span class="o">=</span> <span class="mi">0</span>
-                                <span class="n">rshift</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-
-                            <span class="c1">## z cells ##</span>
-                            <span class="c1"># Check periodicity</span>
-                            <span class="k">if</span> <span class="n">cz_N</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                                <span class="n">cz_shift</span> <span class="o">=</span> <span class="n">Nzd</span>
-                                <span class="n">rshift</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Lz</span>
-                            <span class="c1"># Check periodicity</span>
-                            <span class="k">elif</span> <span class="n">cz_N</span> <span class="o">&gt;=</span> <span class="n">Nzd</span><span class="p">:</span>
-                                <span class="n">cz_shift</span> <span class="o">=</span> <span class="o">-</span><span class="n">Nzd</span>
-                                <span class="n">rshift</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lz</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="n">cz_shift</span> <span class="o">=</span> <span class="mi">0</span>
-                                <span class="n">rshift</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-
                             <span class="c1"># Compute the location of the N-th cell based on shifts</span>
-                            <span class="n">c_N</span> <span class="o">=</span> <span class="p">(</span><span class="n">cx_N</span> <span class="o">+</span> <span class="n">cx_shift</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">cy_N</span> <span class="o">+</span> <span class="n">cy_shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">Nxd</span> <span class="o">+</span> <span class="p">(</span><span class="n">cz_N</span> <span class="o">+</span> <span class="n">cz_shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">Nxd</span> <span class="o">*</span> <span class="n">Nyd</span>
+                            <span class="n">c_N</span> <span class="o">=</span> <span class="p">(</span><span class="n">cx_N</span> <span class="o">+</span> <span class="n">cx_shift</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">cy_N</span> <span class="o">+</span> <span class="n">cy_shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> \
+                                  <span class="o">+</span> <span class="p">(</span><span class="n">cz_N</span> <span class="o">+</span> <span class="n">cz_shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-                            <span class="n">i</span> <span class="o">=</span> <span class="n">head</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
-
+                            <span class="c1"># Recall i = head[c]</span>
                             <span class="c1"># First compute interaction of head particle with neighboring cell head particles</span>
                             <span class="c1"># Then compute interactions of head particle within a specific cell</span>
                             <span class="k">while</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">empty</span><span class="p">:</span>
@@ -456,29 +445,26 @@
                                         <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">dz</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
                                         <span class="k">if</span> <span class="n">measure</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">dr_rdf</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">rdf_nbins</span><span class="p">:</span>
-                                            <span class="n">rdf_hist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">dr_rdf</span><span class="p">),</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                                            <span class="n">rdf_hist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">dr_rdf</span><span class="p">),</span> <span class="n">p_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">p_id</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
 
                                         <span class="c1"># If below the cutoff radius, compute the force</span>
                                         <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">rc</span><span class="p">:</span>
-                                            <span class="n">id_i</span> <span class="o">=</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                                            <span class="n">id_j</span> <span class="o">=</span> <span class="n">id_ij</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-                                            <span class="n">mass_i</span> <span class="o">=</span> <span class="n">mass_ij</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                                            <span class="n">mass_j</span> <span class="o">=</span> <span class="n">mass_ij</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-                                            <span class="n">p_matrix</span> <span class="o">=</span> <span class="n">potential_matrix</span><span class="p">[:,</span> <span class="n">id_i</span><span class="p">,</span> <span class="n">id_j</span><span class="p">]</span>
+                                            <span class="n">p_matrix</span> <span class="o">=</span> <span class="n">potential_matrix</span><span class="p">[:,</span> <span class="n">p_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">p_id</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
 
                                             <span class="c1"># Compute the short-ranged force</span>
                                             <span class="n">pot</span><span class="p">,</span> <span class="n">fr</span> <span class="o">=</span> <span class="n">force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p_matrix</span><span class="p">)</span>
+                                            <span class="n">fr</span> <span class="o">/=</span> <span class="n">r</span>
                                             <span class="n">U_s_r</span> <span class="o">+=</span> <span class="n">pot</span>
 
                                             <span class="c1"># Update the acceleration for i particles in each dimension</span>
 
-                                            <span class="n">acc_ix</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">mass_i</span>
-                                            <span class="n">acc_iy</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">mass_i</span>
-                                            <span class="n">acc_iz</span> <span class="o">=</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">mass_i</span>
+                                            <span class="n">acc_ix</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                                            <span class="n">acc_iy</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                                            <span class="n">acc_iz</span> <span class="o">=</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
-                                            <span class="n">acc_jx</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">mass_j</span>
-                                            <span class="n">acc_jy</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">mass_j</span>
-                                            <span class="n">acc_jz</span> <span class="o">=</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">mass_j</span>
+                                            <span class="n">acc_jx</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                                            <span class="n">acc_jy</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                                            <span class="n">acc_jz</span> <span class="o">=</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
 
                                             <span class="n">acc_s_r</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">acc_ix</span>
                                             <span class="n">acc_s_r</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">acc_iy</span>
@@ -510,7 +496,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 18, 2020.
+        Last updated on Aug, 25, 2020.
       </span>
 
     </p>
