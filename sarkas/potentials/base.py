@@ -2,6 +2,7 @@
 import numpy as np
 from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
 from sarkas.potentials import force_pm, force_pp
+import fdint
 
 
 class Potential:
@@ -123,6 +124,8 @@ class Potential:
                 "\nWARNING: You have provided both kappa and Te while only one is needed."
                 "kappa will be used to calculate the screening parameter.")
 
+        self.calc_electron_properties(params)
+
         if hasattr(self, "kappa"):
             # Thomas-Fermi Length
             params.lambda_TF = params.aws / self.kappa
@@ -168,6 +171,37 @@ class Potential:
         self.QFactor = params.QFactor
         self.total_net_charge = params.total_net_charge
         self.measure = params.measure
+
+    def calc_electron_properties(self, params):
+
+        twopi = 2.0 * np.pi
+        if hasattr(self, "electron_temperature_eV"):
+            self.electron_temperature = params.eV2K * self.electron_temperature_eV
+
+        if hasattr(self, "electron_temperature"):
+            params.Te = self.electron_temperature
+        else:
+            params.Te = params.total_ion_temperature
+            # if the electron temperature is not defined. The total ion temperature will be used for it.
+
+        params.ne = params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
+        # Calculate electron gas properties
+        fdint_fdk_vec = np.vectorize(fdint.fdk)
+        fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
+        beta_e = 1. / (params.kB * params.Te)
+        lambda_DB = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
+        lambda3 = lambda_DB ** 3
+        # chemical potential of electron gas/(kB T). See eq.(4) in Ref.[3]_
+        params.eta_e = fdint_ifd1h_vec(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
+        # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
+        params.lambda_TF = np.sqrt(params.fourpie0 * np.sqrt(np.pi) * lambda3 / (
+                8.0 * np.pi * params.qe ** 2 * beta_e * fdint_fdk_vec(k=-0.5, phi=params.eta_e)))
+
+        params.rs = params.aws / params.a0
+        kF = (3.0 * np.pi ** 2 * params.ne) ** (1. / 3.)
+        params.fermi_energy = params.hbar2 * kF ** 2 / (2.0 * params.me)
+        params.electron_degeneracy_parameter = params.kB * params.Te / params.fermi_energy
+        params.relativistic_parameter = params.hbar * kF / (params.me * params.c0)
 
     def update_linked_list(self, ptcls):
         """
@@ -226,7 +260,7 @@ class Potential:
         self.update_linked_list(ptcls)
         self.update_pm(ptcls)
 
-    def pppm_setup(self,params):
+    def pppm_setup(self, params):
         # P3M parameters
         self.pppm_h_array = params.box_lengths / self.pppm_mesh
         if not isinstance(self.pppm_mesh, np.ndarray):

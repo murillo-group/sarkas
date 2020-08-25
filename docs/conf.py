@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../sarkas'))
 sys.path.insert(0, os.path.abspath('../sarkas/algorithm'))
 sys.path.insert(0, os.path.abspath('../sarkas/time_evolution'))
-sys.path.insert(0, os.path.abspath('../sarkas/io'))
+sys.path.insert(0, os.path.abspath('../sarkas/utilities'))
 sys.path.insert(0, os.path.abspath('../sarkas/plotting'))
 sys.path.insert(0, os.path.abspath('../sarkas/potentials'))
 sys.path.insert(0, os.path.abspath('../sarkas/simulation'))

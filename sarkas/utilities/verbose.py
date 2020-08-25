@@ -1,5 +1,6 @@
 import os
 import sys
+
 import numpy as np
 from pyfiglet import print_figlet, Figlet
 
@@ -83,9 +84,9 @@ class Verbose:
         pre_run_path = os.path.join(params.job_dir, 'Pre_Run_Test')
         if not os.path.exists(pre_run_path):
             os.mkdir(pre_run_path)
-        params.pre_run_dir = pre_run_path
+        params.preprocessing_dir = pre_run_path
         # Pre run file name
-        self.f_pre_run = os.path.join(params.pre_run_dir, 'pre_run_' + params.job_id + '.out')
+        self.f_pre_run = os.path.join(params.preprocessing_dir, 'pre_run_' + params.job_id + '.out')
         # Log File name
         self.f_log_name = os.path.join(params.job_dir, "log_" + params.job_id + ".out")
         # Save it in params too
@@ -478,5 +479,5 @@ class Verbose:
             print("\tMass = {:2.6e} ".format(sp.mass), end='')
             print("[g]" if simulation.parameters.units == "cgs" else "[kg]")
             print("\tCharge = {:2.6e} ".format(sp.charge), end='')
-            print("[C]" if simulation.parameters.units == "cgs" else "[esu]")
+            print("[esu]" if simulation.parameters.units == "cgs" else "[C]")
             print('\tTemperature = {:2.6e} [K]'.format(sp.temperature))

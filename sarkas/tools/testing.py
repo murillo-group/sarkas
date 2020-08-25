@@ -10,11 +10,12 @@ import os
 import yaml
 
 # Sarkas modules
-import sarkas.io as io
+from sarkas.utilities.io import InputOutput
+from sarkas.utilities.timing import SarkasTimer
 from sarkas.potentials.base import Potential
 from sarkas.time_evolution.integrators import Integrator
 from sarkas.time_evolution.thermostats import Thermostat
-from sarkas.base import SarkasTimer, Particles, Parameters, Species
+from sarkas.base import Particles, Parameters, Species
 
 
 class PreProcess:
@@ -31,55 +32,53 @@ class PreProcess:
         self.estimate = False
         self.pm_meshes = np.array([16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
         self.pp_cells = np.arange(3, 16, dtype=int)
+        self.timer = SarkasTimer()
+        self.io = InputOutput()
 
     def common_parser(self, filename):
+        """
+        Parse simulation parameters from YAML file.
 
+        Parameters
+        ----------
+        filename: str
+            Input YAML file
+
+
+        """
         self.input_file = filename
         self.parameters.input_file = filename
-        with open(filename, 'r') as stream:
-            dics = yaml.load(stream, Loader=yaml.FullLoader)
-            for lkey in dics:
-                if lkey == "Particles":
-                    for species in dics["Particles"]:
-                        spec = Species()
-                        for key, value in species["Species"].items():
-                            if hasattr(spec, key):
-                                spec.__dict__[key] = value
-                            else:
-                                setattr(spec, key, value)
-                        self.species.append(spec)
+        dics = self.io.from_yaml(filename)
 
-                if lkey == "Potential":
-                    for key, value in dics[lkey].items():
-                        if hasattr(self.potential, key):
-                            self.potential.__dict__[key] = value
+        for lkey in dics:
+            if lkey == "Particles":
+                for species in dics["Particles"]:
+                    spec = Species()
+                    for key, value in species["Species"].items():
+                        if hasattr(spec, key):
+                            spec.__dict__[key] = value
                         else:
-                            setattr(self.potential, key, value)
+                            setattr(spec, key, value)
+                    self.species.append(spec)
 
-                if lkey == "Thermostat":
-                    for key, value in dics[lkey].items():
-                        if hasattr(self.thermostat, key):
-                            self.thermostat.__dict__[key] = value
-                        else:
-                            setattr(self.thermostat, key, value)
+            if lkey == "Potential":
+                self.potential.__dict__.update(dics[lkey])
 
-                if lkey == "Integrator":
-                    for key, value in dics[lkey].items():
-                        if hasattr(self.integrator, key):
-                            self.integrator.__dict__[key] = value
-                        else:
-                            setattr(self.integrator, key, value)
+            if lkey == "Thermostat":
+                self.thermostat.__dict__.update(dics[lkey])
 
-                if lkey == "Parameters":
-                    for key, value in dics[lkey].items():
-                        if hasattr(self.parameters, key):
-                            self.parameters.__dict__[key] = value
-                        else:
-                            setattr(self.parameters, key, value)
+            if lkey == "Integrator":
+                self.integrator.__dict__.update(dics[lkey])
 
-    def setup(self, loops=None, estimate=None, other_inputs=None):
+            if lkey == "Parameters":
+                self.parameters.__dict__.update(dics[lkey])
+
+            if lkey == "Control":
+                self.parameters.__dict__.update(dics[lkey])
+
+    def setup(self, other_inputs=None):
         """
-        Setup simulations subclasses.
+        Initialize all the sub classes of the simulation and save simulation details to log file.
 
         Parameters
         ----------
@@ -91,12 +90,6 @@ class PreProcess:
             Dictionary with additional simulations options.
 
         """
-        if loops:
-            self.loops = loops
-
-        if estimate:
-            self.estimate = estimate
-
         if other_inputs:
             if not isinstance(other_inputs, dict):
                 raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
@@ -105,8 +98,9 @@ class PreProcess:
                 if not class_name == 'Particles':
                     self.__dict__[class_name.lower()].__dict__.update(class_attr)
 
-        self.timer = SarkasTimer()
-
+        self.io.preprocessing = True
+        self.io.setup()
+        self.parameters.job_id = self.io.job_id
         # save some general info
         self.parameters.potential_type = self.potential.type
         self.parameters.cutoff_radius = self.potential.rc
@@ -114,22 +108,28 @@ class PreProcess:
         self.parameters.integrator = self.integrator.type
         self.parameters.thermostat = self.thermostat.type
 
-        self.parameters.setup(self.species, other_inputs)
+        self.parameters.setup(self.species)
 
-        self.checkpoint = io.Checkpoint(self.parameters, self.species)
-        self.verbose = io.Verbose(self.parameters)
-
+        t0 = self.timer.current()
         self.timer.start()
         self.potential.setup(self.parameters)
+        time_pot = self.timer.current()
+
         self.thermostat.setup(self.parameters)
         self.integrator.setup(self.parameters, self.thermostat, self.potential)
+        self.timer.start()
         self.particles.setup(self.parameters, self.species)
-        self.verbose.sim_setting_summary(self)  # simulation setting summary
-        time_end = self.timer.stop()
+        time_ptcls = self.timer.current()
+
+        # For restart and backups.
+        self.io.save_pickle(self)
+        self.io.simulation_summary(self)
+        time_end = self.timer.current()
+        self.io.time_stamp("Potential Initialization", time_end - t0)
+        self.io.time_stamp("Particles Initialization", time_ptcls - time_pot)
+        self.io.time_stamp("Total Simulation Initialization", time_end - t0)
 
         self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
-
-        self.verbose.time_stamp("Initialization", time_end)
 
     def green_function_timer(self):
 
@@ -137,7 +137,12 @@ class PreProcess:
         self.potential.pppm_setup(self.parameters)
         return self.timer.stop()
 
-    def run(self):
+    def run(self, loops=None, estimate=False):
+
+        if loops:
+            self.loops = loops
+
+        self.estimate = estimate
 
         if self.potential.pppm_on:
             self.make_pppm_approximation_plots()
@@ -179,11 +184,11 @@ class PreProcess:
             self.potential.pppm_mesh = m * np.ones(3, dtype=int)
             self.potential.pppm_alpha_ewald = 0.25 * m / self.parameters.box_lengths.min()
             green_time = self.green_function_timer()
-            pm_errs[i] = self.potential.pppm_pm_err
+            pm_errs[i] = self.parameters.pppm_pm_err
             print('\n\nMesh = {} x {} x {} : '.format(*self.potential.pppm_mesh))
             print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(self.potential.pppm_alpha_ewald * self.parameters.aws,
                                                              self.potential.pppm_alpha_ewald))
-            print('PM Err = {:1.4e}  '.format(self.potential.pppm_pm_err), end='')
+            print('PM Err = {:1.4e}  '.format(self.parameters.pppm_pm_err), end='')
 
             self.print_time_report("GF", green_time, 0)
             pm_xlabels.append("{}x{}x{}".format(*self.potential.pppm_mesh))
@@ -203,7 +208,7 @@ class PreProcess:
 
                 pp_errs[i, j] = self.potential.pppm_pp_err
                 self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err ** 2
-                                                     + self.potential.pppm_pm_err ** 2)
+                                                     + self.parameters.pppm_pm_err ** 2)
 
                 if j == 0:
                     pp_xlabels.append("{:1.2f}".format(self.potential.rc / self.parameters.aws))
@@ -229,13 +234,13 @@ class PreProcess:
         self.potential.pppm_setup(self.parameters)
 
         # print report
-        self.verbose.timing_study(self)
+        self.io.timing_study(self)
         # time prediction
         predicted_times = pp_times[best] + pm_times[best[0]]
         # Print estimate of run times
-        self.verbose.time_stamp('Equilibration', predicted_times * self.parameters.equilibration_steps)
-        self.verbose.time_stamp('Production', predicted_times * self.parameters.production_steps)
-        self.verbose.time_stamp('Total Run',
+        self.io.time_stamp('Equilibration', predicted_times * self.parameters.equilibration_steps)
+        self.io.time_stamp('Production', predicted_times * self.parameters.production_steps)
+        self.io.time_stamp('Total Run',
                                 predicted_times * (self.parameters.equilibration_steps
                                                     + self.parameters.production_steps) )
 
@@ -256,7 +261,7 @@ class PreProcess:
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('2D self.lagrangian')
-        fig.savefig(os.path.join(self.parameters.pre_run_dir, '2D_Lagrangian.png'))
+        fig.savefig(os.path.join(self.io.preprocessing_dir, '2D_Lagrangian.png'))
         fig.show()
 
     def make_force_error_map_plot(self):
@@ -277,7 +282,7 @@ class PreProcess:
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('Force Error')
-        fig.savefig(os.path.join(self.parameters.pre_run_dir, 'ForceMap.png'))
+        fig.savefig(os.path.join(self.io.preprocessing_dir, 'ForceMap.png'))
         fig.show()
 
     def time_acceleration(self):
@@ -299,16 +304,16 @@ class PreProcess:
         if self.potential.pppm_on:
             self.print_time_report("PM", pm_mean_time, self.loops)
 
-        print('\n\n----------------- Estimated Simulation Times -----------------------\n')
+        print('\n\n----------------- Estimated Simulation Times ---------------------\n')
         # Print estimate of run times
         eq_time = (pp_mean_time + pm_mean_time) * self.parameters.equilibration_steps
-        self.verbose.time_stamp('Equilibration', eq_time)
+        self.io.time_stamp('Equilibration', eq_time)
 
         prod_time = (pp_mean_time + pm_mean_time) * self.parameters.production_steps
-        self.verbose.time_stamp('Production', prod_time)
+        self.io.time_stamp('Production', prod_time)
 
         tot_time = eq_time + prod_time
-        self.verbose.time_stamp('Total Run', tot_time)
+        self.io.time_stamp('Total Run', tot_time)
 
     def make_pppm_approximation_plots(self):
         chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.aws
@@ -347,7 +352,7 @@ class PreProcess:
 
         """
         # Plot the results
-        fig_path = self.parameters.pre_run_dir
+        fig_path = self.io.preprocessing_dir
 
         fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
         ax[0].plot(rcuts, total_force_error[30, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
@@ -381,7 +386,7 @@ class PreProcess:
                 self.parameters.total_num_ptcls,
                 self.potential.pppm_mesh[0],
                 self.kappa * self.parameters.aws))
-        fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + self.parameters.job_id + '.png'))
+        fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + self.io.job_id + '.png'))
         fig.show()
 
     def make_color_map(self, rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error):
@@ -406,7 +411,7 @@ class PreProcess:
             Force error matrix.
         """
         # Plot the results
-        fig_path = self.parameters.pre_run_dir
+        fig_path = self.io.preprocessing_dir
 
         r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
@@ -429,7 +434,7 @@ class PreProcess:
                 self.parameters.total_num_ptcls, self.potential.pppm_mesh[0], self.kappa * self.parameters.aws))
         fig.colorbar(CS)
         fig.tight_layout()
-        fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + self.parameters.job_id + '.png'))
+        fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + self.io.job_id + '.png'))
         fig.show()
 
     @staticmethod

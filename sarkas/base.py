@@ -1,16 +1,13 @@
-import pickle
-import time
-import yaml
+
 import numpy as np
 import os.path
 import sys
 import scipy.constants as const
-import fdint
-from dataclasses import dataclass, field
-from typing import Optional
+
 
 # Sarkas modules
-import sarkas.io as io
+from sarkas.utilities.io import InputOutput
+from sarkas.utilities.timing import SarkasTimer
 from sarkas.tools.postprocessing import PostProcess
 from sarkas.potentials.base import Potential
 from sarkas.time_evolution.integrators import Integrator
@@ -18,7 +15,9 @@ from sarkas.time_evolution.thermostats import Thermostat
 
 
 class Simulation:
-
+    """
+    Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.
+    """
     def __init__(self):
 
         self.potential = Potential()
@@ -29,65 +28,71 @@ class Simulation:
         self.species = []
         self.input_file = None
         self.timer = SarkasTimer()
+        self.io = InputOutput()
 
     def common_parser(self, filename):
+        """
+        Parse simulation parameters from YAML file.
 
+        Parameters
+        ----------
+        filename: str
+            Input YAML file
+
+
+        """
         self.input_file = filename
         self.parameters.input_file = filename
-        with open(filename, 'r') as stream:
-            dics = yaml.load(stream, Loader=yaml.FullLoader)
-            for lkey in dics:
-                if lkey == "Particles":
-                    for species in dics["Particles"]:
-                        spec = Species()
-                        for key, value in species["Species"].items():
-                            if hasattr(spec, key):
-                                spec.__dict__[key] = value
-                            else:
-                                setattr(spec, key, value)
-                        self.species.append(spec)
+        dics = self.io.from_yaml(filename)
 
-                if lkey == "Potential":
-                    for key, value in dics[lkey].items():
-                        if hasattr(self.potential, key):
-                            self.potential.__dict__[key] = value
+        for lkey in dics:
+            if lkey == "Particles":
+                for species in dics["Particles"]:
+                    spec = Species()
+                    for key, value in species["Species"].items():
+                        if hasattr(spec, key):
+                            spec.__dict__[key] = value
                         else:
-                            setattr(self.potential, key, value)
+                            setattr(spec, key, value)
+                    self.species.append(spec)
 
-                if lkey == "Thermostat":
-                    for key, value in dics[lkey].items():
-                        if hasattr(self.thermostat, key):
-                            self.thermostat.__dict__[key] = value
-                        else:
-                            setattr(self.thermostat, key, value)
+            if lkey == "Potential":
+                self.potential.__dict__.update(dics[lkey])
 
-                if lkey == "Integrator":
-                    for key, value in dics[lkey].items():
-                        if hasattr(self.integrator, key):
-                            self.integrator.__dict__[key] = value
-                        else:
-                            setattr(self.integrator, key, value)
+            if lkey == "Thermostat":
+                self.thermostat.__dict__.update(dics[lkey])
 
-                if lkey == "Parameters":
-                    for key, value in dics[lkey].items():
-                        if hasattr(self.parameters, key):
-                            self.parameters.__dict__[key] = value
-                        else:
-                            setattr(self.parameters, key, value)
+            if lkey == "Integrator":
+                self.integrator.__dict__.update(dics[lkey])
+
+            if lkey == "Parameters":
+                self.parameters.__dict__.update(dics[lkey])
+
+            if lkey == "Control":
+                self.parameters.__dict__.update(dics[lkey])
 
     def equilibrate(self, it_start):
+        """
+        Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.
 
+        Parameters
+        ----------
+        it_start: int
+            Initial step number of the equilibration loop.
+
+        """
         if self.parameters.verbose:
             print("\n------------- Equilibration -------------")
         self.timer.start()
-        self.integrator.equilibrate(it_start, self.particles, self.checkpoint)
+        self.integrator.equilibrate(it_start, self.particles, self.io)
         time_eq = self.timer.stop()
-        self.verbose.time_stamp("Equilibration", time_eq)
+        self.io.time_stamp("Equilibration", time_eq)
 
         return
 
     def evolve(self):
-        """Time evolution.
+        """
+        Run the time integrator to evolve the system for the duration of the production phase.
 
         """
         ##############################################
@@ -101,7 +106,7 @@ class Simulation:
             it_start = 0
             # Restart the pbc counter
             self.particles.pbc_cntr.fill(0.0)
-            self.checkpoint.dump(True, self.particles, 0)
+            self.io.dump(True, self.particles, 0)
 
         if self.parameters.verbose:
             print("\n------------- Production -------------")
@@ -110,23 +115,31 @@ class Simulation:
         self.potential.measure = True
 
         self.timer.start()
-        self.integrator.produce(it_start, self.particles, self.checkpoint)
+        self.integrator.produce(it_start, self.particles, self.io)
         time_end = self.timer.stop()
-        self.verbose.time_stamp("Production", time_end)
+        self.io.time_stamp("Production", time_end)
 
     def initialization(self):
+        """
+        Initialize all the sub classes of the simulation and save simulation details to log file.
+        """
 
-        self.timer.start()
+        t0 = self.timer.current()
         self.potential.setup(self.parameters)
+        time_pot = self.timer.current()
+
         self.thermostat.setup(self.parameters)
         self.integrator.setup(self.parameters, self.thermostat, self.potential)
         self.particles.setup(self.parameters, self.species)
+        time_ptcls = self.timer.current()
 
-        # For restart and pva backups.
-        self.save_pickle()
-        self.verbose.sim_setting_summary(self)  # simulation setting summary
-        time_end = self.timer.stop()
-        self.verbose.time_stamp("Initialization", time_end)
+        # For restart and backups.
+        self.io.save_pickle(self)
+        self.io.simulation_summary(self)
+        time_end = self.timer.current()
+        self.io.time_stamp("Potential Initialization", time_end - t0)
+        self.io.time_stamp("Particles Initialization", time_ptcls - time_pot)
+        self.io.time_stamp("Total Simulation Initialization", time_end - t0)
 
     def pre_processing(self, filename=None, other_inputs=None, loops=10):
         pass
@@ -143,10 +156,10 @@ class Simulation:
         postproc.rdf.save(self.particles.rdf_hist)
         postproc.rdf.plot(show=False)
         time_end = self.timer.stop()
-        self.verbose.time_stamp("Post Processing", time_end)
+        self.io.time_stamp("Post Processing", time_end)
 
         time_tot = self.timer.current()
-        self.verbose.time_stamp("Total", time_tot - time0)
+        self.io.time_stamp("Total", time_tot - time0)
 
         return postproc
 
@@ -160,12 +173,12 @@ class Simulation:
             else:
                 it_start = 0
 
-            potential_energy = self.equilibrate(it_start)
+            self.equilibrate(it_start)
 
         else:
 
             if not self.potential.method == "FMM":
-                potential_energy = self.potential.calc_pot_acc(self.particles)
+                self.potential.calc_pot_acc(self.particles)
             # else:
             # potential_energy = self.potential.calc_pot_acc_fmm(self.particles, self.parameters)
 
@@ -173,7 +186,7 @@ class Simulation:
         self.post_processing(time0)
 
     def setup(self, other_inputs=None):
-        """Setup all simulations subclasses.
+        """Setup all simulations parameters subclass.
 
         Parameters
         ----------
@@ -190,27 +203,79 @@ class Simulation:
                     self.__dict__[class_name.lower()].__dict__.update(class_attr)
 
         # save some general info
+        self.io.setup()
         self.parameters.potential_type = self.potential.type
         self.parameters.cutoff_radius = self.potential.rc
         self.parameters.magnetized = self.integrator.magnetized
         self.parameters.integrator = self.integrator.type
         self.parameters.thermostat = self.thermostat.type
 
-        self.parameters.setup(self.species, other_inputs)
+        self.parameters.setup(self.species)
 
-        self.checkpoint = io.Checkpoint(self.parameters, self.species)
-        self.verbose = io.Verbose(self.parameters)
+        self.io.setup_checkpoint(self.parameters, self.species)
 
-    def save_pickle(self):
+    def create_directories(self, args=None):
         """
-        Save all simulations parameters in pickle files.
+        Check for undefined control variables and create output directory and its subdirectories.
+
+        Parameters
+        ---------
+        args: dict
+            Input arguments.
+
         """
-        file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']
-        filename = os.path.join(self.parameters.job_dir, self.parameters.job_id)
-        for fl in file_list:
-            pickle_file = open(filename + "_" + fl + ".pickle", "wb")
-            pickle.dump(self.__dict__[fl], pickle_file)
-            pickle_file.close()
+        if args is None:
+            args = {"simulations_dir": "Simulations",
+                    "job_dir": os.path.basename(self.input_file).split('.')[0],
+                    "production_dir": 'Production',
+                    "equilibration_dir": 'Equilibration',
+                    "preprocessing_dir": "PreProcessing",
+                    "postprocessing_dir": "PostProcessing",
+                    "prod_dump_dir": 'dumps',
+                    "eq_dump_dir": 'dumps',
+                    }
+
+        # Check for directories
+        for key, value in args.items():
+            if hasattr(self, key):
+                self.__dict__[key] = value
+
+        # Check if the directories exist
+        if not os.path.exists(self.simulations_dir):
+            os.mkdir(self.simulations_dir)
+
+        if self.job_id is None:
+            self.job_id = self.job_dir
+
+        self.job_dir = os.path.join(self.simulations_dir, self.job_dir)
+        if not os.path.exists(self.job_dir):
+            os.mkdir(self.job_dir)
+
+        # Equilibration directory and sub_dir
+        self.equilibration_dir = os.path.join(self.job_dir, self.equilibration_dir)
+        if not os.path.exists(self.equilibration_dir):
+            os.mkdir(self.equilibration_dir)
+
+        self.eq_dump_dir = os.path.join(self.equilibration_dir, 'dumps')
+        if not os.path.exists(self.eq_dump_dir):
+            os.mkdir(self.eq_dump_dir)
+
+        # Production dir and sub_dir
+        self.production_dir = os.path.join(self.job_dir, self.production_dir)
+        if not os.path.exists(self.production_dir):
+            os.mkdir(self.production_dir)
+
+        self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
+        if not os.path.exists(self.prod_dump_dir):
+            os.mkdir(self.prod_dump_dir)
+
+        # Postprocessing dir
+        self.postprocessing_dir = os.path.join(self.job_dir, self.postprocessing_dir)
+        if not os.path.exists(self.postprocessing_dir):
+            os.mkdir(self.postprocessing_dir)
+
+        if self.log_file is None:
+            self.log_file = os.path.join(self.job_dir, 'log.out')
 
     def read_pickle(self, job_dir, job_id):
         """
@@ -410,7 +475,7 @@ class Parameters:
         self.np_per_side = []
         self.pre_run = False
 
-    def setup(self, species, args=None):
+    def setup(self, species):
         """
         Setup simulations' parameters.
 
@@ -420,24 +485,12 @@ class Parameters:
         args : dict
             Input arguments
         """
-        if args is None:
-            args = {"simulations_dir": "Simulations",
-                    "job_dir": os.path.basename(self.input_file).split('.')[0],
-                    "production_dir": 'Production',
-                    "equilibration_dir": 'Equilibration',
-                    "preprocessing_dir": "PreProcessing",
-                    "postprocessing_dir": "PostProcessing",
-                    "prod_dump_dir": 'dumps',
-                    "eq_dump_dir": 'dumps',
-                    }
-        self.create_directories(args)
-
+        self.check_units()
         self.calc_parameters(species)
-        self.calc_electron_properties()
         self.calc_coupling_constant(species)
 
-    def calc_parameters(self, species):
-        """ Assign the parsed parameters"""
+    def check_units(self):
+        """Check whether units are cgs or mks and adjust accordingly."""
         # Physical constants
         if self.units == "cgs":
             self.kB *= self.J2erg
@@ -452,6 +505,9 @@ class Parameters:
             self.eps0 = 1.0
             self.fourpie0 = 1.0
             self.a0 *= 1e2
+
+    def calc_parameters(self, species):
+        """ Assign the parsed parameters"""
 
         self.num_species = len(species)
         # Loop over species and assign missing attributes
@@ -567,119 +623,6 @@ class Parameters:
 
         # Redundancy!!!
         self.T_desired = self.total_ion_temperature
-
-        # # boundary Conditions
-        # if self.BC.pbc_axes:
-        #     self.BC.pbc_axes_indx = np.zeros(len(self.BC.pbc_axes))
-        #     for (ij, bc) in enumerate(self.BC.pbc_axes):
-        #         if bc == "x":
-        #             self.BC.pbc_axes_indx[ij] = 0
-        #         elif bc == "y":
-        #             self.BC.pbc_axes_indx[ij] = 1
-        #         elif bc == "z":
-        #             self.BC.pbc_axes_indx[ij] = 2
-        #
-        # if self.BC.mm_axes:
-        #     print("\nOnly Periodic Boundary Conditions are supported. Bye!")
-        #     sys.exit()
-        #     self.BC.mm_axes_indx = np.zeros(len(self.BC.mm_axes), dtype=np.int)
-        #     for (ij, bc) in enumerate(self.BC.mm_axes):
-        #         if bc == "x":
-        #             self.BC.mm_axes_indx[ij] = 0
-        #         elif bc == "y":
-        #             self.BC.mm_axes_indx[ij] = 1
-        #         elif bc == "z":
-        #             self.BC.mm_axes_indx[ij] = 2
-        #
-        # if self.BC.open_axes:
-        #     self.BC.open_axes_indx = np.zeros(len(self.BC.open_axes), dtype=np.int)
-        #     for (ij, bc) in enumerate(self.BC.open_axes):
-        #         if bc == "x":
-        #             self.BC.open_axes_indx[ij] = 0
-        #         elif bc == "y":
-        #             self.BC.open_axes_indx[ij] = 1
-        #         elif bc == "z":
-        #             self.BC.open_axes_indx[ij] = 2
-
-    def create_directories(self, args):
-        """
-        Check for undefined control variables and create output directory and its subdirectories.
-
-        Parameters
-        ---------
-        args: dict
-            Input arguments.
-
-        """
-        # Check for directories
-        for key, value in args.items():
-            if hasattr(self, key):
-                self.__dict__[key] = value
-
-        # Check if the directories exist
-        if not os.path.exists(self.simulations_dir):
-            os.mkdir(self.simulations_dir)
-
-        if self.job_id is None:
-            self.job_id = self.job_dir
-
-        self.job_dir = os.path.join(self.simulations_dir, self.job_dir)
-        if not os.path.exists(self.job_dir):
-            os.mkdir(self.job_dir)
-
-        # Equilibration directory and sub_dir
-        self.equilibration_dir = os.path.join(self.job_dir, self.equilibration_dir)
-        if not os.path.exists(self.equilibration_dir):
-            os.mkdir(self.equilibration_dir)
-
-        self.eq_dump_dir = os.path.join(self.equilibration_dir, 'dumps')
-        if not os.path.exists(self.eq_dump_dir):
-            os.mkdir(self.eq_dump_dir)
-
-        # Production dir and sub_dir
-        self.production_dir = os.path.join(self.job_dir, self.production_dir)
-        if not os.path.exists(self.production_dir):
-            os.mkdir(self.production_dir)
-
-        self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
-        if not os.path.exists(self.prod_dump_dir):
-            os.mkdir(self.prod_dump_dir)
-
-        # Postprocessing dir
-        self.postprocessing_dir = os.path.join(self.job_dir, self.postprocessing_dir)
-        if not os.path.exists(self.postprocessing_dir):
-            os.mkdir(self.postprocessing_dir)
-
-        if self.log_file is None:
-            self.log_file = os.path.join(self.job_dir, 'log.out')
-
-    def calc_electron_properties(self):
-
-        twopi = 2.0 * np.pi
-        beta_i = 1.0 / (self.kB * self.total_ion_temperature)
-
-        if not hasattr(self, "Te"):
-            # if the electron temperature is not defined. The total ion temperature will be used for it.
-            self.Te = self.total_ion_temperature
-
-        self.ne = self.species_charges.transpose() @ self.species_concentrations * self.total_num_density / self.qe
-        # Calculate electron gas properties
-        fdint_fdk_vec = np.vectorize(fdint.fdk)
-        fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
-        beta_e = 1. / (self.kB * self.Te)
-        lambda_DB = np.sqrt(twopi * self.hbar2 * beta_e / self.me)
-        lambda3 = lambda_DB ** 3
-        # chemical potential of electron gas/(kB T). See eq.(4) in Ref.[3]_
-        self.eta_e = fdint_ifd1h_vec(lambda3 * np.sqrt(np.pi) * self.ne / 4.0)
-        # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
-        self.lambda_TF = np.sqrt(self.fourpie0 * np.sqrt(np.pi) * lambda3 / (
-                8.0 * np.pi * self.qe ** 2 * beta_e * fdint_fdk_vec(k=-0.5, phi=self.eta_e)))
-
-        self.rs = self.aws / self.a0
-        kF = (3.0 * np.pi ** 2 * self.ne) ** (1. / 3.)
-        self.fermi_energy = self.hbar2 * kF ** 2 / (2.0 * self.me)
-        self.electron_degeneracy_parameter = self.kB * self.Te / self.fermi_energy
-        self.relativistic_parameter = self.hbar * kF / (self.me * self.c0)
 
     def calc_coupling_constant(self, species):
 
@@ -990,9 +933,6 @@ class Particles:
         dz_lattice = self.box_lengths[1] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
         dy_lattice = self.box_lengths[2] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
 
-        # Start timer
-        start = time.time()
-
         # Create x, y, and z position arrays
         x = np.arange(0, self.box_lengths[0], dx_lattice) + 0.5 * dx_lattice
         y = np.arange(0, self.box_lengths[1], dy_lattice) + 0.5 * dy_lattice
@@ -1010,10 +950,6 @@ class Particles:
         self.pos[:, 0] = X.ravel()
         self.pos[:, 1] = Y.ravel()
         self.pos[:, 2] = Z.ravel()
-
-        # End timer
-        end = time.time()
-        print('Lattice creation took: {:1.4e} sec'.format(end - start))
 
     def random_reject(self, r_reject):
         """
@@ -1052,7 +988,6 @@ class Particles:
         # Particle counter
         i = 0
 
-        start = time.time()  # Start timer for placing particles
         # Loop to place particles
         while i < self.total_num_ptcls - 1:
 
@@ -1109,9 +1044,6 @@ class Particles:
         self.pos[:, 1] = y
         self.pos[:, 2] = z
 
-        end = time.time()
-        print('Uniform distribution with rejection radius took : {:1.4e} sec'.format(end - start))
-
     def halton_reject(self, bases, r_reject):
         """
         Place particles according to a Halton sequence from 0 to L (the box length)
@@ -1146,9 +1078,6 @@ class Particles:
         # Initialize particle counter and Halton counter
         i = 1
         k = 1
-
-        # Start timer
-        start = time.time()  # Start timer for placing particles
 
         # Loop over all particles
         while i < self.total_num_ptcls:
@@ -1234,10 +1163,6 @@ class Particles:
         self.pos[:, 0] = x
         self.pos[:, 1] = y
         self.pos[:, 2] = z
-
-        # End timer
-        end = time.time()
-        print("Particles' positioned according to Halton method took: {:1.4e}".format(end - start))
 
     def kinetic_temperature(self, kB):
 
@@ -1343,40 +1268,4 @@ class Species:
         self.ai = (self.charge / z_avg) ** (1. / 3.) * aws
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)
 
-
-class TimerError(Exception):
-    """A custom exception used to report errors in use of Timer class"""
-
-
-@dataclass
-class SarkasTimer:
-    name: Optional[str] = None
-    _start_time: Optional[float] = field(default=None, init=False, repr=False)
-
-    def __post_init__(self) -> None:
-        """Add timer to dict of timers after initialization"""
-        if self.name is not None:
-            self.timers.setdefault(self.name, 0)
-
-    def start(self) -> None:
-        """Start a new timer"""
-        if self._start_time is not None:
-            raise TimerError(f"Timer is running. Use .stop() to stop it")
-
-        self._start_time = time.perf_counter()
-
-    def stop(self) -> float:
-        """Stop the timer, and report the elapsed time"""
-        if self._start_time is None:
-            raise TimerError(f"Timer is not running. Use .start() to start it")
-
-        # Calculate elapsed time
-        elapsed_time = time.perf_counter() - self._start_time
-        self._start_time = None
-
-        return elapsed_time
-
-    @staticmethod
-    def current() -> float:
-        return time.perf_counter()
 
