@@ -513,7 +513,7 @@
 
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.HermiteCoefficients">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">HermiteCoefficients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#HermiteCoefficients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.HermiteCoefficients" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">HermiteCoefficients</code><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#HermiteCoefficients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.HermiteCoefficients" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Hermite coefficients of the Hermite expansion.</p>
 <dl class="field-list simple">
@@ -748,6 +748,17 @@
 <dd><p>Plot the Hermite coefficients and save the figure</p>
 </dd></dl>
 
+<dl class="py method">
+<dt id="sarkas.tools.postprocessing.HermiteCoefficients.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#HermiteCoefficients.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.HermiteCoefficients.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the attributes from simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">S_params</span> <span class="pre">class</span></code>) – Simulation’s parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -763,12 +774,29 @@
 
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.PostProcess">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">PostProcess</code><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#PostProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.PostProcess" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">PostProcess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#PostProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.PostProcess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
 <dt id="sarkas.tools.postprocessing.PostProcess.common_parser">
-<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#PostProcess.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.PostProcess.common_parser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#PostProcess.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.PostProcess.common_parser" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.postprocessing.PostProcess.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">read_yaml</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#PostProcess.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.PostProcess.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup subclasses and attributes by reading the pickle files first</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.postprocessing.PostProcess.setup_from_simulation">
+<code class="sig-name descname">setup_from_simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#PostProcess.setup_from_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.PostProcess.setup_from_simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup postprocess’ subclasses by (shallow) copying them from simulation object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>simulation</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Simulation" title="sarkas.base.Simulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Simulation</span></code></a>) – Simulation object</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -991,7 +1019,7 @@
 
 <dl class="py method">
 <dt id="sarkas.tools.postprocessing.RadialDistributionFunction.save">
-<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rdf_hist</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#RadialDistributionFunction.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.RadialDistributionFunction.save" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rdf_hist</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#RadialDistributionFunction.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.RadialDistributionFunction.save" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>rdf_hist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Histogram of the radial distribution function.</p>
@@ -1001,7 +1029,7 @@
 
 <dl class="py method">
 <dt id="sarkas.tools.postprocessing.RadialDistributionFunction.setup">
-<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">potential_rc</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#RadialDistributionFunction.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.RadialDistributionFunction.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#RadialDistributionFunction.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.RadialDistributionFunction.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1283,7 +1311,7 @@
 
 <dl class="py class">
 <dt id="sarkas.tools.postprocessing.Thermodynamics">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">Thermodynamics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Thermodynamics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Thermodynamics" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">Thermodynamics</code><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Thermodynamics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Thermodynamics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.postprocessing.Observable" title="sarkas.tools.postprocessing.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.postprocessing.Observable</span></code></a></p>
 <p>Thermodynamic functions.</p>
 <dl class="field-list simple">
@@ -1525,6 +1553,17 @@ options: “Total Energy”, “Potential Energy”, “Kinetic Energy”, “Te
 <li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for displaying figure.</p></li>
 <li><p><strong>quantity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Quantity to plot. Default = Total Energy.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.postprocessing.Thermodynamics.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#Thermodynamics.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.Thermodynamics.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the attributes from simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">S_params</span> <span class="pre">class</span></code>) – Simulation’s parameters.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2628,23 +2667,6 @@ of the simulation.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt id="sarkas.tools.postprocessing.read_pickle">
-<code class="sig-prename descclassname">sarkas.tools.postprocessing.</code><code class="sig-name descname">read_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">job_dir</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/postprocessing.html#read_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.postprocessing.read_pickle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read Pickle File containing params.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Input YAML file of the simulation.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>data</strong> – Params dictionary.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 
 
@@ -2670,7 +2692,7 @@ of the simulation.</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 25, 2020.
+        Last updated on Aug, 26, 2020.
       </span>
 
     </p>

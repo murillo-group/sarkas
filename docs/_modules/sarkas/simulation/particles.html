@@ -339,10 +339,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_perturb</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;random_reject&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_rejection_radius</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;halton_reject&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_halton_bases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_halton_bases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_rejection_radius</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;random_no_reject&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">random_no_reject</span><span class="p">()</span>

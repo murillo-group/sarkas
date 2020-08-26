@@ -194,7 +194,7 @@
 
 <dl class="py class">
 <dt id="sarkas.tools.preprocessing.PreProcess">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.preprocessing.</code><code class="sig-name descname">PreProcess</code><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.preprocessing.</code><code class="sig-name descname">PreProcess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
 <dt id="sarkas.tools.preprocessing.PreProcess.analytical_approx_pp">
@@ -210,7 +210,7 @@
 
 <dl class="py method">
 <dt id="sarkas.tools.preprocessing.PreProcess.common_parser">
-<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.common_parser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.common_parser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse simulation parameters from YAML file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -299,13 +299,12 @@
 
 <dl class="py method">
 <dt id="sarkas.tools.preprocessing.PreProcess.setup">
-<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize all the sub classes of the simulation and save simulation details to log file.</p>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">read_yaml</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup simulations’ parameters and io subclasses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>estimate</strong> – </p></li>
-<li><p><strong>loops</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">(optional)</span></code>) – Number of loops over which to average.</p></li>
+<li><p><strong>read_yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for reading YAML input file. Default = False.</p></li>
 <li><p><strong>other_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span> <span class="pre">(optional)</span></code>) – Dictionary with additional simulations options.</p></li>
 </ul>
 </dd>
@@ -398,7 +397,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 25, 2020.
+        Last updated on Aug, 26, 2020.
       </span>
 
     </p>

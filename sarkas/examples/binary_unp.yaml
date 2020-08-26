@@ -19,11 +19,11 @@ Potential:
     type: Yukawa                 # potential type
     method: P3M                  # Linked-cell
     electron_temperature: 96
-    rc: 5.599592e-06     # cut-off radius, meter
-    pppm_mesh: [16, 16, 16]
+    rc: 2.1554e-05     # cut-off radius, meter
+    pppm_mesh: [64, 64, 64]
     pppm_aliases: [3, 3, 3]
     pppm_cao: 6
-    pppm_alpha_ewald: 2.976408e+04   # meters
+    pppm_alpha_ewald: 1.5867e+05   # meters
 
 Integrator:
     type: Verlet                  # velocity integrator type
@@ -37,7 +37,7 @@ Parameters:
     dt: 7.023527e-11           # sec
     equilibration_steps: 0
     ionization_time: 20.0e-09   
-    production_steps: 40000   # number of timesteps after the equilibrium
+    production_steps: 30000   # number of timesteps after the equilibrium
     prod_dump_step: 100                # dump time step
 
 Control:
@@ -49,3 +49,11 @@ Control:
 IO:
     job_dir: YbCaMix_n041_set5      # dir name to save data. The default is "Checkpoint"
     verbose: True
+
+PostProcessing:
+    - RadialDistributionFunction:
+        no_bins: 500            # Note this must be equal to what you put in Parameters
+    - Thermodynamics:
+    - HermiteCoefficients:
+        no_bins: 500
+        hermite_order: 7

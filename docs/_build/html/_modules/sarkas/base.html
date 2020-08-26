@@ -170,7 +170,6 @@
 <span class="c1"># Sarkas modules</span>
 <span class="kn">from</span> <span class="nn">sarkas.utilities.io</span> <span class="kn">import</span> <span class="n">InputOutput</span>
 <span class="kn">from</span> <span class="nn">sarkas.utilities.timing</span> <span class="kn">import</span> <span class="n">SarkasTimer</span>
-<span class="kn">from</span> <span class="nn">sarkas.tools.postprocessing</span> <span class="kn">import</span> <span class="n">PostProcess</span>
 <span class="kn">from</span> <span class="nn">sarkas.potentials.base</span> <span class="kn">import</span> <span class="n">Potential</span>
 <span class="kn">from</span> <span class="nn">sarkas.time_evolution.integrators</span> <span class="kn">import</span> <span class="n">Integrator</span>
 <span class="kn">from</span> <span class="nn">sarkas.time_evolution.thermostats</span> <span class="kn">import</span> <span class="n">Thermostat</span>
@@ -180,7 +179,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">potential</span> <span class="o">=</span> <span class="n">Potential</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span> <span class="o">=</span> <span class="n">Integrator</span><span class="p">()</span>
@@ -188,11 +187,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="n">Particles</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">input_file</span> <span class="k">if</span> <span class="n">input_file</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">SarkasTimer</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span> <span class="o">=</span> <span class="n">InputOutput</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Simulation.common_parser"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.common_parser">[docs]</a>    <span class="k">def</span> <span class="nf">common_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.common_parser"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.common_parser">[docs]</a>    <span class="k">def</span> <span class="nf">common_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse simulation parameters from YAML file.</span>
 
@@ -203,9 +202,10 @@
 
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">filename</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">filename</span>
-        <span class="n">dics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="n">dics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">lkey</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Particles&quot;</span><span class="p">:</span>
@@ -306,24 +306,23 @@
 <div class="viewcode-block" id="Simulation.pre_processing"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.pre_processing">[docs]</a>    <span class="k">def</span> <span class="nf">pre_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loops</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Simulation.post_processing"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.post_processing">[docs]</a>    <span class="k">def</span> <span class="nf">post_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time0</span><span class="p">):</span>
-
-        <span class="c1">##############################################</span>
-        <span class="c1"># Finalization Phase</span>
-        <span class="c1">##############################################</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-        <span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">()</span>
-        <span class="n">postproc</span><span class="o">.</span><span class="n">common_parser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span>
-        <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">)</span>
-        <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">rdf_hist</span><span class="p">)</span>
-        <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">time_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Post Processing&quot;</span><span class="p">,</span> <span class="n">time_end</span><span class="p">)</span>
-
-        <span class="n">time_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="n">time_tot</span> <span class="o">-</span> <span class="n">time0</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">postproc</span></div>
+    <span class="c1"># def post_processing(self, time0):</span>
+    <span class="c1">#</span>
+    <span class="c1">#     ##############################################</span>
+    <span class="c1">#     # Finalization Phase</span>
+    <span class="c1">#     ##############################################</span>
+    <span class="c1">#     self.timer.start()</span>
+    <span class="c1">#     postproc = PostProcess()</span>
+    <span class="c1">#     postproc.common_parser(self.input_file)</span>
+    <span class="c1">#     postproc.rdf.setup(self.parameters, self.species)</span>
+    <span class="c1">#     postproc.rdf.save(self.particles.rdf_hist)</span>
+    <span class="c1">#     postproc.rdf.plot(show=False)</span>
+    <span class="c1">#     time_end = self.timer.stop()</span>
+    <span class="c1">#     self.io.time_stamp(&quot;Post Processing&quot;, time_end)</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return postproc</span>
 
 <div class="viewcode-block" id="Simulation.run"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -345,17 +344,24 @@
             <span class="c1"># potential_energy = self.potential.calc_pot_acc_fmm(self.particles, self.parameters)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">evolve</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">post_processing</span><span class="p">(</span><span class="n">time0</span><span class="p">)</span></div>
+        <span class="n">time_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="n">time_tot</span> <span class="o">-</span> <span class="n">time0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Simulation.setup"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Setup all simulations parameters subclass.</span>
+<div class="viewcode-block" id="Simulation.setup"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setup simulations&#39; parameters and io subclasses.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        other_inputs : dict (optional)</span>
+<span class="sd">        read_yaml: bool</span>
+<span class="sd">            Flag for reading YAML input file. Default = False.</span>
+
+<span class="sd">        other_inputs: dict (optional)</span>
 <span class="sd">            Dictionary with additional simulations options.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">read_yaml</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">common_parser</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">other_inputs</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other_inputs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Wrong input type. other_inputs should be a nested dictionary&quot;</span><span class="p">)</span>
@@ -364,94 +370,27 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;Particles&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">class_attr</span><span class="p">)</span>
 
-        <span class="c1"># save some general info</span>
+        <span class="c1"># initialize the directories and filenames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="c1"># Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.</span>
+        <span class="c1"># Update parameters&#39; dictionary with filenames and directories</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="c1"># save some general info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">potential_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetized</span>
+        <span class="c1"># integrator parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">type</span>
+        <span class="c1"># self.parameters.equilibration_steps = self.integrator.equilibration_steps</span>
+        <span class="c1"># self.parameters.production_steps = self.integrator.production_steps</span>
+        <span class="c1"># self.parameters.prod_dump_step = self.integrator.prod_dump_step</span>
+        <span class="c1"># self.parameters.eq_dump_step = self.integrator.eq_dump_step</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">type</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Simulation.create_directories"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.create_directories">[docs]</a>    <span class="k">def</span> <span class="nf">create_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Check for undefined control variables and create output directory and its subdirectories.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ---------</span>
-<span class="sd">        args: dict</span>
-<span class="sd">            Input arguments.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;simulations_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;Simulations&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
-                    <span class="s2">&quot;production_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;Production&#39;</span><span class="p">,</span>
-                    <span class="s2">&quot;equilibration_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;Equilibration&#39;</span><span class="p">,</span>
-                    <span class="s2">&quot;preprocessing_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;PreProcessing&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;postprocessing_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;PostProcessing&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;prod_dump_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;dumps&#39;</span><span class="p">,</span>
-                    <span class="s2">&quot;eq_dump_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;dumps&#39;</span><span class="p">,</span>
-                    <span class="p">}</span>
-
-        <span class="c1"># Check for directories</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
-        <span class="c1"># Check if the directories exist</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulations_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulations_dir</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulations_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
-
-        <span class="c1"># Equilibration directory and sub_dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span><span class="p">,</span> <span class="s1">&#39;dumps&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span><span class="p">)</span>
-
-        <span class="c1"># Production dir and sub_dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">,</span> <span class="s2">&quot;dumps&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">)</span>
-
-        <span class="c1"># Postprocessing dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="s1">&#39;log.out&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Simulation.read_pickle"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Simulation.read_pickle">[docs]</a>    <span class="k">def</span> <span class="nf">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load simulation data from pickle files.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        job_dir: str</span>
-<span class="sd">            Directory of stored data.</span>
-
-<span class="sd">        job_id: str</span>
-<span class="sd">            Pickle filename.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters">[docs]</a><span class="k">class</span> <span class="nc">Parameters</span><span class="p">:</span>
@@ -481,7 +420,7 @@
 <span class="sd">    load_restart_step : int</span>
 <span class="sd">        Restart time step.</span>
 
-<span class="sd">    load_r_reject : float</span>
+<span class="sd">    load_rejection_radius : float</span>
 <span class="sd">        Rejection radius to avoid placing particles to close to each other.</span>
 
 <span class="sd">    load_perturb : float</span>
@@ -899,22 +838,15 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Particles Position Initialization</span>
-        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Assigning initial positions according to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_method</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Restart step not defined. Please define restart_step.&quot;</span>
-            <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">,</span> <span class="n">msg</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;equilibration_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;production_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">]:</span>
+            <span class="c1"># checks</span>
+            <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">,</span> <span class="s2">&quot;Restart step not defined. Please define restart_step.&quot;</span>
             <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;Only integers are allowed.&quot;</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;eq_restart&#39;</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Therm Restart step not defined. Please define restart_step&quot;</span>
-            <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">load_therm_restart_step</span><span class="p">,</span> <span class="n">msg</span>
-            <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_therm_restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;Only integers are allowed.&quot;</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_therm_restart_step</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;eq&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Input file not defined. Please define particle_input_file.&#39;</span>
@@ -926,10 +858,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_perturb</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;random_reject&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">load_rejection_radius</span><span class="p">,</span> <span class="s2">&quot;Rejection radius not defined. Please define load_rejection_radius.&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_rejection_radius</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;halton_reject&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_halton_bases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">load_rejection_radius</span><span class="p">,</span> <span class="s2">&quot;Rejection radius not defined. Please define load_rejection_radius.&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_halton_bases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_rejection_radius</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;uniform&#39;</span><span class="p">,</span> <span class="s1">&#39;random_no_reject&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform_no_reject</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
@@ -1436,7 +1370,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 25, 2020.
+        Last updated on Aug, 26, 2020.
       </span>
 
     </p>

@@ -391,8 +391,6 @@
 </li>
       <li><a href="api/sarkas.potentials.coulomb.html#sarkas.potentials.coulomb.Coulomb_force_P3M">Coulomb_force_P3M() (in module sarkas.potentials.coulomb)</a>
 </li>
-      <li><a href="api/sarkas.base.html#sarkas.base.Simulation.create_directories">create_directories() (sarkas.base.Simulation method)</a>
-</li>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.create_file_paths">create_file_paths() (sarkas.utilities.io.InputOutput method)</a>
 </li>
       <li><a href="api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.current">current() (sarkas.utilities.timing.SarkasTimer static method)</a>
@@ -753,7 +751,7 @@
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.load_perturb">load_perturb (sarkas.base.Parameters attribute)</a>
 </li>
-      <li><a href="api/sarkas.base.html#sarkas.base.Parameters.load_r_reject">load_r_reject (sarkas.base.Parameters attribute)</a>
+      <li><a href="api/sarkas.base.html#sarkas.base.Parameters.load_rejection_radius">load_rejection_radius (sarkas.base.Parameters attribute)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.load_restart_step">load_restart_step (sarkas.base.Parameters attribute)</a>
 </li>
@@ -1042,8 +1040,6 @@
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.pos">pos (sarkas.base.Particles attribute)</a>
 </li>
-      <li><a href="api/sarkas.base.html#sarkas.base.Simulation.post_processing">post_processing() (sarkas.base.Simulation method)</a>
-</li>
       <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.PostProcess">PostProcess (class in sarkas.tools.postprocessing)</a>
 </li>
       <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential">Potential (class in sarkas.potentials.base)</a>
@@ -1104,12 +1100,8 @@
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.rdf_nbins">rdf_nbins (sarkas.base.Particles attribute)</a>
 </li>
-      <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.read_pickle">read_pickle() (in module sarkas.tools.postprocessing)</a>
-
-      <ul>
-        <li><a href="api/sarkas.base.html#sarkas.base.Simulation.read_pickle">(sarkas.base.Simulation method)</a>
+      <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.read_pickle">read_pickle() (sarkas.utilities.io.InputOutput method)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.relaxation_rate">relaxation_rate (sarkas.time_evolution.thermostats.Thermostat attribute)</a>
@@ -1310,8 +1302,6 @@
         <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.XYZWriter.save">(sarkas.tools.postprocessing.XYZWriter method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.save_pickle">save_pickle() (sarkas.utilities.io.InputOutput method)</a>
 </li>
       <li><a href="api/sarkas.utilities.verbose.html#sarkas.utilities.verbose.screen_figlet">screen_figlet() (in module sarkas.utilities.verbose)</a>
@@ -1320,6 +1310,8 @@
         <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.screen_figlet">(sarkas.utilities.io.InputOutput static method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.potentials.coulomb.html#sarkas.potentials.coulomb.setup">setup() (in module sarkas.potentials.coulomb)</a>
 
       <ul>
@@ -1343,9 +1335,15 @@
 </li>
         <li><a href="api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.setup">(sarkas.time_evolution.thermostats.Thermostat method)</a>
 </li>
+        <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.HermiteCoefficients.setup">(sarkas.tools.postprocessing.HermiteCoefficients method)</a>
+</li>
         <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Observable.setup">(sarkas.tools.postprocessing.Observable method)</a>
 </li>
+        <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.PostProcess.setup">(sarkas.tools.postprocessing.PostProcess method)</a>
+</li>
         <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.RadialDistributionFunction.setup">(sarkas.tools.postprocessing.RadialDistributionFunction method)</a>
+</li>
+        <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics.setup">(sarkas.tools.postprocessing.Thermodynamics method)</a>
 </li>
         <li><a href="api/sarkas.tools.preprocessing.html#sarkas.tools.preprocessing.PreProcess.setup">(sarkas.tools.preprocessing.PreProcess method)</a>
 </li>
@@ -1353,6 +1351,8 @@
 </li>
       </ul></li>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.setup_checkpoint">setup_checkpoint() (sarkas.utilities.io.InputOutput method)</a>
+</li>
+      <li><a href="api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.PostProcess.setup_from_simulation">setup_from_simulation() (sarkas.tools.postprocessing.PostProcess method)</a>
 </li>
       <li><a href="api/sarkas.utilities.verbose.html#sarkas.utilities.verbose.Verbose.sim_setting_summary">sim_setting_summary() (sarkas.utilities.verbose.Verbose method)</a>
 </li>
@@ -1678,7 +1678,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 25, 2020.
+        Last updated on Aug, 26, 2020.
       </span>
 
     </p>

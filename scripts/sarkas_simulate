@@ -16,7 +16,7 @@ Michigan State University
 from optparse import OptionParser
 # Sarkas modules
 from sarkas.base import Simulation
-import sarkas.tools.postprocessing as PostProc
+from sarkas.tools.postprocessing import Thermodynamics
 
 # Construct the argument parser
 op = OptionParser()
@@ -25,57 +25,58 @@ op = OptionParser()
 op.add_option("-t", "--pre_run_testing", action='store_true', dest='test', default=False, help="Test input parameters")
 op.add_option("-v", "--verbose", action='store_true', dest='verbose', default=False, help="Verbose output")
 op.add_option("-p", "--plot_show", action='store_true', dest='plot_show', default=False, help="Show plots")
-op.add_option("-c", "--check", type='choice', choices=['therm', 'prod'],
-              action='store', dest='check', help="Check current state of run")
+op.add_option("-c", "--check_status", type='choice', choices=['equilibration', 'production'],
+              action='store', dest='check_status', help="Check current state of run")
 op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Directory")
 op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
-op.add_option("-s", "--seed", action='store', dest='seed', type=int, help="Random Number Seed")
+op.add_option("-s", "--seed", action='store', dest='rand_seed', type=int, help="Random Number Seed")
 op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
-op.add_option("-r", "--restart", action='store', dest='restart', type=int, help="Restart simulation")
+op.add_option("-r", "--restart", type=str, action='store', dest='restart', help="Restart simulation")
 op.add_option("-e", "--estimate", action='store_true', dest='estimate', help="Estimate optimal parameters")
 
 options, _ = op.parse_args()
 
 # Input file is a must
-if options.input_file is None:
-    raise OSError('Input file not defined.')
+assert options.input_file, 'Input file not defined.'
 
 # Read initial conditions and setup parameters
-params = Params()
-params.setup(vars(options))
+if options.test:
+    #
+    from sarkas.tools.preprocessing import PreProcess
+    sim = PreProcess()
+else:
+    sim = Simulation()
 
-if options.check is not None:
-    params = PostProc.read_pickle(params.checkpoint_dir)
+sim.common_parser(options.input_file)
+
+if options.check_status:
+    sim.io.check_status = True
+
+    if options.job_id:
+        sim.io.job_id = options.job_id
+
+    if options.jod_dir:
+        sim.io.job_dir = options.job_dir
+
+    sim.io.setup()
+    sim.io.read_pickle(sim)
+    energy = Thermodynamics(sim.parameters)
+    energy.temp_energy_plot(sim.parameters, options.check, options.plot_show)
 else:
     # Update rand seed with option. This supersedes the input file.
-    if options.seed:
-        params.load_rand_seed = int(options.seed)
+    if options.rand_seed:
+        sim.parameters.rand_seed = int(options.rand_seed)
 
     # Verbose output. This does not supersede the input file if False.
     # That is if you don't give this option and the input file has Control.verbose=Yes, then you will
     # still have a verbose output
     if options.verbose:
-        params.verbose = True
+        sim.parameters.verbose = True
         
-    if options.restart is not None:
-        params.load_method = 'restart'
-        params.load_restart_step = options.restart
-                                                   
-# Test/Check/Run
-if options.test:
-    #
-    import sarkas.tools.preprocessing as pre_run_test
-    pre_run_test.main(params, options.estimate)
-elif options.check is not None:
-    #
-    if options.check == "therm":
-        T = PostProc.Thermalization(params)
-        T.temp_energy_plot(params, options.plot_show)
-        # hc = T.hermite_plot(params, options.plot_show)
-        # vm = T.moment_ratios_plot(params, options.plot_show)
-    elif options.check == "prod":
-        E = PostProc.Thermodynamics(params)
-        E.temp_energy_plot(params, options.plot_show)
-else:
-    from sarkas.simulation import simulation
-    simulation.run(params)
+    if options.restart:
+        ls_str = options.restart.split('_')
+        sim.parameters.load_method = ls_str[0] + '_restart'
+        sim.parameters.load_restart_step = int[ls_str[1]]
+
+    sim.setup()
+    sim.run()

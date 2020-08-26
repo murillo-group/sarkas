@@ -263,8 +263,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.base.Parameters.load_r_reject">
-<code class="sig-name descname">load_r_reject</code><a class="headerlink" href="#sarkas.base.Parameters.load_r_reject" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.base.Parameters.load_rejection_radius">
+<code class="sig-name descname">load_rejection_radius</code><a class="headerlink" href="#sarkas.base.Parameters.load_rejection_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rejection radius to avoid placing particles to close to each other.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -952,27 +952,16 @@ Updates: N/A</p>
 
 <dl class="py class">
 <dt id="sarkas.base.Simulation">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Simulation</code><a class="reference internal" href="../_modules/sarkas/base.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.</p>
 <dl class="py method">
 <dt id="sarkas.base.Simulation.common_parser">
-<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.common_parser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.common_parser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse simulation parameters from YAML file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Input YAML file</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.base.Simulation.create_directories">
-<code class="sig-name descname">create_directories</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.create_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.create_directories" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check for undefined control variables and create output directory and its subdirectories.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Input arguments.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1001,28 +990,9 @@ Updates: N/A</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.base.Simulation.post_processing">
-<code class="sig-name descname">post_processing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.post_processing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.post_processing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt id="sarkas.base.Simulation.pre_processing">
 <code class="sig-name descname">pre_processing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">loops</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.pre_processing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.pre_processing" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.base.Simulation.read_pickle">
-<code class="sig-name descname">read_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">job_dir</span></em>, <em class="sig-param"><span class="n">job_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.read_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.read_pickle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load simulation data from pickle files.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>job_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Directory of stored data.</p></li>
-<li><p><strong>job_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Pickle filename.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.base.Simulation.run">
@@ -1031,11 +1001,14 @@ Updates: N/A</p>
 
 <dl class="py method">
 <dt id="sarkas.base.Simulation.setup">
-<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup all simulations parameters subclass.</p>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">read_yaml</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Simulation.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Simulation.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup simulations’ parameters and io subclasses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>other_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span> <span class="pre">(optional)</span></code>) – Dictionary with additional simulations options.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for reading YAML input file. Default = False.</p></li>
+<li><p><strong>other_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span> <span class="pre">(optional)</span></code>) – Dictionary with additional simulations options.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1182,7 +1155,7 @@ Updates: N/A</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 25, 2020.
+        Last updated on Aug, 26, 2020.
       </span>
 
     </p>

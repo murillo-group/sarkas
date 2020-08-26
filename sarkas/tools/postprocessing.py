@@ -2,13 +2,21 @@
 Module for calculating physical quantities from Sarkas checkpoints.
 """
 import os
-import yaml
+import copy as py_copy
 from tqdm import tqdm
 import numpy as np
 from numba import njit
 import pandas as pd
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
+
+# Sarkas modules
+from sarkas.utilities.io import InputOutput
+from sarkas.utilities.timing import SarkasTimer
+from sarkas.potentials.base import Potential
+from sarkas.time_evolution.integrators import Integrator
+from sarkas.time_evolution.thermostats import Thermostat
+from sarkas.base import Particles, Parameters, Species
 
 UNITS = [
     {"Energy": 'J',
@@ -66,19 +74,66 @@ PREFIXES = {
 
 
 class PostProcess:
-    def __init__(self):
-        pass
+    def __init__(self, input_file=None):
+        self.potential = Potential()
+        self.integrator = Integrator()
+        self.thermostat = Thermostat()
+        self.parameters = Parameters()
+        self.particles = Particles()
+        self.species = []
+        self.input_file = input_file if input_file else None
+        self.timer = SarkasTimer()
+        self.io = InputOutput()
 
-    def common_parser(self, filename):
-        self.input_file = filename
+    def common_parser(self, filename=None):
 
-        with open(filename, 'r') as stream:
-            dics = yaml.load(stream, Loader=yaml.FullLoader)
-            for observable in dics['PostProcessing']:
-                for key, sub_dict in observable.items():
-                    if key == 'RadialDistributionFunction':
-                        self.rdf = RadialDistributionFunction()
-                        self.rdf.__dict__.update(sub_dict)
+        if filename:
+            self.input_file = filename
+
+        dics = self.io.from_yaml(self.input_file)
+
+        for observable in dics['PostProcessing']:
+            for key, sub_dict in observable.items():
+                if key == 'RadialDistributionFunction':
+                    self.rdf = RadialDistributionFunction()
+                    self.rdf.__dict__.update(sub_dict)
+                if key == 'HermiteCoefficients':
+                    self.hc = HermiteCoefficients()
+                    self.hc.__dict__.update(sub_dict)
+
+    def setup(self, read_yaml=False, other_inputs=None):
+        """
+        Setup subclasses and attributes by reading the pickle files first
+        """
+        if read_yaml:
+            self.common_parser()
+
+        if other_inputs:
+            if not isinstance(other_inputs, dict):
+                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
+
+            for class_name, class_attr in other_inputs.items():
+                if not class_name == 'Particles':
+                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
+
+        self.io.create_file_paths()
+        self.io.read_pickle(self)
+
+    def setup_from_simulation(self, simulation):
+        """
+        Setup postprocess' subclasses by (shallow) copying them from simulation object.
+
+        Parameters
+        ----------
+        simulation: sarkas.base.Simulation
+            Simulation object
+
+        """
+        self.parameters = py_copy.copy(simulation.parameters)
+        self.integrator = py_copy.copy(simulation.integrator)
+        self.potential = py_copy.copy(simulation.potential)
+        self.species = py_copy.copy(simulation.species)
+        self.thermostat = py_copy.copy(simulation.thermostat)
 
 
 class Observable:
@@ -313,7 +368,7 @@ class CurrentCorrelationFunctions(Observable):
                     label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
             for i in range(1, 5):
                 column = "{}-{} CCF {} ka_min".format(self.species_names[0], self.species_names[0], i + 1)
-                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
+                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
                         np.fft.fftshift(self.dataframe[column]),
                         label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
 
@@ -335,7 +390,7 @@ class CurrentCorrelationFunctions(Observable):
             fig.show()
 
         if dispersion:
-            w_array = np.array(self.dataframe["Frequencies"]) / self.wp
+            w_array = np.array(self.dataframe["Frequencies"]) / self.total_plasma_frequency
             neg_indx = np.where(w_array < 0.0)[0][0]
             Skw = np.array(self.dataframe.iloc[:, 1:self.no_ka_values + 1])
             ka_vals, w = np.meshgrid(self.ka_values, w_array[:neg_indx])
@@ -490,7 +545,7 @@ class DynamicStructureFactor(Observable):
                     label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
             for i in range(1, 5):
                 column = "{}-{} DSF {} ka_min".format(self.species[0].name, self.species[0].name, i + 1)
-                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.wp,
+                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
                         np.fft.fftshift(self.dataframe[column]),
                         label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
 
@@ -506,7 +561,7 @@ class DynamicStructureFactor(Observable):
             fig.show()
 
         if dispersion:
-            w_array = np.array(self.dataframe["Frequencies"]) / self.wp
+            w_array = np.array(self.dataframe["Frequencies"]) / self.total_plasma_frequency
             neg_indx = np.where(w_array < 0.0)[0][0]
             Skw = np.array(self.dataframe.iloc[:, 1:self.no_ka_values + 1])
             ka_vals, w = np.meshgrid(self.ka_values, w_array[: neg_indx])
@@ -698,7 +753,7 @@ class HermiteCoefficients(Observable):
 
     Parameters
     ----------
-    params : object
+    params: object
         Simulation's parameters
 
     Attributes
@@ -762,7 +817,7 @@ class HermiteCoefficients(Observable):
 
     """
 
-    def __init__(self, params):
+    def setup(self, params, species):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -771,7 +826,7 @@ class HermiteCoefficients(Observable):
         params: S_params class
             Simulation's parameters.
         """
-        super().__init__(params)
+        super().setup(params, species)
         self.dataframe = pd.DataFrame()
         self.saving_dir = os.path.join(self.postprocessing_dir, 'HermiteExpansion')
         if not os.path.exists(self.saving_dir):
@@ -781,15 +836,11 @@ class HermiteCoefficients(Observable):
             os.mkdir(self.plots_dir)
         self.filename_csv = os.path.join(self.saving_dir, "HermiteCoefficients_" + self.job_id + '.csv')
 
-        if not hasattr(params.PostProcessing, 'hermite_nbins'):
+        if not hasattr(self, 'no_bins'):
             self.no_bins = int(0.05 * params.total_num_ptcls)
-        else:
-            self.no_bins = params.PostProcessing.hermite_nbins  # number of ka values
 
-        if not hasattr(params.PostProcessing, 'hermite_order'):
+        if not hasattr(self, 'hermite_order'):
             self.hermite_order = 7
-        else:
-            self.hermite_order = params.PostProcessing.hermite_order
 
         self.species_plots_dirs = None
 
@@ -797,7 +848,7 @@ class HermiteCoefficients(Observable):
         """
         Calculate Hermite coefficients and save the pandas dataframe.
         """
-        vscale = 1.0 / (self.aws * self.wp)
+        vscale = 1.0 / (self.aws * self.total_plasma_frequency)
         vel = np.zeros((self.dimensions, self.total_num_ptcls))
 
         xcoeff = np.zeros((self.num_species, self.prod_no_dumps, self.hermite_order + 1))
@@ -899,7 +950,7 @@ class HermiteCoefficients(Observable):
             ax[0].set_xlabel(r'$t$' + xlbl)
             ax[1].set_xlabel(r'$t$' + xlbl)
 
-            sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp]) / (self.aws * self.wp)
+            sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp]) / (self.aws * self.total_plasma_frequency)
 
             for i in range(0, self.hermite_order, 2):
                 coeff = np.zeros(i + 1)
@@ -997,7 +1048,7 @@ class RadialDistributionFunction(Observable):
         Size of each bin.
     """
 
-    def setup(self, params, species, potential_rc):
+    def setup(self, params, species):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -1014,12 +1065,12 @@ class RadialDistributionFunction(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir,
                                          "RadialDistributionFunction_" + self.job_id + ".csv")
-        self.rc = potential_rc
+        self.rc = self.cutoff_radius
 
         if hasattr(self, 'no_bins'):
             self.dr_rdf = self.rc / self.no_bins
 
-    def save(self, rdf_hist):
+    def save(self, rdf_hist=None):
         """
         Parameters
         ----------
@@ -1027,6 +1078,15 @@ class RadialDistributionFunction(Observable):
             Histogram of the radial distribution function.
 
         """
+        if not isinstance(rdf_hist,np.ndarray):
+            # Find the last dump by looking for the longest filename in
+            dumps_list = os.listdir(self.prod_dump_dir)
+            dumps_list.sort(key=len)
+            name, ext = os.path.splitext(dumps_list[-1])
+            _, number = name.split('_')
+            data = load_from_restart(self.prod_dump_dir, int(number))
+            rdf_hist = data["rdf_hist"]
+
         # Initialize all the workhorse arrays
         if not hasattr(self, 'no_bins'):
             self.no_bins = rdf_hist.shape[0]
@@ -1039,9 +1099,9 @@ class RadialDistributionFunction(Observable):
 
         # No. of pairs per volume
         for i, sp1 in enumerate(self.species):
-            pair_density[i, i] = sp1.num * (sp1.num - 1) / (2.0 * self.box_volume)
+            pair_density[i, i] = sp1.num * (sp1.num - 1) / (self.box_volume)
             if self.num_species > 1:
-                for j, sp2 in enumerate(self.species[i + 1:]):
+                for j, sp2 in enumerate(self.species[i:]):
                     pair_density[i, j] = sp1.num * sp2.num / self.box_volume
         # Calculate each bin's volume
         sphere_shell_const = 4.0 * np.pi / 3.0
@@ -1057,8 +1117,6 @@ class RadialDistributionFunction(Observable):
         gr_ij = 0
         for i, sp1 in enumerate(self.species):
             for j, sp2 in enumerate(self.species[i:]):
-                if j == i:
-                    pair_density[i, j] *= 2.0
                 for ibin in range(self.no_bins):
                     gr[ibin, gr_ij] = (rdf_hist[ibin, i, j] + rdf_hist[ibin, j, i]) / (bin_vol[ibin]
                                                                                        * pair_density[i, j]
@@ -1386,7 +1444,7 @@ class Thermodynamics(Observable):
         System of units used in the simulation. mks or cgs.
     """
 
-    def __init__(self, params):
+    def setup(self, params, species):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -1395,14 +1453,10 @@ class Thermodynamics(Observable):
         params: S_params class
             Simulation's parameters.
         """
-        super().__init__(params)
+        super().setup(params, species)
         self.dataframe = pd.DataFrame()
-        self.thermostat = params.thermostat.type
-        self.thermostat_tau = params.thermostat.tau
-        if params.pppm.on:
-            self.F_err = params.pppm.F_err
-        else:
-            self.F_err = params.PP_err
+        self.thermostat = params.thermostat_type
+        self.thermostat_tau = params.thermostat_tau
 
         if params.load_method == "restart":
             self.restart_sim = True
@@ -1738,10 +1792,7 @@ class Thermodynamics(Observable):
         Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.thermostat.type), fontsize=fsz)
         Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.thermostat.tau), fontsize=fsz)
         Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.potential.type), fontsize=fsz)
-        if params.pppm.on:
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.pppm.F_err), fontsize=fsz)
-        else:
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(params.PP_err), fontsize=fsz)
+        Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(self.force_error), fontsize=fsz)
 
         Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * self.dt, xlbl), fontsize=fsz)
         Info_plot.text(0., y_coord - 3., "{} step interval = {}".format(phase, self.dump_step), fontsize=fsz)
@@ -2158,7 +2209,7 @@ class VelocityAutocorrelationFunctions(Observable):
             for i, sp_name in enumerate(self.species_names):
                 for j in range(i + 1, self.num_species):
                     J = self.dataframe["{}-{} Total Current ACF".format(sp_name, self.species_names[j])]
-                    ax.plot(self.dataframe["Time"] * self.wp,
+                    ax.plot(self.dataframe["Time"] * self.total_plasma_frequency,
                             J / J[0], label=r'$J_{' + sp_name + self.species_names[j] + '} (t)$')
             ax.grid(True, alpha=0.3)
             ax.legend(loc='upper right')
@@ -2298,7 +2349,7 @@ class VelocityMoments(Observable):
         """
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
         """
-        vscale = 1. / (self.aws * self.wp)
+        vscale = 1. / (self.aws * self.total_plasma_frequency)
         vel = np.zeros((self.prod_no_dumps, self.total_num_ptcls, 3))
 
         time = np.zeros(self.prod_no_dumps)
@@ -2465,8 +2516,8 @@ class XYZWriter:
 
         # Rescale constants. This is needed since OVITO has a small number limit.
         pscale = 1.0 / self.aws
-        vscale = 1.0 / (self.aws * self.wp)
-        ascale = 1.0 / (self.aws * self.wp ** 2)
+        vscale = 1.0 / (self.aws * self.total_plasma_frequency)
+        ascale = 1.0 / (self.aws * self.total_plasma_frequency ** 2)
 
         for it in tqdm(range(int(self.prod_no_dumps / self.dump_skip)), disable=not self.verbose):
             dump = int(it * self.prod_dump_step * self.dump_skip)
@@ -3531,26 +3582,3 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         xlabel = ''
 
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
-
-
-def read_pickle(job_dir):
-    """
-    Read Pickle File containing params.
-
-    Parameters
-    ----------
-    params_dir: str
-        Input YAML file of the simulation.
-
-    Returns
-    -------
-    data : dict
-        Params dictionary.
-
-    """
-
-    pickle_file = os.path.join(job_dir, "simulation_parameters.pickle")
-
-    data = np.load(pickle_file, allow_pickle=True)
-
-    return data

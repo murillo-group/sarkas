@@ -8,7 +8,6 @@ import scipy.constants as const
 # Sarkas modules
 from sarkas.utilities.io import InputOutput
 from sarkas.utilities.timing import SarkasTimer
-from sarkas.tools.postprocessing import PostProcess
 from sarkas.potentials.base import Potential
 from sarkas.time_evolution.integrators import Integrator
 from sarkas.time_evolution.thermostats import Thermostat
@@ -18,7 +17,7 @@ class Simulation:
     """
     Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.
     """
-    def __init__(self):
+    def __init__(self, input_file=None):
 
         self.potential = Potential()
         self.integrator = Integrator()
@@ -26,11 +25,11 @@ class Simulation:
         self.parameters = Parameters()
         self.particles = Particles()
         self.species = []
-        self.input_file = None
+        self.input_file = input_file if input_file else None
         self.timer = SarkasTimer()
         self.io = InputOutput()
 
-    def common_parser(self, filename):
+    def common_parser(self, filename=None):
         """
         Parse simulation parameters from YAML file.
 
@@ -41,9 +40,10 @@ class Simulation:
 
 
         """
-        self.input_file = filename
-        self.parameters.input_file = filename
-        dics = self.io.from_yaml(filename)
+        if filename:
+            self.input_file = filename
+
+        dics = self.io.from_yaml(self.input_file)
 
         for lkey in dics:
             if lkey == "Particles":
@@ -144,24 +144,23 @@ class Simulation:
     def pre_processing(self, filename=None, other_inputs=None, loops=10):
         pass
 
-    def post_processing(self, time0):
-
-        ##############################################
-        # Finalization Phase
-        ##############################################
-        self.timer.start()
-        postproc = PostProcess()
-        postproc.common_parser(self.input_file)
-        postproc.rdf.setup(self.parameters, self.species, self.potential.rc)
-        postproc.rdf.save(self.particles.rdf_hist)
-        postproc.rdf.plot(show=False)
-        time_end = self.timer.stop()
-        self.io.time_stamp("Post Processing", time_end)
-
-        time_tot = self.timer.current()
-        self.io.time_stamp("Total", time_tot - time0)
-
-        return postproc
+    # def post_processing(self, time0):
+    #
+    #     ##############################################
+    #     # Finalization Phase
+    #     ##############################################
+    #     self.timer.start()
+    #     postproc = PostProcess()
+    #     postproc.common_parser(self.input_file)
+    #     postproc.rdf.setup(self.parameters, self.species)
+    #     postproc.rdf.save(self.particles.rdf_hist)
+    #     postproc.rdf.plot(show=False)
+    #     time_end = self.timer.stop()
+    #     self.io.time_stamp("Post Processing", time_end)
+    #
+    #
+    #
+    #     return postproc
 
     def run(self):
 
@@ -183,17 +182,24 @@ class Simulation:
             # potential_energy = self.potential.calc_pot_acc_fmm(self.particles, self.parameters)
 
         self.evolve()
-        self.post_processing(time0)
+        time_tot = self.timer.current()
+        self.io.time_stamp("Total", time_tot - time0)
 
-    def setup(self, other_inputs=None):
-        """Setup all simulations parameters subclass.
+    def setup(self, read_yaml=False, other_inputs=None):
+        """Setup simulations' parameters and io subclasses.
 
         Parameters
         ----------
-        other_inputs : dict (optional)
+        read_yaml: bool
+            Flag for reading YAML input file. Default = False.
+
+        other_inputs: dict (optional)
             Dictionary with additional simulations options.
 
         """
+        if read_yaml:
+            self.common_parser()
+
         if other_inputs:
             if not isinstance(other_inputs, dict):
                 raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
@@ -202,94 +208,27 @@ class Simulation:
                 if not class_name == 'Particles':
                     self.__dict__[class_name.lower()].__dict__.update(class_attr)
 
-        # save some general info
+        # initialize the directories and filenames
         self.io.setup()
+        # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+        # Update parameters' dictionary with filenames and directories
+        self.parameters.__dict__.update(self.io.__dict__)
+        # save some general info
         self.parameters.potential_type = self.potential.type
         self.parameters.cutoff_radius = self.potential.rc
         self.parameters.magnetized = self.integrator.magnetized
+        # integrator parameters
         self.parameters.integrator = self.integrator.type
+        # self.parameters.equilibration_steps = self.integrator.equilibration_steps
+        # self.parameters.production_steps = self.integrator.production_steps
+        # self.parameters.prod_dump_step = self.integrator.prod_dump_step
+        # self.parameters.eq_dump_step = self.integrator.eq_dump_step
+
         self.parameters.thermostat = self.thermostat.type
 
         self.parameters.setup(self.species)
 
         self.io.setup_checkpoint(self.parameters, self.species)
-
-    def create_directories(self, args=None):
-        """
-        Check for undefined control variables and create output directory and its subdirectories.
-
-        Parameters
-        ---------
-        args: dict
-            Input arguments.
-
-        """
-        if args is None:
-            args = {"simulations_dir": "Simulations",
-                    "job_dir": os.path.basename(self.input_file).split('.')[0],
-                    "production_dir": 'Production',
-                    "equilibration_dir": 'Equilibration',
-                    "preprocessing_dir": "PreProcessing",
-                    "postprocessing_dir": "PostProcessing",
-                    "prod_dump_dir": 'dumps',
-                    "eq_dump_dir": 'dumps',
-                    }
-
-        # Check for directories
-        for key, value in args.items():
-            if hasattr(self, key):
-                self.__dict__[key] = value
-
-        # Check if the directories exist
-        if not os.path.exists(self.simulations_dir):
-            os.mkdir(self.simulations_dir)
-
-        if self.job_id is None:
-            self.job_id = self.job_dir
-
-        self.job_dir = os.path.join(self.simulations_dir, self.job_dir)
-        if not os.path.exists(self.job_dir):
-            os.mkdir(self.job_dir)
-
-        # Equilibration directory and sub_dir
-        self.equilibration_dir = os.path.join(self.job_dir, self.equilibration_dir)
-        if not os.path.exists(self.equilibration_dir):
-            os.mkdir(self.equilibration_dir)
-
-        self.eq_dump_dir = os.path.join(self.equilibration_dir, 'dumps')
-        if not os.path.exists(self.eq_dump_dir):
-            os.mkdir(self.eq_dump_dir)
-
-        # Production dir and sub_dir
-        self.production_dir = os.path.join(self.job_dir, self.production_dir)
-        if not os.path.exists(self.production_dir):
-            os.mkdir(self.production_dir)
-
-        self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
-        if not os.path.exists(self.prod_dump_dir):
-            os.mkdir(self.prod_dump_dir)
-
-        # Postprocessing dir
-        self.postprocessing_dir = os.path.join(self.job_dir, self.postprocessing_dir)
-        if not os.path.exists(self.postprocessing_dir):
-            os.mkdir(self.postprocessing_dir)
-
-        if self.log_file is None:
-            self.log_file = os.path.join(self.job_dir, 'log.out')
-
-    def read_pickle(self, job_dir, job_id):
-        """
-        Load simulation data from pickle files.
-
-        Parameters
-        ----------
-        job_dir: str
-            Directory of stored data.
-
-        job_id: str
-            Pickle filename.
-        """
-        pass
 
 
 class Parameters:
@@ -319,7 +258,7 @@ class Parameters:
     load_restart_step : int
         Restart time step.
 
-    load_r_reject : float
+    load_rejection_radius : float
         Rejection radius to avoid placing particles to close to each other.
 
     load_perturb : float
@@ -737,22 +676,15 @@ class Particles:
 
         """
         # Particles Position Initialization
-        if params.verbose:
-            print('\nAssigning initial positions according to {}'.format(params.load_method))
-
-        if params.load_method == 'prod_restart':
-            msg = "Restart step not defined. Please define restart_step."
-            assert params.load_restart_step, msg
+        if params.load_method in ['equilibration_restart', 'eq_restart', 'production_restart', 'prod_restart']:
+            # checks
+            assert params.load_restart_step, "Restart step not defined. Please define restart_step."
             assert type(params.load_restart_step) is int, "Only integers are allowed."
 
-            self.load_from_restart(False, params.load_restart_step)
-
-        elif params.load_method == 'eq_restart':
-            msg = "Therm Restart step not defined. Please define restart_step"
-            assert params.load_therm_restart_step, msg
-            assert type(params.load_therm_restart_step) is int, "Only integers are allowed."
-
-            self.load_from_restart(True, params.load_therm_restart_step)
+            if params.load_method[:2] == 'eq':
+                self.load_from_restart(True, params.load_restart_step)
+            else:
+                self.load_from_restart(False, params.load_restart_step)
 
         elif params.load_method == 'file':
             msg = 'Input file not defined. Please define particle_input_file.'
@@ -764,10 +696,12 @@ class Particles:
             self.lattice(params.load_perturb)
 
         elif params.load_method == 'random_reject':
-            self.random_reject(params.load_r_reject)
+            assert params.load_rejection_radius, "Rejection radius not defined. Please define load_rejection_radius."
+            self.random_reject(params.load_rejection_radius)
 
         elif params.load_method == 'halton_reject':
-            self.halton_reject(params.load_halton_bases, params.load_r_reject)
+            assert params.load_rejection_radius, "Rejection radius not defined. Please define load_rejection_radius."
+            self.halton_reject(params.load_halton_bases, params.load_rejection_radius)
 
         elif params.load_method in ['uniform', 'random_no_reject']:
             self.pos = self.uniform_no_reject([0.0, 0.0, 0.0], params.box_lengths)

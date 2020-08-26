@@ -47,12 +47,11 @@ class InputOutput:
         self.eq_dump_dir = 'dumps'
         self.job_dir = None
         self.job_id = None
-        self.pickle_file = None
         self.log_file = None
         self.preprocess_file = None
         self.preprocessing = False
         self.verbose = False
-        self.params_pickle = "simulation_parameters.pickle"
+        self.check_status = False
 
     def setup(self):
         self.create_file_paths()
@@ -124,10 +123,10 @@ class InputOutput:
 
         # Production phase filenames
         self.prod_energy_filename = os.path.join(self.production_dir, "ProductionEnergy_" + self.job_id + '.csv')
-        self.prod_ptcls_file_name = os.path.join(self.prod_dump_dir, "checkpoint_")
+        self.prod_ptcls_filename = os.path.join(self.prod_dump_dir, "checkpoint_")
         # Equilibration phase filenames
         self.eq_energy_filename = os.path.join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + '.csv')
-        self.eq_ptcls_file_name = os.path.join(self.eq_dump_dir, "checkpoint_")
+        self.eq_ptcls_filename = os.path.join(self.eq_dump_dir, "checkpoint_")
 
         if self.preprocessing:
             self.io_file = self.preprocess_file
@@ -165,7 +164,7 @@ class InputOutput:
     def file_header(self):
 
         # Print figlet to file if not a restart run
-        if not self.restart:
+        if not self.restart or not self.check_status:
             with open(self.io_file, "w+") as f_log:
                 figlet_obj = Figlet(font='starwars')
                 print(figlet_obj.renderText('Sarkas'), file=f_log)
@@ -276,9 +275,9 @@ class InputOutput:
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
                 t_msec, rem_ms = divmod(rem_s, 1000)
                 t_nsec, rem_ns = divmod(rem_ms, 1000)
-                print('\n{} Time = {} secs {} msec {} nsec'.format(time_stamp, t_sec, t_msec, t_nsec))
+                print('\n{} Time = {} secs {} msec {:.2} nsec'.format(time_stamp, int(rem_m), int(rem_ms), rem_ns))
             else:
-                print('\n{} Time = {} hrs {} mins {} secs'.format(time_stamp, t_hrs, t_min, t_sec))
+                print('\n{} Time = {} hrs {} mins {:1.2} secs'.format(time_stamp, t_hrs, t_min, rem_m))
 
             repeat -= 1
             sys.stdout = screen
@@ -291,7 +290,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation : object
+        simulation: sarkas.base.Simulation
             Simulation's parameters
 
         """
@@ -341,7 +340,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: object
+        simulation: sarkas.base.Simulation
             Simulation's parameters.
 
         """
@@ -394,7 +393,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: object
+        simulation: sarkas.base.Simulation
             Simulation's parameters.
 
 
@@ -455,7 +454,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: object
+        simulation: sarkas.base.Simulation
             Simulation's parameters.
 
         """
@@ -519,7 +518,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: object
+        simulation: sarkas.base.Simulation
             Simulation's parameters.
 
         """
@@ -533,7 +532,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: object
+        simulation: sarkas.base.Simulation
             Simulation's parameters.
 
         """
@@ -558,10 +557,11 @@ class InputOutput:
     @staticmethod
     def species_info(simulation):
         """
+        Print Species information.
 
         Parameters
         ----------
-        simulation: object
+        simulation: sarkas.base.Simulation
             Simulation's parameters.
 
         """
@@ -584,12 +584,11 @@ class InputOutput:
 
         Parameters
         ----------
-        params: cls
+        params: sarkas.base.Parameters
             General simulation parameters.
 
-        species: cls
+        species: sarkas.base.Species
             List of Species classes.
-
 
         """
         self.dt = params.dt
@@ -630,11 +629,28 @@ class InputOutput:
         Save all simulations parameters in pickle files.
         """
         file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']
-        filename = os.path.join(self.job_dir, self.job_id)
         for fl in file_list:
-            pickle_file = open(filename + "_" + fl + ".pickle", "wb")
+            filename = os.path.join(self.job_dir, fl + ".pickle")
+            pickle_file = open(filename, "wb")
             pickle.dump(simulation.__dict__[fl], pickle_file)
             pickle_file.close()
+
+    def read_pickle(self, process):
+        """
+        Read pickle files containing all the simulation information.
+
+        Parameters
+        ----------
+        process: cls
+            Simulation's parameters. It can be one of three (sarkas.tools.PreProcess,
+            sarkas.base.Simulation, sarkas.tools.PostProcess)
+        """
+        import copy as py_copy
+        file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']
+        for fl in file_list:
+            filename = os.path.join(self.job_dir, fl + ".pickle")
+            data = np.load(filename, allow_pickle=True)
+            process.__dict__[fl] = py_copy.copy(data)
 
     def dump(self, production, ptcls, it):
         """
@@ -648,14 +664,11 @@ class InputOutput:
         ptcls: sarkas.base.Particles
             Particles data.
 
-        potential_energy : float
-            Potential energy.
-
         it : int
             Timestep number.
         """
         if production:
-            ptcls_file = self.prod_ptcls_file_name + str(it)
+            ptcls_file = self.prod_ptcls_filename + str(it)
             tme = it * self.dt
             np.savez(ptcls_file,
                   id=ptcls.id,
@@ -670,7 +683,7 @@ class InputOutput:
             energy_file = self.prod_energy_filename
 
         else:
-            ptcls_file = self.prod_ptcls_file_name + str(it)
+            ptcls_file = self.eq_ptcls_filename + str(it)
             tme = it * self.dt
             np.savez(ptcls_file,
                   id=ptcls.id,

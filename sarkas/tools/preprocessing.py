@@ -20,14 +20,14 @@ from sarkas.base import Particles, Parameters, Species
 
 class PreProcess:
     
-    def __init__(self):
+    def __init__(self, input_file=None):
         self.potential = Potential()
         self.integrator = Integrator()
         self.thermostat = Thermostat()
         self.parameters = Parameters()
         self.particles = Particles()
         self.species = []
-        self.input_file = None
+        self.input_file = input_file if input_file else None
         self.loops = 10
         self.estimate = False
         self.pm_meshes = np.array([16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
@@ -35,7 +35,7 @@ class PreProcess:
         self.timer = SarkasTimer()
         self.io = InputOutput()
 
-    def common_parser(self, filename):
+    def common_parser(self, filename=None):
         """
         Parse simulation parameters from YAML file.
 
@@ -46,9 +46,11 @@ class PreProcess:
 
 
         """
-        self.input_file = filename
-        self.parameters.input_file = filename
-        dics = self.io.from_yaml(filename)
+
+        if filename:
+            self.input_file = filename
+
+        dics = self.io.from_yaml(self.input_file)
 
         for lkey in dics:
             if lkey == "Particles":
@@ -76,20 +78,21 @@ class PreProcess:
             if lkey == "Control":
                 self.parameters.__dict__.update(dics[lkey])
 
-    def setup(self, other_inputs=None):
-        """
-        Initialize all the sub classes of the simulation and save simulation details to log file.
+    def setup(self, read_yaml=False, other_inputs=None):
+        """Setup simulations' parameters and io subclasses.
 
         Parameters
         ----------
-        estimate
-        loops: int (optional)
-            Number of loops over which to average.
+        read_yaml: bool
+            Flag for reading YAML input file. Default = False.
 
-        other_inputs : dict (optional)
+        other_inputs: dict (optional)
             Dictionary with additional simulations options.
 
         """
+        if read_yaml:
+            self.common_parser()
+
         if other_inputs:
             if not isinstance(other_inputs, dict):
                 raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
@@ -111,13 +114,11 @@ class PreProcess:
         self.parameters.setup(self.species)
 
         t0 = self.timer.current()
-        self.timer.start()
         self.potential.setup(self.parameters)
         time_pot = self.timer.current()
 
         self.thermostat.setup(self.parameters)
         self.integrator.setup(self.parameters, self.thermostat, self.potential)
-        self.timer.start()
         self.particles.setup(self.parameters, self.species)
         time_ptcls = self.timer.current()
 
