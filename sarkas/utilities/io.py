@@ -78,27 +78,31 @@ class InputOutput:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
             self.__dict__.update(dics["IO"])
 
-        for key, value in dics['Control'].items():
+        if 'Control' in dics.keys():
+            for key, value in dics['Control'].items():
 
-            if key == 'verbose':
-                self.verbose = value
+                if key == 'verbose':
+                    self.verbose = value
 
-            if key == 'load_method':
-                self.load_method = value
-                if value[-7:] == 'restart':
-                    self.restart = True
-                else:
-                    self.restart = False
+                if key == 'load_method':
+                    self.load_method = value
+                    if value[-7:] == 'restart':
+                        self.restart = True
+                    else:
+                        self.restart = False
 
-            if key == 'preprocessing':
-                self.preprocessing = value
+                if key == 'preprocessing':
+                    self.preprocessing = value
 
         return dics
 
     def create_file_paths(self):
 
+        if self.job_dir is None:
+            self.job_dir = os.path.basename(self.input_file).split('.')[0]
+
         if self.job_id is None:
-            self.job_id = os.path.basename(self.input_file).split('.')[0]
+            self.job_id = self.job_dir
 
         self.job_dir = os.path.join(self.simulations_dir, self.job_dir)
 
@@ -209,9 +213,10 @@ class InputOutput:
                 else:
                     print('\n\n----------------- Simulation -----------------------')
 
-                print('\nJob ID: ', simulation.parameters.job_id)
-                print('Job directory: ', simulation.parameters.job_dir)
-                print('Dump directory: ', simulation.parameters.prod_dump_dir)
+                print('\nJob ID: ', self.job_id)
+                print('Job directory: ', self.job_dir)
+                print('Equilibration dumps directory: ', self.eq_dump_dir)
+                print('Production dumps directory: ', self.prod_dump_dir)
                 print('\nUnits: ', simulation.parameters.units)
                 print('Total No. of particles = ', simulation.parameters.total_num_ptcls)
 
@@ -265,19 +270,18 @@ class InputOutput:
         screen = sys.stdout
         f_log = open(self.io_file, 'a+')
         repeat = 2 if self.verbose else 1
-
+        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
         # redirect printing to file
         sys.stdout = f_log
         while repeat > 0:
-            t_hrs, rem = divmod(t,3600)
-            t_min, rem_m = divmod(rem, 60)
-            t_sec, rem_s = divmod(rem_m, 60)
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
-                t_msec, rem_ms = divmod(rem_s, 1000)
-                t_nsec, rem_ns = divmod(rem_ms, 1000)
-                print('\n{} Time = {} secs {} msec {:.2} nsec'.format(time_stamp, int(rem_m), int(rem_ms), rem_ns))
+                print('\n{} Time: {} sec {} msec {} usec {} nsec'.format(time_stamp,
+                                                                   int(t_sec),
+                                                                   int(t_msec),
+                                                                   int(t_usec),
+                                                                   int(t_nsec)))
             else:
-                print('\n{} Time = {} hrs {} mins {:1.2} secs'.format(time_stamp, t_hrs, t_min, rem_m))
+                print('\n{} Time: {} hrs {} min {} sec'.format(time_stamp, int(t_hrs), int(t_min), int(t_sec)))
 
             repeat -= 1
             sys.stdout = screen
@@ -317,6 +321,70 @@ class InputOutput:
             self.algorithm_info(simulation)
             repeat -= 1
             sys.stdout = screen  # Restore the original sys.stdout
+
+        f_log.close()
+
+    def preprocess_timing(self, str_id, t, loops):
+        """Print times estimates of simulation."""
+        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
+        screen = sys.stdout
+        f_log = open(self.io_file, 'a+')
+        repeat = 2 if self.verbose else 1
+        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
+        # redirect printing to file
+        sys.stdout = f_log
+        while repeat > 0:
+            if str_id == "GF":
+                print('\n\n\n----------------- Force Calculation Times ----------------------\n')
+                print("Optimal Green's Function Time: \n"
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                                                                int(t_min),
+                                                                int(t_sec),
+                                                                int(t_msec),
+                                                                int(t_usec),
+                                                                int(t_nsec)))
+
+            elif str_id == "PP":
+                print('Time of PP acceleration calculation averaged over {} loops: \n'
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                                                                int(t_min),
+                                                                int(t_sec),
+                                                                int(t_msec),
+                                                                int(t_usec),
+                                                                int(t_nsec)))
+
+            elif str_id == "PM":
+                print('Time of PM acceleration calculation averaged over {} loops: \n'
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                                                                int(t_min),
+                                                                int(t_sec),
+                                                                int(t_msec),
+                                                                int(t_usec),
+                                                                int(t_nsec)))
+
+            elif str_id == "Equilibration":
+                print('\n\n----------------- Averaged Evolution Times ---------------------\n')
+                print('Time of a single equilibration step averaged over {} loops: \n'
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                                                                        int(t_min),
+                                                                       int(t_sec),
+                                                                       int(t_msec),
+                                                                       int(t_usec),
+                                                                       int(t_nsec)))
+
+            elif str_id == "Production":
+                print('Time of a single production step averaged over {} loops: \n'
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                                                                        int(t_min),
+                                                                       int(t_sec),
+                                                                       int(t_msec),
+                                                                       int(t_usec),
+                                                                       int(t_nsec)))
+
+                print('\n\n----------------- Total Simulation Times -----------------------')
+
+            repeat -= 1
+            sys.stdout = screen
 
         f_log.close()
 
@@ -693,7 +761,7 @@ class InputOutput:
                   acc=ptcls.acc,
                   time=tme)
 
-            energy_file = self.prod_energy_filename
+            energy_file = self.eq_energy_filename
 
         kinetic_energies, temperatures = ptcls.kinetic_temperature(self.kB)
         # Prepare data for saving
@@ -701,7 +769,7 @@ class InputOutput:
                 "Total Energy": np.sum(kinetic_energies) + ptcls.potential_energy,
                 "Total Kinetic Energy": np.sum(kinetic_energies),
                 "Potential Energy": ptcls.potential_energy,
-                "Total Temperature": np.sum(temperatures)
+                "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls
                 }
         for sp, kin in enumerate(kinetic_energies):
             data["{} Kinetic Energy".format(self.species_names[sp])] = kin

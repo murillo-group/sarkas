@@ -25,7 +25,7 @@ class SarkasTimer:
         if self._start_time is not None:
             raise TimerError(f"Timer is running. Use .stop() to stop it")
 
-        self._start_time = time.perf_counter()
+        self._start_time = time.perf_counter_ns()
 
     def stop(self) -> float:
         """Stop the timer, and report the elapsed time"""
@@ -33,12 +33,22 @@ class SarkasTimer:
             raise TimerError(f"Timer is not running. Use .start() to start it")
 
         # Calculate elapsed time
-        elapsed_time = time.perf_counter() - self._start_time
+        elapsed_time = time.perf_counter_ns() - self._start_time
         self._start_time = None
 
         return elapsed_time
 
     @staticmethod
     def current() -> float:
-        return time.perf_counter()
+        return time.perf_counter_ns()
 
+    @staticmethod
+    def time_division(tme):
+        t_hrs, rem = divmod(tme, 3.6e12)
+        t_min, rem_m = divmod(rem, 6e+10)
+        t_sec, rem_s = divmod(rem_m, 1e9)
+        t_msec, rem_ms = divmod(rem_s, 1e6)
+        t_usec, rem_us = divmod(rem_ms, 1e3)
+        t_nsec, rem_ns = divmod(rem_us, 1)
+
+        return [t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec]

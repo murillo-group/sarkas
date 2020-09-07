@@ -2,7 +2,6 @@
 Module for calculating physical quantities from Sarkas checkpoints.
 """
 import os
-import copy as py_copy
 from tqdm import tqdm
 import numpy as np
 from numba import njit
@@ -73,78 +72,18 @@ PREFIXES = {
 }
 
 
-class PostProcess:
-    def __init__(self, input_file=None):
-        self.potential = Potential()
-        self.integrator = Integrator()
-        self.thermostat = Thermostat()
-        self.parameters = Parameters()
-        self.particles = Particles()
-        self.species = []
-        self.input_file = input_file if input_file else None
-        self.timer = SarkasTimer()
-        self.io = InputOutput()
-
-    def common_parser(self, filename=None):
-
-        if filename:
-            self.input_file = filename
-
-        dics = self.io.from_yaml(self.input_file)
-
-        for observable in dics['PostProcessing']:
-            for key, sub_dict in observable.items():
-                if key == 'RadialDistributionFunction':
-                    self.rdf = RadialDistributionFunction()
-                    self.rdf.__dict__.update(sub_dict)
-                if key == 'HermiteCoefficients':
-                    self.hc = HermiteCoefficients()
-                    self.hc.__dict__.update(sub_dict)
-
-    def setup(self, read_yaml=False, other_inputs=None):
-        """
-        Setup subclasses and attributes by reading the pickle files first
-        """
-        if read_yaml:
-            self.common_parser()
-
-        if other_inputs:
-            if not isinstance(other_inputs, dict):
-                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
-
-            for class_name, class_attr in other_inputs.items():
-                if not class_name == 'Particles':
-                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
-
-        self.io.create_file_paths()
-        self.io.read_pickle(self)
-
-    def setup_from_simulation(self, simulation):
-        """
-        Setup postprocess' subclasses by (shallow) copying them from simulation object.
-
-        Parameters
-        ----------
-        simulation: sarkas.base.Simulation
-            Simulation object
-
-        """
-        self.parameters = py_copy.copy(simulation.parameters)
-        self.integrator = py_copy.copy(simulation.integrator)
-        self.potential = py_copy.copy(simulation.potential)
-        self.species = py_copy.copy(simulation.species)
-        self.thermostat = py_copy.copy(simulation.thermostat)
-
-
 class Observable:
 
     def __init__(self):
-        self.species = []
+        self.species = list()
+    #
 
-    def setup(self, params, species):
+    def setup_init(self, params, species):
         self.__dict__.update(params.__dict__)
-        for sp in species:
-            self.species.append(sp)
+
+        if len(self.species) < params.num_species:
+            for sp in species:
+                self.species.append(sp)
 
         # Create the lists of k vectors
         if hasattr(self, 'no_ka_vectors'):
@@ -826,12 +765,14 @@ class HermiteCoefficients(Observable):
         params: S_params class
             Simulation's parameters.
         """
-        super().setup(params, species)
+        super(HermiteCoefficients, self).setup_init(params, species)
         self.dataframe = pd.DataFrame()
         self.saving_dir = os.path.join(self.postprocessing_dir, 'HermiteExpansion')
+
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
         self.plots_dir = os.path.join(self.saving_dir, 'Hermite_Plots')
+
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
         self.filename_csv = os.path.join(self.saving_dir, "HermiteCoefficients_" + self.job_id + '.csv')
@@ -885,7 +826,6 @@ class HermiteCoefficients(Observable):
 
         data = {"Time": time}
         self.dataframe = pd.DataFrame(data)
-
         for i, sp in enumerate(self.species):
             for hi in range(self.hermite_order + 1):
                 self.dataframe["{} Hermite x Coeff a{}".format(sp.name, hi)] = xcoeff[i, :, hi]
@@ -1057,7 +997,7 @@ class RadialDistributionFunction(Observable):
         params: S_params class
             Simulation's parameters.
         """
-        super().setup(params, species)
+        super().setup_init(params, species)
         self.dataframe = pd.DataFrame()
         self.saving_dir = os.path.join(self.postprocessing_dir, 'RadialDistributionFunction')
         if not os.path.exists(self.saving_dir):
@@ -1067,9 +1007,6 @@ class RadialDistributionFunction(Observable):
                                          "RadialDistributionFunction_" + self.job_id + ".csv")
         self.rc = self.cutoff_radius
 
-        if hasattr(self, 'no_bins'):
-            self.dr_rdf = self.rc / self.no_bins
-
     def save(self, rdf_hist=None):
         """
         Parameters
@@ -1078,30 +1015,30 @@ class RadialDistributionFunction(Observable):
             Histogram of the radial distribution function.
 
         """
-        if not isinstance(rdf_hist,np.ndarray):
+        if not isinstance(rdf_hist, np.ndarray):
             # Find the last dump by looking for the longest filename in
             dumps_list = os.listdir(self.prod_dump_dir)
-            dumps_list.sort(key=len)
-            name, ext = os.path.splitext(dumps_list[-1])
-            _, number = name.split('_')
-            data = load_from_restart(self.prod_dump_dir, int(number))
+            last = 0
+            for file in dumps_list:
+                name, ext = os.path.splitext(file)
+                _, number = name.split('_')
+                if int(number) > last:
+                    last = int(number)
+            data = load_from_restart(self.prod_dump_dir, int(last))
             rdf_hist = data["rdf_hist"]
 
-        # Initialize all the workhorse arrays
-        if not hasattr(self, 'no_bins'):
-            self.no_bins = rdf_hist.shape[0]
-            self.dr_rdf = self.rc / self.no_bins
+        self.no_bins = rdf_hist.shape[0]
+        self.dr_rdf = self.rc / self.no_bins
 
         r_values = np.zeros(self.no_bins)
         bin_vol = np.zeros(self.no_bins)
         pair_density = np.zeros((self.num_species, self.num_species))
         gr = np.zeros((self.no_bins, self.no_obs))
-
         # No. of pairs per volume
         for i, sp1 in enumerate(self.species):
-            pair_density[i, i] = sp1.num * (sp1.num - 1) / (self.box_volume)
+            pair_density[i, i] = 0.5 * sp1.num * (sp1.num - 1) / self.box_volume
             if self.num_species > 1:
-                for j, sp2 in enumerate(self.species[i:]):
+                for j, sp2 in enumerate(self.species[i:], i):
                     pair_density[i, j] = sp1.num * sp2.num / self.box_volume
         # Calculate each bin's volume
         sphere_shell_const = 4.0 * np.pi / 3.0
@@ -1113,18 +1050,15 @@ class RadialDistributionFunction(Observable):
             r_values[ir] = (ir + 0.5) * self.dr_rdf
 
         self.dataframe["distance"] = r_values
-
         gr_ij = 0
         for i, sp1 in enumerate(self.species):
-            for j, sp2 in enumerate(self.species[i:]):
-                for ibin in range(self.no_bins):
-                    gr[ibin, gr_ij] = (rdf_hist[ibin, i, j] + rdf_hist[ibin, j, i]) / (bin_vol[ibin]
-                                                                                       * pair_density[i, j]
-                                                                                       * self.production_steps)
+            for j, sp2 in enumerate(self.species[i:], i):
+                denom_const = (2.0 - (i != j) ) / (pair_density[i, j] * self.production_steps)
+                gr[:, gr_ij] = rdf_hist[:, i, j] * denom_const / bin_vol[:]
 
                 self.dataframe['{}-{} RDF'.format(sp1.name, sp2.name)] = gr[:, gr_ij]
-                gr_ij += 1
 
+                gr_ij += 1
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
     def parse(self):
@@ -1453,19 +1387,13 @@ class Thermodynamics(Observable):
         params: S_params class
             Simulation's parameters.
         """
-        super().setup(params, species)
+        super().setup_init(params, species)
         self.dataframe = pd.DataFrame()
-        self.thermostat = params.thermostat_type
-        self.thermostat_tau = params.thermostat_tau
 
         if params.load_method == "restart":
             self.restart_sim = True
         else:
             self.restart_sim = False
-
-        # Output file with Energy and Temperature
-        self.filename_csv_prod = os.path.join(self.production_dir, "Thermodynamics_" + self.job_id + '.csv')
-        self.filename_csv_eq = os.path.join(self.equilibration_dir, "Thermalization_" + self.job_id + '.csv')
 
     def compute_pressure_quantities(self):
         """
@@ -1513,7 +1441,7 @@ class Thermodynamics(Observable):
                 self.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] = pressure_tensor_acf_temp
 
         # Save the pressure acf to file
-        self.dataframe.to_csv(self.filename_csv_prod, index=False, encoding='utf-8')
+        self.dataframe.to_csv(self.prod_energy_filename, index=False, encoding='utf-8')
 
     def compute_pressure_from_rdf(self, r, gr, potential, potential_matrix):
         """
@@ -1563,12 +1491,13 @@ class Thermodynamics(Observable):
 
         return pressure
 
-    def plot(self, quantity="Total Energy", show=False):
+    def plot(self, quantity="Total Energy", phase=None, show=False):
         """
         Plot ``quantity`` vs time and save the figure with appropriate name.
 
         Parameters
         ----------
+        phase
         show : bool
             Flag for displaying figure.
 
@@ -1576,9 +1505,11 @@ class Thermodynamics(Observable):
             Quantity to plot. Default = Total Energy.
         """
 
-        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+        if phase:
+            self.phase = phase
+            self.parse(phase)
 
-        plt.style.use('MSUstyle')
+        # plt.style.use('MSUstyle')
 
         if quantity[:8] == "Pressure":
             if not "Pressure" in self.dataframe.columns:
@@ -1614,6 +1545,13 @@ class Thermodynamics(Observable):
                             label=r'$P_{' + dim1 + dim2 + '} (t)$')
             ax.set_xscale('log')
             ax.legend(loc='best', ncol=3)
+
+        elif quantity == 'Temperature' and self.num_species > 1:
+            for sp in self.species_names:
+                qstr = "{} Temperature".format(sp)
+                ax.plot(self.dataframe["Time"] * xmul, self.dataframe[qstr] * ymul, label = qstr)
+            ax.plot(self.dataframe["Time"] * xmul, self.dataframe["Temperature"] * ymul, label = 'Total Temperature')
+            ax.legend(loc = 'best')
         else:
             ax.plot(self.dataframe["Time"] * xmul, self.dataframe[quantity] * ymul)
 
@@ -1621,19 +1559,22 @@ class Thermodynamics(Observable):
         ax.set_ylabel(yq[quantity] + ylbl)
         ax.set_xlabel(r'Time' + xlbl)
         fig.tight_layout()
-        fig.savefig(os.path.join(self.postproc_dir, quantity + '_' + self.job_id + '.png'))
+        fig.savefig(os.path.join(self.fldr, quantity + '_' + self.job_id + '.png'))
         if show:
             fig.show()
 
-    def parse(self, phase):
+    def parse(self, phase=None):
         """
         Grab the pandas dataframe from the saved csv file.
         """
-        if phase == 'equilibration':
-            self.dataframe = pd.read_csv(self.filename_csv_eq, index_col=False)
+        if phase:
+            self.phase = phase
+
+        if self.phase == 'equilibration':
+            self.dataframe = pd.read_csv(self.eq_energy_filename, index_col=False)
             self.fldr = self.equilibration_dir
         else:
-            self.dataframe = pd.read_csv(self.filename_csv_prod, index_col=False)
+            self.dataframe = pd.read_csv(self.prod_energy_filename, index_col=False)
             self.fldr = self.production_dir
 
     def statistics(self, quantity="Total Energy", max_no_divisions=100, show=False):
@@ -1674,7 +1615,7 @@ class Thermodynamics(Observable):
 
         return
 
-    def temp_energy_plot(self, params, phase='equilibration', show=False):
+    def temp_energy_plot(self, simulation, phase=None, show=False):
         """
         Plot Temperature and Energy as a function of time with their cumulative sum and average.
 
@@ -1690,21 +1631,26 @@ class Thermodynamics(Observable):
            Simulation's parameters.
 
         """
-        self.parse(phase)
+
+        if phase:
+            self.phase = phase
+            self.parse(phase)
+        else:
+            self.parse()
 
         fig = plt.figure(figsize=(16, 9))
         gs = GridSpec(4, 8)
 
         self.no_dumps = len(self.dataframe["Time"])
-        if phase == 'equilibration':
+        if self.phase == 'equilibration':
             self.fldr = self.equilibration_dir
-            self.no_steps = self.Neq
+            self.no_steps = self.equilibration_steps
             self.dump_step = self.eq_dump_step
         else:
             self.fldr = self.production_dir
-            self.no_steps = self.Nsteps
+            self.no_steps = self.production_steps
             self.dump_step = self.prod_dump_step
-        nbins = int(0.05 * self.prod_no_dumps)
+        nbins = int(0.05 * self.no_dumps)
 
         Info_plot = fig.add_subplot(gs[0:4, 0:2])
 
@@ -1784,23 +1730,31 @@ class Thermodynamics(Observable):
         for isp, sp in enumerate(self.species):
             Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp.name), fontsize=fsz)
             Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num), fontsize=fsz)
-            Info_plot.text(0.0, y_coord - 1., "  Temperature = {:1.2f} {}".format(sp.temperature, ylbl), fontsize=fsz)
+            Info_plot.text(0.0, y_coord - 1., "  Temperature = {:.4e} {}".format(ymul * sp.temperature, ylbl),
+                           fontsize=fsz)
             y_coord -= 1.5
 
         y_coord -= 0.25
-        Info_plot.text(0., y_coord, "Total $N$ = {}".format(self.total_num_ptcls), fontsize=fsz)
-        Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(params.thermostat.type), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(1.0 / params.thermostat.tau), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(params.potential.type), fontsize=fsz)
-        Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.4e}".format(self.force_error), fontsize=fsz)
+        Info_plot.text(0., y_coord,
+                       "Total $N$ = {}".format(simulation.parameters.total_num_ptcls), fontsize=fsz)
+        Info_plot.text(0., y_coord - 0.5,
+                       "Thermostat: {}".format(simulation.thermostat.type), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1.,
+                       "Berendsen rate = {:1.2f}".format( simulation.thermostat.relaxation_rate), fontsize=fsz)
+        Info_plot.text(0., y_coord - 1.5,
+                       "Potential: {}".format(simulation.potential.type), fontsize=fsz)
+        Info_plot.text(0., y_coord - 2.,
+                       "Tot Force Error = {:1.4e}".format(simulation.parameters.force_error), fontsize=fsz)
 
-        Info_plot.text(0., y_coord - 2.5, "Timestep = {:1.4f} {}".format(xmul * self.dt, xlbl), fontsize=fsz)
-        Info_plot.text(0., y_coord - 3., "{} step interval = {}".format(phase, self.dump_step), fontsize=fsz)
-        Info_plot.text(0., y_coord - 3.5, "{} completed steps = {}".format(phase, self.dump_step * (self.no_dumps - 1)),
+        Info_plot.text(0., y_coord - 2.5,
+                       "Timestep = {:1.4f} {}".format(xmul * simulation.integrator.dt, xlbl), fontsize=fsz)
+        Info_plot.text(0., y_coord - 3., "{} step interval = {}".format(self.phase, self.dump_step), fontsize=fsz)
+        Info_plot.text(0., y_coord - 3.5,
+                       "{} completed steps = {}".format(self.phase, self.dump_step * (self.no_dumps - 1)),
                        fontsize=fsz)
-        Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(phase, self.no_steps), fontsize=fsz)
+        Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(self.phase, self.no_steps), fontsize=fsz)
         Info_plot.text(0., y_coord - 4.5, "{:1.2f} % {} Completed".format(
-            100 * self.dump_step * (self.no_dumps - 1) / self.no_steps, phase), fontsize=fsz)
+            100 * self.dump_step * (self.no_dumps - 1) / self.no_steps, self.phase), fontsize=fsz)
 
         Info_plot.axis('off')
         fig.tight_layout()
@@ -2315,34 +2269,26 @@ class VelocityMoments(Observable):
 
     """
 
-    def __init__(self, params):
-        """
-        Initialize the attributes from simulation's parameters.
-
-        Parameters
-        ----------
-        params: S_params class
-            Simulation's parameters.
-        """
-        super().__init__(params)
+    def setup(self, params, species):
+        """"""
+        super().setup_init(params, species)
         self.dataframe = pd.DataFrame()
         self.saving_dir = os.path.join(self.postprocessing_dir, 'VelocityMoments')
+
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
         self.plots_dir = os.path.join(self.saving_dir, 'Plots')
-        #
+
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
-
-        if not hasattr(params.PostProcessing, 'mom_nbins'):
-            # choose the number of bins as 5% of the number of particles
-            self.no_bins = int(0.05 * params.total_num_ptcls)
-        else:
-            self.no_bins = params.PostProcessing.mom_nbins
-
         self.filename_csv = os.path.join(self.saving_dir, "VelocityMoments_" + self.job_id + '.csv')
-        #
-        self.max_no_moment = 3
+
+        if not hasattr(self, 'no_bins'):
+            self.no_bins = int(0.05 * params.total_num_ptcls)
+
+        if not hasattr(self, 'max_no_moment'):
+            self.max_no_moment = 3
+
         self.species_plots_dirs = None
 
     def compute(self):
@@ -3518,6 +3464,15 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
     else:
         ymax = ydata
 
+    # Find the correct Units
+    units_dict = UNITS[1] if units == 'cgs' else UNITS[0]
+
+    if units == 'cgs' and 'Length' == xlbl:
+        xmax *= 1e2
+
+    if units == 'cgs' and 'Length' == ylbl:
+        ymax *= 1e2
+
     x_str = np.format_float_scientific(xmax)
     y_str = np.format_float_scientific(ymax)
 
@@ -3548,8 +3503,6 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
                 ymul = i / value
         i *= 10.
 
-    # Find the correct Units
-    units_dict = UNITS[1] if units == 'cgs' else UNITS[0]
 
     if "Energy" in ylbl:
         yname = "Energy"

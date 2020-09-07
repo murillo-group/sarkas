@@ -3,7 +3,7 @@ Particles:
     - Species:
         name: C
         number_density: 1.0e+23       # N/cc
-        num: 4000                    # total number of particles of ion1
+        num: 5000                    # total number of particles of ion1
         Z: 5.14123505                # degree of ionization
         atomic_weight: 12.011                      # atomic mass
         temperature_eV: 200.0
@@ -11,7 +11,7 @@ Particles:
     - Species:
         name: D                    # Deuterium
         number_density: 0.5e+23     # N/cc
-        num: 2000
+        num: 2500
         Z: 0.96517995              # degree of ionization
         atomic_weight: 2.014                   # atomic mass
         temperature_eV: 200.0
@@ -19,7 +19,7 @@ Particles:
     - Species:
         name: T                     # Tritium
         number_density: 0.5e+23      # N/cc
-        num: 2000
+        num: 2500
         Z: 0.96517995               # degree of ionization
         atomic_weight: 3.01604928199            # atomic mass
         temperature_eV: 200.0
@@ -44,16 +44,36 @@ Parameters:
     units: cgs                    # units
     dt: 7.46759e-18            # sec
     rdf_nbins: 500
+#    equilibration_steps: 50000                      # number of timesteps for the equilibrium
+#    production_steps: 100000                    # number of timesteps after the equilibrium
+#    prod_dump_step: 10                # dump time step
+#    eq_dump_step: 100
+    verbose: True
+
+Integrator:
+    type: Verlet                  # velocity integrator type
     equilibration_steps: 50000                      # number of timesteps for the equilibrium
     production_steps: 100000                    # number of timesteps after the equilibrium
     prod_dump_step: 10                # dump time step
     eq_dump_step: 100
-    verbose: True
-    job_dir: icf_new        # dir name to save data. The default is "Checkpoint"
-    job_id: icf_new
+
+Control:
     load_method: random_no_reject    # loading method
     boundary_conditions: periodic
+    preprocessing: False
+
+IO:
+    job_dir: icf_new        # dir name to save data. The default is "Checkpoint"
+    job_id: icf_new
+    verbose: True
 
 PostProcessing:
     - RadialDistributionFunction:
         no_bins: 500
+
+    - Thermodynamics:
+          phase: production
+
+    - HermiteCoefficients:
+        no_bins: 1000
+        hermite_order: 8

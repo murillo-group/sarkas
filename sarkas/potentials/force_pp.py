@@ -3,10 +3,9 @@ Module for handling Particle-Particle interaction.
 """
 
 import numpy as np
-import numba as nb
+from numba import njit
 
-
-@nb.njit
+@njit
 def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hist):
     """
     Updates particles' accelerations when the cutoff radius :math: `r_c` is half the box's length, :math: `r_c = L/2`
@@ -120,11 +119,11 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
     return U_s_r, acc_s_r
 
 
-@nb.njit
+@njit
 def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure, rdf_hist):
-    """ 
+    """
     Update the force on the particles based on a linked cell-list (LCL) algorithm.
-  
+
     Parameters
     ----------
     force: float, float
@@ -171,7 +170,7 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
     """
     acc_s_r = np.zeros_like(pos)
 
-    # Declare parameters 
+    # Declare parameters
     N = pos.shape[0]  # Number of particles
     d = pos.shape[1]  # Number of dimensions
     rshift = np.zeros(d)  # Shifts for array flattening
@@ -214,7 +213,6 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
 
                 # Compute the cell in 3D volume
                 c = cx + cy * cells_per_dim[0] + cz * cells_per_dim[0] * cells_per_dim[1]
-                i = head[c]
 
                 # Loop over all cell pairs (N-1 and N+1)
                 for cz_N in range(cz - 1, cz + 2):
@@ -261,7 +259,7 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
                             c_N = (cx_N + cx_shift) + (cy_N + cy_shift) * cells_per_dim[0] \
                                   + (cz_N + cz_shift) * cells_per_dim[0] * cells_per_dim[1]
 
-                            # Recall i = head[c]
+                            i = head[c]
                             # First compute interaction of head particle with neighboring cell head particles
                             # Then compute interactions of head particle within a specific cell
                             while i != empty:
@@ -296,22 +294,14 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
 
                                             # Update the acceleration for i particles in each dimension
 
-                                            acc_ix = dx * fr / p_mass[i]
-                                            acc_iy = dy * fr / p_mass[i]
-                                            acc_iz = dz * fr / p_mass[i]
-
-                                            acc_jx = dx * fr / p_mass[j]
-                                            acc_jy = dy * fr / p_mass[j]
-                                            acc_jz = dz * fr / p_mass[j]
-
-                                            acc_s_r[i, 0] += acc_ix
-                                            acc_s_r[i, 1] += acc_iy
-                                            acc_s_r[i, 2] += acc_iz
+                                            acc_s_r[i, 0] += dx * fr / p_mass[i]
+                                            acc_s_r[i, 1] += dy * fr / p_mass[i]
+                                            acc_s_r[i, 2] += dz * fr / p_mass[i]
 
                                             # Apply Newton's 3rd law to update acceleration on j particles
-                                            acc_s_r[j, 0] -= acc_jx
-                                            acc_s_r[j, 1] -= acc_jy
-                                            acc_s_r[j, 2] -= acc_jz
+                                            acc_s_r[j, 0] -= dx * fr / p_mass[j]
+                                            acc_s_r[j, 1] -= dy * fr / p_mass[j]
+                                            acc_s_r[j, 2] -= dz * fr / p_mass[j]
 
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls[j]

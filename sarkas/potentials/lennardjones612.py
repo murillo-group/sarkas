@@ -131,6 +131,6 @@ def LJ_force_PP(r, pot_matrix_ij):
     s_over_r_12 = s_over_r ** 12
 
     U = 4.0 * epsilon * (s_over_r_12 - s_over_r_6)
-    force = 48.0 * epsilon * (s_over_r_12 - 0.5 * s_over_r_6) / r ** 2
+    force = 48.0 * epsilon * (s_over_r_12 - 0.5 * s_over_r_6) / r
 
     return U, force

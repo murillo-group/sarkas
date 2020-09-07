@@ -15,8 +15,8 @@ Michigan State University
 # Python modules
 from optparse import OptionParser
 # Sarkas modules
-from sarkas.base import Simulation
-from sarkas.tools.postprocessing import Thermodynamics
+from sarkas.processes import Simulation
+from sarkas.tools.observables import Thermodynamics
 
 # Construct the argument parser
 op = OptionParser()
@@ -42,7 +42,7 @@ assert options.input_file, 'Input file not defined.'
 # Read initial conditions and setup parameters
 if options.test:
     #
-    from sarkas.tools.preprocessing import PreProcess
+    from sarkas.processes import PreProcess
     sim = PreProcess()
 else:
     sim = Simulation()

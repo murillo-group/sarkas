@@ -1,8 +1,6 @@
-"""
-Module for testing simulation parameters
-"""
-# Python modules
+
 import numpy as np
+import copy as py_copy
 from numba import njit
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -15,6 +13,74 @@ from sarkas.potentials.base import Potential
 from sarkas.time_evolution.integrators import Integrator
 from sarkas.time_evolution.thermostats import Thermostat
 from sarkas.base import Particles, Parameters, Species
+import sarkas.tools.observables as obs
+
+
+class PostProcess:
+    """Class handling the post-processing stage of a simulation."""
+    def __init__(self, input_file=None):
+        self.potential = Potential()
+        self.integrator = Integrator()
+        self.thermostat = Thermostat()
+        self.parameters = Parameters()
+        self.particles = Particles()
+        self.species = []
+        self.input_file = input_file if input_file else None
+        self.timer = SarkasTimer()
+        self.io = InputOutput()
+
+    def common_parser(self, filename=None):
+
+        if filename:
+            self.input_file = filename
+
+        dics = self.io.from_yaml(self.input_file)
+
+        for observable in dics['PostProcessing']:
+            for key, sub_dict in observable.items():
+                if key == 'RadialDistributionFunction':
+                    self.rdf = obs.RadialDistributionFunction()
+                    self.rdf.__dict__.update(sub_dict)
+                if key == 'HermiteCoefficients':
+                    self.hc = obs.HermiteCoefficients()
+                    self.hc.__dict__.update(sub_dict)
+                if key == 'Thermodynamics':
+                    self.therm = obs.Thermodynamics()
+                    self.therm.__dict__.update(sub_dict)
+
+    def setup(self, read_yaml=False, other_inputs=None):
+        """
+        Setup subclasses and attributes by reading the pickle files first
+        """
+        if read_yaml:
+            self.common_parser()
+
+        if other_inputs:
+            if not isinstance(other_inputs, dict):
+                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
+
+            for class_name, class_attr in other_inputs.items():
+                if not class_name == 'Particles':
+                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
+
+        self.io.create_file_paths()
+        self.io.read_pickle(self)
+
+    def setup_from_simulation(self, simulation):
+        """
+        Setup postprocess' subclasses by (shallow) copying them from simulation object.
+
+        Parameters
+        ----------
+        simulation: sarkas.base.Simulation
+            Simulation object
+
+        """
+        self.parameters = py_copy.copy(simulation.parameters)
+        self.integrator = py_copy.copy(simulation.integrator)
+        self.potential = py_copy.copy(simulation.potential)
+        self.species = py_copy.copy(simulation.species)
+        self.thermostat = py_copy.copy(simulation.thermostat)
 
 
 class PreProcess:
@@ -150,8 +216,8 @@ class PreProcess:
         if self.potential.pppm_on:
             self.make_pppm_approximation_plots()
             green_time = self.timer.time_division(self.green_function_timer())
-            print('\n\n----------------- Force Calculation Times -----------------------\n')
-            self.print_time_report("GF", green_time, 0)
+
+            self.io.preprocess_timing("GF", green_time, 0)
         else:
             total_force_error, rcuts = self.analytical_approx_pp()
             print('\n\n----------------- Force Calculation Times -----------------------\n')
@@ -194,7 +260,7 @@ class PreProcess:
                                                              self.potential.pppm_alpha_ewald))
             print('PM Err = {:1.4e}  '.format(self.parameters.pppm_pm_err), end='')
 
-            self.print_time_report("GF", self.timer.time_division(green_time), 0)
+            self.io.preprocess_timing("GF", self.timer.time_division(green_time), 0)
             pm_xlabels.append("{}x{}x{}".format(*self.potential.pppm_mesh))
             for it in range(3):
                 self.timer.start()
@@ -310,10 +376,10 @@ class PreProcess:
         pp_mean_time = self.timer.time_division(np.mean(pp_acc_time[1:]))
         pm_mean_time = self.timer.time_division(np.mean(pm_acc_time[1:]))
 
-        self.print_time_report("PP", pp_mean_time, self.loops)
+        self.io.preprocess_timing("PP", pp_mean_time, self.loops)
 
         if self.potential.pppm_on:
-            self.print_time_report("PM", pm_mean_time, self.loops)
+            self.io.preprocess_timing("PM", pm_mean_time, self.loops)
 
     def time_integrator_loop(self):
         """Run several loops of the equilibration and production phase to estimate the total time of the simulation."""
@@ -323,19 +389,19 @@ class PreProcess:
         self.integrator.production_steps = self.loops
         self.integrator.equilibration_steps = self.loops
 
-        print('\n\n----------------- Estimate Simulation Times ---------------------\n')
+        if self.io.verbose:
+            print('\n----------------- Estimating Simulation Times -------------------\n')
         self.timer.start()
         self.integrator.equilibrate(0, self.particles, self.io)
         eq_time = self.timer.stop() / self.loops
         self.timer.start()
         self.integrator.produce(0, self.particles, self.io)
         prod_time = self.timer.stop() / self.loops
+        if self.io.verbose:
+            print('\n')
+        self.io.preprocess_timing("Equilibration", self.timer.time_division(eq_time), self.loops)
+        self.io.preprocess_timing("Production", self.timer.time_division(prod_time), self.loops)
 
-        print('\n\n----------------- Averaged Evolution Times ---------------------\n')
-        self.print_time_report("Equilibration", self.timer.time_division(eq_time), self.loops)
-        self.print_time_report("Production", self.timer.time_division(prod_time), self.loops)
-
-        print('\n----------------- Total Simulation Times ---------------------')
         # Print estimate of run times
         self.integrator.equilibration_steps = steps[0]
         self.integrator.production_steps = steps[1]
@@ -470,55 +536,6 @@ class PreProcess:
         fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + self.io.job_id + '.png'))
         fig.show()
 
-    @staticmethod
-    def print_time_report(str_id, t, loops):
-        """Print times estimates of simulation."""
-        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
-        if str_id == "GF":
-            print("Optimal Green's Function Time: "
-                  '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                            int(t_min),
-                                                            int(t_sec),
-                                                            int(t_msec),
-                                                            int(t_usec),
-                                                            int(t_nsec)))
-
-        elif str_id == "PP":
-            print('Average time of PP acceleration calculation over {} loops: '
-                  '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                            int(t_min),
-                                                            int(t_sec),
-                                                            int(t_msec),
-                                                            int(t_usec),
-                                                            int(t_nsec)))
-
-        elif str_id == "PM":
-            print('Average time of PM acceleration calculation over {} loops: '
-                  '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                            int(t_min),
-                                                            int(t_sec),
-                                                            int(t_msec),
-                                                            int(t_usec),
-                                                            int(t_nsec)))
-
-        elif str_id == "Equilibration":
-            print('Average time of equilibration complete loop over {} loops: '
-                  '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                                   int(t_min),
-                                                                   int(t_sec),
-                                                                   int(t_msec),
-                                                                   int(t_usec),
-                                                                   int(t_nsec)))
-
-        elif str_id == "Production":
-            print('Average time of production complete loop over {} loops: '
-                  '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                                   int(t_min),
-                                                                   int(t_sec),
-                                                                   int(t_msec),
-                                                                   int(t_usec),
-                                                                   int(t_nsec)))
-
     def analytical_approx_pp(self):
         """Calculate PP force error."""
 
@@ -644,6 +661,203 @@ class PreProcess:
         fig.tight_layout()
         fig.savefig(os.path.join(fig_path, 'Timing_Fit.png'))
         fig.show()
+
+
+class Simulation:
+    """
+    Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.
+    """
+    def __init__(self, input_file=None):
+
+        self.potential = Potential()
+        self.integrator = Integrator()
+        self.thermostat = Thermostat()
+        self.parameters = Parameters()
+        self.particles = Particles()
+        self.species = []
+        self.input_file = input_file if input_file else None
+        self.timer = SarkasTimer()
+        self.io = InputOutput()
+
+    def common_parser(self, filename=None):
+        """
+        Parse simulation parameters from YAML file.
+
+        Parameters
+        ----------
+        filename: str
+            Input YAML file
+
+
+        """
+        if filename:
+            self.input_file = filename
+
+        dics = self.io.from_yaml(self.input_file)
+
+        for lkey in dics:
+            if lkey == "Particles":
+                for species in dics["Particles"]:
+                    spec = Species()
+                    for key, value in species["Species"].items():
+                        if hasattr(spec, key):
+                            spec.__dict__[key] = value
+                        else:
+                            setattr(spec, key, value)
+                    self.species.append(spec)
+
+            if lkey == "Potential":
+                self.potential.__dict__.update(dics[lkey])
+
+            if lkey == "Thermostat":
+                self.thermostat.__dict__.update(dics[lkey])
+
+            if lkey == "Integrator":
+                self.integrator.__dict__.update(dics[lkey])
+
+            if lkey == "Parameters":
+                self.parameters.__dict__.update(dics[lkey])
+
+            if lkey == "Control":
+                self.parameters.__dict__.update(dics[lkey])
+
+    def equilibrate(self, it_start):
+        """
+        Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.
+
+        Parameters
+        ----------
+        it_start: int
+            Initial step number of the equilibration loop.
+
+        """
+        if self.parameters.verbose:
+            print("\n------------- Equilibration -------------")
+        self.timer.start()
+        self.integrator.equilibrate(it_start, self.particles, self.io)
+        time_eq = self.timer.stop()
+        self.io.time_stamp("Equilibration", self.timer.time_division(time_eq))
+
+        return
+
+    def evolve(self):
+        """
+        Run the time integrator to evolve the system for the duration of the production phase.
+
+        """
+        ##############################################
+        # Prepare for Production Phase
+        ##############################################
+
+        # Open output files
+        if self.parameters.load_method == "prod_restart":
+            it_start = self.parameters.load_restart_step
+        else:
+            it_start = 0
+            # Restart the pbc counter
+            self.particles.pbc_cntr.fill(0.0)
+            self.io.dump(True, self.particles, 0)
+
+        if self.parameters.verbose:
+            print("\n------------- Production -------------")
+
+        # Update measurement flag for rdf
+        self.potential.measure = True
+
+        self.timer.start()
+        self.integrator.produce(it_start, self.particles, self.io)
+        time_end = self.timer.stop()
+        self.io.time_stamp("Production", self.timer.time_division(time_end))
+
+    def initialization(self):
+        """
+        Initialize all the sub classes of the simulation and save simulation details to log file.
+        """
+
+        t0 = self.timer.current()
+        self.potential.setup(self.parameters)
+        time_pot = self.timer.current()
+
+        self.thermostat.setup(self.parameters)
+        self.integrator.setup(self.parameters, self.thermostat, self.potential)
+        self.particles.setup(self.parameters, self.species)
+        time_ptcls = self.timer.current()
+
+        # For restart and backups.
+        self.io.save_pickle(self)
+        self.io.simulation_summary(self)
+        time_end = self.timer.current()
+        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
+        self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
+        self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
+
+    def run(self):
+
+        time0 = self.timer.current()
+        self.initialization()
+        if not self.parameters.load_method == 'prod_restart':
+            if self.parameters.load_method == "therm_restart":
+                it_start = self.parameters.load_therm_restart_step
+            else:
+                it_start = 0
+
+            self.equilibrate(it_start)
+
+        else:
+
+            if not self.potential.method == "FMM":
+                self.potential.calc_pot_acc(self.particles)
+            # else:
+            # potential_energy = self.potential.calc_pot_acc_fmm(self.particles, self.parameters)
+
+        self.evolve()
+        time_tot = self.timer.current()
+        self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
+
+    def setup(self, read_yaml=False, other_inputs=None):
+        """Setup simulations' parameters and io subclasses.
+
+        Parameters
+        ----------
+        read_yaml: bool
+            Flag for reading YAML input file. Default = False.
+
+        other_inputs: dict (optional)
+            Dictionary with additional simulations options.
+
+        """
+        if read_yaml:
+            self.common_parser()
+
+        if other_inputs:
+            if not isinstance(other_inputs, dict):
+                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
+
+            for class_name, class_attr in other_inputs.items():
+                if not class_name == 'Particles':
+                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
+
+        # initialize the directories and filenames
+        self.io.setup()
+        # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+        # Update parameters' dictionary with filenames and directories
+        self.parameters.__dict__.update(self.io.__dict__)
+        # save some general info
+        self.parameters.potential_type = self.potential.type
+        self.parameters.cutoff_radius = self.potential.rc
+        self.parameters.magnetized = self.integrator.magnetized
+        # integrator parameters
+        self.parameters.integrator = self.integrator.type
+        self.parameters.equilibration_steps = self.integrator.equilibration_steps
+        self.parameters.production_steps = self.integrator.production_steps
+        self.parameters.prod_dump_step = self.integrator.prod_dump_step
+        self.parameters.eq_dump_step = self.integrator.eq_dump_step
+
+        self.parameters.thermostat = self.thermostat.type
+
+        self.parameters.setup(self.species)
+
+        self.io.setup_checkpoint(self.parameters, self.species)
 
 
 @njit

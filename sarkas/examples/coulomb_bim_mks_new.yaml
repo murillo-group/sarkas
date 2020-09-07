@@ -1,0 +1,57 @@
+# keywords: Carbon-Oxygen Mixture, Yukawa, P3M, mks, random_no_reject
+Particles:
+    - Species:
+        name: C
+        number_density: 0.9e+36       # /m^3
+        # mass: 1.9926467e-26            # /kg
+        num: 9000                    # total number of particles of ion1
+        Z: 1.0                        # degree of ionization
+        A: 1.0                      # atomic mass
+        temperature: 2.6937e+05
+
+    - Species:
+        name: O
+        number_density: 0.1e+36       # /m^3
+        # mass: 2.6561982e-26         # /kg
+        num: 1000
+        Z: 2.0                      # degree of ionization
+        A: 5.                   # atomic mass
+        temperature: 2.6937e+05
+
+Potential:
+    type: Coulomb                 # potential type
+    method: P3M                    # Linked-cell
+    rc: 5.2729792e-12          # cut-off radius, meter
+    pppm_mesh: [64, 64, 64]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 6
+    pppm_alpha_ewald: 7.253964e+11
+
+Integrator:
+    type: Verlet                  # velocity integrator type
+
+Thermostat:
+    type: Berendsen               # thermostat type
+    tau: 1.0
+    timestep: 10
+
+Parameters:
+  load_method: random_no_reject    # loading method
+  rand_seed: 654984647
+
+Control:
+    units: mks                    # units
+    dt: 1.5e-20            # sec
+    equilibration_steps: 5000                      # number of timesteps for the equilibrium
+    production_steps: 120000                    # number of timesteps afater the equilibrium
+    prod_dump_step: 10                # dump time step
+    verbose: True
+    job_dir: BIM        # dir name to save data. The default is "Checkpoint"
+
+PostProcessing:
+  - RadialDistributionFunction:
+      no_bins: 250
+  - DynamicStructureFunction:
+      no_ka_values: [10, 10, 10]
+  - CurrentCorrelationFunctions:
+      no_ka_values: [10, 10, 10]

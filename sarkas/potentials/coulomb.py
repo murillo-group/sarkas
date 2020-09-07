@@ -68,7 +68,7 @@ def coulomb_force_pppm(r, pot_matrix):
     U = pot_matrix[0] * mt.erfc(alpha_r) / r
     f1 = mt.erfc(alpha_r) / r2
     f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(- alpha_r ** 2)
-    fr = pot_matrix[0] * (f1 + f2) / r
+    fr = pot_matrix[0] * (f1 + f2)
 
     return U, fr
 
@@ -96,7 +96,7 @@ def coulomb_force(r, pot_matrix):
 
     """
 
-    U = pot_matrix[0]/ r
+    U = pot_matrix[0] / r
     fr = U / r
 
     return U, fr
