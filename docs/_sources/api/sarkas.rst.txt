@@ -19,6 +19,7 @@ Submodules
    :maxdepth: 4
 
    sarkas.base
+   sarkas.processes
 
 Module contents
 ---------------

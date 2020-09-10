@@ -14,32 +14,17 @@ class Parameters:
     aws : float
         Wigner-Seitz radius. Calculated from the ``total_num_density`` .
 
+    boundary_conditions : str
+        Type of boundary conditions.
+
     box_volume : float
-        Box volume.
+        Volume of simulation box.
 
     dimensions : int
-        Number of non-zero dimensions.
+        Number of non-zero dimensions. Default = 3.
 
     fourpie0: float
-        Electrostatic constant :math: `4\pi \espilon_0`.
-
-    species : list
-        List of Species objects with species' information.
-
-    load_method : str
-        Particles loading described in Species.
-
-    load_restart_step : int
-        Restart time step.
-
-    load_rejection_radius : float
-        Rejection radius to avoid placing particles to close to each other.
-
-    load_perturb : float
-        Strength of initial perturbation.
-
-    load_halton_bases : array, shape(3)
-        Array of 3 ints each of which is a base for the Halton sequence.
+        Electrostatic constant :math:`4\pi \epsilon_0`.
 
     num_species : int
         Number of species.
@@ -77,9 +62,6 @@ class Parameters:
     QFactor : float
         Charge Factor defined as :math:`\mathcal Q = \sum_{i}^{N} q_{i}^2` .
 
-    L : float
-        Smallest box length.
-
     Lx : float
         Box length in the :math:`x` direction.
 
@@ -88,9 +70,6 @@ class Parameters:
 
     Lz : float
         Box length in the :math:`z` direction.
-
-    Lv : array, shape(3)
-        Box length in each direction.
 
     e1 : float
         Unit vector in the :math:`x` direction.
@@ -104,16 +83,40 @@ class Parameters:
     input_file : str
         YAML Input file with all the simulation's parameters.
 
-    Te : float
-        Equilibrium electron temperature. Defined in Potential module.
-
-    Ti : float
-        Total Equilibrium Ion temperature.
-
     T_desired : float
-        Equilibrium temperature.
+        Target temperature for the equilibration phase.
 
-    tot_net_charge : float
+    species : list
+        Container list of ``sarkas.base.Species`` objects.
+
+    species_num : numpy.ndarray
+        Number of particles of each species. Shape = (``num_species``)
+
+    species_concentrations : numpy.ndarray
+        Concentration of each species. Shape = (``num_species``)
+
+    species_temperatures : numpy.ndarray
+        Initial temperature of each species. Shape = (``num_species``)
+
+    species_masses : numpy.ndarray
+        Mass of each species. Shape = (``num_species``)
+
+    species_charges : numpy.ndarray
+        Charge of each species. Shape = (``num_species``)
+
+    species_names : list
+        Name of each species. Len = (``num_species``)
+
+    species_wp : numpy.ndarray
+        Plasma Frequency of each species. Shape = (``num_species``)
+
+    species_num_dens : numpy.ndarray
+        Number density of each species. Shape = (``num_species``)
+
+    total_ion_temperature : float
+        Total initial ion temperature calculated as `` = species_concentration @ species_temperatures``.
+
+    total_net_charge : float
         Total charge in the system.
 
     total_num_density : float
@@ -122,19 +125,57 @@ class Parameters:
     total_num_ptcls : int
         Total number of particles. Calculated from the sum of ``Species.num``.
 
-    wp : float
-        Total Plasma frequency.
+    measure : bool
+        Flag for production phase.
+
+    verbose : bool
+        Flag for screen output.
+
+    simulations_dir : str
+        Name of directory where to store simulations.
+
+    job_dir : str
+        Directory name of the current job/run
+
+    production_dir : str
+        Directory name where to store simulation's files of the production phase. Default = 'Production'.
+
+    equilibration_dir : str
+        Directory name where to store simulation's file of the equilibration phase. Default = 'Equilibration'.
+
+    preprocessing_dir : str
+        Directory name where to store preprocessing files. Default = "PreProcessing".
+
+    postprocessing_dir : str
+        Directory name where to store postprocessing files. Default = "PostProcessing".
+
+    prod_dump_dir : str
+        Directory name where to store production phase's simulation's checkpoints. Default = 'dumps'.
+
+    eq_dump_dir : str
+        Directory name where to store equilibration phase's simulation's checkpoints. Default = 'dumps'.
+
+    job_id : str
+        Appendix of all simulation's files.
+
+    log_file : str
+        Filename of the simulation's log.
+
+    np_per_side : numpy.ndarray
+        Number of particles per simulation's box side.
+        The product of its components should be equal to ``total_num_ptcls``.
+
+    pre_run : bool
+        Flag for preprocessing phase.
 
     """
 
     def __init__(self):
-        # Container of Species
-        self.ne = 0.0
         self.Lx = 0.0
         self.Ly = 0.0
         self.Lz = 0.0
         self.boundary_conditions = 'periodic'
-        self.box_lengths = []
+        self.box_lengths = np.zeros(3)
         self.box_volume = 0.0
         self.input_file = None
         self.dimensions = 3
@@ -152,7 +193,7 @@ class Parameters:
         self.a0 = const.physical_constants["Bohr radius"][0]
         self.kB = const.Boltzmann
         self.aws = 0.0
-        self.tot_net_charge = 0.0
+        self.total_net_charge = 0.0
         self.QFactor = 0.0
         self.num_species = 1
         self.total_ion_temperature = 0.0
@@ -174,7 +215,7 @@ class Parameters:
         self.eq_dump_dir = 'dumps'
         self.job_id = None
         self.log_file = None
-        self.np_per_side = []
+        self.np_per_side = np.zeros(3)
         self.pre_run = False
 
     def setup(self, species):
@@ -183,9 +224,9 @@ class Parameters:
 
         Parameters
         ----------
-        species
-        args : dict
-            Input arguments
+        species : list
+            List of ``sarkas.base.Species`` objects.
+
         """
         self.check_units()
         self.calc_parameters(species)
@@ -209,7 +250,15 @@ class Parameters:
             self.a0 *= 1e2
 
     def calc_parameters(self, species):
-        """ Assign the parsed parameters"""
+        """
+        Assign the parsed parameters.
+
+        Parameters
+        ----------
+        species : list
+            List of ``sarkas.base.Species`` objects.
+
+        """
 
         self.num_species = len(species)
         # Loop over species and assign missing attributes
@@ -230,10 +279,12 @@ class Parameters:
         if self.magnetized:
             self.species_cyclotron_frequencies = np.zeros(self.num_species)
 
+        self.total_num_ptcls = 0
+
         for i, sp in enumerate(species):
             self.total_num_ptcls += sp.num
 
-            if sp.atomic_weight :
+            if sp.atomic_weight:
                 # Choose between atomic mass constant or proton mass
                 # u = const.physical_constants["atomic mass constant"][0]
                 sp.mass = self.mp * sp.atomic_weight
@@ -327,7 +378,15 @@ class Parameters:
         self.T_desired = self.total_ion_temperature
 
     def calc_coupling_constant(self, species):
+        """
+        Calculate the coupling constant of each species and the total coupling constant.
 
+        Parameters
+        ----------
+        species : list
+            List of ``sarkas.base.Species`` objects.
+
+        """
         z_avg = np.transpose(self.species_charges) @ self.species_concentrations
         self.species_couplings = np.zeros(self.num_species)
         self.coupling_constant = 0.0
@@ -340,41 +399,36 @@ class Parameters:
 
 class Particles:
     """
-    Particles class.
-
-    Parameters
-    ----------
-    params : object
-        Simulation's parameters
+    Class handling particles' properties.
 
     Attributes
     ----------
-    pos : array
+    kB : float
+        Boltzmann constant.
+
+    pos : numpy.ndarray
         Particles' positions.
 
-    vel : array
+    vel : numpy.ndarray
         Particles' velocities.
 
-    acc : array
+    acc : numpy.ndarray
         Particles' accelerations.
 
-    box_lengths : array
+    box_lengths : numpy.ndarray
         Box sides' lengths.
 
     masses : numpy.ndarray
-        Mass of each particle.
+        Mass of each particle. Shape = (``total_num_ptcls``).
 
-    charges : array
-        Charge of each particle.
+    charges : numpy.ndarray
+        Charge of each particle. Shape = (``total_num_ptcls``).
 
     id : numpy.ndarray,
-        Species identifier.
+        Species identifier. Shape = (``total_num_ptcls``).
 
-    names : list
-        Species' names.
-
-    species_num : array
-        Number of particles of each species.
+    names : numpy.ndarray
+        Species' names. Shape = (``total_num_ptcls``).
 
     rdf_nbins : int
         Number of bins for radial pair distribution.
@@ -382,8 +436,33 @@ class Particles:
     no_grs : int
         Number of independent :math:`g_{ij}(r)`.
 
-    rdf_hist : array
+    rdf_hist : numpy.ndarray
         Histogram array for the radial pair distribution function.
+
+    prod_dump_dir : str
+        Directory name where to store production phase's simulation's checkpoints. Default = 'dumps'.
+
+    eq_dump_dir : str
+        Directory name where to store equilibration phase's simulation's checkpoints. Default = 'dumps'.
+
+    total_num_ptcls : int
+        Total number of simulation's particles.
+
+    num_species : int
+        Number of species.
+
+    species_num : numpy.ndarray
+        Number of particles of each species. Shape = ``num_species``.
+
+    dimensions : int
+        Number of non-zero dimensions. Default = 3.
+
+    potential_energy : float
+        Instantaneous value of the potential energy.
+
+    rnd_gen : numpy.random.Generator
+        Random number generator.
+
     """
 
     def __init__(self):
@@ -391,8 +470,19 @@ class Particles:
 
     def setup(self, params, species):
         """
-        Initialize the attributes
+        Initialize class' attributes
+
+        Parameters
+        ----------
+        params: sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species`` objects.
+
         """
+
+        self.kB = params.kB
         self.prod_dump_dir = params.prod_dump_dir
         self.eq_dump_dir = params.eq_dump_dir
         self.box_lengths = params.box_lengths
@@ -442,6 +532,11 @@ class Particles:
         Positions are initialized based on the load method while velocities are chosen
         from a Maxwell-Boltzmann distribution.
 
+        Parameters
+        ----------
+        params: sarkas.base.Parameters
+            Simulation's parameters.
+
         """
         # Particles Position Initialization
         if params.load_method in ['equilibration_restart', 'eq_restart', 'production_restart', 'prod_restart']:
@@ -478,18 +573,39 @@ class Particles:
             raise AttributeError('Incorrect particle placement scheme specified.')
 
     def gaussian(self, mean, sigma, num_ptcls):
-        """Initialize particles' velocities according to a Maxwell-Boltzmann distribution.
+        """
+        Initialize particles' velocities according to a normalized Maxwell-Boltzmann (Normal) distribution.
+        It calls ``numpy.random.Generator.normal``
 
         Parameters
         ----------
-        num_ptcls
-        mean
-        sigma
+        num_ptcls : int
+            Number of particles to initialize.
+
+        mean : float
+            Center of the normal distribution.
+
+        sigma : float
+            Scale of the normal distribution.
+
+        Returns
+        -------
+         : numpy.ndarray
+            Particles property distributed according to a Normal probability density function.
+
         """
         return self.rnd_gen.normal(mean, sigma, (num_ptcls, 3))
 
-    def update_attributes(self, species, kB):
-        # Assign particles attributes
+    def update_attributes(self, species):
+        """
+        Assign particles attributes.
+
+        Parameters
+        ----------
+        species : list
+            List of ``sarkas.base.Species`` objects.
+
+        """
         species_end = 0
         for ic, sp in enumerate(species):
             species_start = species_end
@@ -512,7 +628,7 @@ class Particles:
                 if isinstance(sp.temperature, (int, float)):
                     sp_temperature = np.ones(self.dimensions) * sp.temperature
 
-                self.species_thermal_velocity[ic] = np.sqrt(kB * sp_temperature / sp.mass)
+                self.species_thermal_velocity[ic] = np.sqrt(self.kB * sp_temperature / sp.mass)
                 self.vel[species_start:species_end, :] = self.gaussian(sp.initial_velocity,
                                                                        self.species_thermal_velocity[ic], sp.num)
 
@@ -576,10 +692,18 @@ class Particles:
         """
         Randomly distribute particles along each direction.
 
+        Parameters
+        ----------
+        mins : float
+            Minimum value of the range of a uniform distribution.
+
+        maxs : float
+            Maximum value of the range of a uniform distribution.
+
         Returns
         -------
-        pos : array
-            Particles' positions.
+         : numpy.ndarray
+            Particles' property, e.g. pos, vel. Shape = (``total_num_ptcls``, 3).
 
         """
 
@@ -742,7 +866,7 @@ class Particles:
 
         Parameters
         ----------
-        bases : array
+        bases : numpy.ndarray
             Array of 3 ints each of which is a base for the Halton sequence.
             Defualt: bases = np.array([2,3,5])
 
@@ -855,11 +979,22 @@ class Particles:
         self.pos[:, 1] = y
         self.pos[:, 2] = z
 
-    def kinetic_temperature(self, kB):
+    def kinetic_temperature(self):
+        """
+        Calculate the kinetic energy and temperature of each species.
 
+        Returns
+        -------
+        K : numpy.ndarray
+            Kinetic energy of each species. Shape=(``num_species``).
+
+        T : numpy.ndarray
+            Temperature of each species. Shape=(``num_species``).
+
+        """
         K = np.zeros(self.num_species)
         T = np.zeros(self.num_species)
-        const = 2.0 / (kB * self.species_num * self.dimensions)
+        const = 2.0 / (self.kB * self.species_num * self.dimensions)
         kinetic = 0.5 * self.masses * (self.vel * self.vel).transpose()
 
         species_start = 0
@@ -874,19 +1009,7 @@ class Particles:
 
     def remove_drift(self):
         """
-        Enforce conservation of total linear momentum. Updates ``ptcls.vel``
-
-        Parameters
-        ----------
-        vel: array
-            Particles' velocities.
-
-        nums: array
-            Number of particles of each species.
-
-        masses: array
-            Mass of each species.
-
+        Enforce conservation of total linear momentum. Updates particles velocities
         """
         species_start = 0
         species_end = 0
@@ -900,7 +1023,7 @@ class Particles:
 
 class Species:
     """
-    Class used to store all the information of the particles' species.
+    Class used to store all the information of a single species.
 
     Attributes
     ----------
@@ -922,11 +1045,42 @@ class Species:
     Z : float
         Species charge number.
 
-    atomic_weight : float
-        Species atomic weight.
+    ai : float
+        Species Wigner - Seitz radius.
 
-    initial_velocity: numpy.ndarray
+    coupling : float
+        Species coupling constant
+
+    wp : float
+        Species' plasma frequency.
+
+    debye_length : float
+        Species' Debye Length.
+
+    omega_c : float
+        Species' cyclotron frequency.
+
+    initial_velocity : numpy.ndarray
         Initial velocity in x,y,z directions.
+
+    temperature : float
+        Initial temperature of the species.
+
+    initial_velocity_distribution : str
+        Type of distribution. Default = 'boltzmann'.
+
+    initial_spatial_distribution : str
+        Type of distribution. Default = 'uniform'.
+
+    atomic_weight : float
+        (Optional) Species mass in atomic units.
+
+    concentration : float
+        Species' concentration.
+
+    mass_density : float
+        (Optional) Species' mass density.
+
     """
 
     def __init__(self):
@@ -938,26 +1092,73 @@ class Species:
         self.num = None
         self.concentration = None
         self.mass_density = None
-        self.load_method = None
         self.atomic_weight = None
         self.initial_velocity_distribution = 'boltzmann'
         self.initial_spatial_distribution = 'random_no_reject'
         self.Z = None
         self.initial_velocity = np.zeros(3)
+        self.temperature = None
 
     def calc_plasma_frequency(self, fourpie0):
+        """
+        Calculate the plasma frequency.
+
+        Parameters
+        ----------
+        kB : float
+            Boltzmann constant.
+
+        fourpie0 : float
+            Electrostatic constant.
+
+        """
         self.wp = np.sqrt(4.0 * np.pi * self.charge ** 2 * self.number_density / (self.mass * fourpie0))
 
     def calc_debye_length(self, kB, fourpie0):
+        """
+        Calculate the Debye Length.
+
+        Parameters
+        ----------
+        kB : float
+            Boltzmann constant.
+
+        fourpie0 : float
+            Electrostatic constant.
+
+        """
         self.debye_length = np.sqrt((self.temperature * kB * fourpie0)
                                     / (4.0 * np.pi * self.charge ** 2 * self.number_density))
 
     def calc_cyclotron_frequency(self, magnetic_field_strength):
-        #  See https://en.wikipedia.org/wiki/Lorentz_force
+        """
+        Calculate the cyclotron frequency.
+        See https://en.wikipedia.org/wiki/Lorentz_force
+
+        Parameters
+        ----------
+
+        magnetic_field_strength : float
+            Magnetic field strength.
+
+        """
         self.omega_c = self.charge * magnetic_field_strength / self.mass
 
     def calc_coupling(self, aws, z_avg, const):
+        """
+        Calculate the coupling constant between particles.
+
+        Parameters
+        ----------
+        aws : float
+            Total Wigner-Seitz radius.
+
+        z_avg : float
+            Species charge.
+
+        const : float
+            Electrostatic * Thermal constants.
+
+        """
         self.ai = (self.charge / z_avg) ** (1. / 3.) * aws
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)
-
-

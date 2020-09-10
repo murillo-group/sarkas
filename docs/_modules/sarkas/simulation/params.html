@@ -290,7 +290,7 @@
 <span class="sd">    T_desired : float</span>
 <span class="sd">        Equilibrium temperature.</span>
 
-<span class="sd">    tot_net_charge : float</span>
+<span class="sd">    total_net_charge : float</span>
 <span class="sd">        Total charge in the system.</span>
 
 <span class="sd">    total_num_density : float</span>
@@ -327,7 +327,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">a0</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;Bohr radius&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">Boltzmann</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tot_net_charge</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_ion_temperature</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -909,7 +909,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">QFactor</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tot_net_charge</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">num</span>
 
         <span class="c1"># Calculate electron number density from the charge neutrality condition in case of Yukawa or EGS potential</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;EGS&quot;</span><span class="p">:</span>

@@ -22,10 +22,10 @@ class Thermostat:
     no_species : int
         Total number of species.
 
-    species_np : array
+    species_np : numpy.ndarray
         Number of particles of each species.
 
-    species_masses : array
+    species_masses : numpy.ndarray
         Mass of each species.
 
     relaxation_rate: float
@@ -34,7 +34,7 @@ class Thermostat:
     relaxation_timestep: int
         Timestep at which thermostat is turned on.
 
-    T_desired: array
+    T_desired: numpy.ndarray
         Thermostating temperature of each species.
 
     type: str
@@ -77,8 +77,8 @@ class Thermostat:
 
         Parameters
         ----------
-        vel : ndarray
-            Particles' velocities to be rescaled.
+        ptcls : sarkas.base.Particles
+            Particles' data.
 
         it : int
             Current timestep.
@@ -99,21 +99,21 @@ def calc_kin_temp(vel, nums, masses, kB):
     kB: float
         Boltzmann constant in chosen units.
 
-    masses: array
+    masses: numpy.ndarray
         Mass of each species.
 
-    nums: array
+    nums: numpy.ndarray
         Number of particles of each species.
 
-    vel: array
+    vel: numpy.ndarray
         Particles' velocities.
 
     Returns
     -------
-    K : array
+    K : numpy.ndarray
         Kinetic energy of each species.
 
-    T : array
+    T : numpy.ndarray
         Temperature of each species.
     """
 
@@ -142,13 +142,13 @@ def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
 
     Parameters
     ----------
-    T : array
+    T : numpy.ndarray
         Instantaneous temperature of each species.
 
-    vel : array
+    vel : numpy.ndarray
         Particles' velocities to rescale.
 
-    T_desired : array
+    T_desired : numpy.ndarray
         Target temperature of each species.
 
     tau : float
@@ -157,7 +157,7 @@ def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     therm_timestep : int
         Timestep at which to turn on the thermostat.
 
-    species_np : array
+    species_np : numpy.ndarray
         Number of each species.
 
     it : int

@@ -8,7 +8,7 @@ Submodules
    :maxdepth: 4
 
    sarkas.tools.force_error
-   sarkas.tools.postprocessing
+   sarkas.tools.observables
    sarkas.tools.preprocessing
 
 Module contents

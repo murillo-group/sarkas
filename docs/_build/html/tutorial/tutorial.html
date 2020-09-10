@@ -380,7 +380,7 @@ This is done by running</p>
 <p>in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops
 over which we wish to average the force calculation time. The first part of the output of this command looks something
 like this</p>
-<img alt="S_testing_output_1.png not found" src="tutorial/S_testing_output_1.png" />
+<img alt="S_testing_output_1.png not found" src="../_images/S_testing_output_1.png" />
 <p>As you can see most of the simulation parameters defined in the input file are repeated here together with other
 important information. For example, in the section “Length scales:” we find the value of the Wigner-Seitz radius, the
 number of non zero dimensions, and the length of the simulation box sides in terms of <span class="math notranslate nohighlight">\(a_{ws}\)</span> and its numerical
@@ -393,7 +393,7 @@ per dimension for the Linked Cell algorithm and the number of particles inside a
 the most important information: the error in the force calculation.</p>
 <p>Before explaining the force error calculation we show the second part of the output of the command which gives the
 average time for the PP and PM part of the force calculation and an estimate of the total run of the simulation</p>
-<img alt="S_testing_output_2.png not found" src="tutorial/S_testing_output_2.png" />
+<img alt="S_testing_output_2.png not found" src="../_images/S_testing_output_2.png" />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>These times will vary depending on the computer hardware. For this tutorial we used a 2019 Dell XPS 8930
@@ -481,7 +481,7 @@ force calculations by comparing
 <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> and <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}\)</span>. The first figure
 produced by our example is shown below and it is a contour map of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span>
 in the <span class="math notranslate nohighlight">\(r_c,\, \alpha\)</span> parameters space</p>
-<img alt="Figure not found" src="tutorial/Pre_Run_TestForceError_ClrMap_yukawa_mks_p3m.png" />
+<img alt="Figure not found" src="../_images/Pre_Run_TestForceError_ClrMap_yukawa_mks_p3m.png" />
 <p>The numbers on the white contours indicate the value of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> along those
 lines and the black dot indicates where our choice of parameters fall into this parameter space. We notice that our
 parameter choice falls exactly on the white line, and thus it is :math:<cite>sim 1e-5</cite>. Comparing this with the value printed
@@ -490,7 +490,7 @@ on screen from the first figure above we find that our analytical approximation 
 to choose values that fall into the small purple triangle at the top.</p>
 <p>However, our choice of parameters while being good, it might not be optimal. In order to find the best choice we look at
 the second figure created by <code class="docutils literal notranslate"><span class="pre">S_testing.py</span></code>, given below</p>
-<img alt="Figure not found" src="tutorial/Pre_Run_TestForceError_LinePlot_yukawa_mks_p3m.png" />
+<img alt="Figure not found" src="../_images/Pre_Run_TestForceError_LinePlot_yukawa_mks_p3m.png" />
 <p>The left panel is a plot of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> vs <span class="math notranslate nohighlight">\(r_c/a_{ws}\)</span> at
 five different values of <span class="math notranslate nohighlight">\(\alpha a_{ws}\)</span> while the right panel is a plot of
 <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> vs <span class="math notranslate nohighlight">\(\alpha a_{ws}\)</span> at
@@ -527,7 +527,7 @@ the number of mesh points, <span class="math notranslate nohighlight">\(M_x = M_
 </pre></div>
 </div>
 <p>Since we have chosen <code class="docutils literal notranslate"><span class="pre">verbose</span> <span class="pre">=</span> <span class="pre">yes</span></code> this simulation will print a progress bar to screen, thanks to the package <code class="docutils literal notranslate"><span class="pre">tqdm</span></code></p>
-<img alt="Figure not found" src="tutorial/SimRun1.png" />
+<img alt="Figure not found" src="../_images/SimRun1.png" />
 <p>Did you think that you could get away so easily? We need to check if our run is doing what we want. To do so, in a
 different terminal window we run</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python src/Sarkas.py -i examples/yukawa_mks_p3m.yaml -c therm
@@ -581,7 +581,7 @@ This produces the following plot</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

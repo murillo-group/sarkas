@@ -184,10 +184,10 @@
 <span class="sd">    no_species : int</span>
 <span class="sd">        Total number of species.</span>
 
-<span class="sd">    species_np : array</span>
+<span class="sd">    species_np : numpy.ndarray</span>
 <span class="sd">        Number of particles of each species.</span>
 
-<span class="sd">    species_masses : array</span>
+<span class="sd">    species_masses : numpy.ndarray</span>
 <span class="sd">        Mass of each species.</span>
 
 <span class="sd">    relaxation_rate: float</span>
@@ -196,7 +196,7 @@
 <span class="sd">    relaxation_timestep: int</span>
 <span class="sd">        Timestep at which thermostat is turned on.</span>
 
-<span class="sd">    T_desired: array</span>
+<span class="sd">    T_desired: numpy.ndarray</span>
 <span class="sd">        Thermostating temperature of each species.</span>
 
 <span class="sd">    type: str</span>
@@ -239,8 +239,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        vel : ndarray</span>
-<span class="sd">            Particles&#39; velocities to be rescaled.</span>
+<span class="sd">        ptcls : sarkas.base.Particles</span>
+<span class="sd">            Particles&#39; data.</span>
 
 <span class="sd">        it : int</span>
 <span class="sd">            Current timestep.</span>
@@ -261,21 +261,21 @@
 <span class="sd">    kB: float</span>
 <span class="sd">        Boltzmann constant in chosen units.</span>
 
-<span class="sd">    masses: array</span>
+<span class="sd">    masses: numpy.ndarray</span>
 <span class="sd">        Mass of each species.</span>
 
-<span class="sd">    nums: array</span>
+<span class="sd">    nums: numpy.ndarray</span>
 <span class="sd">        Number of particles of each species.</span>
 
-<span class="sd">    vel: array</span>
+<span class="sd">    vel: numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocities.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    K : array</span>
+<span class="sd">    K : numpy.ndarray</span>
 <span class="sd">        Kinetic energy of each species.</span>
 
-<span class="sd">    T : array</span>
+<span class="sd">    T : numpy.ndarray</span>
 <span class="sd">        Temperature of each species.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -304,13 +304,13 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    T : array</span>
+<span class="sd">    T : numpy.ndarray</span>
 <span class="sd">        Instantaneous temperature of each species.</span>
 
-<span class="sd">    vel : array</span>
+<span class="sd">    vel : numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocities to rescale.</span>
 
-<span class="sd">    T_desired : array</span>
+<span class="sd">    T_desired : numpy.ndarray</span>
 <span class="sd">        Target temperature of each species.</span>
 
 <span class="sd">    tau : float</span>
@@ -319,7 +319,7 @@
 <span class="sd">    therm_timestep : int</span>
 <span class="sd">        Timestep at which to turn on the thermostat.</span>
 
-<span class="sd">    species_np : array</span>
+<span class="sd">    species_np : numpy.ndarray</span>
 <span class="sd">        Number of each species.</span>
 
 <span class="sd">    it : int</span>
@@ -361,7 +361,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

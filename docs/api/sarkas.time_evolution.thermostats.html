@@ -224,7 +224,7 @@
 <dd><p>Number of particles of each species.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -235,7 +235,7 @@
 <dd><p>Mass of each species.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -268,7 +268,7 @@
 <dd><p>Thermostating temperature of each species.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -296,7 +296,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Particles’ velocities to be rescaled.</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles’ data.</p></li>
 <li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Current timestep.</p></li>
 </ul>
 </dd>
@@ -312,12 +312,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>T</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Instantaneous temperature of each species.</p></li>
-<li><p><strong>vel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Particles’ velocities to rescale.</p></li>
-<li><p><strong>T_desired</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Target temperature of each species.</p></li>
+<li><p><strong>T</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Instantaneous temperature of each species.</p></li>
+<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Particles’ velocities to rescale.</p></li>
+<li><p><strong>T_desired</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Target temperature of each species.</p></li>
 <li><p><strong>tau</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Scale factor.</p></li>
 <li><p><strong>therm_timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Timestep at which to turn on the thermostat.</p></li>
-<li><p><strong>species_np</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Number of each species.</p></li>
+<li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Number of each species.</p></li>
 <li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Current timestep.</p></li>
 </ul>
 </dd>
@@ -338,15 +338,15 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kB</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Boltzmann constant in chosen units.</p></li>
-<li><p><strong>masses</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Mass of each species.</p></li>
-<li><p><strong>nums</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Number of particles of each species.</p></li>
-<li><p><strong>vel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Particles’ velocities.</p></li>
+<li><p><strong>masses</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Mass of each species.</p></li>
+<li><p><strong>nums</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Number of particles of each species.</p></li>
+<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Particles’ velocities.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>K</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Kinetic energy of each species.</p></li>
-<li><p><strong>T</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Temperature of each species.</p></li>
+<li><p><strong>K</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Kinetic energy of each species.</p></li>
+<li><p><strong>T</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Temperature of each species.</p></li>
 </ul>
 </p>
 </dd>
@@ -378,7 +378,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

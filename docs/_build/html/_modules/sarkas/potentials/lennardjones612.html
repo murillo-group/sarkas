@@ -250,7 +250,7 @@
         <span class="n">epsilon_tot</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">epsilon</span>
         <span class="n">wp_tot_sq</span> <span class="o">+=</span> <span class="n">wp2</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
 
     <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sigma2</span> <span class="o">**</span> <span class="mi">12</span> <span class="o">/</span> <span class="p">(</span><span class="mf">13.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">**</span> <span class="mi">13</span><span class="p">))</span>
     <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span>
@@ -293,7 +293,7 @@
     <span class="n">s_over_r_12</span> <span class="o">=</span> <span class="n">s_over_r</span> <span class="o">**</span> <span class="mi">12</span>
 
     <span class="n">U</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="p">(</span><span class="n">s_over_r_12</span> <span class="o">-</span> <span class="n">s_over_r_6</span><span class="p">)</span>
-    <span class="n">force</span> <span class="o">=</span> <span class="mf">48.0</span> <span class="o">*</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="p">(</span><span class="n">s_over_r_12</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">s_over_r_6</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="mf">48.0</span> <span class="o">*</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="p">(</span><span class="n">s_over_r_12</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">s_over_r_6</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
 
     <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span></div>
 </pre></div>
@@ -311,7 +311,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

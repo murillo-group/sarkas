@@ -7,13 +7,16 @@ from numba import njit
 import math as mt
 
 
-def update_params(params, potential):
+def update_params(potential, params):
     """
-    Create potential dependent simulation's parameters.
+    Assign potential dependent simulation's parameters.
 
     Parameters
     ----------
-    params : object
+    potential: sarkas.potentials.base.Potential
+        Potential's information
+
+    params : sarkas.base.Parameters
         Simulation's parameters
 
     """
@@ -35,7 +38,7 @@ def update_params(params, potential):
 
     # PP force error calculation. Note that the equation was derived for a single component plasma.
     alpha_times_rcut = - (potential.pppm_alpha_ewald * potential.rc) ** 2
-    params.pppm_pp_err = 2.0 * np.exp(alpha_times_rcut) / np.sqrt(params.potential.rc)
+    params.pppm_pp_err = 2.0 * np.exp(alpha_times_rcut) / np.sqrt(potential.rc)
     params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 / np.sqrt(params.box_volume)
 
 
@@ -46,10 +49,10 @@ def coulomb_force_pppm(r, pot_matrix):
 
     Parameters
     ----------
-    r : real
+    r : float
         Distance between two particles.
 
-    pot_matrix : array
+    pot_matrix : numpy.ndarray
         It contains potential dependent variables.
 
     Returns
@@ -80,10 +83,10 @@ def coulomb_force(r, pot_matrix):
 
     Parameters
     ----------
-    r : real
+    r : float
         Distance between two particles.
 
-    pot_matrix : array
+    pot_matrix : numpy.ndarray
         It contains potential dependent variables.
 
     Returns

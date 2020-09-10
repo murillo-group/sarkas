@@ -165,10 +165,9 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
 
-
-<div class="viewcode-block" id="update_0D"><a class="viewcode-back" href="../../../api/sarkas.potentials.force_pp.html#sarkas.potentials.force_pp.update_0D">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="update_0D"><a class="viewcode-back" href="../../../api/sarkas.potentials.force_pp.html#sarkas.potentials.force_pp.update_0D">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">update_0D</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">id_ij</span><span class="p">,</span> <span class="n">mass_ij</span><span class="p">,</span> <span class="n">Lv</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">measure</span><span class="p">,</span> <span class="n">rdf_hist</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Updates particles&#39; accelerations when the cutoff radius :math: `r_c` is half the box&#39;s length, :math: `r_c = L/2`</span>
@@ -282,11 +281,11 @@
     <span class="k">return</span> <span class="n">U_s_r</span><span class="p">,</span> <span class="n">acc_s_r</span></div>
 
 
-<div class="viewcode-block" id="update"><a class="viewcode-back" href="../../../api/sarkas.potentials.force_pp.html#sarkas.potentials.force_pp.update">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="update"><a class="viewcode-back" href="../../../api/sarkas.potentials.force_pp.html#sarkas.potentials.force_pp.update">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">p_id</span><span class="p">,</span> <span class="n">p_mass</span><span class="p">,</span> <span class="n">box_lengths</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">measure</span><span class="p">,</span> <span class="n">rdf_hist</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the force on the particles based on a linked cell-list (LCL) algorithm.</span>
-<span class="sd">  </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    force: float, float</span>
@@ -333,7 +332,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">acc_s_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
 
-    <span class="c1"># Declare parameters </span>
+    <span class="c1"># Declare parameters</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Number of particles</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Number of dimensions</span>
     <span class="n">rshift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>  <span class="c1"># Shifts for array flattening</span>
@@ -376,7 +375,6 @@
 
                 <span class="c1"># Compute the cell in 3D volume</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">cy</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">cz</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">head</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
 
                 <span class="c1"># Loop over all cell pairs (N-1 and N+1)</span>
                 <span class="k">for</span> <span class="n">cz_N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cz</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
@@ -423,7 +421,7 @@
                             <span class="n">c_N</span> <span class="o">=</span> <span class="p">(</span><span class="n">cx_N</span> <span class="o">+</span> <span class="n">cx_shift</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">cy_N</span> <span class="o">+</span> <span class="n">cy_shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> \
                                   <span class="o">+</span> <span class="p">(</span><span class="n">cz_N</span> <span class="o">+</span> <span class="n">cz_shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cells_per_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-                            <span class="c1"># Recall i = head[c]</span>
+                            <span class="n">i</span> <span class="o">=</span> <span class="n">head</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
                             <span class="c1"># First compute interaction of head particle with neighboring cell head particles</span>
                             <span class="c1"># Then compute interactions of head particle within a specific cell</span>
                             <span class="k">while</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">empty</span><span class="p">:</span>
@@ -458,22 +456,14 @@
 
                                             <span class="c1"># Update the acceleration for i particles in each dimension</span>
 
-                                            <span class="n">acc_ix</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                                            <span class="n">acc_iy</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                                            <span class="n">acc_iz</span> <span class="o">=</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-
-                                            <span class="n">acc_jx</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-                                            <span class="n">acc_jy</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-                                            <span class="n">acc_jz</span> <span class="o">=</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-
-                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">acc_ix</span>
-                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">acc_iy</span>
-                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">acc_iz</span>
+                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
                                             <span class="c1"># Apply Newton&#39;s 3rd law to update acceleration on j particles</span>
-                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">acc_jx</span>
-                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">acc_jy</span>
-                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">acc_jz</span>
+                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                                            <span class="n">acc_s_r</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">fr</span> <span class="o">/</span> <span class="n">p_mass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
 
                                     <span class="c1"># Move down list (ls) of particles for cell interactions with a head particle</span>
                                     <span class="n">j</span> <span class="o">=</span> <span class="n">ls</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
@@ -496,7 +486,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

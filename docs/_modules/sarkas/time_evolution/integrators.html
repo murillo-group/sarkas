@@ -243,10 +243,10 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        params: sarkas.parameters</span>
+<span class="sd">        params: sarkas.base.parameters</span>
 <span class="sd">            Parameters class.</span>
 
-<span class="sd">        thermostat: sarkas.thermostat</span>
+<span class="sd">        thermostat: sarkas.time_evolution.thermostat</span>
 <span class="sd">            Thermostat class</span>
 
 <span class="sd">        potential: sarkas.potentials.base.Potential</span>
@@ -325,7 +325,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">thermostate</span> <span class="o">=</span> <span class="n">thermostat</span><span class="o">.</span><span class="n">update</span></div>
 
 <div class="viewcode-block" id="Integrator.equilibrate"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.equilibrate">[docs]</a>    <span class="k">def</span> <span class="nf">equilibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it_start</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loop over the equilibration steps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        it_start: int</span>
+<span class="sd">            Initial step of equilibration.</span>
+
+<span class="sd">        ptcls: sarkas.base.Particles</span>
+<span class="sd">            Particles&#39; class.</span>
+
+<span class="sd">        checkpoint: sarkas.utilities.InputOutput</span>
+<span class="sd">            IO class for saving dumps.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
             <span class="c1"># Calculate the Potential energy and update particles&#39; data</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
@@ -336,9 +350,21 @@
         <span class="n">ptcls</span><span class="o">.</span><span class="n">remove_drift</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Integrator.produce"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.produce">[docs]</a>    <span class="k">def</span> <span class="nf">produce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it_start</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">):</span>
-        <span class="c1">##############################################</span>
-        <span class="c1"># Production Phase</span>
-        <span class="c1">##############################################</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loop over the production steps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        it_start: int</span>
+<span class="sd">            Initial step of equilibration.</span>
+
+<span class="sd">        ptcls: sarkas.base.Particles</span>
+<span class="sd">            Particles&#39; class.</span>
+
+<span class="sd">        checkpoint: sarkas.utilities.InputOutput</span>
+<span class="sd">            IO class for saving dumps.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)):</span>
 
             <span class="c1"># Move the particles and calculate the potential</span>
@@ -349,20 +375,13 @@
 
 <div class="viewcode-block" id="Integrator.verlet_langevin"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.verlet_langevin">[docs]</a>    <span class="k">def</span> <span class="nf">verlet_langevin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate particles dynamics using the Velocity verlet algorithm and Langevin damping.</span>
+<span class="sd">        Update particles class using the velocity verlet algorithm and Langevin damping.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
 
-<span class="sd">        params:  object</span>
-<span class="sd">            Simulation&#39;s parameters.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        potential_energy : float</span>
-<span class="sd">            Total potential energy</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">beta</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -393,7 +412,7 @@
 
 <div class="viewcode-block" id="Integrator.verlet"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.verlet">[docs]</a>    <span class="k">def</span> <span class="nf">verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update particle position and velocity based on velocity verlet method.</span>
+<span class="sd">        Update particles&#39; class based on velocity verlet algorithm.</span>
 <span class="sd">        More information can be found here: https://en.wikipedia.org/wiki/Verlet_integration</span>
 <span class="sd">        or on the Sarkas website.</span>
 
@@ -402,13 +421,7 @@
 <span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        potential_energy : float</span>
-<span class="sd">            Total potential energy</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># First half step velocity update</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
         <span class="c1"># Full step position update</span>
@@ -424,18 +437,13 @@
 
 <div class="viewcode-block" id="Integrator.magnetic_verlet"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.magnetic_verlet">[docs]</a>    <span class="k">def</span> <span class="nf">magnetic_verlet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update particles&#39; positions and velocities based on velocity verlet method in the case of a</span>
+<span class="sd">        Update particles&#39; class based on velocity verlet method in the case of a</span>
 <span class="sd">        constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [Chin2008]_</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        potential_energy : float</span>
-<span class="sd">             Total potential energy.</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -501,7 +509,7 @@
 
 <div class="viewcode-block" id="Integrator.magnetic_boris"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.magnetic_boris">[docs]</a>    <span class="k">def</span> <span class="nf">magnetic_boris</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update particles&#39; positions and velocities using the Boris algorithm in the case of a</span>
+<span class="sd">        Update particles&#39; class using the Boris algorithm in the case of a</span>
 <span class="sd">        constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. [Chin2008]_</span>
 
 <span class="sd">        Parameters</span>
@@ -633,7 +641,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

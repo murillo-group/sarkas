@@ -187,14 +187,35 @@
 <span id="sarkas-potentials-coulomb-module"></span><h1>sarkas.potentials.coulomb module<a class="headerlink" href="#module-sarkas.potentials.coulomb" title="Permalink to this headline">¶</a></h1>
 <p>Module for handling Coulomb interaction</p>
 <dl class="py function">
-<dt id="sarkas.potentials.coulomb.Coulomb_force_P3M">
-<code class="sig-prename descclassname">sarkas.potentials.coulomb.</code><code class="sig-name descname">Coulomb_force_P3M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/coulomb.html#Coulomb_force_P3M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.coulomb.Coulomb_force_P3M" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.potentials.coulomb.coulomb_force">
+<code class="sig-prename descclassname">sarkas.potentials.coulomb.</code><code class="sig-name descname">coulomb_force</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/coulomb.html#coulomb_force"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.coulomb.coulomb_force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the coulomb potential and force between two particles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – It contains potential dependent variables.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>U</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Potential value.</p></li>
+<li><p><strong>fr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Force between two particles.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.potentials.coulomb.coulomb_force_pppm">
+<code class="sig-prename descclassname">sarkas.potentials.coulomb.</code><code class="sig-name descname">coulomb_force_pppm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">pot_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/coulomb.html#coulomb_force_pppm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.coulomb.coulomb_force_pppm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate Potential and Force between two particles when the P3M algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">real</span></code>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – It contains potential dependent variables.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – It contains potential dependent variables.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -208,26 +229,15 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.coulomb.setup">
-<code class="sig-prename descclassname">sarkas.potentials.coulomb.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">read_input</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/coulomb.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.coulomb.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Coulomb’s parameters.</p>
+<dt id="sarkas.potentials.coulomb.update_params">
+<code class="sig-prename descclassname">sarkas.potentials.coulomb.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potential</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/coulomb.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.coulomb.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign potential dependent simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters</p></li>
-<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag to read inputs from YAML input file.</p></li>
+<li><p><strong>potential</strong> (<a class="reference internal" href="sarkas.potentials.base.html#sarkas.potentials.base.Potential" title="sarkas.potentials.base.Potential"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.potentials.base.Potential</span></code></a>) – Potential’s information</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="sarkas.potentials.coulomb.update_params">
-<code class="sig-prename descclassname">sarkas.potentials.coulomb.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/coulomb.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.coulomb.update_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create potential dependent simulation’s parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters</p>
 </dd>
 </dl>
 </dd></dl>
@@ -257,7 +267,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

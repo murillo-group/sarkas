@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>sarkas.tools.postprocessing &mdash; Sarkas 1.0 documentation</title>
+  <title>sarkas.tools.observables &mdash; Sarkas 1.0 documentation</title>
   
 
   
@@ -144,7 +144,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>sarkas.tools.postprocessing</li>
+      <li>sarkas.tools.observables</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -159,12 +159,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for sarkas.tools.postprocessing</h1><div class="highlight"><pre>
+  <h1>Source code for sarkas.tools.observables</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for calculating physical quantities from Sarkas checkpoints.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">py_copy</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
@@ -235,78 +234,18 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="PostProcess"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.PostProcess">[docs]</a><span class="k">class</span> <span class="nc">PostProcess</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span> <span class="o">=</span> <span class="n">Potential</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span> <span class="o">=</span> <span class="n">Integrator</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="n">Thermostat</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="n">Particles</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">input_file</span> <span class="k">if</span> <span class="n">input_file</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">SarkasTimer</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span> <span class="o">=</span> <span class="n">InputOutput</span><span class="p">()</span>
-
-<div class="viewcode-block" id="PostProcess.common_parser"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.PostProcess.common_parser">[docs]</a>    <span class="k">def</span> <span class="nf">common_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-
-        <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">filename</span>
-
-        <span class="n">dics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">observable</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;PostProcessing&#39;</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">observable</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HermiteCoefficients&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="o">=</span> <span class="n">HermiteCoefficients</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PostProcess.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.PostProcess.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Setup subclasses and attributes by reading the pickle files first</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">read_yaml</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">common_parser</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">other_inputs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other_inputs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Wrong input type. other_inputs should be a nested dictionary&quot;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">class_attr</span> <span class="ow">in</span> <span class="n">other_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;Particles&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">class_attr</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">create_file_paths</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PostProcess.setup_from_simulation"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.PostProcess.setup_from_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">setup_from_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Setup postprocess&#39; subclasses by (shallow) copying them from simulation object.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        simulation: sarkas.base.Simulation</span>
-<span class="sd">            Simulation object</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">thermostat</span><span class="p">)</span></div></div>
-
-
-<div class="viewcode-block" id="Observable"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Observable">[docs]</a><span class="k">class</span> <span class="nc">Observable</span><span class="p">:</span>
+<div class="viewcode-block" id="Observable"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Observable">[docs]</a><span class="k">class</span> <span class="nc">Observable</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="c1">#</span>
 
-<div class="viewcode-block" id="Observable.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Observable.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Observable.setup_init"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.setup_init">[docs]</a>    <span class="k">def</span> <span class="nf">setup_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
 
         <span class="c1"># Create the lists of k vectors</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;no_ka_vectors&#39;</span><span class="p">):</span>
@@ -328,7 +267,7 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">mpl_style</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="CurrentCorrelationFunctions"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.CurrentCorrelationFunctions">[docs]</a><span class="k">class</span> <span class="nc">CurrentCorrelationFunctions</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="CurrentCorrelationFunctions"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions">[docs]</a><span class="k">class</span> <span class="nc">CurrentCorrelationFunctions</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Current Correlation Functions: :math:`L(k,\\omega)` and :math:`T(k,\\omega)`.</span>
 
@@ -390,7 +329,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_transverse</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span>
                                                     <span class="s2">&quot;TransverseCurrentCorrelationFunction_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CurrentCorrelationFunctions.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.CurrentCorrelationFunctions.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CurrentCorrelationFunctions.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -406,7 +345,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Computing CCF now ...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CurrentCorrelationFunctions.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.CurrentCorrelationFunctions.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CurrentCorrelationFunctions.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the velocity fluctuations correlation functions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -476,7 +415,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe_longitudinal</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_transverse</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe_transverse</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_longitudinal</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CurrentCorrelationFunctions.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.CurrentCorrelationFunctions.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">longitudinal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dispersion</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CurrentCorrelationFunctions.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">longitudinal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dispersion</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot velocity fluctuations correlation functions and save the figure.</span>
 
@@ -574,7 +513,7 @@
                 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="DynamicStructureFactor"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.DynamicStructureFactor">[docs]</a><span class="k">class</span> <span class="nc">DynamicStructureFactor</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="DynamicStructureFactor"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor">[docs]</a><span class="k">class</span> <span class="nc">DynamicStructureFactor</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dynamic Structure factor.</span>
 
@@ -609,7 +548,7 @@
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;DynamicStructureFactor_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DynamicStructureFactor.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.DynamicStructureFactor.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DynamicStructureFactor.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -626,7 +565,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
         <span class="k">return</span></div>
 
-<div class="viewcode-block" id="DynamicStructureFactor.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.DynamicStructureFactor.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DynamicStructureFactor.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute :math:`S_{ij} (k,\\omega)` and the array of :math:`\\omega` values.</span>
 <span class="sd">        ``self.Skw``. Shape = (``no_ws``, ``no_Sij``)</span>
@@ -677,7 +616,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DynamicStructureFactor.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.DynamicStructureFactor.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dispersion</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DynamicStructureFactor.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dispersion</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot :math:`S(k,\\omega)` and save the figure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -743,7 +682,7 @@
                 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="ElectricCurrent"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.ElectricCurrent">[docs]</a><span class="k">class</span> <span class="nc">ElectricCurrent</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="ElectricCurrent"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent">[docs]</a><span class="k">class</span> <span class="nc">ElectricCurrent</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Electric Current Auto-correlation function.</span>
 
@@ -808,7 +747,7 @@
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;ElectricCurrent_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ElectricCurrent.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.ElectricCurrent.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ElectricCurrent.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -819,7 +758,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Computing Electric Current now ...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ElectricCurrent.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.ElectricCurrent.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ElectricCurrent.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the electric current and the corresponding auto-correlation functions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -875,7 +814,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ElectricCurrent.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.ElectricCurrent.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ElectricCurrent.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the electric current autocorrelation function and save the figure.</span>
 
@@ -909,7 +848,7 @@
             <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="HermiteCoefficients"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.HermiteCoefficients">[docs]</a><span class="k">class</span> <span class="nc">HermiteCoefficients</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="HermiteCoefficients"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients">[docs]</a><span class="k">class</span> <span class="nc">HermiteCoefficients</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Hermite coefficients of the Hermite expansion.</span>
 
@@ -979,7 +918,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="HermiteCoefficients.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.HermiteCoefficients.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="HermiteCoefficients.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the attributes from simulation&#39;s parameters.</span>
 
@@ -988,12 +927,14 @@
 <span class="sd">        params: S_params class</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HermiteCoefficients</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">setup_init</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;HermiteExpansion&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plots_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;Hermite_Plots&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;HermiteCoefficients_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
@@ -1006,7 +947,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">species_plots_dirs</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="HermiteCoefficients.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.HermiteCoefficients.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HermiteCoefficients.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate Hermite coefficients and save the pandas dataframe.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1047,7 +988,6 @@
 
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="n">time</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">hi</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hermite_order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Hermite x Coeff a</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">hi</span><span class="p">)]</span> <span class="o">=</span> <span class="n">xcoeff</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="n">hi</span><span class="p">]</span>
@@ -1056,7 +996,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HermiteCoefficients.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.HermiteCoefficients.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HermiteCoefficients.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1067,7 +1007,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Computing Hermite Coefficients now ...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="HermiteCoefficients.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.HermiteCoefficients.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="HermiteCoefficients.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the Hermite coefficients and save the figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1147,7 +1087,7 @@
                 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="RadialDistributionFunction"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.RadialDistributionFunction">[docs]</a><span class="k">class</span> <span class="nc">RadialDistributionFunction</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="RadialDistributionFunction"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction">[docs]</a><span class="k">class</span> <span class="nc">RadialDistributionFunction</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Radial Distribution Function.</span>
 
@@ -1210,7 +1150,7 @@
 <span class="sd">        Size of each bin.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RadialDistributionFunction.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.RadialDistributionFunction.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="RadialDistributionFunction.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the attributes from simulation&#39;s parameters.</span>
 
@@ -1219,7 +1159,7 @@
 <span class="sd">        params: S_params class</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_init</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">):</span>
@@ -1227,12 +1167,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span>
                                          <span class="s2">&quot;RadialDistributionFunction_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_radius</span></div>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;no_bins&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dr_rdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span></div>
-
-<div class="viewcode-block" id="RadialDistributionFunction.save"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.RadialDistributionFunction.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rdf_hist</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RadialDistributionFunction.save"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rdf_hist</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1240,30 +1177,30 @@
 <span class="sd">            Histogram of the radial distribution function.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rdf_hist</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rdf_hist</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="c1"># Find the last dump by looking for the longest filename in</span>
             <span class="n">dumps_list</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">)</span>
-            <span class="n">dumps_list</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">dumps_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">number</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">))</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">dumps_list</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">number</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">last</span><span class="p">:</span>
+                    <span class="n">last</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">last</span><span class="p">))</span>
             <span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rdf_hist&quot;</span><span class="p">]</span>
 
-        <span class="c1"># Initialize all the workhorse arrays</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;no_bins&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span> <span class="o">=</span> <span class="n">rdf_hist</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dr_rdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span> <span class="o">=</span> <span class="n">rdf_hist</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dr_rdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span>
 
         <span class="n">r_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span><span class="p">)</span>
         <span class="n">bin_vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span><span class="p">)</span>
         <span class="n">pair_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
         <span class="n">gr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_obs</span><span class="p">))</span>
-
         <span class="c1"># No. of pairs per volume</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
-            <span class="n">pair_density</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp1</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="p">(</span><span class="n">sp1</span><span class="o">.</span><span class="n">num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
+            <span class="n">pair_density</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">sp1</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="p">(</span><span class="n">sp1</span><span class="o">.</span><span class="n">num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">:]):</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">i</span><span class="p">):</span>
                     <span class="n">pair_density</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp1</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="n">sp2</span><span class="o">.</span><span class="n">num</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span>
         <span class="c1"># Calculate each bin&#39;s volume</span>
         <span class="n">sphere_shell_const</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span>
@@ -1275,27 +1212,24 @@
             <span class="n">r_values</span><span class="p">[</span><span class="n">ir</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ir</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr_rdf</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_values</span>
-
         <span class="n">gr_ij</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">:]):</span>
-                <span class="k">for</span> <span class="n">ibin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span><span class="p">):</span>
-                    <span class="n">gr</span><span class="p">[</span><span class="n">ibin</span><span class="p">,</span> <span class="n">gr_ij</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rdf_hist</span><span class="p">[</span><span class="n">ibin</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">rdf_hist</span><span class="p">[</span><span class="n">ibin</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">bin_vol</span><span class="p">[</span><span class="n">ibin</span><span class="p">]</span>
-                                                                                       <span class="o">*</span> <span class="n">pair_density</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
-                                                                                       <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">i</span><span class="p">):</span>
+                <span class="n">denom_const</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">)</span> <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">pair_density</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span><span class="p">)</span>
+                <span class="n">gr</span><span class="p">[:,</span> <span class="n">gr_ij</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdf_hist</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">denom_const</span> <span class="o">/</span> <span class="n">bin_vol</span><span class="p">[:]</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1"> RDF&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sp2</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">gr</span><span class="p">[:,</span> <span class="n">gr_ij</span><span class="p">]</span>
-                <span class="n">gr_ij</span> <span class="o">+=</span> <span class="mi">1</span>
 
+                <span class="n">gr_ij</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RadialDistributionFunction.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.RadialDistributionFunction.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RadialDistributionFunction.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RadialDistributionFunction.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.RadialDistributionFunction.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="RadialDistributionFunction.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot :math: `g_{ij}(r)` and save the figure.</span>
 
@@ -1343,7 +1277,7 @@
             <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="StaticStructureFactor"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.StaticStructureFactor">[docs]</a><span class="k">class</span> <span class="nc">StaticStructureFactor</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="StaticStructureFactor"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.StaticStructureFactor">[docs]</a><span class="k">class</span> <span class="nc">StaticStructureFactor</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Static Structure Factors :math:`S_{ij}(k)`.</span>
 
 <span class="sd">    Parameters</span>
@@ -1438,7 +1372,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;StaticStructureFunction_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="StaticStructureFactor.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.StaticStructureFactor.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StaticStructureFactor.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.StaticStructureFactor.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1449,7 +1383,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Computing S(k) now&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="StaticStructureFactor.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.StaticStructureFactor.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StaticStructureFactor.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.StaticStructureFactor.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a csv.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1497,7 +1431,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StaticStructureFactor.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.StaticStructureFactor.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">errorbars</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="StaticStructureFactor.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.StaticStructureFactor.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">errorbars</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot :math:`S_{ij}(k)` and save the figure.</span>
 
@@ -1540,7 +1474,7 @@
             <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="Thermodynamics"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics">[docs]</a><span class="k">class</span> <span class="nc">Thermodynamics</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermodynamics"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics">[docs]</a><span class="k">class</span> <span class="nc">Thermodynamics</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Thermodynamic functions.</span>
 
@@ -1606,7 +1540,7 @@
 <span class="sd">        System of units used in the simulation. mks or cgs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Thermodynamics.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermodynamics.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the attributes from simulation&#39;s parameters.</span>
 
@@ -1615,21 +1549,15 @@
 <span class="sd">        params: S_params class</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_init</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">thermostat_type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thermostat_tau</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">thermostat_tau</span>
 
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s2">&quot;restart&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">restart_sim</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">restart_sim</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">restart_sim</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-        <span class="c1"># Output file with Energy and Temperature</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_prod</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">,</span> <span class="s2">&quot;Thermodynamics_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_eq</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span><span class="p">,</span> <span class="s2">&quot;Thermalization_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Thermodynamics.compute_pressure_quantities"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics.compute_pressure_quantities">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pressure_quantities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermodynamics.compute_pressure_quantities"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.compute_pressure_quantities">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pressure_quantities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate Pressure, Pressure Tensor, Pressure Tensor Auto Correlation Function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1675,9 +1603,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure Tensor ACF </span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pressure_tensor_acf_temp</span>
 
         <span class="c1"># Save the pressure acf to file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_prod</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_energy_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Thermodynamics.compute_pressure_from_rdf"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics.compute_pressure_from_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pressure_from_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">gr</span><span class="p">,</span> <span class="n">potential</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermodynamics.compute_pressure_from_rdf"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.compute_pressure_from_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pressure_from_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">gr</span><span class="p">,</span> <span class="n">potential</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the Pressure using the radial distribution function</span>
 
@@ -1725,12 +1653,13 @@
 
         <span class="k">return</span> <span class="n">pressure</span></div>
 
-<div class="viewcode-block" id="Thermodynamics.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Total Energy&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermodynamics.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Total Energy&quot;</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot ``quantity`` vs time and save the figure with appropriate name.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        phase</span>
 <span class="sd">        show : bool</span>
 <span class="sd">            Flag for displaying figure.</span>
 
@@ -1738,9 +1667,11 @@
 <span class="sd">            Quantity to plot. Default = Total Energy.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
+        <span class="c1"># plt.style.use(&#39;MSUstyle&#39;)</span>
 
         <span class="k">if</span> <span class="n">quantity</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Pressure&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;Pressure&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -1776,6 +1707,13 @@
                             <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$P_{&#39;</span> <span class="o">+</span> <span class="n">dim1</span> <span class="o">+</span> <span class="n">dim2</span> <span class="o">+</span> <span class="s1">&#39;} (t)$&#39;</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">quantity</span> <span class="o">==</span> <span class="s1">&#39;Temperature&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">:</span>
+                <span class="n">qstr</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Temperature&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">xmul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">qstr</span><span class="p">]</span> <span class="o">*</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">qstr</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">xmul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Temperature&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Total Temperature&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span> <span class="o">=</span> <span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">xmul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span> <span class="o">*</span> <span class="n">ymul</span><span class="p">)</span>
 
@@ -1783,22 +1721,25 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">yq</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postproc_dir</span><span class="p">,</span> <span class="n">quantity</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fldr</span><span class="p">,</span> <span class="n">quantity</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
             <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Thermodynamics.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermodynamics.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;equilibration&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_eq</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;equilibration&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_energy_filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fldr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_prod</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_energy_filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fldr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span></div>
 
-<div class="viewcode-block" id="Thermodynamics.statistics"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics.statistics">[docs]</a>    <span class="k">def</span> <span class="nf">statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Total Energy&quot;</span><span class="p">,</span> <span class="n">max_no_divisions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermodynamics.statistics"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.statistics">[docs]</a>    <span class="k">def</span> <span class="nf">statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Total Energy&quot;</span><span class="p">,</span> <span class="n">max_no_divisions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ToDo:</span>
 <span class="sd">        Parameters</span>
@@ -1836,7 +1777,7 @@
 
         <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Thermodynamics.temp_energy_plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Thermodynamics.temp_energy_plot">[docs]</a>    <span class="k">def</span> <span class="nf">temp_energy_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;equilibration&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermodynamics.temp_energy_plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.temp_energy_plot">[docs]</a>    <span class="k">def</span> <span class="nf">temp_energy_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot Temperature and Energy as a function of time with their cumulative sum and average.</span>
 
@@ -1852,21 +1793,26 @@
 <span class="sd">           Simulation&#39;s parameters.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
 
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
         <span class="n">gs</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-
+        <span class="n">fsz</span> <span class="o">=</span> <span class="mi">14</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;equilibration&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;equilibration&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fldr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Neq</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fldr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nsteps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span>
-        <span class="n">nbins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_no_dumps</span><span class="p">)</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="p">)</span>
 
         <span class="n">Info_plot</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
 
@@ -1895,8 +1841,8 @@
 
         <span class="n">T_delta_plot</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([])</span>
         <span class="n">T_delta_plot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Deviation [%]&#39;</span><span class="p">)</span>
-        <span class="n">T_delta_plot</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-        <span class="n">T_main_plot</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+        <span class="n">T_delta_plot</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">fsz</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">T_main_plot</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
         <span class="n">T_main_plot</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">T_main_plot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Temperature&quot;</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">)</span>
         <span class="n">T_main_plot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
@@ -1924,8 +1870,8 @@
 
         <span class="n">E_delta_plot</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([])</span>
         <span class="n">E_delta_plot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Deviation [%]&#39;</span><span class="p">)</span>
-        <span class="n">E_delta_plot</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-        <span class="n">E_main_plot</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+        <span class="n">E_delta_plot</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">fsz</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">E_main_plot</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
         <span class="n">E_main_plot</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">E_main_plot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Total Energy&quot;</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">)</span>
         <span class="n">E_main_plot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
@@ -1939,30 +1885,39 @@
                                                                <span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
         <span class="n">Info_plot</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
         <span class="n">Info_plot</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">fsz</span> <span class="o">=</span> <span class="mi">14</span>
+
         <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;Job ID: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">9.5</span><span class="p">,</span> <span class="s2">&quot;No. of species = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">)),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">y_coord</span> <span class="o">=</span> <span class="mf">9.0</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">9.5</span><span class="p">,</span> <span class="s2">&quot;Phase: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">,</span> <span class="s2">&quot;No. of species = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">)),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">y_coord</span> <span class="o">=</span> <span class="mf">8.5</span>
         <span class="k">for</span> <span class="n">isp</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
             <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="s2">&quot;Species </span><span class="si">{}</span><span class="s2"> : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
             <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;  No. of particles = </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">num</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-            <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">,</span> <span class="s2">&quot;  Temperature = </span><span class="si">{:1.2f}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ylbl</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+            <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">,</span> <span class="s2">&quot;  Temperature = </span><span class="si">{:.4e}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ymul</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ylbl</span><span class="p">),</span>
+                           <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
             <span class="n">y_coord</span> <span class="o">-=</span> <span class="mf">1.5</span>
 
         <span class="n">y_coord</span> <span class="o">-=</span> <span class="mf">0.25</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span> <span class="s2">&quot;Total $N$ = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;Thermostat: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">type</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">,</span> <span class="s2">&quot;Berendsen rate = </span><span class="si">{:1.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">tau</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">&quot;Potential: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">2.</span><span class="p">,</span> <span class="s2">&quot;Tot Force Error = </span><span class="si">{:1.4e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force_error</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">,</span>
+                       <span class="s2">&quot;Total $N$ = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span>
+                       <span class="s2">&quot;Thermostat: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">type</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">,</span>
+                       <span class="s2">&quot;Berendsen rate = </span><span class="si">{:1.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">simulation</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">1.5</span><span class="p">,</span>
+                       <span class="s2">&quot;Potential: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">2.</span><span class="p">,</span>
+                       <span class="s2">&quot;Tot Force Error = </span><span class="si">{:1.4e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">force_error</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
 
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">2.5</span><span class="p">,</span> <span class="s2">&quot;Timestep = </span><span class="si">{:1.4f}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">3.</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> step interval = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">3.5</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> completed steps = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">2.5</span><span class="p">,</span>
+                       <span class="s2">&quot;Timestep = </span><span class="si">{:1.4f}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">3.</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> step interval = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">3.5</span><span class="p">,</span>
+                       <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> completed steps = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span>
                        <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
-        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">4.</span><span class="p">,</span> <span class="s2">&quot;Tot </span><span class="si">{}</span><span class="s2"> steps = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+        <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">4.</span><span class="p">,</span> <span class="s2">&quot;Tot </span><span class="si">{}</span><span class="s2"> steps = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
         <span class="n">Info_plot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y_coord</span> <span class="o">-</span> <span class="mf">4.5</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:1.2f}</span><span class="s2"> % </span><span class="si">{}</span><span class="s2"> Completed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="mi">100</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span><span class="p">,</span> <span class="n">phase</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
+            <span class="mi">100</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fsz</span><span class="p">)</span>
 
         <span class="n">Info_plot</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
@@ -1971,7 +1926,7 @@
             <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="Transport"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Transport">[docs]</a><span class="k">class</span> <span class="nc">Transport</span><span class="p">:</span>
+<div class="viewcode-block" id="Transport"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Transport">[docs]</a><span class="k">class</span> <span class="nc">Transport</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transport Coefficients class</span>
 
@@ -1990,7 +1945,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="Transport.electrical_conductivity"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Transport.electrical_conductivity">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Transport.electrical_conductivity"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Transport.electrical_conductivity">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">electrical_conductivity</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2033,7 +1988,7 @@
 
         <span class="k">return</span> <span class="n">coefficient</span></div>
 
-<div class="viewcode-block" id="Transport.diffusion"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Transport.diffusion">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Transport.diffusion"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Transport.diffusion">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">diffusion</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">coefficient</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="n">vacf</span> <span class="o">=</span> <span class="n">VelocityAutocorrelationFunctions</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
@@ -2073,7 +2028,7 @@
 
         <span class="k">return</span> <span class="n">coefficient</span></div>
 
-<div class="viewcode-block" id="Transport.interdiffusion"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Transport.interdiffusion">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Transport.interdiffusion"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Transport.interdiffusion">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">interdiffusion</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -2127,7 +2082,7 @@
 
         <span class="k">return</span> <span class="n">coefficient</span></div>
 
-<div class="viewcode-block" id="Transport.viscosity"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.Transport.viscosity">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Transport.viscosity"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Transport.viscosity">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">viscosity</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -2234,7 +2189,7 @@
         <span class="k">return</span> <span class="n">coefficient</span></div></div>
 
 
-<div class="viewcode-block" id="VelocityAutocorrelationFunctions"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.VelocityAutocorrelationFunctions">[docs]</a><span class="k">class</span> <span class="nc">VelocityAutocorrelationFunctions</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="VelocityAutocorrelationFunctions"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions">[docs]</a><span class="k">class</span> <span class="nc">VelocityAutocorrelationFunctions</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Velocity Auto-correlation function.</span>
 
@@ -2294,7 +2249,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;VelocityACF_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="VelocityAutocorrelationFunctions.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.VelocityAutocorrelationFunctions.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VelocityAutocorrelationFunctions.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2305,7 +2260,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Computing VACF now ...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="VelocityAutocorrelationFunctions.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.VelocityAutocorrelationFunctions.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_averaging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">it_skip</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<div class="viewcode-block" id="VelocityAutocorrelationFunctions.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_averaging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">it_skip</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the velocity auto-correlation functions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2349,7 +2304,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VelocityAutocorrelationFunctions.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.VelocityAutocorrelationFunctions.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intercurrent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="VelocityAutocorrelationFunctions.plot"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intercurrent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the velocity autocorrelation function and save the figure.</span>
 
@@ -2403,7 +2358,7 @@
                 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="VelocityMoments"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.VelocityMoments">[docs]</a><span class="k">class</span> <span class="nc">VelocityMoments</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="VelocityMoments"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments">[docs]</a><span class="k">class</span> <span class="nc">VelocityMoments</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Moments of the velocity distributions defined as</span>
 
@@ -2477,37 +2432,29 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the attributes from simulation&#39;s parameters.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        params: S_params class</span>
-<span class="sd">            Simulation&#39;s parameters.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<div class="viewcode-block" id="VelocityMoments.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_init</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;VelocityMoments&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plots_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;Plots&#39;</span><span class="p">)</span>
-        <span class="c1">#</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots_dir</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">PostProcessing</span><span class="p">,</span> <span class="s1">&#39;mom_nbins&#39;</span><span class="p">):</span>
-            <span class="c1"># choose the number of bins as 5% of the number of particles</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">PostProcessing</span><span class="o">.</span><span class="n">mom_nbins</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;VelocityMoments_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
-        <span class="c1">#</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_no_moment</span> <span class="o">=</span> <span class="mi">3</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_plots_dirs</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="VelocityMoments.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.VelocityMoments.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;no_bins&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_bins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;max_no_moment&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_no_moment</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_plots_dirs</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="VelocityMoments.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2549,7 +2496,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VelocityMoments.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.VelocityMoments.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VelocityMoments.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2560,7 +2507,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Computing Moments now ...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="VelocityMoments.plot_ratios"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.VelocityMoments.plot_ratios">[docs]</a>    <span class="k">def</span> <span class="nf">plot_ratios</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="VelocityMoments.plot_ratios"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments.plot_ratios">[docs]</a>    <span class="k">def</span> <span class="nf">plot_ratios</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the moment ratios and save the figure.</span>
 
@@ -2609,7 +2556,7 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="XYZWriter"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.XYZWriter">[docs]</a><span class="k">class</span> <span class="nc">XYZWriter</span><span class="p">:</span>
+<div class="viewcode-block" id="XYZWriter"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.XYZWriter">[docs]</a><span class="k">class</span> <span class="nc">XYZWriter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Write the XYZ file for OVITO visualization.</span>
 
@@ -2662,7 +2609,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;pva_&quot;</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.xyz&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dump_skip</span> <span class="o">=</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="XYZWriter.save"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.XYZWriter.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dump_skip</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="XYZWriter.save"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.XYZWriter.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dump_skip</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the XYZ file by reading Sarkas dumps.</span>
 
@@ -2695,7 +2642,7 @@
         <span class="n">f_xyz</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="autocorrelationfunction"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.autocorrelationfunction">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="autocorrelationfunction"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.autocorrelationfunction">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">autocorrelationfunction</span><span class="p">(</span><span class="n">At</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the autocorrelation function of the array input.</span>
@@ -2730,7 +2677,7 @@
     <span class="k">return</span> <span class="n">ACF</span> <span class="o">/</span> <span class="n">Norm_counter</span></div>
 
 
-<div class="viewcode-block" id="autocorrelationfunction_1D"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.autocorrelationfunction_1D">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="autocorrelationfunction_1D"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.autocorrelationfunction_1D">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">autocorrelationfunction_1D</span><span class="p">(</span><span class="n">At</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the autocorrelation function of the input.</span>
@@ -2761,7 +2708,7 @@
     <span class="k">return</span> <span class="n">ACF</span> <span class="o">/</span> <span class="n">Norm_counter</span></div>
 
 
-<div class="viewcode-block" id="calc_Sk"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_Sk">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_Sk"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_Sk">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_Sk</span><span class="p">(</span><span class="n">nkt</span><span class="p">,</span> <span class="n">ka_list</span><span class="p">,</span> <span class="n">ka_counts</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate :math:`S_{ij}(k)` at each saved timestep.</span>
@@ -2810,7 +2757,7 @@
     <span class="k">return</span> <span class="n">Sk_all</span></div>
 
 
-<div class="viewcode-block" id="calc_Skw"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_Skw">[docs]</a><span class="k">def</span> <span class="nf">calc_Skw</span><span class="p">(</span><span class="n">nkt</span><span class="p">,</span> <span class="n">ka_list</span><span class="p">,</span> <span class="n">ka_counts</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dump_step</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_Skw"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_Skw">[docs]</a><span class="k">def</span> <span class="nf">calc_Skw</span><span class="p">(</span><span class="n">nkt</span><span class="p">,</span> <span class="n">ka_list</span><span class="p">,</span> <span class="n">ka_counts</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dump_step</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the Fourier transform of the correlation function of ``nkt``.</span>
 
@@ -2857,7 +2804,7 @@
     <span class="k">return</span> <span class="n">Skw</span></div>
 
 
-<div class="viewcode-block" id="calc_elec_current"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_elec_current">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_elec_current"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_elec_current">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_elec_current</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">sp_charge</span><span class="p">,</span> <span class="n">sp_num</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the total electric current and electric current of each species.</span>
@@ -2900,7 +2847,7 @@
     <span class="k">return</span> <span class="n">Js</span><span class="p">,</span> <span class="n">Jtot</span></div>
 
 
-<div class="viewcode-block" id="calc_moment_ratios"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_moment_ratios">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_moment_ratios"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_moment_ratios">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_moment_ratios</span><span class="p">(</span><span class="n">moments</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Take the ratio of the velocity moments.</span>
@@ -2951,7 +2898,7 @@
     <span class="k">return</span> <span class="n">ratios</span></div>
 
 
-<div class="viewcode-block" id="calc_moments"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_moments">[docs]</a><span class="k">def</span> <span class="nf">calc_moments</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">species_np</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_moments"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_moments">[docs]</a><span class="k">def</span> <span class="nf">calc_moments</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">species_np</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the even moments of the velocity distributions.</span>
 
@@ -3006,7 +2953,7 @@
     <span class="k">return</span> <span class="n">moments</span></div>
 
 
-<div class="viewcode-block" id="calc_nk"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_nk">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_nk"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_nk">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_nk</span><span class="p">(</span><span class="n">pos_data</span><span class="p">,</span> <span class="n">k_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the instantaneous microscopic density :math:`n(k)` defined as</span>
@@ -3039,7 +2986,7 @@
     <span class="k">return</span> <span class="n">nk</span></div>
 
 
-<div class="viewcode-block" id="calc_nkt"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_nkt">[docs]</a><span class="k">def</span> <span class="nf">calc_nkt</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">,</span> <span class="n">dump_step</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">k_list</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_nkt"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_nkt">[docs]</a><span class="k">def</span> <span class="nf">calc_nkt</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">,</span> <span class="n">dump_step</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">k_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate density fluctuations :math:`n(k,t)` of all species.</span>
 
@@ -3086,7 +3033,7 @@
     <span class="k">return</span> <span class="n">nkt</span></div>
 
 
-<div class="viewcode-block" id="calc_pressure_tensor"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_pressure_tensor">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_pressure_tensor"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_pressure_tensor">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_pressure_tensor</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">species_mass</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">box_volume</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the pressure tensor.</span>
@@ -3134,7 +3081,7 @@
     <span class="k">return</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">pressure_tensor</span></div>
 
 
-<div class="viewcode-block" id="calc_statistical_efficiency"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_statistical_efficiency">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_statistical_efficiency"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_statistical_efficiency">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_statistical_efficiency</span><span class="p">(</span><span class="n">observable</span><span class="p">,</span> <span class="n">run_avg</span><span class="p">,</span> <span class="n">run_std</span><span class="p">,</span> <span class="n">max_no_divisions</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Todo:</span>
@@ -3167,7 +3114,7 @@
     <span class="k">return</span> <span class="n">tau_blk</span><span class="p">,</span> <span class="n">sigma2_blk</span><span class="p">,</span> <span class="n">statistical_efficiency</span></div>
 
 
-<div class="viewcode-block" id="calc_vacf"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_vacf">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_vacf"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vacf">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_vacf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">sp_num</span><span class="p">,</span> <span class="n">sp_mass</span><span class="p">,</span> <span class="n">time_averaging</span><span class="p">,</span> <span class="n">it_skip</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the velocity autocorrelation function of each species and in each direction.</span>
@@ -3256,7 +3203,7 @@
     <span class="k">return</span> <span class="n">jc_acf</span></div>
 
 
-<div class="viewcode-block" id="calc_vacf_single"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_vacf_single">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_vacf_single"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vacf_single">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_vacf_single</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">sp_num</span><span class="p">,</span> <span class="n">time_averaging</span><span class="p">,</span> <span class="n">it_skip</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the velocity autocorrelation function of each species and in each direction.</span>
@@ -3323,7 +3270,7 @@
     <span class="k">return</span> <span class="n">vacf</span></div>
 
 
-<div class="viewcode-block" id="calc_vk"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_vk">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="calc_vk"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vk">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">calc_vk</span><span class="p">(</span><span class="n">pos_data</span><span class="p">,</span> <span class="n">vel_data</span><span class="p">,</span> <span class="n">k_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the instantaneous longitudinal and transverse velocity fluctuations.</span>
@@ -3378,7 +3325,7 @@
     <span class="k">return</span> <span class="n">vk</span><span class="p">,</span> <span class="n">vk_i</span><span class="p">,</span> <span class="n">vk_j</span><span class="p">,</span> <span class="n">vk_k</span></div>
 
 
-<div class="viewcode-block" id="calc_vkt"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calc_vkt">[docs]</a><span class="k">def</span> <span class="nf">calc_vkt</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">,</span> <span class="n">dump_step</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">k_list</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_vkt"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vkt">[docs]</a><span class="k">def</span> <span class="nf">calc_vkt</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">,</span> <span class="n">dump_step</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">k_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the longitudinal and transverse velocities fluctuations of all species.</span>
 <span class="sd">    Longitudinal</span>
@@ -3450,7 +3397,7 @@
     <span class="k">return</span> <span class="n">vkt_par</span><span class="p">,</span> <span class="n">vkt_perp_i</span><span class="p">,</span> <span class="n">vkt_perp_j</span><span class="p">,</span> <span class="n">vkt_perp_k</span></div>
 
 
-<div class="viewcode-block" id="calculate_herm_coeff"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.calculate_herm_coeff">[docs]</a><span class="k">def</span> <span class="nf">calculate_herm_coeff</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">distribution</span><span class="p">,</span> <span class="n">maxpower</span><span class="p">):</span>
+<div class="viewcode-block" id="calculate_herm_coeff"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calculate_herm_coeff">[docs]</a><span class="k">def</span> <span class="nf">calculate_herm_coeff</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">distribution</span><span class="p">,</span> <span class="n">maxpower</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate Hermite coefficients by integrating the velocity distribution function. That is</span>
 
@@ -3484,7 +3431,7 @@
     <span class="k">return</span> <span class="n">coeff</span></div>
 
 
-<div class="viewcode-block" id="correlationfunction"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.correlationfunction">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="correlationfunction"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.correlationfunction">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">correlationfunction</span><span class="p">(</span><span class="n">At</span><span class="p">,</span> <span class="n">Bt</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the correlation function :math:`\mathbf{A}(t)` and :math:`\mathbf{B}(t)`</span>
@@ -3522,7 +3469,7 @@
     <span class="k">return</span> <span class="n">CF</span> <span class="o">/</span> <span class="n">Norm_counter</span></div>
 
 
-<div class="viewcode-block" id="correlationfunction_1D"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.correlationfunction_1D">[docs]</a><span class="nd">@njit</span>
+<div class="viewcode-block" id="correlationfunction_1D"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.correlationfunction_1D">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">correlationfunction_1D</span><span class="p">(</span><span class="n">At</span><span class="p">,</span> <span class="n">Bt</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the correlation function between :math:`A(t)` and :math:`B(t)`</span>
@@ -3556,7 +3503,7 @@
     <span class="k">return</span> <span class="n">CF</span> <span class="o">/</span> <span class="n">Norm_counter</span></div>
 
 
-<div class="viewcode-block" id="kspace_setup"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.kspace_setup">[docs]</a><span class="k">def</span> <span class="nf">kspace_setup</span><span class="p">(</span><span class="n">no_ka</span><span class="p">,</span> <span class="n">box_lengths</span><span class="p">):</span>
+<div class="viewcode-block" id="kspace_setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.kspace_setup">[docs]</a><span class="k">def</span> <span class="nf">kspace_setup</span><span class="p">(</span><span class="n">no_ka</span><span class="p">,</span> <span class="n">box_lengths</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate all allowed :math:`k` vectors.</span>
 
@@ -3605,7 +3552,7 @@
     <span class="k">return</span> <span class="n">k_arr</span><span class="p">,</span> <span class="n">k_counts</span><span class="p">,</span> <span class="n">k_unique</span></div>
 
 
-<div class="viewcode-block" id="load_from_restart"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.load_from_restart">[docs]</a><span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="load_from_restart"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.load_from_restart">[docs]</a><span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load particles&#39; data from dumps.</span>
 
@@ -3628,7 +3575,7 @@
     <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="plot_labels"><a class="viewcode-back" href="../../../api/sarkas.tools.postprocessing.html#sarkas.tools.postprocessing.plot_labels">[docs]</a><span class="k">def</span> <span class="nf">plot_labels</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_labels"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.plot_labels">[docs]</a><span class="k">def</span> <span class="nf">plot_labels</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create plot labels with correct units and prefixes.</span>
 
@@ -3680,6 +3627,15 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ymax</span> <span class="o">=</span> <span class="n">ydata</span>
 
+    <span class="c1"># Find the correct Units</span>
+    <span class="n">units_dict</span> <span class="o">=</span> <span class="n">UNITS</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;cgs&#39;</span> <span class="k">else</span> <span class="n">UNITS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;cgs&#39;</span> <span class="ow">and</span> <span class="s1">&#39;Length&#39;</span> <span class="o">==</span> <span class="n">xlbl</span><span class="p">:</span>
+        <span class="n">xmax</span> <span class="o">*=</span> <span class="mf">1e2</span>
+
+    <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;cgs&#39;</span> <span class="ow">and</span> <span class="s1">&#39;Length&#39;</span> <span class="o">==</span> <span class="n">ylbl</span><span class="p">:</span>
+        <span class="n">ymax</span> <span class="o">*=</span> <span class="mf">1e2</span>
+
     <span class="n">x_str</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">format_float_scientific</span><span class="p">(</span><span class="n">xmax</span><span class="p">)</span>
     <span class="n">y_str</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">format_float_scientific</span><span class="p">(</span><span class="n">ymax</span><span class="p">)</span>
 
@@ -3710,8 +3666,6 @@
                 <span class="n">ymul</span> <span class="o">=</span> <span class="n">i</span> <span class="o">/</span> <span class="n">value</span>
         <span class="n">i</span> <span class="o">*=</span> <span class="mf">10.</span>
 
-    <span class="c1"># Find the correct Units</span>
-    <span class="n">units_dict</span> <span class="o">=</span> <span class="n">UNITS</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;cgs&#39;</span> <span class="k">else</span> <span class="n">UNITS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="s2">&quot;Energy&quot;</span> <span class="ow">in</span> <span class="n">ylbl</span><span class="p">:</span>
         <span class="n">yname</span> <span class="o">=</span> <span class="s2">&quot;Energy&quot;</span>
@@ -3759,7 +3713,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

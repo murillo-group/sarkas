@@ -348,12 +348,22 @@
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.equilibrate">
 <code class="sig-name descname">equilibrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">it_start</span></em>, <em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">checkpoint</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.equilibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.equilibrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Loop over the equilibration steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Initial step of equilibration.</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles’ class.</p></li>
+<li><p><strong>checkpoint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.utilities.InputOutput</span></code>) – IO class for saving dumps.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_boris">
 <code class="sig-name descname">magnetic_boris</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update particles’ positions and velocities using the Boris algorithm in the case of a
+<dd><p>Update particles’ class using the Boris algorithm in the case of a
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <a class="reference internal" href="#chin2008" id="id1"><span>[Chin2008]</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -371,17 +381,11 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet">
 <code class="sig-name descname">magnetic_verlet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update particles’ positions and velocities based on velocity verlet method in the case of a
+<dd><p>Update particles’ class based on velocity verlet method in the case of a
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <a class="reference internal" href="#chin2008" id="id2"><span>[Chin2008]</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles data.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -395,7 +399,17 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.produce">
 <code class="sig-name descname">produce</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">it_start</span></em>, <em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">checkpoint</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.produce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.produce" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Loop over the production steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Initial step of equilibration.</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles’ class.</p></li>
+<li><p><strong>checkpoint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.utilities.InputOutput</span></code>) – IO class for saving dumps.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.setup">
@@ -404,8 +418,8 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.parameters</span></code>) – Parameters class.</p></li>
-<li><p><strong>thermostat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.thermostat</span></code>) – Thermostat class</p></li>
+<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.parameters</span></code>) – Parameters class.</p></li>
+<li><p><strong>thermostat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.time_evolution.thermostat</span></code>) – Thermostat class</p></li>
 <li><p><strong>potential</strong> (<a class="reference internal" href="sarkas.potentials.base.html#sarkas.potentials.base.Potential" title="sarkas.potentials.base.Potential"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.potentials.base.Potential</span></code></a>) – Potential class.</p></li>
 </ul>
 </dd>
@@ -415,18 +429,12 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.verlet">
 <code class="sig-name descname">verlet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.verlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.verlet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update particle position and velocity based on velocity verlet method.
+<dd><p>Update particles’ class based on velocity verlet algorithm.
 More information can be found here: <a class="reference external" href="https://en.wikipedia.org/wiki/Verlet_integration">https://en.wikipedia.org/wiki/Verlet_integration</a>
 or on the Sarkas website.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles data.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -434,19 +442,10 @@ or on the Sarkas website.</p>
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.verlet_langevin">
 <code class="sig-name descname">verlet_langevin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.verlet_langevin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.verlet_langevin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate particles dynamics using the Velocity verlet algorithm and Langevin damping.</p>
+<dd><p>Update particles class using the velocity verlet algorithm and Langevin damping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles data.</p></li>
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles data.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -508,7 +507,7 @@ or on the Sarkas website.</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

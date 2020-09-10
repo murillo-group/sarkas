@@ -187,7 +187,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TimerError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timer is running. Use .stop() to stop it&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter_ns</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SarkasTimer.stop"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Stop the timer, and report the elapsed time&quot;&quot;&quot;</span>
@@ -195,15 +195,25 @@
             <span class="k">raise</span> <span class="n">TimerError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timer is not running. Use .start() to start it&quot;</span><span class="p">)</span>
 
         <span class="c1"># Calculate elapsed time</span>
-        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span>
+        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter_ns</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">return</span> <span class="n">elapsed_time</span></div>
 
 <div class="viewcode-block" id="SarkasTimer.current"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.current">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">current</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter_ns</span><span class="p">()</span></div>
 
+<div class="viewcode-block" id="SarkasTimer.time_division"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.time_division">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">time_division</span><span class="p">(</span><span class="n">tme</span><span class="p">):</span>
+        <span class="n">t_hrs</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">tme</span><span class="p">,</span> <span class="mf">3.6e12</span><span class="p">)</span>
+        <span class="n">t_min</span><span class="p">,</span> <span class="n">rem_m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mf">6e+10</span><span class="p">)</span>
+        <span class="n">t_sec</span><span class="p">,</span> <span class="n">rem_s</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem_m</span><span class="p">,</span> <span class="mf">1e9</span><span class="p">)</span>
+        <span class="n">t_msec</span><span class="p">,</span> <span class="n">rem_ms</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem_s</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">)</span>
+        <span class="n">t_usec</span><span class="p">,</span> <span class="n">rem_us</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem_ms</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">)</span>
+        <span class="n">t_nsec</span><span class="p">,</span> <span class="n">rem_ns</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem_us</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">t_hrs</span><span class="p">,</span> <span class="n">t_min</span><span class="p">,</span> <span class="n">t_sec</span><span class="p">,</span> <span class="n">t_msec</span><span class="p">,</span> <span class="n">t_usec</span><span class="p">,</span> <span class="n">t_nsec</span><span class="p">]</span></div></div>
 </pre></div>
 
            </div>
@@ -219,7 +229,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 26, 2020.
+        Last updated on Sep, 10, 2020.
       </span>
 
     </p>

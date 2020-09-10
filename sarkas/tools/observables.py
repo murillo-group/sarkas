@@ -1640,7 +1640,7 @@ class Thermodynamics(Observable):
 
         fig = plt.figure(figsize=(16, 9))
         gs = GridSpec(4, 8)
-
+        fsz = 14
         self.no_dumps = len(self.dataframe["Time"])
         if self.phase == 'equilibration':
             self.fldr = self.equilibration_dir
@@ -1679,8 +1679,8 @@ class Thermodynamics(Observable):
 
         T_delta_plot.get_xaxis().set_ticks([])
         T_delta_plot.set_ylabel(r'Deviation [%]')
-        T_delta_plot.tick_params(labelsize=12)
-        T_main_plot.tick_params(labelsize=14)
+        T_delta_plot.tick_params(labelsize=fsz-2)
+        T_main_plot.tick_params(labelsize=fsz)
         T_main_plot.legend(loc='best')
         T_main_plot.set_ylabel("Temperature" + ylbl)
         T_main_plot.set_xlabel("Time" + xlbl)
@@ -1708,8 +1708,8 @@ class Thermodynamics(Observable):
 
         E_delta_plot.get_xaxis().set_ticks([])
         E_delta_plot.set_ylabel(r'Deviation [%]')
-        E_delta_plot.tick_params(labelsize=12)
-        E_main_plot.tick_params(labelsize=14)
+        E_delta_plot.tick_params(labelsize=fsz-2)
+        E_main_plot.tick_params(labelsize=fsz)
         E_main_plot.legend(loc='best')
         E_main_plot.set_ylabel("Total Energy" + ylbl)
         E_main_plot.set_xlabel("Time" + xlbl)
@@ -1723,10 +1723,11 @@ class Thermodynamics(Observable):
                                                                "Temperature", self.units)
         Info_plot.axis([0, 10, 0, 10])
         Info_plot.grid(False)
-        fsz = 14
+
         Info_plot.text(0., 10, "Job ID: {}".format(self.job_id), fontsize=fsz)
-        Info_plot.text(0., 9.5, "No. of species = {}".format(len(self.species_num)), fontsize=fsz)
-        y_coord = 9.0
+        Info_plot.text(0., 9.5, "Phase: {}".format(self.phase), fontsize=fsz)
+        Info_plot.text(0., 9.0, "No. of species = {}".format(len(self.species_num)), fontsize=fsz)
+        y_coord = 8.5
         for isp, sp in enumerate(self.species):
             Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp.name), fontsize=fsz)
             Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num), fontsize=fsz)
