@@ -221,7 +221,7 @@
 </dl>
 <p class="rubric">References</p>
 <dl class="citation">
-<dt class="label" id="wilson1977"><span class="brackets">Wilson1977</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>)</span></dt>
+<dt class="label" id="wilson1977"><span class="brackets"><a class="fn-backref" href="#id1">Wilson1977</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevB.15.2458">W.D. Wilson et al., Phys Rev B 15, 2458 (1977)</a></p>
 </dd>
 </dl>
@@ -229,11 +229,14 @@
 
 <dl class="py function">
 <dt id="sarkas.potentials.moliere.update_params">
-<code class="sig-prename descclassname">sarkas.potentials.moliere.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/moliere.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.moliere.update_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create potential dependent simulation’s parameters as given by Ref. <a class="reference internal" href="#wilson1977" id="id2"><span>[Wilson1977]</span></a> .</p>
+<code class="sig-prename descclassname">sarkas.potentials.moliere.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potential</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/moliere.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.moliere.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign potential dependent simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Params</span> <span class="pre">class</span></code>) – Simulation’s parameters.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>potential</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.potential.Potential</span></code>) – Class handling potential form.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -263,7 +266,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 10, 2020.
+        Last updated on Sep, 13, 2020.
       </span>
 
     </p>

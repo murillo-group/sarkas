@@ -162,11 +162,13 @@
   <h1>Source code for sarkas.utilities.io</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pyfiglet</span> <span class="kn">import</span> <span class="n">print_figlet</span><span class="p">,</span> <span class="n">Figlet</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="n">FONTS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;speed&#39;</span><span class="p">,</span>
          <span class="s1">&#39;starwars&#39;</span><span class="p">,</span>
@@ -214,6 +216,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_status</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xyz_dir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xyz_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="InputOutput.setup"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_file_paths</span><span class="p">()</span>
@@ -438,10 +442,10 @@
         <span class="k">while</span> <span class="n">repeat</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">t_hrs</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">t_min</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">t_sec</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="s1"> Time: </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">,</span>
-                                                                   <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
-                                                                   <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
-                                                                   <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
-                                                                   <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
+                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
+                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
+                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
+                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="s1"> Time: </span><span class="si">{}</span><span class="s1"> hrs </span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">t_hrs</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">)))</span>
 
@@ -469,7 +473,6 @@
 
         <span class="c1"># Print to file first then to screen if repeat == 2</span>
         <span class="k">while</span> <span class="n">repeat</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">------------ Conclusion ------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Suggested Mesh = [ </span><span class="si">{}</span><span class="s1"> , </span><span class="si">{}</span><span class="s1"> , </span><span class="si">{}</span><span class="s1"> ]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Suggested Ewald parameter alpha = </span><span class="si">{:2.4f}</span><span class="s1"> / a_ws = </span><span class="si">{:1.6e}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -500,48 +503,48 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n\n</span><span class="s1">----------------- Force Calculation Times ----------------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimal Green&#39;s Function Time: </span><span class="se">\n</span><span class="s2">&quot;</span>
                       <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
 
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of PP acceleration calculation averaged over </span><span class="si">{}</span><span class="s1"> loops: </span><span class="se">\n</span><span class="s1">&#39;</span>
                       <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
 
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;PM&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of PM acceleration calculation averaged over </span><span class="si">{}</span><span class="s1"> loops: </span><span class="se">\n</span><span class="s1">&#39;</span>
                       <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
-                                                                <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
 
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;Equilibration&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">----------------- Averaged Evolution Times ---------------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of a single equilibration step averaged over </span><span class="si">{}</span><span class="s1"> loops: </span><span class="se">\n</span><span class="s1">&#39;</span>
                       <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
-                                                                       <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
-                                                                       <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
-                                                                       <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
-                                                                       <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
 
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;Production&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of a single production step averaged over </span><span class="si">{}</span><span class="s1"> loops: </span><span class="se">\n</span><span class="s1">&#39;</span>
                       <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
-                                                                       <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
-                                                                       <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
-                                                                       <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
-                                                                       <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
 
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">----------------- Total Simulation Times -----------------------&#39;</span><span class="p">)</span>
 
@@ -583,14 +586,16 @@
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ion plasma frequency = </span><span class="si">{:2.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_pe dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;LJ&#39;</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;(total) equivalent plasma frequency = </span><span class="si">{:1.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;(total) equivalent plasma frequency = </span><span class="si">{:1.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;wp dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span> <span class="o">==</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total post-equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> wp T_prod&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">,</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
+                <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> wp T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">,</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
@@ -598,20 +603,23 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_therm_restart_step</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> wp T_prod&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">,</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
+                <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> wp T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">,</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> wp T_eq&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">,</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
+                <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> wp T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">,</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of post-equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> wp T_prod&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">,</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
+                <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> wp T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">,</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span></div>
@@ -636,7 +644,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Mesh size * Ewald_parameter (h * alpha) = </span><span class="si">{:2.4f}</span><span class="s1">, </span><span class="si">{:2.4f}</span><span class="s1">, </span><span class="si">{:2.4f}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">,</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">,</span>
-                <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;                                        ~ 1/</span><span class="si">{}</span><span class="s1">, 1/</span><span class="si">{}</span><span class="s1">, 1/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="nb">int</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">)),</span>
                 <span class="nb">int</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">)),</span>
@@ -770,15 +778,18 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[cm]&quot;</span> <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span> <span class="k">else</span> <span class="s2">&quot;[m]&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of non-zero box dimensions = &#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Box length along x axis = </span><span class="si">{:2.6e}</span><span class="s1"> a_ws = </span><span class="si">{:2.6e}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">aws</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">aws</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[cm]&quot;</span> <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span> <span class="k">else</span> <span class="s2">&quot;[m]&quot;</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Box length along y axis = </span><span class="si">{:2.6e}</span><span class="s1"> a_ws = </span><span class="si">{:2.6e}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">aws</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">aws</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[cm]&quot;</span> <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span> <span class="k">else</span> <span class="s2">&quot;[m]&quot;</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Box length along z axis = </span><span class="si">{:2.6e}</span><span class="s1"> a_ws = </span><span class="si">{:2.6e}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">aws</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">aws</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[cm]&quot;</span> <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span> <span class="k">else</span> <span class="s2">&quot;[m]&quot;</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The remaining lengths scales are given in &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -822,7 +833,9 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">dt</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_plasma_frequency</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coupling</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">coupling_constant</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">T_desired</span>
 
@@ -901,14 +914,14 @@
             <span class="n">ptcls_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_ptcls_filename</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
             <span class="n">tme</span> <span class="o">=</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
             <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">ptcls_file</span><span class="p">,</span>
-                  <span class="nb">id</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                  <span class="n">names</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
-                  <span class="n">pos</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
-                  <span class="n">vel</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span>
-                  <span class="n">acc</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">,</span>
-                  <span class="n">cntr</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span>
-                  <span class="n">rdf_hist</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span><span class="p">,</span>
-                  <span class="n">time</span><span class="o">=</span><span class="n">tme</span><span class="p">)</span>
+                     <span class="nb">id</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                     <span class="n">names</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+                     <span class="n">pos</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                     <span class="n">vel</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span>
+                     <span class="n">acc</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">,</span>
+                     <span class="n">cntr</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span>
+                     <span class="n">rdf_hist</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span><span class="p">,</span>
+                     <span class="n">time</span><span class="o">=</span><span class="n">tme</span><span class="p">)</span>
 
             <span class="n">energy_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_energy_filename</span>
 
@@ -916,16 +929,16 @@
             <span class="n">ptcls_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_ptcls_filename</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
             <span class="n">tme</span> <span class="o">=</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
             <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">ptcls_file</span><span class="p">,</span>
-                  <span class="nb">id</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                  <span class="n">name</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
-                  <span class="n">pos</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
-                  <span class="n">vel</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span>
-                  <span class="n">acc</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">,</span>
-                  <span class="n">time</span><span class="o">=</span><span class="n">tme</span><span class="p">)</span>
+                     <span class="nb">id</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                     <span class="n">name</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+                     <span class="n">pos</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                     <span class="n">vel</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span>
+                     <span class="n">acc</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">,</span>
+                     <span class="n">time</span><span class="o">=</span><span class="n">tme</span><span class="p">)</span>
 
             <span class="n">energy_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_energy_filename</span>
 
-        <span class="n">kinetic_energies</span><span class="p">,</span> <span class="n">temperatures</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">kinetic_temperature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+        <span class="n">kinetic_energies</span><span class="p">,</span> <span class="n">temperatures</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">kinetic_temperature</span><span class="p">()</span>
         <span class="c1"># Prepare data for saving</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
                 <span class="s2">&quot;Total Energy&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kinetic_energies</span><span class="p">)</span> <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">potential_energy</span><span class="p">,</span>
@@ -938,8 +951,143 @@
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Temperature&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">sp</span><span class="p">])]</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">energy_file</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div></div>
+            <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
 
+<div class="viewcode-block" id="InputOutput.dump_xyz"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.dump_xyz">[docs]</a>    <span class="k">def</span> <span class="nf">dump_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;production&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the XYZ file by reading Sarkas dumps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phase : str</span>
+<span class="sd">            Phase from which to read dumps. &#39;equilibration&#39; or &#39;production&#39;.</span>
+
+<span class="sd">        dump_skip : int</span>
+<span class="sd">            Interval of dumps to skip. Default = 1</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;equilibration&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xyz_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span><span class="p">,</span> <span class="s2">&quot;pva_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.xyz&#39;</span><span class="p">)</span>
+            <span class="n">dump_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xyz_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">,</span> <span class="s2">&quot;pva_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.xyz&#39;</span><span class="p">)</span>
+            <span class="n">dump_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span>
+
+        <span class="n">f_xyz</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xyz_filename</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Rescale constants. This is needed since OVITO has a small number limit.</span>
+        <span class="n">pscale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span>
+        <span class="n">vscale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">)</span>
+        <span class="n">ascale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Read the list of dumps and sort them in the correct (natural) order</span>
+        <span class="n">dumps</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dump_dir</span><span class="p">)</span>
+        <span class="n">dumps</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">num_sort</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dump</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">dumps</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_npz</span><span class="p">(</span><span class="n">dump_dir</span><span class="p">,</span> <span class="n">dump</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos_x&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">pscale</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos_y&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">pscale</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos_z&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">pscale</span>
+
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel_x&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">vscale</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel_y&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">vscale</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel_z&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">vscale</span>
+
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc_x&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">ascale</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc_y&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">ascale</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc_z&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">ascale</span>
+
+            <span class="n">f_xyz</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:d}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">))</span>
+            <span class="n">f_xyz</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s2">&quot;name x y z vx vy vz ax ay az</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">f_xyz</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2"> </span><span class="si">%.6e</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">f_xyz</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InputOutput.read_npz"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.read_npz">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_npz</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load particles&#39; data from dumps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fldr : str</span>
+<span class="sd">            Folder containing dumps.</span>
+
+<span class="sd">        it : str</span>
+<span class="sd">            Timestep to load.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        struct_array : numpy.ndarray</span>
+<span class="sd">            Structured data array.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Dev Notes: the old way of saving the xyz file by</span>
+        <span class="c1"># np.savetxt(f_xyz, np.c_[data[&quot;names&quot;],data[&quot;pos&quot;] ....]</span>
+        <span class="c1"># , fmt=&quot;%10s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e&quot;)</span>
+        <span class="c1"># was not working, because the columns of np.c_[] all have the same data type &lt;U32</span>
+        <span class="c1"># which is in conflict with the desired fmt. i.e. data[&quot;names&quot;] was not recognized as a string.</span>
+        <span class="c1"># So I have to create a new structured array and pass this. I could not think of a more Pythonic way.</span>
+        <span class="n">struct_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;names&#39;</span><span class="p">,</span> <span class="s1">&#39;U6&#39;</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;pos_x&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;pos_y&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;pos_z&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;vel_x&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;vel_y&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;vel_z&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;acc_x&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;acc_y&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;acc_z&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)]</span>
+                                <span class="p">)</span>
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">]</span>
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;pos_x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;pos_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;pos_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;vel_x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;vel_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;vel_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;acc_x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;acc_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">struct_array</span><span class="p">[</span><span class="s2">&quot;acc_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">struct_array</span></div></div>
+
+
+<div class="viewcode-block" id="alpha_to_int"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.alpha_to_int">[docs]</a><span class="k">def</span> <span class="nf">alpha_to_int</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">text</span></div>
+
+
+<div class="viewcode-block" id="num_sort"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.num_sort">[docs]</a><span class="k">def</span> <span class="nf">num_sort</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Method copied from</span>
+<span class="sd">    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    originally from http://nedbatchelder.com/blog/200712/human_sorting.html</span>
+<span class="sd">    (See Toothy&#39;s implementation in the comments)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    text : str</span>
+<span class="sd">        Text to be split into str and int</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">     : list</span>
+<span class="sd">        List containing text and integers</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">alpha_to_int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)]</span></div>
 </pre></div>
 
            </div>
@@ -955,7 +1103,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 10, 2020.
+        Last updated on Sep, 13, 2020.
       </span>
 
     </p>

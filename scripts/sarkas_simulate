@@ -76,7 +76,7 @@ else:
     if options.restart:
         ls_str = options.restart.split('_')
         sim.parameters.load_method = ls_str[0] + '_restart'
-        sim.parameters.load_restart_step = int[ls_str[1]]
+        sim.parameters.restart_step = int[ls_str[1]]
 
     sim.setup()
     sim.run()

@@ -84,7 +84,7 @@ class Thermostat:
             Current timestep.
 
         """
-        K, T = ptcls.kinetic_temperature(self.kB)
+        K, T = ptcls.kinetic_temperature()
         berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep,
                               self.relaxation_rate, it)
 

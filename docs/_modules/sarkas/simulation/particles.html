@@ -297,11 +297,11 @@
 
         <span class="n">load_method</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span>
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;restart&#39;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">restart_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Restart step not defined. Please define restart_step in YAML file.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Only integers are allowed.&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">restart_step</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;therm_restart&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_therm_restart_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

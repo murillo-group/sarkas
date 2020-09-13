@@ -208,7 +208,33 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Thermodynamics&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">therm</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">Thermodynamics</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DynamicStructureFactor&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">DynamicStructureFactor</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CurrentCorrelationFunctions&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">CurrentCorrelationFunctions</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;StaticStructureFactor&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">StaticStructureFactor</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityMoments&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vm</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">VelocityMoments</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityAutocorrelationFunctions&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">VelocityAutocorrelationFunctions</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;ElectricCurrent&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">ElectricCurrent</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span></div>
+
+
 
 <div class="viewcode-block" id="PostProcess.setup"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PostProcess.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -895,12 +921,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------------- Equilibration -------------&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibrate</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="p">)</span>
         <span class="n">time_eq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Equilibration&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_eq</span><span class="p">))</span>
-
-        <span class="k">return</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Equilibration&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_eq</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Simulation.evolve"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.evolve">[docs]</a>    <span class="k">def</span> <span class="nf">evolve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -912,8 +937,8 @@
         <span class="c1">##############################################</span>
 
         <span class="c1"># Open output files</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s2">&quot;prod_restart&quot;</span><span class="p">:</span>
-            <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_restart_step</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;prod_restart&quot;</span><span class="p">,</span> <span class="s2">&quot;production_restart&quot;</span><span class="p">]:</span>
+            <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">it_start</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="c1"># Restart the pbc counter</span>
@@ -957,20 +982,14 @@
 
         <span class="n">time0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialization</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s2">&quot;therm_restart&quot;</span><span class="p">:</span>
-                <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_therm_restart_step</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;prod_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;production_restart&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;equilibration_restart&quot;</span><span class="p">,</span> <span class="s2">&quot;eq_restart&quot;</span><span class="p">]:</span>
+                <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">it_start</span> <span class="o">=</span> <span class="mi">0</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">equilibrate</span><span class="p">(</span><span class="n">it_start</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;FMM&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">calc_pot_acc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)</span>
-            <span class="c1"># else:</span>
-            <span class="c1"># potential_energy = self.potential.calc_pot_acc_fmm(self.particles, self.parameters)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">evolve</span><span class="p">()</span>
         <span class="n">time_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
@@ -1134,7 +1153,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 10, 2020.
+        Last updated on Sep, 13, 2020.
       </span>
 
     </p>

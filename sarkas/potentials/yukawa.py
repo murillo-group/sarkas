@@ -77,12 +77,14 @@ def yukawa_force(r, pot_matrix):
 
 def update_params(potential, params):
     """
-    Create potential dependent simulation's parameters.
+    Assign potential dependent simulation's parameters.
 
     Parameters
     ----------
-    potential
-    params: object
+    potential : sarkas.potential.Potential
+        Class handling potential form.
+
+    params: sarkas.base.Parameters
         Simulation's parameters.
 
     References

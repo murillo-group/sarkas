@@ -43,54 +43,32 @@ def setup(params, read_input=True):
     update_params(params)
 
 
-def update_params(params):
+def update_params(potential, params):
     """
-    Create potential dependent simulation's parameters as given by Ref. [Wilson1977]_ .
+    Assign potential dependent simulation's parameters.
 
     Parameters
     ----------
-    params : Params class
+    potential : sarkas.potential.Potential
+        Class handling potential form.
+
+    params: sarkas.base.Parameters
         Simulation's parameters.
 
+
     """
-    twopi = 2.0 * np.pi
-    beta_i = 1.0 / (params.kB * params.total_ion_temperature)
-    if not params.BC.open_axes:
-        params.potential.LL_on = True  # linked list on
-        if not hasattr(params.potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
-            params.potential.rc = params.box_lengths.min() / 2.
-            params.potential.LL_on = False  # linked list off
 
-        if params.potential.method == "PP" and params.potential.rc > params.box_lengths.min() / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
-            params.potential.rc = params.box_lengths.min() / 2.
-            params.potential.LL_on = False  # linked list off
-
-    params_len = int(2 * len(params.potential.C_params))
+    params_len = int(2 * len(potential.screening_lengths))
 
     Moliere_matrix = np.zeros((params_len + 1, params.num_species, params.num_species))
 
-    Z53 = 0.0
-    Z_avg = 0.0
-    for i, sp1 in enumerate(params.species):
-        if hasattr(sp1, "Z"):
-            Zi = sp1.Z
-        else:
-            Zi = 1.0
+    for i, q1 in enumerate(params.species_charges):
+        for j, q2 in enumerate(params.species_charges):
 
-        Z53 += Zi ** (5. / 3.) * sp1.concentration
-        Z_avg += Zi * sp1.concentration
-
-        for j, sp2 in enumerate(params.species):
-            if hasattr(sp2, "Z"):
-                Zj = sp2.Z
-            else:
-                Zj = 1.0
-
-            Moliere_matrix[0:len(params.potential.C_params), i, j] = params.potential.C_params
+            Moliere_matrix[0, i, j] = q1 * q2 / params.fourpie0
+            Moliere_matrix[0:params_len, i, j] = params.potential.C_params
             Moliere_matrix[len(params.potential.C_params):params_len, i, j] = params.potential.b_params
-            Moliere_matrix[params_len, i, j] = (Zi * Zj) * params.qe * params.qe / params.fourpie0
+
 
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)

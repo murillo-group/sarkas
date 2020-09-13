@@ -73,12 +73,84 @@ PREFIXES = {
 
 
 class Observable:
+    """
+    Parent class of all the observables.
+
+    Attributes
+    ----------
+    dataframe : pandas.DataFrame
+        Dataframe containing the computed data.
+
+    dataframe_longitudinal : pandas.DataFrame
+        Dataframe containing the longitudinal part of the computed observable.
+
+    dataframe_transverse : pandas.DataFrame
+        Dataframe containing the transverse part of the computed observable.
+
+    no_ka_harmonics : list
+        Maximum number of :math:`\mathbf{k}` harmonics to calculatealong each dimension.
+
+    phase : str
+        Phase to analyze.
+
+    prod_no_dumps : int
+        Number of production phase checkpoints. Calculated from the number of files in the Production directory.
+
+    eq_no_dumps : int
+        Number of equilibration phase checkpoints. Calculated from the number of files in the Equilibration directory.
+
+    no_dumps : int
+        Number of simulation's checkpoints. Calculated from the number of files in the phase folder.
+
+    dump_dir : str
+        Path to correct dump directory.
+
+    dump_step : int
+        Correct step interval.
+        It is either ``sarkas.base.Parameters.prod_dump_step`` or ``sarkas.base.Parameters.eq_dump_step``.
+
+    species : list
+        List of ``sarkas.base.Species`` indicating simulation's species.
+
+    no_obs : int
+        Number of independent binary observable quantities.
+        It is calculated as :math:`N_s (N_s + 1) / 2` where :math: `N_s` is the number of species.
+
+    k_file : str
+        Path to the npz file storing the :math:`k` vector values.
+
+    nkt_file : str
+        Path to the npy file containing the Fourier transform of density fluctuations. :math:`n(\mathbf k, t)`.
+
+    vkt_file : str
+        Path to the npz file containing the Fourier transform of velocity fluctuations. :math:`\mathbf v(\mathbf k, t)`.
+
+    k_space_dir : str
+        Directory where :math:`\mathbf {k}` data is stored.
+
+    filename_csv_longitudinal : str
+        Path to to the csv file containing the longitudinal part of the computed observable.
+
+    filename_csv_transverse : str
+        Path to the csv file containing the transverse part of the computed observable.
+
+    saving_dir : str
+        Path to the directory where computed data is stored.
+
+    """
 
     def __init__(self):
         self.species = list()
-    #
+        self.dataframe = pd.DataFrame()
+        self.dataframe_longitudinal = pd.DataFrame()
+        self.dataframe_transverse = pd.DataFrame()
+        self.saving_dir = None
+        self.filename_csv = None
+        self.filename_csv_longitudinal = None
+        self.filename_csv_transverse = None
+        self.phase = None
 
-    def setup_init(self, params, species):
+    def setup_init(self, params, species, phase):
         self.__dict__.update(params.__dict__)
 
         if len(self.species) < params.num_species:
@@ -86,11 +158,11 @@ class Observable:
                 self.species.append(sp)
 
         # Create the lists of k vectors
-        if hasattr(self, 'no_ka_vectors'):
-            if len(self.no_ka_vectors) == 0:
-                self.no_ka_vectors = np.ones(3, dtype=int) * self.no_ka_vectors
+        if hasattr(self, 'no_ka_harmonics'):
+            if isinstance(self.no_ka_harmonics, np.ndarray) == 0:
+                self.no_ka_harmonics = np.ones(3, dtype=int) * self.no_ka_harmonics
         else:
-            self.no_ka_vectors = [5, 5, 5]
+            self.no_ka_harmonics = [5, 5, 5]
 
         self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
         self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
@@ -101,6 +173,16 @@ class Observable:
         self.prod_no_dumps = len(os.listdir(self.prod_dump_dir))
         self.eq_no_dumps = len(os.listdir(self.eq_dump_dir))
 
+        if self.phase == 'equilibration':
+            self.no_dumps = self.eq_no_dumps
+            self.dump_dir = self.eq_dump_dir
+            self.dump_step = self.eq_dump_step
+
+        else:
+            self.no_dumps = self.prod_no_dumps
+            self.dump_dir = self.prod_dump_dir
+            self.dump_step = self.eq_dump_step
+
         if hasattr(params, 'mpl_style'):
             plt.style.use(params.mpl_style)
 
@@ -109,32 +191,15 @@ class CurrentCorrelationFunctions(Observable):
     """
     Current Correlation Functions: :math:`L(k,\\omega)` and :math:`T(k,\\omega)`.
 
-    Parameters
-    ----------
-    params : object
-        Simulation's parameters
-
     Attributes
     ----------
-    dataframe_longitudinal : Pandas dataframe
-        Dataframe of the longitudinal velocity correlation functions.
-
-    dataframe_transverse : Pandas dataframe
-        Dataframe of the transverse velocity correlation functions.
-
-    filename_csv_longitudinal: str
-        Name of file for the longitudinal velocities fluctuation correlation function.
-
-    filename_csv_transverse: str
-        Name of file for the transverse velocities fluctuation correlation function.
-
     k_list : list
         List of all possible :math:`k` vectors with their corresponding magnitudes and indexes.
 
-    k_counts : array
+    k_counts : numpy.ndarray
         Number of occurrences of each :math:`k` magnitude.
 
-    ka_values : array
+    ka_values : numpy.ndarray
         Magnitude of each allowed :math:`ka` vector.
 
     no_ka_values: int
@@ -142,26 +207,35 @@ class CurrentCorrelationFunctions(Observable):
 
     """
 
-    def __init__(self, params):
+    def setup(self, params, species, phase=None):
         """
-        Initialize the attributes from simulation's parameters.
+        Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: cls
-            Simulation's parameters.
-        """
-        super().__init__(params)
-        self.ka_values = None
-        self.k_list = None
-        self.k_counts = None
-        self.no_ka_values = None
+        phase : str
+            Phase to analyze.
 
-        self.dataframe_longitudinal = pd.DataFrame()
-        self.dataframe_transverse = pd.DataFrame()
-        self.saving_dir = os.path.join(self.postprocessing_dir, 'CurrentCorrelationFunctions')
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of sarkas.base.Species.
+
+        """
+
+        self.phase = phase if phase else 'production'
+
+        super().setup_init(params, species, self.phase)
+
+        saving_dir = os.path.join(self.postprocessing_dir, 'CurrentCorrelationFunctions')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
+
         self.filename_csv_longitudinal = os.path.join(self.saving_dir,
                                                       "LongitudinalCurrentCorrelationFunction_" + self.job_id + '.csv')
         self.filename_csv_transverse = os.path.join(self.saving_dir,
@@ -172,8 +246,8 @@ class CurrentCorrelationFunctions(Observable):
         Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
         """
         try:
-            self.dataframe_l = pd.read_csv(self.l_filename_csv, index_col=False)
-            self.dataframe_t = pd.read_csv(self.t_filename_csv, index_col=False)
+            self.dataframe_longitudinal = pd.read_csv(self.filename_csv_longitudinal, index_col=False)
+            self.dataframe_transverse = pd.read_csv(self.filename_csv_transverse, index_col=False)
             k_data = np.load(self.k_file)
             self.k_list = k_data["k_list"]
             self.k_counts = k_data["k_counts"]
@@ -187,10 +261,10 @@ class CurrentCorrelationFunctions(Observable):
         """
         Calculate the velocity fluctuations correlation functions.
         """
-        self.dataframe_longitudinal["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.prod_no_dumps,
-                                                                                  self.dt * self.prod_dump_step)
-        self.dataframe_transverse["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.prod_no_dumps,
-                                                                                self.dt * self.prod_dump_step)
+        self.dataframe_longitudinal["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps,
+                                                                                  self.dt * self.dump_step)
+        self.dataframe_transverse["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps,
+                                                                                self.dt * self.dump_step)
         # Parse vkt otherwise calculate them
         try:
             data = np.load(self.vkt_file)
@@ -205,7 +279,7 @@ class CurrentCorrelationFunctions(Observable):
             self.no_ka_values = len(self.ka_values)
 
         except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_vectors, self.box_lengths)
+            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
             self.ka_values = 2.0 * np.pi * k_unique * self.aws
             self.no_ka_values = len(self.ka_values)
 
@@ -217,7 +291,7 @@ class CurrentCorrelationFunctions(Observable):
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.prod_dump_dir, self.prod_no_dumps, self.prod_dump_step,
+            vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir, self.no_dumps, self.dump_step,
                                                 self.species_num,
                                                 self.k_list)
             np.savez(self.vkt_file,
@@ -227,14 +301,14 @@ class CurrentCorrelationFunctions(Observable):
                      transverse_k=vkt_k)
 
         # Calculate Lkw
-        Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
-                       self.prod_dump_step)
-        Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
-                         self.prod_dump_step)
-        Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
-                         self.prod_dump_step)
-        Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
-                         self.prod_dump_step)
+        Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
+                       self.dump_step)
+        Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
+                         self.dump_step)
+        Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
+                         self.dump_step)
+        Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
+                         self.dump_step)
         Tkw = (Tkw_i + Tkw_j + Tkw_k) / 3.0
         print("Saving L(k,w) and T(k,w)")
         sp_indx = 0
@@ -298,8 +372,7 @@ class CurrentCorrelationFunctions(Observable):
                     column = "{}-{} CCF ka_min".format(sp1.name, sp2.name)
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
                             np.fft.fftshift(self.dataframe[column]),
-                            label=r'$' + lbl + '_{' + sp1.name + sp2.name + '}(k,'
-                                                                            '\omega)$')
+                            label=r'$' + lbl + '_{' + sp1.name + sp2.name + '}(k,\omega)$')
         else:
             column = "{}-{} CCF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
@@ -314,7 +387,6 @@ class CurrentCorrelationFunctions(Observable):
         ax.grid(True, alpha=0.3)
         ax.legend(loc='best', ncol=3)
         ax.set_yscale('log')
-        ax.set_xlim(0, 3)
         if longitudinal:
             ax.set_ylabel(r'$L(k,\omega)$')
             fig_name = os.path.join(self.saving_dir, 'Lkw_' + self.job_id + '.png')
@@ -355,35 +427,51 @@ class DynamicStructureFactor(Observable):
     """
     Dynamic Structure factor.
 
-    Parameters
-    ----------
-    params : cls
-        Simulation's parameters
-
     Attributes
     ----------
+    k_list : list
+        List of all possible :math:`k` vectors with their corresponding magnitudes and indexes.
 
-   """
+    k_counts : numpy.ndarray
+        Number of occurrences of each :math:`k` magnitude.
 
-    def __init__(self, params):
+    ka_values : numpy.ndarray
+        Magnitude of each allowed :math:`ka` vector.
+
+    no_ka_values: int
+        Length of ``ka_values`` array.
+
+    """
+
+    def setup(self, params, species, phase=None):
         """
-        Initialize the attributes from simulation's parameters.
+        Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: S_params class
-            Simulation's parameters.
-        """
-        super().__init__(params)
-        self.ka_values = None
-        self.k_list = None
-        self.k_counts = None
-        self.no_ka_values = None
+        phase : (optional), str
+            Phase to analyze.
 
-        self.dataframe = pd.DataFrame()
-        self.saving_dir = os.path.join(self.postprocessing_dir, 'DynamicStructureFactor')
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
+        """
+
+        self.phase = phase if phase else 'production'
+        super().setup_init(params, species, self.phase)
+
+        # Create the directory where to store the computed data
+        saving_dir = os.path.join(self.postprocessing_dir, 'DynamicStructureFactor')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
+
         self.filename_csv = os.path.join(self.saving_dir, "DynamicStructureFactor_" + self.job_id + '.csv')
 
     def parse(self):
@@ -409,8 +497,6 @@ class DynamicStructureFactor(Observable):
         ``self.Skw``. Shape = (``no_ws``, ``no_Sij``)
         """
 
-        self.dataframe["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.prod_no_dumps, self.dt * self.prod_dump_step)
-
         # Parse nkt otherwise calculate it
         try:
             nkt = np.load(self.nkt_file)
@@ -419,10 +505,9 @@ class DynamicStructureFactor(Observable):
             self.k_counts = k_data["k_counts"]
             self.ka_values = k_data["ka_values"]
             self.no_ka_values = len(self.ka_values)
-            print("n(k,t) Loaded")
-            print(nkt.shape)
+
         except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_vectors, self.box_lengths)
+            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
             self.ka_values = 2.0 * np.pi * k_unique * self.aws
             self.no_ka_values = len(self.ka_values)
 
@@ -434,12 +519,14 @@ class DynamicStructureFactor(Observable):
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            nkt = calc_nkt(self.prod_dump_dir, self.prod_no_dumps, self.prod_dump_step, self.species_num, self.k_list)
+            nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list)
             np.save(self.nkt_file, nkt)
 
+        self.dataframe["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)
+
         # Calculate Skw
-        Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps, self.dt,
-                       self.prod_dump_step)
+        Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
+                       self.dump_step)
         print("Saving S(k,w)")
         sp_indx = 0
         for i, sp1 in enumerate(self.species):
@@ -491,7 +578,6 @@ class DynamicStructureFactor(Observable):
         ax.grid(True, alpha=0.3)
         ax.legend(loc='best', ncol=3)
         ax.set_yscale('log')
-        ax.set_xlim(0, 3)
         ax.set_ylabel(r'$S(k,\omega)$')
         ax.set_xlabel(r'$\omega/\omega_p$')
         fig.tight_layout()
@@ -524,65 +610,48 @@ class ElectricCurrent(Observable):
     """
     Electric Current Auto-correlation function.
 
-    Parameters
-    ----------
-    params : object
-        Simulation's parameters
-
     Attributes
     ----------
-    a_ws : float
-        Wigner-Seitz radius.
+    dataframe : pandas.DataFrame
+        Dataframe of the longitudinal velocity correlation functions.
 
-    wp : float
-        Total plasma frequency.
+    saving_dir : str
+        Path to directory where computed data is stored.
 
-    dump_step : int
-        Dump step frequency.
-
-    dt : float
-        Timestep magnitude.
-
-    filename_csv: str
-        Name of output files.
-
-    fldr : str
-        Folder containing dumps.
-
-    no_dumps : int
-        Number of dumps.
-
-    no_species : int
-        Number of species.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    species_charge: array
-        Array of with the charge of each species.
-
-    species_names : list
-        Names of particle species.
-
-    tot_no_ptcls : int
-        Total number of particles.
+    filename_csv : str
+        Name of file for the longitudinal velocities fluctuation correlation function.
 
     """
 
-    def __init__(self, params):
+    def setup(self, params, species, phase=None):
         """
         Initialize the attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: object
+        phase : (optional), str
+            Phase to analyze.
+
+        params: sarkas.base.Parameters
             Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
         """
-        super().__init__(params)
-        self.dataframe = pd.DataFrame()
-        self.saving_dir = os.path.join(self.postprocessing_dir, 'ElectricCurrent')
+        self.phase = phase if phase else 'production'
+
+        super().setup_init(params, species, self.phase)
+
+        # Create the directory where to store the computed data
+        saving_dir = os.path.join(self.postprocessing_dir, 'ElectricCurrent')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
+
         self.filename_csv = os.path.join(self.saving_dir, "ElectricCurrent_" + self.job_id + '.csv')
 
     def parse(self):
@@ -602,14 +671,14 @@ class ElectricCurrent(Observable):
         """
 
         # Parse the particles from the dump files
-        vel = np.zeros((self.prod_no_dumps, 3, self.total_num_ptcls))
+        vel = np.zeros((self.no_dumps, 3, self.total_num_ptcls))
         #
         print("Parsing particles' velocities.")
-        time = np.zeros(self.prod_no_dumps)
-        for it in tqdm(range(self.prod_no_dumps), disable=(not self.verbose)):
-            dump = int(it * self.prod_dump_step)
+        time = np.zeros(self.no_dumps)
+        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
+            dump = int(it * self.dump_step)
             time[it] = dump * self.dt
-            datap = load_from_restart(self.prod_dump_dir, dump)
+            datap = load_from_restart(self.dump_dir, dump)
             vel[it, 0, :] = datap["vel"][:, 0]
             vel[it, 1, :] = datap["vel"][:, 1]
             vel[it, 2, :] = datap["vel"][:, 2]
@@ -690,93 +759,58 @@ class HermiteCoefficients(Observable):
     """
     Hermite coefficients of the Hermite expansion.
 
-    Parameters
-    ----------
-    params: object
-        Simulation's parameters
-
     Attributes
     ----------
-    dump_dir: str
-        Directory containing simulation's dumps.
-
-    dump_step : int
-        Dump step frequency.
-
-    filename_csv: str
-        Filename in which to store the Pandas dataframe.
-
-    fldr: str
-        Job's directory.
-
-    fname_app: str
-        Appendix of file names.
-
     hermite_order: int
         Order of the Hermite expansion.
 
     no_bins: int
         Number of bins used to calculate the velocity distribution.
 
-    no_dumps: int
-        Number of simulation's dumps to compute.
-
     plots_dir: str
         Directory in which to store Hermite coefficients plots.
-
-    a_ws : float
-        Wigner-Seitz radius.
-
-    wp : float
-        Total plasma frequency.
-
-    kB : float
-        Boltzmann constant.
-
-    dt : float
-        Timestep magnitude.
-
-    no_species : int
-        Number of species.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    species_names : list
-        Names of particle species.
-
-    tot_no_ptcls : int
-        Total number of particles.
 
     species_plots_dirs : list, str
         Directory for each species where to save Hermite coefficients plots.
 
-    units: str
-        System of units used in the simulation. mks or cgs.
-
     """
 
-    def setup(self, params, species):
+    def setup(self, params, species, phase=None):
         """
-        Initialize the attributes from simulation's parameters.
+        Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: S_params class
-            Simulation's parameters.
-        """
-        super(HermiteCoefficients, self).setup_init(params, species)
-        self.dataframe = pd.DataFrame()
-        self.saving_dir = os.path.join(self.postprocessing_dir, 'HermiteExpansion')
+        phase : (optional), str
+            Phase to analyze.
 
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
+        """
+
+        self.phase = phase if phase else 'equilibration'
+
+        super().setup_init(params, species, self.phase)
+
+        # Create the directory where to store the computed data
+        saving_dir = os.path.join(self.postprocessing_dir, 'HermiteExpansion')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
-        self.plots_dir = os.path.join(self.saving_dir, 'Hermite_Plots')
-
-        if not os.path.exists(self.plots_dir):
-            os.mkdir(self.plots_dir)
         self.filename_csv = os.path.join(self.saving_dir, "HermiteCoefficients_" + self.job_id + '.csv')
 
+        self.plots_dir = os.path.join(self.saving_dir, 'Hermite_Plots')
+        if not os.path.exists(self.plots_dir):
+            os.mkdir(self.plots_dir)
+
+        # Check that the existence of important attributes
         if not hasattr(self, 'no_bins'):
             self.no_bins = int(0.05 * params.total_num_ptcls)
 
@@ -792,16 +826,16 @@ class HermiteCoefficients(Observable):
         vscale = 1.0 / (self.aws * self.total_plasma_frequency)
         vel = np.zeros((self.dimensions, self.total_num_ptcls))
 
-        xcoeff = np.zeros((self.num_species, self.prod_no_dumps, self.hermite_order + 1))
-        ycoeff = np.zeros((self.num_species, self.prod_no_dumps, self.hermite_order + 1))
-        zcoeff = np.zeros((self.num_species, self.prod_no_dumps, self.hermite_order + 1))
+        xcoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))
+        ycoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))
+        zcoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))
 
-        time = np.zeros(self.prod_no_dumps)
+        time = np.zeros(self.no_dumps)
         print("Computing Hermite Coefficients ...")
-        for it in range(self.prod_no_dumps):
-            time[it] = it * self.dt * self.prod_dump_step
-            dump = int(it * self.prod_dump_step)
-            datap = load_from_restart(self.prod_dump_dir, dump)
+        for it in range(self.no_dumps):
+            time[it] = it * self.dt * self.dump_step
+            dump = int(it * self.dump_step)
+            datap = load_from_restart(self.dump_dir, dump)
             vel[0, :] = datap["vel"][:, 0]
             vel[1, :] = datap["vel"][:, 1]
             vel[2, :] = datap["vel"][:, 2]
@@ -857,6 +891,7 @@ class HermiteCoefficients(Observable):
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
 
+        # Create a plots directory for each species for the sake of neatness
         if self.num_species > 1:
             self.species_plots_dirs = []
             for i, name in enumerate(self.species_names):
@@ -890,7 +925,8 @@ class HermiteCoefficients(Observable):
             ax[0].set_xlabel(r'$t$' + xlbl)
             ax[1].set_xlabel(r'$t$' + xlbl)
 
-            sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp]) / (self.aws * self.total_plasma_frequency)
+            sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp])
+            sigma /= (self.aws * self.total_plasma_frequency)  # Rescale
 
             for i in range(0, self.hermite_order, 2):
                 coeff = np.zeros(i + 1)
@@ -917,7 +953,7 @@ class HermiteCoefficients(Observable):
             yt = np.arange(0, self.hermite_order + self.hermite_order % 2, 2)
             ax[1].set_yticks(yt)
             ax[1].set_yticklabels(np.zeros(len(yt)))
-            fig.suptitle("Hermite Coefficients of {}".format(name))
+            fig.suptitle("Hermite Coefficients of {}".format(name) + '  Phase: ' + self.phase.capitalize())
             plot_name = os.path.join(self.species_plots_dirs[sp], '{}_HermCoeffPlot_'.format(name)
                                      + self.job_id + '.png')
             fig.savefig(plot_name)
@@ -929,77 +965,41 @@ class RadialDistributionFunction(Observable):
     """
     Radial Distribution Function.
 
-    Parameters
-    ----------
-    params : object
-        Simulation's parameters
-
     Attributes
     ----------
-    a_ws : float
-        Wigner-Seitz radius.
-
-    box_lengths : array
-        Length of each side of the box.
-
-    box_volume : float
-        Volume of simulation's box.
-
-    dataframe : Pandas dataframe
-        It contains the radial distribution functions.
-
-    dump_step : int
-        Dump step frequency.
-
-    filename_csv: str
-        Name of csv file containing the radial distribution functions.
-
-    fname_app: str
-        Appendix of file names.
-
-    fldr : str
-        Folder containing dumps.
-
     no_bins : int
         Number of bins.
 
-    no_dumps : int
-        Number of dumps.
-
-    no_grs : int
-        Number of :math:`g_{ij}(r)` pairs.
-
-    no_species : int
-        Number of species.
-
-    no_steps : int
-        Total number of steps for which the RDF has been calculated.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    species_names : list
-        Names of particle species.
-
-    tot_no_ptcls : int
-        Total number of particles.
-
     dr_rdf : float
         Size of each bin.
+
     """
 
-    def setup(self, params, species):
+    def setup(self, params, species, phase=None):
         """
-        Initialize the attributes from simulation's parameters.
+        Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: S_params class
+        phase : (optional), str
+            Phase to analyze.
+
+        params : sarkas.base.Parameters
             Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
         """
-        super().setup_init(params, species)
-        self.dataframe = pd.DataFrame()
-        self.saving_dir = os.path.join(self.postprocessing_dir, 'RadialDistributionFunction')
+        self.phase = phase if phase else 'production'
+
+        super().setup_init(params, species, self.phase)
+
+        saving_dir = os.path.join(self.postprocessing_dir, 'RadialDistributionFunction')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
@@ -1011,20 +1011,20 @@ class RadialDistributionFunction(Observable):
         """
         Parameters
         ----------
-        rdf_hist : array
+        rdf_hist : numpy.ndarray
             Histogram of the radial distribution function.
 
         """
         if not isinstance(rdf_hist, np.ndarray):
             # Find the last dump by looking for the longest filename in
-            dumps_list = os.listdir(self.prod_dump_dir)
+            dumps_list = os.listdir(self.dump_dir)
             last = 0
             for file in dumps_list:
                 name, ext = os.path.splitext(file)
                 _, number = name.split('_')
                 if int(number) > last:
                     last = int(number)
-            data = load_from_restart(self.prod_dump_dir, int(last))
+            data = load_from_restart(self.dump_dir, int(last))
             rdf_hist = data["rdf_hist"]
 
         self.no_bins = rdf_hist.shape[0]
@@ -1053,7 +1053,7 @@ class RadialDistributionFunction(Observable):
         gr_ij = 0
         for i, sp1 in enumerate(self.species):
             for j, sp2 in enumerate(self.species[i:], i):
-                denom_const = (2.0 - (i != j) ) / (pair_density[i, j] * self.production_steps)
+                denom_const = (2.0 - (i != j)) / (pair_density[i, j] * self.production_steps)
                 gr[:, gr_ij] = rdf_hist[:, i, j] * denom_const / bin_vol[:]
 
                 self.dataframe['{}-{} RDF'.format(sp1.name, sp2.name)] = gr[:, gr_ij]
@@ -1116,95 +1116,52 @@ class RadialDistributionFunction(Observable):
 
 
 class StaticStructureFactor(Observable):
-    """Static Structure Factors :math:`S_{ij}(k)`.
-
-    Parameters
-    ----------
-    params : object
-        Simulation's parameters
+    """
+    Static Structure Factors :math:`S_{ij}(k)`.
 
     Attributes
     ----------
-    a_ws : float
-        Wigner-Seitz radius.
-
-    box_lengths : array
-        Array with box length in each direction.
-
-    dataframe : dict
-        Pandas dataframe. It contains all the :math:`S_{ij}(k)` and :math:`ka`.
-
-    dump_step : int
-        Dump step frequency.
-
-    filename_csv: str
-        Name of output files.
-
-    fname_app: str
-        Appendix of filenames.
-
-    fldr : str
-        Folder containing dumps.
-
-    no_dumps : int
-        Number of dumps.
-
-    no_species : int
-        Number of species.
-
-    no_Sk : int
-        Number of :math: `S_{ij}(k)` pairs.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    species_names : list
-        Names of particle species.
-
-    tot_no_ptcls : int
-        Total number of particles.
-
-    ptcls_fldr : str
-        Directory of Sarkas dumps.
-
-    k_fldr : str
-        Directory of :math:`k`-space fluctuations.
-
-    nkt_file : str
-        Name of file containing :math:`n(k,t)` of each species.
-
-    k_file : str
-        Name of file containing ``k_list``, ``k_counts``, ``ka_values``.
-
     k_list : list
         List of all possible :math:`k` vectors with their corresponding magnitudes and indexes.
 
-    k_counts : array
+    k_counts : numpy.ndarray
         Number of occurrences of each :math:`k` magnitude.
 
-    ka_values : array
+    ka_values : numpy.ndarray
         Magnitude of each allowed :math:`ka` vector.
 
     no_ka_values: int
         Length of ``ka_values`` array.
+
     """
 
-    def __init__(self, params):
+    def setup(self, params, species, phase=None):
         """
-        Initialize the attributes from simulation's parameters.
+        Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: S_params class
-            Simulation's parameters.
-        """
-        super().__init__(params)
-        self.ka_values = None
-        self.k_list = None
-        self.k_counts = None
+        phase : (optional), str
+            Phase to analyze.
 
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
+        """
+        if not hasattr(self, 'phase'):
+            self.phase = phase if phase else 'production'
+
+        super().setup_init(params, species, self.phase)
         self.dataframe = pd.DataFrame()
-        self.saving_dir = os.path.join(self.postprocessing_dir, 'StaticStructureFunction')
+
+        saving_dir = os.path.join(self.postprocessing_dir, 'StaticStructureFunction')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
@@ -1235,7 +1192,7 @@ class StaticStructureFactor(Observable):
             self.no_ka_values = len(self.ka_values)
             print("n(k,t) Loaded")
         except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_vectors, self.box_lengths)
+            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
             self.ka_values = 2.0 * np.pi * k_unique * self.aws
             self.no_ka_values = len(self.ka_values)
 
@@ -1247,13 +1204,13 @@ class StaticStructureFactor(Observable):
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            nkt = calc_nkt(self.prod_dump_dir, self.prod_no_dumps, self.prod_dump_step, self.species_num, self.k_list)
+            nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list)
             np.save(self.nkt_file, nkt)
 
         self.dataframe["ka values"] = self.ka_values
 
         print("Calculating S(k) ...")
-        Sk_all = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.prod_no_dumps)
+        Sk_all = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.no_dumps)
         Sk = np.mean(Sk_all, axis=-1)
         Sk_err = np.std(Sk_all, axis=-1)
 
@@ -1315,79 +1272,28 @@ class StaticStructureFactor(Observable):
 class Thermodynamics(Observable):
     """
     Thermodynamic functions.
-
-    Parameters
-    ----------
-    params : object
-        Simulation's parameters
-
-    Attributes
-    ----------
-    a_ws : float
-        Wigner-Seitz radius.
-
-    box_volume: float
-        Box Volume
-
-    dataframe : pandas DataFrame
-        It contains all the thermodynamics functions.
-        options: "Total Energy", "Potential Energy", "Kinetic Energy", "Temperature", "time", "Pressure",
-        "Pressure Tensor ACF", "Pressure Tensor", "Gamma", "{species name} Temperature",
-        "{species name} Kinetic Energy".
-
-    dump_step : int
-        Dump step frequency.
-
-    filename_csv : str
-        Name of csv output file.
-
-    fldr : str
-        Folder containing dumps.
-
-    eV2K : float
-        Conversion factor from eV to Kelvin.
-
-    no_dim : int
-        Number of non-zero dimensions.
-
-    no_dumps : int
-        Number of dumps.
-
-    no_species : int
-        Number of species.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    species_names : list
-        Names of particle species.
-
-    species_masses : list
-        Names of particle species.
-
-    tot_no_ptcls : int
-        Total number of particles.
-
-    wp : float
-        Plasma frequency.
-
-    kB : float
-        Boltzmann constant.
-
-    units : str
-        System of units used in the simulation. mks or cgs.
     """
 
-    def setup(self, params, species):
+    def setup(self, params, species, phase=None):
         """
-        Initialize the attributes from simulation's parameters.
+        Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: S_params class
+        phase : (optional), str
+            Phase to analyze.
+
+        params : sarkas.base.Parameters
             Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
         """
-        super().setup_init(params, species)
+        if not hasattr(self, 'phase'):
+            self.phase = phase if phase else 'production'
+
+        super().setup_init(params, species, self.phase)
         self.dataframe = pd.DataFrame()
 
         if params.load_method == "restart":
@@ -1404,14 +1310,14 @@ class Thermodynamics(Observable):
         vel = np.zeros((self.dimensions, self.total_num_ptcls))
         acc = np.zeros((self.dimensions, self.total_num_ptcls))
 
-        pressure = np.zeros(self.prod_no_dumps)
-        pressure_tensor_temp = np.zeros((3, 3, self.prod_no_dumps))
+        pressure = np.zeros(self.no_dumps)
+        pressure_tensor_temp = np.zeros((3, 3, self.no_dumps))
 
         # Collect particles' positions, velocities and accelerations
-        for it in range(int(self.prod_no_dumps)):
-            dump = int(it * self.prod_dump_step)
+        for it in range(int(self.no_dumps)):
+            dump = int(it * self.dump_step)
 
-            data = load_from_restart(self.prod_dump_dir, dump)
+            data = load_from_restart(self.dump_dir, dump)
             pos[0, :] = data["pos"][:, 0]
             pos[1, :] = data["pos"][:, 1]
             pos[2, :] = data["pos"][:, 2]
@@ -1455,10 +1361,10 @@ class Thermodynamics(Observable):
         potential_matrix: ndarray
             Potential parameters.
 
-        r : array
+        r : numpy.ndarray
             Particles' distances.
 
-        gr : array
+        gr : numpy.ndarray
             Pair distribution function.
 
         Returns
@@ -1549,9 +1455,9 @@ class Thermodynamics(Observable):
         elif quantity == 'Temperature' and self.num_species > 1:
             for sp in self.species_names:
                 qstr = "{} Temperature".format(sp)
-                ax.plot(self.dataframe["Time"] * xmul, self.dataframe[qstr] * ymul, label = qstr)
-            ax.plot(self.dataframe["Time"] * xmul, self.dataframe["Temperature"] * ymul, label = 'Total Temperature')
-            ax.legend(loc = 'best')
+                ax.plot(self.dataframe["Time"] * xmul, self.dataframe[qstr] * ymul, label=qstr)
+            ax.plot(self.dataframe["Time"] * xmul, self.dataframe["Temperature"] * ymul, label='Total Temperature')
+            ax.legend(loc='best')
         else:
             ax.plot(self.dataframe["Time"] * xmul, self.dataframe[quantity] * ymul)
 
@@ -1598,7 +1504,7 @@ class Thermodynamics(Observable):
         # Loop over the blocks
         tau_blk, sigma2_blk, statistical_efficiency = calc_statistical_efficiency(observable,
                                                                                   run_avg, run_std,
-                                                                                  max_no_divisions, self.prod_no_dumps)
+                                                                                  max_no_divisions, self.no_dumps)
         # Plot the statistical efficiency
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
         ax.plot(1 / tau_blk[2:], statistical_efficiency[2:], '--o', label=quantity)
@@ -1621,6 +1527,7 @@ class Thermodynamics(Observable):
 
         Parameters
         ----------
+        simulation
         phase: str
             Phase to plot. "equilibration" or "production".
 
@@ -1634,6 +1541,20 @@ class Thermodynamics(Observable):
 
         if phase:
             self.phase = phase
+            if self.phase == 'equilibration':
+                self.no_dumps = self.eq_no_dumps
+                self.dump_dir = self.eq_dump_dir
+                self.dump_step = self.eq_dump_step
+                self.fldr = self.equilibration_dir
+                self.no_steps = self.equilibration_steps
+
+            else:
+                self.no_dumps = self.prod_no_dumps + 1
+                self.dump_dir = self.prod_dump_dir
+                self.dump_step = self.eq_dump_step
+                self.fldr = self.production_dir
+                self.no_steps = self.production_steps
+
             self.parse(phase)
         else:
             self.parse()
@@ -1641,15 +1562,7 @@ class Thermodynamics(Observable):
         fig = plt.figure(figsize=(16, 9))
         gs = GridSpec(4, 8)
         fsz = 14
-        self.no_dumps = len(self.dataframe["Time"])
-        if self.phase == 'equilibration':
-            self.fldr = self.equilibration_dir
-            self.no_steps = self.equilibration_steps
-            self.dump_step = self.eq_dump_step
-        else:
-            self.fldr = self.production_dir
-            self.no_steps = self.production_steps
-            self.dump_step = self.prod_dump_step
+
         nbins = int(0.05 * self.no_dumps)
 
         Info_plot = fig.add_subplot(gs[0:4, 0:2])
@@ -1666,20 +1579,20 @@ class Thermodynamics(Observable):
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Temperature"], "Time",
                                                                "Temperature", self.units)
-        T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps)]
 
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
         T_main_plot.axhline(ymul * self.T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
 
         Delta_T = (self.dataframe["Temperature"] - self.T_desired) * 100 / self.T_desired
-        Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps)]
         T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T, alpha=0.5)
         T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T_cum_avg, alpha=0.8)
 
         T_delta_plot.get_xaxis().set_ticks([])
         T_delta_plot.set_ylabel(r'Deviation [%]')
-        T_delta_plot.tick_params(labelsize=fsz-2)
+        T_delta_plot.tick_params(labelsize=fsz - 2)
         T_main_plot.tick_params(labelsize=fsz)
         T_main_plot.legend(loc='best')
         T_main_plot.set_ylabel("Temperature" + ylbl)
@@ -1694,7 +1607,7 @@ class Thermodynamics(Observable):
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Total Energy"], "Time",
                                                                "Total Energy", self.units)
-        E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps)]
 
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * E_cumavg, label='Cum Avg')
@@ -1702,13 +1615,13 @@ class Thermodynamics(Observable):
 
         Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"][0]) * 100 / \
                   self.dataframe["Total Energy"][0]
-        Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps)]
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E, alpha=0.5)
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E_cum_avg, alpha=0.8)
 
         E_delta_plot.get_xaxis().set_ticks([])
         E_delta_plot.set_ylabel(r'Deviation [%]')
-        E_delta_plot.tick_params(labelsize=fsz-2)
+        E_delta_plot.tick_params(labelsize=fsz - 2)
         E_main_plot.tick_params(labelsize=fsz)
         E_main_plot.legend(loc='best')
         E_main_plot.set_ylabel("Total Energy" + ylbl)
@@ -1741,7 +1654,7 @@ class Thermodynamics(Observable):
         Info_plot.text(0., y_coord - 0.5,
                        "Thermostat: {}".format(simulation.thermostat.type), fontsize=fsz)
         Info_plot.text(0., y_coord - 1.,
-                       "Berendsen rate = {:1.2f}".format( simulation.thermostat.relaxation_rate), fontsize=fsz)
+                       "Berendsen rate = {:1.2f}".format(simulation.thermostat.relaxation_rate), fontsize=fsz)
         Info_plot.text(0., y_coord - 1.5,
                        "Potential: {}".format(simulation.potential.type), fontsize=fsz)
         Info_plot.text(0., y_coord - 2.,
@@ -1784,11 +1697,12 @@ class Transport:
         pass
 
     @staticmethod
-    def electrical_conductivity(params, show=False):
+    def electrical_conductivity(params, species, phase=None, show=False):
         """
         """
         coefficient = pd.DataFrame()
-        energies = Thermodynamics(params)
+        energies = Thermodynamics()
+        energies.setup(params, species, phase)
         energies.parse('production')
         beta = (energies.kB * energies.dataframe["Temperature"].mean()) ** (-1.0)
         j_current = ElectricCurrent(params)
@@ -1803,7 +1717,7 @@ class Transport:
         coefficient["Electrical Conductivity"] = const * sigma
         # Plot the transport coefficient at different integration times
         xmul, ymul, _, _, xlbl, ylbl = plot_labels(j_current.dataframe["Time"], sigma, "Time", "Conductivity",
-                                                j_current.units)
+                                                   j_current.units)
         fig, [ax1, ax2] = plt.subplots(2, 1)
         ax1.semilogx(xmul * time, integrand, label=r'$j(t)$')
         ax1.grid(True, alpha=0.3)
@@ -1822,17 +1736,18 @@ class Transport:
             fig.show()
 
         coefficient.to_csv(os.path.join(j_current.saving_dir, 'Conductivity_' + j_current.job_id + '.png'),
-                            index=False, encoding='utf-8')
+                           index=False, encoding='utf-8')
 
         return coefficient
 
     @staticmethod
-    def diffusion(params, show=False):
+    def diffusion(params, species, phase=None, show=False):
         coefficient = pd.DataFrame()
-        vacf = VelocityAutocorrelationFunctions(params)
+        vacf = VelocityAutocorrelationFunctions()
+        vacf.setup(params, species, phase)
         vacf.parse()
         time = np.array(vacf.dataframe["Time"])
-        D = np.zeros((params.num_species, len(time) ) )
+        D = np.zeros((params.num_species, len(time)))
         fig, [ax1, ax2] = plt.subplots(2, 1)
         const = 1.0 / 3.0
         if params.num_species > 1:
@@ -1867,7 +1782,7 @@ class Transport:
         return coefficient
 
     @staticmethod
-    def interdiffusion(params, show=True):
+    def interdiffusion(params, species, phase=None, show=True):
         """
 
         Parameters
@@ -1880,7 +1795,8 @@ class Transport:
 
         """
         coefficient = pd.DataFrame()
-        vacf = VelocityAutocorrelationFunctions(params)
+        vacf = VelocityAutocorrelationFunctions()
+        vacf.setup(params, species, phase)
         vacf.parse()
         no_int = vacf.prod_no_dumps
         no_dij = vacf.no_obs
@@ -1897,7 +1813,7 @@ class Transport:
                 for it in range(1, no_int):
                     D_ij[indx, it] = const * np.trapz(integrand[:it], x=time[:it])
 
-                coefficient["{}-{} Inter Diffusion".format(sp1.name, sp2.name)] = D_ij[i,:]
+                coefficient["{}-{} Inter Diffusion".format(sp1.name, sp2.name)] = D_ij[i, :]
 
                 xmul, ymul, _, _, xlbl, ylbl = plot_labels(vacf.dataframe["Time"], D_ij[i, :],
                                                            "Time", "Diffusion", vacf.units)
@@ -1921,7 +1837,7 @@ class Transport:
         return coefficient
 
     @staticmethod
-    def viscosity(params, show=False):
+    def viscosity(params, species, phase=None, show=False):
         """
 
         Parameters
@@ -1934,7 +1850,8 @@ class Transport:
 
         """
         coefficient = pd.DataFrame()
-        energies = Thermodynamics(params)
+        energies = Thermodynamics()
+        energies.setup(params, species, phase)
         energies.parse('production')
         beta = (energies.kB * energies.dataframe["Temperature"].mean()) ** (-1.0)
         time = np.array(energies.dataframe["Time"])
@@ -1963,7 +1880,7 @@ class Transport:
                 if "{}{}".format(ax1, ax2) in ["yx", "xy"]:
                     axes[0, 0].semilogx(xmul * time, integrand / integrand[0],
                                         label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
-                    axes[1, 0].semilogx(xmul * time, ymul * shear_viscosity[i,j, :],
+                    axes[1, 0].semilogx(xmul * time, ymul * shear_viscosity[i, j, :],
                                         label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
 
                 elif "{}{}".format(ax1, ax2) in ["xz", "zx"]:
@@ -1995,13 +1912,13 @@ class Transport:
             axes[1, 0].set_ylabel(r"Shear Viscosity" + ylbl)
 
             fig.tight_layout()
-            fig.savefig(os.path.join(energies.fldr, "ShearViscosity_Plots_" + energies.job_id + ".png") )
+            fig.savefig(os.path.join(energies.fldr, "ShearViscosity_Plots_" + energies.job_id + ".png"))
             if show:
                 fig.show()
 
         # Calculate Bulk Viscosity
         pressure_acf = autocorrelationfunction_1D(np.array(energies.dataframe["Pressure"])
-                                                    - energies.dataframe["Pressure"].mean())
+                                                  - energies.dataframe["Pressure"].mean())
         bulk_integrand = pressure_acf
         for it in range(1, energies.prod_no_dumps):
             bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
@@ -2028,60 +1945,34 @@ class Transport:
 
 
 class VelocityAutocorrelationFunctions(Observable):
-    """
-    Velocity Auto-correlation function.
+    """Velocity Auto-correlation function."""
 
-    Parameters
-    ----------
-    params: object
-        Simulation's parameters.
-
-
-    Attributes
-    ----------
-    a_ws : float
-        Wigner-Seitz radius.
-
-    wp : float
-        Total plasma frequency.
-
-    dump_step : int
-        Dump step frequency.
-
-    dt : float
-        Timestep magnitude.
-
-    fldr : str
-        Folder containing dumps.
-
-    no_dumps : int
-        Number of dumps.
-
-    no_species : int
-        Number of species.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    species_names : list
-        Names of particle species.
-
-    tot_no_ptcls : int
-        Total number of particles.
-    """
-
-    def __init__(self, params):
+    def setup(self, params, species, phase=None):
         """
-        Initialize the attributes from simulation's parameters.
+        Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: S_params class
+        phase : (optional), str
+            Phase to analyze.
+
+        params : sarkas.base.Parameters
             Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
         """
-        super().__init__(params)
-        self.dataframe = pd.DataFrame()
-        self.saving_dir = os.path.join(self.postprocessing_dir, 'VelocityAutoCorrelationFunction')
+        self.phase = phase if phase else 'production'
+
+        super().setup_init(params, species, self.phase)
+
+        # Create the directory where to store the computed data
+        saving_dir = os.path.join(self.postprocessing_dir, 'VelocityAutoCorrelationFunction')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
@@ -2104,14 +1995,14 @@ class VelocityAutocorrelationFunctions(Observable):
         """
 
         # Parse the particles from the dump files
-        vel = np.zeros((self.dimensions, self.total_num_ptcls, self.prod_no_dumps))
+        vel = np.zeros((self.dimensions, self.total_num_ptcls, self.no_dumps))
         #
         print("Parsing particles' velocities.")
-        time = np.zeros(self.prod_no_dumps)
-        for it in tqdm(range(self.prod_no_dumps), disable=(not self.verbose)):
-            dump = int(it * self.prod_dump_step)
+        time = np.zeros(self.no_dumps)
+        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
+            dump = int(it * self.dump_step)
             time[it] = dump * self.dt
-            datap = load_from_restart(self.prod_dump_dir, dump)
+            datap = load_from_restart(self.dump_dir, dump)
             vel[0, :, it] = datap["vel"][:, 0]
             vel[1, :, it] = datap["vel"][:, 1]
             vel[2, :, it] = datap["vel"][:, 2]
@@ -2201,87 +2092,58 @@ class VelocityMoments(Observable):
     Moments of the velocity distributions defined as
 
     .. math::
-        \\langle v^{\alpha} \\rangle = \\int_{-\\infty}^{\\infty} d v \, f(v) v^{2 \alpha}.
-
-
-    Parameters
-    ----------
-    params: object
-        Simulation's parameters.
+        \\langle v^{\\alpha} \\rangle = \\int_{-\\infty}^{\\infty} d v \, f(v) v^{2 \\alpha}.
 
     Attributes
     ----------
-    dump_dir: str
-        Directory containing simulation's dumps.
-
-    dump_step : int
-        Dump step frequency.
-
-    filename_csv: str
-        Filename in which to store the Pandas dataframe.
-
-    fldr: str
-        Job's directory.
-
-    fname_app: str
-        Appendix of file names.
-
     no_bins: int
         Number of bins used to calculate the velocity distribution.
-
-    no_dumps: int
-        Number of simulation's dumps to compute.
 
     plots_dir: str
         Directory in which to store Hermite coefficients plots.
 
-    a_ws : float
-        Wigner-Seitz radius.
-
-    wp : float
-        Total plasma frequency.
-
-    kB : float
-        Boltzmann constant.
-
-    dt : float
-        Timestep magnitude.
-
-    no_species : int
-        Number of species.
-
-    species_np: array
-        Array of integers with the number of particles for each species.
-
-    species_names : list
-        Names of particle species.
-
-    tot_no_ptcls : int
-        Total number of particles.
-
     species_plots_dirs : list, str
         Directory for each species where to save Hermite coefficients plots.
-
-    units: str
-        System of units used in the simulation. mks or cgs.
 
     max_no_moment: int
         Maximum number of moments = :math:`\alpha`. Default = 3.
 
     """
 
-    def setup(self, params, species):
-        """"""
-        super().setup_init(params, species)
-        self.dataframe = pd.DataFrame()
-        self.saving_dir = os.path.join(self.postprocessing_dir, 'VelocityMoments')
+    def setup(self, params, species, phase=None):
+        """
+        Assign attributes from simulation's parameters.
 
+        Parameters
+        ----------
+        phase : str
+            Phase to compute.
+
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of sarkas.base.Species.
+
+        """
+        if not hasattr(self, 'phase'):
+            self.phase = phase if phase else 'production'
+
+        super().setup_init(params, species, self.phase)
+        self.dataframe = pd.DataFrame()
+        # Create the directory where to store the computed data
+        saving_dir = os.path.join(self.postprocessing_dir, 'VelocityMoments')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
-        self.plots_dir = os.path.join(self.saving_dir, 'Plots')
 
+        self.plots_dir = os.path.join(self.saving_dir, 'Plots')
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
+
         self.filename_csv = os.path.join(self.saving_dir, "VelocityMoments_" + self.job_id + '.csv')
 
         if not hasattr(self, 'no_bins'):
@@ -2297,12 +2159,12 @@ class VelocityMoments(Observable):
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
         """
         vscale = 1. / (self.aws * self.total_plasma_frequency)
-        vel = np.zeros((self.prod_no_dumps, self.total_num_ptcls, 3))
+        vel = np.zeros((self.no_dumps, self.total_num_ptcls, 3))
 
-        time = np.zeros(self.prod_no_dumps)
-        for it in range(self.prod_no_dumps):
-            dump = int(it * self.prod_dump_step)
-            datap = load_from_restart(self.prod_dump_dir, dump)
+        time = np.zeros(self.no_dumps)
+        for it in range(self.no_dumps):
+            dump = int(it * self.dump_step)
+            datap = load_from_restart(self.dump_dir, dump)
             vel[it, :, 0] = datap["vel"][:, 0] * vscale
             vel[it, :, 1] = datap["vel"][:, 1] * vscale
             vel[it, :, 2] = datap["vel"][:, 2] * vscale
@@ -2314,7 +2176,7 @@ class VelocityMoments(Observable):
         moments = calc_moments(vel, self.no_bins, self.species_num)
 
         print("Calculating ratios ...")
-        ratios = calc_moment_ratios(moments, self.species_num, self.prod_no_dumps)
+        ratios = calc_moment_ratios(moments, self.species_num, self.no_dumps)
         # Save the dataframe
         for i, sp in enumerate(self.species):
             self.dataframe["{} vx 2nd moment".format(sp.name)] = moments[:, int(9 * i)]
@@ -2382,10 +2244,11 @@ class VelocityMoments(Observable):
             ax.legend(loc='upper right')
             #
             ax.set_xscale('log')
-            # ax.set_yscale('log')
+            if self.phase == 'equilibration':
+                ax.set_yscale('log')
             ax.set_xlabel(r'$t$' + xlbl)
             #
-            ax.set_title("Moments ratios of {}".format(sp.name))
+            ax.set_title("Moments ratios of {}".format(sp.name) + '  Phase: ' + self.phase.capitalize())
             fig.savefig(os.path.join(self.species_plots_dirs[i], "MomentRatios_" + self.job_id + '.png'))
             if show:
                 fig.show()
@@ -2433,51 +2296,22 @@ class XYZWriter:
         Plasma frequency used for rescaling.
     """
 
-    def __init__(self, params):
+    def __init__(self, params, io):
         """
         Initialize the attributes from simulation's parameters.
 
         Parameters
         ----------
-        params: S_params class
+        params : sarkas.base.Parameters
             Simulation's parameters.
+
+        io : sarkas.utilities.InputOutput
+            Handler of all things IO.
+
         """
-        self.saving_dir = params.job_dir
-        self.prod_dump_dir = params.prod_dump_dir
-        self.filename = os.path.join(self.saving_dir, "pva_" + params.job_id + '.xyz')
+        self.__dict__.update(io.__dict__)
+        self.filename = os.path.join(self.job_dir, "pva_" + params.job_id + '.xyz')
         self.dump_skip = 1
-
-    def save(self, dump_skip=1):
-        """
-        Save the XYZ file by reading Sarkas dumps.
-
-        Parameters
-        ----------
-        dump_skip : int
-            Interval of dumps to skip. Default = 1
-
-        """
-
-        self.dump_skip = dump_skip
-        f_xyz = open(self.filename, "w+")
-
-        # Rescale constants. This is needed since OVITO has a small number limit.
-        pscale = 1.0 / self.aws
-        vscale = 1.0 / (self.aws * self.total_plasma_frequency)
-        ascale = 1.0 / (self.aws * self.total_plasma_frequency ** 2)
-
-        for it in tqdm(range(int(self.prod_no_dumps / self.dump_skip)), disable=not self.verbose):
-            dump = int(it * self.prod_dump_step * self.dump_skip)
-
-            data = load_from_restart(self.prod_dump_dir, dump)
-
-            f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
-            f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-            np.savetxt(f_xyz,
-                       np.c_[data["species_name"], data["pos"] * pscale, data["vel"] * vscale, data["acc"] * ascale],
-                       fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
-
-        f_xyz.close()
 
 
 @njit
@@ -2498,7 +2332,7 @@ def autocorrelationfunction(At):
 
     Returns
     -------
-    ACF : array
+    ACF : numpy.ndarray
         Autocorrelation function of ``At``.
     """
     no_steps = At.shape[1]
@@ -2527,12 +2361,12 @@ def autocorrelationfunction_1D(At):
 
     Parameters
     ----------
-    At : array
+    At : numpy.ndarray
         Array to autocorrelate. Shape=(``no_steps``).
 
     Returns
     -------
-    ACF : array
+    ACF : numpy.ndarray
         Autocorrelation function of ``At``.
     """
     no_steps = At.shape[0]
@@ -2560,10 +2394,10 @@ def calc_Sk(nkt, ka_list, ka_counts, species_np, no_dumps):
         List of :math:`k` indices in each direction with corresponding magnitude and index of ``ka_counts``.
         Shape=(`no_ka_values`, 5)
 
-    ka_counts : array
+    ka_counts : numpy.ndarray
         Number of times each :math:`k` magnitude appears.
 
-    species_np : array
+    species_np : numpy.ndarray
         Array with number of particles of each species.
 
     no_dumps : int
@@ -2601,7 +2435,7 @@ def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
 
     Parameters
     ----------
-    nkt : nkarray, complex
+    nkt :  complex, numpy.ndarray
         Particles' density or velocity fluctuations.
         Shape = ( ``no_species``, ``no_k_list``, ``no_dumps``)
 
@@ -2609,10 +2443,10 @@ def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
         List of :math:`k` indices in each direction with corresponding magnitude and index of ``ka_counts``.
         Shape=(`no_ka_values`, 5)
 
-    ka_counts : array
+    ka_counts : numpy.ndarray
         Number of times each :math:`k` magnitude appears.
 
-    species_np : array
+    species_np : numpy.ndarray
         Array with one element giving number of particles.
 
     no_dumps : int
@@ -2620,7 +2454,7 @@ def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
 
     Returns
     -------
-    Skw : ndarray
+    Skw : numpy.ndarray
         DSF/CCF of each species and pair of species.
         Shape = (``no_skw``, ``no_ka_values``, ``no_dumps``)
     """
@@ -2649,13 +2483,13 @@ def calc_elec_current(vel, sp_charge, sp_num):
 
     Parameters
     ----------
-    vel: array
+    vel: numpy.ndarray
         Particles' velocities.
 
-    sp_charge: array
+    sp_charge: numpy.ndarray
         Charge of each species.
 
-    sp_num: array
+    sp_num: numpy.ndarray
         Number of particles of each species.
 
     Returns
@@ -2698,7 +2532,7 @@ def calc_moment_ratios(moments, species_np, no_dumps):
     no_dumps: int
         Number of saved timesteps.
 
-    species_np: array
+    species_np: numpy.ndarray
         Number of particles of each species.
 
     Returns
@@ -2748,7 +2582,7 @@ def calc_moments(vel, nbins, species_np):
     nbins: int
         Number of bins to be used for the distribution.
 
-    species_np: array
+    species_np: numpy.ndarray
         Number of particles of each species.
 
     Returns
@@ -2811,7 +2645,7 @@ def calc_nk(pos_data, k_list):
 
     Returns
     -------
-    nk : array
+    nk : numpy.ndarray
         Array containing :math:`n(k)`.
     """
 
@@ -2844,7 +2678,7 @@ def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list):
     dump_step : int
         Timestep interval saving.
 
-    species_np : array
+    species_np : numpy.ndarray
         Number of particles of each species.
 
     k_list : list
@@ -2887,10 +2721,10 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
     acc : ndarray
         Particles' accelerations.
 
-    species_mass : array
+    species_mass : numpy.ndarray
         Mass of each species.
 
-    species_np : array
+    species_np : numpy.ndarray
         Number of particles of each species.
 
     box_volume : float
@@ -2968,7 +2802,7 @@ def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
     vel : ndarray
         Particles' velocities.
 
-    sp_num: array
+    sp_num: numpy.ndarray
         Number of particles of each species.
 
     Returns
@@ -3057,12 +2891,12 @@ def calc_vacf_single(vel, sp_num, time_averaging, it_skip):
     vel : ndarray
         Particles' velocities.
 
-    sp_num: array
+    sp_num: numpy.ndarray
         Number of particles of each species.
 
     Returns
     -------
-    vacf: array
+    vacf: numpy.ndarray
         Velocity autocorrelation functions.
 
     """
@@ -3115,10 +2949,10 @@ def calc_vk(pos_data, vel_data, k_list):
 
     Parameters
     ----------
-    pos_data : ndarray
+    pos_data : numpy.ndarray
         Particles' position. Shape = ( ``no_dumps``, 3, ``tot_no_ptcls``)
 
-    vel_data : ndarray
+    vel_data : numpy.ndarray
         Particles' velocities. Shape = ( ``no_dumps``, 3, ``tot_no_ptcls``)
 
     k_list : list
@@ -3127,17 +2961,18 @@ def calc_vk(pos_data, vel_data, k_list):
 
     Returns
     -------
-    vkt : ndarray
+    vkt : numpy.ndarray
         Array containing longitudinal velocity fluctuations.
 
-    vkt_i : ndarray
+    vkt_i : numpy.ndarray
         Array containing transverse velocity fluctuations in the :math:`x` direction.
 
-    vkt_j : ndarray
+    vkt_j : numpy.ndarray
         Array containing transverse velocity fluctuations in the :math:`y` direction.
 
-    vkt_k : ndarray
+    vkt_k : numpy.ndarray
         Array containing transverse velocity fluctuations in the :math:`z` direction.
+
     """
 
     # Longitudinal
@@ -3149,13 +2984,17 @@ def calc_vk(pos_data, vel_data, k_list):
     vk_k = np.zeros(len(k_list), dtype=np.complex128)
 
     for ik, k_vec in enumerate(k_list):
+        # Calculate the dot product and cross product between k, r, and v
         kr_i = 2.0 * np.pi * (k_vec[0] * pos_data[:, 0] + k_vec[1] * pos_data[:, 1] + k_vec[2] * pos_data[:, 2])
         k_dot_v = 2.0 * np.pi * (k_vec[0] * vel_data[:, 0] + k_vec[1] * vel_data[:, 1] + k_vec[2] * vel_data[:, 2])
-        vk[ik] = np.sum(k_dot_v * np.exp(-1j * kr_i))
 
         k_cross_v_i = 2.0 * np.pi * (k_vec[1] * vel_data[:, 2] - k_vec[2] * vel_data[:, 1])
         k_cross_v_j = -2.0 * np.pi * (k_vec[0] * vel_data[:, 2] - k_vec[2] * vel_data[:, 0])
         k_cross_v_k = 2.0 * np.pi * (k_vec[0] * vel_data[:, 1] - k_vec[1] * vel_data[:, 0])
+
+        # Microscopic longitudinal current
+        vk[ik] = np.sum(k_dot_v * np.exp(-1j * kr_i))
+        # Microscopic transverse current
         vk_i[ik] = np.sum(k_cross_v_i * np.exp(-1j * kr_i))
         vk_j[ik] = np.sum(k_cross_v_j * np.exp(-1j * kr_i))
         vk_k[ik] = np.sum(k_cross_v_k * np.exp(-1j * kr_i))
@@ -3189,7 +3028,7 @@ def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list):
     dump_step : int
         Timestep interval saving.
 
-    species_np : array
+    species_np : numpy.ndarray
         Number of particles of each species.
 
     k_list : list
@@ -3226,8 +3065,9 @@ def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list):
         pos = data["pos"]
         vel = data["vel"]
         sp_start = 0
+        sp_end = 0
         for i, sp in enumerate(species_np):
-            sp_end = sp_start + sp
+            sp_end += sp
             vkt_par[i, it, :], vkt_perp_i[i, it, :], vkt_perp_j[i, it, :], vkt_perp_k[i, it, :] = calc_vk(
                 pos[sp_start:sp_end, :], vel[sp_start:sp_end], k_list)
             sp_start = sp_end
@@ -3244,10 +3084,10 @@ def calculate_herm_coeff(v, distribution, maxpower):
 
     Parameters
     ----------
-    v : array
+    v : numpy.ndarray
         Range of velocities.
 
-    distribution: array
+    distribution: numpy.ndarray
         Velocity histogram.
 
     maxpower: int
@@ -3255,7 +3095,7 @@ def calculate_herm_coeff(v, distribution, maxpower):
 
     Returns
     -------
-    coeff: array
+    coeff: numpy.ndarray
         Coefficients :math:`a_i`
 
     """
@@ -3290,7 +3130,7 @@ def correlationfunction(At, Bt):
 
     Returns
     -------
-    CF : array
+    CF : numpy.ndarray
         Correlation function :math:`C_{AB}(\\tau)`
     """
     no_steps = At.shape[1]
@@ -3319,15 +3159,15 @@ def correlationfunction_1D(At, Bt):
 
     Parameters
     ----------
-    At : array
+    At : numpy.ndarray
         Observable to correlate. Shape=(``no_steps``).
 
-    Bt : array
+    Bt : numpy.ndarray
         Observable to correlate. Shape=(``no_steps``).
 
     Returns
     -------
-    CF : array
+    CF : numpy.ndarray
         Correlation function :math:`C_{AB}(\\tau)`
     """
     no_steps = At.shape[0]
@@ -3347,10 +3187,10 @@ def kspace_setup(no_ka, box_lengths):
 
     Parameters
     ----------
-    no_ka : array
+    no_ka : numpy.ndarray
         Number of harmonics in each direction.
 
-    box_lengths : array
+    box_lengths : numpy.ndarray
         Length of each box's side.
 
     Returns
@@ -3358,10 +3198,10 @@ def kspace_setup(no_ka, box_lengths):
     k_arr : list
         List of all possible :math:`k` vectors with their corresponding magnitudes and indexes.
 
-    k_counts : array
+    k_counts : numpy.ndarray
         Number of occurrences of each :math:`k` magnitude.
 
-    k_unique : array
+    k_unique : numpy.ndarray
         Magnitude of each allowed :math:`k` vector.
     """
     # Obtain all possible permutations of the wave number arrays
@@ -3419,10 +3259,10 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
 
     Parameters
     ----------
-    xdata: array
+    xdata: numpy.ndarray
         X values.
 
-    ydata: array
+    ydata: numpy.ndarray
         Y values.
 
     xlbl: str
@@ -3503,7 +3343,6 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
                 yprefix = key
                 ymul = i / value
         i *= 10.
-
 
     if "Energy" in ylbl:
         yname = "Energy"

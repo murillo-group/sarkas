@@ -270,7 +270,7 @@ class Verbose:
             print('wp dt = {:2.4f}'.format(simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
 
         if simulation.parameters == 'prod_restart':
-            print("Restart step: {}".format(simulation.parameters.load_restart_step))
+            print("Restart step: {}".format(simulation.parameters.restart_step))
             print('Total post-equilibration steps = {} ~ {} wp T_prod'.format(
                 simulation.integrator.production_steps,
                 int(simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))

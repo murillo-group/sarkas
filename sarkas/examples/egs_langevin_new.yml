@@ -36,7 +36,7 @@ Parameters:
   verbose: yes
   job_dir: egs        # dir name to save data. The default is "Checkpoint"
   load_method: random_no_reject
-  load_restart_step: 100
+  restart_step: 100
   boundary_conditions: periodic
   rdf_no_bins: 500
 

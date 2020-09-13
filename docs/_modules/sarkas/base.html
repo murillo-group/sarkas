@@ -377,7 +377,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span> <span class="o">=</span> <span class="s1">&#39;dumps&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_run</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="Parameters.setup"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
@@ -513,7 +513,7 @@
         <span class="c1"># Wigner-Seitz radius calculated from the total number density</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Number of particles per dimension does not match total number of particles.&quot;</span>
             <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">))</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">msg</span>
 
@@ -684,7 +684,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">rdf_nbins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_attributes</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_attributes</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
 
@@ -703,13 +703,13 @@
         <span class="c1"># Particles Position Initialization</span>
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;equilibration_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;production_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">]:</span>
             <span class="c1"># checks</span>
-            <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">,</span> <span class="s2">&quot;Restart step not defined. Please define restart_step.&quot;</span>
-            <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;Only integers are allowed.&quot;</span>
+            <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">restart_step</span><span class="p">,</span> <span class="s2">&quot;Restart step not defined. Please define restart_step.&quot;</span>
+            <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;Only integers are allowed.&quot;</span>
 
             <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;eq&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">restart_step</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">restart_step</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Input file not defined. Please define particle_input_file.&#39;</span>
@@ -1339,7 +1339,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 10, 2020.
+        Last updated on Sep, 13, 2020.
       </span>
 
     </p>

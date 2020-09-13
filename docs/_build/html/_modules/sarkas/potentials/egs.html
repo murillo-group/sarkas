@@ -170,12 +170,15 @@
 
 <div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.egs.html#sarkas.potentials.egs.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create potential dependent simulation&#39;s parameters.</span>
+<span class="sd">    Assign potential dependent simulation&#39;s parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    params : object</span>
-<span class="sd">        Simulation&#39;s parameters</span>
+<span class="sd">    potential : sarkas.potential.Potential</span>
+<span class="sd">        Class handling potential form.</span>
+
+<span class="sd">    params: sarkas.base.Parameters</span>
+<span class="sd">        Simulation&#39;s parameters.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -184,7 +187,6 @@
     <span class="c1"># lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi</span>
     <span class="n">potential</span><span class="o">.</span><span class="n">lmbda</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">9.0</span>
     <span class="n">fdint_fdk_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">fdk</span><span class="p">)</span>
-    <span class="n">fdint_ifd1h_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">ifd1h</span><span class="p">)</span>
     <span class="n">beta_e</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Te</span><span class="p">)</span>
     <span class="n">deBroglie_wavelength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">me</span><span class="p">)</span>
     <span class="c1"># eq. (14) of Ref. [1]_</span>
@@ -323,7 +325,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 10, 2020.
+        Last updated on Sep, 13, 2020.
       </span>
 
     </p>

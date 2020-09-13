@@ -1,10 +1,12 @@
 import os
 import sys
+import re
 import yaml
 import csv
 import pickle
 import numpy as np
 from pyfiglet import print_figlet, Figlet
+from tqdm import tqdm
 
 FONTS = ['speed',
          'starwars',
@@ -52,6 +54,8 @@ class InputOutput:
         self.preprocessing = False
         self.verbose = False
         self.check_status = False
+        self.xyz_dir = None
+        self.xyz_filename = None
 
     def setup(self):
         self.create_file_paths()
@@ -276,10 +280,10 @@ class InputOutput:
         while repeat > 0:
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
                 print('\n{} Time: {} sec {} msec {} usec {} nsec'.format(time_stamp,
-                                                                   int(t_sec),
-                                                                   int(t_msec),
-                                                                   int(t_usec),
-                                                                   int(t_nsec)))
+                                                                         int(t_sec),
+                                                                         int(t_msec),
+                                                                         int(t_usec),
+                                                                         int(t_nsec)))
             else:
                 print('\n{} Time: {} hrs {} min {} sec'.format(time_stamp, int(t_hrs), int(t_min), int(t_sec)))
 
@@ -307,7 +311,6 @@ class InputOutput:
 
         # Print to file first then to screen if repeat == 2
         while repeat > 0:
-
             print('\n\n------------ Conclusion ------------\n')
             print('Suggested Mesh = [ {} , {} , {} ]'.format(*simulation.potential.pppm_mesh))
             print('Suggested Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(
@@ -338,48 +341,48 @@ class InputOutput:
                 print('\n\n\n----------------- Force Calculation Times ----------------------\n')
                 print("Optimal Green's Function Time: \n"
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                                int(t_min),
-                                                                int(t_sec),
-                                                                int(t_msec),
-                                                                int(t_usec),
-                                                                int(t_nsec)))
+                                                                        int(t_min),
+                                                                        int(t_sec),
+                                                                        int(t_msec),
+                                                                        int(t_usec),
+                                                                        int(t_nsec)))
 
             elif str_id == "PP":
                 print('Time of PP acceleration calculation averaged over {} loops: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                                int(t_min),
-                                                                int(t_sec),
-                                                                int(t_msec),
-                                                                int(t_usec),
-                                                                int(t_nsec)))
+                                                                        int(t_min),
+                                                                        int(t_sec),
+                                                                        int(t_msec),
+                                                                        int(t_usec),
+                                                                        int(t_nsec)))
 
             elif str_id == "PM":
                 print('Time of PM acceleration calculation averaged over {} loops: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                                int(t_min),
-                                                                int(t_sec),
-                                                                int(t_msec),
-                                                                int(t_usec),
-                                                                int(t_nsec)))
+                                                                        int(t_min),
+                                                                        int(t_sec),
+                                                                        int(t_msec),
+                                                                        int(t_usec),
+                                                                        int(t_nsec)))
 
             elif str_id == "Equilibration":
                 print('\n\n----------------- Averaged Evolution Times ---------------------\n')
                 print('Time of a single equilibration step averaged over {} loops: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
                                                                         int(t_min),
-                                                                       int(t_sec),
-                                                                       int(t_msec),
-                                                                       int(t_usec),
-                                                                       int(t_nsec)))
+                                                                        int(t_sec),
+                                                                        int(t_msec),
+                                                                        int(t_usec),
+                                                                        int(t_nsec)))
 
             elif str_id == "Production":
                 print('Time of a single production step averaged over {} loops: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
                                                                         int(t_min),
-                                                                       int(t_sec),
-                                                                       int(t_msec),
-                                                                       int(t_usec),
-                                                                       int(t_nsec)))
+                                                                        int(t_sec),
+                                                                        int(t_msec),
+                                                                        int(t_usec),
+                                                                        int(t_nsec)))
 
                 print('\n\n----------------- Total Simulation Times -----------------------')
 
@@ -421,14 +424,16 @@ class InputOutput:
             print('ion plasma frequency = {:2.6e} [Hz]'.format(simulation.species[1].wp))
             print('w_pe dt = {:2.4f}'.format(simulation.integrator.dt * simulation.species[0].wp))
         elif simulation.potential.type == 'LJ':
-            print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(simulation.parameters.total_plasma_frequency))
+            print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(
+                simulation.parameters.total_plasma_frequency))
             print('wp dt = {:2.4f}'.format(simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
 
         if simulation.parameters == 'prod_restart':
-            print("Restart step: {}".format(simulation.parameters.load_restart_step))
+            print("Restart step: {}".format(simulation.parameters.restart_step))
             print('Total post-equilibration steps = {} ~ {} wp T_prod'.format(
                 simulation.integrator.production_steps,
-                int(simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
+                int(
+                    simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
                 simulation.integrator.prod_dump_step,
                 simulation.integrator.prod_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
@@ -436,20 +441,23 @@ class InputOutput:
             print("Restart step: {}".format(simulation.parameters.load_therm_restart_step))
             print('Total equilibration steps = {} ~ {} wp T_prod'.format(
                 simulation.integrator.equilibration_steps,
-                int(simulation.integrator.eq_dump_step * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
+                int(
+                    simulation.integrator.eq_dump_step * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
                 simulation.integrator.eq_dump_step,
                 simulation.integrator.eq_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
         else:
             print('No. of equilibration steps = {} ~ {} wp T_eq'.format(
                 simulation.integrator.equilibration_steps,
-                int(simulation.integrator.equilibration_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
+                int(
+                    simulation.integrator.equilibration_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
                 simulation.integrator.eq_dump_step,
                 simulation.integrator.eq_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
             print('No. of post-equilibration steps = {} ~ {} wp T_prod'.format(
                 simulation.integrator.production_steps,
-                int(simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
+                int(
+                    simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
             print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
                 simulation.integrator.prod_dump_step,
                 simulation.integrator.prod_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
@@ -474,7 +482,7 @@ class InputOutput:
             print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f}, {:2.4f}, {:2.4f} '.format(
                 simulation.potential.pppm_h_array[0] * simulation.potential.pppm_alpha_ewald,
                 simulation.potential.pppm_h_array[1] * simulation.potential.pppm_alpha_ewald,
-                simulation.potential.pppm_h_array[2] * simulation.potential.pppm_alpha_ewald) )
+                simulation.potential.pppm_h_array[2] * simulation.potential.pppm_alpha_ewald))
             print('                                        ~ 1/{}, 1/{}, 1/{}'.format(
                 int(1. / (simulation.potential.pppm_h_array[0] * simulation.potential.pppm_alpha_ewald)),
                 int(1. / (simulation.potential.pppm_h_array[1] * simulation.potential.pppm_alpha_ewald)),
@@ -608,15 +616,18 @@ class InputOutput:
         print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
         print('No. of non-zero box dimensions = ', int(simulation.parameters.dimensions))
         print('Box length along x axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[0] / simulation.parameters.aws, simulation.parameters.box_lengths[0]), end='')
+            simulation.parameters.box_lengths[0] / simulation.parameters.aws, simulation.parameters.box_lengths[0]),
+            end='')
         print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
         print('Box length along y axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[1] / simulation.parameters.aws, simulation.parameters.box_lengths[1]), end='')
+            simulation.parameters.box_lengths[1] / simulation.parameters.aws, simulation.parameters.box_lengths[1]),
+            end='')
         print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
         print('Box length along z axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[2] / simulation.parameters.aws, simulation.parameters.box_lengths[2]), end='')
+            simulation.parameters.box_lengths[2] / simulation.parameters.aws, simulation.parameters.box_lengths[2]),
+            end='')
         print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
         print("The remaining lengths scales are given in ", end='')
@@ -660,7 +671,9 @@ class InputOutput:
 
         """
         self.dt = params.dt
-        self.kB = params.kB
+        self.aws = params.aws
+        self.total_num_ptcls = params.total_num_ptcls
+        self.total_plasma_frequency = params.total_plasma_frequency
         self.species_names = params.species_names
         self.coupling = params.coupling_constant * params.T_desired
 
@@ -739,14 +752,14 @@ class InputOutput:
             ptcls_file = self.prod_ptcls_filename + str(it)
             tme = it * self.dt
             np.savez(ptcls_file,
-                  id=ptcls.id,
-                  names=ptcls.names,
-                  pos=ptcls.pos,
-                  vel=ptcls.vel,
-                  acc=ptcls.acc,
-                  cntr=ptcls.pbc_cntr,
-                  rdf_hist=ptcls.rdf_hist,
-                  time=tme)
+                     id=ptcls.id,
+                     names=ptcls.names,
+                     pos=ptcls.pos,
+                     vel=ptcls.vel,
+                     acc=ptcls.acc,
+                     cntr=ptcls.pbc_cntr,
+                     rdf_hist=ptcls.rdf_hist,
+                     time=tme)
 
             energy_file = self.prod_energy_filename
 
@@ -754,16 +767,16 @@ class InputOutput:
             ptcls_file = self.eq_ptcls_filename + str(it)
             tme = it * self.dt
             np.savez(ptcls_file,
-                  id=ptcls.id,
-                  name=ptcls.names,
-                  pos=ptcls.pos,
-                  vel=ptcls.vel,
-                  acc=ptcls.acc,
-                  time=tme)
+                     id=ptcls.id,
+                     name=ptcls.names,
+                     pos=ptcls.pos,
+                     vel=ptcls.vel,
+                     acc=ptcls.acc,
+                     time=tme)
 
             energy_file = self.eq_energy_filename
 
-        kinetic_energies, temperatures = ptcls.kinetic_temperature(self.kB)
+        kinetic_energies, temperatures = ptcls.kinetic_temperature()
         # Prepare data for saving
         data = {"Time": it * self.dt,
                 "Total Energy": np.sum(kinetic_energies) + ptcls.potential_energy,
@@ -778,3 +791,138 @@ class InputOutput:
             w = csv.writer(f)
             w.writerow(data.values())
 
+    def dump_xyz(self, phase='production'):
+        """
+        Save the XYZ file by reading Sarkas dumps.
+
+        Parameters
+        ----------
+        phase : str
+            Phase from which to read dumps. 'equilibration' or 'production'.
+
+        dump_skip : int
+            Interval of dumps to skip. Default = 1
+
+        """
+
+        if phase == 'equilibration':
+            self.xyz_filename = os.path.join(self.equilibration_dir, "pva_" + self.job_id + '.xyz')
+            dump_dir = self.eq_dump_dir
+
+        else:
+            self.xyz_filename = os.path.join(self.production_dir, "pva_" + self.job_id + '.xyz')
+            dump_dir = self.prod_dump_dir
+
+        f_xyz = open(self.xyz_filename, "w+")
+
+        # Rescale constants. This is needed since OVITO has a small number limit.
+        pscale = 1.0 / self.aws
+        vscale = 1.0 / (self.aws * self.total_plasma_frequency)
+        ascale = 1.0 / (self.aws * self.total_plasma_frequency ** 2)
+
+        # Read the list of dumps and sort them in the correct (natural) order
+        dumps = os.listdir(dump_dir)
+        dumps.sort(key=num_sort)
+        for dump in tqdm(dumps, disable=not self.verbose):
+            data = self.read_npz(dump_dir, dump)
+            data["pos_x"] *= pscale
+            data["pos_y"] *= pscale
+            data["pos_z"] *= pscale
+
+            data["vel_x"] *= vscale
+            data["vel_y"] *= vscale
+            data["vel_z"] *= vscale
+
+            data["acc_x"] *= ascale
+            data["acc_y"] *= ascale
+            data["acc_z"] *= ascale
+
+            f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
+            f_xyz.writelines("name x y z vx vy vz ax ay az\n")
+            np.savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+
+        f_xyz.close()
+
+    @staticmethod
+    def read_npz(fldr, it):
+        """
+        Load particles' data from dumps.
+
+        Parameters
+        ----------
+        fldr : str
+            Folder containing dumps.
+
+        it : str
+            Timestep to load.
+
+        Returns
+        -------
+        struct_array : numpy.ndarray
+            Structured data array.
+
+        """
+
+        file_name = os.path.join(fldr, it)
+        data = np.load(file_name, allow_pickle=True)
+        # Dev Notes: the old way of saving the xyz file by
+        # np.savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
+        # , fmt="%10s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+        # was not working, because the columns of np.c_[] all have the same data type <U32
+        # which is in conflict with the desired fmt. i.e. data["names"] was not recognized as a string.
+        # So I have to create a new structured array and pass this. I could not think of a more Pythonic way.
+        struct_array = np.zeros(data["names"].size,
+                                dtype=[('names', 'U6'),
+                                       ('pos_x', np.float64),
+                                       ('pos_y', np.float64),
+                                       ('pos_z', np.float64),
+                                       ('vel_x', np.float64),
+                                       ('vel_y', np.float64),
+                                       ('vel_z', np.float64),
+                                       ('acc_x', np.float64),
+                                       ('acc_y', np.float64),
+                                       ('acc_z', np.float64)]
+                                )
+        struct_array["names"] = data["names"]
+        struct_array["pos_x"] = data["pos"][:, 0]
+        struct_array["pos_y"] = data["pos"][:, 1]
+        struct_array["pos_z"] = data["pos"][:, 2]
+
+        struct_array["vel_x"] = data["vel"][:, 0]
+        struct_array["vel_y"] = data["vel"][:, 1]
+        struct_array["vel_z"] = data["vel"][:, 2]
+
+        struct_array["acc_x"] = data["acc"][:, 0]
+        struct_array["acc_y"] = data["acc"][:, 1]
+        struct_array["acc_z"] = data["acc"][:, 2]
+
+        return struct_array
+
+
+def alpha_to_int(text):
+    return int(text) if text.isdigit() else text
+
+
+def num_sort(text):
+    """
+    Method copied from
+    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
+
+    Notes
+    -----
+    originally from http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+
+    Parameters
+    ----------
+    text : str
+        Text to be split into str and int
+
+    Returns
+    -------
+     : list
+        List containing text and integers
+
+    """
+
+    return [alpha_to_int(c) for c in re.split(r'(\d+)', text)]

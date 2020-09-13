@@ -221,6 +221,20 @@
 </dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.dump_xyz">
+<code class="sig-name descname">dump_xyz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">'production'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.dump_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.dump_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the XYZ file by reading Sarkas dumps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Phase from which to read dumps. ‘equilibration’ or ‘production’.</p></li>
+<li><p><strong>dump_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Interval of dumps to skip. Default = 1</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.utilities.io.InputOutput.file_header">
 <code class="sig-name descname">file_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.file_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.file_header" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -273,6 +287,26 @@
 <dt id="sarkas.utilities.io.InputOutput.preprocess_timing">
 <code class="sig-name descname">preprocess_timing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">str_id</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">loops</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.preprocess_timing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.preprocess_timing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print times estimates of simulation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.read_npz">
+<em class="property">static </em><code class="sig-name descname">read_npz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldr</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.read_npz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.read_npz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load particles’ data from dumps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Folder containing dumps.</p></li>
+<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Timestep to load.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>struct_array</strong> – Structured data array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -390,6 +424,32 @@ If verbose output then it will print twice: the first time to file and second ti
 
 </dd></dl>
 
+<dl class="py function">
+<dt id="sarkas.utilities.io.alpha_to_int">
+<code class="sig-prename descclassname">sarkas.utilities.io.</code><code class="sig-name descname">alpha_to_int</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#alpha_to_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.alpha_to_int" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.utilities.io.num_sort">
+<code class="sig-prename descclassname">sarkas.utilities.io.</code><code class="sig-name descname">num_sort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#num_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.num_sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method copied from
+<a class="reference external" href="https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside">https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside</a></p>
+<p class="rubric">Notes</p>
+<p>originally from <a class="reference external" href="http://nedbatchelder.com/blog/200712/human_sorting.html">http://nedbatchelder.com/blog/200712/human_sorting.html</a>
+(See Toothy’s implementation in the comments)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Text to be split into str and int</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List containing text and integers</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -415,7 +475,7 @@ If verbose output then it will print twice: the first time to file and second ti
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 10, 2020.
+        Last updated on Sep, 13, 2020.
       </span>
 
     </p>

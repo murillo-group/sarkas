@@ -47,6 +47,32 @@ class PostProcess:
                 if key == 'Thermodynamics':
                     self.therm = obs.Thermodynamics()
                     self.therm.__dict__.update(sub_dict)
+                if key == 'DynamicStructureFactor':
+                    self.dsf = obs.DynamicStructureFactor()
+                    if sub_dict:
+                        self.dsf.__dict__.update(sub_dict)
+                if key == 'CurrentCorrelationFunctions':
+                    self.ccf = obs.CurrentCorrelationFunctions()
+                    if sub_dict:
+                        self.ccf.__dict__.update(sub_dict)
+                if key == 'StaticStructureFactor':
+                    self.ssf = obs.StaticStructureFactor()
+                    if sub_dict:
+                        self.ssf.__dict__.update(sub_dict)
+                if key == 'VelocityMoments':
+                    self.vm = obs.VelocityMoments()
+                    if sub_dict:
+                        self.vm.__dict__.update(sub_dict)
+                if key == 'VelocityAutocorrelationFunctions':
+                    self.vacf = obs.VelocityAutocorrelationFunctions()
+                    if sub_dict:
+                        self.vacf.__dict__.update(sub_dict)
+                if key == 'ElectricCurrent':
+                    self.ec = obs.ElectricCurrent()
+                    if sub_dict:
+                        self.ec.__dict__.update(sub_dict)
+
+
 
     def setup(self, read_yaml=False, other_inputs=None):
         """
@@ -733,12 +759,11 @@ class Simulation:
         """
         if self.parameters.verbose:
             print("\n------------- Equilibration -------------")
+        self.io.dump(False, self.particles, 0)
         self.timer.start()
         self.integrator.equilibrate(it_start, self.particles, self.io)
         time_eq = self.timer.stop()
         self.io.time_stamp("Equilibration", self.timer.time_division(time_eq))
-
-        return
 
     def evolve(self):
         """
@@ -750,8 +775,8 @@ class Simulation:
         ##############################################
 
         # Open output files
-        if self.parameters.load_method == "prod_restart":
-            it_start = self.parameters.load_restart_step
+        if self.parameters.load_method in ["prod_restart", "production_restart"]:
+            it_start = self.parameters.restart_step
         else:
             it_start = 0
             # Restart the pbc counter
@@ -795,20 +820,14 @@ class Simulation:
 
         time0 = self.timer.current()
         self.initialization()
-        if not self.parameters.load_method == 'prod_restart':
-            if self.parameters.load_method == "therm_restart":
-                it_start = self.parameters.load_therm_restart_step
+
+        if not self.parameters.load_method in ['prod_restart', 'production_restart']:
+            if self.parameters.load_method in ["equilibration_restart", "eq_restart"]:
+                it_start = self.parameters.restart_step
             else:
                 it_start = 0
 
             self.equilibrate(it_start)
-
-        else:
-
-            if not self.potential.method == "FMM":
-                self.potential.calc_pot_acc(self.particles)
-            # else:
-            # potential_energy = self.potential.calc_pot_acc_fmm(self.particles, self.parameters)
 
         self.evolve()
         time_tot = self.timer.current()

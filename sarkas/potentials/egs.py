@@ -8,12 +8,15 @@ import fdint
 
 def update_params(potential, params):
     """
-    Create potential dependent simulation's parameters.
+    Assign potential dependent simulation's parameters.
 
     Parameters
     ----------
-    params : object
-        Simulation's parameters
+    potential : sarkas.potential.Potential
+        Class handling potential form.
+
+    params: sarkas.base.Parameters
+        Simulation's parameters.
 
     """
 
@@ -22,7 +25,6 @@ def update_params(potential, params):
     # lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi
     potential.lmbda = 1.0 / 9.0
     fdint_fdk_vec = np.vectorize(fdint.fdk)
-    fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
     beta_e = 1. / (params.kB * params.Te)
     deBroglie_wavelength = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
     # eq. (14) of Ref. [1]_

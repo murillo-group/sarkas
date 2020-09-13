@@ -215,7 +215,7 @@ class Parameters:
         self.eq_dump_dir = 'dumps'
         self.job_id = None
         self.log_file = None
-        self.np_per_side = np.zeros(3)
+        self.np_per_side = None
         self.pre_run = False
 
     def setup(self, species):
@@ -351,7 +351,7 @@ class Parameters:
         # Wigner-Seitz radius calculated from the total number density
         self.aws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
 
-        if len(self.np_per_side) != 0:
+        if self.np_per_side:
             msg = "Number of particles per dimension does not match total number of particles."
             assert int(np.prod(self.np_per_side)) == self.total_num_ptcls, msg
 
@@ -522,7 +522,7 @@ class Particles:
 
         self.rdf_hist = np.zeros((self.rdf_nbins, self.num_species, self.num_species))
 
-        self.update_attributes(species, params.kB)
+        self.update_attributes(species)
 
         self.load(params)
 
@@ -541,13 +541,13 @@ class Particles:
         # Particles Position Initialization
         if params.load_method in ['equilibration_restart', 'eq_restart', 'production_restart', 'prod_restart']:
             # checks
-            assert params.load_restart_step, "Restart step not defined. Please define restart_step."
-            assert type(params.load_restart_step) is int, "Only integers are allowed."
+            assert params.restart_step, "Restart step not defined. Please define restart_step."
+            assert type(params.restart_step) is int, "Only integers are allowed."
 
             if params.load_method[:2] == 'eq':
-                self.load_from_restart(True, params.load_restart_step)
+                self.load_from_restart(True, params.restart_step)
             else:
-                self.load_from_restart(False, params.load_restart_step)
+                self.load_from_restart(False, params.restart_step)
 
         elif params.load_method == 'file':
             msg = 'Input file not defined. Please define particle_input_file.'
