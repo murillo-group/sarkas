@@ -233,10 +233,10 @@ class Verbose:
             print('\n\n------------ Conclusion ------------\n')
             print('Suggested Mesh = [ {} , {} , {} ]'.format(*simulation.potential.pppm_mesh))
             print('Suggested Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(
-                simulation.potential.pppm_alpha_ewald * simulation.parameters.aws,
+                simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
                 simulation.potential.pppm_alpha_ewald), end='')
             print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-            print('Suggested rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.aws,
+            print('Suggested rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
                                                                     simulation.potential.rc), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
@@ -313,7 +313,7 @@ class Verbose:
         """
         if simulation.potential.method == 'P3M':
             print('Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(
-                simulation.potential.pppm_alpha_ewald * simulation.parameters.aws,
+                simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
                 simulation.potential.pppm_alpha_ewald), end='')
             print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
             print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f}, {:2.4f}, {:2.4f} '.format(
@@ -326,7 +326,7 @@ class Verbose:
                 int(1. / (simulation.potential.pppm_h_array[2] * simulation.potential.pppm_alpha_ewald)),
             ))
             print(
-                'rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.aws,
+                'rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
                                                         simulation.potential.rc), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print('Mesh = {} x {} x {}'.format(*simulation.potential.pppm_mesh))
@@ -344,7 +344,7 @@ class Verbose:
 
         elif simulation.potential.method == 'PP':
             print(
-                'rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.aws,
+                'rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
                                                         simulation.potential.rc),
                 end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
@@ -372,12 +372,12 @@ class Verbose:
 
         """
         if simulation.potential.type == 'Yukawa':
-            print('kappa = {:1.4e}'.format(simulation.parameters.aws / simulation.parameters.lambda_TF))
+            print('kappa = {:1.4e}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
             print('lambda_TF = {:1.4e}'.format(simulation.parameters.lambda_TF))
             print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
 
         elif simulation.potential.type == 'EGS':
-            print('kappa = {:1.4e}'.format(simulation.parameters.aws / simulation.parameters.lambda_TF))
+            print('kappa = {:1.4e}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
             print('lambda_TF = {:1.4e}'.format(simulation.parameters.lambda_TF))
             print('nu = {:1.4e}'.format(simulation.parameters.nu))
             if simulation.parameters.nu < 1:
@@ -412,15 +412,15 @@ class Verbose:
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("e-e screening parameter = {:2.4f}".format(
-                simulation.potential.matrix[1, 0, 0] * simulation.parameters.aws))
+                simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws))
             print("ion de Broglie wavelength  = {:2.4f} ai = {:2.6e} ".format(
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / (np.sqrt(2.0) * simulation.parameters.ai),
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("i-i screening parameter = {:2.4f}".format(
-                simulation.potential.matrix[1, 1, 1] * simulation.parameters.aws))
+                simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws))
             print("e-i screening parameter = {:2.4f}".format(
-                simulation.potential.matrix[1, 0, 1] * simulation.parameters.aws))
+                simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws))
             print("e-i Coupling Parameter = {:3.3f} ".format(simulation.parameters.coupling_constant))
             print("rs Coupling Parameter = {:3.3f} ".format(simulation.parameters.rs))
 
@@ -449,19 +449,19 @@ class Verbose:
             Simulation's parameters.
 
         """
-        print('Wigner-Seitz radius = {:2.6e} '.format(simulation.parameters.aws), end='')
+        print('Wigner-Seitz radius = {:2.6e} '.format(simulation.parameters.a_ws), end='')
         print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
         print('No. of non-zero box dimensions = ', int(simulation.parameters.dimensions))
         print('Box length along x axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[0] / simulation.parameters.aws, simulation.parameters.box_lengths[0]), end='')
+            simulation.parameters.box_lengths[0] / simulation.parameters.a_ws, simulation.parameters.box_lengths[0]), end='')
         print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
         print('Box length along y axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[1] / simulation.parameters.aws, simulation.parameters.box_lengths[1]), end='')
+            simulation.parameters.box_lengths[1] / simulation.parameters.a_ws, simulation.parameters.box_lengths[1]), end='')
         print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
         print('Box length along z axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[2] / simulation.parameters.aws, simulation.parameters.box_lengths[2]), end='')
+            simulation.parameters.box_lengths[2] / simulation.parameters.a_ws, simulation.parameters.box_lengths[2]), end='')
         print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
         print("The remaining lengths scales are given in ", end='')

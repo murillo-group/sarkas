@@ -191,11 +191,6 @@
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.time_evolution.thermostats.</code><code class="sig-name descname">Thermostat</code><a class="reference internal" href="../_modules/sarkas/time_evolution/thermostats.html#Thermostat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.thermostats.Thermostat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Thermostat object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters</p>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt id="sarkas.time_evolution.thermostats.Thermostat.kB">
 <code class="sig-name descname">kB</code><a class="headerlink" href="#sarkas.time_evolution.thermostats.Thermostat.kB" title="Permalink to this definition">¶</a></dt>
@@ -263,17 +258,6 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.thermostats.Thermostat.T_desired">
-<code class="sig-name descname">T_desired</code><a class="headerlink" href="#sarkas.time_evolution.thermostats.Thermostat.T_desired" title="Permalink to this definition">¶</a></dt>
-<dd><p>Thermostating temperature of each species.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
 <dt id="sarkas.time_evolution.thermostats.Thermostat.type">
 <code class="sig-name descname">type</code><a class="headerlink" href="#sarkas.time_evolution.thermostats.Thermostat.type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Thermostat type</p>
@@ -284,10 +268,38 @@
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt id="sarkas.time_evolution.thermostats.Thermostat.tau">
+<code class="sig-name descname">tau</code><a class="headerlink" href="#sarkas.time_evolution.thermostats.Thermostat.tau" title="Permalink to this definition">¶</a></dt>
+<dd><p>Berendsen parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.time_evolution.thermostats.Thermostat.from_dict">
+<code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/thermostats.html#Thermostat.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.thermostats.Thermostat.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update attributes from input dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Dictionary to be copied.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="sarkas.time_evolution.thermostats.Thermostat.setup">
 <code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/thermostats.html#Thermostat.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.thermostats.Thermostat.setup" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Assign attributes from simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.time_evolution.thermostats.Thermostat.update">
@@ -378,7 +390,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 14, 2020.
+        Last updated on Sep, 15, 2020.
       </span>
 
     </p>

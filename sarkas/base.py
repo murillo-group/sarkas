@@ -3,15 +3,21 @@ import numpy as np
 import os.path
 import sys
 import scipy.constants as const
+from dataclasses import dataclass
 
 
 class Parameters:
     """
     Class containing all the constants and physical constants of the simulation.
 
+    Parameters
+    ----------
+    dic : dict, optional
+        Dictionary to be copied.
+
     Attributes
     ----------
-    aws : float
+    a_ws : float
         Wigner-Seitz radius. Calculated from the ``total_num_density`` .
 
     boundary_conditions : str
@@ -170,14 +176,20 @@ class Parameters:
 
     """
 
-    def __init__(self):
+    def __init__(self, dic: dict = None):
+
+        self.input_file = None
+        self.job_id = None
+        self.log_file = None
+        self.np_per_side = None
+        self.job_dir = None
+
         self.Lx = 0.0
         self.Ly = 0.0
         self.Lz = 0.0
         self.boundary_conditions = 'periodic'
         self.box_lengths = np.zeros(3)
         self.box_volume = 0.0
-        self.input_file = None
         self.dimensions = 3
         self.J2erg = 1.0e+7  # erg/J
         self.eps0 = const.epsilon_0
@@ -200,23 +212,41 @@ class Parameters:
         self.T_desired = 0.0
         self.total_num_density = 0.0
         self.total_num_ptcls = 0
-        self.species = []
-        #
-        # Control
+
         self.measure = False
         self.verbose = True
         self.simulations_dir = "Simulations"
-        self.job_dir = None
         self.production_dir = 'Production'
         self.equilibration_dir = 'Equilibration'
         self.preprocessing_dir = "PreProcessing"
         self.postprocessing_dir = "PostProcessing"
         self.prod_dump_dir = 'dumps'
         self.eq_dump_dir = 'dumps'
-        self.job_id = None
-        self.log_file = None
-        self.np_per_side = None
+
         self.pre_run = False
+
+        if dic:
+            self.from_dict(dic)
+
+    def __repr__(self):
+        sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
+        disp = 'Parameters( \n'
+        for key, value in sortedDict.items():
+            disp += "\t{} : {}\n".format(key, value)
+        disp += ')'
+        return disp
+
+    def from_dict(self, input_dict: dict):
+        """
+        Update attributes from input dictionary.
+
+        Parameters
+        ----------
+        input_dict: dict
+            Dictionary to be copied.
+
+        """
+        self.__dict__.update(input_dict)
 
     def setup(self, species):
         """
@@ -349,19 +379,19 @@ class Parameters:
 
         # Simulation Box Parameters
         # Wigner-Seitz radius calculated from the total number density
-        self.aws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
+        self.a_ws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
 
         if self.np_per_side:
             msg = "Number of particles per dimension does not match total number of particles."
             assert int(np.prod(self.np_per_side)) == self.total_num_ptcls, msg
 
-            self.Lx = self.aws * self.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Ly = self.aws * self.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Lz = self.aws * self.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lx = self.a_ws * self.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.a_ws * self.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.a_ws * self.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
         else:
-            self.Lx = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
-            self.Ly = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
-            self.Lz = self.aws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.Lx = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.Ly = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.Lz = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
 
         self.box_lengths = np.array([self.Lx, self.Ly, self.Lz])  # box length vector
 
@@ -392,7 +422,7 @@ class Parameters:
         self.coupling_constant = 0.0
         for i, sp in enumerate(species):
             const = self.fourpie0 * self.kB
-            sp.calc_coupling(self.aws, z_avg, const)
+            sp.calc_coupling(self.a_ws, z_avg, const)
             self.species_couplings[i] = sp.coupling
             self.coupling_constant += sp.concentration * sp.coupling
 
@@ -1021,9 +1051,16 @@ class Particles:
             species_start = species_end
 
 
+@dataclass
 class Species:
     """
     Class used to store all the information of a single species.
+
+    Parameters
+    ----------
+    input_dict : dict, optional
+        Dictionary to be copied.
+
 
     Attributes
     ----------
@@ -1066,6 +1103,9 @@ class Species:
     temperature : float
         Initial temperature of the species.
 
+    temperature_eV : float
+        Initial temperature of the species in eV.
+
     initial_velocity_distribution : str
         Type of distribution. Default = 'boltzmann'.
 
@@ -1083,8 +1123,7 @@ class Species:
 
     """
 
-    def __init__(self):
-        """Assign default values."""
+    def __init__(self, input_dict: dict = None):
         self.name = None
         self.number_density = None
         self.charge = None
@@ -1098,6 +1137,32 @@ class Species:
         self.Z = None
         self.initial_velocity = np.zeros(3)
         self.temperature = None
+        self.temperature_eV = None
+
+        if input_dict:
+            self.from_dict(input_dict)
+
+    def __repr__(self):
+        sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
+        disp = 'Species( \n'
+        for key, value in sortedDict.items():
+            disp += "\t{} : {}\n".format(key, value)
+        disp += ')'
+        return disp
+
+    def from_dict(self, input_dict: dict):
+        """
+        Update attributes from input dictionary.
+
+        Parameters
+        ----------
+        input_dict: dict
+            Dictionary to be copied.
+
+        """
+        self.__dict__.update(input_dict)
+        if not isinstance(self.initial_velocity, np.ndarray):
+            self.initial_velocity = np.array(self.initial_velocity)
 
     def calc_plasma_frequency(self, fourpie0):
         """
@@ -1105,9 +1170,6 @@ class Species:
 
         Parameters
         ----------
-        kB : float
-            Boltzmann constant.
-
         fourpie0 : float
             Electrostatic constant.
 
@@ -1144,13 +1206,13 @@ class Species:
         """
         self.omega_c = self.charge * magnetic_field_strength / self.mass
 
-    def calc_coupling(self, aws, z_avg, const):
+    def calc_coupling(self, a_ws, z_avg, const):
         """
         Calculate the coupling constant between particles.
 
         Parameters
         ----------
-        aws : float
+        a_ws : float
             Total Wigner-Seitz radius.
 
         z_avg : float
@@ -1160,5 +1222,5 @@ class Species:
             Electrostatic * Thermal constants.
 
         """
-        self.ai = (self.charge / z_avg) ** (1. / 3.) * aws
+        self.ai = (self.charge / z_avg) ** (1. / 3.) * a_ws
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)

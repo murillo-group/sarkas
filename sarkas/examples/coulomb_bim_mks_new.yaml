@@ -52,7 +52,7 @@ Parameters:
 
 IO:
   job_dir: bim_mks
-  job_id: bim_mks_01
+  job_id: bim_mks
 
 PostProcessing:
   - RadialDistributionFunction:
@@ -66,13 +66,13 @@ PostProcessing:
       hermite_order: 8
 
   - DynamicStructureFactor:
-      no_ka_harmonics: 5
+      no_ka_harmonics: 10
 
   - StaticStructureFactor:
-      no_ka_harmonics: 5
+      no_ka_harmonics: 10
 
   - CurrentCorrelationFunctions:
-      no_ka_harmonics: 5
+      no_ka_harmonics: 10
 
   - VelocityMoments:
       no_bins: 500

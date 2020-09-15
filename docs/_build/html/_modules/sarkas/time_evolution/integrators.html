@@ -237,9 +237,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
 
+<div class="viewcode-block" id="Integrator.from_dict"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update attributes from input dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_dict: dict</span>
+<span class="sd">            Dictionary to be copied.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Integrator.setup"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">thermostat</span><span class="p">,</span> <span class="n">potential</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assign attributes.</span>
+<span class="sd">        Assign attributes from simulation&#39;s parameters and classes.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -641,7 +653,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 14, 2020.
+        Last updated on Sep, 15, 2020.
       </span>
 
     </p>

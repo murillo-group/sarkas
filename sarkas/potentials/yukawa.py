@@ -110,7 +110,7 @@ def update_params(potential, params):
         # Force error calculated from eq.(43) in Ref.[1]_
         params.force_error = np.sqrt( twopi / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)
         # Renormalize
-        params.force_error *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+        params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
     elif potential.method == "P3M":
         potential.force = yukawa_force_pppm
         potential.matrix[2, 0, 0] = potential.pppm_alpha_ewald
@@ -118,4 +118,4 @@ def update_params(potential, params):
         kappa_over_alpha = - 0.25 * (potential.matrix[1, 0, 0] / potential.matrix[2, 0, 0]) ** 2
         alpha_times_rcut = - (potential.matrix[2, 0, 0] * potential.rc) ** 2
         params.pppm_pp_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(potential.rc)
-        params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 / np.sqrt(params.box_volume)
+        params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 / np.sqrt(params.box_volume)

@@ -152,7 +152,7 @@ def update_params(params):
 
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Ref.[Haxhimali2014]_
-    params.potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
+    params.potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.a_ws)
     params.QFactor /= params.fourpie0
 
     params.potential.matrix = np.array([params.potential.tab_interp_ord])
@@ -185,4 +185,4 @@ def update_params(params):
         # Force error calculated from eq.(43) in Ref.[1]_
         params.potential.F_err = np.sqrt(twopi / params.lambda_TF) * np.exp(-params.potential.rc / params.lambda_TF)
         # Renormalize
-        params.potential.F_err *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+        params.potential.F_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)

@@ -184,12 +184,17 @@
 <p>Module defining the three basic classes.</p>
 <dl class="py class">
 <dt id="sarkas.base.Parameters">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Parameters</code><a class="reference internal" href="../_modules/sarkas/base.html#Parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dic</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class containing all the constants and physical constants of the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <em>optional</em>) – Dictionary to be copied.</p>
+</dd>
+</dl>
 <dl class="py attribute">
-<dt id="sarkas.base.Parameters.aws">
-<code class="sig-name descname">aws</code><a class="headerlink" href="#sarkas.base.Parameters.aws" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.base.Parameters.a_ws">
+<code class="sig-name descname">a_ws</code><a class="headerlink" href="#sarkas.base.Parameters.a_ws" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wigner-Seitz radius. Calculated from the <code class="docutils literal notranslate"><span class="pre">total_num_density</span></code> .</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -789,6 +794,17 @@ The product of its components should be equal to <code class="docutils literal n
 </dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.base.Parameters.from_dict">
+<code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update attributes from input dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Dictionary to be copied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.base.Parameters.setup">
 <code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Parameters.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup simulations’ parameters.</p>
@@ -1211,9 +1227,14 @@ Updates: N/A</p>
 
 <dl class="py class">
 <dt id="sarkas.base.Species">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Species</code><a class="reference internal" href="../_modules/sarkas/base.html#Species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.base.</code><code class="sig-name descname">Species</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_dict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class used to store all the information of a single species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <em>optional</em>) – Dictionary to be copied.</p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt id="sarkas.base.Species.name">
 <code class="sig-name descname">name</code><a class="headerlink" href="#sarkas.base.Species.name" title="Permalink to this definition">¶</a></dt>
@@ -1358,6 +1379,17 @@ Updates: N/A</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt id="sarkas.base.Species.temperature_eV">
+<code class="sig-name descname">temperature_eV</code><a class="headerlink" href="#sarkas.base.Species.temperature_eV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial temperature of the species in eV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt id="sarkas.base.Species.initial_velocity_distribution">
 <code class="sig-name descname">initial_velocity_distribution</code><a class="headerlink" href="#sarkas.base.Species.initial_velocity_distribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Type of distribution. Default = ‘boltzmann’.</p>
@@ -1414,12 +1446,12 @@ Updates: N/A</p>
 
 <dl class="py method">
 <dt id="sarkas.base.Species.calc_coupling">
-<code class="sig-name descname">calc_coupling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">aws</span></em>, <em class="sig-param"><span class="n">z_avg</span></em>, <em class="sig-param"><span class="n">const</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.calc_coupling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species.calc_coupling" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_coupling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a_ws</span></em>, <em class="sig-param"><span class="n">z_avg</span></em>, <em class="sig-param"><span class="n">const</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.calc_coupling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species.calc_coupling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the coupling constant between particles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>aws</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Total Wigner-Seitz radius.</p></li>
+<li><p><strong>a_ws</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Total Wigner-Seitz radius.</p></li>
 <li><p><strong>z_avg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Species charge.</p></li>
 <li><p><strong>const</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Electrostatic * Thermal constants.</p></li>
 </ul>
@@ -1459,10 +1491,18 @@ See <a class="reference external" href="https://en.wikipedia.org/wiki/Lorentz_fo
 <dd><p>Calculate the plasma frequency.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>kB</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Boltzmann constant.</p></li>
-<li><p><strong>fourpie0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Electrostatic constant.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>fourpie0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Electrostatic constant.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Species.from_dict">
+<code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.base.Species.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update attributes from input dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Dictionary to be copied.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1494,7 +1534,7 @@ See <a class="reference external" href="https://en.wikipedia.org/wiki/Lorentz_fo
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 14, 2020.
+        Last updated on Sep, 15, 2020.
       </span>
 
     </p>

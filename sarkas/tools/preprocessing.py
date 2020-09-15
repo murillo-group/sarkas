@@ -167,7 +167,7 @@ class PreProcess:
 
         print('\n\n----------------- Timing Study -----------------------')
 
-        max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.aws)
+        max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
         if max_cells != len(self.pp_cells):
             self.pp_cells = np.arange(3, max_cells, dtype=int)
 
@@ -190,7 +190,7 @@ class PreProcess:
             green_time = self.green_function_timer()
             pm_errs[i] = self.parameters.pppm_pm_err
             print('\n\nMesh = {} x {} x {} : '.format(*self.potential.pppm_mesh))
-            print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(self.potential.pppm_alpha_ewald * self.parameters.aws,
+            print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(self.potential.pppm_alpha_ewald * self.parameters.a_ws,
                                                              self.potential.pppm_alpha_ewald))
             print('PM Err = {:1.4e}  '.format(self.parameters.pppm_pm_err), end='')
 
@@ -207,7 +207,7 @@ class PreProcess:
                 alpha_times_rcut = - (self.potential.pppm_alpha_ewald * self.potential.rc) ** 2
                 self.potential.pppm_pp_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(
                     self.potential.rc)
-                self.potential.pppm_pp_err *= np.sqrt(self.parameters.total_num_ptcls) * self.parameters.aws ** 2 \
+                self.potential.pppm_pp_err *= np.sqrt(self.parameters.total_num_ptcls) * self.parameters.a_ws ** 2 \
                                               / np.sqrt(self.parameters.box_volume)
 
                 pp_errs[i, j] = self.potential.pppm_pp_err
@@ -215,7 +215,7 @@ class PreProcess:
                                                      + self.parameters.pppm_pm_err ** 2)
 
                 if j == 0:
-                    pp_xlabels.append("{:1.2f}".format(self.potential.rc / self.parameters.aws))
+                    pp_xlabels.append("{:1.2f}".format(self.potential.rc / self.parameters.a_ws))
 
                 for it in range(3):
                     self.timer.start()
@@ -349,8 +349,8 @@ class PreProcess:
         self.io.time_stamp('Total Run', self.timer.time_division(tot_time))
 
     def make_pppm_approximation_plots(self):
-        chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.aws
-        chosen_rcut = self.potential.rc / self.parameters.aws
+        chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.a_ws
+        chosen_rcut = self.potential.rc / self.parameters.a_ws
         # Calculate Force error from analytic approximation given in Dharuman et al. J Chem Phys 2017
         total_force_error, pp_force_error, pm_force_error, rcuts, alphas = self.analytical_approx_pppm()
 
@@ -398,8 +398,8 @@ class PreProcess:
         ax[0].set_yscale('log')
         ax[0].axvline(chosen_rcut, ls='--', c='k')
         ax[0].axhline(self.parameters.force_error, ls='--', c='k')
-        if rcuts[-1] * self.parameters.aws > 0.5 * self.parameters.box_lengths.min():
-            ax[0].axvline(0.5 * self.parameters.box_lengths.min() / self.parameters.aws, c='r', label=r'$L/2$')
+        if rcuts[-1] * self.parameters.a_ws > 0.5 * self.parameters.box_lengths.min():
+            ax[0].axvline(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws, c='r', label=r'$L/2$')
         ax[0].grid(True, alpha=0.3)
         ax[0].legend(loc='best')
 
@@ -418,7 +418,7 @@ class PreProcess:
             r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:.2f}$'.format(
                 self.parameters.total_num_ptcls,
                 self.potential.pppm_mesh[0],
-                self.kappa * self.parameters.aws))
+                self.kappa * self.parameters.a_ws))
         fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + self.io.job_id + '.png'))
         fig.show()
 
@@ -457,14 +457,14 @@ class PreProcess:
         CS2 = ax.contour(CS, colors='w')
         ax.clabel(CS2, fmt='%1.0e', colors='w')
         ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
-        if rcuts[-1] * self.parameters.aws > 0.5 * self.parameters.box_lengths.min():
-            ax.axhline(0.5 * self.parameters.box_lengths.min() / self.parameters.aws, c='r', label=r'$L/2$')
+        if rcuts[-1] * self.parameters.a_ws > 0.5 * self.parameters.box_lengths.min():
+            ax.axhline(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws, c='r', label=r'$L/2$')
         # ax.tick_parameters(labelsize=fsz)
         ax.set_xlabel(r'$\alpha \;a_{ws}$')
         ax.set_ylabel(r'$r_c/a_{ws}$')
         ax.set_title(
             r'$\Delta F^{approx}_{tot}(r_c,\alpha)$' + r'  for  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
-                self.parameters.total_num_ptcls, self.potential.pppm_mesh[0], self.kappa * self.parameters.aws))
+                self.parameters.total_num_ptcls, self.potential.pppm_mesh[0], self.kappa * self.parameters.a_ws))
         fig.colorbar(CS)
         fig.tight_layout()
         fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + self.io.job_id + '.png'))
@@ -525,12 +525,12 @@ class PreProcess:
         r_min = self.potential.rc * 0.5
         r_max = self.potential.rc * 1.5
 
-        rcuts = np.linspace(r_min, r_max, 101) / self.parameters.aws
+        rcuts = np.linspace(r_min, r_max, 101) / self.parameters.a_ws
 
         # Calculate the analytic PP error and the total force error
         pp_force_error = np.sqrt(2.0 * np.pi * self.kappa) * np.exp(- rcuts * self.kappa)
         pp_force_error *= np.sqrt(self.parameters.total_num_ptcls *
-                                  self.parameters.aws ** 3 / self.parameters.box_volume)
+                                  self.parameters.a_ws ** 3 / self.parameters.box_volume)
 
         return pp_force_error, rcuts
 
@@ -538,7 +538,7 @@ class PreProcess:
         """Calculate the total force error as given in Dharuman et al. J Chem Phys 146 024112 (2017)."""
 
         p = self.potential.pppm_cao
-        L = self.parameters.box_lengths[0] / self.parameters.aws
+        L = self.parameters.box_lengths[0] / self.parameters.a_ws
         h = L / self.potential.pppm_mesh[0]
 
         a_min = self.potential.pppm_alpha_ewald * 0.5
@@ -547,8 +547,8 @@ class PreProcess:
         r_min = self.potential.rc * 0.5
         r_max = self.potential.rc * 1.5
 
-        alphas = self.parameters.aws * np.linspace(a_min, a_max, 101)
-        rcuts = np.linspace(r_min, r_max, 101) / self.parameters.aws
+        alphas = self.parameters.a_ws * np.linspace(a_min, a_max, 101)
+        rcuts = np.linspace(r_min, r_max, 101) / self.parameters.a_ws
 
         pm_force_error = np.zeros(len(alphas))
         pp_force_error = np.zeros((len(alphas), len(rcuts)))
@@ -572,7 +572,7 @@ class PreProcess:
             Cmp = np.array([8 / 18243225, 7234 / 1550674125, 701872 / 65511420975, 2793776 / 225759909375,
                             1242928 / 132172165125, 1890912728 / 352985880121875, 21053792 / 8533724574375])
 
-        kappa = self.kappa * self.parameters.aws
+        kappa = self.kappa * self.parameters.a_ws
 
         for ia, alpha in enumerate(alphas):
             somma = 0.0
@@ -583,13 +583,13 @@ class PreProcess:
             pm_force_error[ia] = np.sqrt(3.0 * somma) / (2.0 * np.pi)
         # eq.(35)
         pm_force_error *= np.sqrt(self.parameters.total_num_ptcls *
-                                  self.parameters.aws ** 3 / self.parameters.box_volume)
+                                  self.parameters.a_ws ** 3 / self.parameters.box_volume)
         # Calculate the analytic PP error and the total force error
         if self.potential.type == "QSP":
             for (ir, rc) in enumerate(rcuts):
                 pp_force_error[:, ir] = np.sqrt(2.0 * np.pi * kappa) * np.exp(- rc * kappa)
                 pp_force_error[:, ir] *= np.sqrt(self.parameters.total_num_ptcls
-                                                 * self.parameters.aws ** 3 / self.parameters.box_volume)
+                                                 * self.parameters.a_ws ** 3 / self.parameters.box_volume)
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
                     total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
@@ -600,7 +600,7 @@ class PreProcess:
                     pp_force_error[ia, ir] = 2.0 * np.exp(-(0.5 * kappa / alfa) ** 2
                                                           - alfa ** 2 * rc ** 2) / np.sqrt(rc)
                     pp_force_error[ia, ir] *= np.sqrt(self.parameters.total_num_ptcls *
-                                                      self.parameters.aws ** 3 / self.parameters.box_volume)
+                                                      self.parameters.a_ws ** 3 / self.parameters.box_volume)
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
                     total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
 

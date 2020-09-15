@@ -9,11 +9,6 @@ class Thermostat:
     """
     Thermostat object.
 
-    Parameters
-    ----------
-    params : sarkas.base.Parameters
-        Simulation's parameters
-
     Attributes
     ----------
     kB : float
@@ -34,38 +29,64 @@ class Thermostat:
     relaxation_timestep: int
         Timestep at which thermostat is turned on.
 
-    T_desired: numpy.ndarray
-        Thermostating temperature of each species.
-
     type: str
         Thermostat type
+
+    tau: float
+        Berendsen parameter.
 
     """
     def __init__(self):
         self.temperatures = None
+        self.temperatures_eV = None
         self.type = None
         self.relaxation_rate = None
         self.relaxation_timestep = None
         self.kB = None
         self.species_num = None
         self.species_masses = None
+        self.tau = None
 
-    def setup(self, params):
+    def from_dict(self, input_dict: dict) :
+        """
+        Update attributes from input dictionary.
 
-        # run some checks
-        if hasattr(self, 'temperatures_eV'):
+        Parameters
+        ----------
+        input_dict: dict
+            Dictionary to be copied.
+
+        """
+        self.__dict__.update(input_dict)
+
+        # Make sure list are turned into numpy arrays
+        if self.temperatures_eV:
             if not isinstance(self.temperatures_eV, np.ndarray):
                 self.temperatures_eV = np.array(self.temperatures_eV)
 
+        if self.temperatures:
+            if not isinstance(self.temperatures, np.ndarray):
+                    self.temperatures = np.array(self.temperatures)
+
+    def setup(self, params):
+        """
+        Assign attributes from simulation's parameters.
+
+        Parameters
+        ----------
+        params: sarkas.base.Parameters
+            Simulation's parameters
+
+        """
+
+        # run some checks
+        if self.temperatures_eV.all():
             self.temperatures = params.eV2K * self.temperatures_eV
 
-        if not isinstance(self.temperatures, np.ndarray):
-            self.temperatures = np.array(self.temperatures)
-
-        if hasattr(self, "tau"):
+        if self.tau:
             self.relaxation_rate = 1.0/self.tau
 
-        if not hasattr(self, "temperatures"):
+        if not self.temperatures.all():
             self.temperatures = params.species_temperatures
 
         self.kB = params.kB

@@ -13,12 +13,9 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../sarkas'))
-sys.path.insert(0, os.path.abspath('../sarkas/algorithm'))
 sys.path.insert(0, os.path.abspath('../sarkas/time_evolution'))
 sys.path.insert(0, os.path.abspath('../sarkas/utilities'))
-sys.path.insert(0, os.path.abspath('../sarkas/plotting'))
 sys.path.insert(0, os.path.abspath('../sarkas/potentials'))
-sys.path.insert(0, os.path.abspath('../sarkas/simulation'))
 sys.path.insert(0, os.path.abspath('../sarkas/thermostats'))
 sys.path.insert(0, os.path.abspath('../sarkas/tools'))
 
@@ -54,7 +51,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
-    'sphinx.ext.intersphinx'
+    'sphinx.ext.intersphinx',
+    'sphinx_autodoc_typehints'
 ]
 
 # Napoleon settings

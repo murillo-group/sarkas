@@ -15,6 +15,7 @@ Particles:
         Z: 0.96517995              # degree of ionization
         atomic_weight: 2.014                   # atomic mass
         temperature_eV: 200.0
+        initial_velocity: [10.0, 10.0, 12.0]
 
     - Species:
         name: T                     # Tritium
@@ -48,13 +49,12 @@ Parameters:
 #    production_steps: 100000                    # number of timesteps after the equilibrium
 #    prod_dump_step: 10                # dump time step
 #    eq_dump_step: 100
-    verbose: True
 
 Integrator:
     type: Verlet                  # velocity integrator type
-    equilibration_steps: 50000                      # number of timesteps for the equilibrium
-    production_steps: 100000                    # number of timesteps after the equilibrium
-    prod_dump_step: 10                # dump time step
+    equilibration_steps: 20000                      # number of timesteps for the equilibrium
+    production_steps: 150000                    # number of timesteps after the equilibrium
+    prod_dump_step: 100                # dump time step
     eq_dump_step: 100
 
 Control:
@@ -79,13 +79,13 @@ PostProcessing:
       hermite_order: 8
 
   - DynamicStructureFactor:
-      no_ka_harmonics: 5
+      no_ka_harmonics: 10
 
   - StaticStructureFactor:
-      no_ka_harmonics: 5
+      no_ka_harmonics: 10
 
   - CurrentCorrelationFunctions:
-      no_ka_harmonics: 5
+      no_ka_harmonics: 10
 
   - VelocityMoments:
       no_bins: 500

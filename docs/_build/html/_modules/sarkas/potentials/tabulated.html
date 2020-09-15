@@ -314,7 +314,7 @@
 
     <span class="c1"># Effective Coupling Parameter in case of multi-species</span>
     <span class="c1"># see eq.(3) in Ref.[Haxhimali2014]_</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="n">Z53</span> <span class="o">*</span> <span class="n">Z_avg</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta_i</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="n">Z53</span> <span class="o">*</span> <span class="n">Z_avg</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta_i</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span><span class="p">)</span>
     <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">/=</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
 
     <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">tab_interp_ord</span><span class="p">])</span>
@@ -347,7 +347,7 @@
         <span class="c1"># Force error calculated from eq.(43) in Ref.[1]_</span>
         <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">F_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span>
         <span class="c1"># Renormalize</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">F_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span></div>
+        <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">F_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -363,7 +363,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 14, 2020.
+        Last updated on Sep, 15, 2020.
       </span>
 
     </p>

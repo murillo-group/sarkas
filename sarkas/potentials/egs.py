@@ -94,7 +94,7 @@ def update_params(potential, params):
     potential.force = EGS_force_PP
     params.force_error = np.sqrt(twopi / params.lambda_TF) * np.exp(-potential.rc / params.lambda_TF)
     # Renormalize
-    params.force_error *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
 
 
 @njit

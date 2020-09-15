@@ -280,7 +280,7 @@ class CurrentCorrelationFunctions(Observable):
 
         except FileNotFoundError:
             self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.aws
+            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
             self.no_ka_values = len(self.ka_values)
 
             if not (os.path.exists(self.k_space_dir)):
@@ -508,7 +508,7 @@ class DynamicStructureFactor(Observable):
 
         except FileNotFoundError:
             self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.aws
+            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
             self.no_ka_values = len(self.ka_values)
 
             if not (os.path.exists(self.k_space_dir)):
@@ -823,7 +823,7 @@ class HermiteCoefficients(Observable):
         """
         Calculate Hermite coefficients and save the pandas dataframe.
         """
-        vscale = 1.0 / (self.aws * self.total_plasma_frequency)
+        vscale = 1.0 / (self.a_ws * self.total_plasma_frequency)
         vel = np.zeros((self.dimensions, self.total_num_ptcls))
 
         xcoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))
@@ -926,7 +926,7 @@ class HermiteCoefficients(Observable):
             ax[1].set_xlabel(r'$t$' + xlbl)
 
             sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp])
-            sigma /= (self.aws * self.total_plasma_frequency)  # Rescale
+            sigma /= (self.a_ws * self.total_plasma_frequency)  # Rescale
 
             for i in range(0, self.hermite_order, 2):
                 coeff = np.zeros(i + 1)
@@ -1088,7 +1088,7 @@ class RadialDistributionFunction(Observable):
             for j, sp2 in enumerate(self.species[i:]):
                 subscript = sp1.name + sp2.name
                 if normalized:
-                    ax.plot(self.dataframe["distance"] / self.aws,
+                    ax.plot(self.dataframe["distance"] / self.a_ws,
                             self.dataframe["{}-{} RDF".format(sp1.name, sp2.name)],
                             label=r'$g_{' + subscript + '} (r)$')
                 else:
@@ -1191,7 +1191,7 @@ class StaticStructureFactor(Observable):
             print("n(k,t) Loaded")
         except FileNotFoundError:
             self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.aws
+            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
             self.no_ka_values = len(self.ka_values)
 
             if not (os.path.exists(self.k_space_dir)):
@@ -1371,7 +1371,7 @@ class Thermodynamics(Observable):
             Pressure divided by :math:`k_BT`.
 
         """
-        r *= self.aws
+        r *= self.a_ws
         r2 = r * r
         r3 = r2 * r
 
@@ -1858,7 +1858,7 @@ class Transport:
             for j, sp2 in enumerate(params.species[i + 1:]):
                 integrand = np.array(vacf.dataframe["{}-{} Total Current ACF".format(sp1.name, sp2.name)])
                 time = np.array(vacf.dataframe["Time"])
-                # const = 1.0 / (3.0 * params.total_plasma_frequency * params.aws ** 2)
+                # const = 1.0 / (3.0 * params.total_plasma_frequency * params.a_ws ** 2)
                 const = 1. / (3.0 * sp1.concentration * sp2.concentration)
                 for it in range(1, no_int):
                     D_ij[indx, it] = const * np.trapz(integrand[:it], x=time[:it])
@@ -2218,7 +2218,7 @@ class VelocityMoments(Observable):
         """
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
         """
-        vscale = 1. / (self.aws * self.total_plasma_frequency)
+        vscale = 1. / (self.a_ws * self.total_plasma_frequency)
         vel = np.zeros((self.no_dumps, self.total_num_ptcls, 3))
 
         time = np.zeros(self.no_dumps)

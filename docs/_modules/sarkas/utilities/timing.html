@@ -174,15 +174,9 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Timer class modified from https://realpython.com/python-timer/</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SarkasTimer.__post_init__"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.__post_init__">[docs]</a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Add timer to dict of timers after initialization&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="SarkasTimer.start"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="SarkasTimer.start"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Start a new timer&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TimerError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timer is running. Use .stop() to stop it&quot;</span><span class="p">)</span>
@@ -190,7 +184,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter_ns</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SarkasTimer.stop"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Stop the timer, and report the elapsed time&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Stop the timer, and report the elapsed time.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        elapsed_time: float</span>
+<span class="sd">            Elapsed time in nanoseconds.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TimerError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timer is not running. Use .start() to start it&quot;</span><span class="p">)</span>
 
@@ -202,10 +203,25 @@
 
 <div class="viewcode-block" id="SarkasTimer.current"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.current">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">current</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Grab the current time in nanoseconds.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter_ns</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SarkasTimer.time_division"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.time_division">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">time_division</span><span class="p">(</span><span class="n">tme</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">time_division</span><span class="p">(</span><span class="n">tme</span> <span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Divide time into hours, min, sec, msec, microsec (usec), and nanosec.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tme : float</span>
+<span class="sd">            Time in nanoseconds.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        : list</span>
+<span class="sd">            [hours, min, sec, msec, microsec (usec), nanosec]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">t_hrs</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">tme</span><span class="p">,</span> <span class="mf">3.6e12</span><span class="p">)</span>
         <span class="n">t_min</span><span class="p">,</span> <span class="n">rem_m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mf">6e+10</span><span class="p">)</span>
         <span class="n">t_sec</span><span class="p">,</span> <span class="n">rem_s</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem_m</span><span class="p">,</span> <span class="mf">1e9</span><span class="p">)</span>
@@ -229,7 +245,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 14, 2020.
+        Last updated on Sep, 15, 2020.
       </span>
 
     </p>

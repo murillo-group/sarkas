@@ -43,7 +43,7 @@ def update_params(potential, params):
     params.force_error = np.sqrt(2.0 * np.pi / potential.screening_lengths.min()) \
                     * np.exp(- potential.rc / potential.screening_lengths.min())
     # Renormalize
-    params.force_error *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
 
 
 @nb.njit

@@ -253,7 +253,7 @@
     <span class="n">params</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
 
     <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sigma2</span> <span class="o">**</span> <span class="mi">12</span> <span class="o">/</span> <span class="p">(</span><span class="mf">13.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">**</span> <span class="mi">13</span><span class="p">))</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span>
     <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="n">epsilon_tot</span><span class="o">/</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">T_desired</span><span class="p">)</span></div>
 
 
@@ -311,7 +311,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 14, 2020.
+        Last updated on Sep, 15, 2020.
       </span>
 
     </p>

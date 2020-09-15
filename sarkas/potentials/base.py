@@ -102,6 +102,19 @@ class Potential:
         self.total_net_charge = 0.0
         self.pppm_on = False
 
+    def from_dict(self, input_dict: dict) :
+        """
+        Update attributes from input dictionary.
+
+        Parameters
+        ----------
+        input_dict: dict
+            Dictionary to be copied.
+
+        """
+
+        self.__dict__.update(input_dict)
+
     def setup(self, params):
 
         # Check for cutoff radius
@@ -128,7 +141,7 @@ class Potential:
 
         if hasattr(self, "kappa"):
             # Thomas-Fermi Length
-            params.lambda_TF = params.aws / self.kappa
+            params.lambda_TF = params.a_ws / self.kappa
 
         # Coulomb potential
         if self.type.lower() == "coulomb":
@@ -197,7 +210,7 @@ class Potential:
         params.lambda_TF = np.sqrt(params.fourpie0 * np.sqrt(np.pi) * lambda3 / (
                 8.0 * np.pi * params.qe ** 2 * beta_e * fdint_fdk_vec(k=-0.5, phi=params.eta_e)))
 
-        params.rs = params.aws / params.a0
+        params.rs = params.a_ws / params.a0
         kF = (3.0 * np.pi ** 2 * params.ne) ** (1. / 3.)
         params.fermi_energy = params.hbar2 * kF ** 2 / (2.0 * params.me)
         params.electron_degeneracy_parameter = params.kB * params.Te / params.fermi_energy
@@ -273,7 +286,7 @@ class Potential:
         self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
             params.box_lengths, self.pppm_mesh, self.pppm_aliases, self.pppm_cao, constants)
         # Complete PM Force error calculation
-        params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 * params.fourpie0
+        params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
         params.pppm_pm_err /= params.box_volume ** (2. / 3.)
 
         # Total Force Error

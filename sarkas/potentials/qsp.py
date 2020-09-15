@@ -121,7 +121,7 @@ def update_params(params):
         params.ni += params.species[isp].num_density
 
     # Calculate the total and ion Wigner-Seitz Radius from the total density
-    params.aws = (3.0 / (four_pi * params.total_num_density)) ** (1. / 3.)
+    params.a_ws = (3.0 / (four_pi * params.total_num_density)) ** (1. / 3.)
     params.ai = (3.0 / (four_pi * params.ni)) ** (1.0 / 3.0)  # Ion WS
 
     beta_e = 1.0 / (params.kB * params.Te)
@@ -186,8 +186,8 @@ def update_params(params):
         params.pppm.MGrid, params.pppm.aliases, params.box_lengths, params.pppm.cao, constants)
 
     # Complete PM and PP Force error calculation
-    params.pppm.PM_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
-    params.pppm.PP_err *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+    params.pppm.PM_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
+    params.pppm.PP_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
     # Calculate the total force error
     params.pppm.F_err = np.sqrt(params.pppm.PM_err ** 2 + params.pppm.PP_err ** 2)
 

@@ -361,6 +361,17 @@
 </dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.time_evolution.integrators.Integrator.from_dict">
+<code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update attributes from input dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Dictionary to be copied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_boris">
 <code class="sig-name descname">magnetic_boris</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class using the Boris algorithm in the case of a
@@ -414,7 +425,7 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.setup">
 <code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">thermostat</span></em>, <em class="sig-param"><span class="n">potential</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assign attributes.</p>
+<dd><p>Assign attributes from simulation’s parameters and classes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -507,7 +518,7 @@ or on the Sarkas website.</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 14, 2020.
+        Last updated on Sep, 15, 2020.
       </span>
 
     </p>

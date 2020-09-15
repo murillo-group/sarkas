@@ -12,15 +12,9 @@ class SarkasTimer:
     """
     Timer class modified from https://realpython.com/python-timer/
     """
-    name: Optional[str] = None
     _start_time: Optional[float] = field(default=None, init=False, repr=False)
 
-    def __post_init__(self) -> None:
-        """Add timer to dict of timers after initialization"""
-        if self.name is not None:
-            self.timers.setdefault(self.name, 0)
-
-    def start(self) -> None:
+    def start(self) :
         """Start a new timer"""
         if self._start_time is not None:
             raise TimerError(f"Timer is running. Use .stop() to stop it")
@@ -28,7 +22,14 @@ class SarkasTimer:
         self._start_time = time.perf_counter_ns()
 
     def stop(self) -> float:
-        """Stop the timer, and report the elapsed time"""
+        """Stop the timer, and report the elapsed time.
+
+        Returns
+        -------
+        elapsed_time: float
+            Elapsed time in nanoseconds.
+
+        """
         if self._start_time is None:
             raise TimerError(f"Timer is not running. Use .start() to start it")
 
@@ -40,10 +41,25 @@ class SarkasTimer:
 
     @staticmethod
     def current() -> float:
+        """Grab the current time in nanoseconds."""
         return time.perf_counter_ns()
 
     @staticmethod
-    def time_division(tme):
+    def time_division(tme : float) -> list:
+        """
+        Divide time into hours, min, sec, msec, microsec (usec), and nanosec.
+
+        Parameters
+        ----------
+        tme : float
+            Time in nanoseconds.
+
+        Returns
+        -------
+        : list
+            [hours, min, sec, msec, microsec (usec), nanosec]
+
+        """
         t_hrs, rem = divmod(tme, 3.6e12)
         t_min, rem_m = divmod(rem, 6e+10)
         t_sec, rem_s = divmod(rem_m, 1e9)

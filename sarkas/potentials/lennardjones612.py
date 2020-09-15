@@ -91,7 +91,7 @@ def update_params(params):
     params.total_plasma_frequency = np.sqrt(wp_tot_sq)
 
     params.PP_err = np.sqrt(np.pi * sigma2 ** 12 / (13.0 * params.potential.rc ** 13))
-    params.PP_err *= np.sqrt(params.total_num_ptcls / params.box_volume) * params.aws ** 2
+    params.PP_err *= np.sqrt(params.total_num_ptcls / params.box_volume) * params.a_ws ** 2
     params.potential.Gamma_eff = epsilon_tot/(params.kB*params.T_desired)
 
 

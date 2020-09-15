@@ -165,15 +165,21 @@
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 
 
 <div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters">[docs]</a><span class="k">class</span> <span class="nc">Parameters</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class containing all the constants and physical constants of the simulation.</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dic : dict, optional</span>
+<span class="sd">        Dictionary to be copied.</span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    aws : float</span>
+<span class="sd">    a_ws : float</span>
 <span class="sd">        Wigner-Seitz radius. Calculated from the ``total_num_density`` .</span>
 
 <span class="sd">    boundary_conditions : str</span>
@@ -332,14 +338,20 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dic</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span> <span class="o">=</span> <span class="s1">&#39;periodic&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">J2erg</span> <span class="o">=</span> <span class="mf">1.0e+7</span>  <span class="c1"># erg/J</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eps0</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">epsilon_0</span>
@@ -362,23 +374,41 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1">#</span>
-        <span class="c1"># Control</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">measure</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simulations_dir</span> <span class="o">=</span> <span class="s2">&quot;Simulations&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span> <span class="o">=</span> <span class="s1">&#39;Production&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span> <span class="o">=</span> <span class="s1">&#39;Equilibration&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_dir</span> <span class="o">=</span> <span class="s2">&quot;PreProcessing&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span> <span class="o">=</span> <span class="s2">&quot;PostProcessing&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span> <span class="o">=</span> <span class="s1">&#39;dumps&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span> <span class="o">=</span> <span class="s1">&#39;dumps&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_run</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">dic</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dic</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sortedDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="s1">&#39;Parameters( </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sortedDict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">disp</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">{}</span><span class="s2"> : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
+        <span class="k">return</span> <span class="n">disp</span>
+
+<div class="viewcode-block" id="Parameters.from_dict"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update attributes from input dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_dict: dict</span>
+<span class="sd">            Dictionary to be copied.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Parameters.setup"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -511,19 +541,19 @@
 
         <span class="c1"># Simulation Box Parameters</span>
         <span class="c1"># Wigner-Seitz radius calculated from the total number density</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Number of particles per dimension does not match total number of particles.&quot;</span>
             <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">))</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">msg</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">Lx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span><span class="p">])</span>  <span class="c1"># box length vector</span>
 
@@ -554,7 +584,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">coupling_constant</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
             <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kB</span>
-            <span class="n">sp</span><span class="o">.</span><span class="n">calc_coupling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aws</span><span class="p">,</span> <span class="n">z_avg</span><span class="p">,</span> <span class="n">const</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">calc_coupling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span> <span class="n">z_avg</span><span class="p">,</span> <span class="n">const</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_couplings</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">coupling</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">coupling_constant</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">concentration</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">coupling</span></div></div>
 
@@ -1183,9 +1213,16 @@
             <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span></div></div>
 
 
-<div class="viewcode-block" id="Species"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species">[docs]</a><span class="k">class</span> <span class="nc">Species</span><span class="p">:</span>
+<div class="viewcode-block" id="Species"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Species</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to store all the information of a single species.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_dict : dict, optional</span>
+<span class="sd">        Dictionary to be copied.</span>
+
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -1228,6 +1265,9 @@
 <span class="sd">    temperature : float</span>
 <span class="sd">        Initial temperature of the species.</span>
 
+<span class="sd">    temperature_eV : float</span>
+<span class="sd">        Initial temperature of the species in eV.</span>
+
 <span class="sd">    initial_velocity_distribution : str</span>
 <span class="sd">        Type of distribution. Default = &#39;boltzmann&#39;.</span>
 
@@ -1245,8 +1285,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Assign default values.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number_density</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1260,6 +1299,32 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature_eV</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">input_dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sortedDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="s1">&#39;Species( </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sortedDict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">disp</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">{}</span><span class="s2"> : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
+        <span class="k">return</span> <span class="n">disp</span>
+
+<div class="viewcode-block" id="Species.from_dict"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update attributes from input dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_dict: dict</span>
+<span class="sd">            Dictionary to be copied.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Species.calc_plasma_frequency"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.calc_plasma_frequency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_plasma_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fourpie0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1267,9 +1332,6 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        kB : float</span>
-<span class="sd">            Boltzmann constant.</span>
-
 <span class="sd">        fourpie0 : float</span>
 <span class="sd">            Electrostatic constant.</span>
 
@@ -1306,13 +1368,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">*</span> <span class="n">magnetic_field_strength</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span></div>
 
-<div class="viewcode-block" id="Species.calc_coupling"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.calc_coupling">[docs]</a>    <span class="k">def</span> <span class="nf">calc_coupling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aws</span><span class="p">,</span> <span class="n">z_avg</span><span class="p">,</span> <span class="n">const</span><span class="p">):</span>
+<div class="viewcode-block" id="Species.calc_coupling"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.calc_coupling">[docs]</a>    <span class="k">def</span> <span class="nf">calc_coupling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_ws</span><span class="p">,</span> <span class="n">z_avg</span><span class="p">,</span> <span class="n">const</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the coupling constant between particles.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        aws : float</span>
+<span class="sd">        a_ws : float</span>
 <span class="sd">            Total Wigner-Seitz radius.</span>
 
 <span class="sd">        z_avg : float</span>
@@ -1322,7 +1384,7 @@
 <span class="sd">            Electrostatic * Thermal constants.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">/</span> <span class="n">z_avg</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">aws</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">/</span> <span class="n">z_avg</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">a_ws</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coupling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ai</span> <span class="o">*</span> <span class="n">const</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span></div></div>
 </pre></div>
 
@@ -1339,7 +1401,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 14, 2020.
+        Last updated on Sep, 15, 2020.
       </span>
 
     </p>
