@@ -1,24 +1,24 @@
 from sarkas.processes import PreProcess, Simulation, PostProcess
 from numpy.random import Generator, PCG64
 
-input_file_name = 'sarkas/examples/coulomb_bim_mks_new.yaml'
+input_file_name = 'sarkas/examples/yukawa_icf_new.yaml'
 
 rg = Generator(PCG64(12345))
-
-for i in range(1):
-
-    args = {"IO": {"job_id": "bim_mks_run{}".format(i ),
-                   "job_dir": "bim_mks_run{}".format(i)},
-            "Parameters": {"rand_seed": rg.integers(0, 1598765198)}
-            }
 
 # preproc = PreProcess(input_file_name)
 # preproc.setup(read_yaml=True)
 # preproc.run(loops=5)
-#     sim = Simulation(input_file_name)
-#     sim.setup(read_yaml=True, other_inputs=args)
-#     sim.run()
 
+for i in range(1):
+
+    args = {"IO": {"job_id": "icf_mks_run{}".format(i ),
+                   "job_dir": "icf_mks_run{}".format(i)},
+            "Parameters": {"rand_seed": rg.integers(0, 1598765198)}
+            }
+
+    # sim = Simulation(input_file_name)
+    # sim.setup(read_yaml=True, other_inputs=args)
+    # sim.run()
     #
     postproc = PostProcess(input_file_name)
     postproc.setup(read_yaml=True, other_inputs=args)
@@ -36,26 +36,24 @@ for i in range(1):
     # postproc.ccf.plot(show=True)
     # #
     # postproc.rdf.setup(postproc.parameters, postproc.species)
-    # postproc.rdf.parse()
+    # postproc.rdf.save()
     # postproc.rdf.plot(show=True)
-    #
+    # #
     # postproc.hc.setup(postproc.parameters, postproc.species, 'equilibration')
     # postproc.hc.parse()
     # postproc.hc.plot(show=True)
-    #
+    # #
     # postproc.hc.setup(postproc.parameters, postproc.species, 'production')
     # postproc.hc.parse()
     # postproc.hc.plot(show=True)
-    #
+    # #
     # postproc.vm.setup(postproc.parameters, postproc.species, 'equilibration')
     # postproc.vm.parse()
     # postproc.vm.plot_ratios(show=True)
-    #
+    # #
     # postproc.vm.setup(postproc.parameters, postproc.species, 'production')
     # postproc.vm.parse()
     # postproc.vm.plot_ratios(show=True)
-
-
     #
     postproc.parameters.thermostat_type = postproc.thermostat.type
     postproc.parameters.thermostat_tau = postproc.thermostat.tau

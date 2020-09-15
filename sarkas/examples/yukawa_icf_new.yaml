@@ -68,12 +68,29 @@ IO:
     verbose: True
 
 PostProcessing:
-    - RadialDistributionFunction:
-        no_bins: 500
+  - RadialDistributionFunction:
+      no_bins: 500
 
-    - Thermodynamics:
-          phase: production
+  - Thermodynamics:
+      phase: production
 
-    - HermiteCoefficients:
-        no_bins: 1000
-        hermite_order: 8
+  - HermiteCoefficients:
+      no_bins: 500
+      hermite_order: 8
+
+  - DynamicStructureFactor:
+      no_ka_harmonics: 5
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 5
+
+  - CurrentCorrelationFunctions:
+      no_ka_harmonics: 5
+
+  - VelocityMoments:
+      no_bins: 500
+
+  - VelocityAutocorrelationFunctions:
+      phase: production
+
+  - ElectricCurrent:

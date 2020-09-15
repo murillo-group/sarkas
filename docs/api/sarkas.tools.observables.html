@@ -375,7 +375,7 @@
 <dd><p>Dataframe of the longitudinal velocity correlation functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+360.g068d1b5be)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+379.gfd20f7d34)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -537,7 +537,7 @@
 <dd><p>Dataframe containing the computed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+360.g068d1b5be)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+379.gfd20f7d34)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -548,7 +548,7 @@
 <dd><p>Dataframe containing the longitudinal part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+360.g068d1b5be)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+379.gfd20f7d34)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -559,7 +559,7 @@
 <dd><p>Dataframe containing the transverse part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+360.g068d1b5be)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+379.gfd20f7d34)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1000,10 +1000,9 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>simulation</strong> – </p></li>
+<li><p><strong>simulation</strong> (<a class="reference internal" href="sarkas.processes.html#sarkas.processes.PostProcess" title="sarkas.processes.PostProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.processes.PostProcess</span></code></a>) – Wrapper class.</p></li>
 <li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Phase to plot. “equilibration” or “production”.</p></li>
 <li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for displaying the figure.</p></li>
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1015,42 +1014,69 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <dt id="sarkas.tools.observables.Transport">
 <em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.observables.</code><code class="sig-name descname">Transport</code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Transport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.Transport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Transport Coefficients class</p>
+<p>Transport Coefficients class.</p>
+<dl class="py method">
+<dt id="sarkas.tools.observables.Transport.diffusion">
+<em class="property">static </em><code class="sig-name descname">diffusion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Transport.diffusion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.Transport.diffusion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate diffusion from velocity auto-correlation function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code>.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Phase to analyze. Default = ‘production’.</p></li>
+<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for prompting plot to screen.</p></li>
+</ul>
 </dd>
-</dl>
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.Transport.params">
-<code class="sig-name descname">params</code><a class="headerlink" href="#sarkas.tools.observables.Transport.params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simulation’s parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+379.gfd20f7d34)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.tools.observables.Transport.diffusion">
-<em class="property">static </em><code class="sig-name descname">diffusion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Transport.diffusion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.Transport.diffusion" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt id="sarkas.tools.observables.Transport.electrical_conductivity">
 <em class="property">static </em><code class="sig-name descname">electrical_conductivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Transport.electrical_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.Transport.electrical_conductivity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate electrical conductivity from current auto-correlation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code>.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Phase to analyze. Default = ‘production’.</p></li>
+<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for prompting plot to screen.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+379.gfd20f7d34)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.Transport.interdiffusion">
 <em class="property">static </em><code class="sig-name descname">interdiffusion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Transport.interdiffusion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.Transport.interdiffusion" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Calculate interdiffusion coefficients from velocity auto-correlation function.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> – </p></li>
-<li><p><strong>show</strong> – </p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code>.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Phase to analyze. Default = ‘production’.</p></li>
+<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for prompting plot to screen.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+379.gfd20f7d34)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1058,12 +1084,21 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <dl class="py method">
 <dt id="sarkas.tools.observables.Transport.viscosity">
 <em class="property">static </em><code class="sig-name descname">viscosity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Transport.viscosity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.Transport.viscosity" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Calculate bulk and shear viscosity from pressure auto-correlation function.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> – </p></li>
-<li><p><strong>show</strong> – </p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code>.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Phase to analyze. Default = ‘production’.</p></li>
+<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag for prompting plot to screen.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+379.gfd20f7d34)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1203,117 +1238,6 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – Simulation’s parameters.</p></li>
 <li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of sarkas.base.Species.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="sarkas.tools.observables.XYZWriter">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.observables.</code><code class="sig-name descname">XYZWriter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">io</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#XYZWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.XYZWriter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Write the XYZ file for OVITO visualization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters.</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.a_ws">
-<code class="sig-name descname">a_ws</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.a_ws" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wigner-Seitz radius. Used for rescaling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.dump_skip">
-<code class="sig-name descname">dump_skip</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.dump_skip" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dump step interval.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.dump_dir">
-<code class="sig-name descname">dump_dir</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.dump_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Directory containing Sarkas dumps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.dump_step">
-<code class="sig-name descname">dump_step</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.dump_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dump step frequency.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.filename">
-<code class="sig-name descname">filename</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.filename" title="Permalink to this definition">¶</a></dt>
-<dd><p>Name of output files.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.fldr">
-<code class="sig-name descname">fldr</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.fldr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Folder containing dumps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.no_dumps">
-<code class="sig-name descname">no_dumps</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.no_dumps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of dumps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.tot_no_ptcls">
-<code class="sig-name descname">tot_no_ptcls</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.tot_no_ptcls" title="Permalink to this definition">¶</a></dt>
-<dd><p>Total number of particles.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.XYZWriter.wp">
-<code class="sig-name descname">wp</code><a class="headerlink" href="#sarkas.tools.observables.XYZWriter.wp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plasma frequency used for rescaling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1843,7 +1767,7 @@ of the simulation.</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 13, 2020.
+        Last updated on Sep, 14, 2020.
       </span>
 
     </p>

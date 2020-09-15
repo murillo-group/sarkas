@@ -194,7 +194,7 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Particles’ distance.</p></li>
-<li><p><strong>pot_matrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Moliere potential parameters.</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – Moliere potential parameters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -203,26 +203,6 @@
 <li><p><strong>fr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Force</p></li>
 </ul>
 </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="sarkas.potentials.moliere.setup">
-<code class="sig-prename descclassname">sarkas.potentials.moliere.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">read_input</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/moliere.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.moliere.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Moliere’s parameters as given by Ref. <a class="reference internal" href="#wilson1977" id="id1"><span>[Wilson1977]</span></a> .</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag to read inputs from YAML input file.</p></li>
-<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Params</span> <span class="pre">class</span></code>) – Simulation’s parameters.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<dl class="citation">
-<dt class="label" id="wilson1977"><span class="brackets"><a class="fn-backref" href="#id1">Wilson1977</a></span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevB.15.2458">W.D. Wilson et al., Phys Rev B 15, 2458 (1977)</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -266,7 +246,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 13, 2020.
+        Last updated on Sep, 14, 2020.
       </span>
 
     </p>

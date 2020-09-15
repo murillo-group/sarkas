@@ -169,42 +169,6 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 
-<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.moliere.html#sarkas.potentials.moliere.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">read_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Updates ``params`` class with Moliere&#39;s parameters as given by Ref. [Wilson1977]_ .</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    read_input: bool</span>
-<span class="sd">        Flag to read inputs from YAML input file.</span>
-
-<span class="sd">    params : Params class</span>
-<span class="sd">        Simulation&#39;s parameters.</span>
-
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-<span class="sd">    .. [Wilson1977] `W.D. Wilson et al., Phys Rev B 15, 2458 (1977) &lt;https://doi.org/10.1103/PhysRevB.15.2458&gt;`_</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">read_input</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
-            <span class="n">dics</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">lkey</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">]:</span>
-                        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
-                                <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">C_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;rc&quot;</span><span class="p">:</span>  <span class="c1"># cutoff</span>
-                                <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span>
-                                <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">b_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="n">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.moliere.html#sarkas.potentials.moliere.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assign potential dependent simulation&#39;s parameters.</span>
@@ -214,47 +178,34 @@
 <span class="sd">    potential : sarkas.potential.Potential</span>
 <span class="sd">        Class handling potential form.</span>
 
-<span class="sd">    params: sarkas.base.Parameters</span>
+<span class="sd">    params : sarkas.base.Parameters</span>
 <span class="sd">        Simulation&#39;s parameters.</span>
 
-
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span><span class="p">)</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span><span class="p">)</span>
+    <span class="n">params_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span><span class="p">)</span>
 
-    <span class="n">params_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span><span class="p">))</span>
-
-    <span class="n">Moliere_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+    <span class="n">Moliere_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
 
             <span class="n">Moliere_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
-            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">params_len</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">C_params</span>
-            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">C_params</span><span class="p">):</span><span class="n">params_len</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">b_params</span>
-
+            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span>
+            <span class="n">Moliere_matrix</span><span class="p">[</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span>
 
     <span class="c1"># Effective Coupling Parameter in case of multi-species</span>
     <span class="c1"># see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">Gamma_eff</span> <span class="o">=</span> <span class="n">Z53</span> <span class="o">*</span> <span class="n">Z_avg</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta_i</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span><span class="p">)</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">Moliere_matrix</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">Moliere_matrix</span>
 
-    <span class="c1"># Calculate the (total) plasma frequency</span>
-    <span class="n">wp_tot_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
-        <span class="n">wp2</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">number_density</span> <span class="o">/</span> <span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
-        <span class="n">sp</span><span class="o">.</span><span class="n">wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp2</span><span class="p">)</span>
-        <span class="n">wp_tot_sq</span> <span class="o">+=</span> <span class="n">wp2</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">Moliere_force_PP</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span><span class="p">:</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">Moliere_force_PP</span>
-
-        <span class="c1"># Force error calculated from eq.(43) in Ref.[1]_</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">b_params</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> \
-                        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">b_params</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-        <span class="c1"># Renormalize</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">PP_err</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span></div>
+    <span class="c1"># Force error calculated from eq.(43) in Ref.[1]_</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> \
+                    <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="c1"># Renormalize</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">aws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Moliere_force_PP"><a class="viewcode-back" href="../../../api/sarkas.potentials.moliere.html#sarkas.potentials.moliere.Moliere_force_PP">[docs]</a><span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
@@ -267,7 +218,7 @@
 <span class="sd">    r : float</span>
 <span class="sd">        Particles&#39; distance.</span>
 
-<span class="sd">    pot_matrix : array</span>
+<span class="sd">    pot_matrix : numpy.ndarray</span>
 <span class="sd">        Moliere potential parameters. </span>
 
 
@@ -283,26 +234,26 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    See Wilson et al. PRB 15 2458 (1977) for parameters&#39; details</span>
-<span class="sd">    pot_matrix[0] = C_1</span>
-<span class="sd">    pot_matrix[1] = C_2</span>
-<span class="sd">    pot_matrix[2] = C_3</span>
-<span class="sd">    pot_matrix[3] = b_1</span>
-<span class="sd">    pot_matrix[4] = b_2</span>
-<span class="sd">    pot_matrix[5] = b_3</span>
-<span class="sd">    pot_matrix[6] = Z_1Z_2e^2/(4 np.pi eps_0)</span>
+<span class="sd">    pot_matrix[0] = Z_1Z_2e^2/(4 np.pi eps_0)</span>
+<span class="sd">    pot_matrix[1] = C_1</span>
+<span class="sd">    pot_matrix[2] = C_2</span>
+<span class="sd">    pot_matrix[3] = C_3</span>
+<span class="sd">    pot_matrix[4] = b_1</span>
+<span class="sd">    pot_matrix[5] = b_2</span>
+<span class="sd">    pot_matrix[6] = b_3</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">U</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">force</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pot_matrix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)):</span>
-        <span class="n">factor1</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
-        <span class="n">factor2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="n">factor1</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>
+        <span class="n">factor2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span>
         <span class="n">U</span> <span class="o">+=</span> <span class="n">factor2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">factor1</span><span class="p">)</span>
-        <span class="n">force</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">factor1</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">force</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">factor1</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
 
-    <span class="n">force</span> <span class="o">=</span> <span class="n">force</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">force</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span></div>
 </pre></div>
@@ -320,7 +271,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 13, 2020.
+        Last updated on Sep, 14, 2020.
       </span>
 
     </p>

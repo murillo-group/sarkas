@@ -181,7 +181,7 @@ class Observable:
         else:
             self.no_dumps = self.prod_no_dumps
             self.dump_dir = self.prod_dump_dir
-            self.dump_step = self.eq_dump_step
+            self.dump_step = self.prod_dump_step
 
         if hasattr(params, 'mpl_style'):
             plt.style.use(params.mpl_style)
@@ -253,7 +253,7 @@ class CurrentCorrelationFunctions(Observable):
             self.k_counts = k_data["k_counts"]
             self.ka_values = k_data["ka_values"]
         except FileNotFoundError:
-            print("\nFiles not found!")
+            print("\nCurrent Correlation files not found!")
             print("\nComputing CCF now ...")
             self.compute()
 
@@ -1151,11 +1151,9 @@ class StaticStructureFactor(Observable):
             List of ``sarkas.base.Species``.
 
         """
-        if not hasattr(self, 'phase'):
-            self.phase = phase if phase else 'production'
 
+        self.phase = phase if phase else 'production'
         super().setup_init(params, species, self.phase)
-        self.dataframe = pd.DataFrame()
 
         saving_dir = os.path.join(self.postprocessing_dir, 'StaticStructureFunction')
         if not os.path.exists(saving_dir):
@@ -1527,15 +1525,14 @@ class Thermodynamics(Observable):
 
         Parameters
         ----------
-        simulation
+        simulation : sarkas.processes.PostProcess
+            Wrapper class.
+
         phase: str
             Phase to plot. "equilibration" or "production".
 
         show: bool
             Flag for displaying the figure.
-
-        params : object
-           Simulation's parameters.
 
         """
 
@@ -1549,7 +1546,7 @@ class Thermodynamics(Observable):
                 self.no_steps = self.equilibration_steps
 
             else:
-                self.no_dumps = self.prod_no_dumps + 1
+                self.no_dumps = self.prod_no_dumps
                 self.dump_dir = self.prod_dump_dir
                 self.dump_step = self.eq_dump_step
                 self.fldr = self.production_dir
@@ -1579,14 +1576,14 @@ class Thermodynamics(Observable):
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Temperature"], "Time",
                                                                "Temperature", self.units)
-        T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps)]
+        T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
 
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
         T_main_plot.axhline(ymul * self.T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
 
         Delta_T = (self.dataframe["Temperature"] - self.T_desired) * 100 / self.T_desired
-        Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps)]
+        Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps  + 1)]
         T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T, alpha=0.5)
         T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T_cum_avg, alpha=0.8)
 
@@ -1595,8 +1592,8 @@ class Thermodynamics(Observable):
         T_delta_plot.tick_params(labelsize=fsz - 2)
         T_main_plot.tick_params(labelsize=fsz)
         T_main_plot.legend(loc='best')
-        T_main_plot.set_ylabel("Temperature" + ylbl)
-        T_main_plot.set_xlabel("Time" + xlbl)
+        T_main_plot.set_ylabel("Temperature" + ylbl, fontsize=fsz)
+        T_main_plot.set_xlabel("Time" + xlbl, fontsize=fsz)
         T_hist_plot.hist(self.dataframe['Temperature'], bins=nbins, density=True, orientation='horizontal',
                          alpha=0.75)
         T_hist_plot.get_xaxis().set_ticks([])
@@ -1605,9 +1602,12 @@ class Thermodynamics(Observable):
 
         # Energy plots
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                               self.dataframe["Total Energy"], "Time",
-                                                               "Total Energy", self.units)
-        E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps)]
+                                                               self.dataframe["Total Energy"],
+                                                               "Time",
+                                                               "Total Energy",
+                                                               self.units)
+
+        E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
 
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * E_cumavg, label='Cum Avg')
@@ -1615,30 +1615,34 @@ class Thermodynamics(Observable):
 
         Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"][0]) * 100 / \
                   self.dataframe["Total Energy"][0]
-        Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps)]
+        Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E, alpha=0.5)
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E_cum_avg, alpha=0.8)
-
         E_delta_plot.get_xaxis().set_ticks([])
         E_delta_plot.set_ylabel(r'Deviation [%]')
         E_delta_plot.tick_params(labelsize=fsz - 2)
+
         E_main_plot.tick_params(labelsize=fsz)
         E_main_plot.legend(loc='best')
-        E_main_plot.set_ylabel("Total Energy" + ylbl)
-        E_main_plot.set_xlabel("Time" + xlbl)
+        E_main_plot.set_ylabel("Total Energy" + ylbl, fontsize=fsz)
+        E_main_plot.set_xlabel("Time" + xlbl, fontsize=fsz)
+
         E_hist_plot.hist(xmul * self.dataframe['Total Energy'], bins=nbins, density=True,
                          orientation='horizontal', alpha=0.75)
         E_hist_plot.get_xaxis().set_ticks([])
         E_hist_plot.get_yaxis().set_ticks([])
 
-        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(np.array([self.dt]),
-                                                               self.dataframe["Temperature"], "Time",
-                                                               "Temperature", self.units)
+        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dt,
+                                                               self.dataframe["Temperature"],
+                                                               "Time",
+                                                               "Temperature",
+                                                               self.units)
         Info_plot.axis([0, 10, 0, 10])
         Info_plot.grid(False)
 
         Info_plot.text(0., 10, "Job ID: {}".format(self.job_id), fontsize=fsz)
-        Info_plot.text(0., 9.5, "Phase: {}".format(self.phase), fontsize=fsz)
+        Info_plot.text(0., 9.5, "Phase: {}".format(self.phase.capitalize()), fontsize=fsz)
         Info_plot.text(0., 9.0, "No. of species = {}".format(len(self.species_num)), fontsize=fsz)
         y_coord = 8.5
         for isp, sp in enumerate(self.species):
@@ -1666,9 +1670,9 @@ class Thermodynamics(Observable):
         Info_plot.text(0., y_coord - 3.5,
                        "{} completed steps = {}".format(self.phase, self.dump_step * (self.no_dumps - 1)),
                        fontsize=fsz)
-        Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(self.phase, self.no_steps), fontsize=fsz)
+        Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(self.phase.capitalize(), self.no_steps), fontsize=fsz)
         Info_plot.text(0., y_coord - 4.5, "{:1.2f} % {} Completed".format(
-            100 * self.dump_step * (self.no_dumps - 1) / self.no_steps, self.phase), fontsize=fsz)
+            100 * self.dump_step * (self.no_dumps - 1) / self.no_steps, self.phase.capitalize()), fontsize=fsz)
 
         Info_plot.axis('off')
         fig.tight_layout()
@@ -1679,18 +1683,7 @@ class Thermodynamics(Observable):
 
 class Transport:
     """
-    Transport Coefficients class
-
-    Parameters
-    ----------
-    params: object
-        Simulation's parameters.
-
-    Attributes
-    ----------
-    params: object
-        Simulation's parameters.
-
+    Transport Coefficients class.
     """
 
     def __init__(self):
@@ -1699,6 +1692,27 @@ class Transport:
     @staticmethod
     def electrical_conductivity(params, species, phase=None, show=False):
         """
+        Calculate electrical conductivity from current auto-correlation function.
+
+        Parameters
+        ----------
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
+        phase : str
+            Phase to analyze. Default = 'production'.
+
+        show : bool
+            Flag for prompting plot to screen.
+
+        Returns
+        -------
+        coefficient : pandas.DataFrame
+            Pandas dataframe containing the value of the transport coefficient as a function of integration time.
+
         """
         coefficient = pd.DataFrame()
         energies = Thermodynamics()
@@ -1742,6 +1756,29 @@ class Transport:
 
     @staticmethod
     def diffusion(params, species, phase=None, show=False):
+        """
+        Calculate diffusion from velocity auto-correlation function.
+
+        Parameters
+        ----------
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
+        phase : str
+            Phase to analyze. Default = 'production'.
+
+        show : bool
+            Flag for prompting plot to screen.
+
+        Returns
+        -------
+        coefficient : pandas.DataFrame
+            Pandas dataframe containing the value of the transport coefficient as a function of integration time.
+
+        """
         coefficient = pd.DataFrame()
         vacf = VelocityAutocorrelationFunctions()
         vacf.setup(params, species, phase)
@@ -1784,16 +1821,29 @@ class Transport:
     @staticmethod
     def interdiffusion(params, species, phase=None, show=True):
         """
+        Calculate interdiffusion coefficients from velocity auto-correlation function.
 
         Parameters
         ----------
-        params
-        show
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
+        phase : str
+            Phase to analyze. Default = 'production'.
+
+        show : bool
+            Flag for prompting plot to screen.
 
         Returns
         -------
+        coefficient : pandas.DataFrame
+            Pandas dataframe containing the value of the transport coefficient as a function of integration time.
 
         """
+
         coefficient = pd.DataFrame()
         vacf = VelocityAutocorrelationFunctions()
         vacf.setup(params, species, phase)
@@ -1839,14 +1889,26 @@ class Transport:
     @staticmethod
     def viscosity(params, species, phase=None, show=False):
         """
+        Calculate bulk and shear viscosity from pressure auto-correlation function.
 
         Parameters
         ----------
-        params
-        show
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
+        phase : str
+            Phase to analyze. Default = 'production'.
+
+        show : bool
+            Flag for prompting plot to screen.
 
         Returns
         -------
+        coefficient : pandas.DataFrame
+            Pandas dataframe containing the value of the transport coefficient as a function of integration time.
 
         """
         coefficient = pd.DataFrame()
@@ -2126,11 +2188,9 @@ class VelocityMoments(Observable):
             List of sarkas.base.Species.
 
         """
-        if not hasattr(self, 'phase'):
-            self.phase = phase if phase else 'production'
-
+        self.phase = phase if phase else 'production'
         super().setup_init(params, species, self.phase)
-        self.dataframe = pd.DataFrame()
+
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'VelocityMoments')
         if not os.path.exists(saving_dir):
@@ -2255,63 +2315,6 @@ class VelocityMoments(Observable):
             else:
                 # this is useful because it will have too many figures open.
                 plt.close(fig)
-
-
-class XYZWriter:
-    """
-    Write the XYZ file for OVITO visualization.
-
-    Parameters
-    ----------
-    params: object
-        Simulation's parameters.
-
-    Attributes
-    ----------
-    a_ws : float
-        Wigner-Seitz radius. Used for rescaling.
-
-    dump_skip : int
-        Dump step interval.
-
-    dump_dir : str
-        Directory containing Sarkas dumps.
-
-    dump_step : int
-        Dump step frequency.
-
-    filename: str
-        Name of output files.
-
-    fldr : str
-        Folder containing dumps.
-
-    no_dumps : int
-        Number of dumps.
-
-    tot_no_ptcls : int
-        Total number of particles.
-
-    wp : float
-        Plasma frequency used for rescaling.
-    """
-
-    def __init__(self, params, io):
-        """
-        Initialize the attributes from simulation's parameters.
-
-        Parameters
-        ----------
-        params : sarkas.base.Parameters
-            Simulation's parameters.
-
-        io : sarkas.utilities.InputOutput
-            Handler of all things IO.
-
-        """
-        self.__dict__.update(io.__dict__)
-        self.filename = os.path.join(self.job_dir, "pva_" + params.job_id + '.xyz')
-        self.dump_skip = 1
 
 
 @njit
@@ -2697,8 +2700,9 @@ def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list):
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
         sp_start = 0
+        sp_end = 0
         for i, sp in enumerate(species_np):
-            sp_end = sp_start + sp
+            sp_end += sp
             nkt[i, it, :] = calc_nk(pos[sp_start:sp_end, :], k_list)
             sp_start = sp_end
 

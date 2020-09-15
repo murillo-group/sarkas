@@ -173,7 +173,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    params : object</span>
+<span class="sd">    params : sarkas.base.Parameters</span>
 <span class="sd">        Simulation&#39;s parameters</span>
 
 <span class="sd">    Attributes</span>
@@ -226,6 +226,9 @@
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">tau</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;temperatures&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_temperatures</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_num</span>
@@ -361,7 +364,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 13, 2020.
+        Last updated on Sep, 14, 2020.
       </span>
 
     </p>

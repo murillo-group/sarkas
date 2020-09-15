@@ -7,42 +7,6 @@ import sys
 import yaml
 
 
-def setup(params, read_input=True):
-    """
-    Updates ``params`` class with Moliere's parameters as given by Ref. [Wilson1977]_ .
-
-    Parameters
-    ----------
-    read_input: bool
-        Flag to read inputs from YAML input file.
-
-    params : Params class
-        Simulation's parameters.
-
-    References
-    ----------
-    .. [Wilson1977] `W.D. Wilson et al., Phys Rev B 15, 2458 (1977) <https://doi.org/10.1103/PhysRevB.15.2458>`_
-    """
-    if read_input:
-        with open(params.input_file, 'r') as stream:
-            dics = yaml.load(stream, Loader=yaml.FullLoader)
-
-            for lkey in dics:
-                if lkey == "Potential":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            if key == "C":
-                                params.potential.C_params = np.array(value)
-
-                            if key == "rc":  # cutoff
-                                params.potential.rc = float(value)
-
-                            if key == "b":
-                                params.potential.b_params = np.array(value)
-
-    update_params(params)
-
-
 def update_params(potential, params):
     """
     Assign potential dependent simulation's parameters.
@@ -52,47 +16,34 @@ def update_params(potential, params):
     potential : sarkas.potential.Potential
         Class handling potential form.
 
-    params: sarkas.base.Parameters
+    params : sarkas.base.Parameters
         Simulation's parameters.
 
-
     """
+    potential.screening_lengths = np.array(potential.screening_lengths)
+    potential.screening_charges = np.array(potential.screening_charges)
+    params_len = len(potential.screening_lengths)
 
-    params_len = int(2 * len(potential.screening_lengths))
-
-    Moliere_matrix = np.zeros((params_len + 1, params.num_species, params.num_species))
+    Moliere_matrix = np.zeros((2 * params_len + 1, params.num_species, params.num_species))
 
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
 
             Moliere_matrix[0, i, j] = q1 * q2 / params.fourpie0
-            Moliere_matrix[0:params_len, i, j] = params.potential.C_params
-            Moliere_matrix[len(params.potential.C_params):params_len, i, j] = params.potential.b_params
-
+            Moliere_matrix[1:params_len + 1, i, j] = potential.screening_charges
+            Moliere_matrix[params_len + 1:, i, j] = potential.screening_lengths
 
     # Effective Coupling Parameter in case of multi-species
     # see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)
-    params.potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.aws)
-    params.QFactor = params.QFactor / params.fourpie0
-    params.potential.matrix = Moliere_matrix
+    potential.matrix = Moliere_matrix
 
-    # Calculate the (total) plasma frequency
-    wp_tot_sq = 0.0
-    for i, sp in enumerate(params.species):
-        wp2 = 4.0 * np.pi * sp.charge ** 2 * sp.number_density / (sp.mass * params.fourpie0)
-        sp.wp = np.sqrt(wp2)
-        wp_tot_sq += wp2
+    potential.force = Moliere_force_PP
 
-    params.total_plasma_frequency = np.sqrt(wp_tot_sq)
-
-    if params.potential.method == "PP":
-        params.force = Moliere_force_PP
-
-        # Force error calculated from eq.(43) in Ref.[1]_
-        params.PP_err = np.sqrt(twopi / params.potential.b_params.min()) \
-                        * np.exp(-params.potential.rc / params.potential.b_params.min())
-        # Renormalize
-        params.PP_err = params.PP_err * params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+    # Force error calculated from eq.(43) in Ref.[1]_
+    params.force_error = np.sqrt(2.0 * np.pi / potential.screening_lengths.min()) \
+                    * np.exp(- potential.rc / potential.screening_lengths.min())
+    # Renormalize
+    params.force_error *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
 
 
 @nb.njit
@@ -105,7 +56,7 @@ def Moliere_force_PP(r, pot_matrix):
     r : float
         Particles' distance.
 
-    pot_matrix : array
+    pot_matrix : numpy.ndarray
         Moliere potential parameters. 
 
 
@@ -121,25 +72,25 @@ def Moliere_force_PP(r, pot_matrix):
     Notes
     -----
     See Wilson et al. PRB 15 2458 (1977) for parameters' details
-    pot_matrix[0] = C_1
-    pot_matrix[1] = C_2
-    pot_matrix[2] = C_3
-    pot_matrix[3] = b_1
-    pot_matrix[4] = b_2
-    pot_matrix[5] = b_3
-    pot_matrix[6] = Z_1Z_2e^2/(4 np.pi eps_0)
+    pot_matrix[0] = Z_1Z_2e^2/(4 np.pi eps_0)
+    pot_matrix[1] = C_1
+    pot_matrix[2] = C_2
+    pot_matrix[3] = C_3
+    pot_matrix[4] = b_1
+    pot_matrix[5] = b_2
+    pot_matrix[6] = b_3
     """
 
     U = 0.0
     force = 0.0
 
     for i in range(int(len(pot_matrix[:-1]) / 2)):
-        factor1 = r * pot_matrix[i + 3]
-        factor2 = pot_matrix[i] / r
+        factor1 = r * pot_matrix[i + 4]
+        factor2 = pot_matrix[i + 1] / r
         U += factor2 * np.exp(-factor1)
-        force += np.exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i])
+        force += np.exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i + 1])
 
-    force = force * pot_matrix[-1]
-    U = U * pot_matrix[-1]
+    force = force * pot_matrix[0]
+    U = U * pot_matrix[0]
 
     return U, force

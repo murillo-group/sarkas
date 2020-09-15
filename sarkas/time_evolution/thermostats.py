@@ -11,7 +11,7 @@ class Thermostat:
 
     Parameters
     ----------
-    params : object
+    params : sarkas.base.Parameters
         Simulation's parameters
 
     Attributes
@@ -64,6 +64,9 @@ class Thermostat:
 
         if hasattr(self, "tau"):
             self.relaxation_rate = 1.0/self.tau
+
+        if not hasattr(self, "temperatures"):
+            self.temperatures = params.species_temperatures
 
         self.kB = params.kB
         self.species_num = params.species_num
