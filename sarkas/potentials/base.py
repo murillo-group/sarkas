@@ -102,7 +102,7 @@ class Potential:
         self.total_net_charge = 0.0
         self.pppm_on = False
 
-    def from_dict(self, input_dict: dict) :
+    def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
 
@@ -147,6 +147,10 @@ class Potential:
         if self.type.lower() == "coulomb":
             from sarkas.potentials import coulomb
             coulomb.update_params(self, params)
+
+        if self.type.lower() == "tabulated":
+            from sarkas.potentials import tabulated
+            tabulated.update_params(self, params)
 
         # Yukawa potential
         if self.type.lower() == "yukawa":

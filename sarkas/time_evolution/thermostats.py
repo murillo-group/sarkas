@@ -46,6 +46,8 @@ class Thermostat:
         self.species_num = None
         self.species_masses = None
         self.tau = None
+        self.eV_temp_flag = False
+        self.K_temp_flag = False
 
     def from_dict(self, input_dict: dict) :
         """
@@ -63,10 +65,12 @@ class Thermostat:
         if self.temperatures_eV:
             if not isinstance(self.temperatures_eV, np.ndarray):
                 self.temperatures_eV = np.array(self.temperatures_eV)
+            self.eV_temp_flag = True
 
         if self.temperatures:
             if not isinstance(self.temperatures, np.ndarray):
                     self.temperatures = np.array(self.temperatures)
+            self.K_temp_flag = True
 
     def setup(self, params):
         """
@@ -79,19 +83,27 @@ class Thermostat:
 
         """
 
-        # run some checks
-        if self.temperatures_eV.all():
-            self.temperatures = params.eV2K * self.temperatures_eV
+        # Check whether you input temperatures in eV or K
+
+        if self.eV_temp_flag:
+            self.temperatures = params.eV2K * np.copy(self.temperatures_eV)
+        elif self.K_temp_flag:
+            self.temperatures_eV = np.copy(self.temperatures)/ params.eV2K
+        else:
+            # If you forgot to give thermostating temperatures
+            print("WARNING: Equilibration temperatures not defined. I will use the species's temperatures.")
+            self.temperatures = np.copy(params.species_temperatures)
+            self.temperatures_eV = np.copy(self.temperatures)/ params.eV2K
 
         if self.tau:
             self.relaxation_rate = 1.0/self.tau
 
         if not self.temperatures.all():
-            self.temperatures = params.species_temperatures
+            self.temperatures = np.copy(params.species_temperatures)
 
         self.kB = params.kB
-        self.species_num = params.species_num
-        self.species_masses = params.species_masses
+        self.species_num = np.copy(params.species_num)
+        self.species_masses = np.copy(params.species_masses)
 
         assert self.type.lower() == "berendsen", "Only Berendsen thermostat is supported."
 

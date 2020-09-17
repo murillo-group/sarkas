@@ -113,7 +113,7 @@ def update_params(potential, params):
         params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
     elif potential.method == "P3M":
         potential.force = yukawa_force_pppm
-        potential.matrix[2, 0, 0] = potential.pppm_alpha_ewald
+        potential.matrix[2, :, :] = potential.pppm_alpha_ewald
         # PP force error calculation. Note that the equation was derived for a single component plasma.
         kappa_over_alpha = - 0.25 * (potential.matrix[1, 0, 0] / potential.matrix[2, 0, 0]) ** 2
         alpha_times_rcut = - (potential.matrix[2, 0, 0] * potential.rc) ** 2

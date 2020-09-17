@@ -15,7 +15,6 @@ Particles:
         Z: 0.96517995              # degree of ionization
         atomic_weight: 2.014                   # atomic mass
         temperature_eV: 200.0
-        initial_velocity: [10.0, 10.0, 12.0]
 
     - Species:
         name: T                     # Tritium

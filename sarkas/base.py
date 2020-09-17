@@ -331,8 +331,9 @@ class Parameters:
             self.species_names.append(sp.name)
             self.species_num[i] = sp.num
             self.species_masses[i] = sp.mass
-            if hasattr(sp, 'temperature_eV'):
+            if sp.temperature_eV:
                 sp.temperature = self.eV2K * sp.temperature_eV
+                self.species_temperatures_eV[i] = sp.temperature_eV
 
             self.species_temperatures[i] = sp.temperature
 

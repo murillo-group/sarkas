@@ -14,7 +14,7 @@ class SarkasTimer:
     """
     _start_time: Optional[float] = field(default=None, init=False, repr=False)
 
-    def start(self) :
+    def start(self):
         """Start a new timer"""
         if self._start_time is not None:
             raise TimerError(f"Timer is running. Use .stop() to stop it")
@@ -22,7 +22,8 @@ class SarkasTimer:
         self._start_time = time.perf_counter_ns()
 
     def stop(self) -> float:
-        """Stop the timer, and report the elapsed time.
+        """
+        Stop the timer, and report the elapsed time.
 
         Returns
         -------

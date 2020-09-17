@@ -137,7 +137,6 @@ class PreProcess:
 
 
         """
-
         if filename:
             self.input_file = filename
 
@@ -146,28 +145,23 @@ class PreProcess:
         for lkey in dics:
             if lkey == "Particles":
                 for species in dics["Particles"]:
-                    spec = Species()
-                    for key, value in species["Species"].items():
-                        if hasattr(spec, key):
-                            spec.__dict__[key] = value
-                        else:
-                            setattr(spec, key, value)
+                    spec = Species(species["Species"])
                     self.species.append(spec)
 
             if lkey == "Potential":
-                self.potential.__dict__.update(dics[lkey])
+                self.potential.from_dict(dics[lkey])
 
             if lkey == "Thermostat":
-                self.thermostat.__dict__.update(dics[lkey])
+                self.thermostat.from_dict(dics[lkey])
 
             if lkey == "Integrator":
-                self.integrator.__dict__.update(dics[lkey])
+                self.integrator.from_dict(dics[lkey])
 
             if lkey == "Parameters":
-                self.parameters.__dict__.update(dics[lkey])
+                self.parameters.from_dict(dics[lkey])
 
             if lkey == "Control":
-                self.parameters.__dict__.update(dics[lkey])
+                self.parameters.from_dict(dics[lkey])
 
     def setup(self, read_yaml=False, other_inputs=None):
         """Setup simulations' parameters and io subclasses.

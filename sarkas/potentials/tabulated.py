@@ -116,67 +116,10 @@ def update_params(params):
     .. [Stanton2015] `Stanton and Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
     .. [Haxhimali2014] `T. Haxhimali et al. Phys Rev E 90 023104 (2014) <https://doi.org/10.1103/PhysRevE.90.023104>`_
     """
-    if not params.BC.open_axes:
-        params.potential.LL_on = True  # linked list on
-        if not hasattr(params.potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
-            params.potential.rc = params.box_lengths.min() / 2.
-            params.potential.LL_on = False  # linked list off
 
-        if params.potential.method == "PP" and params.potential.rc > params.box_lengths.min() / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
-            params.potential.rc = params.box_lengths.min() / 2.
-            params.potential.LL_on = False  # linked list off
+    params.potential.matrix = np.array([params.potential.tab_interp_ord,num])
 
-    twopi = 2.0 * np.pi
-    beta_i = 1.0 / (params.kB * params.total_ion_temperature)
-
-    # Calculate the Potential Matrix
-    Z53 = 0.0
-    Z_avg = 0.0
-
-    for i in range(params.num_species):
-        if hasattr(params.species[i], "Z"):
-            Zi = params.species[i].Z
-        else:
-            Zi = 1.0
-
-        Z53 += Zi ** (5. / 3.) * params.species[i].concentration
-        Z_avg += Zi * params.species[i].concentration
-
-        for j in range(params.num_species):
-            if hasattr(params.species[j], "Z"):
-                Zj = params.species[j].Z
-            else:
-                Zj = 1.0
-
-    # Effective Coupling Parameter in case of multi-species
-    # see eq.(3) in Ref.[Haxhimali2014]_
-    params.potential.Gamma_eff = Z53 * Z_avg ** (1. / 3.) * params.qe ** 2 * beta_i / (params.fourpie0 * params.a_ws)
-    params.QFactor /= params.fourpie0
-
-    params.potential.matrix = np.array([params.potential.tab_interp_ord])
-
-    # Calculate the (total) plasma frequency
-    wp_tot_sq = 0.0
-    for i, sp in enumerate(params.species):
-        wp2 = 4.0 * np.pi * sp.charge ** 2 * sp.number_density / (sp.mass * params.fourpie0)
-        sp.wp = np.sqrt(wp2)
-        wp_tot_sq += wp2
-
-    params.total_plasma_frequency = np.sqrt(wp_tot_sq)
-
-    indx, r, u_r, f_r = np.loadtxt(params.potential.tabulated_file, skiprows=7, unpack=True)
-
-    if params.units == 'cgs':
-        r *= 1e-8
-        u_r *= params.eV2J * params.J2erg
-        f_r *= 1e-8 / 1e-12 ** 2
-    else:
-        r *= 1e-10
-        u_r *= params.eV2J
-        f_r *= 1e-10 / 1e-12 ** 2
-
+    # Calculate the (total) plasma freque
     # Interpolate
 
 
