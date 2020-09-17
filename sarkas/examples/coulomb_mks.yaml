@@ -1,50 +1,69 @@
-# keywords: OCP, Yukawa, P3M, mks, random_no_reject
+# keywords: OCP, P3M, cgs, random_no_reject
 Particles:
-    - species:
+    - Species:
         name: H
-        number_density: 1.62e+30       # /m^3
-        mass: 1.673e-27                # kg, ptcl mass of ion1
+        number_density: 1.62e+30       # /cm^3
+        mass: 1.673e-27                # g, ptcl mass of ion1
         num: 10000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
-        temperature: 2.636325e+03
-
-    - load:
-        method: random_no_reject    # loading method
-        rand_seed: 123456789        # random seed
+        temperature: 5.2636325e+04
 
 Potential:
-    - type: Coulomb                  # potential type
-    - method: P3M                   # Linked-cell
-    - rc: 4.225604e-10             # cut-off radius, meter
-    
-P3M:
-    - MGrid: [64,64,64]
-    - aliases: [3,3,3]
-    - cao: 6
-    - alpha_ewald: 8.992798e+09
-
-BoundaryConditions:
-    - periodic: ["x", "y", "z"]
+    type: Coulomb                  # potential type
+    method: P3M                   # Linked-cell
+    rc: 3.29946255e-10             # cut-off radius, meter
+    pppm_mesh: [64,64,64]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 6
+    pppm_alpha_ewald: 1.16243741e+9
 
 Integrator:
-    - type: Verlet                  # velocity integrator type
+    type: Verlet                  # velocity integrator type
+    dt: 1.193536e-17            # sec
+    equilibration_steps: 10000                      # number of timesteps for the equilibrium
+    eq_dump_step: 100
+    production_steps: 50000
+    prod_dump_step: 100
 
 Thermostat:
-    - type: Berendsen               # thermostat type
-    - timestep: 2000
-    - tau: 5.0
+    type: Berendsen               # thermostat type
+    relaxation_timestep: 2000
+    relaxation_tau: 5.0
 
 Control:
-    - units: mks                    # units
-    - dt: 1.193536e-17            # sec
-    - Neq: 30000                      # number of timesteps for the equilibrium
-    - Nsteps: 50000                    # number of timesteps after the equilibrium
-    - writexyz: no                  # no xyz output
-    - dump_step: 10                # dump time step
-    - verbose: no
-    - output_dir: OCP_mks        # dir name to save data. The default is "Checkpoint"
+    units: mks                    # units
+    load_method: random_no_reject
+    rdf_nbins: 500
+    boundary_conditions: periodic
+
+IO:
+    verbose: True
+    job_dir: OCP_mks        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 100
-    - dsf_no_ka_values: [20, 20, 20]
-    - ssf_no_ka_values: [20, 20, 20]
+  - RadialDistributionFunction:
+      no_bins: 500
+
+  - Thermodynamics:
+      phase: production
+
+  - HermiteCoefficients:
+      no_bins: 500
+      hermite_order: 8
+
+  - DynamicStructureFactor:
+      no_ka_harmonics: 10
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 10
+
+  - CurrentCorrelationFunctions:
+      no_ka_harmonics: 10
+
+  - VelocityMoments:
+      no_bins: 500
+
+  - VelocityAutocorrelationFunctions:
+      phase: production
+
+  - ElectricCurrent:

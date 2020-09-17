@@ -9,8 +9,6 @@ import pandas as pd
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 
-# Sarkas modules
-
 UNITS = [
     {"Energy": 'J',
      "Time": 's',
@@ -152,12 +150,20 @@ class Observable:
         disp += ')'
         return disp
 
-    def setup_init(self, params, species, phase):
-        self.__dict__.update(params.__dict__)
+    def from_dict(self, input_dict: dict):
+        """
+        Update attributes from input dictionary.
 
-        if len(self.species) < params.num_species:
-            for sp in species:
-                self.species.append(sp)
+        Parameters
+        ----------
+        input_dict: dict
+            Dictionary to be copied.
+
+        """
+        self.__dict__.update(input_dict)
+
+    def setup_init(self, params, phase):
+        self.__dict__.update(params.__dict__)
 
         # Create the lists of k vectors
         if hasattr(self, 'no_ka_harmonics'):
@@ -175,15 +181,16 @@ class Observable:
         self.prod_no_dumps = len(os.listdir(self.prod_dump_dir))
         self.eq_no_dumps = len(os.listdir(self.eq_dump_dir))
 
-        if self.phase == 'equilibration':
+        if phase == 'equilibration':
             self.no_dumps = self.eq_no_dumps
             self.dump_dir = self.eq_dump_dir
             self.dump_step = self.eq_dump_step
-
+            self.no_steps = self.equilibration_steps
         else:
             self.no_dumps = self.prod_no_dumps
             self.dump_dir = self.prod_dump_dir
             self.dump_step = self.prod_dump_step
+            self.no_steps = self.production_steps
 
         if hasattr(params, 'mpl_style'):
             plt.style.use(params.mpl_style)
@@ -209,7 +216,7 @@ class CurrentCorrelationFunctions(Observable):
 
     """
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Assign attributes from simulation's parameters.
 
@@ -228,7 +235,7 @@ class CurrentCorrelationFunctions(Observable):
 
         self.phase = phase if phase else 'production'
 
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
 
         saving_dir = os.path.join(self.postprocessing_dir, 'CurrentCorrelationFunctions')
         if not os.path.exists(saving_dir):
@@ -314,13 +321,13 @@ class CurrentCorrelationFunctions(Observable):
         Tkw = (Tkw_i + Tkw_j + Tkw_k) / 3.0
         print("Saving L(k,w) and T(k,w)")
         sp_indx = 0
-        for i, sp1 in enumerate(self.species):
-            for j, sp2 in enumerate(self.species[i:]):
+        for i, sp1 in enumerate(self.species_names):
+            for j, sp2 in enumerate(self.species_names[i:]):
                 for ik in range(len(self.k_counts)):
                     if ik == 0:
-                        column = "{}-{} CCF ka_min".format(sp1.name, sp2.name)
+                        column = "{}-{} CCF ka_min".format(sp1, sp2)
                     else:
-                        column = "{}-{} CCF {} ka_min".format(sp1.name, sp2.name, ik + 1)
+                        column = "{}-{} CCF {} ka_min".format(sp1, sp2, ik + 1)
 
                     self.dataframe_longitudinal[column] = Lkw[sp_indx, ik, :]
                     self.dataframe_transverse[column] = Tkw[sp_indx, ik, :]
@@ -369,15 +376,15 @@ class CurrentCorrelationFunctions(Observable):
 
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
         if self.num_species > 1:
-            for i, sp1 in enumerate(self.species):
-                for j, sp2 in enumerate(self.species[i:]):
-                    column = "{}-{} CCF ka_min".format(sp1.name, sp2.name)
-                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
+            for i, sp1 in enumerate(self.species_names):
+                for j, sp2 in enumerate(self.species_names[i:]):
+                    column = "{}-{} CCF ka_min".format(sp1, sp2)
+                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
                             np.fft.fftshift(self.dataframe[column]),
-                            label=r'$' + lbl + '_{' + sp1.name + sp2.name + '}(k,\omega)$')
+                            label=r'$' + lbl + '_{' + sp1 + sp2 + '}(k,\omega)$')
         else:
             column = "{}-{} CCF ka_min".format(self.species_names[0], self.species_names[0])
-            ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
+            ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
                     np.fft.fftshift(self.dataframe[column]),
                     label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
             for i in range(1, 5):
@@ -445,7 +452,7 @@ class DynamicStructureFactor(Observable):
 
     """
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Assign attributes from simulation's parameters.
 
@@ -463,7 +470,7 @@ class DynamicStructureFactor(Observable):
         """
 
         self.phase = phase if phase else 'production'
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
 
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'DynamicStructureFactor')
@@ -531,13 +538,13 @@ class DynamicStructureFactor(Observable):
                        self.dump_step)
         print("Saving S(k,w)")
         sp_indx = 0
-        for i, sp1 in enumerate(self.species):
-            for j, sp2 in enumerate(self.species[i:]):
+        for i, sp1 in enumerate(self.species_names):
+            for j, sp2 in enumerate(self.species_names[i:]):
                 for ik in range(len(self.k_counts)):
                     if ik == 0:
-                        column = "{}-{} DSF ka_min".format(sp1.name, sp2.name)
+                        column = "{}-{} DSF ka_min".format(sp1, sp2)
                     else:
-                        column = "{}-{} DSF {} ka_min".format(sp1.name, sp2.name, ik + 1)
+                        column = "{}-{} DSF {} ka_min".format(sp1, sp2, ik + 1)
                     self.dataframe[column] = Skw[sp_indx, ik, :]
                 sp_indx += 1
 
@@ -560,19 +567,19 @@ class DynamicStructureFactor(Observable):
 
         fig, ax = plt.subplots(1, 1)
         if self.num_species > 1:
-            for i, sp1 in enumerate(self.species):
-                for j, sp2 in enumerate(self.species[i:]):
-                    column = "{}-{} DSF ka_min".format(sp1.name, sp2.name)
-                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
+            for i, sp1 in enumerate(self.species_names):
+                for j, sp2 in enumerate(self.species_names[i:]):
+                    column = "{}-{} DSF ka_min".format(sp1, sp2)
+                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
                             np.fft.fftshift(self.dataframe[column]),
                             label=r'$S_{' + sp1.name + sp2.name + '}(k,\omega)$')
         else:
             column = "{}-{} DSF ka_min".format(self.species_names[0], self.species_names[0])
-            ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.species_wp[0],
+            ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
                     np.fft.fftshift(self.dataframe[column]),
                     label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
             for i in range(1, 5):
-                column = "{}-{} DSF {} ka_min".format(self.species[0].name, self.species[0].name, i + 1)
+                column = "{}-{} DSF {} ka_min".format(self.species_names[0], self.species_names[0], i + 1)
                 ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
                         np.fft.fftshift(self.dataframe[column]),
                         label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
@@ -625,7 +632,7 @@ class ElectricCurrent(Observable):
 
     """
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -643,7 +650,7 @@ class ElectricCurrent(Observable):
         """
         self.phase = phase if phase else 'production'
 
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
 
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'ElectricCurrent')
@@ -704,22 +711,22 @@ class ElectricCurrent(Observable):
         self.dataframe["Y Current ACF"] = cur_acf_yy
         self.dataframe["Z Current ACF"] = cur_acf_zz
         self.dataframe["Total Current ACF"] = tot_cur_acf
-        for i, sp in enumerate(self.species):
+        for i, sp in enumerate(self.species_names):
             tot_acf = autocorrelationfunction(species_current[i, :, :])
             acf_xx = autocorrelationfunction_1D(species_current[i, 0, :])
             acf_yy = autocorrelationfunction_1D(species_current[i, 1, :])
             acf_zz = autocorrelationfunction_1D(species_current[i, 2, :])
 
-            self.dataframe["{} Total Current".format(sp.name)] = np.sqrt(
+            self.dataframe["{} Total Current".format(sp)] = np.sqrt(
                 species_current[i, 0, :] ** 2 + species_current[i, 1, :] ** 2 + species_current[i, 2, :] ** 2)
-            self.dataframe["{} X Current".format(sp.name)] = species_current[i, 0, :]
-            self.dataframe["{} Y Current".format(sp.name)] = species_current[i, 1, :]
-            self.dataframe["{} Z Current".format(sp.name)] = species_current[i, 2, :]
+            self.dataframe["{} X Current".format(sp)] = species_current[i, 0, :]
+            self.dataframe["{} Y Current".format(sp)] = species_current[i, 1, :]
+            self.dataframe["{} Z Current".format(sp)] = species_current[i, 2, :]
 
-            self.dataframe["{} Total Current ACF".format(sp.name)] = tot_acf
-            self.dataframe["{} X Current ACF".format(sp.name)] = acf_xx
-            self.dataframe["{} Y Current ACF".format(sp.name)] = acf_yy
-            self.dataframe["{} Z Current ACF".format(sp.name)] = acf_zz
+            self.dataframe["{} Total Current ACF".format(sp)] = tot_acf
+            self.dataframe["{} X Current ACF".format(sp)] = acf_xx
+            self.dataframe["{} Y Current ACF".format(sp)] = acf_yy
+            self.dataframe["{} Z Current ACF".format(sp)] = acf_zz
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -777,7 +784,7 @@ class HermiteCoefficients(Observable):
 
     """
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Assign attributes from simulation's parameters.
 
@@ -796,7 +803,7 @@ class HermiteCoefficients(Observable):
 
         self.phase = phase if phase else 'equilibration'
 
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
 
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'HermiteExpansion')
@@ -843,8 +850,9 @@ class HermiteCoefficients(Observable):
             vel[2, :] = datap["vel"][:, 2]
 
             sp_start = 0
-            for sp in range(self.num_species):
-                sp_end = int(sp_start + self.species_num[sp])
+            sp_end = 0
+            for sp in range(self.species_num):
+                sp_end += sp
                 x_hist, xbins = np.histogram(vel[0, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
                 y_hist, ybins = np.histogram(vel[1, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
                 z_hist, zbins = np.histogram(vel[2, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
@@ -862,11 +870,11 @@ class HermiteCoefficients(Observable):
 
         data = {"Time": time}
         self.dataframe = pd.DataFrame(data)
-        for i, sp in enumerate(self.species):
+        for i, sp in enumerate(self.species_name):
             for hi in range(self.hermite_order + 1):
-                self.dataframe["{} Hermite x Coeff a{}".format(sp.name, hi)] = xcoeff[i, :, hi]
-                self.dataframe["{} Hermite y Coeff a{}".format(sp.name, hi)] = ycoeff[i, :, hi]
-                self.dataframe["{} Hermite z Coeff a{}".format(sp.name, hi)] = zcoeff[i, :, hi]
+                self.dataframe["{} Hermite x Coeff a{}".format(sp, hi)] = xcoeff[i, :, hi]
+                self.dataframe["{} Hermite y Coeff a{}".format(sp, hi)] = ycoeff[i, :, hi]
+                self.dataframe["{} Hermite z Coeff a{}".format(sp, hi)] = zcoeff[i, :, hi]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -977,7 +985,7 @@ class RadialDistributionFunction(Observable):
 
     """
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Assign attributes from simulation's parameters.
 
@@ -995,7 +1003,7 @@ class RadialDistributionFunction(Observable):
         """
         self.phase = phase if phase else 'production'
 
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
 
         saving_dir = os.path.join(self.postprocessing_dir, 'RadialDistributionFunction')
         if not os.path.exists(saving_dir):
@@ -1037,11 +1045,11 @@ class RadialDistributionFunction(Observable):
         pair_density = np.zeros((self.num_species, self.num_species))
         gr = np.zeros((self.no_bins, self.no_obs))
         # No. of pairs per volume
-        for i, sp1 in enumerate(self.species):
-            pair_density[i, i] = 0.5 * sp1.num * (sp1.num - 1) / self.box_volume
+        for i, sp1 in enumerate(self.species_num):
+            pair_density[i, i] = 0.5 * sp1 * (sp1 - 1) / self.box_volume
             if self.num_species > 1:
-                for j, sp2 in enumerate(self.species[i:], i):
-                    pair_density[i, j] = sp1.num * sp2.num / self.box_volume
+                for j, sp2 in enumerate(self.species_num[i:], i):
+                    pair_density[i, j] = sp1 * sp2 / self.box_volume
         # Calculate each bin's volume
         sphere_shell_const = 4.0 * np.pi / 3.0
         bin_vol[0] = sphere_shell_const * self.dr_rdf ** 3
@@ -1053,12 +1061,12 @@ class RadialDistributionFunction(Observable):
 
         self.dataframe["distance"] = r_values
         gr_ij = 0
-        for i, sp1 in enumerate(self.species):
-            for j, sp2 in enumerate(self.species[i:], i):
+        for i, sp1 in enumerate(self.species_names):
+            for j, sp2 in enumerate(self.species_names[i:], i):
                 denom_const = (2.0 - (i != j)) / (pair_density[i, j] * self.production_steps)
                 gr[:, gr_ij] = rdf_hist[:, i, j] * denom_const / bin_vol[:]
 
-                self.dataframe['{}-{} RDF'.format(sp1.name, sp2.name)] = gr[:, gr_ij]
+                self.dataframe['{}-{} RDF'.format(sp1, sp2)] = gr[:, gr_ij]
 
                 gr_ij += 1
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
@@ -1085,17 +1093,18 @@ class RadialDistributionFunction(Observable):
 
         indx = 0
         xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["distance"], 1, 'Length', 'none', self.units)
+
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        for i, sp1 in enumerate(self.species):
-            for j, sp2 in enumerate(self.species[i:]):
-                subscript = sp1.name + sp2.name
+        for i, sp1 in enumerate(self.species_names):
+            for j, sp2 in enumerate(self.species_names[i:]):
+                subscript = sp1 + sp2
                 if normalized:
                     ax.plot(self.dataframe["distance"] / self.a_ws,
-                            self.dataframe["{}-{} RDF".format(sp1.name, sp2.name)],
+                            self.dataframe["{}-{} RDF".format(sp1, sp2)],
                             label=r'$g_{' + subscript + '} (r)$')
                 else:
                     ax.plot(self.dataframe["distance"] * xmul,
-                            self.dataframe["{}-{} RDF".format(sp1.name, sp2.name)],
+                            self.dataframe["{}-{} RDF".format(sp1, sp2)],
                             label=r'$g_{' + subscript + '} (r)$')
 
                 indx += 1
@@ -1137,7 +1146,7 @@ class StaticStructureFactor(Observable):
 
     """
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Assign attributes from simulation's parameters.
 
@@ -1155,7 +1164,7 @@ class StaticStructureFactor(Observable):
         """
 
         self.phase = phase if phase else 'production'
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
 
         saving_dir = os.path.join(self.postprocessing_dir, 'StaticStructureFunction')
         if not os.path.exists(saving_dir):
@@ -1215,10 +1224,10 @@ class StaticStructureFactor(Observable):
         Sk_err = np.std(Sk_all, axis=-1)
 
         sp_indx = 0
-        for i, sp1 in enumerate(self.species):
-            for j, sp2 in enumerate(self.species[i:]):
-                column = "{}-{} SSF".format(sp1.name, sp2.name)
-                err_column = "{}-{} SSF Errorbar".format(sp1.name, sp2.name)
+        for i, sp1 in enumerate(self.species_names):
+            for j, sp2 in enumerate(self.species_names[i:]):
+                column = "{}-{} SSF".format(sp1, sp2)
+                err_column = "{}-{} SSF Errorbar".format(sp1, sp2)
                 self.dataframe[column] = Sk[sp_indx, :]
                 self.dataframe[err_column] = Sk_err[sp_indx, :]
 
@@ -1245,18 +1254,18 @@ class StaticStructureFactor(Observable):
             self.compute()
 
         fig, ax = plt.subplots(1, 1)
-        for i, sp1 in enumerate(self.species):
-            for j, sp2 in enumerate(self.species[i:]):
-                subscript = sp1.name + sp2.name
+        for i, sp1 in enumerate(self.species_names):
+            for j, sp2 in enumerate(self.species_names[i:]):
+                subscript = sp1 + sp2
                 if errorbars:
                     ax.errorbar(self.dataframe["ka values"],
-                                self.dataframe["{}-{} SSF".format(sp1.name, sp2.name)],
+                                self.dataframe["{}-{} SSF".format(sp1, sp2)],
                                 yerr=self.dataframe[
-                                    "{}-{} SSF Errorbar".format(sp1.name, sp2.name)],
+                                    "{}-{} SSF Errorbar".format(sp1, sp2)],
                                 ls='--', marker='o', label=r'$S_{ ' + subscript + '} (k)$')
                 else:
                     ax.plot(self.dataframe["ka values"],
-                            self.dataframe["{}-{} SSF".format(sp1.name, sp2.name)],
+                            self.dataframe["{}-{} SSF".format(sp1, sp2)],
                             label=r'$S_{ ' + subscript + '} (k)$')
 
         ax.grid(True, alpha=0.3)
@@ -1274,7 +1283,7 @@ class Thermodynamics(Observable):
     Thermodynamic functions.
     """
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Assign attributes from simulation's parameters.
 
@@ -1293,7 +1302,7 @@ class Thermodynamics(Observable):
         if not hasattr(self, 'phase'):
             self.phase = phase if phase else 'production'
 
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
         self.dataframe = pd.DataFrame()
 
         if params.load_method == "restart":
@@ -1647,7 +1656,7 @@ class Thermodynamics(Observable):
         Info_plot.text(0., 9.5, "Phase: {}".format(self.phase.capitalize()), fontsize=fsz)
         Info_plot.text(0., 9.0, "No. of species = {}".format(len(self.species_num)), fontsize=fsz)
         y_coord = 8.5
-        for isp, sp in enumerate(self.species):
+        for isp, sp in enumerate(simulation.species):
             Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp.name), fontsize=fsz)
             Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num), fontsize=fsz)
             Info_plot.text(0.0, y_coord - 1., "  Temperature = {:.4e} {}".format(ymul * sp.temperature, ylbl),
@@ -1686,7 +1695,7 @@ class Thermodynamics(Observable):
 class VelocityAutocorrelationFunctions(Observable):
     """Velocity Auto-correlation function."""
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Assign attributes from simulation's parameters.
 
@@ -1704,7 +1713,7 @@ class VelocityAutocorrelationFunctions(Observable):
         """
         self.phase = phase if phase else 'production'
 
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
 
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'VelocityAutoCorrelationFunction')
@@ -1758,17 +1767,17 @@ class VelocityAutocorrelationFunctions(Observable):
             vacf = calc_vacf_single(vel, self.species_num, time_averaging, it_skip)
         # Save to csv
         v_ij = 0
-        for i, sp1 in enumerate(self.species):
-            self.dataframe["{} X Velocity ACF".format(sp1.name)] = vacf[v_ij, 0, :]
-            self.dataframe["{} Y Velocity ACF".format(sp1.name)] = vacf[v_ij, 1, :]
-            self.dataframe["{} Z Velocity ACF".format(sp1.name)] = vacf[v_ij, 2, :]
-            self.dataframe["{} Total Velocity ACF".format(sp1.name)] = vacf[v_ij, 3, :]
-            for j, sp2 in enumerate(self.species[i + 1:]):
+        for i, sp1 in enumerate(self.species_names):
+            self.dataframe["{} X Velocity ACF".format(sp1)] = vacf[v_ij, 0, :]
+            self.dataframe["{} Y Velocity ACF".format(sp1)] = vacf[v_ij, 1, :]
+            self.dataframe["{} Z Velocity ACF".format(sp1)] = vacf[v_ij, 2, :]
+            self.dataframe["{} Total Velocity ACF".format(sp1)] = vacf[v_ij, 3, :]
+            for j, sp2 in enumerate(self.species_names[i + 1:]):
                 v_ij += 1
-                self.dataframe["{}-{} X Current ACF".format(sp1.name, sp2.name)] = vacf[v_ij, 0, :]
-                self.dataframe["{}-{} Y Current ACF".format(sp1.name, sp2.name)] = vacf[v_ij, 1, :]
-                self.dataframe["{}-{} Z Current ACF".format(sp1.name, sp2.name)] = vacf[v_ij, 2, :]
-                self.dataframe["{}-{} Total Current ACF".format(sp1.name, sp2.name)] = vacf[v_ij, 3, :]
+                self.dataframe["{}-{} X Current ACF".format(sp1, sp2)] = vacf[v_ij, 0, :]
+                self.dataframe["{}-{} Y Current ACF".format(sp1, sp2)] = vacf[v_ij, 1, :]
+                self.dataframe["{}-{} Z Current ACF".format(sp1, sp2)] = vacf[v_ij, 2, :]
+                self.dataframe["{}-{} Total Current ACF".format(sp1, sp2)] = vacf[v_ij, 3, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -1811,9 +1820,9 @@ class VelocityAutocorrelationFunctions(Observable):
             xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["Time"], 1.0,
                                                                "Time", 'none', self.units)
             fig, ax = plt.subplots(1, 1)
-            for i, sp in enumerate(self.species):
-                Z = self.dataframe["{} Total Velocity ACF".format(sp.name)]
-                ax.plot(self.dataframe["Time"] * xmul, Z / Z[0], label=r'$Z_{' + sp.name + '} (t)$')
+            for i, sp in enumerate(self.species_names):
+                Z = self.dataframe["{} Total Velocity ACF".format(sp)]
+                ax.plot(self.dataframe["Time"] * xmul, Z / Z[0], label=r'$Z_{' + sp + '} (t)$')
             ax.grid(True, alpha=0.3)
             ax.legend(loc='upper right')
             ax.set_ylabel(r'$Z(t)$')
@@ -1849,7 +1858,7 @@ class VelocityMoments(Observable):
 
     """
 
-    def setup(self, params, species, phase=None):
+    def setup(self, params, phase=None):
         """
         Assign attributes from simulation's parameters.
 
@@ -1866,7 +1875,7 @@ class VelocityMoments(Observable):
 
         """
         self.phase = phase if phase else 'production'
-        super().setup_init(params, species, self.phase)
+        super().setup_init(params, self.phase)
 
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'VelocityMoments')
@@ -1915,21 +1924,21 @@ class VelocityMoments(Observable):
         print("Calculating ratios ...")
         ratios = calc_moment_ratios(moments, self.species_num, self.no_dumps)
         # Save the dataframe
-        for i, sp in enumerate(self.species):
-            self.dataframe["{} vx 2nd moment".format(sp.name)] = moments[:, int(9 * i)]
-            self.dataframe["{} vx 4th moment".format(sp.name)] = moments[:, int(9 * i) + 1]
-            self.dataframe["{} vx 6th moment".format(sp.name)] = moments[:, int(9 * i) + 2]
+        for i, sp in enumerate(self.species_names):
+            self.dataframe["{} vx 2nd moment".format(sp)] = moments[:, int(9 * i)]
+            self.dataframe["{} vx 4th moment".format(sp)] = moments[:, int(9 * i) + 1]
+            self.dataframe["{} vx 6th moment".format(sp)] = moments[:, int(9 * i) + 2]
 
-            self.dataframe["{} vy 2nd moment".format(sp.name)] = moments[:, int(9 * i) + 3]
-            self.dataframe["{} vy 4th moment".format(sp.name)] = moments[:, int(9 * i) + 4]
-            self.dataframe["{} vy 6th moment".format(sp.name)] = moments[:, int(9 * i) + 5]
+            self.dataframe["{} vy 2nd moment".format(sp)] = moments[:, int(9 * i) + 3]
+            self.dataframe["{} vy 4th moment".format(sp)] = moments[:, int(9 * i) + 4]
+            self.dataframe["{} vy 6th moment".format(sp)] = moments[:, int(9 * i) + 5]
 
-            self.dataframe["{} vz 2nd moment".format(sp.name)] = moments[:, int(9 * i) + 6]
-            self.dataframe["{} vz 4th moment".format(sp.name)] = moments[:, int(9 * i) + 7]
-            self.dataframe["{} vz 6th moment".format(sp.name)] = moments[:, int(9 * i) + 8]
+            self.dataframe["{} vz 2nd moment".format(sp)] = moments[:, int(9 * i) + 6]
+            self.dataframe["{} vz 4th moment".format(sp)] = moments[:, int(9 * i) + 7]
+            self.dataframe["{} vz 6th moment".format(sp)] = moments[:, int(9 * i) + 8]
 
-            self.dataframe["{} 4-2 moment ratio".format(sp.name)] = ratios[i, 0, :]
-            self.dataframe["{} 6-2 moment ratio".format(sp.name)] = ratios[i, 1, :]
+            self.dataframe["{} 4-2 moment ratio".format(sp)] = ratios[i, 0, :]
+            self.dataframe["{} 6-2 moment ratio".format(sp)] = ratios[i, 1, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -1960,22 +1969,23 @@ class VelocityMoments(Observable):
 
         if self.num_species > 1:
             self.species_plots_dirs = []
-            for i, sp in enumerate(self.species):
-                new_dir = os.path.join(self.plots_dir, "{}".format(sp.name))
+            for i, sp in enumerate(self.species_names):
+                new_dir = os.path.join(self.plots_dir, "{}".format(sp))
                 self.species_plots_dirs.append(new_dir)
                 if not os.path.exists(new_dir):
-                    os.mkdir(os.path.join(self.plots_dir, "{}".format(sp.name)))
+                    os.mkdir(os.path.join(self.plots_dir, "{}".format(sp)))
         else:
             self.species_plots_dirs = [self.plots_dir]
 
-        for i, sp in enumerate(self.species):
+        for i, sp in enumerate(self.species_names):
             fig, ax = plt.subplots(1, 1)
             xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                    np.array([1]), 'Time', 'none', self.units)
             ax.plot(self.dataframe["Time"] * xmul,
-                    self.dataframe["{} 4-2 moment ratio".format(sp.name)], label=r"4/2 ratio")
+                    self.dataframe["{} 4-2 moment ratio".format(sp)], label=r"4/2 ratio")
             ax.plot(self.dataframe["Time"] * xmul,
-                    self.dataframe["{} 6-2 moment ratio".format(sp.name)], label=r"6/2 ratio")
+                    self.dataframe["{} 6-2 moment ratio".format(sp)], label=r"6/2 ratio")
+
             ax.axhline(1.0, ls='--', c='k', label='Equilibrium')
             ax.grid(True, alpha=0.3)
             ax.legend(loc='upper right')
@@ -1985,7 +1995,7 @@ class VelocityMoments(Observable):
                 ax.set_yscale('log')
             ax.set_xlabel(r'$t$' + xlbl)
             #
-            ax.set_title("Moments ratios of {}".format(sp.name) + '  Phase: ' + self.phase.capitalize())
+            ax.set_title("Moments ratios of {}".format(sp) + '  Phase: ' + self.phase.capitalize())
             fig.savefig(os.path.join(self.species_plots_dirs[i], "MomentRatios_" + self.job_id + '.png'))
             if show:
                 fig.show()

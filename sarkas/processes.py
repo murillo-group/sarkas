@@ -72,8 +72,6 @@ class PostProcess:
                     if sub_dict:
                         self.ec.__dict__.update(sub_dict)
 
-
-
     def setup(self, read_yaml=False, other_inputs=None):
         """
         Setup subclasses and attributes by reading the pickle files first
@@ -87,7 +85,7 @@ class PostProcess:
 
             for class_name, class_attr in other_inputs.items():
                 if not class_name == 'Particles':
-                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
+                    self.__dict__[class_name.lower()].from_dict(class_attr)
 
         self.io.create_file_paths()
         self.io.read_pickle(self)
@@ -107,6 +105,7 @@ class PostProcess:
         self.potential = py_copy.copy(simulation.potential)
         self.species = py_copy.copy(simulation.species)
         self.thermostat = py_copy.copy(simulation.thermostat)
+        self.io = py_copy.copy(simulation.io)
 
 
 class PreProcess:
@@ -843,25 +842,25 @@ class Simulation:
 
             for class_name, class_attr in other_inputs.items():
                 if not class_name == 'Particles':
-                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
+                    self.__dict__[class_name.lower()].from_dict(class_attr)
 
         # initialize the directories and filenames
         self.io.setup()
         # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
         # Update parameters' dictionary with filenames and directories
-        self.parameters.__dict__.update(self.io.__dict__)
+        self.parameters.from_dict(self.io.__dict__)
         # save some general info
         self.parameters.potential_type = self.potential.type
         self.parameters.cutoff_radius = self.potential.rc
         self.parameters.magnetized = self.integrator.magnetized
         # integrator parameters
-        self.parameters.integrator = self.integrator.type
+        # self.parameters.integrator = self.integrator.type
         self.parameters.equilibration_steps = self.integrator.equilibration_steps
         self.parameters.production_steps = self.integrator.production_steps
         self.parameters.prod_dump_step = self.integrator.prod_dump_step
         self.parameters.eq_dump_step = self.integrator.eq_dump_step
 
-        self.parameters.thermostat = self.thermostat.type
+        # self.parameters.thermostat = self.thermostat.type
 
         self.parameters.setup(self.species)
 

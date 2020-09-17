@@ -65,6 +65,18 @@ class InputOutput:
         disp += ')'
         return disp
 
+    def from_dict(self, input_dict: dict):
+        """
+        Update attributes from input dictionary.
+
+        Parameters
+        ----------
+        input_dict: dict
+            Dictionary to be copied.
+
+        """
+        self.__dict__.update(input_dict)
+
     def setup(self):
         self.create_file_paths()
         self.make_directories()

@@ -1,4 +1,4 @@
-# ICF_small C-D-T Mixture
+# ICF C-D-T Mixture
 Particles:
     - Species:
         name: C
@@ -44,10 +44,6 @@ Parameters:
     units: cgs                    # units
     dt: 7.46759e-18            # sec
     rdf_nbins: 500
-#    equilibration_steps: 50000                      # number of timesteps for the equilibrium
-#    production_steps: 100000                    # number of timesteps after the equilibrium
-#    prod_dump_step: 10                # dump time step
-#    eq_dump_step: 100
 
 Integrator:
     type: Verlet                  # velocity integrator type
