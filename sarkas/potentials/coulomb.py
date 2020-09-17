@@ -16,7 +16,7 @@ def update_params(potential, params):
     potential: sarkas.potentials.base.Potential
         Potential's information
 
-    params : sarkas.base.Parameters
+    params: sarkas.base.Parameters
         Simulation's parameters
 
     """

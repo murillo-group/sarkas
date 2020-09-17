@@ -376,7 +376,7 @@ class Parameters:
         self.total_ion_temperature = np.transpose(self.species_concentrations) @ self.species_temperatures
         self.total_plasma_frequency = np.sqrt(wp_tot_sq)
         self.total_debye_length = np.sqrt(lambda_D)
-        self.tot_mass_density = self.species_masses.transpose() @ self.species_num_dens
+        self.total_mass_density = self.species_masses.transpose() @ self.species_num_dens
 
         # Simulation Box Parameters
         # Wigner-Seitz radius calculated from the total number density
@@ -499,6 +499,14 @@ class Particles:
     def __init__(self):
         self.potential_energy = 0.0
 
+    def __repr__(self):
+        sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
+        disp = 'Particles( \n'
+        for key, value in sortedDict.items():
+            disp += "\t{} : {}\n".format(key, value)
+        disp += ')'
+        return disp
+
     def setup(self, params, species):
         """
         Initialize class' attributes
@@ -519,7 +527,7 @@ class Particles:
         self.box_lengths = params.box_lengths
         self.total_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
-        self.species_num = params.species_num
+        self.species_num = np.copy(params.species_num)
         self.dimensions = params.dimensions
 
         if hasattr(params, "rand_seed"):

@@ -75,6 +75,14 @@ class Integrator:
         self.box_lengths = None
         self.verbose = False
 
+    def __repr__(self):
+        sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
+        disp = 'Integrator( \n'
+        for key, value in sortedDict.items():
+            disp += "\t{} : {}\n".format(key, value)
+        disp += ')'
+        return disp
+
     def from_dict(self, input_dict: dict) :
         """
         Update attributes from input dictionary.
@@ -105,7 +113,7 @@ class Integrator:
         """
         self.box_lengths = params.box_lengths
         self.kB = params.kB
-        self.species_num = params.species_num
+        self.species_num = np.copy(params.species_num)
         self.verbose = params.verbose
 
         if self.dt is None:
@@ -143,7 +151,7 @@ class Integrator:
 
         elif self.type.lower() == "magnetic_verlet":
 
-            self.omega_c = params.species_cyclotron_frequencies
+            self.omega_c = np.copy(params.species_cyclotron_frequencies)
             omc_dt = 0.5 * params.species_cyclotron_frequencies * self.dt
             self.sdt = np.sin(omc_dt)
             self.cdt = np.cos(omc_dt)

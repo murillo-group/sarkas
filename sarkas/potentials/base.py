@@ -102,6 +102,14 @@ class Potential:
         self.total_net_charge = 0.0
         self.pppm_on = False
 
+    def __repr__(self):
+        sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
+        disp = 'Potential( \n'
+        for key, value in sortedDict.items():
+            disp += "\t{} : {}\n".format(key, value)
+        disp += ')'
+        return disp
+
     def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
@@ -295,6 +303,8 @@ class Potential:
 
         # Total Force Error
         params.force_error = np.sqrt(params.pppm_pm_err ** 2 + params.pppm_pp_err ** 2)
+
+        self.force_error = params.force_error
 
     # def update_fmm(ptcls, params):
     #     """

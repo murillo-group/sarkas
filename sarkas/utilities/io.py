@@ -57,6 +57,14 @@ class InputOutput:
         self.xyz_dir = None
         self.xyz_filename = None
 
+    def __repr__(self):
+        sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
+        disp = 'InputOuput( \n'
+        for key, value in sortedDict.items():
+            disp += "\t{} : {}\n".format(key, value)
+        disp += ')'
+        return disp
+
     def setup(self):
         self.create_file_paths()
         self.make_directories()
@@ -674,7 +682,7 @@ class InputOutput:
         self.a_ws = params.a_ws
         self.total_num_ptcls = params.total_num_ptcls
         self.total_plasma_frequency = params.total_plasma_frequency
-        self.species_names = params.species_names
+        self.species_names = np.copy(params.species_names)
         self.coupling = params.coupling_constant * params.T_desired
 
         if not os.path.exists(self.prod_energy_filename):

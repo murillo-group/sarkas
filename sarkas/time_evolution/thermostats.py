@@ -49,6 +49,14 @@ class Thermostat:
         self.eV_temp_flag = False
         self.K_temp_flag = False
 
+    def __repr__(self):
+        sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
+        disp = 'Thermostat( \n'
+        for key, value in sortedDict.items():
+            disp += "\t{} : {}\n".format(key, value)
+        disp += ')'
+        return disp
+
     def from_dict(self, input_dict: dict) :
         """
         Update attributes from input dictionary.
@@ -69,7 +77,7 @@ class Thermostat:
 
         if self.temperatures:
             if not isinstance(self.temperatures, np.ndarray):
-                    self.temperatures = np.array(self.temperatures)
+                self.temperatures = np.array(self.temperatures)
             self.K_temp_flag = True
 
     def setup(self, params):
