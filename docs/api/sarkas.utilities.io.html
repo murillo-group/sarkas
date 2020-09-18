@@ -195,7 +195,7 @@
 <dd><p>Print algorithm information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Simulation</span></code>) – Simulation’s parameters.</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -212,9 +212,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>production</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag indicating whether to phase production or equilibration data.</p></li>
-<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Particles</span></code></a>) – Particles data.</p></li>
-<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Timestep number.</p></li>
+<li><p><strong>production</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Flag indicating whether to phase production or equilibration data.</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p></li>
+<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Timestep number.</p></li>
 </ul>
 </dd>
 </dl>
@@ -227,8 +227,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Phase from which to read dumps. ‘equilibration’ or ‘production’.</p></li>
-<li><p><strong>dump_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Interval of dumps to skip. Default = 1</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Phase from which to read dumps. ‘equilibration’ or ‘production’.</p></li>
+<li><p><strong>dump_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Interval of dumps to skip. Default = 1</p></li>
 </ul>
 </dd>
 </dl>
@@ -240,18 +240,29 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.from_dict">
+<code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update attributes from input dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary to be copied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.utilities.io.InputOutput.from_yaml">
 <code class="sig-name descname">from_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse inputs from YAML file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Input YAML file.</p>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Input YAML file.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>dics</strong> – Content of YAML file parsed in a nested dictionary</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -262,7 +273,7 @@
 <dd><p>Print length information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Simulation</span></code>) – Simulation’s parameters.</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -278,7 +289,7 @@
 <dd><p>Print potential information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Simulation</span></code>) – Simulation’s parameters.</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -296,15 +307,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Folder containing dumps.</p></li>
-<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Timestep to load.</p></li>
+<li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Folder containing dumps.</p></li>
+<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Timestep to load.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>struct_array</strong> – Structured data array.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)">numpy.ndarray</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -315,8 +326,25 @@
 <dd><p>Read pickle files containing all the simulation information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>process</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">cls</span></code>) – Simulation’s parameters. It can be one of three (sarkas.tools.PreProcess,
+<dd class="field-odd"><p><strong>process</strong> (<em>cls</em>) – Simulation’s parameters. It can be one of three (sarkas.tools.PreProcess,
 sarkas.base.Simulation, sarkas.tools.PostProcess)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.read_pickle_single">
+<code class="sig-name descname">read_pickle_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">class_to_read</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.read_pickle_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.read_pickle_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the desired pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>class_to_read</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the class to read.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Desired class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>cls</p>
 </dd>
 </dl>
 </dd></dl>
@@ -345,8 +373,8 @@ sarkas.base.Simulation, sarkas.tools.PostProcess)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code></a>) – General simulation parameters.</p></li>
-<li><p><strong>species</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Species" title="sarkas.base.Species"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code></a>) – List of Species classes.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – General simulation parameters.</p></li>
+<li><p><strong>species</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Species" title="sarkas.base.Species"><em>sarkas.base.Species</em></a>) – List of Species classes.</p></li>
 </ul>
 </dd>
 </dl>
@@ -359,7 +387,7 @@ sarkas.base.Simulation, sarkas.tools.PostProcess)</p>
 If verbose output then it will print twice: the first time to file and second time to screen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">cls</span></code>) – Simulation’s parameters</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>cls</em>) – Simulation’s parameters</p>
 </dd>
 </dl>
 </dd></dl>
@@ -370,7 +398,7 @@ If verbose output then it will print twice: the first time to file and second ti
 <dd><p>Print Species information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Simulation</span></code>) – Simulation’s parameters.</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -381,7 +409,7 @@ If verbose output then it will print twice: the first time to file and second ti
 <dd><p>Print thermostat information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Simulation</span></code>) – Simulation’s parameters.</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -392,7 +420,7 @@ If verbose output then it will print twice: the first time to file and second ti
 <dd><p>Print time simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Simulation</span></code>) – Simulation’s parameters.</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -404,8 +432,8 @@ If verbose output then it will print twice: the first time to file and second ti
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>time_stamp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – Array of time stamps.</p></li>
-<li><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Elapsed time.</p></li>
+<li><p><strong>time_stamp</strong> (<em>array</em>) – Array of time stamps.</p></li>
+<li><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Elapsed time.</p></li>
 </ul>
 </dd>
 </dl>
@@ -417,7 +445,7 @@ If verbose output then it will print twice: the first time to file and second ti
 <dd><p>Info specific for timing study.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.base.Simulation</span></code>) – Simulation’s parameters</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters</p>
 </dd>
 </dl>
 </dd></dl>
@@ -439,13 +467,13 @@ If verbose output then it will print twice: the first time to file and second ti
 (See Toothy’s implementation in the comments)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Text to be split into str and int</p>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Text to be split into str and int</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>List containing text and integers</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -475,7 +503,7 @@ If verbose output then it will print twice: the first time to file and second ti
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 15, 2020.
+        Last updated on Sep, 18, 2020.
       </span>
 
     </p>

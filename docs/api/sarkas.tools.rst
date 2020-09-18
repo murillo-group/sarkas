@@ -7,9 +7,8 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   sarkas.tools.force_error
    sarkas.tools.observables
-   sarkas.tools.preprocessing
+   sarkas.tools.transport
 
 Module contents
 ---------------

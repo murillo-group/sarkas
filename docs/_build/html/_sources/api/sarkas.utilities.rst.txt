@@ -9,7 +9,6 @@ Submodules
 
    sarkas.utilities.io
    sarkas.utilities.timing
-   sarkas.utilities.verbose
 
 Module contents
 ---------------

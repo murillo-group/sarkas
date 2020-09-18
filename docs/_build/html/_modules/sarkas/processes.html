@@ -202,39 +202,37 @@
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">observable</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">RadialDistributionFunction</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HermiteCoefficients&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">HermiteCoefficients</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Thermodynamics&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">therm</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">Thermodynamics</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DynamicStructureFactor&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">DynamicStructureFactor</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CurrentCorrelationFunctions&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">CurrentCorrelationFunctions</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;StaticStructureFactor&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">StaticStructureFactor</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityMoments&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">vm</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">VelocityMoments</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityAutocorrelationFunctions&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">VelocityAutocorrelationFunctions</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;ElectricCurrent&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">ElectricCurrent</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span></div>
-
-
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PostProcess.setup"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PostProcess.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -249,10 +247,13 @@
 
             <span class="k">for</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">class_attr</span> <span class="ow">in</span> <span class="n">other_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;Particles&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">class_attr</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">class_attr</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">create_file_paths</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+        <span class="c1"># if self.parameters.plot_style:</span>
+        <span class="c1">#     plt.style.use(self.parameters.plot_style)</span>
 
 <div class="viewcode-block" id="PostProcess.setup_from_simulation"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PostProcess.setup_from_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">setup_from_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -268,7 +269,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potential</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">thermostat</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">thermostat</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">io</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PreProcess"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess">[docs]</a><span class="k">class</span> <span class="nc">PreProcess</span><span class="p">:</span>
@@ -299,7 +301,6 @@
 
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">filename</span>
 
@@ -308,28 +309,23 @@
         <span class="k">for</span> <span class="n">lkey</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Particles&quot;</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">species</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s2">&quot;Particles&quot;</span><span class="p">]:</span>
-                    <span class="n">spec</span> <span class="o">=</span> <span class="n">Species</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">species</span><span class="p">[</span><span class="s2">&quot;Species&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-                            <span class="n">spec</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="nb">setattr</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                    <span class="n">spec</span> <span class="o">=</span> <span class="n">Species</span><span class="p">(</span><span class="n">species</span><span class="p">[</span><span class="s2">&quot;Species&quot;</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Thermostat&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Integrator&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Parameters&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Control&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="PreProcess.setup"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup simulations&#39; parameters and io subclasses.</span>
@@ -386,7 +382,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Particles Initialization&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_ptcls</span> <span class="o">-</span> <span class="n">time_pot</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Total Simulation Initialization&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span> <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="k">else</span> <span class="mf">0.0</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">plot_style</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">plot_style</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PreProcess.green_function_timer"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.green_function_timer">[docs]</a>    <span class="k">def</span> <span class="nf">green_function_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -669,9 +668,10 @@
         <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
         <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s1">&#39;Approximate Total Force error  $N = </span><span class="si">{}</span><span class="s1">, \quad M = </span><span class="si">{}</span><span class="s1">, \quad \kappa = </span><span class="si">{:.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;Approximate Total Force error  $N = </span><span class="si">{}</span><span class="s1">, \quad M = </span><span class="si">{}</span><span class="s1">, \quad p = </span><span class="si">{}</span><span class="s1">, \quad \kappa = </span><span class="si">{:.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_cao</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceError_LinePlot_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
@@ -717,8 +717,12 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\alpha \;a_</span><span class="si">{ws}</span><span class="s1">$&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$r_c/a_</span><span class="si">{ws}</span><span class="s1">$&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s1">&#39;$\Delta F^</span><span class="si">{approx}</span><span class="s1">_</span><span class="si">{tot}</span><span class="s1">(r_c,\alpha)$&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;  for  $N = </span><span class="si">{}</span><span class="s1">, \quad M = </span><span class="si">{}</span><span class="s1">, \quad \kappa = </span><span class="si">{:1.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
+            <span class="sa">r</span><span class="s1">&#39;$\Delta F^</span><span class="si">{approx}</span><span class="s1">_</span><span class="si">{tot}</span><span class="s1">(r_c,\alpha)$&#39;</span>
+            <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;  for $N = </span><span class="si">{}</span><span class="s1">, \quad M = </span><span class="si">{}</span><span class="s1">, \quad p = </span><span class="si">{}</span><span class="s1">, \quad \kappa = </span><span class="si">{:.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_cao</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">CS</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceError_ClrMap_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
@@ -1011,29 +1015,32 @@
 
             <span class="k">for</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">class_attr</span> <span class="ow">in</span> <span class="n">other_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;Particles&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">class_attr</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">class_attr</span><span class="p">)</span>
 
         <span class="c1"># initialize the directories and filenames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="c1"># Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.</span>
         <span class="c1"># Update parameters&#39; dictionary with filenames and directories</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
         <span class="c1"># save some general info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">potential_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetized</span>
         <span class="c1"># integrator parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">type</span>
+        <span class="c1"># self.parameters.integrator = self.integrator.type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">type</span>
+        <span class="c1"># self.parameters.thermostat = self.thermostat.type</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">plot_style</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">plot_style</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Gk"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Gk">[docs]</a><span class="nd">@njit</span>
@@ -1148,7 +1155,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 15, 2020.
+        Last updated on Sep, 18, 2020.
       </span>
 
     </p>

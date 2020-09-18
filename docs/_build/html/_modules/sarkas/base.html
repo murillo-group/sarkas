@@ -345,7 +345,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="kc">None</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_style</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">#</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -458,6 +459,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_concentrations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_temperatures_eV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_charges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span> <span class="o">=</span> <span class="p">[]</span>
@@ -493,8 +495,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">num</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">mass</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="s1">&#39;temperature_eV&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">temperature_eV</span><span class="p">:</span>
                 <span class="n">sp</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">temperature_eV</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">species_temperatures_eV</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">temperature_eV</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">species_temperatures</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">temperature</span>
 
@@ -537,7 +540,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">total_ion_temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_concentrations</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_temperatures</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wp_tot_sq</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_debye_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lambda_D</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tot_mass_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_mass_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span>
 
         <span class="c1"># Simulation Box Parameters</span>
         <span class="c1"># Wigner-Seitz radius calculated from the total number density</span>
@@ -660,6 +663,14 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potential_energy</span> <span class="o">=</span> <span class="mf">0.0</span>
 
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sortedDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="s1">&#39;Particles( </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sortedDict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">disp</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">{}</span><span class="s2"> : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
+        <span class="k">return</span> <span class="n">disp</span>
+
 <div class="viewcode-block" id="Particles.setup"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize class&#39; attributes</span>
@@ -680,7 +691,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;rand_seed&quot;</span><span class="p">):</span>
@@ -1401,7 +1412,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 15, 2020.
+        Last updated on Sep, 18, 2020.
       </span>
 
     </p>

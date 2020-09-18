@@ -33,9 +33,6 @@ class TransportCoefficient:
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of ``sarkas.base.Species``.
-
         phase : str
             Phase to analyze. Default = 'production'.
 
@@ -52,7 +49,8 @@ class TransportCoefficient:
         energies = obs.Thermodynamics()
         energies.setup(params, phase)
         energies.parse('production')
-        j_current = obs.ElectricCurrent(params)
+        j_current = obs.ElectricCurrent()
+        j_current.setup(params, phase)
         j_current.parse()
         sigma = np.zeros(j_current.prod_no_dumps)
         integrand = np.array(j_current.dataframe["Total Current ACF"] / j_current.dataframe["Total Current ACF"][0])
@@ -65,19 +63,43 @@ class TransportCoefficient:
         # Plot the transport coefficient at different integration times
         xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(j_current.dataframe["Time"], sigma, "Time", "Conductivity",
                                                    j_current.units)
-        fig, [ax1, ax2] = plt.subplots(2, 1)
+        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 9))
+        ax21 = ax2.twiny()
+        # extra space for the second axis at the bottom
+        fig.subplots_adjust(bottom=0.2)
+
         ax1.semilogx(xmul * time, integrand, label=r'$j(t)$')
+        ax21.semilogx(ymul * sigma)
+        ax2.semilogx(xmul * time, ymul * sigma, label=r'$\sigma (t)$')
+
         ax1.grid(True, alpha=0.3)
         ax1.legend(loc='best')
         ax1.set_ylabel(r'Total Current ACF $j(t)$')
-        ax1.set_xlabel(r'Time' + xlbl)
 
-        ax2.semilogx(ymul * sigma, label=r'$\sigma (t)$')
         ax2.grid(True, alpha=0.3)
         ax2.legend(loc='best')
         ax2.set_ylabel(r'Conductivity' + ylbl)
-        ax2.set_xlabel(r'Dumps')
-        fig.tight_layout()
+        ax2.set_xlabel(r'Time' + xlbl)
+
+        ax21.xaxis.set_ticks_position("bottom")
+        ax21.xaxis.set_label_position("bottom")
+        ax21.set_xscale('log')
+        ax21.grid(False)
+        # Offset the twin axis below the host
+        ax21.spines["bottom"].set_position(("axes", -0.3))
+
+        # Turn on the frame for the twin axis, but then hide all
+        # but the bottom spine
+        ax21.set_frame_on(True)
+        ax21.patch.set_visible(False)
+
+        for sp in ax21.spines.values():
+            sp.set_visible(False)
+
+        ax21.spines["bottom"].set_visible(True)
+        ax21.set_xlabel(r"Index")
+
+        # fig.tight_layout()
         fig.savefig(os.path.join(j_current.saving_dir, 'ConductivityPlot_' + j_current.job_id + '.png'))
         if show:
             fig.show()
@@ -97,9 +119,6 @@ class TransportCoefficient:
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of ``sarkas.base.Species``.
-
         phase : str
             Phase to analyze. Default = 'production'.
 
@@ -118,7 +137,11 @@ class TransportCoefficient:
         vacf.parse()
         time = np.array(vacf.dataframe["Time"])
         D = np.zeros((params.num_species, len(time)))
-        fig, [ax1, ax2] = plt.subplots(2, 1)
+        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 9))
+        ax21 = ax2.twiny()
+        # extra space for the second axis at the bottom
+        fig.subplots_adjust(bottom=0.2)
+
         const = 1.0 / 3.0
         if params.num_species > 1:
             const *= params.total_mass_density
@@ -133,17 +156,36 @@ class TransportCoefficient:
             xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(vacf.dataframe["Time"], D[i, :],
                                                        "Time", "Diffusion", vacf.units)
             ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp + '}(t)$')
-            ax2.semilogx(ymul * D[i, :], label=r'$D_{' + sp + '}(t)$')
+            ax21.semilogx(ymul * D[i, :])
+            ax2.semilogx(xmul * time, ymul * D[i, :], label=r'$D_{' + sp + '}(t)$')
 
         # Complete figure
         ax1.grid(True, alpha=0.3)
         ax1.legend(loc='best')
-        ax1.set_ylabel(r'Velocity ACF' + ylbl)
-        ax1.set_xlabel(r'Time' + xlbl)
+        ax1.set_ylabel(r'Velocity ACF')
+        # ax1.set_xlabel(r'Time' + xlbl)
         ax2.grid(True, alpha=0.3)
         ax2.legend(loc='best')
         ax2.set_ylabel(r'Diffusion' + ylbl)
-        ax2.set_xlabel(r'Dumps')
+        ax2.set_xlabel(r'Time' + xlbl)
+
+        ax21.xaxis.set_ticks_position("bottom")
+        ax21.xaxis.set_label_position("bottom")
+        ax21.set_xscale('log')
+        ax21.grid(False)
+        # Offset the twin axis below the host
+        ax21.spines["bottom"].set_position(("axes", -0.3))
+
+        # Turn on the frame for the twin axis, but then hide all
+        # but the bottom spine
+        ax21.set_frame_on(True)
+        ax21.patch.set_visible(False)
+
+        for sp in ax21.spines.values():
+            sp.set_visible(False)
+        ax21.spines["bottom"].set_visible(True)
+        ax21.set_xlabel(r"Index")
+        # ax21.set_xbound(1, len(time))
         fig.tight_layout()
         fig.savefig(os.path.join(vacf.saving_dir, 'DiffusionPlot_' + vacf.job_id + '.png'))
         if show:
@@ -160,9 +202,6 @@ class TransportCoefficient:
         ----------
         params : sarkas.base.Parameters
             Simulation's parameters.
-
-        species : list
-            List of ``sarkas.base.Species``.
 
         phase : str
             Phase to analyze. Default = 'production'.
@@ -186,32 +225,56 @@ class TransportCoefficient:
         D_ij = np.zeros((no_dij, no_int))
 
         indx = 0
-        fig, [ax1, ax2] = plt.subplots(2, 1)
-        for i, sp1 in enumerate(params.species):
-            for j, sp2 in enumerate(params.species[i + 1:]):
-                integrand = np.array(vacf.dataframe["{}-{} Total Current ACF".format(sp1.name, sp2.name)])
+        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 9))
+        ax21 = ax2.twiny()
+        # extra space for the second axis at the bottom
+        fig.subplots_adjust(bottom=0.2)
+
+        for i, sp1 in enumerate(params.species_names):
+            for j, sp2 in enumerate(params.species_names[i + 1:]):
+                integrand = np.array(vacf.dataframe["{}-{} Total Current ACF".format(sp1, sp2)])
                 time = np.array(vacf.dataframe["Time"])
                 # const = 1.0 / (3.0 * params.total_plasma_frequency * params.a_ws ** 2)
-                const = 1. / (3.0 * sp1.concentration * sp2.concentration)
+                const = 1. / (3.0 * params.species_concentrations[i] * params.species_concentrations[j])
                 for it in range(1, no_int):
                     D_ij[indx, it] = const * np.trapz(integrand[:it], x=time[:it])
 
-                coefficient["{}-{} Inter Diffusion".format(sp1.name, sp2.name)] = D_ij[i, :]
+                coefficient["{}-{} Inter Diffusion".format(sp1, sp2)] = D_ij[i, :]
 
                 xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(vacf.dataframe["Time"], D_ij[i, :],
                                                            "Time", "Diffusion", vacf.units)
-                ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp1.name + sp2.name + '}(t)$')
-                ax2.semilogx(ymul * D_ij[i, :], label=r'$D_{' + sp1.name + sp2.name + '}(t)$')
+                ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp1 + sp2 + '}(t)$')
+                ax21.semilogx(ymul * D_ij[i, :])
+                ax2.semilogx(xmul * time, ymul * D_ij[i, :], label=r'$D_{' + sp1 + sp2 + '}(t)$')
 
         # Complete figure
-        ax1.grid(True, alpha=0.3)
+        # ax1.grid(True, alpha=0.3)
         ax1.legend(loc='best')
-        ax1.set_ylabel(r'Inter Current ACF' + ylbl)
-        ax1.set_xlabel(r'Time' + xlbl)
-        ax2.grid(True, alpha=0.3)
+        ax1.set_ylabel(r'Inter Current ACF')
+
+        # ax2.grid(True, alpha=0.3)
         ax2.legend(loc='best')
         ax2.set_ylabel(r'Inter Diffusion' + ylbl)
-        ax2.set_xlabel(r'Dumps')
+        ax2.set_xlabel(r'Time' + xlbl)
+
+        ax21.xaxis.set_ticks_position("bottom")
+        ax21.xaxis.set_label_position("bottom")
+        ax21.set_xscale('log')
+
+        # Offset the twin axis below the host
+        ax21.spines["bottom"].set_position(("axes", -0.3))
+
+        # Turn on the frame for the twin axis, but then hide all
+        # but the bottom spine
+        ax21.set_frame_on(True)
+        ax21.patch.set_visible(False)
+
+        for sp in ax21.spines.values():
+            sp.set_visible(False)
+        ax21.spines["bottom"].set_visible(True)
+        ax21.set_xlabel(r"Index")
+        # ax21.set_xbound(1, len(time))
+
         fig.tight_layout()
         fig.savefig(os.path.join(vacf.saving_dir, 'InterDiffusionPlot_' + vacf.job_id + '.png'))
         if show:
@@ -228,9 +291,6 @@ class TransportCoefficient:
         ----------
         params : sarkas.base.Parameters
             Simulation's parameters.
-
-        species : list
-            List of ``sarkas.base.Species``.
 
         phase : str
             Phase to analyze. Default = 'production'.
@@ -262,7 +322,7 @@ class TransportCoefficient:
 
         # Calculate the acf of the pressure tensor
 
-        fig, axes = plt.subplots(2, 3, figsize=(16, 9))
+        fig, axes = plt.subplots(2, 3, sharex=True, figsize=(16, 9))
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
                 integrand = np.array(energies.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)])
@@ -299,9 +359,9 @@ class TransportCoefficient:
             axes[0, 1].set_xlabel(r"Time " + xlbl)
             axes[0, 2].set_xlabel(r"Time " + xlbl)
 
-            axes[1, 0].set_xlabel(r"Dumps")
-            axes[1, 1].set_xlabel(r"Dumps")
-            axes[1, 2].set_xlabel(r"Dumps")
+            axes[1, 0].set_xlabel(r"Time " + xlbl)
+            axes[1, 1].set_xlabel(r"Time " + xlbl)
+            axes[1, 2].set_xlabel(r"Time " + xlbl)
 
             axes[0, 0].set_ylabel(r"Pressure Tensor ACF")
             axes[1, 0].set_ylabel(r"Shear Viscosity" + ylbl)

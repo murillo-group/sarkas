@@ -753,6 +753,28 @@ class InputOutput:
             data = np.load(filename, allow_pickle=True)
             process.__dict__[fl] = py_copy.copy(data)
 
+    def read_pickle_single(self, class_to_read):
+        """
+        Read the desired pickle file.
+
+        Parameters
+        ----------
+        class_to_read : str
+            Name of the class to read.
+
+        Returns
+        -------
+        : cls
+            Desired class.
+
+        """
+        import copy as py_copy
+        file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']
+
+        filename = os.path.join(self.job_dir, class_to_read + ".pickle")
+        data = np.load(filename, allow_pickle=True)
+        return py_copy.copy(data)
+
     def dump(self, production, ptcls, it):
         """
         Save particles' data to binary file for future restart.
@@ -834,6 +856,12 @@ class InputOutput:
             dump_dir = self.prod_dump_dir
 
         f_xyz = open(self.xyz_filename, "w+")
+
+        if not hasattr(self, 'a_ws'):
+            params = self.read_pickle_single('parameters')
+            self.a_ws = params.a_ws
+            self.total_num_ptcls = params.total_num_ptcls
+            self.total_plasma_frequency = params.total_plasma_frequency
 
         # Rescale constants. This is needed since OVITO has a small number limit.
         pscale = 1.0 / self.a_ws

@@ -176,7 +176,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SarkasTimer.start"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="p">:</span>
+<div class="viewcode-block" id="SarkasTimer.start"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start a new timer&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TimerError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timer is running. Use .stop() to stop it&quot;</span><span class="p">)</span>
@@ -184,7 +184,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter_ns</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SarkasTimer.stop"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Stop the timer, and report the elapsed time.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stop the timer, and report the elapsed time.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -245,7 +246,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 15, 2020.
+        Last updated on Sep, 18, 2020.
       </span>
 
     </p>

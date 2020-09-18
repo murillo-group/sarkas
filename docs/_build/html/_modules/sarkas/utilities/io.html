@@ -219,6 +219,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">xyz_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xyz_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sortedDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="s1">&#39;InputOuput( </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sortedDict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">disp</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">{}</span><span class="s2"> : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
+        <span class="k">return</span> <span class="n">disp</span>
+
+<div class="viewcode-block" id="InputOutput.from_dict"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update attributes from input dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_dict: dict</span>
+<span class="sd">            Dictionary to be copied.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="InputOutput.setup"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_file_paths</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">make_directories</span><span class="p">()</span>
@@ -836,7 +856,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_plasma_frequency</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coupling</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">coupling_constant</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">T_desired</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_energy_filename</span><span class="p">):</span>
@@ -894,6 +914,28 @@
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">fl</span> <span class="o">+</span> <span class="s2">&quot;.pickle&quot;</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">process</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">fl</span><span class="p">]</span> <span class="o">=</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InputOutput.read_pickle_single"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.read_pickle_single">[docs]</a>    <span class="k">def</span> <span class="nf">read_pickle_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_to_read</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read the desired pickle file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        class_to_read : str</span>
+<span class="sd">            Name of the class to read.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        : cls</span>
+<span class="sd">            Desired class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">py_copy</span>
+        <span class="n">file_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="s1">&#39;integrator&#39;</span><span class="p">,</span> <span class="s1">&#39;thermostat&#39;</span><span class="p">,</span> <span class="s1">&#39;potential&#39;</span><span class="p">,</span> <span class="s1">&#39;species&#39;</span><span class="p">]</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">class_to_read</span> <span class="o">+</span> <span class="s2">&quot;.pickle&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InputOutput.dump"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">production</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -976,6 +1018,12 @@
             <span class="n">dump_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span>
 
         <span class="n">f_xyz</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xyz_filename</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;a_ws&#39;</span><span class="p">):</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_pickle_single</span><span class="p">(</span><span class="s1">&#39;parameters&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_plasma_frequency</span>
 
         <span class="c1"># Rescale constants. This is needed since OVITO has a small number limit.</span>
         <span class="n">pscale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span>
@@ -1103,7 +1151,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 15, 2020.
+        Last updated on Sep, 18, 2020.
       </span>
 
     </p>

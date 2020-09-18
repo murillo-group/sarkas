@@ -90,6 +90,9 @@ class PostProcess:
         self.io.create_file_paths()
         self.io.read_pickle(self)
 
+        # if self.parameters.plot_style:
+        #     plt.style.use(self.parameters.plot_style)
+
     def setup_from_simulation(self, simulation):
         """
         Setup postprocess' subclasses by (shallow) copying them from simulation object.
@@ -218,6 +221,9 @@ class PreProcess:
         self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0) )
 
         self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
+
+        if self.parameters.plot_style:
+            plt.style.use(self.parameters.plot_style)
 
     def green_function_timer(self):
 
@@ -870,6 +876,9 @@ class Simulation:
         self.parameters.setup(self.species)
 
         self.io.setup_checkpoint(self.parameters, self.species)
+
+        if self.parameters.plot_style:
+            plt.style.use(self.parameters.plot_style)
 
 
 @njit

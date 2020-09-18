@@ -16,6 +16,7 @@ dependencies:
   - pyyaml
   - tqdm
   - pyfiglet
+  - pickle5
 
   # Analysis
   - jupyter
@@ -28,6 +29,7 @@ dependencies:
   - sphinxcontrib-bibtex
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme
+  - sphinx-autodoc-typehints
 
   - pip:
       - fdint

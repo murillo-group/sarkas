@@ -211,8 +211,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – It contains potential dependent variables.
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.
 pot_matrix[0,:,:] = qi*qj/4*pi*eps0
 pot_matrix[1,:,:] = 2pi/deBroglie
 pot_matrix[2,:,:] = e-e Pauli term factor
@@ -222,8 +222,8 @@ pot_matrix[4,:,:] = Ewald parameter</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Potential.</p></li>
-<li><p><strong>force</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Force between two particles.</p></li>
+<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
+<li><p><strong>force</strong> (<em>float</em>) – Force between two particles.</p></li>
 </ul>
 </p>
 </dd>
@@ -237,8 +237,8 @@ pot_matrix[4,:,:] = Ewald parameter</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>) – It contains potential dependent parameters.
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent parameters.
 pot_matrix[0] = qi*qj/4*pi*eps0
 pot_matrix[1] = 2pi/deBroglie
 pot_matrix[2] = e-e Pauli term factor
@@ -248,8 +248,8 @@ pot_matrix[4] = Ewald parameter</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Potential.</p></li>
-<li><p><strong>force</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Force between two particles.</p></li>
+<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
+<li><p><strong>force</strong> (<em>float</em>) – Force between two particles.</p></li>
 </ul>
 </p>
 </dd>
@@ -264,8 +264,8 @@ The QSP Potential is given by eq.(5) in Ref. <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Flag to read inputs from YAML input file.</p></li>
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters</p></li>
+<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Flag to read inputs from YAML input file.</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p></li>
 </ul>
 </dd>
 </dl>
@@ -277,7 +277,7 @@ The QSP Potential is given by eq.(5) in Ref. <a class="reference internal" href=
 <dd><p>Create potential dependent simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>) – Simulation’s parameters</p>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p>
 </dd>
 </dl>
 </dd></dl>
@@ -307,7 +307,7 @@ The QSP Potential is given by eq.(5) in Ref. <a class="reference internal" href=
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 15, 2020.
+        Last updated on Sep, 18, 2020.
       </span>
 
     </p>

@@ -132,7 +132,6 @@ class Observable:
     """
 
     def __init__(self):
-        self.species = list()
         self.dataframe = pd.DataFrame()
         self.dataframe_longitudinal = pd.DataFrame()
         self.dataframe_transverse = pd.DataFrame()
@@ -191,9 +190,6 @@ class Observable:
             self.dump_dir = self.prod_dump_dir
             self.dump_step = self.prod_dump_step
             self.no_steps = self.production_steps
-
-        if hasattr(params, 'mpl_style'):
-            plt.style.use(params.mpl_style)
 
 
 class CurrentCorrelationFunctions(Observable):

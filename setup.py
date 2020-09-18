@@ -9,7 +9,7 @@ import shutil
 
 #~ # ref  ->  matplotlib/style/core
 BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
-STYLE_PATH = os.path.join(os.getcwd(),os.path.join('sarkas','mplstyles'))
+STYLE_PATH = os.path.join(os.getcwd(),os.path.join('sarkas', 'mplstyles'))
 STYLE_EXTENSION = 'mplstyle'
 style_files = glob.glob(os.path.join(STYLE_PATH,"*.%s"%(STYLE_EXTENSION)))
 
@@ -73,5 +73,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
 )

@@ -183,7 +183,8 @@ class Parameters:
         self.log_file = None
         self.np_per_side = None
         self.job_dir = None
-
+        self.plot_style = None
+        #
         self.Lx = 0.0
         self.Ly = 0.0
         self.Lz = 0.0

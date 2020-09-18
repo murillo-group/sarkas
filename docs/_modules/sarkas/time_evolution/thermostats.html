@@ -208,6 +208,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tau</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eV_temp_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_temp_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sortedDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="s1">&#39;Thermostat( </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sortedDict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">disp</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">{}</span><span class="s2"> : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
+        <span class="k">return</span> <span class="n">disp</span>
 
 <div class="viewcode-block" id="Thermostat.from_dict"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -225,10 +235,12 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eV_temp_flag</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">K_temp_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Thermostat.setup"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -241,19 +253,27 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># run some checks</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span>
+        <span class="c1"># Check whether you input temperatures in eV or K</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eV_temp_flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_temp_flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">)</span><span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If you forgot to give thermostating temperatures</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Equilibration temperatures not defined. I will use the species&#39;s temperatures.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_temperatures</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">)</span><span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">tau</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_temperatures</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_temperatures</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_num</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_masses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_masses</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;berendsen&quot;</span><span class="p">,</span> <span class="s2">&quot;Only Berendsen thermostat is supported.&quot;</span></div>
 
@@ -385,7 +405,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 15, 2020.
+        Last updated on Sep, 18, 2020.
       </span>
 
     </p>
