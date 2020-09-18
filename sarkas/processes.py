@@ -17,7 +17,15 @@ import sarkas.tools.observables as obs
 
 
 class PostProcess:
-    """Class handling the post-processing stage of a simulation."""
+    """
+    Class handling the post-processing stage of a simulation.
+
+    Parameters
+    ----------
+    input_file : str
+        Path to the YAML input file.
+
+    """
     def __init__(self, input_file=None):
         self.potential = Potential()
         self.integrator = Integrator()
@@ -112,6 +120,15 @@ class PostProcess:
 
 
 class PreProcess:
+    """
+    Wrapper class handling the estimation of time and best parameters of a simulation.
+
+    Parameters
+    ----------
+    input_file : str
+        Path to the YAML input file.
+
+    """
 
     def __init__(self, input_file=None):
         self.potential = Potential()
@@ -232,7 +249,20 @@ class PreProcess:
         return self.timer.stop()
 
     def run(self, loops=None, estimate=False):
+        """
+        Estimate the time of the simulation and best parameters if wanted.
 
+        Parameters
+        ----------
+        loops : int
+            Number of loops over which to average the acceleration calculation.
+            Note that the number of timestep over which to averages is three times this value.
+            Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.
+
+        estimate : bool
+            Flag for estimating best PPPM parameters.
+
+        """
         if loops:
             self.loops = loops
 
@@ -696,9 +726,14 @@ class PreProcess:
 class Simulation:
     """
     Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.
+
+    Parameters
+    ----------
+    input_file : str
+        Path to the YAML input file.
+
     """
     def __init__(self, input_file=None):
-
         self.potential = Potential()
         self.integrator = Integrator()
         self.thermostat = Thermostat()
