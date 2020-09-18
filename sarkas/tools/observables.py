@@ -302,7 +302,7 @@ class CurrentCorrelationFunctions(Observable):
 
             vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir, self.no_dumps, self.dump_step,
                                                 self.species_num,
-                                                self.k_list)
+                                                self.k_list, self.verbose)
             np.savez(self.vkt_file,
                      longitudinal=vkt,
                      transverse_i=vkt_i,
@@ -528,7 +528,7 @@ class DynamicStructureFactor(Observable):
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list)
+            nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list, self.verbose)
             np.save(self.nkt_file, nkt)
 
         self.dataframe["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)
@@ -572,7 +572,7 @@ class DynamicStructureFactor(Observable):
                     column = "{}-{} DSF ka_min".format(sp1, sp2)
                     ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
                             np.fft.fftshift(self.dataframe[column]),
-                            label=r'$S_{' + sp1.name + sp2.name + '}(k,\omega)$')
+                            label=r'$S_{' + sp1 + sp2 + '}(k,\omega)$')
         else:
             column = "{}-{} DSF ka_min".format(self.species_names[0], self.species_names[0])
             ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
@@ -851,7 +851,7 @@ class HermiteCoefficients(Observable):
 
             sp_start = 0
             sp_end = 0
-            for sp in range(self.species_num):
+            for i, sp in enumerate(self.species_num):
                 sp_end += sp
                 x_hist, xbins = np.histogram(vel[0, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
                 y_hist, ybins = np.histogram(vel[1, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
@@ -862,15 +862,15 @@ class HermiteCoefficients(Observable):
                 vy = 0.5 * (ybins[:-1] + ybins[1:])
                 vz = 0.5 * (zbins[:-1] + zbins[1:])
 
-                xcoeff[sp, it, :] = calculate_herm_coeff(vx, x_hist, self.hermite_order)
-                ycoeff[sp, it, :] = calculate_herm_coeff(vy, y_hist, self.hermite_order)
-                zcoeff[sp, it, :] = calculate_herm_coeff(vz, z_hist, self.hermite_order)
+                xcoeff[i, it, :] = calculate_herm_coeff(vx, x_hist, self.hermite_order)
+                ycoeff[i, it, :] = calculate_herm_coeff(vy, y_hist, self.hermite_order)
+                zcoeff[i, it, :] = calculate_herm_coeff(vz, z_hist, self.hermite_order)
 
                 sp_start = sp_end
 
         data = {"Time": time}
         self.dataframe = pd.DataFrame(data)
-        for i, sp in enumerate(self.species_name):
+        for i, sp in enumerate(self.species_names):
             for hi in range(self.hermite_order + 1):
                 self.dataframe["{} Hermite x Coeff a{}".format(sp, hi)] = xcoeff[i, :, hi]
                 self.dataframe["{} Hermite y Coeff a{}".format(sp, hi)] = ycoeff[i, :, hi]
@@ -2348,7 +2348,7 @@ def calc_nk(pos_data, k_list):
     return nk
 
 
-def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list):
+def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
     """
     Calculate density fluctuations :math:`n(k,t)` of all species.
 
@@ -2382,7 +2382,7 @@ def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list):
     # Read particles' position for all times
     print("Calculating n(k,t).")
     nkt = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    for it in range(no_dumps):
+    for it in tqdm(range(no_dumps), disable = not verbose):
         dump = int(it * dump_step)
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
@@ -2693,7 +2693,7 @@ def calc_vk(pos_data, vel_data, k_list):
     return vk, vk_i, vk_j, vk_k
 
 
-def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list):
+def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
     """
     Calculate the longitudinal and transverse velocities fluctuations of all species.
     Longitudinal
@@ -2750,7 +2750,7 @@ def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list):
     vkt_perp_i = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
     vkt_perp_j = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
     vkt_perp_k = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    for it in range(no_dumps):
+    for it in tqdm(range(no_dumps), disable=not verbose):
         dump = int(it * dump_step)
         data = load_from_restart(fldr, dump)
         pos = data["pos"]

@@ -296,6 +296,7 @@ class Parameters:
         self.species_num = np.zeros(self.num_species, dtype=int)
         self.species_concentrations = np.zeros(self.num_species)
         self.species_temperatures = np.zeros(self.num_species)
+        self.species_temperatures_eV = np.zeros(self.num_species)
         self.species_masses = np.zeros(self.num_species)
         self.species_charges = np.zeros(self.num_species)
         self.species_names = []

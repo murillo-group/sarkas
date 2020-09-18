@@ -1,32 +1,33 @@
 from sarkas.processes import PreProcess, Simulation, PostProcess
 from numpy.random import Generator, PCG64
 
-input_file_name = 'sarkas/examples/coulomb_bim_mks_new.yaml'
+input_file_name = 'sarkas/examples/yukawa_icf.yaml'
 
 rg = Generator(PCG64(12345))
 
 i = 0
-args = {"IO":
-                {
-                    "job_id": "bim_mks_run{}".format(i),
-                    "job_dir": "bim_mks_run{}".format(i)
-                 },
-            }
+args = {
+    "IO":
+        {
+            "job_id": "icf_run{}".format(i),
+            "job_dir": "icf_run{}".format(i)
+        },
+}
 
 preproc = PreProcess(input_file_name)
 preproc.setup(read_yaml=True, other_inputs=args)
 preproc.run(loops=5)
 
 for i in range(3):
-
-    args = {"IO":
-                {
-                    "job_id": "bim_mks_run{}".format(i),
-                    "job_dir": "bim_mks_run{}".format(i)
-                 },
-            "Parameters":
-                {"rand_seed": rg.integers(0, 1598765198)}
-            }
+    args = {
+        "IO":
+            {
+                "job_id": "icf_run{}".format(i),
+                "job_dir": "icf_run{}".format(i)
+            },
+        "Parameters":
+            {"rand_seed": rg.integers(0, 1598765198)}
+    }
 
     sim = Simulation(input_file_name)
     sim.setup(read_yaml=True, other_inputs=args)
@@ -34,12 +35,15 @@ for i in range(3):
     #
 
 for i in range(3):
-    args = {"IO":
-                {
-                    "job_id": "bim_mks_run{}".format(i),
-                    "job_dir": "bim_mks_run{}".format(i)
-                 },
-            }
+    args = {
+        "IO":
+            {
+                "job_id": "icf_run{}".format(i),
+                "job_dir": "icf_run{}".format(i)
+            },
+        "Parameters":
+            {"rand_seed": rg.integers(0, 1598765198)}
+    }
 
     postproc = PostProcess(input_file_name)
     postproc.setup(read_yaml=True, other_inputs=args)
@@ -53,11 +57,11 @@ for i in range(3):
     postproc.rdf.save()
     postproc.rdf.plot(show=True)
     #
-    postproc.hc.setup(postproc.parameters,'equilibration')
+    postproc.hc.setup(postproc.parameters, 'equilibration')
     postproc.hc.parse()
     postproc.hc.plot(show=True)
     #
-    postproc.hc.setup(postproc.parameters,'production')
+    postproc.hc.setup(postproc.parameters, 'production')
     postproc.hc.parse()
     postproc.hc.plot(show=True)
     #

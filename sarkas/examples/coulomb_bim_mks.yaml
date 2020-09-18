@@ -43,7 +43,6 @@ Thermostat:
 Control:
   load_method: random_no_reject
   rand_seed: 654984647
-  verbose: False
   rdf_nbins: 500
 
 Parameters:
@@ -53,7 +52,7 @@ Parameters:
 IO:
   job_dir: bim_mks
   job_id: bim_mks
-
+  verbose: True
 
 PostProcessing:
   - RadialDistributionFunction:
@@ -67,13 +66,13 @@ PostProcessing:
       hermite_order: 8
 
   - DynamicStructureFactor:
-      no_ka_harmonics: 10
+      no_ka_harmonics: 5
 
   - StaticStructureFactor:
-      no_ka_harmonics: 10
+      no_ka_harmonics: 5
 
   - CurrentCorrelationFunctions:
-      no_ka_harmonics: 10
+      no_ka_harmonics: 5
 
   - VelocityMoments:
       no_bins: 500

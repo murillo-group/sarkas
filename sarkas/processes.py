@@ -40,37 +40,37 @@ class PostProcess:
             for key, sub_dict in observable.items():
                 if key == 'RadialDistributionFunction':
                     self.rdf = obs.RadialDistributionFunction()
-                    self.rdf.__dict__.update(sub_dict)
+                    self.rdf.from_dict(sub_dict)
                 if key == 'HermiteCoefficients':
                     self.hc = obs.HermiteCoefficients()
-                    self.hc.__dict__.update(sub_dict)
+                    self.hc.from_dict(sub_dict)
                 if key == 'Thermodynamics':
                     self.therm = obs.Thermodynamics()
-                    self.therm.__dict__.update(sub_dict)
+                    self.therm.from_dict(sub_dict)
                 if key == 'DynamicStructureFactor':
                     self.dsf = obs.DynamicStructureFactor()
                     if sub_dict:
-                        self.dsf.__dict__.update(sub_dict)
+                        self.dsf.from_dict(sub_dict)
                 if key == 'CurrentCorrelationFunctions':
                     self.ccf = obs.CurrentCorrelationFunctions()
                     if sub_dict:
-                        self.ccf.__dict__.update(sub_dict)
+                        self.ccf.from_dict(sub_dict)
                 if key == 'StaticStructureFactor':
                     self.ssf = obs.StaticStructureFactor()
                     if sub_dict:
-                        self.ssf.__dict__.update(sub_dict)
+                        self.ssf.from_dict(sub_dict)
                 if key == 'VelocityMoments':
                     self.vm = obs.VelocityMoments()
                     if sub_dict:
-                        self.vm.__dict__.update(sub_dict)
+                        self.vm.from_dict(sub_dict)
                 if key == 'VelocityAutocorrelationFunctions':
                     self.vacf = obs.VelocityAutocorrelationFunctions()
                     if sub_dict:
-                        self.vacf.__dict__.update(sub_dict)
+                        self.vacf.from_dict(sub_dict)
                 if key == 'ElectricCurrent':
                     self.ec = obs.ElectricCurrent()
                     if sub_dict:
-                        self.ec.__dict__.update(sub_dict)
+                        self.ec.from_dict(sub_dict)
 
     def setup(self, read_yaml=False, other_inputs=None):
         """
@@ -500,9 +500,10 @@ class PreProcess:
         ax[1].grid(True, alpha=0.3)
         ax[1].legend(loc='best')
         fig.suptitle(
-            r'Approximate Total Force error  $N = {}, \quad M = {}, \quad \kappa = {:.2f}$'.format(
+            r'Approximate Total Force error  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
                 self.parameters.total_num_ptcls,
                 self.potential.pppm_mesh[0],
+                self.potential.pppm_cao,
                 self.kappa * self.parameters.a_ws))
         fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + self.io.job_id + '.png'))
         fig.show()
@@ -548,8 +549,12 @@ class PreProcess:
         ax.set_xlabel(r'$\alpha \;a_{ws}$')
         ax.set_ylabel(r'$r_c/a_{ws}$')
         ax.set_title(
-            r'$\Delta F^{approx}_{tot}(r_c,\alpha)$' + r'  for  $N = {}, \quad M = {}, \quad \kappa = {:1.2f}$'.format(
-                self.parameters.total_num_ptcls, self.potential.pppm_mesh[0], self.kappa * self.parameters.a_ws))
+            r'$\Delta F^{approx}_{tot}(r_c,\alpha)$'
+            + r'  for $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
+                self.parameters.total_num_ptcls,
+                self.potential.pppm_mesh[0],
+                self.potential.pppm_cao,
+                self.kappa * self.parameters.a_ws))
         fig.colorbar(CS)
         fig.tight_layout()
         fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + self.io.job_id + '.png'))

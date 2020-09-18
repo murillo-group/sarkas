@@ -24,7 +24,7 @@ class TransportCoefficient:
         return disp
 
     @staticmethod
-    def electrical_conductivity(params, species, phase=None, show=False):
+    def electrical_conductivity(params, phase=None, show=False):
         """
         Calculate electrical conductivity from current auto-correlation function.
 
@@ -50,7 +50,7 @@ class TransportCoefficient:
         """
         coefficient = pd.DataFrame()
         energies = obs.Thermodynamics()
-        energies.setup(params, species, phase)
+        energies.setup(params, phase)
         energies.parse('production')
         j_current = obs.ElectricCurrent(params)
         j_current.parse()
@@ -88,7 +88,7 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def diffusion(params, species, phase=None, show=False):
+    def diffusion(params, phase=None, show=False):
         """
         Calculate diffusion from velocity auto-correlation function.
 
@@ -114,26 +114,26 @@ class TransportCoefficient:
         """
         coefficient = pd.DataFrame()
         vacf = obs.VelocityAutocorrelationFunctions()
-        vacf.setup(params, species, phase)
+        vacf.setup(params, phase)
         vacf.parse()
         time = np.array(vacf.dataframe["Time"])
         D = np.zeros((params.num_species, len(time)))
         fig, [ax1, ax2] = plt.subplots(2, 1)
         const = 1.0 / 3.0
         if params.num_species > 1:
-            const *= params.tot_mass_dens
-        for i, sp in enumerate(params.species):
-            integrand = np.array(vacf.dataframe["{} Total Velocity ACF".format(sp.name)])
+            const *= params.total_mass_density
+        for i, sp in enumerate(params.species_names):
+            integrand = np.array(vacf.dataframe["{} Total Velocity ACF".format(sp)])
             for it in range(1, len(time)):
                 D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
 
             coefficient["Time"] = time
-            coefficient["{} Diffusion".format(sp.name)] = D[i, :]
+            coefficient["{} Diffusion".format(sp)] = D[i, :]
 
             xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(vacf.dataframe["Time"], D[i, :],
                                                        "Time", "Diffusion", vacf.units)
-            ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp.name + '}(t)$')
-            ax2.semilogx(ymul * D[i, :], label=r'$D_{' + sp.name + '}(t)$')
+            ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp + '}(t)$')
+            ax2.semilogx(ymul * D[i, :], label=r'$D_{' + sp + '}(t)$')
 
         # Complete figure
         ax1.grid(True, alpha=0.3)
@@ -152,7 +152,7 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def interdiffusion(params, species, phase=None, show=True):
+    def interdiffusion(params, phase=None, show=True):
         """
         Calculate interdiffusion coefficients from velocity auto-correlation function.
 
@@ -179,7 +179,7 @@ class TransportCoefficient:
 
         coefficient = pd.DataFrame()
         vacf = obs.VelocityAutocorrelationFunctions()
-        vacf.setup(params, species, phase)
+        vacf.setup(params, phase)
         vacf.parse()
         no_int = vacf.prod_no_dumps
         no_dij = vacf.no_obs
@@ -220,7 +220,7 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def viscosity(params, species, phase=None, show=False):
+    def viscosity(params, phase=None, show=False):
         """
         Calculate bulk and shear viscosity from pressure auto-correlation function.
 
@@ -246,7 +246,7 @@ class TransportCoefficient:
         """
         coefficient = pd.DataFrame()
         energies = obs.Thermodynamics()
-        energies.setup(params, species, phase)
+        energies.setup(params, phase)
         energies.parse('production')
         beta = (energies.kB * energies.dataframe["Temperature"].mean()) ** (-1.0)
         time = np.array(energies.dataframe["Time"])
