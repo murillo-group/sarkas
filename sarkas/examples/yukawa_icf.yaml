@@ -47,10 +47,10 @@ Parameters:
 
 Integrator:
     type: Verlet                  # velocity integrator type
-    equilibration_steps: 20000                      # number of timesteps for the equilibrium
-    production_steps: 150000                    # number of timesteps after the equilibrium
-    prod_dump_step: 100                # dump time step
-    eq_dump_step: 100
+    equilibration_steps: 10000                      # number of timesteps for the equilibrium
+    production_steps: 50000                    # number of timesteps after the equilibrium
+    prod_dump_step: 10                # dump time step
+    eq_dump_step: 10
 
 Control:
     load_method: random_no_reject    # loading method

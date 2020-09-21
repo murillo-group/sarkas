@@ -1209,7 +1209,7 @@ class StaticStructureFactor(Observable):
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list)
+            nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list, self.verbose)
             np.save(self.nkt_file, nkt)
 
         self.dataframe["ka values"] = self.ka_values

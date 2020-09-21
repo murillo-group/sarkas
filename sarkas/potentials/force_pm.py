@@ -22,13 +22,13 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
     Parameters
     ----------
 
-    MGrid : numpy.ndarray
+    mesh_sizes : numpy.ndarray
         number of mesh points in x,y,z
 
     aliases : numpy.ndarray
         number of aliases in each direction
 
-    BoxLv : numpy.ndarray
+    box_lengths : numpy.ndarray
         Length of simulation's box in each direction
 
     p : int
@@ -39,16 +39,16 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 
     Returns
     -------
-    G_k : array_like
+    G_k : numpy.ndarray
         optimal Green Function
 
-    kx_v : array_like
+    kx_v : numpy.ndarray
        array of reciprocal space vectors along the x-axis
 
-    ky_v : array_like
+    ky_v : numpy.ndarray
        array of reciprocal space vectors along the y-axis
 
-    kz_v : array_like
+    kz_v : numpy.ndarray
        array of reciprocal space vectors along the z-axis
 
     PM_err : float
@@ -87,22 +87,20 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 
     PM_err = 0.0
 
-    if fourpie0 == 1.0:
-        four_pi = 4.0 * np.pi
-    else:
-        four_pi = 4.0 * np.pi / fourpie0
+    four_pi = 4.0 * np.pi if fourpie0 == 1.0 else 4.0 * np.pi / fourpie0
+    two_pi = 2.0 * np.pi
 
     for nz in range(mesh_sizes[2]):
         nz_sh = nz - nz_mid
-        kz = 2.0 * np.pi * nz_sh / box_lengths[2]
+        kz = two_pi * nz_sh / box_lengths[2]
 
         for ny in range(mesh_sizes[1]):
             ny_sh = ny - ny_mid
-            ky = 2.0 * np.pi * ny_sh / box_lengths[1]
+            ky = two_pi * ny_sh / box_lengths[1]
 
             for nx in range(mesh_sizes[0]):
                 nx_sh = nx - nx_mid
-                kx = 2.0 * np.pi * nx_sh / box_lengths[0]
+                kx = two_pi * nx_sh / box_lengths[0]
 
                 k_sq = kx * kx + ky * ky + kz * kz
 
@@ -113,18 +111,18 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 
                     # Sum over the aliases
                     for mz in range(-aliases[2], aliases[2] + 1):
-                        kz_M = 2.0 * np.pi * (nz_sh + mz * mesh_sizes[2]) / box_lengths[2]
+                        kz_M = two_pi * (nz_sh + mz * mesh_sizes[2]) / box_lengths[2]
                         U_kz_M = np.sin(0.5 * kz_M * h_array[2]) / (0.5 * kz_M * h_array[2]) if kz_M != 0.0 else 1.0
 
                         for my in range(-aliases[1], aliases[1] + 1):
-                            ky_M = 2.0 * np.pi * (ny_sh + my * mesh_sizes[1]) / box_lengths[1]
+                            ky_M = two_pi * (ny_sh + my * mesh_sizes[1]) / box_lengths[1]
                             U_ky_M = np.sin(0.5 * ky_M * h_array[1]) / (0.5 * ky_M * h_array[1]) if ky_M != 0.0 else 1.0
 
                             for mx in range(-aliases[0], aliases[0] + 1):
-                                kx_M = 2.0 * np.pi * (nx_sh + mx * mesh_sizes[0]) / box_lengths[0]
+                                kx_M = two_pi * (nx_sh + mx * mesh_sizes[0]) / box_lengths[0]
                                 U_kx_M = np.sin(0.5 * kx_M * h_array[0]) / (0.5 * kx_M * h_array[0]) if kx_M != 0.0 else 1.0
 
-                                k_M_sq = kx_M ** 2 + ky_M ** 2 + kz_M ** 2
+                                k_M_sq = kx_M * kx_M + ky_M * ky_M + kz_M * kz_M
 
                                 U_k_M = (U_kx_M * U_ky_M * U_kz_M) ** p
                                 U_k_M_sq = U_k_M * U_k_M
@@ -302,34 +300,38 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
 
         for g in range(cao):
 
-            if izn < 0:
-                r_g = izn + mesh_sz[2]
-            elif izn > (mesh_sz[2] - 1):
-                r_g = izn - mesh_sz[2]
-            else:
-                r_g = izn
+            # if izn < 0:
+            r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
+            # elif izn > (mesh_sz[2] - 1):
+            #     r_g = izn - mesh_sz[2]
+            # else:
+            #     r_g = izn
 
             iyn = iy - pshift  # min. index along y-axis
 
             for i in range(cao):
 
-                if iyn < 0:
-                    r_i = iyn + mesh_sz[1]
-                elif iyn > (mesh_sz[1] - 1):
-                    r_i = iyn - mesh_sz[1]
-                else:
-                    r_i = iyn
+                r_i = iyn + mesh_sz[1] * (iyn < 0) - mesh_sz[1] * (iyn > (mesh_sz[1] - 1))
+
+                # if iyn < 0:
+                #     r_i = iyn + mesh_sz[1]
+                # elif iyn > (mesh_sz[1] - 1):
+                #     r_i = iyn - mesh_sz[1]
+                # else:
+                #     r_i = iyn
 
                 ixn = ix - pshift  # min. index along x-axis
 
                 for j in range(cao):
 
-                    if ixn < 0:
-                        r_j = ixn + mesh_sz[0]
-                    elif ixn > (mesh_sz[0] - 1):
-                        r_j = ixn - mesh_sz[0]
-                    else:
-                        r_j = ixn
+                    r_j = ixn + mesh_sz[0] * (ixn < 0) - mesh_sz[0] * (ixn > (mesh_sz[0] - 1))
+
+                    # if ixn < 0:
+                    #     r_j = ixn + mesh_sz[0]
+                    # elif ixn > (mesh_sz[0] - 1):
+                    #     r_j = ixn - mesh_sz[0]
+                    # else:
+                    #     r_j = ixn
 
                     rho_r[r_g, r_i, r_j] += charges[ipart] * wz[g] * wy[i] * wx[j]
 
@@ -456,35 +458,40 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
         izn = iz - pshift  # min. index along z-axis
 
         for g in range(cao):
+            #
+            # if izn < 0:
+            #     r_g = izn + mesh_sz[2]
+            # elif izn > (mesh_sz[2] - 1):
+            #     r_g = izn - mesh_sz[2]
+            # else:
+            #     r_g = izn
 
-            if izn < 0:
-                r_g = izn + mesh_sz[2]
-            elif izn > (mesh_sz[2] - 1):
-                r_g = izn - mesh_sz[2]
-            else:
-                r_g = izn
+            r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
 
             iyn = iy - pshift  # min. index along y-axis
 
             for i in range(cao):
 
-                if iyn < 0:
-                    r_i = iyn + mesh_sz[1]
-                elif iyn > (mesh_sz[1] - 1):
-                    r_i = iyn - mesh_sz[1]
-                else:
-                    r_i = iyn
+                # if iyn < 0:
+                #     r_i = iyn + mesh_sz[1]
+                # elif iyn > (mesh_sz[1] - 1):
+                #     r_i = iyn - mesh_sz[1]
+                # else:
+                #     r_i = iyn
+                r_i = iyn + mesh_sz[1] * (iyn < 0) - mesh_sz[1] * (iyn > (mesh_sz[1] - 1))
 
                 ixn = ix - pshift  # min. index along x-axis
 
                 for j in range(cao):
 
-                    if ixn < 0:
-                        r_j = ixn + mesh_sz[0]
-                    elif ixn > (mesh_sz[0] - 1):
-                        r_j = ixn - mesh_sz[0]
-                    else:
-                        r_j = ixn
+                    r_j = ixn + mesh_sz[0] * (ixn < 0) - mesh_sz[0] * (ixn > (mesh_sz[0] - 1))
+
+                    # if ixn < 0:
+                    #     r_j = ixn + mesh_sz[0]
+                    # elif ixn > (mesh_sz[0] - 1):
+                    #     r_j = ixn - mesh_sz[0]
+                    # else:
+                    #     r_j = ixn
 
                     q_over_m = charges[ipart] / masses[ipart]
                     E_x_p[ipart] += q_over_m * E_x_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
@@ -554,9 +561,9 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
 
     N = pos.shape[0]
 
-    mpts_distances = box_lengths/mesh_sizes
+    mesh_spacings = box_lengths/mesh_sizes
 
-    rho_r = calc_charge_dens(pos, charges, N, cao, mesh_sizes, mpts_distances)
+    rho_r = calc_charge_dens(pos, charges, N, cao, mesh_sizes, mesh_spacings)
 
     fftw_n = pyfftw.builders.fftn(rho_r)
     rho_k_fft = fftw_n()
@@ -583,10 +590,10 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
     ifftw_n = pyfftw.builders.ifftn(E_kz_unsh)
     E_z = ifftw_n()
 
-    E_x_r = np.real(E_x) * np.prod(mpts_distances)
-    E_y_r = np.real(E_y) * np.prod(mpts_distances)
-    E_z_r = np.real(E_z) * np.prod(mpts_distances)
+    E_x_r = np.real(E_x) / np.prod(mesh_spacings)
+    E_y_r = np.real(E_y) / np.prod(mesh_spacings)
+    E_z_r = np.real(E_z) / np.prod(mesh_spacings)
 
-    acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sizes, mpts_distances)
+    acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sizes, mesh_spacings)
 
     return U_f, acc_f

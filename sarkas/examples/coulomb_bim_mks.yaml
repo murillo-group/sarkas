@@ -29,9 +29,9 @@ Potential:
 
 Integrator:
     type: Verlet                  # velocity integrator type
-    equilibration_steps: 5000                      # number of timesteps for the equilibrium
+    equilibration_steps: 10000                      # number of timesteps for the equilibrium
     production_steps: 50000                    # number of timesteps afater the equilibrium
-    prod_dump_step: 10                # dump time step
+    prod_dump_step: 5                # dump time step
     eq_dump_step: 10
 
 Thermostat:

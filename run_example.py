@@ -5,50 +5,50 @@ input_file_name = 'sarkas/examples/yukawa_icf.yaml'
 
 rg = Generator(PCG64(12345))
 
-i = 0
-args = {
-    "IO":
-        {
-            "job_id": "icf_run{}".format(i),
-            "job_dir": "icf_run{}".format(i)
-        },
-}
-
+# i = 0
+# args = {
+#     "IO":
+#         {
+#             "job_id": "ocp_mks_run{}".format(i),
+#             "job_dir": "ocp_mks_run{}".format(i)
+#         },
+# }
+#
 preproc = PreProcess(input_file_name)
-preproc.setup(read_yaml=True, other_inputs=args)
+preproc.setup(read_yaml=True)
 preproc.run(loops=5)
 
-for i in range(3):
+for i in range(1):
     args = {
         "IO":
             {
-                "job_id": "icf_run{}".format(i),
-                "job_dir": "icf_run{}".format(i)
+                "job_id": "icf_mks_run{}".format(i),
+                "job_dir": "icf_mks_run{}".format(i)
             },
         "Parameters":
             {"rand_seed": rg.integers(0, 1598765198)}
     }
-
+#
     sim = Simulation(input_file_name)
     sim.setup(read_yaml=True, other_inputs=args)
     sim.run()
-    #
-
-for i in range(3):
+#     #
+#
+for i in range(1):
     args = {
         "IO":
             {
-                "job_id": "icf_run{}".format(i),
-                "job_dir": "icf_run{}".format(i)
+                "job_id": "icf_mks_run{}".format(i),
+                "job_dir": "icf_mks_run{}".format(i)
             },
         "Parameters":
             {"rand_seed": rg.integers(0, 1598765198)}
     }
-
+#
     postproc = PostProcess(input_file_name)
     postproc.setup(read_yaml=True, other_inputs=args)
-    #
-    postproc.therm.setup(postproc.parameters, postproc.species)
+
+    postproc.therm.setup(postproc.parameters)
     postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=True)
     postproc.therm.temp_energy_plot(postproc, phase='production', show=True)
     postproc.therm.plot('Temperature', show=True)
@@ -72,15 +72,16 @@ for i in range(3):
     postproc.vm.setup(postproc.parameters, 'production')
     postproc.vm.parse()
     postproc.vm.plot_ratios(show=True)
-    #
+
     postproc.ssf.setup(postproc.parameters)
-    postproc.ssf.parse()
+    postproc.ssf.compute()
     postproc.ssf.plot(show=True)
     #
-    postproc.dsf.setup(postproc.parameters)
-    postproc.dsf.parse()
-    postproc.dsf.plot(show=True)
-    #
-    postproc.ccf.setup(postproc.parameters)
-    postproc.ccf.parse()
-    postproc.ccf.plot(show=True)
+    # postproc.dsf.setup(postproc.parameters)
+    # postproc.dsf.compute()
+    # postproc.dsf.plot(show=True)
+    # postproc.dsf.plot(show=True, dispersion=True)
+    # #
+    # postproc.ccf.setup(postproc.parameters)
+    # postproc.ccf.parse()
+    # postproc.ccf.plot(show=True)

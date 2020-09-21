@@ -6,7 +6,7 @@ Particles:
         mass: 1.673e-24                # g, ptcl mass of ion1
         num: 10000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
-        temperature: 5.2636325e+04
+        temperature: 3.2636325e+03
 
 Potential:
     type: Coulomb                  # potential type
@@ -15,26 +15,27 @@ Potential:
     pppm_mesh: [64,64,64]
     pppm_aliases: [3,3,3]
     pppm_cao: 6
-    pppm_alpha_ewald: 1.16243741e+8
+    pppm_alpha_ewald: 1.0602e+8
 
 Integrator:
     type: Verlet                  # velocity integrator type
     dt: 1.193536e-17            # sec
-    equilibration_steps: 10000                      # number of timesteps for the equilibrium
-    eq_dump_step: 100
+    equilibration_steps: 5000                      # number of timesteps for the equilibrium
+    eq_dump_step: 10
     production_steps: 50000
-    prod_dump_step: 100
+    prod_dump_step: 5
 
 Thermostat:
     type: Berendsen               # thermostat type
-    relaxation_timestep: 2000
-    relaxation_tau: 5.0
+    relaxation_timestep: 1
+    tau: 5.0
 
 Control:
     units: cgs                    # units
     load_method: random_no_reject
     rdf_nbins: 500
     boundary_conditions: periodic
+    dt: 1.193536e-17            # sec
 
 IO:
     verbose: True
@@ -52,13 +53,13 @@ PostProcessing:
       hermite_order: 8
 
   - DynamicStructureFactor:
-      no_ka_harmonics: 10
+      no_ka_harmonics: 5
 
   - StaticStructureFactor:
-      no_ka_harmonics: 10
+      no_ka_harmonics: 5
 
   - CurrentCorrelationFunctions:
-      no_ka_harmonics: 10
+      no_ka_harmonics: 5
 
   - VelocityMoments:
       no_bins: 500

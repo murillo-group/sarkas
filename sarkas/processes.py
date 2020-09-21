@@ -217,8 +217,6 @@ class PreProcess:
 
         self.parameters.setup(self.species)
 
-        self.io.setup_checkpoint(self.parameters, self.species)
-
         t0 = self.timer.current()
         self.potential.setup(self.parameters)
         time_pot = self.timer.current()
@@ -238,6 +236,8 @@ class PreProcess:
         self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0) )
 
         self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
+
+        self.io.setup_checkpoint(self.parameters, self.species)
 
         if self.parameters.plot_style:
             plt.style.use(self.parameters.plot_style)
@@ -263,6 +263,7 @@ class PreProcess:
             Flag for estimating best PPPM parameters.
 
         """
+        plt.close('all')
         if loops:
             self.loops = loops
 
