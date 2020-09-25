@@ -734,7 +734,7 @@ class Simulation:
         Path to the YAML input file.
 
     """
-    def __init__(self, input_file=None):
+    def __init__(self, input_file: str =None) -> None:
         self.potential = Potential()
         self.integrator = Integrator()
         self.thermostat = Thermostat()

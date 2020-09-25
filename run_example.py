@@ -1,4 +1,5 @@
 from sarkas.processes import PreProcess, Simulation, PostProcess
+from sarkas.tools.transport import TransportCoefficient
 from numpy.random import Generator, PCG64
 
 input_file_name = 'sarkas/examples/yukawa_icf.yaml'
@@ -18,10 +19,11 @@ preproc = PreProcess(input_file_name)
 preproc.setup(read_yaml=True)
 preproc.run(loops=5)
 
-for i in range(1):
+for i in range(10):
     args = {
         "IO":
             {
+                "simulation_dir": 'ICF_example',
                 "job_id": "icf_mks_run{}".format(i),
                 "job_dir": "icf_mks_run{}".format(i)
             },
@@ -34,10 +36,11 @@ for i in range(1):
     sim.run()
 #     #
 #
-for i in range(1):
+for i in range(10):
     args = {
         "IO":
             {
+                "simulation_dir": 'ICF_example',
                 "job_id": "icf_mks_run{}".format(i),
                 "job_dir": "icf_mks_run{}".format(i)
             },
@@ -49,39 +52,46 @@ for i in range(1):
     postproc.setup(read_yaml=True, other_inputs=args)
 
     postproc.therm.setup(postproc.parameters)
-    postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=True)
-    postproc.therm.temp_energy_plot(postproc, phase='production', show=True)
-    postproc.therm.plot('Temperature', show=True)
-    #
+    postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=False)
+    postproc.therm.temp_energy_plot(postproc, phase='production', show=False)
+    postproc.therm.plot('Temperature', show=False)
+    # Radial Distribution Function
     postproc.rdf.setup(postproc.parameters)
     postproc.rdf.save()
-    postproc.rdf.plot(show=True)
-    #
+    postproc.rdf.plot(show=False)
+    # Hermite Coeff
     postproc.hc.setup(postproc.parameters, 'equilibration')
     postproc.hc.parse()
-    postproc.hc.plot(show=True)
+    postproc.hc.plot(show=False)
     #
     postproc.hc.setup(postproc.parameters, 'production')
     postproc.hc.parse()
-    postproc.hc.plot(show=True)
-    #
+    postproc.hc.plot(show=False)
+    # Velocit moments
     postproc.vm.setup(postproc.parameters, 'equilibration')
     postproc.vm.parse()
-    postproc.vm.plot_ratios(show=True)
+    postproc.vm.plot_ratios(show=False)
     #
     postproc.vm.setup(postproc.parameters, 'production')
     postproc.vm.parse()
-    postproc.vm.plot_ratios(show=True)
+    postproc.vm.plot_ratios(show=False)
 
-    postproc.ssf.setup(postproc.parameters)
-    postproc.ssf.compute()
-    postproc.ssf.plot(show=True)
-    #
-    # postproc.dsf.setup(postproc.parameters)
-    # postproc.dsf.compute()
-    # postproc.dsf.plot(show=True)
-    # postproc.dsf.plot(show=True, dispersion=True)
+    # postproc.ssf.setup(postproc.parameters)
+    # postproc.ssf.compute()
+    # postproc.ssf.plot(show=True)
+    # Dynamic Structure Function
+    postproc.dsf.setup(postproc.parameters)
+    postproc.dsf.compute()
+    postproc.dsf.plot(show=False)
+    # postproc.dsf.plot(show=False, dispersion=True)
     # #
     # postproc.ccf.setup(postproc.parameters)
     # postproc.ccf.parse()
-    # postproc.ccf.plot(show=True)
+    # postproc.ccf.plot(show=False)
+
+    diffusion = TransportCoefficient.diffusion(postproc.parameters,
+                                               phase='production',
+                                               show=False)
+    interdiffusion = TransportCoefficient.interdiffusion(postproc.parameters,
+                                               phase='production',
+                                               show=False)
