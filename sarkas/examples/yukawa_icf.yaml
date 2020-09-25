@@ -60,7 +60,7 @@ Control:
 IO:
     job_dir: icf_new        # dir name to save data. The default is "Checkpoint"
     job_id: icf_new
-    verbose: True
+    verbose: False
 
 PostProcessing:
   - RadialDistributionFunction:
