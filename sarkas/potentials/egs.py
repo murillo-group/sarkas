@@ -23,7 +23,9 @@ def update_params(potential, params):
     twopi = 2.0 * np.pi
 
     # lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi
-    potential.lmbda = 1.0 / 9.0
+    if not hasattr(potential, 'lmbda'):
+        potential.lmbda = 1.0 / 9.0
+
     fdint_fdk_vec = np.vectorize(fdint.fdk)
     beta_e = 1. / (params.kB * params.Te)
     deBroglie_wavelength = np.sqrt(twopi * params.hbar2 * beta_e / params.me)

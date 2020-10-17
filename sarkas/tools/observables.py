@@ -1555,7 +1555,7 @@ class Thermodynamics(Observable):
             else:
                 self.no_dumps = self.prod_no_dumps
                 self.dump_dir = self.prod_dump_dir
-                self.dump_step = self.eq_dump_step
+                self.dump_step = self.prod_dump_step
                 self.fldr = self.production_dir
                 self.no_steps = self.production_steps
 

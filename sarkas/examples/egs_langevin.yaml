@@ -41,5 +41,5 @@ Parameters:
   rdf_no_bins: 500
 
 PostProcessing:
-  observables: ["radialdistributionfunction", "velocityautocorrelationfunctions"]
-  rdf_no_bins: 500
+  - RadialDistributionFunction:
+      no_bins: 500

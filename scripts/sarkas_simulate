@@ -41,42 +41,51 @@ assert options.input_file, 'Input file not defined.'
 
 # Read initial conditions and setup parameters
 if options.test:
-    #
     from sarkas.processes import PreProcess
-    sim = PreProcess()
+    sim = PreProcess(options.input_file)
+    if options.estimate:
+        sim.estimate = True
 else:
-    sim = Simulation()
+    sim = Simulation(options.input_file)
 
-sim.common_parser(options.input_file)
-
-if options.check_status:
-    sim.io.check_status = True
+# Create the dictionary of extra inputs
+args = {}
+if any([options.check_status, options.job_id, options.job_dir, options.verbose]):
+    args = {"IO":{}}
+    if options.check_status:
+        args["IO"]["check_status"] = True
 
     if options.job_id:
-        sim.io.job_id = options.job_id
+        args["IO"]["job_id"] = options.job_id
 
-    if options.jod_dir:
-        sim.io.job_dir = options.job_dir
+    if options.job_dir:
+        args["IO"]["job_dir"] = options.job_dir
 
-    sim.io.setup()
+    if options.verbose:
+        args["IO"]["verbose"] = True
+
+if any([options.rand_seed, options.restart]):
+    if not args: #if empty
+        args = {"Parameters": {}}
+    else:
+        args["Parameters"] = {}
+
+    if options.rand_seed:
+        args["Parameters"]["rand_seed"] = options.rand_seed
+
+    if options.restart:
+        phase, step = options.restart.split('_')
+        args["Parameters"]["load_method"] = phase + '_restart'
+        args["Parameters"]["restart_step"] = int(step)
+
+if args:
+    sim.setup(read_yaml=True, other_inputs=args)
+else:
+    sim.setup(read_yaml=True)
+
+if options.check_status:
     sim.io.read_pickle(sim)
     energy = Thermodynamics(sim.parameters)
     energy.temp_energy_plot(sim.parameters, options.check, options.plot_show)
 else:
-    # Update rand seed with option. This supersedes the input file.
-    if options.rand_seed:
-        sim.parameters.rand_seed = int(options.rand_seed)
-
-    # Verbose output. This does not supersede the input file if False.
-    # That is if you don't give this option and the input file has Control.verbose=Yes, then you will
-    # still have a verbose output
-    if options.verbose:
-        sim.parameters.verbose = True
-        
-    if options.restart:
-        ls_str = options.restart.split('_')
-        sim.parameters.load_method = ls_str[0] + '_restart'
-        sim.parameters.restart_step = int[ls_str[1]]
-
-    sim.setup()
-    sim.run()
+   sim.run()

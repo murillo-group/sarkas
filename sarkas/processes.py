@@ -248,7 +248,7 @@ class PreProcess:
         self.potential.pppm_setup(self.parameters)
         return self.timer.stop()
 
-    def run(self, loops=None, estimate=False):
+    def run(self, loops=None, estimate=None):
         """
         Estimate the time of the simulation and best parameters if wanted.
 
@@ -267,7 +267,8 @@ class PreProcess:
         if loops:
             self.loops = loops
 
-        self.estimate = estimate
+        if estimate:
+            self.estimate = estimate
 
         if self.potential.pppm_on:
             self.make_pppm_approximation_plots()
@@ -365,16 +366,16 @@ class PreProcess:
         predicted_times = pp_times[best] + pm_times[best[0]]
         # Print estimate of run times
         self.io.time_stamp('Equilibration',
-                           self.timer.time_division(predicted_times * self.parameters.equilibration_steps))
+                           self.timer.time_division(predicted_times * self.integrator.equilibration_steps))
         self.io.time_stamp('Production',
-                           self.timer.time_division(predicted_times * self.parameters.production_steps))
+                           self.timer.time_division(predicted_times * self.integrator.production_steps))
         self.io.time_stamp('Total Run',
-                           self.timer.time_division(predicted_times * (self.parameters.equilibration_steps
-                                              + self.parameters.production_steps)))
+                           self.timer.time_division(predicted_times * (self.integrator.equilibration_steps
+                                              + self.integrator.production_steps)))
 
     def make_lagrangian_plot(self):
 
-        c_mesh, m_mesh = np.meshgrid(self.self.pp_cells, self.self.pm_meshes)
+        c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
         fig = plt.figure()
         ax = fig.add_subplot(111)  # projection='3d')
         # CS = ax.plot_surface(m_mesh, c_mesh, self.lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
@@ -393,7 +394,7 @@ class PreProcess:
         fig.show()
 
     def make_force_error_map_plot(self):
-        c_mesh, m_mesh = np.meshgrid(self.self.pp_cells, self.self.pm_meshes)
+        c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
         fig, ax = plt.subplots(1, 1, figsize=(11, 7))
         if self.force_error_map.min() == 0.0:
             minv = 1e-120

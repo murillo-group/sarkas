@@ -72,39 +72,50 @@ This was the old way of running simulations.
 
 New School
 ==========
-Sarkas was created with the idea of incorporating the entire simulation
-workflow in a single Python script. Let's say we want to run 10 simulation of a Yukawa OCP and measure the velocity
+Sarkas was created with the idea of incorporating the entire simulation workflow in a single Python
+script. Let's say we want to run 10 simulation of a Yukawa OCP and measure the velocity
 autocorrelation function. An example script looks like this
 
 .. code-block:: python
-
-    import numpy as np
+    from sarkas.processes import Simulation, PostProcess
+    from sarkas.tools.transport import TransportCoefficient
+    from numpy.random import Generator, PCG64
     import os
-    from sarkas.simulation.params import Params
-    from sarkas.simulation import simulation
-    from sarkas.tools.postprocessing import VelocityAutocorrelationFunction
 
-    # Let's define some common variables
-    args = dict()
-    # Assuming you are inside the directory where you downloaded the sarkas repo
-    args["input_file"] = os.path.join('sarkas',
-                            os.path.join('examples', 'yukawa_mks_p3m.yaml') )
+    # Path to the input file
+    examples_folder = os.path.join('sarkas', 'examples')
+    input_file_name = os.path.join(examples_folder,'yukawa_mks.yaml')
 
+    # Initialize a specific random number generator
+    rg = Generator(PCG64(6876519))
 
-    # Initialize the simulation parameter class
-    params = Params()
-
+    # Run 10 simulations
     for i in range(10):
-        # Save each simulation's data into own its directory
-        args["job_dir"] = "YOCP_" + str(i)
-        args["job_id"] = "yocp_" + str(i)
-        args["seed"] = np.random.randint(0, high=123456789)
+        # Note that we don't want to overwrite each simulation
+        # So we save each simulation in its own folder by passing
+        # a dictionary of dictionary with folder's name
+        args = {
+            "IO":
+                {
+                    "job_id": "yocp_run{}".format(i + 5),
+                    "job_dir": "yocp_run{}".format(i + 5)
+                },
+                # this is so that we have 10 different initial conditions
+            "Parameters":
+                {"rand_seed": rg.integers(0, 675696513)}
+        }
+        # Initialize the simulation
+        sim = Simulation(input_file_name)
+        sim.setup(read_yaml=True, other_inputs=args)
+        # Run the simulation
+        sim.run()
 
-        params.setup(args)
-        simulation.run(params)
-        # Initialize the VACF object
-        vacf = VelocityAutocorrelationFunction(params)
-        vacf.compute()
+        diffusion = TransportCoefficient.diffusion(postproc.parameters,
+                                               phase='production',
+                                               show=True)
+
+        del sim
+
 
 
 At the same time let's assume we want to run many simulations to span a range of screening parameters
