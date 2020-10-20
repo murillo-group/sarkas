@@ -91,11 +91,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#input-file">Input File</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#particles">Particles</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interaction">Interaction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#interaction-algorithm">Interaction Algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#integrator">Integrator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#thermostat">Thermostat</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#control">Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-output">Input/Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#post-processing">Post Processing</a></li>
 </ul>
 </li>
@@ -184,7 +183,7 @@
             
   <div class="section" id="tutorial">
 <span id="id1"></span><h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<p>Here we provide a step-by-step guide on how to run a typical MD simulation using Sarkas.
+<p>Here we provide an in-depth step-by-step guide on a typical MD simulation using Sarkas.
 The topics that are listed in this tutorial are as follows</p>
 <ul class="simple">
 <li><p>Input file</p></li>
@@ -193,104 +192,88 @@ The topics that are listed in this tutorial are as follows</p>
 <li><p>Post Processing</p></li>
 </ul>
 <p>We will illustrate these steps using the example file <code class="docutils literal notranslate"><span class="pre">yukawa_mks_p3m.yaml</span></code> in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> folder.
-This file contains parameters for a <span class="math notranslate nohighlight">\(NVE\)</span> simulation of a One component strongly coupled plasma whose
-particles interact via a Yukawa potential, i.e. an YOCP.</p>
+This file contains parameters for a <span class="math notranslate nohighlight">\(NVE\)</span> simulation of a One component strongly coupled plasma comprised
+of <span class="math notranslate nohighlight">\(N = 10\, 000\)</span> hydrogen ions with a number density of <span class="math notranslate nohighlight">\(n = 1.62 \times 10^{30} N/m^3\)</span>
+at a temperature <span class="math notranslate nohighlight">\(0.5 eV\)</span> interacting via a Yukawa potential, i.e. an YOCP.</p>
 <div class="section" id="input-file">
 <h2>Input File<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h2>
+<p>The first step in any MD simulation is the creation of an input file containing all the relevant parameters
+of our simulation. Take a look at the file <code class="docutils literal notranslate"><span class="pre">yukawa_mks_p3m.yaml</span></code>.
+It is very important to maintain the syntax shown in the example YAML files.
+This is because the content of YAML file is returned as a dictionary of dictionaries.
+In this case, the content will look like</p>
+<img alt="Figure not found" src="../_images/input_from_yaml.png" />
 <div class="section" id="particles">
 <h3>Particles<a class="headerlink" href="#particles" title="Permalink to this headline">¶</a></h3>
-<p>The first step in any MD simulation is the creation of an input file containing all the relevant parameters
-of our simulation. We start by considering the physical parameter of our system. Assume we want to simulate
-a strongly coupled plasma comprised of <span class="math notranslate nohighlight">\(N = 10\, 000\)</span> hydrogen ions with
-a number density of <span class="math notranslate nohighlight">\(n = 1.6 \times 10^{30} N/m^3\)</span> at a temperature <span class="math notranslate nohighlight">\(0.5 eV\)</span>.
-These parameters are defined in our <code class="docutils literal notranslate"><span class="pre">yaml</span></code> file by the block <code class="docutils literal notranslate"><span class="pre">Particles</span></code> and its attribute <code class="docutils literal notranslate"><span class="pre">species</span></code>,</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Particles</span></code> block contains the attribute <code class="docutils literal notranslate"><span class="pre">Species</span></code> which defines the first type of particles, i.e. species,
+and their physical attributes.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Particles</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">species</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">Species</span><span class="p">:</span>
         <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">H</span>
-        <span class="nt">number_density</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.62e+30</span>    <span class="c1"># /m^3</span>
-        <span class="nt">mass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.673e-27</span>             <span class="c1"># kg</span>
-        <span class="nt">num</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>                  <span class="c1"># total number of particles of ion1</span>
-        <span class="nt">Z</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>                      <span class="c1"># degree of ionization</span>
+        <span class="nt">number_density</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.62e+30</span>       <span class="c1"># /m^3</span>
+        <span class="nt">mass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.673e-27</span>                <span class="c1"># kg, ptcl mass of ion1</span>
+        <span class="nt">num</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>                     <span class="c1"># total number of particles of ion1</span>
+        <span class="nt">Z</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>                         <span class="c1"># degree of ionization</span>
         <span class="nt">temperature_eV</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
-        <span class="c1"># temperature: 5802         # Kelvin</span>
-
-    <span class="p p-Indicator">-</span> <span class="nt">load</span><span class="p">:</span>
-        <span class="nt">method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">random_no_reject</span>    <span class="c1"># loading method</span>
-        <span class="nt">rand_seed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">123456789</span>        <span class="c1"># random seed</span>
 </pre></div>
 </div>
-<p>It is very important to maintain the syntax as shown here. As you can see the first attribute of <code class="docutils literal notranslate"><span class="pre">Particles</span></code>
-defines the particles species and its physical attributes. In the case of a multi-component plasma we need only add
-another <code class="docutils literal notranslate"><span class="pre">species</span></code> attribute with its corresponding physical parameters, see <code class="docutils literal notranslate"><span class="pre">ybim_mks_p3m.yaml</span></code>. The attributes of
-<code class="docutils literal notranslate"><span class="pre">species</span></code> take only numerical value in the correct choice of units which is defined in the block <code class="docutils literal notranslate"><span class="pre">Control</span></code>,
-see below. Notice that in this section we also define the mass of the particles, <code class="docutils literal notranslate"><span class="pre">mass</span></code>, and their charge <code class="docutils literal notranslate"><span class="pre">Z</span></code>.
-Future development of Sarkas are aiming in automatically calculate the degree of ionization given by the density and
+<p>In the case of a multi-component plasma we need only add another <code class="docutils literal notranslate"><span class="pre">Species</span></code> attribute with corresponding physical
+parameters, see <code class="docutils literal notranslate"><span class="pre">ybim_mks_p3m.yaml</span></code>. The attributes of <code class="docutils literal notranslate"><span class="pre">Species</span></code> take only numerical values, apart from <code class="docutils literal notranslate"><span class="pre">name</span></code>,
+in the correct choice of units which is defined in the block <code class="docutils literal notranslate"><span class="pre">Control</span></code>, see below.
+Notice that in this section we also define the mass of the particles, <code class="docutils literal notranslate"><span class="pre">mass</span></code>, and their charge number <code class="docutils literal notranslate"><span class="pre">Z</span></code>.
+Future developments of Sarkas are aiming to automatically calculate the degree of ionization given by the density and
 temperature of the system, but for now we need to define it. The parameters given here are not the only options,
 more information of all the possible inputs can be found in the page <code class="docutils literal notranslate"><span class="pre">input</span> <span class="pre">file</span></code>.</p>
-<p>The next attribute of <code class="docutils literal notranslate"><span class="pre">Particle</span></code> defines how particles should be initialized for our simulation. In this case
-we chose to initialize them from an uniform random distribution, without a rejection radius, as specified in the attribute
-<code class="docutils literal notranslate"><span class="pre">method</span></code> using a random seed defined by <code class="docutils literal notranslate"><span class="pre">rand_seed</span></code>.</p>
 </div>
 <div class="section" id="interaction">
 <h3>Interaction<a class="headerlink" href="#interaction" title="Permalink to this headline">¶</a></h3>
 <p>The next section of the input file defines our interaction potential’s parameters</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Potential</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Yukawa</span>
-    <span class="p p-Indicator">-</span> <span class="nt">method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">P3M</span>            <span class="c1"># Particle-Particle Particle-Mesh</span>
-    <span class="p p-Indicator">-</span> <span class="nt">kappa</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
-    <span class="p p-Indicator">-</span> <span class="nt">rc</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.79946255e-10</span>     <span class="c1"># [m]</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Yukawa</span>
+    <span class="nt">method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">P3M</span>                        <span class="c1"># Particle-Particle Particle-Mesh</span>
+    <span class="nt">kappa</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+    <span class="nt">rc</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.79946255e-10</span>                <span class="c1"># [m]</span>
+    <span class="nt">pppm_mesh</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">64</span><span class="p p-Indicator">,</span> <span class="nv">64</span><span class="p p-Indicator">,</span> <span class="nv">64</span><span class="p p-Indicator">]</span>
+    <span class="nt">pppm_aliases</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="nv">3</span><span class="p p-Indicator">]</span>
+    <span class="nt">pppm_cao</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6</span>
+    <span class="nt">pppm_alpha_ewald</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.16243741e+10</span>  <span class="c1"># 1/[m]</span>
 </pre></div>
 </div>
 <p>The instance <code class="docutils literal notranslate"><span class="pre">type</span></code> defines the interaction potential. Currently Sarkas supports the following interaction potentials:
 Coulomb, Yukawa, Exact-gradient corrected Yukawa, Quantum Statistical Potentials, Moliere, Lennard-Jones 6-12. More info
-on each of these potential can be found in <a class="reference internal" href="../theory/potentials.html#potentials"><span class="std std-ref">Potentials</span></a>. Next we define the screening parameter <code class="docutils literal notranslate"><span class="pre">kappa</span></code>. Notice that this a non-dimensional parameter, that is the real screening length will be
-calculated from <span class="math notranslate nohighlight">\(\lambda = a/\kappa\)</span> where <span class="math notranslate nohighlight">\(a\)</span> is the Wigner-Seitz radius. Finally we define the cut-off radius for the Particle-Particle part of the P3M algorithm
-by <code class="docutils literal notranslate"><span class="pre">rc</span></code>.</p>
-</div>
-<div class="section" id="interaction-algorithm">
-<h3>Interaction Algorithm<a class="headerlink" href="#interaction-algorithm" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">P3M</span></code> section that follows is essential for our simulation as it defines important parameters.
-The parameters in this section are what differentiate a good simulation from a bad simulation.
-Details on how to choose these parameters are given later in this page, but for now we limit to describing them</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">P3M</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">MGrid</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">64</span><span class="p p-Indicator">,</span><span class="nv">64</span><span class="p p-Indicator">,</span><span class="nv">64</span><span class="p p-Indicator">]</span>
-    <span class="p p-Indicator">-</span> <span class="nt">aliases</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="nv">3</span><span class="p p-Indicator">]</span>
-    <span class="p p-Indicator">-</span> <span class="nt">cao</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6</span>
-    <span class="p p-Indicator">-</span> <span class="nt">alpha_ewald</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.16243741e+10</span>  <span class="c1"># 1/[m]</span>
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">MGrid</span></code> instance is a list of 3 elements corresponding to the number of mesh points in each of the three cartesian
-directions, <code class="docutils literal notranslate"><span class="pre">aliases</span></code> indicates the number of aliases for anti-aliasing, see &lt;link to anti-aliasing&gt;. <code class="docutils literal notranslate"><span class="pre">cao</span></code> stands
-for Charge Order Parameter and indicates the number of mesh points per direction on which the each particle’s charge is
-to distributed and finally <code class="docutils literal notranslate"><span class="pre">alpha_ewald</span></code> refers to the <span class="math notranslate nohighlight">\(\alpha\)</span> parameter of the Gaussian charge cloud
-surrounding each particle.</p>
-</div>
-<div class="section" id="boundary-conditions">
-<h3>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">¶</a></h3>
-<p>Next we define the boundary conditions for our simulation.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">BoundaryConditions</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">periodic</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;x&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;y&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;z&quot;</span><span class="p p-Indicator">]</span>
-</pre></div>
-</div>
-<p>The instance <code class="docutils literal notranslate"><span class="pre">periodic</span></code> takes in a list of three string elements which correspond to the each of the three cartesian
-direction.
-At the moment Sarkas supports only <code class="docutils literal notranslate"><span class="pre">periodic</span></code> boundary conditions and <code class="docutils literal notranslate"><span class="pre">open</span></code> boundary conditions which requires
-the <code class="docutils literal notranslate"><span class="pre">FMM</span></code> algorithm in all directions at once. Future implementations of Sarkas accepting mixed
-boundary conditions are under way, but not fully supported. We accept pull request :) !</p>
+on each of these potential can be found in <a class="reference internal" href="../theory/potentials.html#potentials"><span class="std std-ref">Potentials</span></a>. Next we define the screening parameter <code class="docutils literal notranslate"><span class="pre">kappa</span></code>.
+Notice that this a non-dimensional parameter, i.e. the real screening length will be calculated
+from <span class="math notranslate nohighlight">\(\lambda = a/\kappa\)</span> where <span class="math notranslate nohighlight">\(a\)</span> is the Wigner-Seitz radius.</p>
+<p>The following parameters refer to our choice of the interaction algorithm. Details on how to choose these parameters
+are given later in this page, but for now we limit to describing them. First, we find the cut-off radius, <code class="docutils literal notranslate"><span class="pre">rc</span></code>,
+for the Particle-Particle part of the P3M algorithm.
+The <code class="docutils literal notranslate"><span class="pre">pppm_mesh</span></code> instance is a list of 3 elements corresponding to the number of mesh points in each of the three
+cartesian coordinates, <code class="docutils literal notranslate"><span class="pre">pppm_aliases</span></code> indicates the number of aliases for anti-aliasing, see &lt;link to anti-aliasing&gt;.
+<code class="docutils literal notranslate"><span class="pre">pppm_cao</span></code> stands for Charge Order Parameter and indicates the number of mesh points per direction
+on which the each particle’s charge is to distributed and finally <code class="docutils literal notranslate"><span class="pre">pppm_alpha_ewald</span></code> refers to
+the <span class="math notranslate nohighlight">\(\alpha\)</span> parameter of the Gaussian charge cloud surrounding each particle.</p>
 </div>
 <div class="section" id="integrator">
 <h3>Integrator<a class="headerlink" href="#integrator" title="Permalink to this headline">¶</a></h3>
 <p>Notice that we have not defined our integrator yet. This is done in the section <code class="docutils literal notranslate"><span class="pre">Integrator</span></code> of the input file</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Integrator</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Verlet</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Verlet</span>                  <span class="c1"># velocity integrator type</span>
+    <span class="nt">equilibration_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>    <span class="c1"># number of timesteps for the equilibrium</span>
+    <span class="nt">production_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100000</span>      <span class="c1"># number of timesteps after the equilibrium</span>
+    <span class="nt">eq_dump_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
+    <span class="nt">prod_dump_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
 </pre></div>
 </div>
-<p>Here <code class="docutils literal notranslate"><span class="pre">Verlet</span></code> refers to the common <code class="docutils literal notranslate"><span class="pre">Velocity</span> <span class="pre">Verlet</span></code> algorithm in which particles velocity are updated first, not to be
-confused with the <code class="docutils literal notranslate"><span class="pre">Position</span> <span class="pre">Verlet</span></code> algorithm. The two algorithms are equivalent, however, Velocity Verlet is the most
-efficient and the preferred choice in most MD simulations. Currently Sarkas supports also the magnetic Velocity Verlet,
-see <code class="docutils literal notranslate"><span class="pre">ybim_mks_p3m_mag.yaml</span></code> and more details are discussed in … . Further integrators scheme are under development: these
-include adaptive Runge-Kutta, symplectic high order integrators, multiple-timestep algorithms. The Murillo group
-is currently looking for students willing to explore all of the above.</p>
+<p>Here <code class="docutils literal notranslate"><span class="pre">Verlet</span></code> refers to the common Velocity Verlet algorithm in which particles velocities are updated first. This must
+not to be confused with the Position Verlet algorithm. The two algorithms are equivalent, however, Velocity Verlet
+is the most efficient and the preferred choice in most MD simulations.
+Currently Sarkas supports also the magnetic Velocity Verlet, see <code class="docutils literal notranslate"><span class="pre">ybim_mks_p3m_mag.yaml</span></code> and more details are
+discussed in … .
+<code class="docutils literal notranslate"><span class="pre">equilibration_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">production_steps</span></code> are the number of timesteps of the equilibration and production phase,
+respectively. <code class="docutils literal notranslate"><span class="pre">eq_dump_step</span></code> and <code class="docutils literal notranslate"><span class="pre">prod_dump_step</span></code> are the interval timesteps over which Sarkas will save simulations
+data.</p>
+<p>Further integrators scheme are under development: these include adaptive Runge-Kutta, symplectic high order integrators,
+multiple-timestep algorithms. The Murillo group is currently looking for students willing to explore all of the above.</p>
 </div>
 <div class="section" id="thermostat">
 <h3>Thermostat<a class="headerlink" href="#thermostat" title="Permalink to this headline">¶</a></h3>
@@ -298,83 +281,86 @@ is currently looking for students willing to explore all of the above.</p>
 so that the initial configuration relaxes to the desired thermal equilibrium. The parameters
 of the thermalization phase are defined in the <code class="docutils literal notranslate"><span class="pre">Thermostat</span></code> section of the input file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Thermostat</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Berendsen</span>               <span class="c1"># thermostat type</span>
-    <span class="p p-Indicator">-</span> <span class="nt">temperatures_eV</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
-    <span class="p p-Indicator">-</span> <span class="nt">timestep</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2000</span>
-    <span class="p p-Indicator">-</span> <span class="nt">tau</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Berendsen</span>               <span class="c1"># thermostat type</span>
+    <span class="nt">relaxation_timestep</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20</span>
+    <span class="nt">tau</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
+    <span class="nt">temperatures_eV</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
 </pre></div>
 </div>
-<p>The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen type, but other
-thermostats like Langevin, Nose-Hoover, etc are, you guessed it!, in development. The second instance defines the
-temperature (be careful with units!) at which the system is to be thermalized. Notice that this takes a single value
-as input in the case of a single species, while it takes is a list in the case of multicomponent plasmas. Note that
-these temperatures need not be the same as those defined in <code class="docutils literal notranslate"><span class="pre">Particles.species.temperature</span></code> as it might be the case
-that you want to study temperature relaxation in plasma mixtures.
-The <code class="docutils literal notranslate"><span class="pre">timestep</span></code> instance indicates the timestep number at which the Berendsen thermostat will be turned on.
-In this case for timesteps &lt; 2000 particles’ velocities will be rescaled by the desired equilibrium temperatures. This
-is not a desirable choice as it does not allow for temperature fluctuations and can lead to misleading results. The
-instance <code class="docutils literal notranslate"><span class="pre">tau</span></code> indicates the relaxation rate of the Berendsen thermostat, see <a class="reference internal" href="../theory/thermostats.html#thermostats"><span class="std std-ref">Thermostats</span></a> for more details.</p>
+<p>The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen and Langevin type,
+but other thermostats like Nose-Hoover, etc are, you guessed it!, in development.
+The <code class="docutils literal notranslate"><span class="pre">relaxation_timestep</span></code> instance indicates the timestep number at which the Berendsen thermostat will be turned on.
+The instance <code class="docutils literal notranslate"><span class="pre">tau</span></code> indicates the relaxation rate of the Berendsen thermostat, see <a class="reference internal" href="../theory/thermostats.html#thermostats"><span class="std std-ref">Thermostats</span></a> for more details.</p>
+<p>The last instance defines the temperature (be careful with units!) at which the system is to be thermalized.
+Notice that this takes a single value in the case of a single species, while it takes is a list in the case of
+multicomponent plasmas. Note that these temperatures need not be the same as those defined in the <code class="docutils literal notranslate"><span class="pre">Particles</span></code> block as
+it might be the case that you want to study temperature relaxation in plasma mixtures.</p>
 </div>
 <div class="section" id="control">
 <h3>Control<a class="headerlink" href="#control" title="Permalink to this headline">¶</a></h3>
 <p>The next section defines some general parameters</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Control</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">units</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mks</span>                  <span class="c1"># units</span>
-    <span class="p p-Indicator">-</span> <span class="nt">dt</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.193536e-17</span>            <span class="c1"># sec</span>
-    <span class="p p-Indicator">-</span> <span class="nt">Neq</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>                  <span class="c1"># number of timesteps for the equilibrium</span>
-    <span class="p p-Indicator">-</span> <span class="nt">Nsteps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30000</span>               <span class="c1"># number of timesteps afater the equilibrium</span>
-    <span class="p p-Indicator">-</span> <span class="nt">dump_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>             <span class="c1"># dump time step</span>
-    <span class="p p-Indicator">-</span> <span class="nt">verbose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
-    <span class="p p-Indicator">-</span> <span class="nt">simulations_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Simulations</span>
-    <span class="p p-Indicator">-</span> <span class="nt">output_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yukawa_mks_p3m</span>  <span class="c1"># dir name to save data.</span>
-    <span class="p p-Indicator">-</span> <span class="nt">dump_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Particles_Data</span>
-    <span class="p p-Indicator">-</span> <span class="nt">job_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">YOCP_T05eV</span>  <span class="c1"># dir name to save data.</span>
-    <span class="p p-Indicator">-</span> <span class="nt">writexyz</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>               <span class="c1"># no xyz output</span>
+    <span class="nt">units</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mks</span>                  <span class="c1"># units</span>
+    <span class="nt">dt</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.193536e-17</span>            <span class="c1"># sec</span>
+    <span class="nt">load_method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">random_no_reject</span>
+    <span class="nt">rdf_nbins</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500</span>
+    <span class="nt">boundary_conditions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">periodic</span>
 </pre></div>
 </div>
-<p>The first instance defines the choice of units (mks or cgs) which must be consistent with all the other dimensional parameters
-defined in previous sections. The second instance is the value of the timestep always given in sec independent of the
-choice of units. <code class="docutils literal notranslate"><span class="pre">Neq</span></code> is the number of thermalization (or equilibration) timesteps. <code class="docutils literal notranslate"><span class="pre">Nsteps</span></code> is the number of
-timesteps of the production phase. <code class="docutils literal notranslate"><span class="pre">dump_step</span></code> is the interval timestep over which Sarkas will save simulations data
-for restarts. <code class="docutils literal notranslate"><span class="pre">verbose</span></code> is flag for printing progress to screen. This is useful in the initialization phase of an MD
-simulation. The next five instances are not needed, however, they are useful for organizing your work. <code class="docutils literal notranslate"><span class="pre">simulations_dir</span></code>
-is the directory where all the simulations will be saved. The default value is <code class="docutils literal notranslate"><span class="pre">Simulations</span></code> and this will be
-created in your current working directory. Next, <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> is the name of the directory of this specific simulation
-which we chose to call <code class="docutils literal notranslate"><span class="pre">yukawa_mks_p3m</span></code>. This directory will contain a <code class="docutils literal notranslate"><span class="pre">pickle</span></code> storing all your simulations
-parameters and physical constants, a log file of your simulation, an csv file for storing energy information at each
-dump, and all the other file produced in the post-processing phase. Every <code class="docutils literal notranslate"><span class="pre">dump_step</span></code> Sarkas will save particles’
-position, velocities, acceleration, and other relevant data in an <code class="docutils literal notranslate"><span class="pre">.npz</span></code> file in the <code class="docutils literal notranslate"><span class="pre">dump_dir</span></code> directory inside the
-<code class="docutils literal notranslate"><span class="pre">output_dir</span></code> directory. Finally <code class="docutils literal notranslate"><span class="pre">job_id</span></code> is an appendix for all the file names identifing this specific run. This
-is useful when you have many runs that differ only in the choice of <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>. Finally <code class="docutils literal notranslate"><span class="pre">writexyz</span></code> is a flag for
-whether to save and <code class="docutils literal notranslate"><span class="pre">.xyz</span></code> file used for visualization by OVITO. Notice that an <code class="docutils literal notranslate"><span class="pre">.xyz</span></code> file of your simulation can
-be created also in the Post processing phase and need not be written in the production phase.</p>
+<p>The first instance defines the choice of units (mks or cgs) which must be consistent with all the other dimensional
+parameters defined in previous sections. The second instance is the value of the timestep in seconds.
+<code class="docutils literal notranslate"><span class="pre">load_method</span></code> defines the way particles positions are to be initialized. The options are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">random_no_reject</span></code> for a uniform spatial distribution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">random_reject</span></code> for a uniform spatial distribution but with a minimum distance between particles</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">halton</span></code></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">rdf_nbins</span></code> indicates the number of bins for the pair distribution histogram which in this case is 500. The default
+value is 5% of the total number of particles.
+Next we define the <code class="docutils literal notranslate"><span class="pre">boundary_conditions</span></code> of our simulation. At the moment Sarkas supports only <code class="docutils literal notranslate"><span class="pre">periodic</span></code> boundary
+conditions and <code class="docutils literal notranslate"><span class="pre">open</span></code> boundary conditions which requires the <code class="docutils literal notranslate"><span class="pre">FMM</span></code> algorithm in all directions at once.
+Future implementations of Sarkas accepting mixed boundary conditions are under way, but not fully supported.
+We accept pull request :) !</p>
+</div>
+<div class="section" id="input-output">
+<h3>Input/Output<a class="headerlink" href="#input-output" title="Permalink to this headline">¶</a></h3>
+<p>The next section defines some IO parameters</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">IO</span><span class="p">:</span>
+    <span class="nt">verbose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+    <span class="nt">simulations_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Simulations</span>
+    <span class="nt">job_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yocp_pppm</span>  <span class="c1"># dir name to save data.</span>
+    <span class="nt">job_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yocp</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> is flag for printing progress to screen. This is useful in the initialization phase of an MD
+simulation. The next instances are not needed, however, they are useful for organizing your work. <code class="docutils literal notranslate"><span class="pre">simulations_dir</span></code>
+is the directory where all the simulations will be stored. The default value is <code class="docutils literal notranslate"><span class="pre">Simulations</span></code> and this will be
+created in your current working directory. Next, <code class="docutils literal notranslate"><span class="pre">job_dir</span></code> is the name of the directory of this specific simulation
+which we chose to call <code class="docutils literal notranslate"><span class="pre">yocp_pppm</span></code>. This directory will contain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> files storing all your simulations
+parameters and physical constants, a log file of your simulation, the <code class="docutils literal notranslate"><span class="pre">Equilibration</span></code> and <code class="docutils literal notranslate"><span class="pre">Production</span></code>
+directories containing simulations dumps, and <code class="docutils literal notranslate"><span class="pre">PreProcessing</span></code> and <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> directories. Explanation of the
+directory structure can be found in … . Finally <code class="docutils literal notranslate"><span class="pre">job_id</span></code> is an appendix for all the file names identifing
+this specific run. This is useful when you have many runs that differ only in the choice of <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>.</p>
 </div>
 <div class="section" id="post-processing">
 <h3>Post Processing<a class="headerlink" href="#post-processing" title="Permalink to this headline">¶</a></h3>
-<p>The last section is <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> and contains all those parameters relevant to the physical observable that need
-be calculated during the production phase. The radial distribution function (RDF) is a very common quantity that is more
-efficiently calculated in the production phase than in the post-processing phase. Hence, we chose to divide our
-RDF into 300 bins</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PostProcessing</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">rdf_nbins</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">300</span>
-    <span class="p p-Indicator">-</span> <span class="nt">dsf_no_ka_values</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">20</span><span class="p p-Indicator">,</span> <span class="nv">20</span><span class="p p-Indicator">,</span> <span class="nv">20</span><span class="p p-Indicator">]</span>
-    <span class="p p-Indicator">-</span> <span class="nt">ssf_no_ka_values</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">20</span><span class="p p-Indicator">,</span> <span class="nv">20</span><span class="p p-Indicator">,</span> <span class="nv">20</span><span class="p p-Indicator">]</span>
-</pre></div>
-</div>
-<p>The other two instances define the max number of harmonics of the <span class="math notranslate nohighlight">\(ka\)</span> vector for the calculation of the
-Dynamical Structure Factor (DSF) and Static Structure Factor (SSF). These last two are not necessary as the DSF and SSF
-can be easily calculated in the post-processing phase. They are here so that we don’t have to define them later.</p>
+<p>The last block is <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> and it will be explained somewhere else.</p>
 </div>
 </div>
 <div class="section" id="pre-simulation-testing">
 <h2>Pre Simulation Testing<a class="headerlink" href="#pre-simulation-testing" title="Permalink to this headline">¶</a></h2>
 <p>Now that we have created our input file we need to verify that our simulation parameters will give a good simulation.
 This is done by running</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python src/Sarkas.py -i examples/yukawa_mks_p3m.yaml -t
-</pre></div>
-</div>
-<p>in your terminal or</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">run</span> <span class="n">src</span><span class="o">/</span><span class="n">Sarkas</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">examples</span><span class="o">/</span><span class="n">yukawa_mks_p3m</span><span class="o">.</span><span class="n">yaml</span> <span class="o">-</span><span class="n">t</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">PreProcess</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Path to the input file</span>
+<span class="n">examples_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span> <span class="s1">&#39;examples&#39;</span><span class="p">)</span>
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples_folder</span><span class="p">,</span><span class="s1">&#39;yukawa_mks.yaml&#39;</span><span class="p">)</span>
+
+<span class="n">preproc</span> <span class="o">=</span> <span class="n">PreProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">preproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">preproc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">loops</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">estimate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops
@@ -392,19 +378,23 @@ the cutoff radius, <span class="math notranslate nohighlight">\(r_c\)</span>. Be
 per dimension for the Linked Cell algorithm and the number of particles inside a spheres of radius rcut. Next we find
 the most important information: the error in the force calculation.</p>
 <p>Before explaining the force error calculation we show the second part of the output of the command which gives the
-average time for the PP and PM part of the force calculation and an estimate of the total run of the simulation</p>
-<img alt="S_testing_output_2.png not found" src="../_images/S_testing_output_2.png" />
+average time for the PP and PM part of the force calculation and estimates of the simulation times</p>
+<img alt="Testing_output_2.png not found" src="../_images/Testing_output_2.png" />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>These times will vary depending on the computer hardware. For this tutorial we used a 2019 Dell XPS 8930
-with Intel Core i7-8700K &#64; 3.70Ghz and 16GB of RAM running Ubuntu 18.04.</p>
+with Intel Core i7-8700K &#64; 3.70Ghz and 48GB of RAM running Ubuntu 18.04.</p>
 </div>
-<p>As you can see the calculation of the optimal Green’s function takes a long time. Fortunately this needs only be
-calculated once at the beginning of the simulation. We note also that the PP part takes more than twice the time it
-takes for the PM part. This is specific to this hardware and the opposite case could true on other machines.</p>
+<p>As you can see the calculation of the optimal Green’s function takes a relatively long time. Fortunately this needs only be
+calculated once at the beginning of the simulation. We note also that the PP part takes 1.5x the time it
+takes for the PM part. This is specific to this hardware and the opposite case could be true on other machines.</p>
+<p>Next Sarkas will run few timesteps (3x loops) for each phase to estimate the time of each. These are indicated by the
+white bars, a nice feature from <code class="docutils literal notranslate"><span class="pre">tqdm</span></code> package. Below the white bars we find the average time of each phase. Note that
+the equilibration phase takes longer than the production phase. This is due to the thermostat.</p>
+<p>At the end all the estimates are put together to calculate the equilibration, production, and total run times.</p>
 <p>In addition to this screen output the command produces two plots that will help in the decision of the P3M parameters.
-These plots are saved in the job directory <code class="docutils literal notranslate"><span class="pre">Simulations/yukawa_mks_p3m</span></code>, but before viewing them we need to explain
-how these plots are calculated.</p>
+These plots are saved in the job directory <code class="docutils literal notranslate"><span class="pre">Simulations/yocp_pppm/PreProcessing</span></code>, but before viewing them we need
+to explain how these plots are calculated.</p>
 <div class="section" id="force-error-calculation">
 <h3>Force Error calculation<a class="headerlink" href="#force-error-calculation" title="Permalink to this headline">¶</a></h3>
 <p>The Force error is the error incurred when we cut the potential interaction after a certain distance. Following the works
@@ -481,7 +471,7 @@ force calculations by comparing
 <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> and <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}\)</span>. The first figure
 produced by our example is shown below and it is a contour map of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span>
 in the <span class="math notranslate nohighlight">\(r_c,\, \alpha\)</span> parameters space</p>
-<img alt="Figure not found" src="../_images/Pre_Run_TestForceError_ClrMap_yukawa_mks_p3m.png" />
+<img alt="Figure not found" src="../_images/ForceError_ClrMap_yocp.png" />
 <p>The numbers on the white contours indicate the value of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> along those
 lines and the black dot indicates where our choice of parameters fall into this parameter space. We notice that our
 parameter choice falls exactly on the white line, and thus it is :math:<cite>sim 1e-5</cite>. Comparing this with the value printed
@@ -490,7 +480,7 @@ on screen from the first figure above we find that our analytical approximation 
 to choose values that fall into the small purple triangle at the top.</p>
 <p>However, our choice of parameters while being good, it might not be optimal. In order to find the best choice we look at
 the second figure created by <code class="docutils literal notranslate"><span class="pre">S_testing.py</span></code>, given below</p>
-<img alt="Figure not found" src="../_images/Pre_Run_TestForceError_LinePlot_yukawa_mks_p3m.png" />
+<img alt="Figure not found" src="../_images/ForceError_LinePlot_yocp.png" />
 <p>The left panel is a plot of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> vs <span class="math notranslate nohighlight">\(r_c/a_{ws}\)</span> at
 five different values of <span class="math notranslate nohighlight">\(\alpha a_{ws}\)</span> while the right panel is a plot of
 <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> vs <span class="math notranslate nohighlight">\(\alpha a_{ws}\)</span> at
@@ -581,7 +571,7 @@ This produces the following plot</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 10, 2020.
+        Last updated on Oct, 17, 2020.
       </span>
 
     </p>

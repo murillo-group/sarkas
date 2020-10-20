@@ -94,15 +94,13 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="sarkas.algorithm.html">sarkas.algorithm package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.integrators.html">sarkas.integrators package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.thermostats.html">sarkas.thermostats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.utilities.html">sarkas.utilities package</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.html#module-sarkas">Module contents</a></li>
 </ul>
 </li>
@@ -213,7 +211,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Distance between two particles.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance between two particles.</p></li>
 <li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.
 pot_matrix[0,:,:] = qi*qj/4*pi*eps0
 pot_matrix[1,:,:] = 2pi/deBroglie
@@ -239,7 +237,7 @@ pot_matrix[4,:,:] = Ewald parameter</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Distance between two particles.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance between two particles.</p></li>
 <li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent parameters.
 pot_matrix[0] = qi*qj/4*pi*eps0
 pot_matrix[1] = 2pi/deBroglie
@@ -266,8 +264,8 @@ The QSP Potential is given by eq.(5) in Ref. <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Flag to read inputs from YAML input file.</p></li>
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p></li>
+<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag to read inputs from YAML input file.</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><em>object</em></a>) – Simulation’s parameters</p></li>
 </ul>
 </dd>
 </dl>
@@ -279,7 +277,7 @@ The QSP Potential is given by eq.(5) in Ref. <a class="reference internal" href=
 <dd><p>Create potential dependent simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a>) – Simulation’s parameters</p>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><em>object</em></a>) – Simulation’s parameters</p>
 </dd>
 </dl>
 </dd></dl>
@@ -309,7 +307,7 @@ The QSP Potential is given by eq.(5) in Ref. <a class="reference internal" href=
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 10, 2020.
+        Last updated on Oct, 17, 2020.
       </span>
 
     </p>

@@ -94,15 +94,13 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="sarkas.algorithm.html">sarkas.algorithm package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.integrators.html">sarkas.integrators package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.io.html">sarkas.io package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.simulation.html">sarkas.simulation package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sarkas.thermostats.html">sarkas.thermostats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.utilities.html">sarkas.utilities package</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sarkas.html#module-sarkas">Module contents</a></li>
 </ul>
 </li>
@@ -195,8 +193,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Particles’ distance.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – Moliere potential parameters.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Particles’ distance.</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Moliere potential parameters.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -210,32 +208,15 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.moliere.setup">
-<code class="sig-prename descclassname">sarkas.potentials.moliere.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">read_input</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/moliere.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.moliere.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">params</span></code> class with Moliere’s parameters as given by Ref. <a class="reference internal" href="#wilson1977" id="id1"><span>[Wilson1977]</span></a> .</p>
+<dt id="sarkas.potentials.moliere.update_params">
+<code class="sig-prename descclassname">sarkas.potentials.moliere.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potential</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/moliere.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.moliere.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign potential dependent simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Flag to read inputs from YAML input file.</p></li>
-<li><p><strong>params</strong> (<em>Params class</em>) – Simulation’s parameters.</p></li>
+<li><p><strong>potential</strong> (<em>sarkas.potential.Potential</em>) – Class handling potential form.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
 </ul>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<dl class="citation">
-<dt class="label" id="wilson1977"><span class="brackets">Wilson1977</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>)</span></dt>
-<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevB.15.2458">W.D. Wilson et al., Phys Rev B 15, 2458 (1977)</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="sarkas.potentials.moliere.update_params">
-<code class="sig-prename descclassname">sarkas.potentials.moliere.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/moliere.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.moliere.update_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create potential dependent simulation’s parameters as given by Ref. <a class="reference internal" href="#wilson1977" id="id2"><span>[Wilson1977]</span></a> .</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<em>Params class</em>) – Simulation’s parameters.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -265,7 +246,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 10, 2020.
+        Last updated on Oct, 17, 2020.
       </span>
 
     </p>

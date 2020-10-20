@@ -7,13 +7,19 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   sarkas.algorithm
-   sarkas.integrators
-   sarkas.io
    sarkas.potentials
-   sarkas.simulation
-   sarkas.thermostats
+   sarkas.time_evolution
    sarkas.tools
+   sarkas.utilities
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   sarkas.base
+   sarkas.processes
 
 Module contents
 ---------------

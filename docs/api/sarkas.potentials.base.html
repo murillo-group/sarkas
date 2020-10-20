@@ -1,0 +1,616 @@
+  
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sarkas.potentials.base module &mdash; Sarkas 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sarkas.potentials.coulomb module" href="sarkas.potentials.coulomb.html" />
+    <link rel="prev" title="sarkas.potentials package" href="sarkas.potentials.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.utilities.html">sarkas.utilities package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#module-sarkas">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">sarkas</a> &raquo;</li>
+        
+          <li><a href="sarkas.html">sarkas package</a> &raquo;</li>
+        
+          <li><a href="sarkas.potentials.html">sarkas.potentials package</a> &raquo;</li>
+        
+      <li>sarkas.potentials.base module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/sarkas.potentials.base.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-sarkas.potentials.base">
+<span id="sarkas-potentials-base-module"></span><h1>sarkas.potentials.base module<a class="headerlink" href="#module-sarkas.potentials.base" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="sarkas.potentials.base.Potential">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.potentials.base.</code><code class="sig-name descname">Potential</code><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Parameters specific to potential choice.</p>
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.matrix">
+<code class="sig-name descname">matrix</code><a class="headerlink" href="#sarkas.potentials.base.Potential.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Potential’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.algorithm">
+<code class="sig-name descname">algorithm</code><a class="headerlink" href="#sarkas.potentials.base.Potential.algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Algorithm to use for force calculations.
+“PP” = Linked Cell List (default).
+“P3M” = Particle-Particle Particle-Mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.rc">
+<code class="sig-name descname">rc</code><a class="headerlink" href="#sarkas.potentials.base.Potential.rc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cutoff radius.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.type">
+<code class="sig-name descname">type</code><a class="headerlink" href="#sarkas.potentials.base.Potential.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.aliases">
+<code class="sig-name descname">aliases</code><a class="headerlink" href="#sarkas.potentials.base.Potential.aliases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of aliases in each direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array, shape(3)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.cao">
+<code class="sig-name descname">cao</code><a class="headerlink" href="#sarkas.potentials.base.Potential.cao" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge assignment order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.on">
+<code class="sig-name descname">on</code><a class="headerlink" href="#sarkas.potentials.base.Potential.on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.MGrid">
+<code class="sig-name descname">MGrid</code><a class="headerlink" href="#sarkas.potentials.base.Potential.MGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of mesh point in each direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array, shape(3), <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.Mx">
+<code class="sig-name descname">Mx</code><a class="headerlink" href="#sarkas.potentials.base.Potential.Mx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of mesh point along the <span class="math notranslate nohighlight">\(x\)</span> axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.My">
+<code class="sig-name descname">My</code><a class="headerlink" href="#sarkas.potentials.base.Potential.My" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of mesh point along the <span class="math notranslate nohighlight">\(y\)</span> axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.Mz">
+<code class="sig-name descname">Mz</code><a class="headerlink" href="#sarkas.potentials.base.Potential.Mz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of mesh point along the <span class="math notranslate nohighlight">\(z\)</span> axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.mx_max">
+<code class="sig-name descname">mx_max</code><a class="headerlink" href="#sarkas.potentials.base.Potential.mx_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of aliases along the reciprocal <span class="math notranslate nohighlight">\(x\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.my_max">
+<code class="sig-name descname">my_max</code><a class="headerlink" href="#sarkas.potentials.base.Potential.my_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of aliases along the reciprocal <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.mz_max">
+<code class="sig-name descname">mz_max</code><a class="headerlink" href="#sarkas.potentials.base.Potential.mz_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of aliases along the reciprocal <span class="math notranslate nohighlight">\(z\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.G_ew">
+<code class="sig-name descname">G_ew</code><a class="headerlink" href="#sarkas.potentials.base.Potential.G_ew" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ewald parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.G_k">
+<code class="sig-name descname">G_k</code><a class="headerlink" href="#sarkas.potentials.base.Potential.G_k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimized Green’s function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.hx">
+<code class="sig-name descname">hx</code><a class="headerlink" href="#sarkas.potentials.base.Potential.hx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mesh spacing in <span class="math notranslate nohighlight">\(x\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.hy">
+<code class="sig-name descname">hy</code><a class="headerlink" href="#sarkas.potentials.base.Potential.hy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mesh spacing in <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.hz">
+<code class="sig-name descname">hz</code><a class="headerlink" href="#sarkas.potentials.base.Potential.hz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mesh spacing in <span class="math notranslate nohighlight">\(z\)</span> direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.PP_err">
+<code class="sig-name descname">PP_err</code><a class="headerlink" href="#sarkas.potentials.base.Potential.PP_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force error due to short range cutoff.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.PM_err">
+<code class="sig-name descname">PM_err</code><a class="headerlink" href="#sarkas.potentials.base.Potential.PM_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force error due to long range cutoff.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.F_err">
+<code class="sig-name descname">F_err</code><a class="headerlink" href="#sarkas.potentials.base.Potential.F_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total force error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.kx_v">
+<code class="sig-name descname">kx_v</code><a class="headerlink" href="#sarkas.potentials.base.Potential.kx_v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of <span class="math notranslate nohighlight">\(k_x\)</span> values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.ky_v">
+<code class="sig-name descname">ky_v</code><a class="headerlink" href="#sarkas.potentials.base.Potential.ky_v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of <span class="math notranslate nohighlight">\(k_y\)</span> values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.potentials.base.Potential.kz_v">
+<code class="sig-name descname">kz_v</code><a class="headerlink" href="#sarkas.potentials.base.Potential.kz_v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of <span class="math notranslate nohighlight">\(k_z\)</span> values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.calc_electron_properties">
+<code class="sig-name descname">calc_electron_properties</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.calc_electron_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.calc_electron_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.from_dict">
+<code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update attributes from input dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary to be copied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.pppm_setup">
+<code class="sig-name descname">pppm_setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.pppm_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.pppm_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.update_brute">
+<code class="sig-name descname">update_brute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_brute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_brute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.update_linked_list">
+<code class="sig-name descname">update_linked_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_linked_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_linked_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Potential and update particles’ accelerations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>U</strong> – Total Potential.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.update_pm">
+<code class="sig-name descname">update_pm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_pm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_pm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.update_pppm">
+<code class="sig-name descname">update_pppm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_pppm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_pppm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sarkas.potentials.coulomb.html" class="btn btn-neutral float-right" title="sarkas.potentials.coulomb module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sarkas.potentials.html" class="btn btn-neutral float-left" title="sarkas.potentials package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Oct, 17, 2020.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

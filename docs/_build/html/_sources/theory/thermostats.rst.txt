@@ -40,7 +40,7 @@ Finding the ratio then of the target temperature and the current temperature, we
 .. math::
    \frac{T(t + \Delta t)}{T(t) } = 1+ \frac{\Delta t}{\tau_{B}}\left(\frac{T_d}{T(t) } - 1 \right)
 
-Taking the square root this yields the scaling factor for the velocities. 
+Taking the square root this yields the scaling factor for the velocities.
 
 The BT is implemented in Sarkas with several epochs. You can specify the number of epochs and the individual
 strengths :math:`\tau_{B,j}` (What is this ?). This allows for a stronger thermostat initially,
@@ -53,4 +53,4 @@ Below ww show a plot of the temperature difference
     \Delta T(t) = T(t) - T_d
 
 for several values of :math:`\tau_B`. As you can see the smaller :math:`\tau_B` the faster :math:`T(t)` reaches the
-desired temperature. However,
+desired temperature.

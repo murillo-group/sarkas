@@ -31,8 +31,8 @@ and positive screening cloud. The first two term are in parenthesis to emphasize
 
 
 where :math:`\rho_{\mathcal R}(\mathbf r)` indicates the charge density leading to the short range part of the potential
-and :math:`\rho_{\mathcal F}(\mathbf r)` leading to the long range part. 
-The subscripts :math:`\mathcal R, \mathcal F` stand for Real and Fourier space indicating the way the calculation 
+and :math:`\rho_{\mathcal F}(\mathbf r)` leading to the long range part.
+The subscripts :math:`\mathcal R, \mathcal F` stand for Real and Fourier space indicating the way the calculation
 will be done.
 
 The potential at every point :math:`\mathbf r` is calculated from Poisson's equation
@@ -50,7 +50,7 @@ The short range term is calculated in the usual way
 
     -\nabla^2 \phi_{\mathcal R}( \mathbf r) = 4\pi \sum_{i}^N  \left ( q_i\delta( \mathbf r- \mathbf r_i) - \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 } \right ).
 
-The first term :math:`\delta(\mathbf r - \mathbf r_i)` leads to the usual Coulomb potential (:math:`\sim 1/r`) while 
+The first term :math:`\delta(\mathbf r - \mathbf r_i)` leads to the usual Coulomb potential (:math:`\sim 1/r`) while
 the Gaussian leads to the error function
 
 .. math::
@@ -106,4 +106,3 @@ this is not a problem(?). Finally the long-range potential energy is
 .. math::
 
     U_{\mathcal L} = U_{\mathcal F} - \mathcal Q^2 \frac{\alpha}{\sqrt{\pi} }
-

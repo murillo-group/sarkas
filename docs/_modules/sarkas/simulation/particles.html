@@ -230,16 +230,13 @@
 <span class="sd">        Initialize the attributes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">dump_dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">therm_checkpoint_dir</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">therm_dump_dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">Lv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">prod_dump_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eq_dump_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span>
 
-        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">rand_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rnd_gen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PCG64</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">rand_seed</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rnd_gen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PCG64</span><span class="p">(</span><span class="mi">123456789</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rnd_gen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PCG64</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">rand_seed</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
@@ -300,11 +297,11 @@
 
         <span class="n">load_method</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span>
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;restart&#39;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">restart_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Restart step not defined. Please define restart_step in YAML file.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">restart_step</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Only integers are allowed.&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_restart_step</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_restart</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">restart_step</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;therm_restart&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">load_therm_restart_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -319,12 +316,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">ptcls_input_file</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Particles Velocities Initialization</span>
-            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Assigning initial velocities from a Maxwell-Boltzmann distribution&#39;</span><span class="p">)</span>
 
             <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">ic</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
-                <span class="n">Vsig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Thermostat</span><span class="o">.</span><span class="n">temperatures</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">/</span> <span class="n">sp</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+                <span class="n">Vsig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">temperatures</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">/</span> <span class="n">sp</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
                 <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span>
                 <span class="n">species_end</span> <span class="o">=</span> <span class="n">species_start</span> <span class="o">+</span> <span class="n">sp</span><span class="o">.</span><span class="n">num</span>
                 <span class="n">vel_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_init_vel</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="p">:]</span>
@@ -334,7 +331,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd_gen</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">vel_0</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">Vsig</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">num</span><span class="p">)</span>
 
             <span class="c1"># Particles Position Initialization</span>
-            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Assigning initial positions according to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_method</span><span class="p">))</span>
 
             <span class="c1"># position distribution. </span>
@@ -342,10 +339,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_perturb</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;random_reject&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">random_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_rejection_radius</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;halton_reject&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_halton_bases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_r_reject</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">halton_reject</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">load_halton_bases</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">load_rejection_radius</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;random_no_reject&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">random_no_reject</span><span class="p">()</span>
@@ -419,7 +416,7 @@
 <span class="sd">            Timestep.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;S_checkpoint_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.npz&quot;</span><span class="p">)</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">,</span> <span class="s2">&quot;S_checkpoint_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.npz&quot;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;species_id&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;species_name&quot;</span><span class="p">]</span>
@@ -439,7 +436,7 @@
 <span class="sd">            Timestep.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">therm_checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;S_checkpoint_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.npz&quot;</span><span class="p">)</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span><span class="p">,</span> <span class="s2">&quot;S_checkpoint_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.npz&quot;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;species_id&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;species_name&quot;</span><span class="p">]</span>
@@ -481,7 +478,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># np.random.seed(self.params.Control.rand_seed) # Seed for random number generator</span>
+        <span class="c1"># np.random.seed(self.params.rand_seed) # Seed for random number generator</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd_gen</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd_gen</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_num_ptcls</span><span class="p">)</span>
@@ -789,7 +786,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Aug, 10, 2020.
+        Last updated on Aug, 18, 2020.
       </span>
 
     </p>

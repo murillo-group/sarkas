@@ -24,7 +24,7 @@ import numpy as np
 from numba import njit
 import yaml
 import math as mt
-from sarkas.algorithm.force_pm import force_optimized_green_function as gf_opt
+from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
 
 
 def setup(params, read_input=True):
@@ -46,7 +46,7 @@ def setup(params, read_input=True):
     assert params.potential.method == "P3M", 'QSP interaction can only be calculated using P3M algorithm.'
 
     # Check for neutrality
-    assert params.tot_net_charge == 0, 'Total net charge is not zero.'
+    assert params.total_net_charge == 0, 'Total net charge is not zero.'
 
     e_list = ['e', 'electrons', 'electron']
     assert params.species[0].name in e_list, 'The 1st species are not electrons. Please redefine the 1st species as electrons.'
@@ -97,13 +97,13 @@ def update_params(params):
     if not params.BC.open_axes:
         params.potential.LL_on = True  # linked list on
         if not hasattr(params.potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.potential.rc = params.Lv.min() / 2.
+            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
+            params.potential.rc = params.box_lengths.min() / 2.
             params.potential.LL_on = False  # linked list off
 
-        if params.potential.method == "PP" and params.potential.rc > params.Lv.min() / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.Lv.min() / 2, "will be used as rc")
-            params.potential.rc = params.Lv.min() / 2.
+        if params.potential.method == "PP" and params.potential.rc > params.box_lengths.min() / 2.:
+            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
+            params.potential.rc = params.box_lengths.min() / 2.
             params.potential.LL_on = False  # linked list off
 
     two_pi = 2.0 * np.pi
@@ -114,18 +114,18 @@ def update_params(params):
     params.Te = params.species[0].temperature
 
     # Redefine ion temperatures and ion total number density
-    params.Ti = 0.
+    params.total_ion_temperature = 0.
     params.ni = 0.
     for isp in range(1, params.num_species):
-        params.Ti += params.species[isp].concentration * params.species[isp].temperature
+        params.total_ion_temperature += params.species[isp].concentration * params.species[isp].temperature
         params.ni += params.species[isp].num_density
 
     # Calculate the total and ion Wigner-Seitz Radius from the total density
-    params.aws = (3.0 / (four_pi * params.total_num_density)) ** (1. / 3.)
+    params.a_ws = (3.0 / (four_pi * params.total_num_density)) ** (1. / 3.)
     params.ai = (3.0 / (four_pi * params.ni)) ** (1.0 / 3.0)  # Ion WS
 
     beta_e = 1.0 / (params.kB * params.Te)
-    beta_i = 1.0 / (params.kB * params.Ti)
+    beta_i = 1.0 / (params.kB * params.total_ion_temperature)
 
     QSP_matrix = np.zeros((5, params.num_species, params.num_species))
     for i, sp1 in enumerate(params.species):
@@ -152,16 +152,16 @@ def update_params(params):
         QSP_matrix[2, :, :] = 0.0
 
     params.potential.matrix = QSP_matrix
-    params.potential.Gamma_eff = abs(params.potential.matrix[0, 0, 1]) / (params.ai * params.kB * params.Ti)
+    params.potential.Gamma_eff = abs(params.potential.matrix[0, 0, 1]) / (params.ai * params.kB * params.total_ion_temperature)
 
     # Calculate the (total) plasma frequency
     wp_tot_sq = 0.0
     for i, sp in enumerate(params.species):
-        wp2 = four_pi * sp.charge ** 2 * sp.num_density / (sp.mass * params.fourpie0)
+        wp2 = four_pi * sp.charge ** 2 * sp.number_density / (sp.mass * params.fourpie0)
         sp.wp = np.sqrt(wp2)
         wp_tot_sq += wp2
 
-    params.wp = np.sqrt(wp_tot_sq)
+    params.total_plasma_frequency = np.sqrt(wp_tot_sq)
 
     if params.potential.QSP_type == "Deutsch":
         params.force = Deutsch_force_P3M
@@ -183,11 +183,11 @@ def update_params(params):
     # Calculate the Optimized Green's Function
     constants = np.array([0.0, params.pppm.G_ew, params.fourpie0])
     params.pppm.G_k, params.pppm.kx_v, params.pppm.ky_v, params.pppm.kz_v, params.pppm.PM_err = gf_opt(
-        params.pppm.MGrid, params.pppm.aliases, params.Lv, params.pppm.cao, constants)
+        params.pppm.MGrid, params.pppm.aliases, params.box_lengths, params.pppm.cao, constants)
 
     # Complete PM and PP Force error calculation
-    params.pppm.PM_err *= np.sqrt(params.total_num_ptcls) * params.aws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
-    params.pppm.PP_err *= params.aws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+    params.pppm.PM_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
+    params.pppm.PP_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
     # Calculate the total force error
     params.pppm.F_err = np.sqrt(params.pppm.PM_err ** 2 + params.pppm.PP_err ** 2)
 

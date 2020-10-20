@@ -9,18 +9,18 @@ Sarkas supports a variety of potentials both built-in and user defined. Currentl
 - Yukawa
 - Exact Gradient-corrected Screened Yukawa
 - Quantum Statistical Potential
-- Moliere 
+- Moliere
 - Lennard Jones
 
 You can read more about each of these potentials in the corresponding sections below.
-All the equations will be given in cgs units, however, for easy conversion, we define the charge  
+All the equations will be given in cgs units, however, for easy conversion, we define the charge
 
-.. math:: 
+.. math::
    \bar{e}^2 = \frac{e^2}{4\pi \varepsilon_0},
 
-which when substituted in gives the equivalent mks formula. 
+which when substituted in gives the equivalent mks formula.
 
-Coulomb Potential 
+Coulomb Potential
 -----------------
 Two charged particle with charge numbers :math:`Z_a` and :math:`Z_b` interact with each other via the Coulomb potential given by
 
@@ -30,24 +30,24 @@ Two charged particle with charge numbers :math:`Z_a` and :math:`Z_b` interact wi
 where :math:`r` is the distance between ions, :math:`e` is the elementary charge.
 
 
-Yukawa Potential 
+Yukawa Potential
 ----------------
 The Yukawa potential, or screened Coulomb potential, is widely used in the plasma community to describe the interactions of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two ions of charge number :math:`Z_a` and :math:`Z_b` is given by
 
 .. math::
    V(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{-\kappa r},
 
-where :math:`\kappa = 1/\lambda_{\text{TF}}` is the screening parameter. In Sarkas this can be either given as an input or it can be calculated from the Thomas-Fermi formula 
+where :math:`\kappa = 1/\lambda_{\text{TF}}` is the screening parameter. In Sarkas this can be either given as an input or it can be calculated from the Thomas-Fermi formula
 
 .. math::
-   \frac{1}{\lambda_{TF}^2} = \frac{4 \sqrt{\pi} \bar{e}^2 \beta}{\Lambda_e^3}\frac{\mathcal I_{-1/2}(\eta)}{2}, 
+   \frac{1}{\lambda_{TF}^2} = \frac{4 \sqrt{\pi} \bar{e}^2 \beta}{\Lambda_e^3}\frac{\mathcal I_{-1/2}(\eta)}{2},
 
 where :math:`\Lambda_e` is the thermal de Broglie wavelength of the electrons and :math:`\mathcal I_p(\eta)` is the Dirac-Fermi integral of order :math:`p` defined as
 
 .. math::
    \mathcal I_p ( \eta) = \int_0^\infty dx \frac{x^p}{1 + e^{x- \eta}}.
 
-where :math:`\eta = \beta \mu` is the chemical potential. 
+where :math:`\eta = \beta \mu` is the chemical potential.
 Notice that when :math:`\kappa = 0` we recover the Coulomb Potential.
 
 Exact Gradient-corrected Screened Yukawa Potential
@@ -56,29 +56,29 @@ The Yukawa potential is derived on the assumption that the electron gas behaves 
 
 .. math::
    \nu = - 3 \lambda \frac{4\pi \bar{e}^2 \beta }{ 4 \pi \Lambda_{e}} \mathcal I_{-3/2}(\eta),
-  
+
 where :math:`\lambda` is a correction factor; :math:`\lambda = 1/9` for the true gradient corrected Thomas-Fermi model and :math:`\lambda = 1` for the traditional  von Weissaecker model. In the case :math:`\nu < 1` the EGS potential takes the form
 
 .. math::
    V(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],
-   
-with 
+
+with
 
 .. math::
    \lambda_\pm^2 = \frac{\nu \lambda_{\textrm{TF}}^2}{2b \pm 2b\sqrt{1 - \nu}}, \quad \alpha = \frac{b}{\sqrt{b - \nu}},
-   
-where the parameter :math:`b` arises from exchange-correlation contributions, see below. 
+
+where the parameter :math:`b` arises from exchange-correlation contributions, see below.
 On the other hand :math:`\nu > 1`, the pair potential has the form
 
 .. math::
    V(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}
-    
-with 
+
+with
 
 .. math::
    \gamma_\pm^2 = \frac{\nu\lambda_{\textrm{TF}}^2}{\sqrt{\nu} \pm b}, \quad \alpha' = \frac{b}{\sqrt{\nu - b}}.
 
-Neglect of exchange-correlational effects leads to :math:`b = 1` otherwise 
+Neglect of exchange-correlational effects leads to :math:`b = 1` otherwise
 
 .. math::
    b = 1 - \frac{\Theta}8 \left [ h\left ( \Theta \right ) - 2 \Theta h'(\Theta) \right ]
@@ -113,4 +113,3 @@ and
 is the thermal de Broglie wavelength between particles :math:`a` and :math:`b`. The last term, present only in the
 interaction between two electrons, accounts for spin-averaged effects. The choice of this potential is due to its
 widespread use in the High Energy Density Physics community.
-

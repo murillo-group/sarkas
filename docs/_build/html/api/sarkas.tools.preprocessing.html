@@ -1,0 +1,436 @@
+  
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sarkas.tools.preprocessing module &mdash; Sarkas 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Sarkas
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">sarkas</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>sarkas.tools.preprocessing module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/sarkas.tools.preprocessing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-sarkas.tools.preprocessing">
+<span id="sarkas-tools-preprocessing-module"></span><h1>sarkas.tools.preprocessing module<a class="headerlink" href="#module-sarkas.tools.preprocessing" title="Permalink to this headline">¶</a></h1>
+<p>Module for testing simulation parameters</p>
+<dl class="py function">
+<dt id="sarkas.tools.preprocessing.Gk">
+<code class="sig-prename descclassname">sarkas.tools.preprocessing.</code><code class="sig-name descname">Gk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">alpha</span></em>, <em class="sig-param"><span class="n">kappa</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#Gk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.Gk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Green’s function of Coulomb/Yukawa potential.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="sarkas.tools.preprocessing.PreProcess">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.preprocessing.</code><code class="sig-name descname">PreProcess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.analytical_approx_pp">
+<code class="sig-name descname">analytical_approx_pp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.analytical_approx_pp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.analytical_approx_pp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate PP force error.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.analytical_approx_pppm">
+<code class="sig-name descname">analytical_approx_pppm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.analytical_approx_pppm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.analytical_approx_pppm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the total force error as given in Dharuman et al. J Chem Phys 146 024112 (2017).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.common_parser">
+<code class="sig-name descname">common_parser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.common_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.common_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse simulation parameters from YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Input YAML file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.estimate_best_parameters">
+<code class="sig-name descname">estimate_best_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.estimate_best_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.estimate_best_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the best number of mesh points and cutoff radius.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.green_function_timer">
+<code class="sig-name descname">green_function_timer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.green_function_timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.green_function_timer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.make_color_map">
+<code class="sig-name descname">make_color_map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcuts</span></em>, <em class="sig-param"><span class="n">alphas</span></em>, <em class="sig-param"><span class="n">chosen_alpha</span></em>, <em class="sig-param"><span class="n">chosen_rcut</span></em>, <em class="sig-param"><span class="n">total_force_error</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.make_color_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.make_color_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a color map of the total force error approximation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcuts</strong> (<em>array</em>) – Cut off distances.</p></li>
+<li><p><strong>alphas</strong> (<em>array</em>) – Ewald parameters.</p></li>
+<li><p><strong>chosen_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen Ewald parameter.</p></li>
+<li><p><strong>chosen_rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen cut off radius.</p></li>
+<li><p><strong>total_force_error</strong> (<em>ndarray</em>) – Force error matrix.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.make_fit_plot">
+<em class="property">static </em><code class="sig-name descname">make_fit_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pp_xdata</span></em>, <em class="sig-param"><span class="n">pm_xdata</span></em>, <em class="sig-param"><span class="n">pp_times</span></em>, <em class="sig-param"><span class="n">pm_times</span></em>, <em class="sig-param"><span class="n">pp_opt</span></em>, <em class="sig-param"><span class="n">pm_opt</span></em>, <em class="sig-param"><span class="n">pp_xlabels</span></em>, <em class="sig-param"><span class="n">pm_xlabels</span></em>, <em class="sig-param"><span class="n">fig_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.make_fit_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.make_fit_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a dual plot of the fitted functions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.make_force_error_map_plot">
+<code class="sig-name descname">make_force_error_map_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.make_force_error_map_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.make_force_error_map_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.make_lagrangian_plot">
+<code class="sig-name descname">make_lagrangian_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.make_lagrangian_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.make_lagrangian_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.make_line_plot">
+<code class="sig-name descname">make_line_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcuts</span></em>, <em class="sig-param"><span class="n">alphas</span></em>, <em class="sig-param"><span class="n">chosen_alpha</span></em>, <em class="sig-param"><span class="n">chosen_rcut</span></em>, <em class="sig-param"><span class="n">total_force_error</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.make_line_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.make_line_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot selected values of the total force error approximation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcuts</strong> (<em>array</em>) – Cut off distances.</p></li>
+<li><p><strong>alphas</strong> (<em>array</em>) – Ewald parameters.</p></li>
+<li><p><strong>chosen_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen Ewald parameter.</p></li>
+<li><p><strong>chosen_rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen cut off radius.</p></li>
+<li><p><strong>total_force_error</strong> (<em>ndarray</em>) – Force error matrix.</p></li>
+<li><p><strong>parameters</strong> (<em>class</em>) – Simulation’s parameters.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.make_pppm_approximation_plots">
+<code class="sig-name descname">make_pppm_approximation_plots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.make_pppm_approximation_plots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.make_pppm_approximation_plots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.print_time_report">
+<em class="property">static </em><code class="sig-name descname">print_time_report</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">str_id</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">loops</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.print_time_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.print_time_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print times estimates of simulation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loops</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">estimate</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">read_yaml</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">other_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup simulations’ parameters and io subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading YAML input file. Default = False.</p></li>
+<li><p><strong>other_inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Dictionary with additional simulations options.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.time_acceleration">
+<code class="sig-name descname">time_acceleration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.time_acceleration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.time_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.preprocessing.PreProcess.time_integrator_loop">
+<code class="sig-name descname">time_integrator_loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#PreProcess.time_integrator_loop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.PreProcess.time_integrator_loop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run several loops of the equilibration and production phase to estimate the total time of the simulation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.preprocessing.analytical_approx_pppm_single">
+<code class="sig-prename descclassname">sarkas.tools.preprocessing.</code><code class="sig-name descname">analytical_approx_pppm_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kappa</span></em>, <em class="sig-param"><span class="n">rc</span></em>, <em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">alpha</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#analytical_approx_pppm_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.analytical_approx_pppm_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the total force error for a given value of <code class="docutils literal notranslate"><span class="pre">rc</span></code> and <code class="docutils literal notranslate"><span class="pre">alpha</span></code>. See similar function above.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.preprocessing.betamp">
+<code class="sig-prename descclassname">sarkas.tools.preprocessing.</code><code class="sig-name descname">betamp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">m</span></em>, <em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">alpha</span></em>, <em class="sig-param"><span class="n">kappa</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#betamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.betamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate <span class="math notranslate nohighlight">\(eta(m)\)</span> of eq.(37) in Dharuman et al. J Chem Phys 146 024112 (2017)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.preprocessing.linear">
+<code class="sig-prename descclassname">sarkas.tools.preprocessing.</code><code class="sig-name descname">linear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#linear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear function for fitting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Values at which to calculate the function.</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Coefficient of linear term.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>linear formula</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.tools.preprocessing.quadratic">
+<code class="sig-prename descclassname">sarkas.tools.preprocessing.</code><code class="sig-name descname">quadratic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">c</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/preprocessing.html#quadratic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.preprocessing.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic function for fitting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Values at which to calculate the function.</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Intercept.</p></li>
+<li><p><strong>b</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Coefficient of linear term.</p></li>
+<li><p><strong>c</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Coefficient of quadratic term.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>quadratic formula</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Oct, 17, 2020.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>
