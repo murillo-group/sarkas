@@ -1371,7 +1371,7 @@
                      <span class="n">k_counts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span><span class="p">,</span>
                      <span class="n">ka_values</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)</span>
 
-            <span class="n">nkt</span> <span class="o">=</span> <span class="n">calc_nkt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">)</span>
+            <span class="n">nkt</span> <span class="o">=</span> <span class="n">calc_nkt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span><span class="p">,</span> <span class="n">nkt</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;ka values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span>
@@ -1717,7 +1717,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_no_dumps</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fldr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">no_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span>
 
@@ -3239,7 +3239,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 18, 2020.
+        Last updated on Oct, 17, 2020.
       </span>
 
     </p>

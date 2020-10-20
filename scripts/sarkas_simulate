@@ -27,8 +27,8 @@ op.add_option("-v", "--verbose", action='store_true', dest='verbose', default=Fa
 op.add_option("-p", "--plot_show", action='store_true', dest='plot_show', default=False, help="Show plots")
 op.add_option("-c", "--check_status", type='choice', choices=['equilibration', 'production'],
               action='store', dest='check_status', help="Check current state of run")
-op.add_option("-d", "--job_dir", action='store', dest='job_dir', help="Job Directory")
-op.add_option("-j", "--job_id", action='store', dest='job_id', help="Job ID")
+op.add_option("-d", "--sim_dir", action='store', dest='sim_dir', help="Simulation Directory")
+op.add_option("-j", "--job_dir", action='store', dest='job_dir', help="Job Directory")
 op.add_option("-s", "--seed", action='store', dest='rand_seed', type=int, help="Random Number Seed")
 op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
 op.add_option("-r", "--restart", type=str, action='store', dest='restart', help="Restart simulation")
@@ -50,13 +50,13 @@ else:
 
 # Create the dictionary of extra inputs
 args = {}
-if any([options.check_status, options.job_id, options.job_dir, options.verbose]):
+if any([options.check_status, options.sim_dir, options.job_dir, options.verbose]):
     args = {"IO":{}}
     if options.check_status:
         args["IO"]["check_status"] = True
 
     if options.job_id:
-        args["IO"]["job_id"] = options.job_id
+        args["IO"]["simulations_dir"] = options.sim_dir
 
     if options.job_dir:
         args["IO"]["job_dir"] = options.job_dir

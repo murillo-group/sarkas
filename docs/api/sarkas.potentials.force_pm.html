@@ -193,8 +193,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cao</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Charge assignment order.</p></li>
-<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Distance to closest mesh point if cao is even.</p></li>
+<li><p><strong>cao</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Charge assignment order.</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance to closest mesh point if cao is even.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -224,8 +224,8 @@
 <li><p><strong>E_z_r</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Electric field along z-axis.</p></li>
 <li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ positions.</p></li>
 <li><p><strong>charges</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ charges.</p></li>
-<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles.</p></li>
-<li><p><strong>cao</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Charge assignment order.</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of particles.</p></li>
+<li><p><strong>cao</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Charge assignment order.</p></li>
 <li><p><strong>masses</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ masses.</p></li>
 </ul>
 </dd>
@@ -249,8 +249,8 @@
 <li><p><strong>mesh_sz</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Mesh points per direction.</p></li>
 <li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ positions.</p></li>
 <li><p><strong>charges</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ charges.</p></li>
-<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles.</p></li>
-<li><p><strong>cao</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Charge assignment order.</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of particles.</p></li>
+<li><p><strong>cao</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Charge assignment order.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -293,19 +293,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>MGrid</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – number of mesh points in x,y,z</p></li>
+<li><p><strong>mesh_sizes</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – number of mesh points in x,y,z</p></li>
 <li><p><strong>aliases</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – number of aliases in each direction</p></li>
-<li><p><strong>BoxLv</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Length of simulation’s box in each direction</p></li>
-<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Charge assignment order (CAO)</p></li>
+<li><p><strong>box_lengths</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Length of simulation’s box in each direction</p></li>
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Charge assignment order (CAO)</p></li>
 <li><p><strong>constants</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Screening parameter, Ewald parameter, 4 pi eps0.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>G_k</strong> (<em>array_like</em>) – optimal Green Function</p></li>
-<li><p><strong>kx_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the x-axis</p></li>
-<li><p><strong>ky_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the y-axis</p></li>
-<li><p><strong>kz_v</strong> (<em>array_like</em>) – array of reciprocal space vectors along the z-axis</p></li>
+<li><p><strong>G_k</strong> (<em>numpy.ndarray</em>) – optimal Green Function</p></li>
+<li><p><strong>kx_v</strong> (<em>numpy.ndarray</em>) – array of reciprocal space vectors along the x-axis</p></li>
+<li><p><strong>ky_v</strong> (<em>numpy.ndarray</em>) – array of reciprocal space vectors along the y-axis</p></li>
+<li><p><strong>kz_v</strong> (<em>numpy.ndarray</em>) – array of reciprocal space vectors along the z-axis</p></li>
 <li><p><strong>PM_err</strong> (<em>float</em>) – Error in the force calculation due to the optimized Green’s function. eq.(28) of Ref. <a class="reference internal" href="../tutorial/tutorial.html#dharuman2017" id="id4"><span>[Dharuman2017]</span></a></p></li>
 <li><p><strong>PP_err</strong> (<em>float</em>) – Error in the force calculation due to the distance cutoff. eq.(30) of Ref. <a class="reference internal" href="../tutorial/tutorial.html#stern2008" id="id5"><span>[Stern2008]</span></a></p></li>
 </ul>
@@ -339,7 +339,7 @@
 <li><p><strong>kx_v</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Array of kx values.</p></li>
 <li><p><strong>ky_v</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Array of ky values.</p></li>
 <li><p><strong>kz_v</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Array of kz values.</p></li>
-<li><p><strong>cao</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Charge order parameter.</p></li>
+<li><p><strong>cao</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Charge order parameter.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -377,7 +377,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 18, 2020.
+        Last updated on Oct, 17, 2020.
       </span>
 
     </p>

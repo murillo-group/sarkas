@@ -178,17 +178,6 @@ advantages of each method. The two ways in which we can run a simulation are</p>
 </ul>
 <div class="section" id="old-school">
 <h2>Old School<a class="headerlink" href="#old-school" title="Permalink to this headline">¶</a></h2>
-<p>The original workflow of MD simulation looked something like this</p>
-<ol class="arabic simple">
-<li><p>Write your own MD code in a low-level language such as <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> or (even better) <code class="docutils literal notranslate"><span class="pre">Fortran</span></code> to exploit their computational speed.</p></li>
-<li><p>Write input file to be read by the MD code containing all the simulation’s parameters.</p></li>
-<li><p>Run multiple simulations with different initial conditions. This requires a different input file for each simulation depending on the MD code.</p></li>
-<li><p>Analyze the output of each simulation. This is usually done in a interpreted, high-level language like Python.</p></li>
-</ol>
-<p>Here we find the first advantage of Sarkas: removing the need to know multiple languages. Sarkas is not a Python wrapper
-around an existing MD code. It is entirely written in Python to allow the user to modify the codes for their specific needs.
-This choice, however, does not come to at the expense of speed. In fact, Sarkas makes heavy use of Numpy and Numba
-so that the code can run as fast, if not faster, than low-level languages like <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> and <code class="docutils literal notranslate"><span class="pre">Fortran</span></code>.</p>
 <p>First and foremost we run the help command in a terminal window</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sarkas_simulate -h
 </pre></div>
@@ -199,18 +188,20 @@ so that the code can run as fast, if not faster, than low-level languages like <
 </div>
 <p>This output prints out the different options with which you can run Sarkas.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-i</span></code> is required and is the path to the YAML input file of our simulation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-c</span></code> which can be either <code class="docutils literal notranslate"><span class="pre">prod</span></code> or <code class="docutils literal notranslate"><span class="pre">therm</span></code> and indicates whether we want to check the thermalization or production phase of the run.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-t</span></code> is a boolean flag indicating whether to run a test of our input parameter or not.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-p</span></code> is a boolean flag indicating whether to show plots to screen.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-v</span></code> boolean for verbose output.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-d</span></code> indicates the name of the directory where to save the simulation’s output.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-j</span></code> refers to the name we want to append to each output file.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> sets the random number seed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span></code> or <code class="docutils literal notranslate"><span class="pre">--input</span></code> is required and is the path to the YAML input file of our simulation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span></code> or <code class="docutils literal notranslate"><span class="pre">--check_status</span></code> which can be either <code class="docutils literal notranslate"><span class="pre">equilibration</span></code> or <code class="docutils literal notranslate"><span class="pre">production</span></code> and indicates whether we want to check the equilibration or production phase of the run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--pre_run_testing</span></code> is a boolean flag indicating whether to run a test of our input parameters and estimate the simulation times.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">--plot_show</span></code> is a boolean flag indicating whether to show plots to screen.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-v</span></code> or <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> boolean for verbose output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span></code> or <code class="docutils literal notranslate"><span class="pre">--sim_dir</span></code> name of the directory storing all the simulations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-j</span></code> or <code class="docutils literal notranslate"><span class="pre">--job_id</span></code> name of the directory of the current run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> or <code class="docutils literal notranslate"><span class="pre">--seed</span></code> sets the random number seed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-e</span></code> or <code class="docutils literal notranslate"><span class="pre">--estimate</span></code> estimate the best P3M parameters of your run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">--restart</span></code> for starting the simulation from a specific point.</p></li>
 </ul>
-<p>The last three option are not required and are mostly used in the case we want to run many simulations without creating
-multiple input files and only want to change only few control parameters. Very often we need to run many simulations
-with similar parameters but with different initial conditions. Hence we could write a bash script like so</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--input</span></code> option is the only required option as it refers to the input file.
+If we wanted to run multiple simulations of the same system but with different initial conditions
+a typical bash script would look like this</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate sarkas
 
 sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">125125</span> -d run1
@@ -222,84 +213,57 @@ sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">912856
 conda deactivate
 </pre></div>
 </div>
-<p>If you are familiar with bash scripting you could make the above statements in a loop and make many more simulations.
+<p>If you are familiar with <code class="docutils literal notranslate"><span class="pre">bash</span></code> scripting you could make the above statements in a loop and make many more simulations.
 Once the simulations are done it’s time to analyze the data. This is usually done by a python script.
 This was the old way of running simulations.</p>
 </div>
 <div class="section" id="new-school">
 <h2>New School<a class="headerlink" href="#new-school" title="Permalink to this headline">¶</a></h2>
-<p>Sarkas was created with the idea of incorporating the entire simulation
-workflow in a single Python script. Let’s say we want to run 10 simulation of a Yukawa OCP and measure the velocity
-autocorrelation function. An example script looks like this</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<p>Here we find the first advantage of Sarkas: removing the need to know multiple languages.
+Sarkas is not a Python wrapper around an existing MD code. It is entirely written in Python to allow users
+to modify the codes for their specific needs. This choice, however, does not come at the expense
+of speed. In fact, Sarkas, via the use of <code class="docutils literal notranslate"><span class="pre">Numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">Numba</span></code> packages, can run as fast,
+if not faster, than low-level languages like <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> and <code class="docutils literal notranslate"><span class="pre">Fortran</span></code>.</p>
+<p>Sarkas was created with the idea of incorporating the entire simulation workflow in a single Python
+script. Let’s say we want to run a set of ten simulations of a Yukawa OCP for different
+screening parameters and measure their diffusion coefficient. An example script looks like this</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
+<span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficient</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">sarkas.simulation.params</span> <span class="kn">import</span> <span class="n">Params</span>
-<span class="kn">from</span> <span class="nn">sarkas.simulation</span> <span class="kn">import</span> <span class="n">simulation</span>
-<span class="kn">from</span> <span class="nn">sarkas.tools.postprocessing</span> <span class="kn">import</span> <span class="n">VelocityAutocorrelationFunction</span>
 
-<span class="c1"># Let&#39;s define some common variables</span>
-<span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-<span class="c1"># Assuming you are inside the directory where you downloaded the sarkas repo</span>
-<span class="n">args</span><span class="p">[</span><span class="s2">&quot;input_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span>
-                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span> <span class="p">)</span>
+<span class="c1"># Path to the input file</span>
+<span class="n">examples_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span> <span class="s1">&#39;examples&#39;</span><span class="p">)</span>
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples_folder</span><span class="p">,</span><span class="s1">&#39;yukawa_mks.yaml&#39;</span><span class="p">)</span>
 
-
-<span class="c1"># Initialize the simulation parameter class</span>
-<span class="n">params</span> <span class="o">=</span> <span class="n">Params</span><span class="p">()</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-    <span class="c1"># Save each simulation&#39;s data into own its directory</span>
-    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;job_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;YOCP_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yocp_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">123456789</span><span class="p">)</span>
-
-    <span class="n">params</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-    <span class="c1"># Initialize the VACF object</span>
-    <span class="n">vacf</span> <span class="o">=</span> <span class="n">VelocityAutocorrelationFunction</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-    <span class="n">vacf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>At the same time let’s assume we want to run many simulations to span a range of screening parameters</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">sarkas.simulation.params</span> <span class="kn">import</span> <span class="n">Params</span>
-<span class="kn">from</span> <span class="nn">sarkas.simulation</span> <span class="kn">import</span> <span class="n">simulation</span>
-<span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">yukawa</span>
-
-<span class="c1"># Let&#39;s define some common variables</span>
-<span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-<span class="c1"># Assuming you are inside the directory where you downloaded the sarkas repo</span>
-<span class="n">args</span><span class="p">[</span><span class="s2">&quot;input_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span>
-                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span> <span class="p">)</span>
-
-<span class="n">kappas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-
+<span class="c1"># Create arrays of screening parameters</span>
+<span class="n">kappas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="c1"># Run 10 simulations</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kappas</span><span class="p">):</span>
-    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;job_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;YOCP_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yocp_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">123456789</span><span class="p">)</span>
-
-    <span class="c1"># Initialize the simulation parameter class</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="n">Params</span><span class="p">()</span>
-    <span class="c1"># Read the common simulation&#39;s parameters</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">common_parser</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;input_file&quot;</span><span class="p">])</span>
-    <span class="c1"># Let&#39;s make sure we are not printing to screen</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Control</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="c1"># Create simulation&#39;s directories</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">create_directories</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="c1"># Create simulation&#39;s parameters</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">assign_attributes</span><span class="p">()</span>
-    <span class="c1"># Let&#39;s change the screening parameter</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">Potential</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="n">kappa</span>
-    <span class="c1"># Calculate potential dependent parameters</span>
-    <span class="n">yukawa</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Note that we don&#39;t want to overwrite each simulation</span>
+    <span class="c1"># So we save each simulation in its own folder by passing</span>
+    <span class="c1"># a dictionary of dictionary with folder&#39;s name</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;IO&quot;</span><span class="p">:</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;yocp_kappa</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">kappa</span><span class="p">),</span>
+                <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;yocp_kappa</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
+            <span class="p">},</span>
+        <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
+            <span class="p">{</span><span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="n">kappa</span><span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1"># Initialize the simulation</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
     <span class="c1"># Run the simulation</span>
-    <span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-    <span class="c1"># Delete params and restart</span>
-    <span class="k">del</span> <span class="n">params</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="n">diffusion</span> <span class="o">=</span> <span class="n">TransportCoefficient</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
+                                           <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;production&#39;</span><span class="p">,</span>
+                                           <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Notice how both the simulation and the postprocessing can be done all in one script.</p>
 </div>
 </div>
 
@@ -326,7 +290,7 @@ autocorrelation function. An example script looks like this</p>
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Sep, 18, 2020.
+        Last updated on Oct, 17, 2020.
       </span>
 
     </p>

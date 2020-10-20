@@ -20,14 +20,14 @@ Potential:
 
 Integrator:
     type: Verlet                  # velocity integrator type
-    equilibration_steps: 10000                  # number of timesteps for the equilibrium
-    production_steps: 100000               # number of timesteps after the equilibrium
-    eq_dump_step: 100
-    prod_dump_step: 100
+    equilibration_steps: 5000                  # number of timesteps for the equilibrium
+    production_steps: 50000               # number of timesteps after the equilibrium
+    eq_dump_step: 10
+    prod_dump_step: 5
 
 Thermostat:
     type: Berendsen               # thermostat type
-    relaxation_timestep: 20
+    relaxation_timestep: 0
     tau: 5.0
     temperatures_eV: 0.5
 
@@ -40,7 +40,9 @@ Control:
 
 IO:
     verbose: yes
-    job_dir: yukawa_mks_p3m  # dir name to save data.
+    simulations_dir: Simulations
+    job_dir: yocp_pppm  # dir name to save data.
+    job_id: yocp
 
 PostProcessing:
   - RadialDistributionFunction:
