@@ -12,11 +12,11 @@ Potential:
     type: Yukawa
     method: P3M                   # Particle-Particle Particle-Mesh
     kappa: 0.5
-    rc: 2.79946255e-10            # [m]
-    pppm_mesh: [64, 64, 64]
+    rc: 1.146503e-10 #2.79946255e-10            # [m]
+    pppm_mesh: [8, 8, 8]
     pppm_aliases: [3,3,3]
     pppm_cao: 6
-    pppm_alpha_ewald: 1.16243741e+10  # 1/[m]
+    pppm_alpha_ewald: 1.090272e+09 #1.16243741e+10  # 1/[m]
 
 Integrator:
     type: Verlet                  # velocity integrator type

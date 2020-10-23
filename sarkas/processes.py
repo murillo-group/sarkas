@@ -140,7 +140,7 @@ class PreProcess:
         self.input_file = input_file if input_file else None
         self.loops = 10
         self.estimate = False
-        self.pm_meshes = np.array([16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
+        self.pm_meshes = np.array([8, 16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
         self.pp_cells = np.arange(3, 16, dtype=int)
         self.timer = SarkasTimer()
         self.io = InputOutput()
@@ -348,11 +348,15 @@ class PreProcess:
         self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))
         for i in range(len(self.pm_meshes)):
             for j in range(len(self.pp_cells)):
-                self.lagrangian[i, j] = abs(pp_errs[i, j] ** 2 * pp_times[i, j] - pm_errs[i] ** 2 * pm_times[i])
+                self.lagrangian[i, j] = abs(pp_errs[i, j] * pp_times[i, j] - pm_errs[i] * pm_times[i])
+
+
 
         best = np.unravel_index(self.lagrangian.argmin(), self.lagrangian.shape)
         self.best_mesh = self.pm_meshes[best[0]]
         self.best_cells = self.pp_cells[best[1]]
+
+        self.make_lagrangian_plot()
 
         # set the best parameter
         self.potential.pppm_mesh = self.best_mesh * np.ones(3, dtype=int)
@@ -363,14 +367,14 @@ class PreProcess:
         # print report
         self.io.timing_study(self)
         # time prediction
-        predicted_times = pp_times[best] + pm_times[best[0]]
+        self.predicted_times = pp_times[best] + pm_times[best[0]]
         # Print estimate of run times
         self.io.time_stamp('Equilibration',
-                           self.timer.time_division(predicted_times * self.integrator.equilibration_steps))
+                           self.timer.time_division(self.predicted_times * self.integrator.equilibration_steps))
         self.io.time_stamp('Production',
-                           self.timer.time_division(predicted_times * self.integrator.production_steps))
+                           self.timer.time_division(self.predicted_times * self.integrator.production_steps))
         self.io.time_stamp('Total Run',
-                           self.timer.time_division(predicted_times * (self.integrator.equilibration_steps
+                           self.timer.time_division(self.predicted_times * (self.integrator.equilibration_steps
                                               + self.integrator.production_steps)))
 
     def make_lagrangian_plot(self):
@@ -389,7 +393,7 @@ class PreProcess:
         ax.scatter(self.best_mesh, self.best_cells, s=200, c='k')
         ax.set_xlabel('Mesh size')
         ax.set_ylabel(r'No. Cells = $1/r_c$')
-        ax.set_title('2D self.lagrangian')
+        ax.set_title('2D Lagrangian')
         fig.savefig(os.path.join(self.io.preprocessing_dir, '2D_Lagrangian.png'))
         fig.show()
 

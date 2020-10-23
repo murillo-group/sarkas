@@ -1,5 +1,5 @@
 from sarkas.processes import Simulation, PostProcess
-# from sarkas.processes import PreProcess
+from sarkas.processes import PreProcess
 # from numpy.random import Generator, PCG64
 
 input_file_name = 'sarkas/examples/yukawa_mks_p3m.yaml'
@@ -10,16 +10,16 @@ input_file_name = 'sarkas/examples/yukawa_mks_p3m.yaml'
 # preproc.setup(read_yaml=True)
 # preproc.run(loops=5)
 
-# sim = Simulation(input_file_name)
-# sim.setup(read_yaml=True)
-# sim.run()
+sim = Simulation(input_file_name)
+sim.setup(read_yaml=True)
+sim.run()
 
 postproc = PostProcess(input_file_name)
 postproc.setup(read_yaml=True)
 #
-# postproc.rdf.setup(postproc.parameters)
-# postproc.rdf.save()
-# postproc.rdf.plot(show=False)
+postproc.rdf.setup(postproc.parameters)
+postproc.rdf.save()
+postproc.rdf.plot(show=False)
 #
 postproc.therm.setup(postproc.parameters)
 postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=False)
