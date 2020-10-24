@@ -1551,15 +1551,17 @@ class Thermodynamics(Observable):
                 self.dump_step = self.eq_dump_step
                 self.fldr = self.equilibration_dir
                 self.no_steps = self.equilibration_steps
-
+                self.parse(phase)
+                self.dataframe = self.dataframe.iloc[1:,:]
+                avg_array = np.array([i for i in range(1, self.no_dumps)])
             else:
                 self.no_dumps = self.prod_no_dumps
                 self.dump_dir = self.prod_dump_dir
                 self.dump_step = self.prod_dump_step
                 self.fldr = self.production_dir
                 self.no_steps = self.production_steps
-
-            self.parse(phase)
+                self.parse(phase)
+                avg_array = np.array([i for i in range(1, self.no_dumps + 1)])
         else:
             self.parse()
 
@@ -1583,14 +1585,14 @@ class Thermodynamics(Observable):
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Temperature"], "Time",
                                                                "Temperature", self.units)
-        T_cumavg = self.dataframe["Temperature"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        T_cumavg = self.dataframe["Temperature"].cumsum() / avg_array
 
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
         T_main_plot.axhline(ymul * self.T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
 
         Delta_T = (self.dataframe["Temperature"] - self.T_desired) * 100 / self.T_desired
-        Delta_T_cum_avg = Delta_T.cumsum() / [i for i in range(1, self.no_dumps  + 1)]
+        Delta_T_cum_avg = Delta_T.cumsum() / avg_array
         T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T, alpha=0.5)
         T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T_cum_avg, alpha=0.8)
 
@@ -1614,15 +1616,15 @@ class Thermodynamics(Observable):
                                                                "Total Energy",
                                                                self.units)
 
-        E_cumavg = self.dataframe["Total Energy"].cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        E_cumavg = self.dataframe["Total Energy"].cumsum() / avg_array
 
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * E_cumavg, label='Cum Avg')
         E_main_plot.axhline(ymul * self.dataframe["Total Energy"].mean(), ls='--', c='r', alpha=0.7, label='Avg')
 
-        Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"][0]) * 100 / \
-                  self.dataframe["Total Energy"][0]
-        Delta_E_cum_avg = Delta_E.cumsum() / [i for i in range(1, self.no_dumps + 1)]
+        Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"].iloc[0]) * 100 / \
+                  self.dataframe["Total Energy"].iloc[0]
+        Delta_E_cum_avg = Delta_E.cumsum() /avg_array
 
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E, alpha=0.5)
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E_cum_avg, alpha=0.8)

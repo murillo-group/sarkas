@@ -3,108 +3,44 @@
 ==========
 Quickstart
 ==========
-Once installation is complete you can start running Sarkas. In the following we will run a quick example comparing
-the old and new way to run plasma MD simulations. Sarkas allows the use of both methods so that we don't loose the
-advantages of each method. The two ways in which we can run a simulation are
+Once installation is complete you can start running Sarkas. This quickstart guide will walk you through
+a simple example in order to check that everything is running smoothly.
 
-- Old school: using a terminal window and ``bash`` scripting
-
-- New school: using a python script/jupyter notebook
-
-Old School
-==========
-First and foremost we run the help command in a terminal window
-
-.. code-block:: bash
-
-    $ sarkas_simulate -h
-
-This will produce the following output
-
-.. figure:: Help_output.png
-    :alt: Figure not found
-
-This output prints out the different options with which you can run Sarkas.
-
-- ``-i`` or ``--input`` is required and is the path to the YAML input file of our simulation.
-- ``-c`` or ``--check_status`` which can be either ``equilibration`` or ``production`` and indicates whether we want to check the equilibration or production phase of the run.
-- ``-t`` or ``--pre_run_testing`` is a boolean flag indicating whether to run a test of our input parameters and estimate the simulation times.
-- ``-p`` or ``--plot_show`` is a boolean flag indicating whether to show plots to screen.
-- ``-v`` or ``--verbose`` boolean for verbose output.
-- ``-d`` or ``--sim_dir`` name of the directory storing all the simulations.
-- ``-j`` or ``--job_id`` name of the directory of the current run.
-- ``-s`` or ``--seed`` sets the random number seed.
-- ``-e`` or ``--estimate`` estimate the best P3M parameters of your run.
-- ``-r`` or ``--restart`` for starting the simulation from a specific point.
-
-The ``--input`` option is the only required option as it refers to the input file.
-If we wanted to run multiple simulations of the same system but with different initial conditions
-a typical bash script would look like this
-
-.. code-block:: bash
-
-    conda activate sarkas
-
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 125125 -d run1
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 281756 -d run2
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 256158 -d run3
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 958762 -d run4
-    sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s 912856 -d run5
-
-    conda deactivate
-
-If you are familiar with ``bash`` scripting you could make the above statements in a loop and make many more simulations.
-Once the simulations are done it's time to analyze the data. This is usually done by a python script.
-This was the old way of running simulations.
-
-New School
-==========
-Here we find the first advantage of Sarkas: removing the need to know multiple languages.
-Sarkas is not a Python wrapper around an existing MD code. It is entirely written in Python to allow users
-to modify the codes for their specific needs. This choice, however, does not come at the expense
-of speed. In fact, Sarkas, via the use of ``Numpy`` and ``Numba`` packages, can run as fast,
-if not faster, than low-level languages like ``C/C++`` and ``Fortran``.
-
-Sarkas was created with the idea of incorporating the entire simulation workflow in a single Python
-script. Let's say we want to run a set of ten simulations of a Yukawa OCP for different
-screening parameters and measure their diffusion coefficient. An example script looks like this
+In a IPython kernel you can run the command
 
 .. code-block:: python
 
-    from sarkas.processes import Simulation, PostProcess
-    from sarkas.tools.transport import TransportCoefficient
-    import numpy as np
-    import os
+    %run quickstart_example
 
-    # Path to the input file
-    examples_folder = os.path.join('sarkas', 'examples')
-    input_file_name = os.path.join(examples_folder,'yukawa_mks.yaml')
+This is a Python script ``quickstart_example.py`` that was download with the repository.
+This example script will run a short simulation using the ``egs_langevin.yaml`` input file
+found in the examples directory in sarkas.
 
-    # Create arrays of screening parameters
-    kappas = np.linspace(1, 10)
-    # Run 10 simulations
-    for i, kappa in enumerate(kappas):
-        # Note that we don't want to overwrite each simulation
-        # So we save each simulation in its own folder by passing
-        # a dictionary of dictionary with folder's name
-        args = {
-            "IO":
-                {
-                    "job_id": "yocp_kappa{}".format( kappa),
-                    "job_dir": "yocp_kappa{}".format(kappa)
-                },
-            "Potential":
-                {"kappa": kappa}
-        }
-        # Initialize the simulation
-        sim = Simulation(input_file_name)
-        sim.setup(read_yaml=True, other_inputs=args)
-        # Run the simulation
-        sim.run()
+The output to screen should look something like this
 
-        diffusion = TransportCoefficient.diffusion(postproc.parameters,
-                                               phase='production',
-                                               show=True)
+.. figure:: quickstart_output_1.png
+    :alt: Quickstart Output Part 1
 
+The Sarkas figlet will probably look different since it is created with random font. If nothing has
+changed in the input yaml file all the simulation parameters will be the same as in the figure above.
+Below is the rest of the output.
 
-Notice how both the simulation and the postprocessing can be done all in one script.
+.. figure:: quickstart_output_2.png
+    :alt: Quickstart Output Part 2
+
+The initialization times will likely be different than in the figure as they are hardware dependent.
+
+The white bar at the end is a nice feature from the package ``tqdm``. It is a progress bar that indicates the current
+status of the simulation. The numbers 3247 / 5000 indicate the completed timesteps and total timesteps, respectively, of
+the Production phase of the simulation.
+
+Depending on your hardware the numbers in the brackets at the end will be different. The first number, 00:53,
+indicates the elapsed time since the beginning of the production loop, the second number, 00:28, indicates
+the estimated total time of the production phase, and the last number indicates the number of iteration per second that
+your computer is performing. Note this number change continuously since they are constantly being calculated. If you
+want to know more on how they are calculated see the python package ``tqdm``.
+
+Once the simulation is complete your output should look something like this
+
+.. figure:: quickstart_output_3.png
+    :alt: Quickstart Output Part 3

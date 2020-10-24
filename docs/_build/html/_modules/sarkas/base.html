@@ -275,7 +275,7 @@
 <span class="sd">    species_names : list</span>
 <span class="sd">        Name of each species. Len = (``num_species``)</span>
 
-<span class="sd">    species_wp : numpy.ndarray</span>
+<span class="sd">    species_plasma_frequencies : numpy.ndarray</span>
 <span class="sd">        Plasma Frequency of each species. Shape = (``num_species``)</span>
 
 <span class="sd">    species_num_dens : numpy.ndarray</span>
@@ -338,7 +338,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dic</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dic</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="kc">None</span>
@@ -464,7 +464,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">species_charges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_wp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
 
         <span class="n">wp_tot_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -529,7 +529,7 @@
                 <span class="n">sp</span><span class="o">.</span><span class="n">calc_debye_length</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kB</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span>
                 <span class="n">lambda_D</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">debye_length</span> <span class="o">**</span> <span class="mi">2</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">species_wp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">wp</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">wp</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">number_density</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
@@ -1412,7 +1412,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Oct, 17, 2020.
+        Last updated on Oct, 24, 2020.
       </span>
 
     </p>

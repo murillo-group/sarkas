@@ -103,7 +103,10 @@ class InputOutput:
             self.__dict__.update(dics["IO"])
 
         if 'Control' in dics.keys():
-            for key, value in dics['Control'].items():
+            keyed = 'Control'
+        elif 'Parameters' in dics.keys():
+            keyed = 'Parameters'
+            for key, value in dics[keyed].items():
 
                 if key == 'verbose':
                     self.verbose = value

@@ -49,7 +49,7 @@ scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))]
 
 
 setuptools.setup(
-    name=PACKAGENAME + "-murillogroup", # Replace with your own username
+    name=PACKAGENAME + "-md",  # Replace with your own username
     version=VERSION,
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
@@ -68,7 +68,8 @@ setuptools.setup(
         'pyyaml'
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
+        # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
+        'Development Status :: 4 - Beta',
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",

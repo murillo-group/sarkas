@@ -75,15 +75,15 @@ class Integrator:
         self.box_lengths = None
         self.verbose = False
 
-    def __repr__(self):
-        sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Integrator( \n'
-        for key, value in sortedDict.items():
-            disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
-        return disp
+    # def __repr__(self):
+    #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
+    #     disp = 'Integrator( \n'
+    #     for key, value in sortedDict.items():
+    #         disp += "\t{} : {}\n".format(key, value)
+    #     disp += ')'
+    #     return disp
 
-    def from_dict(self, input_dict: dict) :
+    def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
 

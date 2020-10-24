@@ -20,7 +20,7 @@ Potential:
 
 Integrator:
     type: Verlet                  # velocity integrator type
-    equilibration_steps: 5000                  # number of timesteps for the equilibrium
+    equilibration_steps: 50000                  # number of timesteps for the equilibrium
     production_steps: 50000               # number of timesteps after the equilibrium
     eq_dump_step: 10
     prod_dump_step: 5
@@ -41,7 +41,7 @@ Control:
 IO:
     verbose: yes
     simulations_dir: Simulations
-    job_dir: yocp_pppm  # dir name to save data.
+    job_dir: yocp_pppm_Neq50k  # dir name to save data.
     job_id: yocp
 
 PostProcessing:

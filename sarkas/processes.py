@@ -1,4 +1,3 @@
-
 import numpy as np
 import copy as py_copy
 from numba import njit
@@ -26,6 +25,7 @@ class PostProcess:
         Path to the YAML input file.
 
     """
+
     def __init__(self, input_file=None):
         self.potential = Potential()
         self.integrator = Integrator()
@@ -215,6 +215,18 @@ class PreProcess:
         self.parameters.integrator = self.integrator.type
         self.parameters.thermostat = self.thermostat.type
 
+        # Copy some integrator parameters if not already defined
+        if not hasattr(self.parameters, 'dt'):
+            self.parameters.dt = self.integrator.dt
+        if not hasattr(self.parameters, 'equilibration_steps'):
+            self.parameters.equilibration_steps = self.integrator.equilibration_steps
+        if not hasattr(self.parameters, 'eq_dump_step'):
+                self.parameters.eq_dump_step = self.integrator.eq_dump_step
+        if not hasattr(self.parameters, 'production_steps'):
+            self.parameters.production_steps = self.integrator.production_steps
+        if not hasattr(self.parameters, 'prod_dump_step'):
+            self.parameters.prod_dump_step = self.integrator.prod_dump_step
+
         self.parameters.setup(self.species)
 
         t0 = self.timer.current()
@@ -231,9 +243,9 @@ class PreProcess:
         self.io.simulation_summary(self)
         time_end = self.timer.current()
 
-        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0) )
+        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
         self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
-        self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0) )
+        self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
 
         self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
 
@@ -284,6 +296,10 @@ class PreProcess:
 
         if self.estimate:
             self.estimate_best_parameters()
+
+        # Delete the energy files create during the estimation runs
+        os.remove(self.io.eq_energy_filename)
+        os.remove(self.io.prod_energy_filename)
 
     def estimate_best_parameters(self):
         """Estimate the best number of mesh points and cutoff radius."""
@@ -350,8 +366,6 @@ class PreProcess:
             for j in range(len(self.pp_cells)):
                 self.lagrangian[i, j] = abs(pp_errs[i, j] * pp_times[i, j] - pm_errs[i] * pm_times[i])
 
-
-
         best = np.unravel_index(self.lagrangian.argmin(), self.lagrangian.shape)
         self.best_mesh = self.pm_meshes[best[0]]
         self.best_cells = self.pp_cells[best[1]]
@@ -375,7 +389,7 @@ class PreProcess:
                            self.timer.time_division(self.predicted_times * self.integrator.production_steps))
         self.io.time_stamp('Total Run',
                            self.timer.time_division(self.predicted_times * (self.integrator.equilibration_steps
-                                              + self.integrator.production_steps)))
+                                                                            + self.integrator.production_steps)))
 
     def make_lagrangian_plot(self):
 
@@ -421,49 +435,56 @@ class PreProcess:
     def time_acceleration(self):
 
         pp_acc_time = np.zeros(self.loops)
-        pm_acc_time = np.zeros(self.loops)
         for i in range(self.loops):
             self.timer.start()
             self.potential.update_linked_list(self.particles)
             pp_acc_time[i] = self.timer.stop()
-            self.timer.start()
-            self.potential.update_pm(self.particles)
-            pm_acc_time[i] = self.timer.stop()
 
         self.pp_acc_time = np.copy(pp_acc_time)
-        self.pm_acc_time = np.copy(pm_acc_time)
-
         # Calculate the mean excluding the first value because that time include numba compilation time
         pp_mean_time = self.timer.time_division(np.mean(pp_acc_time[1:]))
-        pm_mean_time = self.timer.time_division(np.mean(pm_acc_time[1:]))
 
         self.io.preprocess_timing("PP", pp_mean_time, self.loops)
 
+        # PM acceleration
         if self.potential.pppm_on:
+            self.pm_acc_time = np.zeros(self.loops)
+            self.timer.start()
+            self.potential.update_pm(self.particles)
+            self.pm_acc_time[i] = self.timer.stop()
+            pm_mean_time = self.timer.time_division(np.mean(self.pm_acc_time[1:]))
             self.io.preprocess_timing("PM", pm_mean_time, self.loops)
 
     def time_integrator_loop(self):
         """Run several loops of the equilibration and production phase to estimate the total time of the simulation."""
-        self.loops *= 3
+        # Save the original number of timesteps
         steps = np.array([self.integrator.equilibration_steps, self.integrator.production_steps])
-        dump_steps = np.array([self.integrator.eq_dump_step, self.integrator.prod_dump_step])
+        #dump_steps = np.array([self.integrator.eq_dump_step, self.integrator.prod_dump_step])
+
+        # Update the equilibration and production timesteps for estimation
         self.integrator.production_steps = self.loops
         self.integrator.equilibration_steps = self.loops
 
         if self.io.verbose:
             print('\n----------------- Estimating Simulation Times -------------------\n')
+
+        # Run few equilibration steps to estimate the equilibration time
         self.timer.start()
         self.integrator.equilibrate(0, self.particles, self.io)
         eq_time = self.timer.stop() / self.loops
+
+        # Run few production steps to estimate the equilibration time
         self.timer.start()
         self.integrator.produce(0, self.particles, self.io)
         prod_time = self.timer.stop() / self.loops
         if self.io.verbose:
             print('\n')
+
+        # Print the average equilibration & production times
         self.io.preprocess_timing("Equilibration", self.timer.time_division(eq_time), self.loops)
         self.io.preprocess_timing("Production", self.timer.time_division(prod_time), self.loops)
 
-        # Print estimate of run times
+        # Restore the original number of timesteps and print an estimate of run times
         self.integrator.equilibration_steps = steps[0]
         self.integrator.production_steps = steps[1]
 
@@ -739,7 +760,8 @@ class Simulation:
         Path to the YAML input file.
 
     """
-    def __init__(self, input_file: str =None) -> None:
+
+    def __init__(self, input_file: str = None) -> None:
         self.potential = Potential()
         self.integrator = Integrator()
         self.thermostat = Thermostat()
@@ -750,7 +772,7 @@ class Simulation:
         self.timer = SarkasTimer()
         self.io = InputOutput()
 
-    def common_parser(self, filename=None):
+    def common_parser(self, filename: str = None) -> None:
         """
         Parse simulation parameters from YAML file.
 
@@ -758,7 +780,6 @@ class Simulation:
         ----------
         filename: str
             Input YAML file
-
 
         """
         if filename:
@@ -905,14 +926,18 @@ class Simulation:
         self.parameters.potential_type = self.potential.type
         self.parameters.cutoff_radius = self.potential.rc
         self.parameters.magnetized = self.integrator.magnetized
-        # integrator parameters
-        # self.parameters.integrator = self.integrator.type
-        self.parameters.equilibration_steps = self.integrator.equilibration_steps
-        self.parameters.production_steps = self.integrator.production_steps
-        self.parameters.prod_dump_step = self.integrator.prod_dump_step
-        self.parameters.eq_dump_step = self.integrator.eq_dump_step
 
-        # self.parameters.thermostat = self.thermostat.type
+        # Copy some integrator parameters if not already defined
+        if not hasattr(self.parameters, 'dt'):
+            self.parameters.dt = self.integrator.dt
+        if not hasattr(self.parameters, 'equilibration_steps'):
+            self.parameters.equilibration_steps = self.integrator.equilibration_steps
+        if not hasattr(self.parameters, 'eq_dump_step'):
+                self.parameters.eq_dump_step = self.integrator.eq_dump_step
+        if not hasattr(self.parameters, 'production_steps'):
+            self.parameters.production_steps = self.integrator.production_steps
+        if not hasattr(self.parameters, 'prod_dump_step'):
+            self.parameters.prod_dump_step = self.integrator.prod_dump_step
 
         self.parameters.setup(self.species)
 

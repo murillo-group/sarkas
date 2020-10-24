@@ -113,7 +113,7 @@ class Parameters:
     species_names : list
         Name of each species. Len = (``num_species``)
 
-    species_wp : numpy.ndarray
+    species_plasma_frequencies : numpy.ndarray
         Plasma Frequency of each species. Shape = (``num_species``)
 
     species_num_dens : numpy.ndarray
@@ -176,7 +176,7 @@ class Parameters:
 
     """
 
-    def __init__(self, dic: dict = None):
+    def __init__(self, dic: dict = None)-> None:
 
         self.input_file = None
         self.job_id = None
@@ -302,7 +302,7 @@ class Parameters:
         self.species_charges = np.zeros(self.num_species)
         self.species_names = []
 
-        self.species_wp = np.zeros(self.num_species)
+        self.species_plasma_frequencies = np.zeros(self.num_species)
         self.species_num_dens = np.zeros(self.num_species)
 
         wp_tot_sq = 0.0
@@ -367,7 +367,7 @@ class Parameters:
                 sp.calc_debye_length(self.kB, self.fourpie0)
                 lambda_D += sp.debye_length ** 2
 
-            self.species_wp[i] = sp.wp
+            self.species_plasma_frequencies[i] = sp.wp
             self.species_num_dens[i] = sp.number_density
 
         for i, sp in enumerate(species):

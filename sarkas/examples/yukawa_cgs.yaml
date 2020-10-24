@@ -1,0 +1,56 @@
+# keywords: YOCP, Yukawa, PP, mks, random_no_reject
+Particles:
+    - Species:
+        name: C
+        number_density: 1.13666931822e+23   # N/cc
+        mass: 2.0089e-23                    # g
+        num: 1000                            # total number of particles
+        Z: 1.976599                         # degree of ionization
+        temperature: 5.45388e+03            # K = 0.5 eV
+
+Potential: 
+    type: Yukawa                            # potential type
+    method: PP
+    rc: 6.0e-8                              # cm, cut-off radius
+
+Integrator:
+    type: Verlet
+    dt: 0.5e-16                             # sec
+    equilibration_steps: 5000              # number of timesteps for the equilibrium
+    production_steps: 10000                # number of timesteps after the equilibrium
+    eq_dump_step: 100
+    prod_dump_step: 10
+
+Thermostat:
+    type: Berendsen                         # thermostat type
+    relaxation_timestep: 0
+    tau: 5.0
+
+Parameters:
+    units: cgs                              # units
+    load_method: random_no_reject
+    rdf_nbins: 500
+    boundary_conditions: periodic
+
+IO:
+    verbose: yes
+    job_dir: yocp_cgs_pp        # dir name to save data. The default is "Checkpoint"
+
+PostProcessing:
+  - RadialDistributionFunction:
+      no_bins: 500
+
+  - Thermodynamics:
+      phase: production
+
+  - HermiteCoefficients:
+      no_bins: 500
+      hermite_order: 8
+
+  - VelocityMoments:
+      no_bins: 500
+
+  - VelocityAutocorrelationFunctions:
+      phase: production
+
+  - ElectricCurrent:

@@ -137,11 +137,10 @@ class TransportCoefficient:
         vacf.parse()
         time = np.array(vacf.dataframe["Time"])
         D = np.zeros((params.num_species, len(time)))
-        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 9))
+        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 10))
         ax21 = ax2.twiny()
         # extra space for the second axis at the bottom
-        fig.subplots_adjust(bottom=0.2)
-
+        fig.subplots_adjust(bottom=0.1)
         const = 1.0 / 3.0
         if params.num_species > 1:
             const *= params.total_mass_density
@@ -174,7 +173,7 @@ class TransportCoefficient:
         ax21.set_xscale('log')
         ax21.grid(False)
         # Offset the twin axis below the host
-        ax21.spines["bottom"].set_position(("axes", -0.3))
+        ax21.spines["bottom"].set_position(("axes", -0.2))
 
         # Turn on the frame for the twin axis, but then hide all
         # but the bottom spine
@@ -225,7 +224,7 @@ class TransportCoefficient:
         D_ij = np.zeros((no_dij, no_int))
 
         indx = 0
-        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 9))
+        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 10))
         ax21 = ax2.twiny()
         # extra space for the second axis at the bottom
         fig.subplots_adjust(bottom=0.2)
@@ -322,7 +321,7 @@ class TransportCoefficient:
 
         # Calculate the acf of the pressure tensor
 
-        fig, axes = plt.subplots(2, 3, sharex=True, figsize=(16, 9))
+        fig, axes = plt.subplots(2, 3, sharex=True, figsize=(16, 10))
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
                 integrand = np.array(energies.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)])

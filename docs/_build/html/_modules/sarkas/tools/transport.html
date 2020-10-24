@@ -299,11 +299,10 @@
         <span class="n">vacf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vacf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">])</span>
         <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)))</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="p">[</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="p">[</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
         <span class="n">ax21</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
         <span class="c1"># extra space for the second axis at the bottom</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
-
+        <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
         <span class="n">const</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span>
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">const</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_mass_density</span>
@@ -336,7 +335,7 @@
         <span class="n">ax21</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="c1"># Offset the twin axis below the host</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="s2">&quot;axes&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">))</span>
+        <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="s2">&quot;axes&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">))</span>
 
         <span class="c1"># Turn on the frame for the twin axis, but then hide all</span>
         <span class="c1"># but the bottom spine</span>
@@ -387,7 +386,7 @@
         <span class="n">D_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">no_dij</span><span class="p">,</span> <span class="n">no_int</span><span class="p">))</span>
 
         <span class="n">indx</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="p">[</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="p">[</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
         <span class="n">ax21</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
         <span class="c1"># extra space for the second axis at the bottom</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
@@ -484,7 +483,7 @@
 
         <span class="c1"># Calculate the acf of the pressure tensor</span>
 
-        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ax1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dim_lbl</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ax2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dim_lbl</span><span class="p">):</span>
                 <span class="n">integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure Tensor ACF </span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)])</span>
@@ -575,7 +574,7 @@
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Oct, 17, 2020.
+        Last updated on Oct, 24, 2020.
       </span>
 
     </p>

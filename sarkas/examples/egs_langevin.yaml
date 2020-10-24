@@ -4,7 +4,7 @@ Particles:
         name: Li 
         number_density: 4.450883e+28       # N/cc
         mass: 1.15258e-26                # g, ptcl mass of ion1
-        num: 10000                    # total number of particles of ion1
+        num: 1000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
         temperature: 600.0
 
@@ -13,33 +13,60 @@ Potential:
   method: PP                    # Linked-cell
   rc: 1.e-09             # cut-off radius, cm
 
-
 Integrator:
   type: Verlet_Langevin                  # velocity integrator type
   langevin_type: BBK
   langevin_gamma: 1.0e+14
-  equilibration_steps: 500                     # number of timesteps for the equilibrium
-  production_steps: 500                  # number of timesteps afater the equilibrium
+  equilibration_steps: 0                     # number of timesteps for the equilibrium
+  production_steps: 5000                  # number of timesteps afater the equilibrium
   prod_dump_step: 10
+  eq_dump_step: 1
   dt: 9.45e-17            # sec
 
 Thermostat:
   type: Berendsen               # thermostat type
   relaxation_rate: 0.1
-  relaxation_timestep: 2000
+  relaxation_timestep: 2
   temperatures: 600
-
 
 Parameters:
   units: mks                    # units
-  writexyz: no                  # no xyz output
   verbose: yes
   job_dir: egs        # dir name to save data. The default is "Checkpoint"
   load_method: random_no_reject
-  restart_step: 100
   boundary_conditions: periodic
   rdf_no_bins: 500
+
+IO:
+    verbose: yes
+    simulations_dir: Simulations
+    job_dir: egs_langevin  # dir name to save data.
+    job_id: egs
 
 PostProcessing:
   - RadialDistributionFunction:
       no_bins: 500
+
+  - Thermodynamics:
+      phase: production
+
+  - HermiteCoefficients:
+      no_bins: 500
+      hermite_order: 8
+
+  - DynamicStructureFactor:
+      no_ka_harmonics: 5
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 5
+
+  - CurrentCorrelationFunctions:
+      no_ka_harmonics: 5
+
+  - VelocityMoments:
+      no_bins: 500
+
+  - VelocityAutocorrelationFunctions:
+      phase: production
+
+  - ElectricCurrent:

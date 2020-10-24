@@ -208,8 +208,8 @@ This is done by running
     preproc.setup(read_yaml=True)
     preproc.run(loops=5, estimate=False)
 
-in your IPython kernel or Jupyter Notebook (to be expanded). The number at the end indicates the number of loops
-over which we wish to average the force calculation time. The first part of the output of this command looks something
+in your IPython kernel or Jupyter Notebook (to be expanded).
+The first part of the output of this command looks something
 like this
 
 .. image:: S_testing_output_1.png

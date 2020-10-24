@@ -86,11 +86,7 @@
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#new-school">New School</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -169,101 +165,37 @@
             
   <div class="section" id="quickstart">
 <span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<p>Once installation is complete you can start running Sarkas. In the following we will run a quick example comparing
-the old and new way to run plasma MD simulations. Sarkas allows the use of both methods so that we don’t loose the
-advantages of each method. The two ways in which we can run a simulation are</p>
-<ul class="simple">
-<li><p>Old school: using a terminal window and <code class="docutils literal notranslate"><span class="pre">bash</span></code> scripting</p></li>
-<li><p>New school: using a python script/jupyter notebook</p></li>
-</ul>
-<div class="section" id="old-school">
-<h2>Old School<a class="headerlink" href="#old-school" title="Permalink to this headline">¶</a></h2>
-<p>First and foremost we run the help command in a terminal window</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sarkas_simulate -h
+<p>Once installation is complete you can start running Sarkas. This quickstart guide will walk you through
+a simple example in order to check that everything is running smoothly.</p>
+<p>In a IPython kernel you can run the command</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">run</span> <span class="n">quickstart_example</span>
 </pre></div>
 </div>
-<p>This will produce the following output</p>
+<p>This is a Python script <code class="docutils literal notranslate"><span class="pre">quickstart_example.py</span></code> that was download with the repository.
+This example script will run a short simulation using the <code class="docutils literal notranslate"><span class="pre">egs_langevin.yaml</span></code> input file
+found in the examples directory in sarkas.</p>
+<p>The output to screen should look something like this</p>
 <div class="figure align-default">
-<img alt="Figure not found" src="../_images/Help_output.png" />
+<img alt="Quickstart Output Part 1" src="../_images/quickstart_output_1.png" />
 </div>
-<p>This output prints out the different options with which you can run Sarkas.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-i</span></code> or <code class="docutils literal notranslate"><span class="pre">--input</span></code> is required and is the path to the YAML input file of our simulation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-c</span></code> or <code class="docutils literal notranslate"><span class="pre">--check_status</span></code> which can be either <code class="docutils literal notranslate"><span class="pre">equilibration</span></code> or <code class="docutils literal notranslate"><span class="pre">production</span></code> and indicates whether we want to check the equilibration or production phase of the run.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--pre_run_testing</span></code> is a boolean flag indicating whether to run a test of our input parameters and estimate the simulation times.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">--plot_show</span></code> is a boolean flag indicating whether to show plots to screen.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-v</span></code> or <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> boolean for verbose output.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-d</span></code> or <code class="docutils literal notranslate"><span class="pre">--sim_dir</span></code> name of the directory storing all the simulations.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-j</span></code> or <code class="docutils literal notranslate"><span class="pre">--job_id</span></code> name of the directory of the current run.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> or <code class="docutils literal notranslate"><span class="pre">--seed</span></code> sets the random number seed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-e</span></code> or <code class="docutils literal notranslate"><span class="pre">--estimate</span></code> estimate the best P3M parameters of your run.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">--restart</span></code> for starting the simulation from a specific point.</p></li>
-</ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">--input</span></code> option is the only required option as it refers to the input file.
-If we wanted to run multiple simulations of the same system but with different initial conditions
-a typical bash script would look like this</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate sarkas
-
-sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">125125</span> -d run1
-sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">281756</span> -d run2
-sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">256158</span> -d run3
-sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">958762</span> -d run4
-sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">912856</span> -d run5
-
-conda deactivate
-</pre></div>
+<p>The Sarkas figlet will probably look different since it is created with random font. If nothing has
+changed in the input yaml file all the simulation parameters will be the same as in the figure above.
+Below is the rest of the output.</p>
+<div class="figure align-default">
+<img alt="Quickstart Output Part 2" src="../_images/quickstart_output_2.png" />
 </div>
-<p>If you are familiar with <code class="docutils literal notranslate"><span class="pre">bash</span></code> scripting you could make the above statements in a loop and make many more simulations.
-Once the simulations are done it’s time to analyze the data. This is usually done by a python script.
-This was the old way of running simulations.</p>
-</div>
-<div class="section" id="new-school">
-<h2>New School<a class="headerlink" href="#new-school" title="Permalink to this headline">¶</a></h2>
-<p>Here we find the first advantage of Sarkas: removing the need to know multiple languages.
-Sarkas is not a Python wrapper around an existing MD code. It is entirely written in Python to allow users
-to modify the codes for their specific needs. This choice, however, does not come at the expense
-of speed. In fact, Sarkas, via the use of <code class="docutils literal notranslate"><span class="pre">Numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">Numba</span></code> packages, can run as fast,
-if not faster, than low-level languages like <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> and <code class="docutils literal notranslate"><span class="pre">Fortran</span></code>.</p>
-<p>Sarkas was created with the idea of incorporating the entire simulation workflow in a single Python
-script. Let’s say we want to run a set of ten simulations of a Yukawa OCP for different
-screening parameters and measure their diffusion coefficient. An example script looks like this</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
-<span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficient</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<span class="c1"># Path to the input file</span>
-<span class="n">examples_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span> <span class="s1">&#39;examples&#39;</span><span class="p">)</span>
-<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples_folder</span><span class="p">,</span><span class="s1">&#39;yukawa_mks.yaml&#39;</span><span class="p">)</span>
-
-<span class="c1"># Create arrays of screening parameters</span>
-<span class="n">kappas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="c1"># Run 10 simulations</span>
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kappas</span><span class="p">):</span>
-    <span class="c1"># Note that we don&#39;t want to overwrite each simulation</span>
-    <span class="c1"># So we save each simulation in its own folder by passing</span>
-    <span class="c1"># a dictionary of dictionary with folder&#39;s name</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;IO&quot;</span><span class="p">:</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;yocp_kappa</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">kappa</span><span class="p">),</span>
-                <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;yocp_kappa</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
-            <span class="p">},</span>
-        <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
-            <span class="p">{</span><span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="n">kappa</span><span class="p">}</span>
-    <span class="p">}</span>
-    <span class="c1"># Initialize the simulation</span>
-    <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
-    <span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
-    <span class="c1"># Run the simulation</span>
-    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-
-    <span class="n">diffusion</span> <span class="o">=</span> <span class="n">TransportCoefficient</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
-                                           <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;production&#39;</span><span class="p">,</span>
-                                           <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Notice how both the simulation and the postprocessing can be done all in one script.</p>
+<p>The initialization times will likely be different than in the figure as they are hardware dependent.</p>
+<p>The white bar at the end is a nice feature from the package <code class="docutils literal notranslate"><span class="pre">tqdm</span></code>. It is a progress bar that indicates the current
+status of the simulation. The numbers 3247 / 5000 indicate the completed timesteps and total timesteps, respectively, of
+the Production phase of the simulation.</p>
+<p>Depending on your hardware the numbers in the brackets at the end will be different. The first number, 00:53,
+indicates the elapsed time since the beginning of the production loop, the second number, 00:28, indicates
+the estimated total time of the production phase, and the last number indicates the number of iteration per second that
+your computer is performing. Note this number change continuously since they are constantly being calculated. If you
+want to know more on how they are calculated see the python package <code class="docutils literal notranslate"><span class="pre">tqdm</span></code>.</p>
+<p>Once the simulation is complete your output should look something like this</p>
+<div class="figure align-default">
+<img alt="Quickstart Output Part 3" src="../_images/quickstart_output_3.png" />
 </div>
 </div>
 
@@ -290,7 +222,7 @@ screening parameters and measure their diffusion coefficient. An example script 
         
         &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Oct, 17, 2020.
+        Last updated on Oct, 24, 2020.
       </span>
 
     </p>
