@@ -15,7 +15,7 @@ their choosing.
    :caption: Getting Started:
    
    installation
-   tutorial/quickstart
+   quickstart/QuickStart_Notebook
    tutorial/tutorial
 
 .. toctree::

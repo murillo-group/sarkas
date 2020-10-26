@@ -29,11 +29,11 @@ intersphinx_mapping = {
 
 # -- Project information -----------------------------------------------------
 project = 'Sarkas'
-copyright = '2020, MurilloGroup'
 author = 'MurilloGroup'
+copyright = '2020,' + author
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -52,7 +52,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
     'sphinx.ext.intersphinx',
-    'sphinx_autodoc_typehints'
+    'sphinx_autodoc_typehints',
+    'nbsphinx'
 ]
 
 # Napoleon settings
@@ -81,11 +82,14 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build',
-                    'notebooks',
+                    # 'notebooks',
                     'scripts',
                     'tests',
                     'Thumbs.db',
                     '.DS_Store']
+
+# Additional files needed for generating LaTeX/PDF output:
+latex_additional_files = ['references.bib']
 
 # -- Options for HTML output -------------------------------------------------
 

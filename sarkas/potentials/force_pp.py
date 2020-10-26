@@ -198,6 +198,7 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
         cx = int(pos[i, 0] / cell_length_per_dim[0])  # X cell
         cy = int(pos[i, 1] / cell_length_per_dim[1])  # Y cell
         cz = int(pos[i, 2] / cell_length_per_dim[2])  # Z cell
+
         # Determine cell in 3D volume for i-th particle
         c = cx + cy * cells_per_dim[0] + cz * cells_per_dim[0] * cells_per_dim[1]
         # List of particle indices occupying a given cell
@@ -218,42 +219,50 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
                 for cz_N in range(cz - 1, cz + 2):
                     # z cells
                     # Check periodicity: needed for 0th cell
-                    if cz_N < 0:
-                        cz_shift = cells_per_dim[2]
-                        rshift[2] = -box_lengths[2]
-                    # Check periodicity: needed for Nth cell
-                    elif cz_N >= cells_per_dim[2]:
-                        cz_shift = -cells_per_dim[2]
-                        rshift[2] = box_lengths[2]
-                    else:
-                        cz_shift = 0
-                        rshift[2] = 0.0
+                    # if cz_N < 0:
+                    #     cz_shift = cells_per_dim[2]
+                    #     rshift[2] = -box_lengths[2]
+                    # # Check periodicity: needed for Nth cell
+                    # elif cz_N >= cells_per_dim[2]:
+                    #     cz_shift = -cells_per_dim[2]
+                    #     rshift[2] = box_lengths[2]
+                    # else:
+                    #     cz_shift = 0
+                    #     rshift[2] = 0.0
+                    cz_shift = 0 + cells_per_dim[2] * (cz_N < 0) - cells_per_dim[2] * (cz_N >= cells_per_dim[2])
+                    rshift[2] = 0.0 - box_lengths[2] * (cz_N < 0) + box_lengths[2]*(cz_N >= cells_per_dim[2])
 
                     for cy_N in range(cy - 1, cy + 2):
                         # y cells
                         # Check periodicity
-                        if cy_N < 0:
-                            cy_shift = cells_per_dim[1]
-                            rshift[1] = -box_lengths[1]
-                        elif cy_N >= cells_per_dim[1]:
-                            cy_shift = -cells_per_dim[1]
-                            rshift[1] = box_lengths[1]
-                        else:
-                            cy_shift = 0
-                            rshift[1] = 0.0
+                        # if cy_N < 0:
+                        #     cy_shift = cells_per_dim[1]
+                        #     rshift[1] = -box_lengths[1]
+                        # elif cy_N >= cells_per_dim[1]:
+                        #     cy_shift = -cells_per_dim[1]
+                        #     rshift[1] = box_lengths[1]
+                        # else:
+                        #     cy_shift = 0
+                        #     rshift[1] = 0.0
+
+                        cy_shift = 0 + cells_per_dim[1] * (cy_N < 0) - cells_per_dim[1] * (cy_N >= cells_per_dim[1])
+                        rshift[1] = 0.0 - box_lengths[1] * (cy_N < 0) + box_lengths[1] * (cy_N >= cells_per_dim[1])
 
                         for cx_N in range(cx - 1, cx + 2):
                             # x cells
                             # Check periodicity
-                            if cx_N < 0:
-                                cx_shift = cells_per_dim[0]
-                                rshift[0] = -box_lengths[0]
-                            elif cx_N >= cells_per_dim[0]:
-                                cx_shift = -cells_per_dim[0]
-                                rshift[0] = box_lengths[0]
-                            else:
-                                cx_shift = 0
-                                rshift[0] = 0.0
+                            # if cx_N < 0:
+                            #     cx_shift = cells_per_dim[0]
+                            #     rshift[0] = -box_lengths[0]
+                            # elif cx_N >= cells_per_dim[0]:
+                            #     cx_shift = -cells_per_dim[0]
+                            #     rshift[0] = box_lengths[0]
+                            # else:
+                            #     cx_shift = 0
+                            #     rshift[0] = 0.0
+
+                            cx_shift = 0 + cells_per_dim[0] * (cx_N < 0) - cells_per_dim[0] * (cx_N >= cells_per_dim[0])
+                            rshift[0] = 0.0 - box_lengths[0] * (cx_N < 0) + box_lengths[0] * (cx_N >= cells_per_dim[0])
 
                             # Compute the location of the N-th cell based on shifts
                             c_N = (cx_N + cx_shift) + (cy_N + cy_shift) * cells_per_dim[0] \

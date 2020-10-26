@@ -415,7 +415,6 @@ class Integrator:
         # Periodic boundary condition
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
 
-
         return potential_energy
 
 
@@ -483,4 +482,3 @@ def remove_drift(vel, nums, masses):
             species_end = species_start + nums[ic]
             vel[species_start:species_end, :] -= P[ic, :] / (float(nums[ic]) * masses[ic])
             species_start = species_end
-

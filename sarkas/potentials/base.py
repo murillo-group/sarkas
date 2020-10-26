@@ -14,7 +14,7 @@ class Potential:
     matrix : array
         Potential's parameters.
 
-    algorithm : str
+    method : str
         Algorithm to use for force calculations.
         "PP" = Linked Cell List (default).
         "P3M" = Particle-Particle Particle-Mesh.
@@ -25,16 +25,16 @@ class Potential:
     type : str
         Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.
 
-    aliases : array, shape(3)
+    pppm_aliases : array, shape(3)
         Number of aliases in each direction.
 
-    cao : int
+    pppm_cao : int
         Charge assignment order.
 
     on : bool
         Flag.
 
-    MGrid : array, shape(3), int
+    pppm_mesh : array, shape(3), int
         Number of mesh point in each direction.
 
     Mx : int
@@ -172,7 +172,7 @@ class Potential:
 
         # Lennard-Jones potential
         if self.type.lower() == "lj":
-            from sarkas.potentials import lennardjones612 as lj
+            from sarkas.potentials import lennardjones as lj
             lj.update_params(self, params)
 
         # Moliere potential

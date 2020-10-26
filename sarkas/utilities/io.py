@@ -16,7 +16,7 @@ FONTS = ['speed',
          'larry3d',
          'ogre']
 
-FG_COLORS = ['255;255;255',
+BG_COLORS = ['255;255;255',
              '13;177;75',
              '153;162;162',
              '240;133;33',
@@ -28,7 +28,7 @@ FG_COLORS = ['255;255;255',
              '203;90;40'
              ]
 
-BG_COLORS = ['24;69;49',
+FG_COLORS = ['24;69;49',
              '0;129;131',
              '83;80;84',
              '110;0;95'
@@ -678,6 +678,12 @@ class InputOutput:
             print("[g]" if simulation.parameters.units == "cgs" else "[kg]")
             print("\tCharge = {:2.6e} ".format(sp.charge), end='')
             print("[esu]" if simulation.parameters.units == "cgs" else "[C]")
+            if simulation.potential.type == 'LJ':
+                print("\tEpsilon = {:2.6e} ".format(sp.epsilon), end='')
+                print("[erg]" if simulation.parameters.units == "cgs" else "[J]")
+                print("\tSigma = {:2.6e} ".format(sp.sigma), end='')
+                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+
             print('\tTemperature = {:2.6e} [K]'.format(sp.temperature))
 
     def setup_checkpoint(self, params, species):

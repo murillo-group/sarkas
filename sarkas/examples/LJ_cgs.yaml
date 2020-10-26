@@ -13,47 +13,59 @@
 # dt = 10^-14
 
 Particles:
-
-    - species:
+    - Species:
         name: Argon                 # species name
-        number_density: 2.06e22     # number/centimeter^3
-        mass: 6.69043e-23           # gram
-        temperature: 94.4           # kelvin
         num: 864                    # total number of Argon
-
-    - load:
-        #method: restart
-        #restart_step: 0
-        method: random_reject
-        r_reject: 3e-8              # centimeter
-        rand_seed: 123
+        mass_density: 1.374         # g/cc
+        atomic_weight: 39.95        # A
+        temperature: 94.4           # kelvin
+        epsilon: 1.656e-14          # 120 K * kb
+        sigma: 3.4e-8               # cm
 
 Potential: 
-    - type: LJ
-    - rc: 7.65e-08                  # cm
-    - epsilon: [1.656e-14]          # = 120*k_B
-    - sigma: [3.4e-8]               # = 3.4 nm
-
-BoundaryConditions:
-    - periodic: ["x", "y", "z"]
+    type: LJ
+    powers: [12, 6]
+    rc: 7.65e-08                  # cm
 
 Integrator:
-    - type: Verlet
+    type: Verlet
+    dt: 1.e-14                    # timestep, sec
+    equilibration_steps: 100
+    eq_dump_step: 1
+    production_steps: 100
+    prod_dump_step: 1
 
 Thermostat:
-    - type: Berendsen
-    - tau: 10.
-    - timestep: 2000
+    type: Berendsen
+    tau: 10.
+    relaxation_timestep: 2
+    temperatures: 94.4
 
-Control:
-    - dt: 1.e-14                    # timestep, sec   
-    - Neq: 10000
-    - Nsteps: 10000
-    - dump_step: 100
-    - units: cgs
-    - writexyz: no
-    - verbose: yes
-    - output_dir: LJ_cgs          # dir name to save data. Default is "Checkpoint"
+Parameters:
+    units: cgs                      # units
+    rand_seed: 13546565             # random seed
+    verbose: yes
+    boundary_conditions: periodic
+    load_method: random_no_reject
+    rdf_nbins: 100
+
+IO:
+    verbose: yes
+    simulations_dir: Simulations
+    job_dir: LJ_qkst               # dir name to save data.
+    job_id: lj
 
 PostProcessing:
-    - rdf_nbins: 100
+  - RadialDistributionFunction:
+      no_bins: 100
+
+  - Thermodynamics:
+      phase: production
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 5
+
+  - VelocityAutocorrelationFunctions:
+      phase: production
+
+  - ElectricCurrent:

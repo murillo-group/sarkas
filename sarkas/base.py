@@ -3,7 +3,6 @@ import numpy as np
 import os.path
 import sys
 import scipy.constants as const
-from dataclasses import dataclass
 
 
 class Parameters:
@@ -92,9 +91,6 @@ class Parameters:
     T_desired : float
         Target temperature for the equilibration phase.
 
-    species : list
-        Container list of ``sarkas.base.Species`` objects.
-
     species_num : numpy.ndarray
         Number of particles of each species. Shape = (``num_species``)
 
@@ -176,7 +172,7 @@ class Parameters:
 
     """
 
-    def __init__(self, dic: dict = None)-> None:
+    def __init__(self, dic: dict = None) -> None:
 
         self.input_file = None
         self.job_id = None
@@ -205,7 +201,7 @@ class Parameters:
         self.eV2J = const.physical_constants["electron volt-joule relationship"][0]
         self.a0 = const.physical_constants["Bohr radius"][0]
         self.kB = const.Boltzmann
-        self.aws = 0.0
+        self.a_ws = 0.0
         self.total_net_charge = 0.0
         self.QFactor = 0.0
         self.num_species = 1
@@ -225,6 +221,23 @@ class Parameters:
         self.eq_dump_dir = 'dumps'
 
         self.pre_run = False
+
+        self.species_names = []
+        self.species_num = np.zeros(self.num_species, dtype=int)
+        self.species_num_dens = np.zeros(self.num_species)
+        self.species_concentrations = np.zeros(self.num_species)
+        self.species_temperatures = np.zeros(self.num_species)
+        self.species_temperatures_eV = np.zeros(self.num_species)
+        self.species_masses = np.zeros(self.num_species)
+        self.species_charges = np.zeros(self.num_species)
+        self.species_plasma_frequencies = np.zeros(self.num_species)
+        self.species_cyclotron_frequencies = np.zeros(self.num_species)
+        self.species_couplings = np.zeros(self.num_species)
+
+        self.coupling_constant = 0.0
+        self.total_plasma_frequency = 0.0
+        self.total_debye_length = 0.0
+        self.total_mass_density = 0.0
 
         if dic:
             self.from_dict(dic)
@@ -263,8 +276,8 @@ class Parameters:
         self.calc_parameters(species)
         self.calc_coupling_constant(species)
 
-    def check_units(self):
-        """Check whether units are cgs or mks and adjust accordingly."""
+    def check_units(self) -> None:
+        """Adjust default physical constants for cgs unit system and check for LJ potential."""
         # Physical constants
         if self.units == "cgs":
             self.kB *= self.J2erg
@@ -280,6 +293,10 @@ class Parameters:
             self.fourpie0 = 1.0
             self.a0 *= 1e2
 
+        if self.potential_type == 'LJ':
+            self.fourpie0 = 1.0
+            self.species_lj_sigmas = np.zeros(self.num_species)
+
     def calc_parameters(self, species):
         """
         Assign the parsed parameters.
@@ -290,37 +307,24 @@ class Parameters:
             List of ``sarkas.base.Species`` objects.
 
         """
-
         self.num_species = len(species)
         # Loop over species and assign missing attributes
         # Collect species properties in single arrays
-        self.species_num = np.zeros(self.num_species, dtype=int)
-        self.species_concentrations = np.zeros(self.num_species)
-        self.species_temperatures = np.zeros(self.num_species)
-        self.species_temperatures_eV = np.zeros(self.num_species)
-        self.species_masses = np.zeros(self.num_species)
-        self.species_charges = np.zeros(self.num_species)
-        self.species_names = []
-
-        self.species_plasma_frequencies = np.zeros(self.num_species)
-        self.species_num_dens = np.zeros(self.num_species)
-
         wp_tot_sq = 0.0
         lambda_D = 0.0
-
-        if self.magnetized:
-            self.species_cyclotron_frequencies = np.zeros(self.num_species)
 
         self.total_num_ptcls = 0
 
         for i, sp in enumerate(species):
             self.total_num_ptcls += sp.num
 
+            # Calculate the mass of the species from the atomic weight if given
             if sp.atomic_weight:
                 # Choose between atomic mass constant or proton mass
                 # u = const.physical_constants["atomic mass constant"][0]
                 sp.mass = self.mp * sp.atomic_weight
 
+            # Calculate the mass of the species from the mass density if given
             if sp.mass_density:
                 Av = const.physical_constants["Avogadro constant"][0]
                 sp.number_density = sp.mass_density * Av / sp.atomic_weight
@@ -328,15 +332,15 @@ class Parameters:
 
             assert sp.number_density, "{} number density not defined".format(sp.name)
 
+            # Update arrays of species information
             self.total_num_density += sp.number_density
-
             self.species_names.append(sp.name)
             self.species_num[i] = sp.num
             self.species_masses[i] = sp.mass
+            # Calculate the temperature in K if eV has been provided
             if sp.temperature_eV:
                 sp.temperature = self.eV2K * sp.temperature_eV
                 self.species_temperatures_eV[i] = sp.temperature_eV
-
             self.species_temperatures[i] = sp.temperature
 
             if sp.charge:
@@ -345,13 +349,15 @@ class Parameters:
             elif sp.Z:
                 self.species_charges[i] = sp.Z * self.qe
                 sp.charge = sp.Z * self.qe
+            elif sp.epsilon:
+                # LJ
+                sp.charge = np.sqrt(sp.epsilon)
+                sp.Z = 1.0
+                self.species_charges[i] = np.sqrt(sp.epsilon)
             else:
-                self.species_charges[i] = 0.0
                 sp.charge = 0.0
                 sp.Z = 0.0
-            # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008)
-            sp.QFactor = sp.num * sp.charge ** 2
-            self.QFactor += sp.QFactor / self.fourpie0
+                self.species_charges[i] = 0.0
 
             if self.magnetized:
                 if self.units == "cgs":
@@ -362,10 +368,23 @@ class Parameters:
 
             # Calculate the (total) plasma frequency
             if not self.potential_type == "LJ":
+                # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008)
+                sp.QFactor = sp.num * sp.charge ** 2
+                self.QFactor += sp.QFactor / self.fourpie0
+
                 sp.calc_plasma_frequency(self.fourpie0)
                 wp_tot_sq += sp.wp ** 2
                 sp.calc_debye_length(self.kB, self.fourpie0)
                 lambda_D += sp.debye_length ** 2
+            else:
+                sp.QFactor = 0.0
+                self.QFactor += sp.QFactor / self.fourpie0
+                constant = 4.0 * np.pi * sp.number_density * sp.sigma**2
+                sp.calc_plasma_frequency(constant)
+                wp_tot_sq += sp.wp ** 2
+                sp.calc_debye_length(self.kB, constant)
+                lambda_D += sp.debye_length ** 2
+                self.species_lj_sigmas[i] = sp.sigma
 
             self.species_plasma_frequencies[i] = sp.wp
             self.species_num_dens[i] = sp.number_density
@@ -378,6 +397,7 @@ class Parameters:
         self.total_ion_temperature = np.transpose(self.species_concentrations) @ self.species_temperatures
         self.total_plasma_frequency = np.sqrt(wp_tot_sq)
         self.total_debye_length = np.sqrt(lambda_D)
+
         self.total_mass_density = self.species_masses.transpose() @ self.species_num_dens
 
         # Simulation Box Parameters
@@ -421,8 +441,7 @@ class Parameters:
 
         """
         z_avg = np.transpose(self.species_charges) @ self.species_concentrations
-        self.species_couplings = np.zeros(self.num_species)
-        self.coupling_constant = 0.0
+
         for i, sp in enumerate(species):
             const = self.fourpie0 * self.kB
             sp.calc_coupling(self.a_ws, z_avg, const)
@@ -1062,7 +1081,6 @@ class Particles:
             species_start = species_end
 
 
-@dataclass
 class Species:
     """
     Class used to store all the information of a single species.
@@ -1175,19 +1193,20 @@ class Species:
         if not isinstance(self.initial_velocity, np.ndarray):
             self.initial_velocity = np.array(self.initial_velocity)
 
-    def calc_plasma_frequency(self, fourpie0):
+    def calc_plasma_frequency(self, constant: float):
         """
         Calculate the plasma frequency.
 
         Parameters
         ----------
-        fourpie0 : float
-            Electrostatic constant.
+        constant : float
+            Charged systems: Electrostatic constant  :math: `4\pi \epsilon_0` [mks]
+            Neutral systems: :math: `1/n\sigma^2`
 
         """
-        self.wp = np.sqrt(4.0 * np.pi * self.charge ** 2 * self.number_density / (self.mass * fourpie0))
+        self.wp = np.sqrt(4.0 * np.pi * self.charge ** 2 * self.number_density / (self.mass * constant))
 
-    def calc_debye_length(self, kB, fourpie0):
+    def calc_debye_length(self, kB: float, constant: float ):
         """
         Calculate the Debye Length.
 
@@ -1196,11 +1215,13 @@ class Species:
         kB : float
             Boltzmann constant.
 
-        fourpie0 : float
-            Electrostatic constant.
+        constant : float
+            Charged systems: Electrostatic constant  :math: `4 \pi \epsilon_0` [mks]
+            Neutral systems: :math: `1/n\sigma^2`
+
 
         """
-        self.debye_length = np.sqrt((self.temperature * kB * fourpie0)
+        self.debye_length = np.sqrt((self.temperature * kB * constant)
                                     / (4.0 * np.pi * self.charge ** 2 * self.number_density))
 
     def calc_cyclotron_frequency(self, magnetic_field_strength):
@@ -1234,4 +1255,5 @@ class Species:
 
         """
         self.ai = (self.charge / z_avg) ** (1. / 3.) * a_ws
+
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)

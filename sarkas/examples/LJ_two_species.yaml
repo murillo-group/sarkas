@@ -5,14 +5,14 @@
 #####
 
 Particles:
-    - species:
+    - Species:
         name: sp1                    # species name
         temperature: 120.
         number_density: 1.03e22      # number/centimeter^3
         mass: 6.6904e-23             # gram
         num: 386                     # total number of ion1 
 
-    - species:
+    - Species:
         name: ptcl2                  # species name
         temperature: 120.
         number_density: 1.03e22      # number/centimeter^3
@@ -27,7 +27,7 @@ Particles:
 Potential: 
     - type: LJ
     - rc: 1.65e-07
-    - epsilon: [1.656e-14, 0.4968e-14, 0.4968e-14, 1.656e-14]                # e11, e12, e21 = e12, e22
+    - epsilon: [1.656e-14, 0.4968e-14, 0.4968e-14, 1.656e-14]     # e11, e12, e21 = e12, e22
     - sigma: [3.4e-8, 3.4e-8, 3.4e-8, 3.4e-8]                     # s11, s12, s21 = s12, s22
 
 BoundaryConditions:
