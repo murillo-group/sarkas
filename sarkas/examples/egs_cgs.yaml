@@ -5,7 +5,7 @@ Particles:
         name: Al
         number_density: 6.0e+22     # N/cc
         mass: 4.512991e-23          # g, proton mass * Al mass number
-        num: 50000                  # total number of particles
+        num: 10000                  # total number of particles
         Z: 3                        # degree of ionization
         temperature_eV: 0.5         # eV Temperature
 

@@ -579,7 +579,7 @@ class InputOutput:
                 print('gamma_p = {:1.4e}'.format(simulation.parameters.gamma_p))
                 print('gamma_m = {:1.4e}'.format(simulation.parameters.gamma_m))
                 print('alpha = {:1.4e}'.format(simulation.parameters.alphap))
-                print('Theta = {:1.4e}'.format(simulation.parameters.theta))
+                print('Theta = {:1.4e}'.format(simulation.parameters.electron_degeneracy_parameter))
                 print('b = {:1.4e}'.format(simulation.parameters.b))
 
             print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))

@@ -1,5 +1,5 @@
-#keywords: single species, LJ, PP, mks, random_no_reject
-# for Argon 
+#keywords: single species, LJ, PP, cgs, random_reject
+# for Argon
 # Physical Review, 136, 2A, 1964
 # A. Rahman
 # Correlations in the Motion of Atoms in Liquid Argon
@@ -13,44 +13,59 @@
 # dt = 10^-14
 
 Particles:
-    - species:
+    - Species:
         name: Argon                 # species name
-        number_density: 2.06e28     # number/meter^3
-        mass: 6.69043e-26           # Kilogram
-        temperature: 94.4           # kelvin
         num: 864                    # total number of Argon
+        mass_density: 1.374e+6         # g/cc
+        atomic_weight: 39.95        # A
+        temperature: 94.4           # kelvin
+        epsilon: 1.656e-21          # 120 K * kb
+        sigma: 3.4e-10               # cm
 
-    - load:
-        method: random_reject
-        r_reject: 3.0e-10             # meter
-        rand_seed: 123
-
-Potential: 
-    - type: LJ
-    - rc: 7.65e-10                  # meter
-    - epsilon: [1.656e-21]          # = 120*k_B
-    - sigma: [3.4e-10]              # = 3.4 angstrom
-
-BoundaryConditions:
-    - periodic: ["x", "y", "z"]
+Potential:
+    type: LJ
+    powers: [12, 6]
+    rc: 7.65e-10                  # cm
 
 Integrator:
-    - type: Verlet
+    type: Verlet
+    dt: 1.e-14                    # timestep, sec
+    equilibration_steps: 100
+    eq_dump_step: 1
+    production_steps: 100
+    prod_dump_step: 1
 
 Thermostat:
-    - type: Berendsen
-    - timestep: 2000
-    - tau: 10.0
+    type: Berendsen
+    tau: 10.
+    relaxation_timestep: 2
+    temperatures: 94.4
 
-Control:
-    - dt: 1.e-14                    # timestep, sec   
-    - Neq: 10000
-    - Nsteps: 10000
-    - dump_step: 100
-    - units: mks
-    - writexyz: no
-    - verbose: yes
-    - output_dir: LJ_mks            # dir name to save data. Default is "Checkpoint"
+Parameters:
+    units: mks                      # units
+    rand_seed: 13546565             # random seed
+    verbose: yes
+    boundary_conditions: periodic
+    load_method: random_no_reject
+    rdf_nbins: 100
+
+IO:
+    verbose: yes
+    simulations_dir: Simulations
+    job_dir: LJ_qkst               # dir name to save data.
+    job_id: lj
 
 PostProcessing:
-    - rdf_nbins: 100
+  - RadialDistributionFunction:
+      no_bins: 100
+
+  - Thermodynamics:
+      phase: production
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 5
+
+  - VelocityAutocorrelationFunctions:
+      phase: production
+
+  - ElectricCurrent:

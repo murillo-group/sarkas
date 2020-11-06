@@ -1059,8 +1059,8 @@ class RadialDistributionFunction(Observable):
         gr_ij = 0
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
-                denom_const = (2.0 - (i != j)) / (pair_density[i, j] * self.production_steps)
-                gr[:, gr_ij] = rdf_hist[:, i, j] * denom_const / bin_vol[:]
+                denom_const = ((2.0 - (i != j)) * pair_density[i, j] * self.production_steps)
+                gr[:, gr_ij] = (rdf_hist[:, i, j] + rdf_hist[:, j, i]) * denom_const / bin_vol[:]
 
                 self.dataframe['{}-{} RDF'.format(sp1, sp2)] = gr[:, gr_ij]
 

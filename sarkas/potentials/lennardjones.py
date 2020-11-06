@@ -32,6 +32,7 @@ def update_params(potential, params):
     # Berthelot: epsilon_12 = sqrt( eps_1 eps2)
     sigma2 = 0.0
     epsilon_tot = 0.0
+    # Recall that species_charges contains sqrt(epsilon)
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
             potential.matrix[0, i, j] = lj_constant * q1 * q2
@@ -85,10 +86,10 @@ def LJ_force_PP(r, pot_matrix_ij):
     epsilon = pot_matrix_ij[0]
     sigma = pot_matrix_ij[1]
     s_over_r = sigma / r
-    s_over_r_low = s_over_r ** pot_matrix_ij[3]
     s_over_r_high = s_over_r ** pot_matrix_ij[2]
+    s_over_r_low = s_over_r ** pot_matrix_ij[3]
 
     U = epsilon * (s_over_r_high - s_over_r_low)
-    force = epsilon * (pot_matrix_ij[2] * s_over_r_high - pot_matrix_ij[3] * s_over_r_low)
+    force = epsilon * (pot_matrix_ij[2] * s_over_r_high - pot_matrix_ij[3] * s_over_r_low) / r
 
     return U, force

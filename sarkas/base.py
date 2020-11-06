@@ -175,16 +175,10 @@ class Parameters:
     def __init__(self, dic: dict = None) -> None:
 
         self.input_file = None
-        self.job_id = None
-        self.log_file = None
-        self.np_per_side = None
-        self.job_dir = None
-        self.plot_style = None
         #
         self.Lx = 0.0
         self.Ly = 0.0
         self.Lz = 0.0
-        self.boundary_conditions = 'periodic'
         self.box_lengths = np.zeros(3)
         self.box_volume = 0.0
         self.dimensions = 3
@@ -202,16 +196,15 @@ class Parameters:
         self.a0 = const.physical_constants["Bohr radius"][0]
         self.kB = const.Boltzmann
         self.a_ws = 0.0
-        self.total_net_charge = 0.0
-        self.QFactor = 0.0
-        self.num_species = 1
-        self.total_ion_temperature = 0.0
-        self.T_desired = 0.0
-        self.total_num_density = 0.0
-        self.total_num_ptcls = 0
 
+        # Control and Timing
+        self.boundary_conditions = 'periodic'
+        self.job_id = None
+        self.job_dir = None
+        self.log_file = None
         self.measure = False
-        self.verbose = True
+        self.plot_style = None
+        self.pre_run = False
         self.simulations_dir = "Simulations"
         self.production_dir = 'Production'
         self.equilibration_dir = 'Equilibration'
@@ -219,25 +212,32 @@ class Parameters:
         self.postprocessing_dir = "PostProcessing"
         self.prod_dump_dir = 'dumps'
         self.eq_dump_dir = 'dumps'
+        self.verbose = True
 
-        self.pre_run = False
-
+        self.np_per_side = None
+        self.num_species = 1
         self.species_names = []
-        self.species_num = np.zeros(self.num_species, dtype=int)
-        self.species_num_dens = np.zeros(self.num_species)
-        self.species_concentrations = np.zeros(self.num_species)
-        self.species_temperatures = np.zeros(self.num_species)
-        self.species_temperatures_eV = np.zeros(self.num_species)
-        self.species_masses = np.zeros(self.num_species)
-        self.species_charges = np.zeros(self.num_species)
-        self.species_plasma_frequencies = np.zeros(self.num_species)
-        self.species_cyclotron_frequencies = np.zeros(self.num_species)
-        self.species_couplings = np.zeros(self.num_species)
+        self.species_num = None
+        self.species_num_dens = None
+        self.species_concentrations = None
+        self.species_temperatures = None
+        self.species_temperatures_eV = None
+        self.species_masses = None
+        self.species_charges = None
+        self.species_plasma_frequencies = None
+        self.species_cyclotron_frequencies = None
+        self.species_couplings = None
 
         self.coupling_constant = 0.0
+        self.total_num_density = 0.0
+        self.total_num_ptcls = 0
         self.total_plasma_frequency = 0.0
         self.total_debye_length = 0.0
         self.total_mass_density = 0.0
+        self.total_ion_temperature = 0.0
+        self.T_desired = 0.0
+        self.total_net_charge = 0.0
+        self.QFactor = 0.0
 
         if dic:
             self.from_dict(dic)
@@ -308,12 +308,25 @@ class Parameters:
 
         """
         self.num_species = len(species)
+
+        self.species_num = np.zeros(self.num_species, dtype=int)
+        self.species_num_dens = np.zeros(self.num_species)
+        self.species_concentrations = np.zeros(self.num_species)
+        self.species_temperatures = np.zeros(self.num_species)
+        self.species_temperatures_eV = np.zeros(self.num_species)
+        self.species_masses = np.zeros(self.num_species)
+        self.species_charges = np.zeros(self.num_species)
+        self.species_plasma_frequencies = np.zeros(self.num_species)
+        self.species_cyclotron_frequencies = np.zeros(self.num_species)
+        self.species_couplings = np.zeros(self.num_species)
+
         # Loop over species and assign missing attributes
         # Collect species properties in single arrays
         wp_tot_sq = 0.0
         lambda_D = 0.0
 
         self.total_num_ptcls = 0
+        self.total_num_density = 0.0
 
         for i, sp in enumerate(species):
             self.total_num_ptcls += sp.num
@@ -545,7 +558,7 @@ class Particles:
         self.kB = params.kB
         self.prod_dump_dir = params.prod_dump_dir
         self.eq_dump_dir = params.eq_dump_dir
-        self.box_lengths = params.box_lengths
+        self.box_lengths = np.copy(params.box_lengths)
         self.total_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
         self.species_num = np.copy(params.species_num)
@@ -863,6 +876,8 @@ class Particles:
         # Particle counter
         i = 0
 
+        cntr_reject = 0
+        cntr_total = 0
         # Loop to place particles
         while i < self.total_num_ptcls - 1:
 
@@ -884,19 +899,19 @@ class Particles:
 
                 # periodic condition applied for minimum image
                 if x_diff < - self.box_lengths[0] / 2:
-                    x_diff = x_diff + self.box_lengths[0]
+                    x_diff += self.box_lengths[0]
                 if x_diff > self.box_lengths[0] / 2:
-                    x_diff = x_diff - self.box_lengths[0]
+                    x_diff -= self.box_lengths[0]
 
                 if y_diff < - self.box_lengths[1] / 2:
-                    y_diff = y_diff + self.box_lengths[1]
+                    y_diff += self.box_lengths[1]
                 if y_diff > self.box_lengths[1] / 2:
-                    y_diff = y_diff - self.box_lengths[1]
+                    y_diff -= self.box_lengths[1]
 
                 if z_diff < -self.box_lengths[2] / 2:
-                    z_diff = z_diff + self.box_lengths[2]
+                    z_diff += self.box_lengths[2]
                 if z_diff > self.box_lengths[2] / 2:
-                    z_diff = z_diff - self.box_lengths[2]
+                    z_diff -= self.box_lengths[2]
 
                 # Compute distance
                 r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
@@ -904,6 +919,8 @@ class Particles:
                 # Check if new particle is below rejection radius. If not, break out and try again
                 if r <= r_reject:
                     flag = 0  # new position not added (False -> no longer outside reject r)
+                    cntr_reject += 1
+                    cntr_total += 1
                     break
 
             # If flag true add new position
@@ -914,6 +931,7 @@ class Particles:
 
                 # Increment particle number
                 i += 1
+                cntr_total +=1
 
         self.pos[:, 0] = x
         self.pos[:, 1] = y
