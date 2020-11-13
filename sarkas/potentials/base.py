@@ -156,10 +156,6 @@ class Potential:
             from sarkas.potentials import coulomb
             coulomb.update_params(self, params)
 
-        if self.type.lower() == "tabulated":
-            from sarkas.potentials import tabulated
-            tabulated.update_params(self, params)
-
         # Yukawa potential
         if self.type.lower() == "yukawa":
             from sarkas.potentials import yukawa

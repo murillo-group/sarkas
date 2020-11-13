@@ -17,7 +17,7 @@ warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 @njit
 def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constants):
     """
-    Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008]_.
+    Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].
 
     Parameters
     ----------
@@ -52,15 +52,11 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
        array of reciprocal space vectors along the z-axis
 
     PM_err : float
-        Error in the force calculation due to the optimized Green's function. eq.(28) of Ref. [Dharuman2017]_
+        Error in the force calculation due to the optimized Green's function. eq.(28) of Ref. [Dharuman2017]
 
     PP_err : float
-        Error in the force calculation due to the distance cutoff. eq.(30) of Ref. [Stern2008]_
+        Error in the force calculation due to the distance cutoff. eq.(30) of Ref. [Stern2008]
 
-    References
-    ----------
-    .. [Stern2008] `H.A. Stern et al. J Chem Phys 128, 214006 (2008) <https://doi.org/10.1063/1.2932253>`_
-    .. [Dharuman2017] `G. Dharuman et al. J Chem Phys 146 024112 (2017) <https://doi.org/10.1063/1.4973842>`_
     """
     kappa = constants[0]
     Gew = constants[1]
@@ -149,7 +145,7 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 @njit
 def assgnmnt_func(cao, x):
     """ 
-    Calculate the charge assignment function as given in Ref. [1]_ .
+    Calculate the charge assignment function as given in Ref. [Deserno1998].
     
     Parameters
     ----------
@@ -163,10 +159,6 @@ def assgnmnt_func(cao, x):
     ------
     W : numpy.ndarray
         Charge Assignment Function. 
-
-    References
-    ----------
-    .. [1] `M. Deserno and C. Holm J Chem Phys 108, 7678 (1998) <https://doi.org/10.1063/1.477414>`_
 
     """
     W = np.zeros(cao)

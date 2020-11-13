@@ -12,10 +12,9 @@ Submodules
    sarkas.potentials.egs
    sarkas.potentials.force_pm
    sarkas.potentials.force_pp
-   sarkas.potentials.lennardjones612
+   sarkas.potentials.lennardjones
    sarkas.potentials.moliere
    sarkas.potentials.qsp
-   sarkas.potentials.tabulated
    sarkas.potentials.yukawa
 
 Module contents

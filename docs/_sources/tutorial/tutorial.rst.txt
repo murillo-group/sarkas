@@ -363,9 +363,6 @@ force calculations by comparing
 produced by our example is shown below and it is a contour map of :math:`\Delta F_{\textrm{tot}}^{(\textrm{apprx})}`
 in the :math:`r_c,\, \alpha` parameters space
 
-.. image:: ForceError_ClrMap_yocp.png
-    :alt: Figure not found
-
 The numbers on the white contours indicate the value of :math:`\Delta F_{\textrm{tot}}^{(\textrm{apprx})}` along those
 lines and the black dot indicates where our choice of parameters fall into this parameter space. We notice that our
 parameter choice falls exactly on the white line, and thus it is :\math:`\sim 1e-5`. Comparing this with the value printed
@@ -375,9 +372,6 @@ to choose values that fall into the small purple triangle at the top.
 
 However, our choice of parameters while being good, it might not be optimal. In order to find the best choice we look at
 the second figure created by ``S_testing.py``, given below
-
-.. image:: ForceError_LinePlot_yocp.png
-    :alt: Figure not found
 
 The left panel is a plot of :math:`\Delta F_{\textrm{tot}}^{(\textrm{apprx})}` vs :math:`r_c/a_{ws}` at
 five different values of :math:`\alpha a_{ws}` while the right panel is a plot of
@@ -418,9 +412,6 @@ Once we have chosen the parameters, we are ready to start a simulation by typing
     $ python src/Sarkas.py -i examples/yukawa_mks_p3m.yaml
 
 Since we have chosen ``verbose = yes`` this simulation will print a progress bar to screen, thanks to the package ``tqdm``
-
-.. image:: SimRun1.png
-    :alt: Figure not found
 
 Did you think that you could get away so easily? We need to check if our run is doing what we want. To do so, in a
 different terminal window we run

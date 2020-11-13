@@ -74,7 +74,7 @@ autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
 
 
 html_last_updated_fmt = '%b, %d, %Y'
-
+html_logo = 'logo.png'
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -97,6 +97,7 @@ latex_additional_files = ['references.bib']
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+html_theme_options = {'logo_only': True}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
