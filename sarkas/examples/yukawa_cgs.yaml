@@ -29,7 +29,7 @@ Thermostat:
 Parameters:
     units: cgs                              # units
     load_method: random_no_reject
-    rdf_nbins: 500
+    rdf_nbins: 250
     boundary_conditions: periodic
 
 IO:
@@ -38,7 +38,7 @@ IO:
 
 PostProcessing:
   - RadialDistributionFunction:
-      no_bins: 500
+      no_bins: 250
 
   - Thermodynamics:
       phase: production
