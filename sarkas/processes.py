@@ -826,7 +826,7 @@ class Simulation:
         time_eq = self.timer.stop()
         self.io.time_stamp("Equilibration", self.timer.time_division(time_eq))
 
-    def evolve(self):
+    def evolve(self) -> None:
         """
         Run the time integrator to evolve the system for the duration of the production phase.
 
@@ -861,13 +861,13 @@ class Simulation:
         """
 
         t0 = self.timer.current()
-        self.potential.setup(self.parameters)
-        time_pot = self.timer.current()
-
         self.thermostat.setup(self.parameters)
         self.integrator.setup(self.parameters, self.thermostat, self.potential)
         self.particles.setup(self.parameters, self.species)
         time_ptcls = self.timer.current()
+
+        self.potential.setup(self.parameters)
+        time_pot = self.timer.current()
 
         # For restart and backups.
         self.io.save_pickle(self)

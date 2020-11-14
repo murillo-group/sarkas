@@ -110,7 +110,7 @@ class Potential:
         disp += ')'
         return disp
 
-    def from_dict(self, input_dict: dict):
+    def from_dict(self, input_dict: dict) -> None:
         """
         Update attributes from input dictionary.
 

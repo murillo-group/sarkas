@@ -185,8 +185,6 @@
 <span class="sd">----------</span>
 <span class="sd">.. [Hansen1981] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) &lt;https://doi.org/10.1103/PhysRevA.23.2041&gt;`_</span>
 <span class="sd">.. [Glosli2008] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) &lt;https://doi.org/10.1103/PhysRevE.78.025401&gt;`_</span>
-
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
@@ -195,54 +193,7 @@
 <span class="kn">from</span> <span class="nn">sarkas.potentials.force_pm</span> <span class="kn">import</span> <span class="n">force_optimized_green_function</span> <span class="k">as</span> <span class="n">gf_opt</span>
 
 
-<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.qsp.html#sarkas.potentials.qsp.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">read_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update the ``params`` class with QSP Potential parameters. </span>
-<span class="sd">    The QSP Potential is given by eq.(5) in Ref. [Glosli2008]_ .</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    read_input: bool</span>
-<span class="sd">        Flag to read inputs from YAML input file.</span>
-
-<span class="sd">    params : object</span>
-<span class="sd">        Simulation&#39;s parameters</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Do a bunch of checks</span>
-    <span class="c1"># P3M algorithm only</span>
-    <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">,</span> <span class="s1">&#39;QSP interaction can only be calculated using P3M algorithm.&#39;</span>
-
-    <span class="c1"># Check for neutrality</span>
-    <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Total net charge is not zero.&#39;</span>
-
-    <span class="n">e_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;electrons&#39;</span><span class="p">,</span> <span class="s1">&#39;electron&#39;</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">e_list</span><span class="p">,</span> <span class="s1">&#39;The 1st species are not electrons. Please redefine the 1st species as electrons.&#39;</span>
-
-    <span class="c1"># Default attributes</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">=</span> <span class="s1">&#39;Deutsch&#39;</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">QSP_Pauli</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="n">read_input</span><span class="p">:</span>
-        <span class="c1"># open the input file to read Yukawa parameters</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
-            <span class="n">dics</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">lkey</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">]:</span>
-                        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyword</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;QSP_type&quot;</span><span class="p">:</span>
-                                <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">QSP_type</span> <span class="o">=</span> <span class="n">value</span>
-
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;QSP_Pauli&quot;</span><span class="p">:</span>
-                                <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">QSP_Pauli</span> <span class="o">=</span> <span class="n">value</span>
-
-                            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;rc&quot;</span><span class="p">:</span>  <span class="c1"># cutoff</span>
-                                <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="n">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.qsp.html#sarkas.potentials.qsp.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.qsp.html#sarkas.potentials.qsp.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create potential dependent simulation&#39;s parameters.</span>
 
@@ -261,18 +212,19 @@
 <span class="sd">    QSP_matrix[3,:,:] = e-e Pauli term exponent term</span>
 <span class="sd">    QSP_matrix[4,:,:] = Ewald parameter</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Do a bunch of checks</span>
+    <span class="c1"># P3M algorithm only</span>
+    <span class="k">assert</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">,</span> <span class="s1">&#39;QSP interaction can only be calculated using P3M algorithm.&#39;</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">BC</span><span class="o">.</span><span class="n">open_axes</span><span class="p">:</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># linked list on</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="p">,</span> <span class="s2">&quot;rc&quot;</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: The cut-off radius is not defined. L/2 = &quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;will be used as rc&quot;</span><span class="p">)</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># linked list off</span>
+    <span class="c1"># Check for neutrality</span>
+    <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Total net charge is not zero.&#39;</span>
 
-        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">&gt;</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: The cut-off radius is &gt; L/2. L/2 = &quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;will be used as rc&quot;</span><span class="p">)</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">LL_on</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># linked list off</span>
+    <span class="c1"># Default attributes</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s1">&#39;qsp_type&#39;</span><span class="p">):</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">qsp_type</span> <span class="o">=</span> <span class="s1">&#39;Deutsch&#39;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s1">&#39;qsp_pauli&#39;</span><span class="p">):</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">qsp_pauli</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="n">two_pi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
     <span class="n">four_pi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">two_pi</span>
@@ -491,7 +443,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 13, 2020.
+        Last updated on Nov, 14, 2020.
       </span>
 
     </p>

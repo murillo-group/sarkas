@@ -17,8 +17,6 @@ References
 ----------
 .. [Hansen1981] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) <https://doi.org/10.1103/PhysRevA.23.2041>`_
 .. [Glosli2008] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) <https://doi.org/10.1103/PhysRevE.78.025401>`_
-
-
 """
 import numpy as np
 from numba import njit
@@ -27,54 +25,7 @@ import math as mt
 from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
 
 
-def setup(params, read_input=True):
-    """
-    Update the ``params`` class with QSP Potential parameters. 
-    The QSP Potential is given by eq.(5) in Ref. [Glosli2008]_ .
-
-    Parameters
-    ----------
-    read_input: bool
-        Flag to read inputs from YAML input file.
-
-    params : object
-        Simulation's parameters
-
-    """
-    # Do a bunch of checks
-    # P3M algorithm only
-    assert params.potential.method == "P3M", 'QSP interaction can only be calculated using P3M algorithm.'
-
-    # Check for neutrality
-    assert params.total_net_charge == 0, 'Total net charge is not zero.'
-
-    e_list = ['e', 'electrons', 'electron']
-    assert params.species[0].name in e_list, 'The 1st species are not electrons. Please redefine the 1st species as electrons.'
-
-    # Default attributes
-    params.potential.QSP_type = 'Deutsch'
-    params.potential.QSP_Pauli = True
-    if read_input:
-        # open the input file to read Yukawa parameters
-        with open(params.input_file, 'r') as stream:
-            dics = yaml.load(stream, Loader=yaml.FullLoader)
-            for lkey in dics:
-                if lkey == "Potential":
-                    for keyword in dics[lkey]:
-                        for key, value in keyword.items():
-                            if key == "QSP_type":
-                                params.potential.QSP_type = value
-
-                            if key == "QSP_Pauli":
-                                params.potential.QSP_Pauli = value
-
-                            if key == "rc":  # cutoff
-                                params.potential.rc = float(value)
-
-    update_params(params)
-
-
-def update_params(params):
+def update_params(potential, params):
     """
     Create potential dependent simulation's parameters.
 
@@ -93,18 +44,19 @@ def update_params(params):
     QSP_matrix[3,:,:] = e-e Pauli term exponent term
     QSP_matrix[4,:,:] = Ewald parameter
     """
+    # Do a bunch of checks
+    # P3M algorithm only
+    assert potential.method == "P3M", 'QSP interaction can only be calculated using P3M algorithm.'
 
-    if not params.BC.open_axes:
-        params.potential.LL_on = True  # linked list on
-        if not hasattr(params.potential, "rc"):
-            print("\nWARNING: The cut-off radius is not defined. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
-            params.potential.rc = params.box_lengths.min() / 2.
-            params.potential.LL_on = False  # linked list off
+    # Check for neutrality
+    assert params.total_net_charge == 0, 'Total net charge is not zero.'
 
-        if params.potential.method == "PP" and params.potential.rc > params.box_lengths.min() / 2.:
-            print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2, "will be used as rc")
-            params.potential.rc = params.box_lengths.min() / 2.
-            params.potential.LL_on = False  # linked list off
+    # Default attributes
+    if not hasattr(potential, 'qsp_type'):
+        potential.qsp_type = 'Deutsch'
+
+    if not hasattr(potential, 'qsp_pauli'):
+        potential.qsp_pauli = True
 
     two_pi = 2.0 * np.pi
     four_pi = 2.0 * two_pi

@@ -230,7 +230,7 @@
 <dt class="label" id="hansen1981"><span class="brackets"><a class="fn-backref" href="#id1">Hansen1981</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevA.23.2041">J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981)</a></p>
 </dd>
-<dt class="label" id="glosli2008"><span class="brackets">Glosli2008</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id3">2</a>)</span></dt>
+<dt class="label" id="glosli2008"><span class="brackets"><a class="fn-backref" href="#id2">Glosli2008</a></span></dt>
 <dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.78.025401">J.N. Glosli et al. Phys Rev E 78 025401(R) (2008)</a></p>
 </dd>
 </dl>
@@ -287,23 +287,8 @@ pot_matrix[4] = Ewald parameter</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.qsp.setup">
-<code class="sig-prename descclassname">sarkas.potentials.qsp.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">read_input</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/qsp.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.qsp.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update the <code class="docutils literal notranslate"><span class="pre">params</span></code> class with QSP Potential parameters.
-The QSP Potential is given by eq.(5) in Ref. <a class="reference internal" href="#glosli2008" id="id3"><span>[Glosli2008]</span></a> .</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>read_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag to read inputs from YAML input file.</p></li>
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><em>object</em></a>) – Simulation’s parameters</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="sarkas.potentials.qsp.update_params">
-<code class="sig-prename descclassname">sarkas.potentials.qsp.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/qsp.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.qsp.update_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sarkas.potentials.qsp.</code><code class="sig-name descname">update_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potential</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/qsp.html#update_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.qsp.update_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create potential dependent simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -337,7 +322,7 @@ The QSP Potential is given by eq.(5) in Ref. <a class="reference internal" href=
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 13, 2020.
+        Last updated on Nov, 14, 2020.
       </span>
 
     </p>

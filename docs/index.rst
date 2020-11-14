@@ -10,9 +10,14 @@ Sarkas
  A Pure Python Molecular Dynamics package for Non-Ideal Plasmas
 ---------------------------------------------------------------
 
-Sarkas is a pure-python molecular dynamics (MD) package designed with plasma physics in mind. The
+Sarkas is a pure-Python Molecular Dynamics (MD) package designed with plasma physics in mind. The
 pure-python construction allows users to quickly add their own features to model the systems of
 their choosing. 
+
+.. warning:: Sarkas is under development. In the following pages you will find tutorials and information on
+the functionalities that have been tested and work correctly. If you want to collaborate and help us improve
+Sarkas, Join us! :)
+
 
 .. toctree::
    :maxdepth: 1
