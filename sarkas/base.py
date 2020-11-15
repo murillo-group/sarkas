@@ -439,7 +439,8 @@ class Parameters:
         self.box_volume = abs(np.dot(np.cross(self.e1, self.e2), self.e3))
 
         self.dimensions = np.count_nonzero(self.box_lengths)  # no. of dimensions
-
+        # Transform the list of species names into a np.array
+        self.species_names = np.array(self.species_names)
         # Redundancy!!!
         self.T_desired = self.total_ion_temperature
 
@@ -1272,6 +1273,6 @@ class Species:
             Electrostatic * Thermal constants.
 
         """
-        self.ai = (self.charge / z_avg) ** (1. / 3.) * a_ws
-
+        # self.ai = (self.charge / z_avg) ** (1. / 3.) * a_ws
+        self.ai = (3.0/(4.0 * np.pi * self.number_density))**(1./3.)
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)

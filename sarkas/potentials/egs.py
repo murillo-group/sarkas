@@ -28,7 +28,7 @@ def update_params(potential, params):
 
     fdint_fdk_vec = np.vectorize(fdint.fdk)
     fdint_dfdk_vec = np.vectorize(fdint.dfdk)
-    beta_e = 1. / (params.kB * params.Te)
+    beta_e = 1. / (params.kB * params.electron_temperature)
     thermal_wavelength = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
     # eq. (14) of Ref. [1]_
     # params.nu = np.sqrt(8 * (4.0 * np.pi * params.qe ** 2 * beta_e / params.fourpie0 / thermal_wavelength))

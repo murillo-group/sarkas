@@ -95,6 +95,7 @@ class Potential:
         self.method = "PP"
         self.matrix = None
         self.force_error = None
+        self.measure = False
         self.box_lengths = 0.0
         self.box_volume = 0.0
         self.fourpie0 = 0.0
@@ -123,8 +124,15 @@ class Potential:
 
         self.__dict__.update(input_dict)
 
-    def setup(self, params):
+    def setup(self, params) -> None:
+        """Setup the potential class.
 
+        Parameters
+        ----------
+        params: sarkas.base.Parameters
+            Simulation's parameters.
+
+        """
         # Check for cutoff radius
         if not self.type.lower() == 'fmm':
             self.linked_list_on = True  # linked list on
@@ -134,82 +142,91 @@ class Potential:
                 self.rc = params.box_lengths.min() / 2.
                 self.linked_list_on = False  # linked list off
 
-            if self.method == "PP" and self.rc > params.box_lengths.min() / 2.:
+            if self.rc > params.box_lengths.min() / 2.:
                 print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2,
                       "will be used as rc")
                 self.rc = params.box_lengths.min() / 2.
                 self.linked_list_on = False  # linked list off
 
-        if hasattr(self, "kappa") and hasattr(self, "Te"):
-            print(
-                "\nWARNING: You have provided both kappa and Te while only one is needed."
-                "kappa will be used to calculate the screening parameter.")
+        if self.type.lower() == 'qsp':
+            mask = params.species_names == 'e'
+            self.electron_temperature = params.species_temperatures[mask]
+            params.ne = float(params.species_num_dens[mask])
+            params.electron_temperature = float(params.species_temperatures[mask])
+            params.qe = float(params.species_charges[mask])
+            params.me = float(params.species_masses[mask])
+        else:
+            params.ne = params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
 
+            # Check electron properties
+            if hasattr(self, "electron_temperature_eV"):
+                self.electron_temperature = params.eV2K * self.electron_temperature_eV
+            if hasattr(self, "electron_temperature"):
+                params.electron_temperature = self.electron_temperature
+            else:
+                params.electron_temperature = params.total_ion_temperature
+                # if the electron temperature is not defined. The total ion temperature will be used for it.
         self.calc_electron_properties(params)
 
         if hasattr(self, "kappa"):
             # Thomas-Fermi Length
             params.lambda_TF = params.a_ws / self.kappa
 
+        # Update potential-specific parameters
         # Coulomb potential
         if self.type.lower() == "coulomb":
             from sarkas.potentials import coulomb
             coulomb.update_params(self, params)
-
         # Yukawa potential
         if self.type.lower() == "yukawa":
             from sarkas.potentials import yukawa
             yukawa.update_params(self, params)
-
         # exact gradient-corrected screening (EGS) potential
         if self.type.lower() == "egs":
             from sarkas.potentials import egs
             egs.update_params(self, params)
-
         # Lennard-Jones potential
         if self.type.lower() == "lj":
             from sarkas.potentials import lennardjones as lj
             lj.update_params(self, params)
-
         # Moliere potential
         if self.type.lower() == "moliere":
             from sarkas.potentials import moliere
             moliere.update_params(self, params)
-
         # QSP potential
         if self.type.lower() == "qsp":
             from sarkas.potentials import qsp
             qsp.update_params(self, params)
 
-        if self.method == 'P3M':
+        # Compute pppm parameters
+        if self.method == 'P3M' or self.method.lower() == 'pppm':
             self.pppm_on = True
             self.pppm_setup(params)
 
         # Copy needed parameters
-        self.box_lengths = params.box_lengths
+        self.box_lengths = np.copy(params.box_lengths)
         self.box_volume = params.box_volume
         self.fourpie0 = params.fourpie0
         self.QFactor = params.QFactor
         self.total_net_charge = params.total_net_charge
         self.measure = params.measure
 
-    def calc_electron_properties(self, params):
+    @staticmethod
+    def calc_electron_properties(params):
+        """Calculate electronic parameters.
+
+        Parameters
+        ----------
+        params: sarkas.base.Parameters
+            Simulation's parameters.
+
+        """
 
         twopi = 2.0 * np.pi
-        if hasattr(self, "electron_temperature_eV"):
-            self.electron_temperature = params.eV2K * self.electron_temperature_eV
-
-        if hasattr(self, "electron_temperature"):
-            params.Te = self.electron_temperature
-        else:
-            params.Te = params.total_ion_temperature
-            # if the electron temperature is not defined. The total ion temperature will be used for it.
-
-        params.ne = params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
         # Calculate electron gas properties
         fdint_fdk_vec = np.vectorize(fdint.fdk)
         fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
-        beta_e = 1. / (params.kB * params.Te)
+        beta_e = 1. / (params.kB * params.electron_temperature)
         lambda_DB = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
         lambda3 = lambda_DB ** 3
         # chemical potential of electron gas/(kB T). See eq.(4) in Ref.[3]_
@@ -218,25 +235,27 @@ class Potential:
         params.lambda_TF = np.sqrt(params.fourpie0 * np.sqrt(np.pi) * lambda3 / (
                 8.0 * np.pi * params.qe ** 2 * beta_e * fdint_fdk_vec(k=-0.5, phi=params.eta_e)))
 
-        params.rs = params.a_ws / params.a0
+        params.ae_ws = (3.0/(4.0 * np.pi * params.ne))**(1./3.) # Electron WS radius
+        params.rs = params.ae_ws / params.a0
         kF = (3.0 * np.pi ** 2 * params.ne) ** (1. / 3.)
         params.fermi_energy = params.hbar2 * kF ** 2 / (2.0 * params.me)
-        params.electron_degeneracy_parameter = params.kB * params.Te / params.fermi_energy
+        params.electron_degeneracy_parameter = params.kB * params.electron_temperature / params.fermi_energy
         params.relativistic_parameter = params.hbar * kF / (params.me * params.c0)
+        # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
+        params.electron_coupling = params.qe**2/(
+                params.fourpie0 * params.fermi_energy * params.ae_ws* np.sqrt(params.electron_degeneracy_parameter**2))
+        # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
+        params.wdm_parameter = 2.0/(params.electron_degeneracy_parameter + 1.0/params.electron_degeneracy_parameter)
+        params.wdm_parameter *= 2.0/(params.electron_coupling + 1.0/params.electron_coupling)
 
     def update_linked_list(self, ptcls):
         """
-        Calculate the Potential and update particles' accelerations.
+        Calculate the pp part of the acceleration.
 
         Parameters
         ----------
         ptcls: sarkas.base.Particles
             Particles data.
-
-        Returns
-        -------
-        U : float
-            Total Potential.
 
         """
         ptcls.potential_energy, ptcls.acc = force_pp.update(ptcls.pos, ptcls.id, ptcls.masses, self.box_lengths,
@@ -250,7 +269,15 @@ class Potential:
             ptcls.potential_energy += 2.0 * np.pi * np.sum(dipole ** 2) / (3.0 * self.box_volume * self.fourpie0)
 
     def update_brute(self, ptcls):
+        """
+        Calculate particles' acceleration and potential brutally.
 
+        Parameters
+        ----------
+        ptcls: sarkas.base.Particles
+            Particles data.
+
+        """
         ptcls.potential_energy, ptcls.acc = force_pp.update_0D(ptcls.pos, ptcls.id, ptcls.masses, self.box_lengths,
                                                self.rc, self.matrix, self.force,
                                                self.measure, ptcls.rdf_hist)
@@ -261,7 +288,14 @@ class Potential:
             ptcls.potential_energy += 2.0 * np.pi * np.sum(dipole ** 2) / (3.0 * self.box_volume * self.fourpie0)
 
     def update_pm(self, ptcls):
+        """Calculate the pm part of the potential and acceleration.
 
+        Parameters
+        ----------
+        ptcls : sarkas.base.Particles
+            Particles' data
+
+        """
         U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charges, ptcls.masses,
                                           self.pppm_mesh, self.box_lengths, self.pppm_green_function,
                                           self.pppm_kx,
@@ -277,11 +311,26 @@ class Potential:
         ptcls.acc += acc_l_r
 
     def update_pppm(self, ptcls):
+        """Calculate particles' potential and accelerations using pppm method.
 
+        Parameters
+        ----------
+        ptcls : sarkas.base.Particles
+            Particles' data
+
+        """
         self.update_linked_list(ptcls)
         self.update_pm(ptcls)
 
-    def pppm_setup(self, params):
+    def pppm_setup(self, params) -> None:
+        """Calculate the P3M parameters.
+
+        Parameters
+        ----------
+        params : sarkas.base.Parameters
+            Simulation's parameters
+
+        """
         # P3M parameters
         self.pppm_h_array = params.box_lengths / self.pppm_mesh
         if not isinstance(self.pppm_mesh, np.ndarray):

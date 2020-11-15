@@ -3,13 +3,13 @@ from sarkas.processes import PreProcess
 from sarkas.tools.transport import TransportCoefficient
 # from numpy.random import Generator, PCG64
 
-input_file_name = 'sarkas/examples/yukawa_cgs.yaml'
+input_file_name = 'sarkas/examples/QSP_cgs.yaml'
 
 # rg = Generator(PCG64(12345))
 
 # preproc = PreProcess(input_file_name)
 # preproc.setup(read_yaml=True)
-# preproc.run(loops=5)
+# # preproc.run(loops=5)
 
 #
 sim = Simulation(input_file_name)
@@ -21,46 +21,45 @@ postproc.setup(read_yaml=True)
 #
 postproc.rdf.setup(postproc.parameters)
 postproc.rdf.save()
-postproc.rdf.plot(show=False)
-#
+postproc.rdf.plot(show=True)
+# #
 postproc.therm.setup(postproc.parameters)
-postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=False)
-postproc.therm.temp_energy_plot(postproc, phase='production', show=False)
-postproc.therm.plot('Temperature', show=False)
-#
+postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=True)
+postproc.therm.temp_energy_plot(postproc, phase='production', show=True)
+
 # postproc.hc.setup(postproc.parameters, 'equilibration')
 # # postproc.hc.parse()
 # postproc.hc.compute()
-# postproc.hc.plot(show=False)
-#
+# postproc.hc.plot(show=True)
+
 # postproc.hc.setup(postproc.parameters, 'production')
 # # postproc.hc.parse()
 # postproc.hc.compute()
-# postproc.hc.plot(show=False)
+# postproc.hc.plot(show=True)
 #
-# postproc.vm.setup(postproc.parameters, 'equilibration')
-# postproc.vm.parse()
-# postproc.vm.compute()
-# postproc.vm.plot_ratios(show=False)
-#
-# postproc.vm.setup(postproc.parameters, 'production')
-# #postproc.vm.parse()
-# postproc.vm.compute()
-# postproc.vm.plot_ratios(show=False)
-#
-# postproc.dsf.setup(postproc.parameters)
-# postproc.dsf.parse()
-# postproc.dsf.plot(show=False)
+# # postproc.vm.setup(postproc.parameters, 'equilibration')
+# # postproc.vm.parse()
+# # postproc.vm.compute()
+# # postproc.vm.plot_ratios(show=False)
 # #
-# postproc.ssf.setup(postproc.parameters)
-# postproc.ssf.parse()
-# postproc.ssf.plot(show=False)
+# # postproc.vm.setup(postproc.parameters, 'production')
+# # #postproc.vm.parse()
+# # postproc.vm.compute()
+# # postproc.vm.plot_ratios(show=False)
 # #
-# postproc.ccf.setup(postproc.parameters)
-# postproc.ccf.parse()
-# postproc.ccf.plot(show=False)
-
-
+# # postproc.dsf.setup(postproc.parameters)
+# # postproc.dsf.parse()
+# # postproc.dsf.plot(show=False)
+# # #
+# # postproc.ssf.setup(postproc.parameters)
+# # postproc.ssf.parse()
+# # postproc.ssf.plot(show=False)
+# # #
+# # postproc.ccf.setup(postproc.parameters)
+# # postproc.ccf.parse()
+# # postproc.ccf.plot(show=False)
+#
+#
 diffusion = TransportCoefficient.diffusion(postproc.parameters,
                                            phase='production',
                                            show=True)

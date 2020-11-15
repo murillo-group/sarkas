@@ -1,6 +1,6 @@
 # J.P. Hansen and I.R. McDonald Phys Rev A 23 2041 (1981)
 Particles:
-    - species:
+    - Species:
         name: e
         number_density: 1.6e+24       # N/cc
         mass: 9.1093837015e-28
@@ -8,7 +8,7 @@ Particles:
         Z: -1.0                        # degree of ionization
         temperature: 6.32e+5 
 
-    - species:
+    - Species:
         name: p
         number_density: 1.6e+24       # N/cc
         mass: 1.67262192369e-24         # g, ptcl mass of ion1
@@ -16,44 +16,63 @@ Particles:
         Z: 1.0                       # degree of ionization
         temperature: 6.32e+5
 
-    - load:
-        method: random_reject    # loading method
-        rand_seed: 123456789        # random seed
-        r_reject: 10.0e-10
-
 Potential: 
-    - type: QSP                 # potential type
-    - QSP_type: Deutsch
-    - method: P3M                    # Linked-cell
-    - rc: 4.119964e-08     # cut-off radius, meter
-
-P3M:
-    - MGrid: [32,32,32]
-    - aliases: [3,3,3]
-    - cao: 6
-    - alpha_ewald: 9.466103e+07
-
-BoundaryConditions:
-    - periodic: ["x", "y", "z"]
+    type: QSP                 # potential type
+    qsp_type: Deutsch
+    method: P3M                    # Linked-cell
+    rc: 3.119964e-08     # cut-off radius, meter
+    pppm_mesh: [32,32,32]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 6
+    pppm_alpha_ewald: 9.466103e+07
 
 Integrator:
-    - type: Verlet                  # velocity integrator type
+    type: verlet
+    dt: 1.193536e-19            # sec
+    equilibration_steps: 50000                      # number of timesteps for the equilibrium
+    eq_dump_step: 10
+    production_steps: 100000
+    prod_dump_step: 5
 
 Thermostat:
-    - type: Berendsen               # thermostat type
-    - tau: 10.
-    - timestep: 2000
+    type: Berendsen               # thermostat type
+    relaxation_timestep: 2
+    tau: 5.0
 
-Control:
-    - units: cgs                    # units
-    - dt: 1.3922998e-20            # sec
-    - Neq: 250000                      # number of timesteps for the equilibrium
-    - Nsteps: 500000                  # number of timesteps after the equilibrium
-    - writexyz: no                  # no xyz output
-    - dump_step: 200                # dump time step
-    - verbose: yes
-    - output_dir: QSP_cgs       # dir name to save data. The default is "Checkpoint"
+Parameters:
+    units: cgs                   # unit
+    load_method: prod_restart    # loading method
+    restart_step: 50000
+    load_rejection_radius: 10.0e-10
+
+IO:
+    verbose: True
+    job_dir: qsp_cgs        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-    - rdf_nbins: 100
-    - ssf_no_ka_values: 50
+  - RadialDistributionFunction:
+      no_bins: 51
+
+  - Thermodynamics:
+      phase: production
+
+  - HermiteCoefficients:
+      no_bins: 500
+      hermite_order: 8
+
+  - DynamicStructureFactor:
+      no_ka_harmonics: 5
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 5
+
+  - CurrentCorrelationFunctions:
+      no_ka_harmonics: 5
+
+  - VelocityMoments:
+      no_bins: 500
+
+  - VelocityAutocorrelationFunctions:
+      phase: production
+
+  - ElectricCurrent:

@@ -31,6 +31,9 @@ def update_params(potential, params):
 
     Parameters
     ----------
+    potential : sarkas.potential.Potential
+        Class handling potential form.
+
     params : object
         Simulation's parameters
 
@@ -54,100 +57,70 @@ def update_params(potential, params):
     # Default attributes
     if not hasattr(potential, 'qsp_type'):
         potential.qsp_type = 'Deutsch'
-
     if not hasattr(potential, 'qsp_pauli'):
         potential.qsp_pauli = True
 
     two_pi = 2.0 * np.pi
     four_pi = 2.0 * two_pi
-    params.ne = params.species[0].num_density
-    params.ae = (3.0 / (four_pi * params.ne)) ** (1.0 / 3.0)  # e WS
-    params.rs = params.ae / params.a0  # e coupling parameter
-    params.Te = params.species[0].temperature
+    log2 = np.log(2.0)
 
     # Redefine ion temperatures and ion total number density
-    params.total_ion_temperature = 0.
-    params.ni = 0.
-    for isp in range(1, params.num_species):
-        params.total_ion_temperature += params.species[isp].concentration * params.species[isp].temperature
-        params.ni += params.species[isp].num_density
+    mask = params.species_names != 'e'
+    params.total_ion_temperature = params.species_concentrations[mask].transpose() * params.species_temperatures[mask]
+    params.ni = np.sum(params.species_num_dens[mask])
 
     # Calculate the total and ion Wigner-Seitz Radius from the total density
-    params.a_ws = (3.0 / (four_pi * params.total_num_density)) ** (1. / 3.)
     params.ai = (3.0 / (four_pi * params.ni)) ** (1.0 / 3.0)  # Ion WS
 
-    beta_e = 1.0 / (params.kB * params.Te)
-    beta_i = 1.0 / (params.kB * params.total_ion_temperature)
+    deBroglie_const = two_pi * params.hbar2 / params.kB
 
     QSP_matrix = np.zeros((5, params.num_species, params.num_species))
-    for i, sp1 in enumerate(params.species):
-        m1 = sp1.mass
-        q1 = sp1.charge
+    for i, name1 in enumerate(params.species_names):
+        m1 = params.species_masses[i]
+        q1 = params.species_charges[i]
 
-        for j, sp2 in enumerate(params.species):
-            m2 = sp2.mass
-            q2 = sp2.charge
+        for j, name2 in enumerate(params.species_names):
+            m2 = params.species_masses[j]
+            q2 = params.species_charges[j]
+
             reduced = (m1 * m2) / (m1 + m2)
-            if i == 0:
-                Lambda_dB = np.sqrt(two_pi * beta_e * params.hbar2 / reduced)
-                if j == i:  # e-e
-                    QSP_matrix[2, i, j] = np.log(2.0) / beta_e
-                    QSP_matrix[3, i, j] = four_pi / (np.log(2.0) * Lambda_dB ** 2)
+
+            if name1 == 'e' or name2 == 'e':
+                # Use electron temperature in e-e and e-i interactions
+                Lambda_dB = np.sqrt(deBroglie_const / (reduced * params.electron_temperature))
             else:
-                Lambda_dB = np.sqrt(two_pi * beta_i * params.hbar2 / reduced)
+                # Use ion temperature in i-i interactions only
+                Lambda_dB = np.sqrt(deBroglie_const / (reduced * params.total_ion_temperature))
+
+            if name2 == name1:  # e-e
+                QSP_matrix[2, i, j] = log2 * params.kB * params.electron_temperature
+                QSP_matrix[3, i, j] = four_pi / (log2 * Lambda_dB ** 2)
 
             QSP_matrix[0, i, j] = q1 * q2 / params.fourpie0
             QSP_matrix[1, i, j] = two_pi / Lambda_dB
 
-    params.QFactor /= params.fourpie0
-    if not params.potential.QSP_Pauli:
+    if not potential.qsp_pauli:
         QSP_matrix[2, :, :] = 0.0
 
-    params.potential.matrix = QSP_matrix
-    params.potential.Gamma_eff = abs(params.potential.matrix[0, 0, 1]) / (params.ai * params.kB * params.total_ion_temperature)
+    QSP_matrix[4, :, :] = potential.pppm_alpha_ewald
+    potential.matrix = QSP_matrix
 
-    # Calculate the (total) plasma frequency
-    wp_tot_sq = 0.0
-    for i, sp in enumerate(params.species):
-        wp2 = four_pi * sp.charge ** 2 * sp.number_density / (sp.mass * params.fourpie0)
-        sp.wp = np.sqrt(wp2)
-        wp_tot_sq += wp2
-
-    params.total_plasma_frequency = np.sqrt(wp_tot_sq)
-
-    if params.potential.QSP_type == "Deutsch":
-        params.force = Deutsch_force_P3M
+    if potential.qsp_type.lower() == "deutsch":
+        potential.force = deutsch_force
         # Calculate the PP Force error from the e-e diffraction term only.
-        params.pppm.PP_err = np.sqrt(two_pi * params.potential.matrix[1, 0, 0])
-        params.pppm.PP_err *= np.exp(- params.potential.rc * params.potential.matrix[1, 0, 0])
+        params.pppm_pp_err = np.sqrt(two_pi * potential.matrix[1, 0, 0])
+        params.pppm_pp_err *= np.exp(- potential.rc * potential.matrix[1, 0, 0])
+        params.pppm_pp_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
 
-    elif params.potential.QSP_type == "Kelbg":
-        params.force = Kelbg_force_P3M
+    elif potential.qsp_type.lower() == "kelbg":
+        potential.force = kelbg_force
         # TODO: Calculate the PP Force error from the e-e diffraction term only.
-        params.pppm.PP_err = np.sqrt(two_pi * params.potential.matrix[1, 0, 0])
-        params.pppm.PP_err *= np.exp(- params.potential.rc * params.potential.matrix[1, 0, 0])
-
-    # P3M parameters
-    params.pppm.hx = params.Lx / params.pppm.Mx
-    params.pppm.hy = params.Ly / params.pppm.My
-    params.pppm.hz = params.Lz / params.pppm.Mz
-    params.potential.matrix[4, :, :] = params.pppm.G_ew
-    # Calculate the Optimized Green's Function
-    constants = np.array([0.0, params.pppm.G_ew, params.fourpie0])
-    params.pppm.G_k, params.pppm.kx_v, params.pppm.ky_v, params.pppm.kz_v, params.pppm.PM_err = gf_opt(
-        params.pppm.MGrid, params.pppm.aliases, params.box_lengths, params.pppm.cao, constants)
-
-    # Complete PM and PP Force error calculation
-    params.pppm.PM_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0 / params.box_volume ** (2. / 3.)
-    params.pppm.PP_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
-    # Calculate the total force error
-    params.pppm.F_err = np.sqrt(params.pppm.PM_err ** 2 + params.pppm.PP_err ** 2)
-
-    return
+        params.pppm_pp_err = np.sqrt(two_pi * potential.matrix[1, 0, 0])
+        params.pppm_pp_err *= np.exp(- potential.rc * potential.matrix[1, 0, 0])
 
 
 @njit
-def Deutsch_force_P3M(r, pot_matrix):
+def deutsch_force(r, pot_matrix):
     """ 
     Calculate Deutsch QSP Force between two particles.
 
@@ -185,17 +158,17 @@ def Deutsch_force_P3M(r, pot_matrix):
 
     # Ewald short-range potential and force terms
     U_ewald = A * mt.erfc(alpha * r) / r
-    f_ewald = U_ewald / r2  # 1/r derivative
-    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(- a2 * r2)  # erfc derivative
+    f_ewald = U_ewald / r  # 1/r derivative
+    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) ) * np.exp(- a2 * r2)/r  # erfc derivative
 
     # Diffraction potential and force term
     U_diff = -A * np.exp(-C * r) / r
-    f_diff = U_diff / r2  # 1/r derivative
-    f_diff += - A * C * np.exp(-C * r) / r2  # exp derivative
+    f_diff = U_diff / r  # 1/r derivative
+    f_diff += -A * C * np.exp(-C * r) / r  # exp derivative
 
     # Pauli potential and force terms
     U_pauli = D * np.exp(-F * r2)
-    f_pauli = 2.0 * D * F * np.exp(-F * r2)
+    f_pauli = 2.0 * r * D * F * np.exp(-F * r2)
 
     U = U_ewald + U_diff + U_pauli
     force = f_ewald + f_diff + f_pauli
@@ -204,7 +177,7 @@ def Deutsch_force_P3M(r, pot_matrix):
 
 
 @njit
-def Kelbg_force_P3M(r, pot_matrix):
+def kelbg_force(r, pot_matrix):
     """ 
     Calculates the QSP Force between two particles when the P3M algorithm is chosen.
 

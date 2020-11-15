@@ -121,6 +121,11 @@ class InputOutput:
                 if key == 'preprocessing':
                     self.preprocessing = value
 
+        if 'PostProcessing' in dics.keys():
+            for i in dics['PostProcessing']:
+                if 'RadialDistributionFunction' in i.keys():
+                    dics['Parameters']['rdf_nbins'] = i['RadialDistributionFunction']['no_bins']
+
         return dics
 
     def create_file_paths(self):
@@ -609,6 +614,7 @@ class InputOutput:
                 simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws))
             print("e-i Coupling Parameter = {:3.3f} ".format(simulation.parameters.coupling_constant))
             print("rs Coupling Parameter = {:3.3f} ".format(simulation.parameters.rs))
+            print("Warm Dense Matter Parameter = {:3.3f} ".format(simulation.parameters.wdm_parameter))
 
     @staticmethod
     def thermostat_info(simulation):
