@@ -58,13 +58,13 @@ PostProcessing:
   - StaticStructureFactor:
       no_ka_harmonics: 10
 
-  - CurrentCorrelationFunctions:
+  - CurrentCorrelationFunction:
       no_ka_harmonics: 10
 
   - VelocityMoments:
       no_bins: 500
 
-  - VelocityAutocorrelationFunctions:
+  - VelocityAutoCorrelationFunction:
       phase: production
 
   - ElectricCurrent:

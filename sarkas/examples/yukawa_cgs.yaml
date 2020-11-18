@@ -50,7 +50,7 @@ PostProcessing:
   - VelocityMoments:
       no_bins: 500
 
-  - VelocityAutocorrelationFunctions:
+  - VelocityAutoCorrelationFunction:
       phase: production
 
   - ElectricCurrent:

@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
@@ -499,8 +500,14 @@
 
 <dl class="py method">
 <dt id="sarkas.potentials.base.Potential.calc_electron_properties">
-<code class="sig-name descname">calc_electron_properties</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.calc_electron_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.calc_electron_properties" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">static </em><code class="sig-name descname">calc_electron_properties</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.calc_electron_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.calc_electron_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate electronic parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.potentials.base.Potential.from_dict">
@@ -519,31 +526,49 @@
 <dl class="py method">
 <dt id="sarkas.potentials.base.Potential.pppm_setup">
 <code class="sig-name descname">pppm_setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.pppm_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.pppm_setup" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the P3M parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.potentials.base.Potential.setup">
 <code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.setup" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Setup the potential class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.potentials.base.Potential.update_brute">
 <code class="sig-name descname">update_brute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_brute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_brute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.potentials.base.Potential.update_linked_list">
-<code class="sig-name descname">update_linked_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_linked_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_linked_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Potential and update particles’ accelerations.</p>
+<dd><p>Calculate particles’ acceleration and potential brutally.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>U</strong> – Total Potential.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.potentials.base.Potential.update_linked_list">
+<code class="sig-name descname">update_linked_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_linked_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_linked_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the pp part of the acceleration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -551,12 +576,24 @@
 <dl class="py method">
 <dt id="sarkas.potentials.base.Potential.update_pm">
 <code class="sig-name descname">update_pm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_pm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_pm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the pm part of the potential and acceleration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles’ data</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.potentials.base.Potential.update_pppm">
 <code class="sig-name descname">update_pppm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/base.html#Potential.update_pppm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.potentials.base.Potential.update_pppm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate particles’ potential and accelerations using pppm method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles’ data</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -585,7 +622,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 14, 2020.
+        Last updated on Nov, 17, 2020.
       </span>
 
     </p>

@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -263,6 +264,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;PP&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measure</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -291,8 +293,15 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Potential.setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Setup the potential class.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params: sarkas.base.Parameters</span>
+<span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check for cutoff radius</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;fmm&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">linked_list_on</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># linked list on</span>
@@ -302,82 +311,91 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">linked_list_on</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># linked list off</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">&gt;</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">&gt;</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: The cut-off radius is &gt; L/2. L/2 = &quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
                       <span class="s2">&quot;will be used as rc&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">linked_list_on</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># linked list off</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;kappa&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Te&quot;</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: You have provided both kappa and Te while only one is needed.&quot;</span>
-                <span class="s2">&quot;kappa will be used to calculate the screening parameter.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;qsp&#39;</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_names</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_temperatures</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num_dens</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_temperatures</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">me</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_masses</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">@</span> <span class="n">params</span><span class="o">.</span><span class="n">species_concentrations</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span>
 
+            <span class="c1"># Check electron properties</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;electron_temperature_eV&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature_eV</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;electron_temperature&quot;</span><span class="p">):</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_ion_temperature</span>
+                <span class="c1"># if the electron temperature is not defined. The total ion temperature will be used for it.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calc_electron_properties</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;kappa&quot;</span><span class="p">):</span>
             <span class="c1"># Thomas-Fermi Length</span>
             <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span>
 
+        <span class="c1"># Update potential-specific parameters</span>
         <span class="c1"># Coulomb potential</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;coulomb&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">coulomb</span>
             <span class="n">coulomb</span><span class="o">.</span><span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-
         <span class="c1"># Yukawa potential</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;yukawa&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">yukawa</span>
             <span class="n">yukawa</span><span class="o">.</span><span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-
         <span class="c1"># exact gradient-corrected screening (EGS) potential</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;egs&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">egs</span>
             <span class="n">egs</span><span class="o">.</span><span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-
         <span class="c1"># Lennard-Jones potential</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;lj&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">lennardjones</span> <span class="k">as</span> <span class="n">lj</span>
             <span class="n">lj</span><span class="o">.</span><span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-
         <span class="c1"># Moliere potential</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;moliere&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">moliere</span>
             <span class="n">moliere</span><span class="o">.</span><span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-
         <span class="c1"># QSP potential</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;qsp&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">qsp</span>
             <span class="n">qsp</span><span class="o">.</span><span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;P3M&#39;</span><span class="p">:</span>
+        <span class="c1"># Compute pppm parameters</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;P3M&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;pppm&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pppm_on</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pppm_setup</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
         <span class="c1"># Copy needed parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_net_charge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">measure</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">measure</span></div>
 
-<div class="viewcode-block" id="Potential.calc_electron_properties"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.calc_electron_properties">[docs]</a>    <span class="k">def</span> <span class="nf">calc_electron_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.calc_electron_properties"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.calc_electron_properties">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">calc_electron_properties</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate electronic parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params: sarkas.base.Parameters</span>
+<span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">twopi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;electron_temperature_eV&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature_eV</span>
-
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;electron_temperature&quot;</span><span class="p">):</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_ion_temperature</span>
-            <span class="c1"># if the electron temperature is not defined. The total ion temperature will be used for it.</span>
-
-        <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">@</span> <span class="n">params</span><span class="o">.</span><span class="n">species_concentrations</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span>
         <span class="c1"># Calculate electron gas properties</span>
         <span class="n">fdint_fdk_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">fdk</span><span class="p">)</span>
         <span class="n">fdint_ifd1h_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">ifd1h</span><span class="p">)</span>
-        <span class="n">beta_e</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Te</span><span class="p">)</span>
+        <span class="n">beta_e</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span><span class="p">)</span>
         <span class="n">lambda_DB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">twopi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">me</span><span class="p">)</span>
         <span class="n">lambda3</span> <span class="o">=</span> <span class="n">lambda_DB</span> <span class="o">**</span> <span class="mi">3</span>
         <span class="c1"># chemical potential of electron gas/(kB T). See eq.(4) in Ref.[3]_</span>
@@ -386,25 +404,27 @@
         <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">lambda3</span> <span class="o">/</span> <span class="p">(</span>
                 <span class="mf">8.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">*</span> <span class="n">fdint_fdk_vec</span><span class="p">(</span><span class="n">k</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">eta_e</span><span class="p">)))</span>
 
-        <span class="n">params</span><span class="o">.</span><span class="n">rs</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">a0</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">ae_ws</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span><span class="o">/</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="c1"># Electron WS radius</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">rs</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ae_ws</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">a0</span>
         <span class="n">kF</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">fermi_energy</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">*</span> <span class="n">kF</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">me</span><span class="p">)</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">electron_degeneracy_parameter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">Te</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fermi_energy</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">relativistic_parameter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar</span> <span class="o">*</span> <span class="n">kF</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">me</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">c0</span><span class="p">)</span></div>
+        <span class="n">params</span><span class="o">.</span><span class="n">electron_degeneracy_parameter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fermi_energy</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">relativistic_parameter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar</span> <span class="o">*</span> <span class="n">kF</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">me</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">c0</span><span class="p">)</span>
+        <span class="c1"># Eq. 1 in Murillo Phys Rev E 81 036403 (2010)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">electron_coupling</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fermi_energy</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ae_ws</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">electron_degeneracy_parameter</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="c1"># Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">wdm_parameter</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">/</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">electron_degeneracy_parameter</span> <span class="o">+</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">params</span><span class="o">.</span><span class="n">electron_degeneracy_parameter</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">wdm_parameter</span> <span class="o">*=</span> <span class="mf">2.0</span><span class="o">/</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">electron_coupling</span> <span class="o">+</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">params</span><span class="o">.</span><span class="n">electron_coupling</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Potential.update_linked_list"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.update_linked_list">[docs]</a>    <span class="k">def</span> <span class="nf">update_linked_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the Potential and update particles&#39; accelerations.</span>
+<span class="sd">        Calculate the pp part of the acceleration.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        U : float</span>
-<span class="sd">            Total Potential.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">potential_energy</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">masses</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">,</span>
@@ -418,7 +438,15 @@
             <span class="n">ptcls</span><span class="o">.</span><span class="n">potential_energy</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dipole</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Potential.update_brute"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.update_brute">[docs]</a>    <span class="k">def</span> <span class="nf">update_brute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate particles&#39; acceleration and potential brutally.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptcls: sarkas.base.Particles</span>
+<span class="sd">            Particles data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">potential_energy</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">force_pp</span><span class="o">.</span><span class="n">update_0D</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">masses</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">,</span>
                                                <span class="bp">self</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span>
                                                <span class="bp">self</span><span class="o">.</span><span class="n">measure</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">rdf_hist</span><span class="p">)</span>
@@ -429,7 +457,14 @@
             <span class="n">ptcls</span><span class="o">.</span><span class="n">potential_energy</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dipole</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Potential.update_pm"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.update_pm">[docs]</a>    <span class="k">def</span> <span class="nf">update_pm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the pm part of the potential and acceleration.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptcls : sarkas.base.Particles</span>
+<span class="sd">            Particles&#39; data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">U_long</span><span class="p">,</span> <span class="n">acc_l_r</span> <span class="o">=</span> <span class="n">force_pm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">charges</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">masses</span><span class="p">,</span>
                                           <span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_green_function</span><span class="p">,</span>
                                           <span class="bp">self</span><span class="o">.</span><span class="n">pppm_kx</span><span class="p">,</span>
@@ -445,11 +480,26 @@
         <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">+=</span> <span class="n">acc_l_r</span></div>
 
 <div class="viewcode-block" id="Potential.update_pppm"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.update_pppm">[docs]</a>    <span class="k">def</span> <span class="nf">update_pppm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate particles&#39; potential and accelerations using pppm method.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptcls : sarkas.base.Particles</span>
+<span class="sd">            Particles&#39; data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_linked_list</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_pm</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Potential.pppm_setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.pppm_setup">[docs]</a>    <span class="k">def</span> <span class="nf">pppm_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.pppm_setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.pppm_setup">[docs]</a>    <span class="k">def</span> <span class="nf">pppm_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the P3M parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params : sarkas.base.Parameters</span>
+<span class="sd">            Simulation&#39;s parameters</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># P3M parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pppm_h_array</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -513,7 +563,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 14, 2020.
+        Last updated on Nov, 17, 2020.
       </span>
 
     </p>

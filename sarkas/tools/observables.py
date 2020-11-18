@@ -27,7 +27,7 @@ UNITS = [
      "none": ""},
     {"Energy": 'erg',
      "Time": 's',
-     "Length": 'cm',
+     "Length": 'm',
      "Charge": 'esu',
      "Temperature": 'K',
      "ElectronVolt": 'eV',
@@ -145,7 +145,8 @@ class Observable:
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
         disp = 'Observable( ' + self.__class__.__name__ + '\n'
         for key, value in sortedDict.items():
-            disp += "\t{} : {}\n".format(key, value)
+            if not key in ['dataframe', 'dataframe_longitudinal', 'dataframe_transverse']:
+                disp += "\t{} : {}\n".format(key, value)
         disp += ')'
         return disp
 
@@ -191,8 +192,144 @@ class Observable:
             self.dump_step = self.prod_dump_step
             self.no_steps = self.production_steps
 
+    def parse(self):
+        """
+        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
+        """
+        if self.__class__.__name__ == 'CurrentCorrelationFunction':
+            try:
+                self.dataframe_longitudinal = pd.read_csv(self.filename_csv_longitudinal, index_col=False)
+                self.dataframe_transverse = pd.read_csv(self.filename_csv_transverse, index_col=False)
+                k_data = np.load(self.k_file)
+                self.k_list = k_data["k_list"]
+                self.k_counts = k_data["k_counts"]
+                self.ka_values = k_data["ka_values"]
 
-class CurrentCorrelationFunctions(Observable):
+            except FileNotFoundError:
+                print("\nFile {} not found!".format(self.filename_csv_longitudinal))
+                print("\nFile {} not found!".format(self.filename_csv_transverse))
+                print("\nComputing Observable now ...")
+                self.compute()
+
+        elif self.__class__.__name__[-15:] == 'StructureFactor':
+            try:
+                self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+                k_data = np.load(self.k_file)
+                self.k_list = k_data["k_list"]
+                self.k_counts = k_data["k_counts"]
+                self.ka_values = k_data["ka_values"]
+
+            except FileNotFoundError:
+                print("\nFile {} not found!".format(self.filename_csv))
+                print("\nComputing Observable now ...")
+                self.compute()
+        else:
+            try:
+                self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+            except FileNotFoundError:
+                print("\nFile {} not found!".format(self.filename_csv))
+                print("\nComputing Observable now ...")
+                self.compute()
+
+    def plot(self, normalization=None, figname=None, show=False, acf=False, longitudinal=True, **kwargs):
+        """
+        Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
+
+        Parameters
+        ----------
+        longitudinal : bool
+            Flag for longitudinal plot in case of CurrenCurrelationFunction
+
+        acf : bool
+            Flag for renormalizing the autocorrelation functions. Default= False
+
+        figname : str
+            Name with which to save the file. It automaticall saves it in the correct directory.
+
+        normalization: float
+            Factor by which to divide the distance array.
+
+        show : bool
+            Flag for prompting the plot to screen. Default=False
+
+        **kwargs :
+            Options to pass to matplotlib plotting method.
+
+        Returns
+        -------
+        axes_handle : matplotlib.axes.Axes
+            Axes. See `pandas` documentation for more info
+
+        """
+
+        # Grab the data
+        self.parse()
+        # Make a copy of the dataframe for plotting
+        if self.__class__.__name__ != 'CurrentCorrelationFunction':
+            plot_dataframe = self.dataframe.copy()
+        elif longitudinal:
+            plot_dataframe = self.dataframe_longitudinal.copy()
+        else:
+            plot_dataframe = self.dataframe_transverse.copy()
+
+        if normalization:
+            plot_dataframe.iloc[:, 0] /= normalization
+
+        # Autocorrelation function renormalization
+        if acf:
+            for i, col in enumerate(plot_dataframe.columns[1:], 1):
+                plot_dataframe[col] /= plot_dataframe[col].iloc[0]
+            kwargs['logx'] = True
+
+        if self.__class__.__name__ == 'StaticStructureFactor':
+            errorbars = plot_dataframe.copy()
+            for i, col in enumerate(self.dataframe.columns):
+                if col[-8:] == 'Errorbar':
+                    errorbars.drop(col[:-9], axis=1, inplace=True)
+                    errorbars.rename({col: col[:-9]}, axis=1, inplace=True)
+                    plot_dataframe.drop(col, axis=1, inplace=True)
+            kwargs['yerr'] = errorbars
+
+        axes_handle = plot_dataframe.plot(x=plot_dataframe.columns[0], **kwargs)
+        fig = axes_handle.figure
+        fig.tight_layout()
+
+        # Saving
+        if figname:
+            fig.savefig(os.path.join(self.saving_dir, figname + '_' + self.job_id + '.png'))
+        else:
+            fig.savefig(os.path.join(self.saving_dir, self.__class__.__name__ + '_' + self.job_id + '.png'))
+
+        if show:
+            fig.show()
+
+        return axes_handle
+        # if dispersion:
+        #     from matplotlib.colors import LogNorm
+        #     w_array = np.array(plot_dataframe["Frequencies"]) / self.total_plasma_frequency
+        #     neg_indx = np.where(w_array < 0.0)[0][0]
+        #     Skw = np.array(plot_dataframe.iloc[:, 1:self.no_ka_values + 1])
+        #     ka_vals, w = np.meshgrid(self.ka_values, w_array[:neg_indx])
+        #     log_norm = LogNorm(vmin=plot_dataframe.min(), vmax=plot_dataframe.max())
+        #
+        #     fig = plt.figure(figsize=(10, 7))
+        #     plt.pcolormesh(ka_vals, w, Skw[neg_indx:, :], norm = log_norm)
+        #     cbar = plt.colorbar()
+        #     cbar.set_ticks([])
+        #     cbar.ax.tick_params(labelsize=14)
+        #     plt.xlabel(r'$ka$')
+        #     plt.ylabel(r'$\omega/\omega_p$')
+        #     plt.tick_params(axis='both', which='major')
+        #     fig.tight_layout()
+        #     if longitudinal:
+        #         fig.savefig(os.path.join(self.saving_dir, 'Lkw_Dispersion_' + self.job_id + '.png'))
+        #     else:
+        #         fig.savefig(os.path.join(self.saving_dir, 'Tkw_Dispersion_' + self.job_id + '.png'))
+        #     if show:
+        #         fig.show()
+
+
+class CurrentCorrelationFunction(Observable):
     """
     Current Correlation Functions: :math:`L(k,\\omega)` and :math:`T(k,\\omega)`.
 
@@ -233,7 +370,7 @@ class CurrentCorrelationFunctions(Observable):
 
         super().setup_init(params, self.phase)
 
-        saving_dir = os.path.join(self.postprocessing_dir, 'CurrentCorrelationFunctions')
+        saving_dir = os.path.join(self.postprocessing_dir, 'CurrentCorrelationFunction')
         if not os.path.exists(saving_dir):
             os.mkdir(saving_dir)
 
@@ -246,30 +383,13 @@ class CurrentCorrelationFunctions(Observable):
         self.filename_csv_transverse = os.path.join(self.saving_dir,
                                                     "TransverseCurrentCorrelationFunction_" + self.job_id + '.csv')
 
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
-        """
-        try:
-            self.dataframe_longitudinal = pd.read_csv(self.filename_csv_longitudinal, index_col=False)
-            self.dataframe_transverse = pd.read_csv(self.filename_csv_transverse, index_col=False)
-            k_data = np.load(self.k_file)
-            self.k_list = k_data["k_list"]
-            self.k_counts = k_data["k_counts"]
-            self.ka_values = k_data["ka_values"]
-        except FileNotFoundError:
-            print("\nCurrent Correlation files not found!")
-            print("\nComputing CCF now ...")
-            self.compute()
-
     def compute(self):
         """
         Calculate the velocity fluctuations correlation functions.
         """
-        self.dataframe_longitudinal["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps,
-                                                                                  self.dt * self.dump_step)
-        self.dataframe_transverse["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps,
-                                                                                self.dt * self.dump_step)
+        frequencies = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)
+        self.dataframe_longitudinal["Frequencies"] = np.fft.fftshift(frequencies)
+        self.dataframe_transverse["Frequencies"] = np.fft.fftshift(frequencies)
         # Parse vkt otherwise calculate them
         try:
             data = np.load(self.vkt_file)
@@ -325,107 +445,12 @@ class CurrentCorrelationFunctions(Observable):
                     else:
                         column = "{}-{} CCF {} ka_min".format(sp1, sp2, ik + 1)
 
-                    self.dataframe_longitudinal[column] = Lkw[sp_indx, ik, :]
-                    self.dataframe_transverse[column] = Tkw[sp_indx, ik, :]
+                    self.dataframe_longitudinal[column] = np.fft.fftshift(Lkw[sp_indx, ik, :])
+                    self.dataframe_transverse[column] = np.fft.fftshift(Tkw[sp_indx, ik, :])
                 sp_indx += 1
 
         self.dataframe_longitudinal.to_csv(self.filename_csv_transverse, index=False, encoding='utf-8')
         self.dataframe_transverse.to_csv(self.filename_csv_longitudinal, index=False, encoding='utf-8')
-
-    def plot(self, show=False, longitudinal=True, dispersion=False):
-        """
-        Plot velocity fluctuations correlation functions and save the figure.
-
-        Parameters
-        ----------
-        longitudinal : bool
-            Flag for plotting longitudinal or transverse correlation function. Default=True.
-
-        show: bool
-            Flag for prompting the plots to screen. Default=False
-
-        dispersion : bool
-            Flag for plotting the collective mode dispersion. Default=False
-
-        """
-        try:
-            if longitudinal:
-                self.dataframe = pd.read_csv(self.filename_csv_longitudinal, index_col=False)
-                lbl = "L"
-            else:
-                self.dataframe = pd.read_csv(self.filename_csv_transverse, index_col=False)
-                lbl = "T"
-            k_data = np.load(self.k_file)
-            self.k_list = k_data["k_list"]
-            self.k_counts = k_data["k_counts"]
-            self.ka_values = k_data["ka_values"]
-            self.no_ka_values = len(self.ka_values)
-        except FileNotFoundError:
-            print("Computing L(k,w), T(k,w)")
-            self.compute()
-            if longitudinal:
-                self.dataframe = pd.read_csv(self.filename_csv_longitudinal, index_col=False)
-                lbl = "L"
-            else:
-                self.dataframe = pd.read_csv(self.filename_csv_transverse, index_col=False)
-                lbl = "T"
-
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        if self.num_species > 1:
-            for i, sp1 in enumerate(self.species_names):
-                for j, sp2 in enumerate(self.species_names[i:]):
-                    column = "{}-{} CCF ka_min".format(sp1, sp2)
-                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
-                            np.fft.fftshift(self.dataframe[column]),
-                            label=r'$' + lbl + '_{' + sp1 + sp2 + '}(k,\omega)$')
-        else:
-            column = "{}-{} CCF ka_min".format(self.species_names[0], self.species_names[0])
-            ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
-                    np.fft.fftshift(self.dataframe[column]),
-                    label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
-            for i in range(1, 5):
-                column = "{}-{} CCF {} ka_min".format(self.species_names[0], self.species_names[0], i + 1)
-                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
-                        np.fft.fftshift(self.dataframe[column]),
-                        label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
-
-        ax.grid(True, alpha=0.3)
-        ax.legend(loc='best', ncol=3)
-        ax.set_yscale('log')
-        if longitudinal:
-            ax.set_ylabel(r'$L(k,\omega)$')
-            fig_name = os.path.join(self.saving_dir, 'Lkw_' + self.job_id + '.png')
-        else:
-            ax.set_ylabel(r'$T(k,\omega)$')
-            fig_name = os.path.join(self.saving_dir, 'Tkw_' + self.job_id + '.png')
-
-        ax.set_xlabel(r'$\omega/\omega_p$')
-        fig.tight_layout()
-        fig.savefig(fig_name)
-        if show:
-            fig.show()
-
-        if dispersion:
-            w_array = np.array(self.dataframe["Frequencies"]) / self.total_plasma_frequency
-            neg_indx = np.where(w_array < 0.0)[0][0]
-            Skw = np.array(self.dataframe.iloc[:, 1:self.no_ka_values + 1])
-            ka_vals, w = np.meshgrid(self.ka_values, w_array[:neg_indx])
-            fig = plt.figure(figsize=(10, 7))
-            plt.pcolor(ka_vals, w, Skw[neg_indx:, :], vmin=Skw[:, 1].min(), vmax=Skw[:, 1].max())
-            cbar = plt.colorbar()
-            cbar.set_ticks([])
-            cbar.ax.tick_params(labelsize=14)
-            plt.xlabel(r'$ka$')
-            plt.ylabel(r'$\omega/\omega_p$')
-            plt.ylim(0, 2)
-            plt.tick_params(axis='both', which='major')
-            fig.tight_layout()
-            if longitudinal:
-                fig.savefig(os.path.join(self.saving_dir, 'Lkw_Dispersion_' + self.job_id + '.png'))
-            else:
-                fig.savefig(os.path.join(self.saving_dir, 'Tkw_Dispersion_' + self.job_id + '.png'))
-            if show:
-                fig.show()
 
 
 class DynamicStructureFactor(Observable):
@@ -479,23 +504,6 @@ class DynamicStructureFactor(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "DynamicStructureFactor_" + self.job_id + '.csv')
 
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-            k_data = np.load(self.k_file)
-            self.k_list = k_data["k_list"]
-            self.k_counts = k_data["k_counts"]
-            self.ka_values = k_data["ka_values"]
-
-        except FileNotFoundError:
-            print("\nFile {} not found!".format(self.filename_csv))
-            print("\nComputing DSF now...")
-            self.compute()
-        return
-
     def compute(self):
         """
         Compute :math:`S_{ij} (k,\\omega)` and the array of :math:`\\omega` values.
@@ -526,8 +534,8 @@ class DynamicStructureFactor(Observable):
 
             nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list, self.verbose)
             np.save(self.nkt_file, nkt)
-
-        self.dataframe["Frequencies"] = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)
+        frequencies = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)
+        self.dataframe["Frequencies"] = np.fft.fftshift(frequencies)
 
         # Calculate Skw
         Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
@@ -541,74 +549,10 @@ class DynamicStructureFactor(Observable):
                         column = "{}-{} DSF ka_min".format(sp1, sp2)
                     else:
                         column = "{}-{} DSF {} ka_min".format(sp1, sp2, ik + 1)
-                    self.dataframe[column] = Skw[sp_indx, ik, :]
+                    self.dataframe[column] = np.fft.fftshift(Skw[sp_indx, ik, :])
                 sp_indx += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-
-    def plot(self, show=False, dispersion=False):
-        """
-        Plot :math:`S(k,\\omega)` and save the figure.
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-            k_data = np.load(self.k_file)
-            self.k_list = k_data["k_list"]
-            self.k_counts = k_data["k_counts"]
-            self.ka_values = k_data["ka_values"]
-            self.no_ka_values = len(self.ka_values)
-        except FileNotFoundError:
-            print("Computing S(k,w)")
-            self.compute()
-
-        fig, ax = plt.subplots(1, 1)
-        if self.num_species > 1:
-            for i, sp1 in enumerate(self.species_names):
-                for j, sp2 in enumerate(self.species_names[i:]):
-                    column = "{}-{} DSF ka_min".format(sp1, sp2)
-                    ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
-                            np.fft.fftshift(self.dataframe[column]),
-                            label=r'$S_{' + sp1 + sp2 + '}(k,\omega)$')
-        else:
-            column = "{}-{} DSF ka_min".format(self.species_names[0], self.species_names[0])
-            ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
-                    np.fft.fftshift(self.dataframe[column]),
-                    label=r'$ka = {:1.4f}$'.format(self.ka_values[0]))
-            for i in range(1, 5):
-                column = "{}-{} DSF {} ka_min".format(self.species_names[0], self.species_names[0], i + 1)
-                ax.plot(np.fft.fftshift(self.dataframe["Frequencies"]) / self.total_plasma_frequency,
-                        np.fft.fftshift(self.dataframe[column]),
-                        label=r'$ka = {:1.4f}$'.format(self.ka_values[i]))
-
-        ax.grid(True, alpha=0.3)
-        ax.legend(loc='best', ncol=3)
-        ax.set_yscale('log')
-        ax.set_ylabel(r'$S(k,\omega)$')
-        ax.set_xlabel(r'$\omega/\omega_p$')
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.saving_dir, 'Skw_' + self.job_id + '.png'))
-        if show:
-            fig.show()
-
-        if dispersion:
-            w_array = np.array(self.dataframe["Frequencies"]) / self.total_plasma_frequency
-            neg_indx = np.where(w_array < 0.0)[0][0]
-            Skw = np.array(self.dataframe.iloc[:, 1:self.no_ka_values + 1])
-            ka_vals, w = np.meshgrid(self.ka_values, w_array[: neg_indx])
-            fig = plt.figure(figsize=(10, 7))
-            plt.pcolor(ka_vals, w, Skw[: neg_indx, :], vmin=Skw[:, 1].min(), vmax=Skw[:, 1].max())
-            cbar = plt.colorbar()
-            cbar.set_ticks([])
-            cbar.ax.tick_params(labelsize=14)
-            plt.xlabel(r'$ka$')
-            plt.ylabel(r'$\omega/\omega_p$')
-            plt.ylim(0, 2)
-            plt.tick_params(axis='both', which='major')
-            plt.title(r"$S(k,\omega)$")
-            fig.tight_layout()
-            fig.savefig(os.path.join(self.saving_dir, 'Skw_Dispersion_' + self.job_id + '.png'))
-            if show:
-                fig.show()
 
 
 class ElectricCurrent(Observable):
@@ -658,17 +602,6 @@ class ElectricCurrent(Observable):
             os.mkdir(self.saving_dir)
 
         self.filename_csv = os.path.join(self.saving_dir, "ElectricCurrent_" + self.job_id + '.csv')
-
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            print("\nFile {} not found!".format(self.filename_csv))
-            print("\nComputing Electric Current now ...")
-            self.compute()
 
     def compute(self):
         """
@@ -725,39 +658,6 @@ class ElectricCurrent(Observable):
             self.dataframe["{} Z Current ACF".format(sp)] = acf_zz
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-
-    def plot(self, show=False):
-        """
-        Plot the electric current autocorrelation function and save the figure.
-
-        Parameters
-        ----------
-        show: bool
-            Prompt the plot to screen.
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            self.compute()
-
-        # plt.style.use(style)
-
-        fig, ax = plt.subplots(1, 1)
-        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                               self.dataframe["Total Current ACF"], "Time", "none",
-                                                               self.units)
-        ax.plot(xmul * self.dataframe["Time"],
-                self.dataframe["Total Current ACF"] / self.dataframe["Total Current ACF"][0],
-                '--o', label=r'$J_{tot} (t)$')
-
-        ax.legend(loc='upper right')
-        ax.set_ylabel(r'$J(t)$')
-        ax.set_xlabel('Time' + xlbl)
-        ax.set_xscale('log')
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.saving_dir, 'TotalCurrentACF_' + self.job_id + '.png'))
-        if show:
-            fig.show()
 
 
 class HermiteCoefficients(Observable):
@@ -873,17 +773,6 @@ class HermiteCoefficients(Observable):
                 self.dataframe["{} Hermite z Coeff a{}".format(sp, hi)] = zcoeff[i, :, hi]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            print("\nFile {} not found!".format(self.filename_csv))
-            print("\nComputing Hermite Coefficients now ...")
-            self.compute()
 
     def plot(self, show=False):
         """
@@ -1013,7 +902,7 @@ class RadialDistributionFunction(Observable):
                                          "RadialDistributionFunction_" + self.job_id + ".csv")
         self.rc = self.cutoff_radius
 
-    def save(self, rdf_hist=None):
+    def compute(self, rdf_hist=None):
         """
         Parameters
         ----------
@@ -1067,60 +956,6 @@ class RadialDistributionFunction(Observable):
                 gr_ij += 1
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file.
-        """
-        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-
-    def plot(self, normalized=False, show=False):
-        """
-        Plot :math: `g_{ij}(r)` and save the figure.
-
-        Parameters
-        ----------
-        normalized: bool
-            Flag for normalizing distances.
-
-        show : bool
-            Flag for prompting the plot to screen. Default=False
-        """
-        self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-
-        indx = 0
-        xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["distance"], 1, 'Length', 'none', self.units)
-
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        for i, sp1 in enumerate(self.species_names):
-            for j, sp2 in enumerate(self.species_names[i:]):
-                subscript = sp1 + sp2
-                if normalized:
-                    ax.plot(self.dataframe["distance"] / self.a_ws,
-                            self.dataframe["{}-{} RDF".format(sp1, sp2)],
-                            label=r'$g_{' + subscript + '} (r)$')
-                else:
-                    ax.plot(self.dataframe["distance"] * xmul,
-                            self.dataframe["{}-{} RDF".format(sp1, sp2)],
-                            label=r'$g_{' + subscript + '} (r)$')
-
-                indx += 1
-        ax.grid(True, alpha=0.3)
-        if self.num_species > 2:
-            ax.legend(loc='best', ncol=(self.num_species - 1))
-        else:
-            ax.legend(loc='best')
-
-        ax.set_ylabel(r'$g(r)$')
-        if normalized:
-            ax.set_xlabel(r'$r/a$')
-        else:
-            ax.set_xlabel(r'$r$' + xlbl)
-        # ax.set_ylim(0, 5)
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.saving_dir, 'RDF_' + self.job_id + '.png'))
-        if show:
-            fig.show()
-
 
 class StaticStructureFactor(Observable):
     """
@@ -1172,17 +1007,6 @@ class StaticStructureFactor(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "StaticStructureFunction_" + self.job_id + ".csv")
 
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            print("\nFile {} not found!".format(self.filename_csv))
-            print("\nComputing S(k) now")
-            self.compute()
-
     def compute(self):
         """
         Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a csv.
@@ -1230,48 +1054,6 @@ class StaticStructureFactor(Observable):
                 sp_indx += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-
-    def plot(self, show=False, errorbars=False):
-        """
-        Plot :math:`S_{ij}(k)` and save the figure.
-
-        Parameters
-        ----------
-        show : bool
-            Flag to prompt the figure to screen. Default=False.
-
-        errorbars : bool
-            Plot errorbars. Default = False.
-
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            self.compute()
-
-        fig, ax = plt.subplots(1, 1)
-        for i, sp1 in enumerate(self.species_names):
-            for j, sp2 in enumerate(self.species_names[i:]):
-                subscript = sp1 + sp2
-                if errorbars:
-                    ax.errorbar(self.dataframe["ka values"],
-                                self.dataframe["{}-{} SSF".format(sp1, sp2)],
-                                yerr=self.dataframe[
-                                    "{}-{} SSF Errorbar".format(sp1, sp2)],
-                                ls='--', marker='o', label=r'$S_{ ' + subscript + '} (k)$')
-                else:
-                    ax.plot(self.dataframe["ka values"],
-                            self.dataframe["{}-{} SSF".format(sp1, sp2)],
-                            label=r'$S_{ ' + subscript + '} (k)$')
-
-        ax.grid(True, alpha=0.3)
-        ax.legend(loc='upper right')
-        ax.set_ylabel(r'$S(k)$')
-        ax.set_xlabel(r'$ka$')
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.saving_dir, 'StaticStructureFactor_' + self.job_id + '.png'))
-        if show:
-            fig.show()
 
 
 class Thermodynamics(Observable):
@@ -1420,8 +1202,6 @@ class Thermodynamics(Observable):
             self.phase = phase
             self.parse(phase)
 
-        # plt.style.use('MSUstyle')
-
         if quantity[:8] == "Pressure":
             if not "Pressure" in self.dataframe.columns:
                 print("Calculating Pressure quantities ...")
@@ -1552,7 +1332,7 @@ class Thermodynamics(Observable):
                 self.fldr = self.equilibration_dir
                 self.no_steps = self.equilibration_steps
                 self.parse(phase)
-                self.dataframe = self.dataframe.iloc[1:,:]
+                self.dataframe = self.dataframe.iloc[1:, :]
                 avg_array = np.array([i for i in range(1, self.no_dumps)])
             else:
                 self.no_dumps = self.prod_no_dumps
@@ -1567,7 +1347,7 @@ class Thermodynamics(Observable):
 
         fig = plt.figure(figsize=(16, 9))
         gs = GridSpec(4, 8)
-        fsz = 14
+        fsz = 16
 
         nbins = int(0.05 * self.no_dumps)
 
@@ -1624,7 +1404,7 @@ class Thermodynamics(Observable):
 
         Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"].iloc[0]) * 100 / \
                   self.dataframe["Total Energy"].iloc[0]
-        Delta_E_cum_avg = Delta_E.cumsum() /avg_array
+        Delta_E_cum_avg = Delta_E.cumsum() / avg_array
 
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E, alpha=0.5)
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E_cum_avg, alpha=0.8)
@@ -1679,7 +1459,8 @@ class Thermodynamics(Observable):
         Info_plot.text(0., y_coord - 3.5,
                        "{} completed steps = {}".format(self.phase, self.dump_step * (self.no_dumps - 1)),
                        fontsize=fsz)
-        Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(self.phase.capitalize(), self.no_steps), fontsize=fsz)
+        Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(self.phase.capitalize(), self.no_steps),
+                       fontsize=fsz)
         Info_plot.text(0., y_coord - 4.5, "{:1.2f} % {} Completed".format(
             100 * self.dump_step * (self.no_dumps - 1) / self.no_steps, self.phase.capitalize()), fontsize=fsz)
 
@@ -1690,7 +1471,7 @@ class Thermodynamics(Observable):
             fig.show()
 
 
-class VelocityAutocorrelationFunctions(Observable):
+class VelocityAutoCorrelationFunction(Observable):
     """Velocity Auto-correlation function."""
 
     def setup(self, params, phase=None):
@@ -1724,17 +1505,6 @@ class VelocityAutocorrelationFunctions(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "VelocityACF_" + self.job_id + '.csv')
 
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            print("\nFile {} not found!".format(self.filename_csv))
-            print("\nComputing VACF now ...")
-            self.compute()
-
     def compute(self, time_averaging=False, it_skip=100):
         """
         Compute the velocity auto-correlation functions.
@@ -1759,78 +1529,99 @@ class VelocityAutocorrelationFunctions(Observable):
         else:
             print("Calculating vacf with time averaging off...")
 
-        if self.num_species > 1:
-            vacf = calc_vacf(vel, self.species_num, self.species_masses, time_averaging, it_skip)
-        else:
-            vacf = calc_vacf_single(vel, self.species_num, time_averaging, it_skip)
-        # Save to csv
-        v_ij = 0
+        vacf = calc_vacf(vel, self.species_num, time_averaging, it_skip)
+
         for i, sp1 in enumerate(self.species_names):
-            self.dataframe["{} X Velocity ACF".format(sp1)] = vacf[v_ij, 0, :]
-            self.dataframe["{} Y Velocity ACF".format(sp1)] = vacf[v_ij, 1, :]
-            self.dataframe["{} Z Velocity ACF".format(sp1)] = vacf[v_ij, 2, :]
-            self.dataframe["{} Total Velocity ACF".format(sp1)] = vacf[v_ij, 3, :]
-            for j, sp2 in enumerate(self.species_names[i + 1:]):
-                v_ij += 1
-                self.dataframe["{}-{} X Current ACF".format(sp1, sp2)] = vacf[v_ij, 0, :]
-                self.dataframe["{}-{} Y Current ACF".format(sp1, sp2)] = vacf[v_ij, 1, :]
-                self.dataframe["{}-{} Z Current ACF".format(sp1, sp2)] = vacf[v_ij, 2, :]
-                self.dataframe["{}-{} Total Current ACF".format(sp1, sp2)] = vacf[v_ij, 3, :]
+            self.dataframe["{} X Velocity ACF".format(sp1)] = vacf[i, 0, :]
+            self.dataframe["{} Y Velocity ACF".format(sp1)] = vacf[i, 1, :]
+            self.dataframe["{} Z Velocity ACF".format(sp1)] = vacf[i, 2, :]
+            self.dataframe["{} Total Velocity ACF".format(sp1)] = vacf[i, 3, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
-    def plot(self, intercurrent=False, show=False):
+
+class FluxAutoCorrelationFunctions(Observable):
+    """Diffusion Flux Auto-correlation function."""
+
+    def setup(self, params, phase=None):
         """
-        Plot the velocity autocorrelation function and save the figure.
+        Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        show: bool
-            Flag for displaying the figure.
+        phase : (optional), str
+            Phase to analyze.
 
-        intercurrent: bool
-            Flag for plotting inter-species currents instead of vacf.
+        params : sarkas.base.Parameters
+            Simulation's parameters.
+
+        species : list
+            List of ``sarkas.base.Species``.
+
         """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            self.compute()
+        self.phase = phase if phase else 'production'
 
-        if intercurrent:
-            fig, ax = plt.subplots(1, 1)
-            for i, sp_name in enumerate(self.species_names):
-                for j in range(i + 1, self.num_species):
-                    J = self.dataframe["{}-{} Total Current ACF".format(sp_name, self.species_names[j])]
-                    ax.plot(self.dataframe["Time"] * self.total_plasma_frequency,
-                            J / J[0], label=r'$J_{' + sp_name + self.species_names[j] + '} (t)$')
-            ax.grid(True, alpha=0.3)
-            ax.legend(loc='upper right')
-            ax.set_ylabel(r'$J(t)$', )
-            ax.set_xlabel(r'$\omega_p t$')
-            ax.set_xscale('log')
-            ax.set_ylim(-0.2, 1.2)
-            fig.tight_layout()
-            fig.savefig(os.path.join(self.saving_dir, 'InterCurrentACF_' + self.job_id + '.png'))
-            if show:
-                fig.show()
+        super().setup_init(params, self.phase)
+
+        # Create the directory where to store the computed data
+        saving_dir = os.path.join(self.postprocessing_dir, 'DiffusionFluxAutoCorrelationFunction')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
+
+        self.filename_csv = os.path.join(self.saving_dir, "DiffusionFluxACF_" + self.job_id + '.csv')
+
+    def compute(self, time_averaging=False, it_skip=100):
+        """
+        Compute the velocity auto-correlation functions.
+        """
+
+        # Parse the particles from the dump files
+        vel = np.zeros((self.dimensions, self.total_num_ptcls, self.no_dumps))
+        #
+        print("Parsing particles' velocities.")
+        time = np.zeros(self.no_dumps)
+        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
+            dump = int(it * self.dump_step)
+            time[it] = dump * self.dt
+            datap = load_from_restart(self.dump_dir, dump)
+            vel[0, :, it] = datap["vel"][:, 0]
+            vel[1, :, it] = datap["vel"][:, 1]
+            vel[2, :, it] = datap["vel"][:, 2]
+        #
+        self.dataframe["Time"] = time
+        if time_averaging:
+            print("Calculating diffusion flux acf with time averaging on ...")
         else:
+            print("Calculating diffusion flux acf with time averaging off ...")
 
-            xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["Time"], 1.0,
-                                                               "Time", 'none', self.units)
-            fig, ax = plt.subplots(1, 1)
-            for i, sp in enumerate(self.species_names):
-                Z = self.dataframe["{} Total Velocity ACF".format(sp)]
-                ax.plot(self.dataframe["Time"] * xmul, Z / Z[0], label=r'$Z_{' + sp + '} (t)$')
-            ax.grid(True, alpha=0.3)
-            ax.legend(loc='upper right')
-            ax.set_ylabel(r'$Z(t)$')
-            ax.set_xlabel(r'Time' + xlbl)
-            ax.set_xscale('log')
-            ax.set_ylim(-0.2, 1.2)
-            fig.tight_layout()
-            fig.savefig(os.path.join(self.saving_dir, 'TotalVelocityACF_' + self.job_id + '.png'))
-            if show:
-                fig.show()
+        df_acf, tot_flux = calc_diff_flux_acf(vel,
+                                              self.species_num,
+                                              self.species_num_dens,
+                                              self.species_masses,
+                                              time_averaging,
+                                              it_skip)
+
+        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+        ax.plot(tot_flux[0], label='x')
+        ax.plot(tot_flux[1], label='y')
+        ax.plot(tot_flux[2], label='z')
+        ax.legend()
+        fig.show()
+
+        v_ij = 0
+        for i, sp1 in enumerate(self.species_names):
+            for j, sp2 in enumerate(self.species_names):
+                self.dataframe["{}-{} X Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 0, :]
+                self.dataframe["{}-{} Y Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 1, :]
+                self.dataframe["{}-{} Z Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 2, :]
+                self.dataframe["{}-{} Total Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 3, :]
+                v_ij += 1
+
+        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
 
 class VelocityMoments(Observable):
@@ -1939,17 +1730,6 @@ class VelocityMoments(Observable):
             self.dataframe["{} 6-2 moment ratio".format(sp)] = ratios[i, 1, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
-        """
-        try:
-            self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-        except FileNotFoundError:
-            print("\nFile {} not found!".format(self.filename_csv))
-            print("\nComputing Moments now ...")
-            self.compute()
 
     def plot_ratios(self, show=False):
         """
@@ -2380,7 +2160,7 @@ def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
     # Read particles' position for all times
     print("Calculating n(k,t).")
     nkt = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    for it in tqdm(range(no_dumps), disable = not verbose):
+    for it in tqdm(range(no_dumps), disable=not verbose):
         dump = int(it * dump_step)
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
@@ -2476,9 +2256,9 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
 
 
 @njit
-def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
+def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
     """
-    Calculate the velocity autocorrelation function of each species and in each direction.
+    Calculate the diffusion flux autocorrelation function of each species and in each direction.
 
     Parameters
     ----------
@@ -2494,45 +2274,51 @@ def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
     sp_num: numpy.ndarray
         Number of particles of each species.
 
+    sp_dens: numpy.ndarray
+        Number densities of each species.
+
+    sp_mass: numpy.ndarray
+        Particle's mass of each species.
+
     Returns
     -------
-    vacf_x: ndarray
-        x-velocity autocorrelation function
-
-    vacf_y: ndarray
-        y-velocity autocorrelation function
-
-    vacf_z: ndarray
-        z-velocity autocorrelation function
-
-    vacf_tot: ndarray
-        total velocity autocorrelation function
+    jc_acf: numpy.ndarray
+        Diffusion flux autocorrelation function. Shape Ns*(Ns +1)/2 x Ndim + 1 x Nt, where Ns = number of species,
+        Ndim = Number of cartesian dimensions, Nt = Number of dumps.
     """
 
     no_dim = vel.shape[0]
     no_dumps = vel.shape[2]
     no_species = len(sp_num)
-    no_vacf = int(no_species * (no_species + 1) / 2)
-    com_vel = np.zeros((no_species, 3, no_dumps))
+    no_vacf = int(no_species * no_species)
 
-    tot_mass_dens = np.sum(sp_num * sp_mass)
+    mass_densities = sp_dens * sp_mass
+    tot_mass_dens = np.sum(mass_densities)
+    # Center of mass velocity field of each species
+    com_vel = np.zeros((no_species, no_dim, no_dumps))
+    # Total center of mass velocity field, see eq.(18) in
+    # Haxhimali T. et al., Diffusivity of Mixtures in Warm Dense Matter Regime.In: Graziani F., et al. (eds)
+    # Frontiers and Challenges in Warm Dense Matter. Lecture Notes in Computational Science and Engineering, vol 96.
+    # Springer (2014)
+    tot_com_vel = np.zeros((no_dim, no_dumps))
 
     sp_start = 0
-    for i in range(no_species):
-        sp_end = sp_start + sp_num[i]
-        com_vel[i, :, :] = sp_mass[i] * np.sum(vel[:, sp_start: sp_end, :], axis=1) / tot_mass_dens
+    sp_end = 0
+    for i, ns in enumerate(sp_num):
+        sp_end += ns
+        com_vel[i, :, :] = np.sum(vel[:, sp_start: sp_end, :], axis=1)
+        tot_com_vel += mass_densities[i] * com_vel[i, :, :] / tot_mass_dens
         sp_start = sp_end
-
-    tot_com_vel = np.sum(com_vel, axis=0)
 
     jc_acf = np.zeros((no_vacf, no_dim + 1, no_dumps))
 
+    # the flux is given by eq.(19) of the above reference
     if time_averaging:
         indx = 0
         for i in range(no_species):
-            sp1_flux = sp_mass[i] * float(sp_num[i]) * (com_vel[i] - tot_com_vel)
+            sp1_flux = mass_densities[i] * (com_vel[i] - tot_com_vel)
             for j in range(i, no_species):
-                sp2_flux = sp_mass[j] * float(sp_num[j]) * (com_vel[j] - tot_com_vel)
+                sp2_flux = mass_densities[j] * (com_vel[j] - tot_com_vel)
                 for d in range(no_dim):
                     norm_counter = np.zeros(no_dumps)
                     temp = np.zeros(no_dumps)
@@ -2551,21 +2337,23 @@ def calc_vacf(vel, sp_num, sp_mass, time_averaging, it_skip):
 
     else:
         indx = 0
-        for i in range(no_species):
-            sp1_flux = sp_mass[i] * float(sp_num[i]) * (com_vel[i] - tot_com_vel)
-            for j in range(i, no_species):
-                sp2_flux = sp_mass[j] * float(sp_num[j]) * (com_vel[j] - tot_com_vel)
+        for i, rho1 in enumerate(mass_densities):
+            sp1_flux = rho1 * (com_vel[i] - tot_com_vel)
+            for j, rho2 in enumerate(mass_densities):
+                sp2_flux = rho2 * (com_vel[j] - tot_com_vel)
+                if i != j:
+                    tot_flux = tot_com_vel
                 for d in range(no_dim):
                     jc_acf[indx, d, :] = correlationfunction_1D(sp1_flux[d, :], sp2_flux[d, :])
 
                 jc_acf[indx, d + 1, :] = correlationfunction(sp1_flux, sp2_flux)
                 indx += 1
 
-    return jc_acf
+    return jc_acf, tot_flux
 
 
 @njit
-def calc_vacf_single(vel, sp_num, time_averaging, it_skip):
+def calc_vacf(vel, sp_num, time_averaging, it_skip):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
 
@@ -2577,8 +2365,9 @@ def calc_vacf_single(vel, sp_num, time_averaging, it_skip):
     it_skip: int
         Timestep interval for time averaging.
 
-    vel : ndarray
-        Particles' velocities.
+    vel : numpy.ndarray
+        Particles' velocities stored in a 3D array with shape D x Np x Nt. D = cartesian dimensions,
+        Np = Number of particles, Nt = number of dumps.
 
     sp_num: numpy.ndarray
         Number of particles of each species.
@@ -2592,7 +2381,7 @@ def calc_vacf_single(vel, sp_num, time_averaging, it_skip):
     no_dim = vel.shape[0]
     no_dumps = vel.shape[2]
 
-    vacf = np.zeros((1, no_dim + 1, no_dumps))
+    vacf = np.zeros((len(sp_num), no_dim + 1, no_dumps))
 
     if time_averaging:
         for d in range(no_dim):
@@ -2615,18 +2404,27 @@ def calc_vacf_single(vel, sp_num, time_averaging, it_skip):
 
         vacf[0, -1, :] = vacf_temp / norm_counter
     else:
-        # Calculate species mass density flux
-        for i in range(3):
+        # Calculate the vacf of each species in each dimension
+        for i in range(no_dim):
             vacf_temp = np.zeros(no_dumps)
-            for ptcl in range(sp_num[0]):
-                vacf += autocorrelationfunction_1D(vel[i, ptcl, :])
-            vacf[0, i, :] = vacf_temp / sp_num[0]
+            sp_start = 0
+            sp_end = 0
+            for sp, n_sp in enumerate(sp_num):
+                sp_end += n_sp
+                for ptcl in range(sp_start, sp_end):
+                    vacf_temp += autocorrelationfunction_1D(vel[i, ptcl, :])
+                vacf[sp, i, :] = vacf_temp / n_sp
+                sp_start = sp_end
 
         vacf_temp = np.zeros(no_dumps)
-        for ptcl in range(sp_num[0]):
-            vacf_temp += autocorrelationfunction(vel[:, ptcl, :])
-
-        vacf[0, -1, :] = vacf_temp / sp_num[0]
+        sp_start = 0
+        sp_end = 0
+        for sp, n_sp in enumerate(sp_num):
+            sp_end += n_sp
+            for ptcl in range(sp_start, sp_end):
+                vacf_temp += autocorrelationfunction(vel[:, ptcl, :])
+            vacf[sp, -1, :] = vacf_temp / n_sp
+            sp_start = sp_end
 
     return vacf
 
@@ -2997,10 +2795,10 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
     # Find the correct Units
     units_dict = UNITS[1] if units == 'cgs' else UNITS[0]
 
-    if units == 'cgs' and 'Length' == xlbl:
+    if units == 'cgs' and xlbl == 'Length':
         xmax *= 1e2
 
-    if units == 'cgs' and 'Length' == ylbl:
+    if units == 'cgs' and ylbl == 'Length':
         ymax *= 1e2
 
     x_str = np.format_float_scientific(xmax)

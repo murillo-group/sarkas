@@ -605,8 +605,8 @@ class InputOutput:
             print("e-e screening parameter = {:2.4f}".format(
                 simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws))
             print("ion de Broglie wavelength  = {:2.4f} ai = {:2.6e} ".format(
-                2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / (np.sqrt(2.0) * simulation.parameters.ai),
-                2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
+                2.0 * np.pi / simulation.potential.matrix[1, 1, 1] / (np.sqrt(2.0) * simulation.parameters.ai),
+                2.0 * np.pi / simulation.potential.matrix[1, 1, 1] / np.sqrt(2.0)), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("i-i screening parameter = {:2.4f}".format(
                 simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws))
@@ -614,6 +614,7 @@ class InputOutput:
                 simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws))
             print("e-i Coupling Parameter = {:3.3f} ".format(simulation.parameters.coupling_constant))
             print("rs Coupling Parameter = {:3.3f} ".format(simulation.parameters.rs))
+            print("e-e Coupling Parameter = {:3.3f} ".format(simulation.species[0].coupling))
             print("Warm Dense Matter Parameter = {:3.3f} ".format(simulation.parameters.wdm_parameter))
 
     @staticmethod

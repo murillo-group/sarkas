@@ -14,19 +14,21 @@ Sarkas is a pure-Python Molecular Dynamics (MD) package designed with plasma phy
 pure-python construction allows users to quickly add their own features to model the systems of
 their choosing. 
 
-.. warning:: Sarkas is under development. In the following pages you will find tutorials and information on
-the functionalities that have been tested and work correctly. If you want to collaborate and help us improve
+.. warning:: Sarkas is under development.
+
+In the following pages you will find tutorials and information on the functionalities that have been tested and work correctly. If you want to collaborate and help us improve
 Sarkas, Join us! :)
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Getting Started:
    
    why_sarkas/why_sarkas
    installation/installation
    quickstart/Quickstart
    tutorial/tutorial
+   tutorial/QSP_Tutorial
 
 .. toctree::
    :maxdepth: 2

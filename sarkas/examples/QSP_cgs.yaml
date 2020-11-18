@@ -4,7 +4,7 @@ Particles:
         name: e
         number_density: 1.6e+24       # N/cc
         mass: 9.1093837015e-28
-        num: 512                    # total number of particles of ion1 
+        num: 1024                    # total number of particles of ion1
         Z: -1.0                        # degree of ionization
         temperature: 6.32e+5 
 
@@ -12,7 +12,7 @@ Particles:
         name: p
         number_density: 1.6e+24       # N/cc
         mass: 1.67262192369e-24         # g, ptcl mass of ion1
-        num: 512                  # total number of particles of ion1 
+        num: 1024                  # total number of particles of ion1
         Z: 1.0                       # degree of ionization
         temperature: 6.32e+5
 
@@ -28,11 +28,11 @@ Potential:
 
 Integrator:
     type: verlet
-    dt: 1.193536e-19            # sec
-    equilibration_steps: 50000                      # number of timesteps for the equilibrium
-    eq_dump_step: 10
-    production_steps: 100000
-    prod_dump_step: 5
+    dt: 7.0208e-20            # sec
+    equilibration_steps: 100000                      # number of timesteps for the equilibrium
+    eq_dump_step: 40
+    production_steps: 200000
+    prod_dump_step: 20
 
 Thermostat:
     type: Berendsen               # thermostat type
@@ -41,8 +41,7 @@ Thermostat:
 
 Parameters:
     units: cgs                   # unit
-    load_method: prod_restart    # loading method
-    restart_step: 50000
+    load_method: random_reject    # loading method
     load_rejection_radius: 10.0e-10
 
 IO:
@@ -66,13 +65,13 @@ PostProcessing:
   - StaticStructureFactor:
       no_ka_harmonics: 5
 
-  - CurrentCorrelationFunctions:
+  - CurrentCorrelationFunction:
       no_ka_harmonics: 5
 
   - VelocityMoments:
       no_bins: 500
 
-  - VelocityAutocorrelationFunctions:
+  - VelocityAutoCorrelationFunction:
       phase: production
 
   - ElectricCurrent:

@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -269,9 +270,11 @@
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Species.calc_debye_length">calc_debye_length() (sarkas.base.Species method)</a>
 </li>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.calc_diff_flux_acf">calc_diff_flux_acf() (in module sarkas.tools.observables)</a>
+</li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.calc_elec_current">calc_elec_current() (in module sarkas.tools.observables)</a>
 </li>
-      <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.calc_electron_properties">calc_electron_properties() (sarkas.potentials.base.Potential method)</a>
+      <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.calc_electron_properties">calc_electron_properties() (sarkas.potentials.base.Potential static method)</a>
 </li>
       <li><a href="api/sarkas.potentials.force_pm.html#sarkas.potentials.force_pm.calc_field">calc_field() (in module sarkas.potentials.force_pm)</a>
 </li>
@@ -299,16 +302,14 @@
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vacf">calc_vacf() (in module sarkas.tools.observables)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vacf_single">calc_vacf_single() (in module sarkas.tools.observables)</a>
-</li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vk">calc_vk() (in module sarkas.tools.observables)</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vkt">calc_vkt() (in module sarkas.tools.observables)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.calculate_herm_coeff">calculate_herm_coeff() (in module sarkas.tools.observables)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Species.charge">charge (sarkas.base.Species attribute)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.charges">charges (sarkas.base.Particles attribute)</a>
@@ -323,18 +324,22 @@
         <li><a href="api/sarkas.processes.html#sarkas.processes.Simulation.common_parser">(sarkas.processes.Simulation method)</a>
 </li>
       </ul></li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.compute">compute() (sarkas.tools.observables.CurrentCorrelationFunctions method)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.compute">compute() (sarkas.tools.observables.CurrentCorrelationFunction method)</a>
 
       <ul>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.compute">(sarkas.tools.observables.DynamicStructureFactor method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.compute">(sarkas.tools.observables.ElectricCurrent method)</a>
 </li>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunctions.compute">(sarkas.tools.observables.FluxAutoCorrelationFunctions method)</a>
+</li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.compute">(sarkas.tools.observables.HermiteCoefficients method)</a>
+</li>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.compute">(sarkas.tools.observables.RadialDistributionFunction method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.StaticStructureFactor.compute">(sarkas.tools.observables.StaticStructureFactor method)</a>
 </li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions.compute">(sarkas.tools.observables.VelocityAutocorrelationFunctions method)</a>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction.compute">(sarkas.tools.observables.VelocityAutoCorrelationFunction method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments.compute">(sarkas.tools.observables.VelocityMoments method)</a>
 </li>
@@ -359,7 +364,7 @@
 </li>
       <li><a href="api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.current">current() (sarkas.utilities.timing.SarkasTimer static method)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions">CurrentCorrelationFunctions (class in sarkas.tools.observables)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction">CurrentCorrelationFunction (class in sarkas.tools.observables)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -379,7 +384,7 @@
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Species.debye_length">debye_length (sarkas.base.Species attribute)</a>
 </li>
-      <li><a href="api/sarkas.potentials.qsp.html#sarkas.potentials.qsp.Deutsch_force_P3M">Deutsch_force_P3M() (in module sarkas.potentials.qsp)</a>
+      <li><a href="api/sarkas.potentials.qsp.html#sarkas.potentials.qsp.deutsch_force">deutsch_force() (in module sarkas.potentials.qsp)</a>
 </li>
       <li><a href="api/sarkas.tools.transport.html#sarkas.tools.transport.TransportCoefficient.diffusion">diffusion() (sarkas.tools.transport.TransportCoefficient static method)</a>
 </li>
@@ -470,6 +475,8 @@
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.filename_csv_longitudinal">filename_csv_longitudinal (sarkas.tools.observables.Observable attribute)</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.filename_csv_transverse">filename_csv_transverse (sarkas.tools.observables.Observable attribute)</a>
+</li>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunctions">FluxAutoCorrelationFunctions (class in sarkas.tools.observables)</a>
 </li>
       <li><a href="api/sarkas.potentials.force_pm.html#sarkas.potentials.force_pm.force_optimized_green_function">force_optimized_green_function() (in module sarkas.potentials.force_pm)</a>
 </li>
@@ -583,7 +590,7 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.k_counts">k_counts (sarkas.tools.observables.CurrentCorrelationFunctions attribute)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.k_counts">k_counts (sarkas.tools.observables.CurrentCorrelationFunction attribute)</a>
 
       <ul>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.k_counts">(sarkas.tools.observables.DynamicStructureFactor attribute)</a>
@@ -593,7 +600,7 @@
       </ul></li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.k_file">k_file (sarkas.tools.observables.Observable attribute)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.k_list">k_list (sarkas.tools.observables.CurrentCorrelationFunctions attribute)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.k_list">k_list (sarkas.tools.observables.CurrentCorrelationFunction attribute)</a>
 
       <ul>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.k_list">(sarkas.tools.observables.DynamicStructureFactor attribute)</a>
@@ -603,7 +610,7 @@
       </ul></li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.k_space_dir">k_space_dir (sarkas.tools.observables.Observable attribute)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.ka_values">ka_values (sarkas.tools.observables.CurrentCorrelationFunctions attribute)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.ka_values">ka_values (sarkas.tools.observables.CurrentCorrelationFunction attribute)</a>
 
       <ul>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.ka_values">(sarkas.tools.observables.DynamicStructureFactor attribute)</a>
@@ -623,7 +630,7 @@
         <li><a href="api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.kB">(sarkas.time_evolution.thermostats.Thermostat attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/sarkas.potentials.qsp.html#sarkas.potentials.qsp.Kelbg_force_P3M">Kelbg_force_P3M() (in module sarkas.potentials.qsp)</a>
+      <li><a href="api/sarkas.potentials.qsp.html#sarkas.potentials.qsp.kelbg_force">kelbg_force() (in module sarkas.potentials.qsp)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.kinetic_temperature">kinetic_temperature() (sarkas.base.Particles method)</a>
 </li>
@@ -802,7 +809,7 @@
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.no_ka_harmonics">no_ka_harmonics (sarkas.tools.observables.Observable attribute)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.no_ka_values">no_ka_values (sarkas.tools.observables.CurrentCorrelationFunctions attribute)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.no_ka_values">no_ka_values (sarkas.tools.observables.CurrentCorrelationFunction attribute)</a>
 
       <ul>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.no_ka_values">(sarkas.tools.observables.DynamicStructureFactor attribute)</a>
@@ -852,46 +859,22 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters">Parameters (class in sarkas.base)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.parse">parse() (sarkas.tools.observables.CurrentCorrelationFunctions method)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.parse">parse() (sarkas.tools.observables.Observable method)</a>
 
       <ul>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.parse">(sarkas.tools.observables.DynamicStructureFactor method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.parse">(sarkas.tools.observables.ElectricCurrent method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.parse">(sarkas.tools.observables.HermiteCoefficients method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.parse">(sarkas.tools.observables.RadialDistributionFunction method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.StaticStructureFactor.parse">(sarkas.tools.observables.StaticStructureFactor method)</a>
-</li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.parse">(sarkas.tools.observables.Thermodynamics method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions.parse">(sarkas.tools.observables.VelocityAutocorrelationFunctions method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments.parse">(sarkas.tools.observables.VelocityMoments method)</a>
 </li>
       </ul></li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles">Particles (class in sarkas.base)</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.phase">phase (sarkas.tools.observables.Observable attribute)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.plot">plot() (sarkas.tools.observables.CurrentCorrelationFunctions method)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.plot">plot() (sarkas.tools.observables.HermiteCoefficients method)</a>
 
       <ul>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.plot">(sarkas.tools.observables.DynamicStructureFactor method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.plot">(sarkas.tools.observables.ElectricCurrent method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.plot">(sarkas.tools.observables.HermiteCoefficients method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.plot">(sarkas.tools.observables.RadialDistributionFunction method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.StaticStructureFactor.plot">(sarkas.tools.observables.StaticStructureFactor method)</a>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.plot">(sarkas.tools.observables.Observable method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.plot">(sarkas.tools.observables.Thermodynamics method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions.plot">(sarkas.tools.observables.VelocityAutocorrelationFunctions method)</a>
 </li>
       </ul></li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.plot_labels">plot_labels() (in module sarkas.tools.observables)</a>
@@ -904,8 +887,6 @@
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments.plots_dir">(sarkas.tools.observables.VelocityMoments attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.PM_err">PM_err (sarkas.potentials.base.Potential attribute)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.pos">pos (sarkas.base.Particles attribute)</a>
@@ -916,6 +897,8 @@
 </li>
       <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential">Potential (class in sarkas.potentials.base)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.potential_energy">potential_energy (sarkas.base.Particles attribute)</a>
 </li>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.potential_info">potential_info() (sarkas.utilities.io.InputOutput static method)</a>
@@ -1172,18 +1155,16 @@
       </ul></li>
       <li><a href="api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer">SarkasTimer (class in sarkas.utilities.timing)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.save">save() (sarkas.tools.observables.RadialDistributionFunction method)</a>
-</li>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.save_pickle">save_pickle() (sarkas.utilities.io.InputOutput method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.saving_dir">saving_dir (sarkas.tools.observables.ElectricCurrent attribute)</a>
 
       <ul>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.saving_dir">(sarkas.tools.observables.Observable attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.screen_figlet">screen_figlet() (sarkas.utilities.io.InputOutput static method)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.setup">setup() (sarkas.base.Parameters method)</a>
@@ -1203,11 +1184,13 @@
 </li>
         <li><a href="api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.setup">(sarkas.time_evolution.thermostats.Thermostat method)</a>
 </li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunctions.setup">(sarkas.tools.observables.CurrentCorrelationFunctions method)</a>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.setup">(sarkas.tools.observables.CurrentCorrelationFunction method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.setup">(sarkas.tools.observables.DynamicStructureFactor method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.setup">(sarkas.tools.observables.ElectricCurrent method)</a>
+</li>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunctions.setup">(sarkas.tools.observables.FluxAutoCorrelationFunctions method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.HermiteCoefficients.setup">(sarkas.tools.observables.HermiteCoefficients method)</a>
 </li>
@@ -1217,7 +1200,7 @@
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.setup">(sarkas.tools.observables.Thermodynamics method)</a>
 </li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions.setup">(sarkas.tools.observables.VelocityAutocorrelationFunctions method)</a>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction.setup">(sarkas.tools.observables.VelocityAutoCorrelationFunction method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments.setup">(sarkas.tools.observables.VelocityMoments method)</a>
 </li>
@@ -1402,7 +1385,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.vel">vel (sarkas.base.Particles attribute)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutocorrelationFunctions">VelocityAutocorrelationFunctions (class in sarkas.tools.observables)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction">VelocityAutoCorrelationFunction (class in sarkas.tools.observables)</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityMoments">VelocityMoments (class in sarkas.tools.observables)</a>
 </li>
@@ -1468,7 +1451,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 14, 2020.
+        Last updated on Nov, 17, 2020.
       </span>
 
     </p>

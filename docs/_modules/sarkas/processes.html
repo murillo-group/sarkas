@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -227,22 +228,22 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">DynamicStructureFactor</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CurrentCorrelationFunctions&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">CurrentCorrelationFunctions</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CurrentCorrelationFunction&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">CurrentCorrelationFunction</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;StaticStructureFactor&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">StaticStructureFactor</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityAutoCorrelationFunction&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">VelocityAutoCorrelationFunction</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityMoments&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">vm</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">VelocityMoments</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityAutocorrelationFunctions&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">VelocityAutocorrelationFunctions</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;ElectricCurrent&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">ElectricCurrent</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
@@ -1029,13 +1030,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">t0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="n">time_pot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
         <span class="n">time_ptcls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-        <span class="n">time_pot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
 
         <span class="c1"># For restart and backups.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1227,7 +1228,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 14, 2020.
+        Last updated on Nov, 17, 2020.
       </span>
 
     </p>

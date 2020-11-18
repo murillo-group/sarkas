@@ -7,25 +7,25 @@ input_file_name = 'sarkas/examples/QSP_cgs.yaml'
 
 # rg = Generator(PCG64(12345))
 
-# preproc = PreProcess(input_file_name)
-# preproc.setup(read_yaml=True)
-# # preproc.run(loops=5)
+preproc = PreProcess(input_file_name)
+preproc.setup(read_yaml=True)
+preproc.run(loops=50)
 
 #
-sim = Simulation(input_file_name)
-sim.setup(read_yaml=True)
-sim.run()
+# sim = Simulation(input_file_name)
+# sim.setup(read_yaml=True)
+# sim.run()
 
-postproc = PostProcess(input_file_name)
-postproc.setup(read_yaml=True)
+# postproc = PostProcess(input_file_name)
+# postproc.setup(read_yaml=True)
 #
-postproc.rdf.setup(postproc.parameters)
-postproc.rdf.save()
-postproc.rdf.plot(show=True)
-# #
-postproc.therm.setup(postproc.parameters)
-postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=True)
-postproc.therm.temp_energy_plot(postproc, phase='production', show=True)
+# postproc.rdf.setup(postproc.parameters)
+# postproc.rdf.save()
+# postproc.rdf.plot(show=True)
+# # #
+# postproc.therm.setup(postproc.parameters)
+# postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=True)
+# postproc.therm.temp_energy_plot(postproc, phase='production', show=True)
 
 # postproc.hc.setup(postproc.parameters, 'equilibration')
 # # postproc.hc.parse()
@@ -60,6 +60,9 @@ postproc.therm.temp_energy_plot(postproc, phase='production', show=True)
 # # postproc.ccf.plot(show=False)
 #
 #
-diffusion = TransportCoefficient.diffusion(postproc.parameters,
-                                           phase='production',
-                                           show=True)
+# diffusion = TransportCoefficient.diffusion(postproc.parameters,
+#                                            phase='production',
+#                                            show=True)
+# interdiffusion = TransportCoefficient.interdiffusion(postproc.parameters,
+#                                            phase='production',
+#                                            show=True)

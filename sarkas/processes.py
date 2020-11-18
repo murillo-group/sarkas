@@ -59,22 +59,22 @@ class PostProcess:
                     self.dsf = obs.DynamicStructureFactor()
                     if sub_dict:
                         self.dsf.from_dict(sub_dict)
-                if key == 'CurrentCorrelationFunctions':
-                    self.ccf = obs.CurrentCorrelationFunctions()
+                if key == 'CurrentCorrelationFunction':
+                    self.ccf = obs.CurrentCorrelationFunction()
                     if sub_dict:
                         self.ccf.from_dict(sub_dict)
                 if key == 'StaticStructureFactor':
                     self.ssf = obs.StaticStructureFactor()
                     if sub_dict:
                         self.ssf.from_dict(sub_dict)
+                if key == 'VelocityAutoCorrelationFunction':
+                    self.vacf = obs.VelocityAutoCorrelationFunction()
+                    if sub_dict:
+                        self.vacf.from_dict(sub_dict)
                 if key == 'VelocityMoments':
                     self.vm = obs.VelocityMoments()
                     if sub_dict:
                         self.vm.from_dict(sub_dict)
-                if key == 'VelocityAutocorrelationFunctions':
-                    self.vacf = obs.VelocityAutocorrelationFunctions()
-                    if sub_dict:
-                        self.vacf.from_dict(sub_dict)
                 if key == 'ElectricCurrent':
                     self.ec = obs.ElectricCurrent()
                     if sub_dict:
