@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/H-He_Mixture.html">H He Mixture Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -1314,7 +1315,7 @@
 <span class="sd">        potential: str</span>
 <span class="sd">            Potential used in the simulation.</span>
 
-<span class="sd">        potential_matrix: ndarray</span>
+<span class="sd">        potential_matrix: numpy.ndarray</span>
 <span class="sd">            Potential parameters.</span>
 
 <span class="sd">        r : numpy.ndarray</span>
@@ -1709,10 +1710,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="FluxAutoCorrelationFunctions"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunctions">[docs]</a><span class="k">class</span> <span class="nc">FluxAutoCorrelationFunctions</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+<div class="viewcode-block" id="FluxAutoCorrelationFunction"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction">[docs]</a><span class="k">class</span> <span class="nc">FluxAutoCorrelationFunction</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Diffusion Flux Auto-correlation function.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FluxAutoCorrelationFunctions.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunctions.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="FluxAutoCorrelationFunction.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign attributes from simulation&#39;s parameters.</span>
 
@@ -1723,9 +1724,6 @@
 
 <span class="sd">        params : sarkas.base.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
-
-<span class="sd">        species : list</span>
-<span class="sd">            List of ``sarkas.base.Species``.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span> <span class="k">if</span> <span class="n">phase</span> <span class="k">else</span> <span class="s1">&#39;production&#39;</span>
@@ -1743,7 +1741,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;DiffusionFluxACF_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FluxAutoCorrelationFunctions.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunctions.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_averaging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">it_skip</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<div class="viewcode-block" id="FluxAutoCorrelationFunction.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_averaging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">it_skip</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the velocity auto-correlation functions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1767,23 +1765,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Calculating diffusion flux acf with time averaging off ...&quot;</span><span class="p">)</span>
 
-        <span class="n">df_acf</span><span class="p">,</span> <span class="n">tot_flux</span> <span class="o">=</span> <span class="n">calc_diff_flux_acf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span>
-                                              <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span>
-                                              <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span><span class="p">,</span>
-                                              <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span>
-                                              <span class="n">time_averaging</span><span class="p">,</span>
-                                              <span class="n">it_skip</span><span class="p">)</span>
+        <span class="n">df_acf</span> <span class="o">=</span> <span class="n">calc_diff_flux_acf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span>
+                                    <span class="n">time_averaging</span><span class="p">,</span>
+                                    <span class="n">it_skip</span><span class="p">)</span>
 
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tot_flux</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tot_flux</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tot_flux</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;z&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_mass_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span>
 
         <span class="n">v_ij</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">i</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> X Diffusion Flux ACF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">df_acf</span><span class="p">[</span><span class="n">v_ij</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Y Diffusion Flux ACF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">df_acf</span><span class="p">[</span><span class="n">v_ij</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Z Diffusion Flux ACF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">df_acf</span><span class="p">[</span><span class="n">v_ij</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
@@ -1827,9 +1820,6 @@
 
 <span class="sd">        params : sarkas.base.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
-
-<span class="sd">        species : list</span>
-<span class="sd">            List of sarkas.base.Species.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span> <span class="k">if</span> <span class="n">phase</span> <span class="k">else</span> <span class="s1">&#39;production&#39;</span>
@@ -1964,7 +1954,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    At : ndarray</span>
+<span class="sd">    At : numpy.ndarray</span>
 <span class="sd">        Observable to autocorrelate. Shape=(``no_dim``, ``no_steps``).</span>
 
 <span class="sd">    Returns</span>
@@ -2024,12 +2014,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    nkt : ndarray, cmplx</span>
+<span class="sd">    nkt : numpy.ndarray, complex</span>
 <span class="sd">        Density fluctuations of all species. Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)</span>
 
 <span class="sd">    ka_list :</span>
 <span class="sd">        List of :math:`k` indices in each direction with corresponding magnitude and index of ``ka_counts``.</span>
-<span class="sd">        Shape=(`no_ka_values`, 5)</span>
+<span class="sd">        Shape=(``no_ka_values``, 5)</span>
 
 <span class="sd">    ka_counts : numpy.ndarray</span>
 <span class="sd">        Number of times each :math:`k` magnitude appears.</span>
@@ -2043,7 +2033,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 
-<span class="sd">    Sk_all : ndarray</span>
+<span class="sd">    Sk_all : numpy.ndarray</span>
 <span class="sd">        Array containing :math:`S_{ij}(k)`. Shape=(``no_Sk``, ``no_ka_values``, ``no_dumps``)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2078,7 +2068,7 @@
 
 <span class="sd">    ka_list : list</span>
 <span class="sd">        List of :math:`k` indices in each direction with corresponding magnitude and index of ``ka_counts``.</span>
-<span class="sd">        Shape=(`no_ka_values`, 5)</span>
+<span class="sd">        Shape=(``no_ka_values``, 5)</span>
 
 <span class="sd">    ka_counts : numpy.ndarray</span>
 <span class="sd">        Number of times each :math:`k` magnitude appears.</span>
@@ -2131,10 +2121,10 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Js : ndarray</span>
+<span class="sd">    Js : numpy.ndarray</span>
 <span class="sd">        Electric current of each species. Shape = (``no_species``, ``no_dim``, ``no_dumps``)</span>
 
-<span class="sd">    Jtot : ndarray</span>
+<span class="sd">    Jtot : numpy.ndarray</span>
 <span class="sd">        Total electric current. Shape = (``no_dim``, ``no_dumps``)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp_num</span><span class="p">)</span>
@@ -2163,7 +2153,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    moments: ndarray</span>
+<span class="sd">    moments: numpy.ndarray</span>
 <span class="sd">        Velocity moments of each species per direction at each time step.</span>
 
 <span class="sd">    no_dumps: int</span>
@@ -2174,7 +2164,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    ratios: ndarray</span>
+<span class="sd">    ratios: numpy.ndarray</span>
 <span class="sd">        Ratios of high order velocity moments with respoect the 2nd moment.</span>
 <span class="sd">        Shape=(``no_species``,2, ``no_dumps``)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2213,7 +2203,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    vel: ndarray</span>
+<span class="sd">    vel: numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocity at each time step.</span>
 
 <span class="sd">    nbins: int</span>
@@ -2224,7 +2214,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    moments: ndarray</span>
+<span class="sd">    moments: numpy.ndarray</span>
 <span class="sd">        2nd, 4th, 8th moment of the velocity distributions.</span>
 <span class="sd">        Shape=( ``no_dumps``, ``9 * len(species_np)``)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2272,7 +2262,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    pos_data : ndarray</span>
+<span class="sd">    pos_data : numpy.ndarray</span>
 <span class="sd">        Particles&#39; position scaled by the box lengths.</span>
 <span class="sd">        Shape = ( ``no_dumps``, ``no_dim``, ``tot_no_ptcls``)</span>
 
@@ -2323,7 +2313,7 @@
 
 <span class="sd">    Return</span>
 <span class="sd">    ------</span>
-<span class="sd">    nkt : ndarray, complex</span>
+<span class="sd">    nkt : numpy.ndarray, complex</span>
 <span class="sd">        Density fluctuations.  Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Read particles&#39; position for all times</span>
@@ -2350,13 +2340,13 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    pos : ndarray</span>
+<span class="sd">    pos : numpy.ndarray</span>
 <span class="sd">        Particles&#39; positions.</span>
 
-<span class="sd">    vel : ndarray</span>
+<span class="sd">    vel : numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocities.</span>
 
-<span class="sd">    acc : ndarray</span>
+<span class="sd">    acc : numpy.ndarray</span>
 <span class="sd">        Particles&#39; accelerations.</span>
 
 <span class="sd">    species_mass : numpy.ndarray</span>
@@ -2373,7 +2363,7 @@
 <span class="sd">    pressure : float</span>
 <span class="sd">        Scalar Pressure i.e. trace of the pressure tensor</span>
 
-<span class="sd">    pressure_tensor : ndarray</span>
+<span class="sd">    pressure_tensor : numpy.ndarray</span>
 <span class="sd">        Pressure tensor. Shape(``no_dim``,``no_dim``)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2437,7 +2427,7 @@
 <span class="sd">    it_skip: int</span>
 <span class="sd">        Timestep interval for time averaging.</span>
 
-<span class="sd">    vel : ndarray</span>
+<span class="sd">    vel : numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocities.</span>
 
 <span class="sd">    sp_num: numpy.ndarray</span>
@@ -2455,11 +2445,10 @@
 <span class="sd">        Diffusion flux autocorrelation function. Shape Ns*(Ns +1)/2 x Ndim + 1 x Nt, where Ns = number of species,</span>
 <span class="sd">        Ndim = Number of cartesian dimensions, Nt = Number of dumps.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">no_dim</span> <span class="o">=</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">no_dumps</span> <span class="o">=</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">no_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp_num</span><span class="p">)</span>
-    <span class="n">no_vacf</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">no_species</span> <span class="o">*</span> <span class="n">no_species</span><span class="p">)</span>
+    <span class="n">no_vacf</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">no_species</span> <span class="o">*</span> <span class="p">(</span><span class="n">no_species</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
 
     <span class="n">mass_densities</span> <span class="o">=</span> <span class="n">sp_dens</span> <span class="o">*</span> <span class="n">sp_mass</span>
     <span class="n">tot_mass_dens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mass_densities</span><span class="p">)</span>
@@ -2480,8 +2469,8 @@
         <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
 
     <span class="n">jc_acf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">no_vacf</span><span class="p">,</span> <span class="n">no_dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">))</span>
-
     <span class="c1"># the flux is given by eq.(19) of the above reference</span>
+    <span class="n">indx</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="n">time_averaging</span><span class="p">:</span>
         <span class="n">indx</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_species</span><span class="p">):</span>
@@ -2505,20 +2494,18 @@
                 <span class="n">indx</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">indx</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rho1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mass_densities</span><span class="p">):</span>
             <span class="n">sp1_flux</span> <span class="o">=</span> <span class="n">rho1</span> <span class="o">*</span> <span class="p">(</span><span class="n">com_vel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot_com_vel</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">rho2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mass_densities</span><span class="p">):</span>
-                <span class="n">sp2_flux</span> <span class="o">=</span> <span class="n">rho2</span> <span class="o">*</span> <span class="p">(</span><span class="n">com_vel</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot_com_vel</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
-                    <span class="n">tot_flux</span> <span class="o">=</span> <span class="n">tot_com_vel</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">rho2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mass_densities</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">i</span><span class="p">):</span>
+                <span class="n">sign</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">))</span> <span class="c1"># this sign seems to be an issue in the calculation of</span>
+                <span class="n">sp2_flux</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">rho2</span> <span class="o">*</span> <span class="p">(</span><span class="n">com_vel</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot_com_vel</span><span class="p">)</span>
+
                 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_dim</span><span class="p">):</span>
                     <span class="n">jc_acf</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">correlationfunction_1D</span><span class="p">(</span><span class="n">sp1_flux</span><span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="p">:],</span> <span class="n">sp2_flux</span><span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="p">:])</span>
 
-                <span class="n">jc_acf</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">sp1_flux</span><span class="p">,</span> <span class="n">sp2_flux</span><span class="p">)</span>
+                <span class="n">jc_acf</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">sp1_flux</span><span class="p">,</span> <span class="n">sp2_flux</span><span class="p">)</span>
                 <span class="n">indx</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="k">return</span> <span class="n">jc_acf</span><span class="p">,</span> <span class="n">tot_flux</span></div>
+    <span class="k">return</span> <span class="n">jc_acf</span></div>
 
 
 <div class="viewcode-block" id="calc_vacf"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vacf">[docs]</a><span class="nd">@njit</span>
@@ -2692,19 +2679,19 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    vkt : ndarray, complex</span>
+<span class="sd">    vkt : numpy.ndarray, complex</span>
 <span class="sd">        Longitudinal velocity fluctuations.</span>
 <span class="sd">        Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)</span>
 
-<span class="sd">    vkt_perp_i : ndarray, complex</span>
+<span class="sd">    vkt_perp_i : numpy.ndarray, complex</span>
 <span class="sd">        Transverse velocity fluctuations along the :math:`x` axis.</span>
 <span class="sd">        Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)</span>
 
-<span class="sd">    vkt_perp_j : ndarray, complex</span>
+<span class="sd">    vkt_perp_j : numpy.ndarray, complex</span>
 <span class="sd">        Transverse velocity fluctuations along the :math:`y` axis.</span>
 <span class="sd">        Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)</span>
 
-<span class="sd">    vkt_perp_k : ndarray, complex</span>
+<span class="sd">    vkt_perp_k : numpy.ndarray, complex</span>
 <span class="sd">        Transverse velocity fluctuations along the :math:`z` axis.</span>
 <span class="sd">        Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)</span>
 
@@ -2778,10 +2765,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    At : ndarray</span>
+<span class="sd">    At : numpy.ndarray</span>
 <span class="sd">        Observable to correlate. Shape=(``no_dim``, ``no_steps``).</span>
 
-<span class="sd">    Bt : ndarray</span>
+<span class="sd">    Bt : numpy.ndarray</span>
 <span class="sd">        Observable to correlate. Shape=(``no_dim``, ``no_steps``).</span>
 
 <span class="sd">    Returns</span>
@@ -3046,7 +3033,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 17, 2020.
+        Last updated on Nov, 21, 2020.
       </span>
 
     </p>

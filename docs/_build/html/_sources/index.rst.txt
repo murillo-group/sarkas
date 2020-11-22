@@ -28,6 +28,7 @@ Sarkas, Join us! :)
    installation/installation
    quickstart/Quickstart
    tutorial/tutorial
+   tutorial/H-He_Mixture
    tutorial/QSP_Tutorial
 
 .. toctree::

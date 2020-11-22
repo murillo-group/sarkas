@@ -1145,7 +1145,7 @@ class Thermodynamics(Observable):
         potential: str
             Potential used in the simulation.
 
-        potential_matrix: ndarray
+        potential_matrix: numpy.ndarray
             Potential parameters.
 
         r : numpy.ndarray
@@ -1540,7 +1540,7 @@ class VelocityAutoCorrelationFunction(Observable):
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
 
-class FluxAutoCorrelationFunctions(Observable):
+class FluxAutoCorrelationFunction(Observable):
     """Diffusion Flux Auto-correlation function."""
 
     def setup(self, params, phase=None):
@@ -1554,9 +1554,6 @@ class FluxAutoCorrelationFunctions(Observable):
 
         params : sarkas.base.Parameters
             Simulation's parameters.
-
-        species : list
-            List of ``sarkas.base.Species``.
 
         """
         self.phase = phase if phase else 'production'
@@ -1598,23 +1595,18 @@ class FluxAutoCorrelationFunctions(Observable):
         else:
             print("Calculating diffusion flux acf with time averaging off ...")
 
-        df_acf, tot_flux = calc_diff_flux_acf(vel,
-                                              self.species_num,
-                                              self.species_num_dens,
-                                              self.species_masses,
-                                              time_averaging,
-                                              it_skip)
+        df_acf = calc_diff_flux_acf(vel,
+                                    self.species_num,
+                                    self.species_num_dens,
+                                    self.species_masses,
+                                    time_averaging,
+                                    it_skip)
 
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        ax.plot(tot_flux[0], label='x')
-        ax.plot(tot_flux[1], label='y')
-        ax.plot(tot_flux[2], label='z')
-        ax.legend()
-        fig.show()
+        self.species_mass_densities = self.species_num_dens * self.species_masses
 
         v_ij = 0
         for i, sp1 in enumerate(self.species_names):
-            for j, sp2 in enumerate(self.species_names):
+            for j, sp2 in enumerate(self.species_names[i:], i):
                 self.dataframe["{}-{} X Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 0, :]
                 self.dataframe["{}-{} Y Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 1, :]
                 self.dataframe["{}-{} Z Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 2, :]
@@ -1658,9 +1650,6 @@ class VelocityMoments(Observable):
 
         params : sarkas.base.Parameters
             Simulation's parameters.
-
-        species : list
-            List of sarkas.base.Species.
 
         """
         self.phase = phase if phase else 'production'
@@ -1795,7 +1784,7 @@ def autocorrelationfunction(At):
 
     Parameters
     ----------
-    At : ndarray
+    At : numpy.ndarray
         Observable to autocorrelate. Shape=(``no_dim``, ``no_steps``).
 
     Returns
@@ -1855,12 +1844,12 @@ def calc_Sk(nkt, ka_list, ka_counts, species_np, no_dumps):
 
     Parameters
     ----------
-    nkt : ndarray, cmplx
+    nkt : numpy.ndarray, complex
         Density fluctuations of all species. Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
 
     ka_list :
         List of :math:`k` indices in each direction with corresponding magnitude and index of ``ka_counts``.
-        Shape=(`no_ka_values`, 5)
+        Shape=(``no_ka_values``, 5)
 
     ka_counts : numpy.ndarray
         Number of times each :math:`k` magnitude appears.
@@ -1874,7 +1863,7 @@ def calc_Sk(nkt, ka_list, ka_counts, species_np, no_dumps):
     Returns
     -------
 
-    Sk_all : ndarray
+    Sk_all : numpy.ndarray
         Array containing :math:`S_{ij}(k)`. Shape=(``no_Sk``, ``no_ka_values``, ``no_dumps``)
 
     """
@@ -1909,7 +1898,7 @@ def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
 
     ka_list : list
         List of :math:`k` indices in each direction with corresponding magnitude and index of ``ka_counts``.
-        Shape=(`no_ka_values`, 5)
+        Shape=(``no_ka_values``, 5)
 
     ka_counts : numpy.ndarray
         Number of times each :math:`k` magnitude appears.
@@ -1962,10 +1951,10 @@ def calc_elec_current(vel, sp_charge, sp_num):
 
     Returns
     -------
-    Js : ndarray
+    Js : numpy.ndarray
         Electric current of each species. Shape = (``no_species``, ``no_dim``, ``no_dumps``)
 
-    Jtot : ndarray
+    Jtot : numpy.ndarray
         Total electric current. Shape = (``no_dim``, ``no_dumps``)
     """
     num_species = len(sp_num)
@@ -1994,7 +1983,7 @@ def calc_moment_ratios(moments, species_np, no_dumps):
 
     Parameters
     ----------
-    moments: ndarray
+    moments: numpy.ndarray
         Velocity moments of each species per direction at each time step.
 
     no_dumps: int
@@ -2005,7 +1994,7 @@ def calc_moment_ratios(moments, species_np, no_dumps):
 
     Returns
     -------
-    ratios: ndarray
+    ratios: numpy.ndarray
         Ratios of high order velocity moments with respoect the 2nd moment.
         Shape=(``no_species``,2, ``no_dumps``)
     """
@@ -2044,7 +2033,7 @@ def calc_moments(vel, nbins, species_np):
 
     Parameters
     ----------
-    vel: ndarray
+    vel: numpy.ndarray
         Particles' velocity at each time step.
 
     nbins: int
@@ -2055,7 +2044,7 @@ def calc_moments(vel, nbins, species_np):
 
     Returns
     -------
-    moments: ndarray
+    moments: numpy.ndarray
         2nd, 4th, 8th moment of the velocity distributions.
         Shape=( ``no_dumps``, ``9 * len(species_np)``)
     """
@@ -2103,7 +2092,7 @@ def calc_nk(pos_data, k_list):
 
     Parameters
     ----------
-    pos_data : ndarray
+    pos_data : numpy.ndarray
         Particles' position scaled by the box lengths.
         Shape = ( ``no_dumps``, ``no_dim``, ``tot_no_ptcls``)
 
@@ -2154,7 +2143,7 @@ def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
 
     Return
     ------
-    nkt : ndarray, complex
+    nkt : numpy.ndarray, complex
         Density fluctuations.  Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
     """
     # Read particles' position for all times
@@ -2181,13 +2170,13 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
 
     Parameters
     ----------
-    pos : ndarray
+    pos : numpy.ndarray
         Particles' positions.
 
-    vel : ndarray
+    vel : numpy.ndarray
         Particles' velocities.
 
-    acc : ndarray
+    acc : numpy.ndarray
         Particles' accelerations.
 
     species_mass : numpy.ndarray
@@ -2204,7 +2193,7 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
     pressure : float
         Scalar Pressure i.e. trace of the pressure tensor
 
-    pressure_tensor : ndarray
+    pressure_tensor : numpy.ndarray
         Pressure tensor. Shape(``no_dim``,``no_dim``)
 
     """
@@ -2268,7 +2257,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
     it_skip: int
         Timestep interval for time averaging.
 
-    vel : ndarray
+    vel : numpy.ndarray
         Particles' velocities.
 
     sp_num: numpy.ndarray
@@ -2286,11 +2275,10 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
         Diffusion flux autocorrelation function. Shape Ns*(Ns +1)/2 x Ndim + 1 x Nt, where Ns = number of species,
         Ndim = Number of cartesian dimensions, Nt = Number of dumps.
     """
-
     no_dim = vel.shape[0]
     no_dumps = vel.shape[2]
     no_species = len(sp_num)
-    no_vacf = int(no_species * no_species)
+    no_vacf = int(no_species * (no_species + 1)/2.)
 
     mass_densities = sp_dens * sp_mass
     tot_mass_dens = np.sum(mass_densities)
@@ -2311,8 +2299,8 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
         sp_start = sp_end
 
     jc_acf = np.zeros((no_vacf, no_dim + 1, no_dumps))
-
     # the flux is given by eq.(19) of the above reference
+    indx = 0
     if time_averaging:
         indx = 0
         for i in range(no_species):
@@ -2336,20 +2324,18 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
                 indx += 1
 
     else:
-        indx = 0
         for i, rho1 in enumerate(mass_densities):
             sp1_flux = rho1 * (com_vel[i] - tot_com_vel)
-            for j, rho2 in enumerate(mass_densities):
-                sp2_flux = rho2 * (com_vel[j] - tot_com_vel)
-                if i != j:
-                    tot_flux = tot_com_vel
+            for j, rho2 in enumerate(mass_densities[i:], i):
+                sign = (1 - 2 * (i != j)) # this sign seems to be an issue in the calculation of
+                sp2_flux = sign * rho2 * (com_vel[j] - tot_com_vel)
+
                 for d in range(no_dim):
                     jc_acf[indx, d, :] = correlationfunction_1D(sp1_flux[d, :], sp2_flux[d, :])
 
-                jc_acf[indx, d + 1, :] = correlationfunction(sp1_flux, sp2_flux)
+                jc_acf[indx, - 1, :] = correlationfunction(sp1_flux, sp2_flux)
                 indx += 1
-
-    return jc_acf, tot_flux
+    return jc_acf
 
 
 @njit
@@ -2523,19 +2509,19 @@ def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
 
     Returns
     -------
-    vkt : ndarray, complex
+    vkt : numpy.ndarray, complex
         Longitudinal velocity fluctuations.
         Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
 
-    vkt_perp_i : ndarray, complex
+    vkt_perp_i : numpy.ndarray, complex
         Transverse velocity fluctuations along the :math:`x` axis.
         Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
 
-    vkt_perp_j : ndarray, complex
+    vkt_perp_j : numpy.ndarray, complex
         Transverse velocity fluctuations along the :math:`y` axis.
         Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
 
-    vkt_perp_k : ndarray, complex
+    vkt_perp_k : numpy.ndarray, complex
         Transverse velocity fluctuations along the :math:`z` axis.
         Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
 
@@ -2609,10 +2595,10 @@ def correlationfunction(At, Bt):
 
     Parameters
     ----------
-    At : ndarray
+    At : numpy.ndarray
         Observable to correlate. Shape=(``no_dim``, ``no_steps``).
 
-    Bt : ndarray
+    Bt : numpy.ndarray
         Observable to correlate. Shape=(``no_dim``, ``no_steps``).
 
     Returns

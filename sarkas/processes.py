@@ -409,7 +409,6 @@ class PreProcess:
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('2D Lagrangian')
         fig.savefig(os.path.join(self.io.preprocessing_dir, '2D_Lagrangian.png'))
-        fig.show()
 
     def make_force_error_map_plot(self):
         c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
@@ -430,7 +429,6 @@ class PreProcess:
         ax.set_ylabel(r'No. Cells = $1/r_c$')
         ax.set_title('Force Error')
         fig.savefig(os.path.join(self.io.preprocessing_dir, 'ForceMap.png'))
-        fig.show()
 
     def time_acceleration(self):
 
@@ -569,7 +567,6 @@ class PreProcess:
                 self.potential.pppm_cao,
                 self.kappa * self.parameters.a_ws))
         fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + self.io.job_id + '.png'))
-        fig.show()
 
     def make_color_map(self, rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error):
         """
@@ -621,7 +618,6 @@ class PreProcess:
         fig.colorbar(CS)
         fig.tight_layout()
         fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + self.io.job_id + '.png'))
-        fig.show()
 
     def analytical_approx_pp(self):
         """Calculate PP force error."""
@@ -747,8 +743,6 @@ class PreProcess:
         ax[1].set_xlabel(r'$r_c / a_{ws}$')
         fig.tight_layout()
         fig.savefig(os.path.join(fig_path, 'Timing_Fit.png'))
-        fig.show()
-
 
 class Simulation:
     """

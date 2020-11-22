@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="sarkas" href="../api/modules.html" />
-    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+    <link rel="prev" title="H He Mixture Simulation" href="H-He_Mixture.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="H-He_Mixture.html">H He Mixture Simulation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -527,7 +528,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -536,22 +537,22 @@ Populating the interactive namespace from numpy and matplotlib
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gee</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc e-e RDF&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gei</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc e-p RDF&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gii</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc p-p RDF&#39;</span><span class="p">)</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">normalization</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a0</span><span class="p">,</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">normalization</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">ae_ws</span><span class="p">,</span>
                   <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">,</span>
                   <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$r/a_0$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$r/a_e$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Text(0.5, 37.44, &#39;$r/a_0$&#39;)
+Text(0.5, 37.44, &#39;$r/a_e$&#39;)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -559,15 +560,6 @@ Text(0.5, 37.44, &#39;$r/a_0$&#39;)
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/tutorial_QSP_Tutorial_7_1.png" src="../_images/tutorial_QSP_Tutorial_7_1.png" />
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
-</pre></div>
 </div>
 </div>
 </div>
@@ -583,7 +575,7 @@ Text(0.5, 37.44, &#39;$r/a_0$&#39;)
         <a href="../api/modules.html" class="btn btn-neutral float-right" title="sarkas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="H-He_Mixture.html" class="btn btn-neutral float-left" title="H He Mixture Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -595,7 +587,7 @@ Text(0.5, 37.44, &#39;$r/a_0$&#39;)
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 17, 2020.
+        Last updated on Nov, 21, 2020.
       </span>
 
     </p>

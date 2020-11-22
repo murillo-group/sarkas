@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/H-He_Mixture.html">H He Mixture Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -577,8 +578,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Mesh size&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;No. Cells = $1/r_c$&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;2D Lagrangian&#39;</span><span class="p">)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;2D_Lagrangian.png&#39;</span><span class="p">))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;2D_Lagrangian.png&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PreProcess.make_force_error_map_plot"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.make_force_error_map_plot">[docs]</a>    <span class="k">def</span> <span class="nf">make_force_error_map_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">c_mesh</span><span class="p">,</span> <span class="n">m_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pp_cells</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span><span class="p">)</span>
@@ -598,8 +598,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Mesh size&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;No. Cells = $1/r_c$&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Force Error&#39;</span><span class="p">)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;ForceMap.png&#39;</span><span class="p">))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;ForceMap.png&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PreProcess.time_acceleration"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.time_acceleration">[docs]</a>    <span class="k">def</span> <span class="nf">time_acceleration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -737,8 +736,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_cao</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceError_LinePlot_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceError_LinePlot_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PreProcess.make_color_map"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.make_color_map">[docs]</a>    <span class="k">def</span> <span class="nf">make_color_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcuts</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">chosen_alpha</span><span class="p">,</span> <span class="n">chosen_rcut</span><span class="p">,</span> <span class="n">total_force_error</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -789,8 +787,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">CS</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceError_ClrMap_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceError_ClrMap_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PreProcess.analytical_approx_pp"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.analytical_approx_pp">[docs]</a>    <span class="k">def</span> <span class="nf">analytical_approx_pp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate PP force error.&quot;&quot;&quot;</span>
@@ -915,9 +912,7 @@
         <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Mesh sizes&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$r_c / a_</span><span class="si">{ws}</span><span class="s1">$&#39;</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;Timing_Fit.png&#39;</span><span class="p">))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
-
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;Timing_Fit.png&#39;</span><span class="p">))</span></div></div>
 
 <div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1228,7 +1223,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 17, 2020.
+        Last updated on Nov, 21, 2020.
       </span>
 
     </p>

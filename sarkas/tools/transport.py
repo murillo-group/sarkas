@@ -135,33 +135,35 @@ class TransportCoefficient:
         vacf = obs.VelocityAutoCorrelationFunction()
         vacf.setup(params, phase)
         vacf.parse()
+
         time = np.array(vacf.dataframe["Time"])
+        coefficient["Time"] = time
         D = np.zeros((params.num_species, len(time)))
-        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 10))
+
+        fig, ax1 = plt.subplots(1, 1, figsize=(10, 10))
+        ax2 = ax1.twinx()
         ax21 = ax2.twiny()
         # extra space for the second axis at the bottom
         fig.subplots_adjust(bottom=0.1)
         const = 1.0 / 3.0
-
         for i, sp in enumerate(params.species_names):
             integrand = np.array(vacf.dataframe["{} Total Velocity ACF".format(sp)])
             for it in range(1, len(time)):
                 D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
 
-            coefficient["Time"] = time
             coefficient["{} Diffusion".format(sp)] = D[i, :]
 
             xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D[i, :], "Time", "Diffusion", vacf.units)
             ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp + '}(t)$')
-            ax21.semilogx(ymul * D[i, :])
-            ax2.semilogx(xmul * time, ymul * D[i, :], label=r'$D_{' + sp + '}(t)$')
+            ax21.semilogx(ymul * D[i, :], '--')
+            ax2.semilogx(xmul * time, ymul * D[i, :], '--', label=r'$D_{' + sp + '}(t)$')
 
         # Complete figure
-        ax1.grid(True, alpha=0.3)
+        # ax1.grid(True, alpha=0.3)
         ax1.legend(loc='best')
         ax1.set_ylabel(r'Velocity ACF')
         # ax1.set_xlabel(r'Time' + xlbl)
-        ax2.grid(True, alpha=0.3)
+        # ax2.grid(True, alpha=0.3)
         ax2.legend(loc='best')
         ax2.set_ylabel(r'Diffusion' + ylbl)
         ax2.set_xlabel(r'Time' + xlbl)
@@ -191,7 +193,7 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def interdiffusion(params, phase=None, show=True):
+    def interdiffusion(params, phase=None, show=False):
         """
         Calculate the interdiffusion coefficients from the diffusion flux auto-correlation function.
 
@@ -218,36 +220,44 @@ class TransportCoefficient:
         jc_acf.setup(params, phase)
         jc_acf.parse()
         no_int = jc_acf.prod_no_dumps
-        no_dij = jc_acf.no_obs
-        D_ij = np.zeros((no_dij, no_int))
-        const = 1. / 3.0
-        indx = 0
-        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 10))
+        no_obs = jc_acf.no_obs
+        D_ij = np.zeros((no_obs, no_int))
+        const = 1. / (3.0 * jc_acf.total_num_ptcls)
+
+        time = np.array(jc_acf.dataframe["Time"])
+        coefficient["Time"] = time
+
+        fig, ax1 = plt.subplots(1, 1, figsize=(10, 10))
+        ax2 = ax1.twinx()
         ax21 = ax2.twiny()
+        index = 0
         # extra space for the second axis at the bottom
         fig.subplots_adjust(bottom=0.2)
         for i, sp1 in enumerate(params.species_names):
-            for j, sp2 in enumerate(params.species_names):
+            conc1 = jc_acf.species_concentrations[i] * jc_acf.species_mass_densities[i]
+            for j, sp2 in enumerate(params.species_names[i:], i):
+                conc2 = jc_acf.species_concentrations[j] * jc_acf.species_mass_densities[j]
+
                 integrand = np.array(jc_acf.dataframe["{}-{} Total Diffusion Flux ACF".format(sp1, sp2)])
-                time = np.array(jc_acf.dataframe["Time"])
 
                 for it in range(1, no_int):
-                    D_ij[indx, it] = const * np.trapz(integrand[:it], x=time[:it])
+                    D_ij[index, it] = const/(conc1 * conc2) * np.trapz(integrand[:it], x=time[:it])
 
-                coefficient["{}-{} Inter Diffusion".format(sp1, sp2)] = D_ij[i, :]
+                coefficient["{}-{} Inter Diffusion".format(sp1, sp2)] = D_ij[index, :]
 
-                xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D_ij[i, :], "Time", "Diffusion", jc_acf.units)
-                ax1.semilogx(xmul * time, integrand / integrand[0],
-                             label=r'$J_{' + sp1 + sp2 + '}$')
-                ax21.semilogx(ymul * D_ij[i, :])
-                ax2.semilogx(xmul * time, ymul * D_ij[i, :], label=r'$D_{' + sp1 + sp2 + '}(t)$')
+                if i != j:
+                    xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D_ij[index, :], "Time", "Diffusion", jc_acf.units)
+                    ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$J_{' + sp1 + sp2 + '}$')
+                    ax21.semilogx(D_ij[index, :], '--')
+                    ax2.semilogx(xmul * time, ymul * D_ij[index, :], '--', label=r'$D_{' + sp1 + sp2 + '}(t)$')
+                index += 1
 
         # Complete figure
-        ax1.grid(True, alpha=0.3)
+        # ax1.grid(True, alpha=0.3)
         ax1.legend(loc='best')
         ax1.set_ylabel(r'Diffusion Flux ACF')
 
-        ax2.grid(True, alpha=0.3)
+        # ax2.grid(True, alpha=0.3)
         ax2.legend(loc='best')
         ax2.set_ylabel(r'Inter Diffusion' + ylbl)
         ax2.set_xlabel(r'Time' + xlbl)

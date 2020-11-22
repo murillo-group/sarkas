@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/H-He_Mixture.html">H He Mixture Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
@@ -373,7 +374,7 @@
 <dd><p>Dataframe of the longitudinal velocity correlation functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1233.gdf32e83f3)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1282.g0823ed4d9)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -424,26 +425,25 @@
 </dd></dl>
 
 <dl class="py class">
-<dt id="sarkas.tools.observables.FluxAutoCorrelationFunctions">
-<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.observables.</code><code class="sig-name descname">FluxAutoCorrelationFunctions</code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunctions" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.FluxAutoCorrelationFunction">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.tools.observables.</code><code class="sig-name descname">FluxAutoCorrelationFunction</code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Diffusion Flux Auto-correlation function.</p>
 <dl class="py method">
-<dt id="sarkas.tools.observables.FluxAutoCorrelationFunctions.compute">
-<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time_averaging</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">it_skip</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunctions.compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunctions.compute" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.FluxAutoCorrelationFunction.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time_averaging</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">it_skip</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the velocity auto-correlation functions.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.tools.observables.FluxAutoCorrelationFunctions.setup">
-<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunctions.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunctions.setup" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.FluxAutoCorrelationFunction.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -540,7 +540,7 @@
 <dd><p>Dataframe containing the computed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1233.gdf32e83f3)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1282.g0823ed4d9)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -551,7 +551,7 @@
 <dd><p>Dataframe containing the longitudinal part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1233.gdf32e83f3)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1282.g0823ed4d9)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -562,7 +562,7 @@
 <dd><p>Dataframe containing the transverse part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1233.gdf32e83f3)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1282.g0823ed4d9)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -932,7 +932,7 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>potential</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Potential used in the simulation.</p></li>
-<li><p><strong>potential_matrix</strong> (<em>ndarray</em>) – Potential parameters.</p></li>
+<li><p><strong>potential_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Potential parameters.</p></li>
 <li><p><strong>r</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ distances.</p></li>
 <li><p><strong>gr</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Pair distribution function.</p></li>
 </ul>
@@ -1119,7 +1119,6 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of sarkas.base.Species.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1137,7 +1136,7 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 of the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>At</strong> (<em>ndarray</em>) – Observable to autocorrelate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p>
+<dd class="field-odd"><p><strong>At</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Observable to autocorrelate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>ACF</strong> – Autocorrelation function of <code class="docutils literal notranslate"><span class="pre">At</span></code>.</p>
@@ -1175,9 +1174,9 @@ of the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>nkt</strong> (<em>ndarray</em><em>, </em><em>cmplx</em>) – Density fluctuations of all species. Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>)</p></li>
+<li><p><strong>nkt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.9)"><em>complex</em></a>) – Density fluctuations of all species. Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>)</p></li>
 <li><p><strong>ka_list</strong> – List of <span class="math notranslate nohighlight">\(k\)</span> indices in each direction with corresponding magnitude and index of <code class="docutils literal notranslate"><span class="pre">ka_counts</span></code>.
-Shape=(<cite>no_ka_values</cite>, 5)</p></li>
+Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>, 5)</p></li>
 <li><p><strong>ka_counts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of times each <span class="math notranslate nohighlight">\(k\)</span> magnitude appears.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Array with number of particles of each species.</p></li>
 <li><p><strong>no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of dumps.</p></li>
@@ -1187,7 +1186,7 @@ Shape=(<cite>no_ka_values</cite>, 5)</p></li>
 <dd class="field-even"><p><strong>Sk_all</strong> – Array containing <span class="math notranslate nohighlight">\(S_{ij}(k)\)</span>. Shape=(<code class="docutils literal notranslate"><span class="pre">no_Sk</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)">numpy.ndarray</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1202,7 +1201,7 @@ Shape=(<cite>no_ka_values</cite>, 5)</p></li>
 <li><p><strong>nkt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.9)"><em>complex</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ density or velocity fluctuations.
 Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_k_list</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p></li>
 <li><p><strong>ka_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <span class="math notranslate nohighlight">\(k\)</span> indices in each direction with corresponding magnitude and index of <code class="docutils literal notranslate"><span class="pre">ka_counts</span></code>.
-Shape=(<cite>no_ka_values</cite>, 5)</p></li>
+Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>, 5)</p></li>
 <li><p><strong>ka_counts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of times each <span class="math notranslate nohighlight">\(k\)</span> magnitude appears.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Array with one element giving number of particles.</p></li>
 <li><p><strong>no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of dumps.</p></li>
@@ -1227,7 +1226,7 @@ Shape = (<code class="docutils literal notranslate"><span class="pre">no_skw</sp
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_averaging</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for time averaging.</p></li>
 <li><p><strong>it_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep interval for time averaging.</p></li>
-<li><p><strong>vel</strong> (<em>ndarray</em>) – Particles’ velocities.</p></li>
+<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ velocities.</p></li>
 <li><p><strong>sp_num</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 <li><p><strong>sp_dens</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number densities of each species.</p></li>
 <li><p><strong>sp_mass</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particle’s mass of each species.</p></li>
@@ -1257,8 +1256,8 @@ Ndim = Number of cartesian dimensions, Nt = Number of dumps.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>Js</strong> (<em>ndarray</em>) – Electric current of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p></li>
-<li><p><strong>Jtot</strong> (<em>ndarray</em>) – Total electric current. Shape = (<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p></li>
+<li><p><strong>Js</strong> (<em>numpy.ndarray</em>) – Electric current of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p></li>
+<li><p><strong>Jtot</strong> (<em>numpy.ndarray</em>) – Total electric current. Shape = (<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p></li>
 </ul>
 </p>
 </dd>
@@ -1272,7 +1271,7 @@ Ndim = Number of cartesian dimensions, Nt = Number of dumps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>moments</strong> (<em>ndarray</em>) – Velocity moments of each species per direction at each time step.</p></li>
+<li><p><strong>moments</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Velocity moments of each species per direction at each time step.</p></li>
 <li><p><strong>no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of saved timesteps.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 </ul>
@@ -1282,7 +1281,7 @@ Ndim = Number of cartesian dimensions, Nt = Number of dumps.</p>
 Shape=(<code class="docutils literal notranslate"><span class="pre">no_species</span></code>,2, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)">numpy.ndarray</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1294,7 +1293,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_species</
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vel</strong> (<em>ndarray</em>) – Particles’ velocity at each time step.</p></li>
+<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ velocity at each time step.</p></li>
 <li><p><strong>nbins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of bins to be used for the distribution.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 </ul>
@@ -1304,7 +1303,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_species</
 Shape=( <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">9</span> <span class="pre">*</span> <span class="pre">len(species_np)</span></code>)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)">numpy.ndarray</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1318,7 +1317,7 @@ Shape=( <code class="docutils literal notranslate"><span class="pre">no_dumps</s
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos_data</strong> (<em>ndarray</em>) – Particles’ position scaled by the box lengths.
+<li><p><strong>pos_data</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ position scaled by the box lengths.
 Shape = ( <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">tot_no_ptcls</span></code>)</p></li>
 <li><p><strong>k_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <span class="math notranslate nohighlight">\(k\)</span> indices in each direction with corresponding magnitude and index of <code class="docutils literal notranslate"><span class="pre">ka_counts</span></code>.
 Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>, 5)</p></li>
@@ -1354,7 +1353,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 <dd class="field-even"><p><strong>nkt</strong> – Density fluctuations.  Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray, <a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.9)">complex</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)">numpy.ndarray</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.9)">complex</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1366,9 +1365,9 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> (<em>ndarray</em>) – Particles’ positions.</p></li>
-<li><p><strong>vel</strong> (<em>ndarray</em>) – Particles’ velocities.</p></li>
-<li><p><strong>acc</strong> (<em>ndarray</em>) – Particles’ accelerations.</p></li>
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ positions.</p></li>
+<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ velocities.</p></li>
+<li><p><strong>acc</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ accelerations.</p></li>
 <li><p><strong>species_mass</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Mass of each species.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 <li><p><strong>box_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Volume of simulation’s box.</p></li>
@@ -1377,7 +1376,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>pressure</strong> (<em>float</em>) – Scalar Pressure i.e. trace of the pressure tensor</p></li>
-<li><p><strong>pressure_tensor</strong> (<em>ndarray</em>) – Pressure tensor. Shape(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>,``no_dim``)</p></li>
+<li><p><strong>pressure_tensor</strong> (<em>numpy.ndarray</em>) – Pressure tensor. Shape(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>,``no_dim``)</p></li>
 </ul>
 </p>
 </dd>
@@ -1472,13 +1471,13 @@ Longitudinal</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>vkt</strong> (<em>ndarray, complex</em>) – Longitudinal velocity fluctuations.
+<li><p><strong>vkt</strong> (<em>numpy.ndarray, complex</em>) – Longitudinal velocity fluctuations.
 Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>)</p></li>
-<li><p><strong>vkt_perp_i</strong> (<em>ndarray, complex</em>) – Transverse velocity fluctuations along the <span class="math notranslate nohighlight">\(x\)</span> axis.
+<li><p><strong>vkt_perp_i</strong> (<em>numpy.ndarray, complex</em>) – Transverse velocity fluctuations along the <span class="math notranslate nohighlight">\(x\)</span> axis.
 Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>)</p></li>
-<li><p><strong>vkt_perp_j</strong> (<em>ndarray, complex</em>) – Transverse velocity fluctuations along the <span class="math notranslate nohighlight">\(y\)</span> axis.
+<li><p><strong>vkt_perp_j</strong> (<em>numpy.ndarray, complex</em>) – Transverse velocity fluctuations along the <span class="math notranslate nohighlight">\(y\)</span> axis.
 Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>)</p></li>
-<li><p><strong>vkt_perp_k</strong> (<em>ndarray, complex</em>) – Transverse velocity fluctuations along the <span class="math notranslate nohighlight">\(z\)</span> axis.
+<li><p><strong>vkt_perp_k</strong> (<em>numpy.ndarray, complex</em>) – Transverse velocity fluctuations along the <span class="math notranslate nohighlight">\(z\)</span> axis.
 Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>)</p></li>
 </ul>
 </p>
@@ -1520,8 +1519,8 @@ of the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>At</strong> (<em>ndarray</em>) – Observable to correlate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p></li>
-<li><p><strong>Bt</strong> (<em>ndarray</em>) – Observable to correlate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p></li>
+<li><p><strong>At</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Observable to correlate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p></li>
+<li><p><strong>Bt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Observable to correlate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1651,7 +1650,7 @@ of the simulation.</p>
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 17, 2020.
+        Last updated on Nov, 21, 2020.
       </span>
 
     </p>
