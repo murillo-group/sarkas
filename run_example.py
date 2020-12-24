@@ -2,7 +2,7 @@ from sarkas.processes import PreProcess, Simulation, PostProcess
 #from sarkas.tools.transport import TransportCoefficient
 # from numpy.random import Generator, PCG64
 #
-input_file_name = 'sarkas/examples/egs_langevin.yaml'
+input_file_name = 'sarkas/examples/'
 #
 # rg = Generator(PCG64(12345))
 #
@@ -15,10 +15,10 @@ input_file_name = 'sarkas/examples/egs_langevin.yaml'
 # #         },
 # # }
 # #
-preproc = PreProcess(input_file_name)
-preproc.setup(read_yaml=True)
-preproc.run(loops=5)
-#
+# preproc = PreProcess(input_file_name)
+# preproc.setup(read_yaml=True)
+# preproc.run(loops=5)
+# #
 # for i in range(10):
 #     args = {
 #         "IO":
@@ -48,8 +48,8 @@ preproc.run(loops=5)
 #             {"rand_seed": rg.integers(0, 1598765198)}
 #     }
 # #
-#     postproc = PostProcess(input_file_name)
-#     postproc.setup(read_yaml=True, other_inputs=args)
+postproc = PostProcess(input_file_name)
+postproc.setup(read_yaml=True)
 #
 #     postproc.therm.setup(postproc.parameters)
 #     postproc.therm.temp_energy_plot(postproc, phase='equilibration', show=False)
@@ -79,10 +79,9 @@ preproc.run(loops=5)
 #     # postproc.ssf.setup(postproc.parameters)
 #     # postproc.ssf.compute()
 #     # postproc.ssf.plot(show=True)
-#     # Dynamic Structure Function
-#     postproc.dsf.setup(postproc.parameters)
-#     postproc.dsf.compute()
-#     postproc.dsf.plot(show=False)
+# Dynamic Structure Function
+postproc.dsf.setup(postproc.parameters)
+postproc.dsf.compute()
 #     # postproc.dsf.plot(show=False, dispersion=True)
 #     # #
 #     # postproc.ccf.setup(postproc.parameters)

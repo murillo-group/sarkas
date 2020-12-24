@@ -174,8 +174,8 @@ class Observable:
 
         self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
         self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
-        self.nkt_file = os.path.join(self.k_space_dir, "nkt.npy")
-        self.vkt_file = os.path.join(self.k_space_dir, "vkt.npz")
+        self.nkt_file = os.path.join(self.k_space_dir, "nkt")
+        self.vkt_file = os.path.join(self.k_space_dir, "vkt")
 
         self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
         self.prod_no_dumps = len(os.listdir(self.prod_dump_dir))
@@ -191,6 +191,10 @@ class Observable:
             self.dump_dir = self.prod_dump_dir
             self.dump_step = self.prod_dump_step
             self.no_steps = self.production_steps
+
+        if not hasattr(self, 'no_slices'):
+            self.no_slices = 1
+        self.slice_steps = int( self.no_dumps/ self.no_slices)
 
     def parse(self):
         """
@@ -387,16 +391,10 @@ class CurrentCorrelationFunction(Observable):
         """
         Calculate the velocity fluctuations correlation functions.
         """
-        frequencies = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)
-        self.dataframe_longitudinal["Frequencies"] = np.fft.fftshift(frequencies)
-        self.dataframe_transverse["Frequencies"] = np.fft.fftshift(frequencies)
+
         # Parse vkt otherwise calculate them
         try:
-            data = np.load(self.vkt_file)
-            vkt = data["longitudinal"]
-            vkt_i = data["transverse_i"]
-            vkt_j = data["transverse_j"]
-            vkt_k = data["transverse_k"]
+            data = np.load(self.vkt_file + '_slice_' + str(self.no_slices - 1) + '.npz')
             k_data = np.load(self.k_file)
             self.k_list = k_data["k_list"]
             self.k_counts = k_data["k_counts"]
@@ -415,27 +413,75 @@ class CurrentCorrelationFunction(Observable):
                      k_list=self.k_list,
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
+            start_slice = 0
+            end_slice = self.slice_steps
+            for isl in range(self.no_slices):
+                vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir,
+                                                    (start_slice, end_slice),
+                                                    self.dump_step,
+                                                    self.species_num,
+                                                    self.k_list,
+                                                    self.verbose)
+                start_slice += self.slice_steps
+                end_slice += self.slice_steps
 
-            vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir, self.no_dumps, self.dump_step,
-                                                self.species_num,
-                                                self.k_list, self.verbose)
-            np.savez(self.vkt_file,
-                     longitudinal=vkt,
-                     transverse_i=vkt_i,
-                     transverse_j=vkt_j,
-                     transverse_k=vkt_k)
+                np.savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
+                         longitudinal=vkt,
+                         transverse_i=vkt_i,
+                         transverse_j=vkt_j,
+                         transverse_k=vkt_k)
 
-        # Calculate Lkw
-        Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
-                       self.dump_step)
-        Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
-                         self.dump_step)
-        Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
-                         self.dump_step)
-        Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
-                         self.dump_step)
-        Tkw = (Tkw_i + Tkw_j + Tkw_k) / 3.0
-        print("Saving L(k,w) and T(k,w)")
+        # Initialize dataframes and add frequencies to it.
+        no_dumps = int(self.slice_steps / self.dump_step) + 1
+        frequencies = 2.0 * np.pi * np.fft.fftfreq(no_dumps, self.dt * self.dump_step)
+        self.dataframe_longitudinal["Frequencies"] = np.fft.fftshift(frequencies)
+        self.dataframe_transverse["Frequencies"] = np.fft.fftshift(frequencies)
+
+        temp_dataframe_longitudinal = pd.DataFrame()
+        temp_dataframe_longitudinal["Frequencies"] = np.fft.fftshift(frequencies)
+
+        temp_dataframe_transverse = pd.DataFrame()
+        temp_dataframe_transverse["Frequencies"] = np.fft.fftshift(frequencies)
+
+        Lkw_tot = np.zeros((self.no_obs, len(self.k_counts), no_dumps))
+        Tkw_tot = np.zeros((self.no_obs, len(self.k_counts), no_dumps))
+
+        for isl in range(self.no_slices):
+            data = np.load(self.vkt_file + '_slice_' + str(isl) + '.npz')
+            vkt = data["longitudinal"]
+            vkt_i = data["transverse_i"]
+            vkt_j = data["transverse_j"]
+            vkt_k = data["transverse_k"]
+
+            # Calculate Lkw and Tkw
+            Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt, self.dump_step)
+            Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt, self.dump_step)
+            Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt, self.dump_step)
+            Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt, self.dump_step)
+            Tkw = (Tkw_i + Tkw_j + Tkw_k) / 3.0
+
+            Lkw_tot += Lkw / self.no_slices
+            Tkw_tot += Tkw / self.no_slices
+
+            sp_indx = 0
+            for i, sp1 in enumerate(self.species_names):
+                for j, sp2 in enumerate(self.species_names[i:]):
+                    for ik in range(len(self.k_counts)):
+                        if ik == 0:
+                            column = "{}-{} CCF ka_min".format(sp1, sp2)
+                        else:
+                            column = "{}-{} CCF {} ka_min".format(sp1, sp2, ik + 1)
+
+                        temp_dataframe_longitudinal[column] = np.fft.fftshift(Lkw[sp_indx, ik, :])
+                        temp_dataframe_transverse[column] = np.fft.fftshift(Tkw[sp_indx, ik, :])
+                    sp_indx += 1
+
+            temp_dataframe_longitudinal.to_csv(self.filename_csv_longitudinal[:-3] + '_slice_' + str(isl) + '.csv',
+                                               index=False, encoding='utf-8')
+            temp_dataframe_transverse.to_csv(self.filename_csv_transverse[:-3] + '_slice_' + str(isl) + '.csv',
+                                               index=False, encoding='utf-8')
+
+        # Repeat the saving procedure for the total Lkw and Tkw
         sp_indx = 0
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:]):
@@ -449,8 +495,8 @@ class CurrentCorrelationFunction(Observable):
                     self.dataframe_transverse[column] = np.fft.fftshift(Tkw[sp_indx, ik, :])
                 sp_indx += 1
 
-        self.dataframe_longitudinal.to_csv(self.filename_csv_transverse, index=False, encoding='utf-8')
-        self.dataframe_transverse.to_csv(self.filename_csv_longitudinal, index=False, encoding='utf-8')
+        self.dataframe_longitudinal.to_csv(self.filename_csv_longitudinal, index=False, encoding='utf-8')
+        self.dataframe_transverse.to_csv(self.filename_csv_transverse, index=False, encoding='utf-8')
 
 
 class DynamicStructureFactor(Observable):
@@ -512,12 +558,12 @@ class DynamicStructureFactor(Observable):
 
         # Parse nkt otherwise calculate it
         try:
-            nkt = np.load(self.nkt_file)
             k_data = np.load(self.k_file)
             self.k_list = k_data["k_list"]
             self.k_counts = k_data["k_counts"]
             self.ka_values = k_data["ka_values"]
             self.no_ka_values = len(self.ka_values)
+            nkt = np.load(self.nkt_file + '_slice_'+ str(self.no_slices - 1)+ '.npy')
 
         except FileNotFoundError:
             self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
@@ -532,15 +578,52 @@ class DynamicStructureFactor(Observable):
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list, self.verbose)
-            np.save(self.nkt_file, nkt)
-        frequencies = 2.0 * np.pi * np.fft.fftfreq(self.no_dumps, self.dt * self.dump_step)
+            start_slice = 0
+            end_slice = self.slice_steps
+            for isl in range(self.no_slices):
+                nkt = calc_nkt(self.dump_dir,
+                               (start_slice, end_slice),
+                               self.dump_step,
+                               self.species_num,
+                               self.k_list,
+                               self.verbose)
+                start_slice += self.slice_steps
+                end_slice += self.slice_steps
+                np.save(self.nkt_file + '_slice_' + str(isl), nkt)
+
+        no_dumps = int(self.slice_steps / self.dump_step) + 1
+        frequencies = 2.0 * np.pi * np.fft.fftfreq(no_dumps, self.dt * self.dump_step)
         self.dataframe["Frequencies"] = np.fft.fftshift(frequencies)
 
-        # Calculate Skw
-        Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, self.no_dumps, self.dt,
+        temp_dataframe = pd.DataFrame()
+        temp_dataframe["Frequencies"] = np.fft.fftshift(frequencies)
+
+        Skw_tot = np.zeros((self.no_obs, len(self.k_counts), no_dumps))
+
+        for isl in range(self.no_slices):
+            nkt = np.load(self.nkt_file + '_slice_' + str(isl) + '.npy')
+
+            # Calculate Skw
+            Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt,
                        self.dump_step)
-        print("Saving S(k,w)")
+
+            Skw_tot += Skw / self.no_slices
+
+            # Save Skw
+            sp_indx = 0
+            for i, sp1 in enumerate(self.species_names):
+                for j, sp2 in enumerate(self.species_names[i:]):
+                    for ik in range(len(self.k_counts)):
+                        if ik == 0:
+                            column = "{}-{} DSF ka_min".format(sp1, sp2)
+                        else:
+                            column = "{}-{} DSF {} ka_min".format(sp1, sp2, ik + 1)
+                        temp_dataframe[column] = np.fft.fftshift(Skw[sp_indx, ik, :])
+                    sp_indx += 1
+
+            temp_dataframe.to_csv(self.filename_csv[:-3] + 'slice_' + str(isl) + '.csv', index=False, encoding='utf-8')
+
+        # Repeat the saving procedure for the total Skw
         sp_indx = 0
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:]):
@@ -549,7 +632,7 @@ class DynamicStructureFactor(Observable):
                         column = "{}-{} DSF ka_min".format(sp1, sp2)
                     else:
                         column = "{}-{} DSF {} ka_min".format(sp1, sp2, ik + 1)
-                    self.dataframe[column] = np.fft.fftshift(Skw[sp_indx, ik, :])
+                    self.dataframe[column] = np.fft.fftshift(Skw_tot[sp_indx, ik, :])
                 sp_indx += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
@@ -2115,7 +2198,7 @@ def calc_nk(pos_data, k_list):
     return nk
 
 
-def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
+def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
     """
     Calculate density fluctuations :math:`n(k,t)` of all species.
 
@@ -2129,8 +2212,8 @@ def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
     fldr : str
         Name of folder containing particles data.
 
-    no_dumps : int
-        Number of saved timesteps.
+    slices : tuple, int
+        Initial and final step number of the slice.
 
     dump_step : int
         Timestep interval saving.
@@ -2148,9 +2231,9 @@ def calc_nkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
     """
     # Read particles' position for all times
     print("Calculating n(k,t).")
+    no_dumps = int((slices[1] - slices[0])/dump_step) + 1
     nkt = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    for it in tqdm(range(no_dumps), disable=not verbose):
-        dump = int(it * dump_step)
+    for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step),disable=not verbose)):
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
         sp_start = 0
@@ -2475,7 +2558,7 @@ def calc_vk(pos_data, vel_data, k_list):
     return vk, vk_i, vk_j, vk_k
 
 
-def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
+def calc_vkt(fldr, slices, dump_step, species_np, k_list, verbose):
     """
     Calculate the longitudinal and transverse velocities fluctuations of all species.
     Longitudinal
@@ -2495,8 +2578,8 @@ def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
     fldr : str
         Name of folder containing particles data.
 
-    no_dumps : int
-        Number of saved timesteps.
+    slices : tuple, int
+        Initial and final step number of the slice.
 
     dump_step : int
         Timestep interval saving.
@@ -2526,14 +2609,15 @@ def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
         Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
 
     """
+
     # Read particles' position for all times
     print("Calculating longitudinal and transverse microscopic velocity fluctuations v(k,t).")
+    no_dumps = int((slices[1] - slices[0]) / dump_step) + 1
     vkt_par = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
     vkt_perp_i = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
     vkt_perp_j = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
     vkt_perp_k = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    for it in tqdm(range(no_dumps), disable=not verbose):
-        dump = int(it * dump_step)
+    for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step), disable=not verbose)):
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
         vel = data["vel"]
@@ -2543,7 +2627,7 @@ def calc_vkt(fldr, no_dumps, dump_step, species_np, k_list, verbose):
             sp_end += sp
             vkt_par[i, it, :], vkt_perp_i[i, it, :], vkt_perp_j[i, it, :], vkt_perp_k[i, it, :] = calc_vk(
                 pos[sp_start:sp_end, :], vel[sp_start:sp_end], k_list)
-            sp_start = sp_end
+            sp_start += sp
 
     return vkt_par, vkt_perp_i, vkt_perp_j, vkt_perp_k
 

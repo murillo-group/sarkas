@@ -3,24 +3,24 @@ from sarkas.processes import PreProcess
 from sarkas.tools.transport import TransportCoefficient
 # from numpy.random import Generator, PCG64
 
-input_file_name = 'sarkas/examples/QSP_cgs.yaml'
-
+input_file_name = 'sarkas/examples/yocp_cgs_pp.yaml'
+#
 # rg = Generator(PCG64(12345))
 
-preproc = PreProcess(input_file_name)
-preproc.setup(read_yaml=True)
-preproc.run(loops=50)
+# preproc = PreProcess(input_file_name)
+# preproc.setup(read_yaml=True)
+# preproc.run(loops=50)
 
 #
 # sim = Simulation(input_file_name)
 # sim.setup(read_yaml=True)
 # sim.run()
 
-# postproc = PostProcess(input_file_name)
-# postproc.setup(read_yaml=True)
+postproc = PostProcess(input_file_name)
+postproc.setup(read_yaml=True)
 #
 # postproc.rdf.setup(postproc.parameters)
-# postproc.rdf.save()
+# postproc.rdf.compute()
 # postproc.rdf.plot(show=True)
 # # #
 # postproc.therm.setup(postproc.parameters)
@@ -47,16 +47,16 @@ preproc.run(loops=50)
 # # postproc.vm.compute()
 # # postproc.vm.plot_ratios(show=False)
 # #
-# # postproc.dsf.setup(postproc.parameters)
-# # postproc.dsf.parse()
-# # postproc.dsf.plot(show=False)
+# postproc.dsf.setup(postproc.parameters)
+# postproc.dsf.compute()
+# postproc.dsf.plot(show=True)
 # # #
 # # postproc.ssf.setup(postproc.parameters)
 # # postproc.ssf.parse()
 # # postproc.ssf.plot(show=False)
 # # #
-# # postproc.ccf.setup(postproc.parameters)
-# # postproc.ccf.parse()
+postproc.ccf.setup(postproc.parameters)
+postproc.ccf.compute()
 # # postproc.ccf.plot(show=False)
 #
 #
