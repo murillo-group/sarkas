@@ -744,6 +744,7 @@ class PreProcess:
         fig.tight_layout()
         fig.savefig(os.path.join(fig_path, 'Timing_Fit.png'))
 
+
 class Simulation:
     """
     Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.

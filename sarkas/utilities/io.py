@@ -826,7 +826,7 @@ class InputOutput:
             tme = it * self.dt
             np.savez(ptcls_file,
                      id=ptcls.id,
-                     name=ptcls.names,
+                     names=ptcls.names,
                      pos=ptcls.pos,
                      vel=ptcls.vel,
                      acc=ptcls.acc,

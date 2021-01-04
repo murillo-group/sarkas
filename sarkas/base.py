@@ -392,7 +392,7 @@ class Parameters:
             else:
                 sp.QFactor = 0.0
                 self.QFactor += sp.QFactor / self.fourpie0
-                constant = 4.0 * np.pi * sp.number_density * sp.sigma**2
+                constant = 4.0 * np.pi * sp.number_density * sp.sigma ** 2
                 sp.calc_plasma_frequency(constant)
                 wp_tot_sq += sp.wp ** 2
                 sp.calc_debye_length(self.kB, constant)
@@ -576,7 +576,7 @@ class Particles:
 
         self.pbc_cntr = np.zeros((self.total_num_ptcls, params.dimensions))
 
-        self.names = np.empty(self.total_num_ptcls, dtype=str)
+        self.names = np.empty(self.total_num_ptcls, dtype=params.species_names.dtype)
         self.id = np.zeros(self.total_num_ptcls, dtype=int)
 
         self.species_init_vel = np.zeros((params.num_species, 3))
@@ -615,7 +615,7 @@ class Particles:
         # Particles Position Initialization
         if params.load_method in ['equilibration_restart', 'eq_restart', 'production_restart', 'prod_restart']:
             # checks
-            assert params.restart_step, "Restart step not defined. Please define restart_step."
+            assert hasattr(params, 'restart_step'), "Restart step not defined. Please define restart_step."
             assert type(params.restart_step) is int, "Only integers are allowed."
 
             if params.load_method[:2] == 'eq':
@@ -732,7 +732,7 @@ class Particles:
             file_name = os.path.join(self.prod_dump_dir, "checkpoint_" + str(it) + ".npz")
             data = np.load(file_name, allow_pickle=True)
             self.id = data["id"]
-            self.species_name = data["names"]
+            self.names = data["names"]
             self.pos = data["pos"]
             self.vel = data["vel"]
             self.acc = data["acc"]
@@ -932,7 +932,7 @@ class Particles:
 
                 # Increment particle number
                 i += 1
-                cntr_total +=1
+                cntr_total += 1
 
         self.pos[:, 0] = x
         self.pos[:, 1] = y
@@ -1225,7 +1225,7 @@ class Species:
         """
         self.wp = np.sqrt(4.0 * np.pi * self.charge ** 2 * self.number_density / (self.mass * constant))
 
-    def calc_debye_length(self, kB: float, constant: float ):
+    def calc_debye_length(self, kB: float, constant: float):
         """
         Calculate the Debye Length.
 
@@ -1274,5 +1274,5 @@ class Species:
 
         """
         # self.ai = (self.charge / z_avg) ** (1. / 3.) * a_ws
-        self.ai = (3.0/(4.0 * np.pi * self.number_density))**(1./3.)
+        self.ai = (3.0 / (4.0 * np.pi * self.number_density)) ** (1. / 3.)
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)

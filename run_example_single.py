@@ -3,21 +3,21 @@ from sarkas.processes import PreProcess
 from sarkas.tools.transport import TransportCoefficient
 # from numpy.random import Generator, PCG64
 
-input_file_name = 'sarkas/examples/yocp_cgs_pp.yaml'
+input_file_name = 'sarkas/examples/coulomb_bim_mks.yaml'
 #
 # rg = Generator(PCG64(12345))
 
-# preproc = PreProcess(input_file_name)
-# preproc.setup(read_yaml=True)
-# preproc.run(loops=50)
+preproc = PreProcess(input_file_name)
+preproc.setup(read_yaml=True)
+preproc.run(loops=50)
 
 #
 # sim = Simulation(input_file_name)
 # sim.setup(read_yaml=True)
 # sim.run()
 
-postproc = PostProcess(input_file_name)
-postproc.setup(read_yaml=True)
+# postproc = PostProcess(input_file_name)
+# postproc.setup(read_yaml=True)
 #
 # postproc.rdf.setup(postproc.parameters)
 # postproc.rdf.compute()
@@ -55,8 +55,8 @@ postproc.setup(read_yaml=True)
 # # postproc.ssf.parse()
 # # postproc.ssf.plot(show=False)
 # # #
-postproc.ccf.setup(postproc.parameters)
-postproc.ccf.compute()
+# postproc.ccf.setup(postproc.parameters)
+# postproc.ccf.compute()
 # # postproc.ccf.plot(show=False)
 #
 #
@@ -65,4 +65,3 @@ postproc.ccf.compute()
 #                                            show=True)
 # interdiffusion = TransportCoefficient.interdiffusion(postproc.parameters,
 #                                            phase='production',
-#                                            show=True)
