@@ -22,7 +22,8 @@ dependencies:
   - jupyter
   - notebook
   - matplotlib
-
+  - seaborn
+ 
   # Documentation
   - sphinx
   - sphinx_bootstrap_theme
@@ -30,6 +31,7 @@ dependencies:
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme
   - sphinx-autodoc-typehints
-
+  - nbsphinx
+  
   - pip:
       - fdint

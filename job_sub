@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source activate sarkas
+
+#echo "Hello world"
+python run_example_single.py
+
+conda deactivate

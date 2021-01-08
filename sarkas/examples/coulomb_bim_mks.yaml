@@ -30,7 +30,7 @@ Potential:
 Integrator:
     type: Verlet                  # velocity integrator type
     equilibration_steps: 10000                      # number of timesteps for the equilibrium
-    production_steps: 300000                    # number of timesteps afater the equilibrium
+    production_steps: 500000                    # number of timesteps afater the equilibrium
     prod_dump_step: 5                # dump time step
     eq_dump_step: 10
 
@@ -61,17 +61,19 @@ PostProcessing:
 
   - HermiteCoefficients:
       no_bins: 500
-      hermite_order: 8
-
+      hermite_order: 16
+      
   - DynamicStructureFactor:
       no_ka_harmonics: 5
-
+      no_slices: 16
+      
   - StaticStructureFactor:
       no_ka_harmonics: 5
 
   - CurrentCorrelationFunction:
       no_ka_harmonics: 5
-
+      no_slices: 8
+      
   - VelocityMoments:
       no_bins: 500
 

@@ -432,4 +432,5 @@ Now comes the fun part! The first thing we want to do is to check for energy con
 
 Plot of the Total Energy as a function of time.
 
-.. bibliography:: references.bib
+.. bibliography::
+   :cited:

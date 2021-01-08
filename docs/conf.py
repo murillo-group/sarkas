@@ -89,7 +89,8 @@ exclude_patterns = ['_build',
                     '.DS_Store']
 
 # Additional files needed for generating LaTeX/PDF output:
-latex_additional_files = ['references.bib']
+#latex_additional_files = ['references.bib']
+bibtex_bibfiles = ['references.bib']
 
 # -- Options for HTML output -------------------------------------------------
 

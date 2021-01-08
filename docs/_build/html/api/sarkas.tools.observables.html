@@ -29,7 +29,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
@@ -374,7 +373,7 @@
 <dd><p>Dataframe of the longitudinal velocity correlation functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1282.g0823ed4d9)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+380.g510bc2006)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -540,7 +539,7 @@
 <dd><p>Dataframe containing the computed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1282.g0823ed4d9)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+380.g510bc2006)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -551,7 +550,7 @@
 <dd><p>Dataframe containing the longitudinal part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1282.g0823ed4d9)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+380.g510bc2006)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -562,7 +561,7 @@
 <dd><p>Dataframe containing the transverse part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.2.0.dev0+1282.g0823ed4d9)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+380.g510bc2006)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1199,7 +1198,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nkt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.9)"><em>complex</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Particles’ density or velocity fluctuations.
-Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_k_list</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p></li>
+Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_k_list</span></code>)</p></li>
 <li><p><strong>ka_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <span class="math notranslate nohighlight">\(k\)</span> indices in each direction with corresponding magnitude and index of <code class="docutils literal notranslate"><span class="pre">ka_counts</span></code>.
 Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>, 5)</p></li>
 <li><p><strong>ka_counts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of times each <span class="math notranslate nohighlight">\(k\)</span> magnitude appears.</p></li>
@@ -1334,7 +1333,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 
 <dl class="py function">
 <dt id="sarkas.tools.observables.calc_nkt">
-<code class="sig-prename descclassname">sarkas.tools.observables.</code><code class="sig-name descname">calc_nkt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldr</span></em>, <em class="sig-param"><span class="n">no_dumps</span></em>, <em class="sig-param"><span class="n">dump_step</span></em>, <em class="sig-param"><span class="n">species_np</span></em>, <em class="sig-param"><span class="n">k_list</span></em>, <em class="sig-param"><span class="n">verbose</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_nkt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.calc_nkt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sarkas.tools.observables.</code><code class="sig-name descname">calc_nkt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldr</span></em>, <em class="sig-param"><span class="n">slices</span></em>, <em class="sig-param"><span class="n">dump_step</span></em>, <em class="sig-param"><span class="n">species_np</span></em>, <em class="sig-param"><span class="n">k_list</span></em>, <em class="sig-param"><span class="n">verbose</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_nkt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.calc_nkt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate density fluctuations <span class="math notranslate nohighlight">\(n(k,t)\)</span> of all species.</p>
 <div class="math notranslate nohighlight">
 \[n_{A} ( k, t ) = \sum_i^{N_A} \exp [ -i \mathbf k \cdot \mathbf r_{i}(t) ]\]</div>
@@ -1343,7 +1342,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of folder containing particles data.</p></li>
-<li><p><strong>no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of saved timesteps.</p></li>
+<li><p><strong>slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial, final step number of the slice, total number of slice steps.</p></li>
 <li><p><strong>dump_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep interval saving.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 <li><p><strong>k_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of :math: <cite>k</cite> vectors.</p></li>
@@ -1450,7 +1449,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 
 <dl class="py function">
 <dt id="sarkas.tools.observables.calc_vkt">
-<code class="sig-prename descclassname">sarkas.tools.observables.</code><code class="sig-name descname">calc_vkt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldr</span></em>, <em class="sig-param"><span class="n">no_dumps</span></em>, <em class="sig-param"><span class="n">dump_step</span></em>, <em class="sig-param"><span class="n">species_np</span></em>, <em class="sig-param"><span class="n">k_list</span></em>, <em class="sig-param"><span class="n">verbose</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_vkt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.calc_vkt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sarkas.tools.observables.</code><code class="sig-name descname">calc_vkt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldr</span></em>, <em class="sig-param"><span class="n">slices</span></em>, <em class="sig-param"><span class="n">dump_step</span></em>, <em class="sig-param"><span class="n">species_np</span></em>, <em class="sig-param"><span class="n">k_list</span></em>, <em class="sig-param"><span class="n">verbose</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_vkt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.calc_vkt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the longitudinal and transverse velocities fluctuations of all species.
 Longitudinal</p>
 <div class="math notranslate nohighlight">
@@ -1463,7 +1462,7 @@ Longitudinal</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of folder containing particles data.</p></li>
-<li><p><strong>no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of saved timesteps.</p></li>
+<li><p><strong>slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial, final step number of the slice, number of steps per slice.</p></li>
 <li><p><strong>dump_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep interval saving.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 <li><p><strong>k_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of :math: <cite>k</cite> vectors.</p></li>
@@ -1650,7 +1649,7 @@ of the simulation.</p>
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 21, 2020.
+        Last updated on Jan, 08, 2021.
       </span>
 
     </p>
