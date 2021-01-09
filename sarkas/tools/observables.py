@@ -2,7 +2,12 @@
 Module for calculating physical quantities from Sarkas checkpoints.
 """
 import os
-from tqdm import tqdm
+
+if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+    from tqdm import tqdm_notebook as tqdm
+else:
+    from tqdm import tqdm
+
 import numpy as np
 from numba import njit
 import pandas as pd
@@ -194,7 +199,7 @@ class Observable:
 
         if not hasattr(self, 'no_slices'):
             self.no_slices = 1
-        self.slice_steps = int( self.no_dumps/ self.no_slices)
+        self.slice_steps = int(self.no_dumps / self.no_slices)
 
     def parse(self):
         """
@@ -456,7 +461,7 @@ class CurrentCorrelationFunction(Observable):
             temp_dataframe_longitudinal.to_csv(self.filename_csv_longitudinal[:-4] + '_slice_' + str(isl) + '.csv',
                                                index=False, encoding='utf-8')
             temp_dataframe_transverse.to_csv(self.filename_csv_transverse[:-4] + '_slice_' + str(isl) + '.csv',
-                                               index=False, encoding='utf-8')
+                                             index=False, encoding='utf-8')
 
         # Repeat the saving procedure for the total Lkw and Tkw
         sp_indx = 0
@@ -540,7 +545,7 @@ class DynamicStructureFactor(Observable):
             self.k_counts = k_data["k_counts"]
             self.ka_values = k_data["ka_values"]
             self.no_ka_values = len(self.ka_values)
-            nkt = np.load(self.nkt_file + '_slice_'+ str(self.no_slices - 1)+ '.npy')
+            nkt = np.load(self.nkt_file + '_slice_' + str(self.no_slices - 1) + '.npy')
 
         except FileNotFoundError:
             self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
@@ -567,7 +572,7 @@ class DynamicStructureFactor(Observable):
                 start_slice += self.slice_steps * self.dump_step
                 end_slice += self.slice_steps * self.dump_step
                 np.save(self.nkt_file + '_slice_' + str(isl), nkt)
- 
+
         frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
         self.dataframe["Frequencies"] = np.fft.fftshift(frequencies)
 
@@ -578,12 +583,12 @@ class DynamicStructureFactor(Observable):
 
         for isl in range(0, self.no_slices):
             nkt = np.load(self.nkt_file + '_slice_' + str(isl) + '.npy')
-            
+
             # Calculate Skw
             Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
-                       self.dump_step)
+                           self.dump_step)
 
-            Skw_tot += Skw / self.no_slices 
+            Skw_tot += Skw / self.no_slices
 
             # Save Skw
             sp_indx = 0
@@ -1072,13 +1077,13 @@ class StaticStructureFactor(Observable):
         """
         # Parse nkt otherwise calculate it
         try:
-            nkt = np.load(self.nkt_file)
             k_data = np.load(self.k_file)
             self.k_list = k_data["k_list"]
             self.k_counts = k_data["k_counts"]
             self.ka_values = k_data["ka_values"]
             self.no_ka_values = len(self.ka_values)
-            print("n(k,t) Loaded")
+            nkt = np.load(self.nkt_file + '_slice_' + str(self.no_slices - 1) + '.npy')
+
         except FileNotFoundError:
             self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
             self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
@@ -1092,13 +1097,32 @@ class StaticStructureFactor(Observable):
                      k_counts=self.k_counts,
                      ka_values=self.ka_values)
 
-            nkt = calc_nkt(self.dump_dir, self.no_dumps, self.dump_step, self.species_num, self.k_list, self.verbose)
-            np.save(self.nkt_file, nkt)
+            start_slice = 0
+            end_slice = self.slice_steps * self.dump_step
+            for isl in range(self.no_slices):
+                nkt = calc_nkt(self.dump_dir,
+                               (start_slice, end_slice, self.slice_steps),
+                               self.dump_step,
+                               self.species_num,
+                               self.k_list,
+                               self.verbose)
+                start_slice += self.slice_steps * self.dump_step
+                end_slice += self.slice_steps * self.dump_step
+                np.save(self.nkt_file + '_slice_' + str(isl), nkt)
 
         self.dataframe["ka values"] = self.ka_values
 
-        print("Calculating S(k) ...")
-        Sk_all = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.no_dumps)
+        no_dumps_calculated = self.slice_steps * self.no_slices
+        Sk_all = np.zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
+
+        print("Calculating S(k)")
+
+        for isl in tqdm(range(self.no_slices)):
+            nkt = np.load(self.nkt_file + '_slice_' + str(isl) + '.npy')
+            init = isl * self.slice_steps
+            fin = (isl + 1) * self.slice_steps
+            Sk_all[:, :, init:fin] = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps)
+
         Sk = np.mean(Sk_all, axis=-1)
         Sk_err = np.std(Sk_all, axis=-1)
 
@@ -2208,7 +2232,7 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
     # Read particles' position for all times
     print("Calculating n(k,t).")
     nkt = np.zeros((len(species_np), slices[2], len(k_list)), dtype=np.complex128)
-    for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step),disable=not verbose)):
+    for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step), disable=not verbose)):
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
         sp_start = 0
@@ -2336,7 +2360,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
     no_dim = vel.shape[0]
     no_dumps = vel.shape[2]
     no_species = len(sp_num)
-    no_vacf = int(no_species * (no_species + 1)/2.)
+    no_vacf = int(no_species * (no_species + 1) / 2.)
 
     mass_densities = sp_dens * sp_mass
     tot_mass_dens = np.sum(mass_densities)
@@ -2385,7 +2409,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
         for i, rho1 in enumerate(mass_densities):
             sp1_flux = rho1 * (com_vel[i] - tot_com_vel)
             for j, rho2 in enumerate(mass_densities[i:], i):
-                sign = (1 - 2 * (i != j)) # this sign seems to be an issue in the calculation of
+                sign = (1 - 2 * (i != j))  # this sign seems to be an issue in the calculation of
                 sp2_flux = sign * rho2 * (com_vel[j] - tot_com_vel)
 
                 for d in range(no_dim):

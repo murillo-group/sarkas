@@ -6,7 +6,7 @@ import csv
 import pickle
 import numpy as np
 from pyfiglet import print_figlet, Figlet
-from tqdm import tqdm
+from tqdm import tqdm_notebook as tqdm
 
 FONTS = ['speed',
          'starwars',

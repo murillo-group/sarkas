@@ -6,7 +6,11 @@ Module of various types of time_evolution
 
 import numpy as np
 from numba import njit
-from tqdm import tqdm
+
+if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+    from tqdm import tqdm_notebook as tqdm
+else:
+    from tqdm import tqdm
 # import fmm3dpy as fmm
 from sarkas.potentials import force_pm, force_pp
 
