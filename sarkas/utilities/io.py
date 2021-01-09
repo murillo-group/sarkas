@@ -6,8 +6,12 @@ import csv
 import pickle
 import numpy as np
 from pyfiglet import print_figlet, Figlet
-from tqdm import tqdm_notebook as tqdm
 
+if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+    from tqdm import tqdm_notebook as tqdm
+else:
+    from tqdm import tqdm
+    
 FONTS = ['speed',
          'starwars',
          'graffiti',
