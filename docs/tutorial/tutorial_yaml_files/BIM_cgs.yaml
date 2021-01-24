@@ -1,25 +1,24 @@
-# keywords: YOCP, Yukawa, P3M, mks, random_no_reject
+# keywords: BIM, Coulomb, P3M, cgs, random_no_reject
 Particles:
     - Species:
         name: H
         number_density: 4.05e+27       # /cm^3
-        atomic_weight: 1.0                # g, ptcl mass of ion1
-        num: 625                    # total number of particles of ion1
-        Z: 1.0                        # degree of ionization
+        atomic_weight: 1.0             #
+        num: 625                       # total number of H particles
+        Z: 1.0                         # degree of ionization
         temperature_eV: 14.46
 
     - Species:
         name: He
         number_density: 1.215e+28       # /cm^3
-        atomic_weight: 4                # kg, ptcl mass of ion1
-        num: 1875                    # total number of particles of ion1
-        Z: 2.0                        # degree of ionization
+        atomic_weight: 4                
+        num: 1875                       # total number of He particles 
+        Z: 2.0                          # degree of ionization
         temperature_eV: 14.46
 
 Potential:
     type: Coulomb
-    method: P3M                   # Particle-Particle Particle-Mesh
-    # electron_temperature_eV: 0.026
+    method: P3M                         # Particle-Particle Particle-Mesh
     rc: 1.7162e-09
     pppm_mesh: [32, 32, 32]
     pppm_aliases: [3,3,3]
@@ -27,28 +26,27 @@ Potential:
     pppm_alpha_ewald: 2.0802e+09
 
 Integrator:
-    type: Verlet                  # velocity integrator type
-    equilibration_steps: 2500                  # number of timesteps for the equilibrium
-    production_steps: 10000               # number of timesteps after the equilibrium
+    type: Verlet                         # velocity integrator type
+    equilibration_steps: 2500             
+    production_steps: 10000               
     eq_dump_step: 5
     prod_dump_step: 1
 
 Thermostat:
-    type: Berendsen               # thermostat type
+    type: Berendsen                      # thermostat type
     relaxation_timestep: 1
     tau: 5.0
-    # temperatures_eV: 0.
 
 Parameters:
-    units: cgs                  # units
-    dt: 5.3381e-19           # sec
+    units: cgs                           # units
+    dt: 5.3381e-19                       # sec
     load_method: random_no_reject
     boundary_conditions: periodic
 
 IO:
     verbose: yes
     simulations_dir: Simulations
-    job_dir: bim  # dir name to save data.
+    job_dir: bim                         # dir name to save data.
     job_id: bim
 
 PostProcessing:
