@@ -39,7 +39,6 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Potentials" href="../theory/potentials.html" />
     <link rel="prev" title="sarkas.base module" href="sarkas.base.html" /> 
 </head>
 
@@ -93,9 +92,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/H-He_Mixture.html">H He Mixture Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/input_file.html">Input File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul class="current">
@@ -112,12 +126,6 @@
 </li>
 </ul>
 </li>
-</ul>
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 </ul>
 
             
@@ -304,11 +312,11 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rcuts</strong> (<em>array</em>) – Cut off distances.</p></li>
-<li><p><strong>alphas</strong> (<em>array</em>) – Ewald parameters.</p></li>
+<li><p><strong>rcuts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Cut off distances.</p></li>
+<li><p><strong>alphas</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Ewald parameters.</p></li>
 <li><p><strong>chosen_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen Ewald parameter.</p></li>
 <li><p><strong>chosen_rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen cut off radius.</p></li>
-<li><p><strong>total_force_error</strong> (<em>ndarray</em>) – Force error matrix.</p></li>
+<li><p><strong>total_force_error</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Force error matrix.</p></li>
 </ul>
 </dd>
 </dl>
@@ -337,29 +345,32 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rcuts</strong> (<em>array</em>) – Cut off distances.</p></li>
-<li><p><strong>alphas</strong> (<em>array</em>) – Ewald parameters.</p></li>
+<li><p><strong>rcuts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Cut off distances.</p></li>
+<li><p><strong>alphas</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Ewald parameters.</p></li>
 <li><p><strong>chosen_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen Ewald parameter.</p></li>
 <li><p><strong>chosen_rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen cut off radius.</p></li>
-<li><p><strong>total_force_error</strong> (<em>ndarray</em>) – Force error matrix.</p></li>
-<li><p><strong>parameters</strong> (<em>class</em>) – Simulation’s parameters.</p></li>
+<li><p><strong>total_force_error</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)"><em>numpy.ndarray</em></a>) – Force error matrix.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.processes.PreProcess.make_pppm_approximation_plots">
-<code class="sig-name descname">make_pppm_approximation_plots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.make_pppm_approximation_plots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.PreProcess.make_pppm_approximation_plots" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="sarkas.processes.PreProcess.pppm_approximation">
+<code class="sig-name descname">pppm_approximation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.pppm_approximation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.PreProcess.pppm_approximation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Force error for a PPPM simulation using analytical approximations.
+Plot the force error in the parameter space.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.processes.PreProcess.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loops</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">estimate</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.PreProcess.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loops</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">timing</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pppm_plots</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">postprocessing</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">estimate</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.PreProcess.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate the time of the simulation and best parameters if wanted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>postprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating Post processing parameters.</p></li>
+<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating simulation times.</p></li>
 <li><p><strong>loops</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of loops over which to average the acceleration calculation.
 Note that the number of timestep over which to averages is three times this value.
 Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.</p></li>
@@ -533,8 +544,6 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../theory/potentials.html" class="btn btn-neutral float-right" title="Potentials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
       
         <a href="sarkas.base.html" class="btn btn-neutral float-left" title="sarkas.base module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
@@ -548,7 +557,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 21, 2020.
+        Last updated on Jan, 27, 2021.
       </span>
 
     </p>

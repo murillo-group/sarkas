@@ -25,7 +25,11 @@ def yukawa_force_pppm(r, pot_matrix):
         Potential value
                 
     fr : float
-        Force between two particles calculated using eq.(22) in Ref. [Dharuman2017]_ .
+        Force between two particles calculated using eq.(22) in Ref. [Dharuman2017] .
+
+    References
+    ----------
+    .. [Dharuman2017]: `Dharuman et al. J. Chem. Phys. 146, 024112 (2017) <https://doi.org/10.1063/1.4973842>`_
 
     """
     kappa = pot_matrix[1]
@@ -81,16 +85,11 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potential.Potential
+    potential : sarkas.potentials.base.Potential
         Class handling potential form.
 
     params: sarkas.base.Parameters
         Simulation's parameters.
-
-    References
-    ----------
-    .. [Stanton2015] `Stanton and Murillo Phys Rev E 91 033104 (2015) <https://doi.org/10.1103/PhysRevE.91.033104>`_
-    .. [Haxhimali2014] `T. Haxhimali et al. Phys Rev E 90 023104 (2014) <https://doi.org/10.1103/PhysRevE.90.023104>`_
     """
 
     if potential.method == "P3M":

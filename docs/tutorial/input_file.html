@@ -1,0 +1,451 @@
+  
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Input File &mdash; Sarkas 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Pre Simulation Testing" href="Pre_Simulation_Testing.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Input File</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#particles">Particles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interaction">Interaction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integrator">Integrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#thermostat">Thermostat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#input-output">Input/Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-processing">Post Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">sarkas</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Input File</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorial/input_file.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="input-file">
+<h1>Input File<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h1>
+<p>The first step in any MD simulation is the creation of an input file containing all the relevant parameters
+of our simulation. Take a look at the file <code class="docutils literal notranslate"><span class="pre">yukawa_mks_p3m.yaml</span></code>.
+It is very important to maintain the syntax shown in the example YAML files.
+This is because the content of the YAML file is returned as a dictionary of dictionaries.</p>
+<div class="section" id="particles">
+<h2>Particles<a class="headerlink" href="#particles" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Particles</span></code> block contains the attribute <code class="docutils literal notranslate"><span class="pre">Species</span></code> which defines the first type of particles, i.e. species,
+and their physical attributes.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Particles</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">Species</span><span class="p">:</span>
+        <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">H</span>
+        <span class="nt">number_density</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.62e+32</span>       <span class="c1"># /m^3</span>
+        <span class="nt">mass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.673e-27</span>                <span class="c1"># kg, ptcl mass of ion1</span>
+        <span class="nt">num</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>                     <span class="c1"># total number of particles of ion1</span>
+        <span class="nt">Z</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>                         <span class="c1"># degree of ionization</span>
+        <span class="nt">temperature_eV</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+</pre></div>
+</div>
+<p>In the case of a multi-component plasma we need only add another <code class="docutils literal notranslate"><span class="pre">Species</span></code> attribute with corresponding physical
+parameters, see <code class="docutils literal notranslate"><span class="pre">ybim_mks_p3m.yaml</span></code>. The attributes of <code class="docutils literal notranslate"><span class="pre">Species</span></code> take only numerical values, apart from <code class="docutils literal notranslate"><span class="pre">name</span></code>,
+in the correct choice of units which is defined in the block <code class="docutils literal notranslate"><span class="pre">Control</span></code>, see below.
+Notice that in this section we also define the mass of the particles, <code class="docutils literal notranslate"><span class="pre">mass</span></code>, and their charge number <code class="docutils literal notranslate"><span class="pre">Z</span></code>.
+Future developments of Sarkas are aiming to automatically calculate the degree of ionization given by the density and
+temperature of the system, but for now we need to define it. The parameters given here are not the only options,
+more information of all the possible inputs can be found in the page <code class="docutils literal notranslate"><span class="pre">input</span> <span class="pre">file</span></code>.</p>
+</div>
+<div class="section" id="interaction">
+<h2>Interaction<a class="headerlink" href="#interaction" title="Permalink to this headline">¶</a></h2>
+<p>The next section of the input file defines our interaction potential’s parameters</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Potential</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Yukawa</span>
+    <span class="nt">method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">P3M</span>                        <span class="c1"># Particle-Particle Particle-Mesh</span>
+    <span class="nt">kappa</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+    <span class="nt">rc</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.79946255e-10</span>                <span class="c1"># [m]</span>
+    <span class="nt">pppm_mesh</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">64</span><span class="p p-Indicator">,</span> <span class="nv">64</span><span class="p p-Indicator">,</span> <span class="nv">64</span><span class="p p-Indicator">]</span>
+    <span class="nt">pppm_aliases</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="nv">3</span><span class="p p-Indicator">]</span>
+    <span class="nt">pppm_cao</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6</span>
+    <span class="nt">pppm_alpha_ewald</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.16243741e+10</span>  <span class="c1"># 1/[m]</span>
+</pre></div>
+</div>
+<p>The instance <code class="docutils literal notranslate"><span class="pre">type</span></code> defines the interaction potential. Currently Sarkas supports the following interaction potentials:
+Coulomb, Yukawa, Exact-gradient corrected Yukawa, Quantum Statistical Potentials, Moliere, Lennard-Jones 6-12. More info
+on each of these potential can be found in <a class="reference internal" href="../theory/potentials.html#potentials"><span class="std std-ref">Potentials</span></a>. Next we define the screening parameter <code class="docutils literal notranslate"><span class="pre">kappa</span></code>.
+Notice that this a non-dimensional parameter, i.e. the real screening length will be calculated
+from <span class="math notranslate nohighlight">\(\lambda = a/\kappa\)</span> where <span class="math notranslate nohighlight">\(a\)</span> is the Wigner-Seitz radius.</p>
+<p>The following parameters refer to our choice of the interaction algorithm. Details on how to choose these parameters
+are given later in this page, but for now we limit to describing them. First, we find the cut-off radius, <code class="docutils literal notranslate"><span class="pre">rc</span></code>,
+for the Particle-Particle part of the P3M algorithm.
+The <code class="docutils literal notranslate"><span class="pre">pppm_mesh</span></code> instance is a list of 3 elements corresponding to the number of mesh points in each of the three
+cartesian coordinates, <code class="docutils literal notranslate"><span class="pre">pppm_aliases</span></code> indicates the number of aliases for anti-aliasing, see &lt;link to anti-aliasing&gt;.
+<code class="docutils literal notranslate"><span class="pre">pppm_cao</span></code> stands for Charge Order Parameter and indicates the number of mesh points per direction
+on which the each particle’s charge is to distributed and finally <code class="docutils literal notranslate"><span class="pre">pppm_alpha_ewald</span></code> refers to
+the <span class="math notranslate nohighlight">\(\alpha\)</span> parameter of the Gaussian charge cloud surrounding each particle.</p>
+</div>
+<div class="section" id="integrator">
+<h2>Integrator<a class="headerlink" href="#integrator" title="Permalink to this headline">¶</a></h2>
+<p>Notice that we have not defined our integrator yet. This is done in the section <code class="docutils literal notranslate"><span class="pre">Integrator</span></code> of the input file</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Integrator</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Verlet</span>                  <span class="c1"># velocity integrator type</span>
+    <span class="nt">equilibration_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10000</span>    <span class="c1"># number of timesteps for the equilibrium</span>
+    <span class="nt">production_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100000</span>      <span class="c1"># number of timesteps after the equilibrium</span>
+    <span class="nt">eq_dump_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
+    <span class="nt">prod_dump_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
+</pre></div>
+</div>
+<p>Here <code class="docutils literal notranslate"><span class="pre">Verlet</span></code> refers to the common Velocity Verlet algorithm in which particles velocities are updated first. This must
+not to be confused with the Position Verlet algorithm. The two algorithms are equivalent, however, Velocity Verlet
+is the most efficient and the preferred choice in most MD simulations.
+Currently Sarkas supports also the magnetic Velocity Verlet, see <code class="docutils literal notranslate"><span class="pre">ybim_mks_p3m_mag.yaml</span></code> and more details are
+discussed in … .
+<code class="docutils literal notranslate"><span class="pre">equilibration_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">production_steps</span></code> are the number of timesteps of the equilibration and production phase,
+respectively. <code class="docutils literal notranslate"><span class="pre">eq_dump_step</span></code> and <code class="docutils literal notranslate"><span class="pre">prod_dump_step</span></code> are the interval timesteps over which Sarkas will save simulations
+data.</p>
+<p>Further integrators scheme are under development: these include adaptive Runge-Kutta, symplectic high order integrators,
+multiple-timestep algorithms. The Murillo group is currently looking for students willing to explore all of the above.</p>
+</div>
+<div class="section" id="thermostat">
+<h2>Thermostat<a class="headerlink" href="#thermostat" title="Permalink to this headline">¶</a></h2>
+<p>Most MD simulations require an thermalization phase in which the system evolves in time in an <span class="math notranslate nohighlight">\(NVT\)</span> ensemble
+so that the initial configuration relaxes to the desired thermal equilibrium. The parameters
+of the thermalization phase are defined in the <code class="docutils literal notranslate"><span class="pre">Thermostat</span></code> section of the input file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Thermostat</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Berendsen</span>               <span class="c1"># thermostat type</span>
+    <span class="nt">relaxation_timestep</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20</span>
+    <span class="nt">tau</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
+    <span class="nt">temperatures_eV</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+</pre></div>
+</div>
+<p>The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen and Langevin type,
+but other thermostats like Nose-Hoover, etc are, you guessed it!, in development.
+The <code class="docutils literal notranslate"><span class="pre">relaxation_timestep</span></code> instance indicates the timestep number at which the Berendsen thermostat will be turned on.
+The instance <code class="docutils literal notranslate"><span class="pre">tau</span></code> indicates the relaxation rate of the Berendsen thermostat, see <a class="reference internal" href="../theory/thermostats.html#thermostats"><span class="std std-ref">Thermostats</span></a> for more details.</p>
+<p>The last instance defines the temperature (be careful with units!) at which the system is to be thermalized.
+Notice that this takes a single value in the case of a single species, while it takes is a list in the case of
+multicomponent plasmas. Note that these temperatures need not be the same as those defined in the <code class="docutils literal notranslate"><span class="pre">Particles</span></code> block as
+it might be the case that you want to study temperature relaxation in plasma mixtures.</p>
+</div>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<p>The next section defines some general parameters</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Parameters</span><span class="p">:</span>
+    <span class="nt">units</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mks</span>                  <span class="c1"># units</span>
+    <span class="nt">dt</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.193536e-17</span>            <span class="c1"># sec</span>
+    <span class="nt">load_method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">random_no_reject</span>
+    <span class="nt">rdf_nbins</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500</span>
+    <span class="nt">boundary_conditions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">periodic</span>
+</pre></div>
+</div>
+<p>The first instance defines the choice of units (mks or cgs) which must be consistent with all the other dimensional
+parameters defined in previous sections. The second instance is the value of the timestep in seconds.
+<code class="docutils literal notranslate"><span class="pre">load_method</span></code> defines the way particles positions are to be initialized. The options are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">random_no_reject</span></code> for a uniform spatial distribution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">random_reject</span></code> for a uniform spatial distribution but with a minimum distance between particles</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">halton</span></code></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">rdf_nbins</span></code> indicates the number of bins for the pair distribution histogram which in this case is 500. The default
+value is 5% of the total number of particles.
+Next we define the <code class="docutils literal notranslate"><span class="pre">boundary_conditions</span></code> of our simulation. At the moment Sarkas supports only <code class="docutils literal notranslate"><span class="pre">periodic</span></code> boundary
+conditions and <code class="docutils literal notranslate"><span class="pre">open</span></code> boundary conditions which requires the <code class="docutils literal notranslate"><span class="pre">FMM</span></code> algorithm in all directions at once.
+Future implementations of Sarkas accepting mixed boundary conditions are under way, but not fully supported.
+We accept pull request :) !</p>
+</div>
+<div class="section" id="input-output">
+<h2>Input/Output<a class="headerlink" href="#input-output" title="Permalink to this headline">¶</a></h2>
+<p>The next section defines some IO parameters</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">IO</span><span class="p">:</span>
+    <span class="nt">verbose</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+    <span class="nt">simulations_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Simulations</span>
+    <span class="nt">job_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yocp_pppm</span>  <span class="c1"># dir name to save data.</span>
+    <span class="nt">job_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yocp</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> is flag for printing progress to screen. This is useful in the initialization phase of an MD
+simulation. The next instances are not needed, however, they are useful for organizing your work. <code class="docutils literal notranslate"><span class="pre">simulations_dir</span></code>
+is the directory where all the simulations will be stored. The default value is <code class="docutils literal notranslate"><span class="pre">Simulations</span></code> and this will be
+created in your current working directory. Next, <code class="docutils literal notranslate"><span class="pre">job_dir</span></code> is the name of the directory of this specific simulation
+which we chose to call <code class="docutils literal notranslate"><span class="pre">yocp_pppm</span></code>. This directory will contain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> files storing all your simulations
+parameters and physical constants, a log file of your simulation, the <code class="docutils literal notranslate"><span class="pre">Equilibration</span></code> and <code class="docutils literal notranslate"><span class="pre">Production</span></code>
+directories containing simulations dumps, and <code class="docutils literal notranslate"><span class="pre">PreProcessing</span></code> and <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> directories. Explanation of the
+directory structure can be found in … . Finally <code class="docutils literal notranslate"><span class="pre">job_id</span></code> is an appendix for all the file names identifing
+this specific run. This is useful when you have many runs that differ only in the choice of <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>.</p>
+</div>
+<div class="section" id="post-processing">
+<h2>Post Processing<a class="headerlink" href="#post-processing" title="Permalink to this headline">¶</a></h2>
+<p>The last block is <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> and it will be explained somewhere else.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Pre_Simulation_Testing.html" class="btn btn-neutral float-right" title="Pre Simulation Testing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020,MurilloGroup
+      <span class="lastupdated">
+        Last updated on Jan, 27, 2021.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

@@ -2,46 +2,45 @@
 Particles:
     - Species:
         name: H
-        number_density: 1.62e+30       # /m^3
+        number_density: 1.62e+32       # /m^3
         mass: 1.673e-27                # kg, ptcl mass of ion1
         num: 10000                    # total number of particles of ion1 
         Z: 1.0                        # degree of ionization
-        temperature_eV: 0.5
+        temperature_eV: 1.0
 
 Potential:
     type: Yukawa
     method: P3M                   # Particle-Particle Particle-Mesh
-    kappa: 0.5
-    rc: 1.146503e-10 #2.79946255e-10            # [m]
-    pppm_mesh: [8, 8, 8]
+    # electron_temperature_eV: 0.026
+    rc: 6.2702e-11            # [m]
+    pppm_mesh: [64, 64, 64]
     pppm_aliases: [3,3,3]
     pppm_cao: 6
-    pppm_alpha_ewald: 1.090272e+09 #1.16243741e+10  # 1/[m]
+    pppm_alpha_ewald: 5.4659e+10 # 1/[m]
 
 Integrator:
     type: Verlet                  # velocity integrator type
-    equilibration_steps: 50000                  # number of timesteps for the equilibrium
-    production_steps: 50000               # number of timesteps after the equilibrium
-    eq_dump_step: 10
-    prod_dump_step: 5
+    equilibration_steps: 1000                  # number of timesteps for the equilibrium
+    production_steps: 5000               # number of timesteps after the equilibrium
+    eq_dump_step: 5
+    prod_dump_step: 2
 
 Thermostat:
     type: Berendsen               # thermostat type
-    relaxation_timestep: 0
+    relaxation_timestep: 1
     tau: 5.0
-    temperatures_eV: 0.5
+    # temperatures_eV: 0.
 
-Control:
+Parameters:
     units: mks                  # units
-    dt: 1.193536e-17            # sec
+    dt: 6.0870e-18            # sec
     load_method: random_no_reject
-    rdf_nbins: 500
     boundary_conditions: periodic
 
 IO:
     verbose: yes
     simulations_dir: Simulations
-    job_dir: yocp_pppm_Neq50k  # dir name to save data.
+    job_dir: yocp_pppm  # dir name to save data.
     job_id: yocp
 
 PostProcessing:

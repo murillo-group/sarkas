@@ -6,6 +6,7 @@ Module of various types of time_evolution
 
 import numpy as np
 from numba import njit
+from IPython import get_ipython
 
 if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
     from tqdm import tqdm_notebook as tqdm

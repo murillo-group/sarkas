@@ -91,19 +91,28 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/H-He_Mixture.html">H He Mixture Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Source Code:</span></p>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/input_file.html">Input File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/thermostats.html">Thermostats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/force_error.html">Force Error</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">sarkas</a></li>
 </ul>
 
             
@@ -232,7 +241,7 @@
         <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;Electrical Conductivity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span> <span class="o">*</span> <span class="n">sigma</span>
         <span class="c1"># Plot the transport coefficient at different integration times</span>
         <span class="n">xmul</span><span class="p">,</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">plot_labels</span><span class="p">(</span><span class="n">j_current</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">],</span> <span class="n">sigma</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Conductivity&quot;</span><span class="p">,</span>
-                                                   <span class="n">j_current</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+                                                       <span class="n">j_current</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
         <span class="n">fig</span><span class="p">,</span> <span class="p">[</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
         <span class="n">ax21</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
         <span class="c1"># extra space for the second axis at the bottom</span>
@@ -311,8 +320,8 @@
         <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)))</span>
 
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-        <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
-        <span class="n">ax21</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>  <span class="c1"># Diffusion axes</span>
+        <span class="n">ax21</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>  <span class="c1"># Index axes</span>
         <span class="c1"># extra space for the second axis at the bottom</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
         <span class="n">const</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span>
@@ -329,14 +338,16 @@
             <span class="n">ax2</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">ymul</span> <span class="o">*</span> <span class="n">D</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$D_{&#39;</span> <span class="o">+</span> <span class="n">sp</span> <span class="o">+</span> <span class="s1">&#39;}(t)$&#39;</span><span class="p">)</span>
 
         <span class="c1"># Complete figure</span>
-        <span class="c1"># ax1.grid(True, alpha=0.3)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Velocity ACF&#39;</span><span class="p">)</span>
-        <span class="c1"># ax1.set_xlabel(r&#39;Time&#39; + xlbl)</span>
-        <span class="c1"># ax2.grid(True, alpha=0.3)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Diffusion&#39;</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
+        <span class="c1">#ax2.set_xlabel(r&#39;Time&#39; + xlbl)</span>
 
         <span class="n">ax21</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
@@ -353,6 +364,7 @@
         <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">sp</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Index&quot;</span><span class="p">)</span>
         <span class="c1"># ax21.set_xbound(1, len(time))</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
@@ -411,23 +423,24 @@
                 <span class="n">integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)])</span>
 
                 <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">no_int</span><span class="p">):</span>
-                    <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span><span class="o">/</span><span class="p">(</span><span class="n">conc1</span> <span class="o">*</span> <span class="n">conc2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">integrand</span><span class="p">[:</span><span class="n">it</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="n">time</span><span class="p">[:</span><span class="n">it</span><span class="p">])</span>
+                    <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span> <span class="o">/</span> <span class="p">(</span><span class="n">conc1</span> <span class="o">*</span> <span class="n">conc2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">integrand</span><span class="p">[:</span><span class="n">it</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="n">time</span><span class="p">[:</span><span class="n">it</span><span class="p">])</span>
 
                 <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Inter Diffusion&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
 
                 <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
-                    <span class="n">xmul</span><span class="p">,</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">plot_labels</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Diffusion&quot;</span><span class="p">,</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+                    <span class="n">xmul</span><span class="p">,</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">plot_labels</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Diffusion&quot;</span><span class="p">,</span>
+                                                                   <span class="n">jc_acf</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
                     <span class="n">ax1</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">integrand</span> <span class="o">/</span> <span class="n">integrand</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$J_{&#39;</span> <span class="o">+</span> <span class="n">sp1</span> <span class="o">+</span> <span class="n">sp2</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span><span class="p">)</span>
                     <span class="n">ax21</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
                     <span class="n">ax2</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">ymul</span> <span class="o">*</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$D_{&#39;</span> <span class="o">+</span> <span class="n">sp1</span> <span class="o">+</span> <span class="n">sp2</span> <span class="o">+</span> <span class="s1">&#39;}(t)$&#39;</span><span class="p">)</span>
                 <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="c1"># Complete figure</span>
-        <span class="c1"># ax1.grid(True, alpha=0.3)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Diffusion Flux ACF&#39;</span><span class="p">)</span>
 
-        <span class="c1"># ax2.grid(True, alpha=0.3)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Inter Diffusion&#39;</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
@@ -447,6 +460,7 @@
         <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">sp</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Index&quot;</span><span class="p">)</span>
         <span class="c1"># ax21.set_xbound(1, len(time))</span>
 
@@ -506,7 +520,7 @@
 
                 <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2"> Shear Viscosity Tensor&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">shear_viscosity</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
                 <span class="n">xmul</span><span class="p">,</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">plot_labels</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">shear_viscosity</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:],</span>
-                                                           <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Viscosity&quot;</span><span class="p">,</span> <span class="n">energies</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+                                                               <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Viscosity&quot;</span><span class="p">,</span> <span class="n">energies</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
                 <span class="k">if</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;yx&quot;</span><span class="p">,</span> <span class="s2">&quot;xy&quot;</span><span class="p">]:</span>
                     <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">integrand</span> <span class="o">/</span> <span class="n">integrand</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                                         <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$P_{&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; }(t)$&quot;</span><span class="p">)</span>
@@ -548,7 +562,7 @@
 
         <span class="c1"># Calculate Bulk Viscosity</span>
         <span class="n">pressure_acf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">autocorrelationfunction_1D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure&quot;</span><span class="p">])</span>
-                                                  <span class="o">-</span> <span class="n">energies</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+                                                      <span class="o">-</span> <span class="n">energies</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">bulk_integrand</span> <span class="o">=</span> <span class="n">pressure_acf</span>
         <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">energies</span><span class="o">.</span><span class="n">prod_no_dumps</span><span class="p">):</span>
             <span class="n">bulk_viscosity</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">bulk_integrand</span><span class="p">[:</span><span class="n">it</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="n">time</span><span class="p">[:</span><span class="n">it</span><span class="p">])</span>
@@ -572,7 +586,6 @@
             <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">coefficient</span></div></div>
-
 </pre></div>
 
            </div>
@@ -588,7 +601,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Jan, 08, 2021.
+        Last updated on Jan, 27, 2021.
       </span>
 
     </p>

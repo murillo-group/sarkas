@@ -62,7 +62,7 @@ class TransportCoefficient:
         coefficient["Electrical Conductivity"] = const * sigma
         # Plot the transport coefficient at different integration times
         xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(j_current.dataframe["Time"], sigma, "Time", "Conductivity",
-                                                   j_current.units)
+                                                       j_current.units)
         fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 9))
         ax21 = ax2.twiny()
         # extra space for the second axis at the bottom
@@ -141,8 +141,8 @@ class TransportCoefficient:
         D = np.zeros((params.num_species, len(time)))
 
         fig, ax1 = plt.subplots(1, 1, figsize=(10, 10))
-        ax2 = ax1.twinx()
-        ax21 = ax2.twiny()
+        ax2 = ax1.twinx()  # Diffusion axes
+        ax21 = ax2.twiny()  # Index axes
         # extra space for the second axis at the bottom
         fig.subplots_adjust(bottom=0.1)
         const = 1.0 / 3.0
@@ -159,14 +159,16 @@ class TransportCoefficient:
             ax2.semilogx(xmul * time, ymul * D[i, :], '--', label=r'$D_{' + sp + '}(t)$')
 
         # Complete figure
-        # ax1.grid(True, alpha=0.3)
-        ax1.legend(loc='best')
+        ax1.grid(False)
+        ax1.legend(loc='upper left')
         ax1.set_ylabel(r'Velocity ACF')
-        # ax1.set_xlabel(r'Time' + xlbl)
-        # ax2.grid(True, alpha=0.3)
+        ax1.legend(loc='best')
+
+        ax1.set_xlabel(r'Time' + xlbl)
+        ax2.grid(False)
         ax2.legend(loc='best')
         ax2.set_ylabel(r'Diffusion' + ylbl)
-        ax2.set_xlabel(r'Time' + xlbl)
+        #ax2.set_xlabel(r'Time' + xlbl)
 
         ax21.xaxis.set_ticks_position("bottom")
         ax21.xaxis.set_label_position("bottom")
@@ -183,6 +185,7 @@ class TransportCoefficient:
         for sp in ax21.spines.values():
             sp.set_visible(False)
         ax21.spines["bottom"].set_visible(True)
+        ax2.set_xlabel(r'Time' + xlbl)
         ax21.set_xlabel(r"Index")
         # ax21.set_xbound(1, len(time))
         fig.tight_layout()
@@ -241,23 +244,24 @@ class TransportCoefficient:
                 integrand = np.array(jc_acf.dataframe["{}-{} Total Diffusion Flux ACF".format(sp1, sp2)])
 
                 for it in range(1, no_int):
-                    D_ij[index, it] = const/(conc1 * conc2) * np.trapz(integrand[:it], x=time[:it])
+                    D_ij[index, it] = const / (conc1 * conc2) * np.trapz(integrand[:it], x=time[:it])
 
                 coefficient["{}-{} Inter Diffusion".format(sp1, sp2)] = D_ij[index, :]
 
                 if i != j:
-                    xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D_ij[index, :], "Time", "Diffusion", jc_acf.units)
+                    xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D_ij[index, :], "Time", "Diffusion",
+                                                                   jc_acf.units)
                     ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$J_{' + sp1 + sp2 + '}$')
                     ax21.semilogx(D_ij[index, :], '--')
                     ax2.semilogx(xmul * time, ymul * D_ij[index, :], '--', label=r'$D_{' + sp1 + sp2 + '}(t)$')
                 index += 1
 
         # Complete figure
-        # ax1.grid(True, alpha=0.3)
+        ax1.grid(False)
         ax1.legend(loc='best')
         ax1.set_ylabel(r'Diffusion Flux ACF')
 
-        # ax2.grid(True, alpha=0.3)
+        ax2.grid(False)
         ax2.legend(loc='best')
         ax2.set_ylabel(r'Inter Diffusion' + ylbl)
         ax2.set_xlabel(r'Time' + xlbl)
@@ -277,6 +281,7 @@ class TransportCoefficient:
         for sp in ax21.spines.values():
             sp.set_visible(False)
         ax21.spines["bottom"].set_visible(True)
+        ax2.set_xlabel(r'Time' + xlbl)
         ax21.set_xlabel(r"Index")
         # ax21.set_xbound(1, len(time))
 
@@ -336,7 +341,7 @@ class TransportCoefficient:
 
                 coefficient["{}{} Shear Viscosity Tensor".format(ax1, ax2)] = shear_viscosity[i, j, :]
                 xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, shear_viscosity[i, j, :],
-                                                           "Time", "Viscosity", energies.units)
+                                                               "Time", "Viscosity", energies.units)
                 if "{}{}".format(ax1, ax2) in ["yx", "xy"]:
                     axes[0, 0].semilogx(xmul * time, integrand / integrand[0],
                                         label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
@@ -378,7 +383,7 @@ class TransportCoefficient:
 
         # Calculate Bulk Viscosity
         pressure_acf = obs.autocorrelationfunction_1D(np.array(energies.dataframe["Pressure"])
-                                                  - energies.dataframe["Pressure"].mean())
+                                                      - energies.dataframe["Pressure"].mean())
         bulk_integrand = pressure_acf
         for it in range(1, energies.prod_no_dumps):
             bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
@@ -402,4 +407,3 @@ class TransportCoefficient:
             fig.show()
 
         return coefficient
-

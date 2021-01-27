@@ -6,12 +6,15 @@ import csv
 import pickle
 import numpy as np
 from pyfiglet import print_figlet, Figlet
+from IPython import get_ipython
 
 if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+    # If you are using Jupyter Notebook
     from tqdm import tqdm_notebook as tqdm
 else:
+    # If you are using IPython or Python kernel
     from tqdm import tqdm
-    
+
 FONTS = ['speed',
          'starwars',
          'graffiti',
@@ -20,7 +23,8 @@ FONTS = ['speed',
          'larry3d',
          'ogre']
 
-BG_COLORS = ['255;255;255',
+# Light Colors.
+LIGHT_COLORS = ['255;255;255',
              '13;177;75',
              '153;162;162',
              '240;133;33',
@@ -32,7 +36,8 @@ BG_COLORS = ['255;255;255',
              '203;90;40'
              ]
 
-FG_COLORS = ['24;69;49',
+# Dark Colors.
+DARK_COLORS = ['24;69;49',
              '0;129;131',
              '83;80;84',
              '110;0;95'
@@ -243,11 +248,8 @@ class InputOutput:
                 print('\n\n------------------------ Therm Restart ----------------------------------')
                 self.time_info(simulation)
             else:
-                # Choose the correct heading
-                if self.preprocessing:
-                    print('\n\n-------------- Pre Processing ----------------------')
-                else:
-                    print('\n\n----------------- Simulation -----------------------')
+
+                print('\n\n======================= Simulation ==========================')
 
                 print('\nJob ID: ', self.job_id)
                 print('Job directory: ', self.job_dir)
@@ -309,7 +311,10 @@ class InputOutput:
         t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
         # redirect printing to file
         sys.stdout = f_log
+
         while repeat > 0:
+            if 'Potential Initialization' in time_stamp:
+                print('\n\n----------------- Initialization Times -----------------------')
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
                 print('\n{} Time: {} sec {} msec {} usec {} nsec'.format(time_stamp,
                                                                          int(t_sec),
@@ -349,8 +354,9 @@ class InputOutput:
                 simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
                 simulation.potential.pppm_alpha_ewald), end='')
             print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-            print('Suggested rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
-                                                                    simulation.potential.rc), end='')
+            print(
+                'Suggested rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
+                                                                  simulation.potential.rc), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
             self.algorithm_info(simulation)
@@ -360,8 +366,7 @@ class InputOutput:
         f_log.close()
 
     def preprocess_timing(self, str_id, t, loops):
-        """Print times estimates of simulation."""
-        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
+        """Print times estimates of simulation to file first and then to screen if verbose."""
         screen = sys.stdout
         f_log = open(self.io_file, 'a+')
         repeat = 2 if self.verbose else 1
@@ -370,7 +375,7 @@ class InputOutput:
         sys.stdout = f_log
         while repeat > 0:
             if str_id == "GF":
-                print('\n\n\n----------------- Force Calculation Times ----------------------\n')
+                print('\n\n====================== Times Estimates ===========================\n')
                 print("Optimal Green's Function Time: \n"
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
                                                                         int(t_min),
@@ -380,7 +385,7 @@ class InputOutput:
                                                                         int(t_nsec)))
 
             elif str_id == "PP":
-                print('Time of PP acceleration calculation averaged over {} loops: \n'
+                print('Time of PP acceleration calculation averaged over {} steps: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
                                                                         int(t_min),
                                                                         int(t_sec),
@@ -389,7 +394,7 @@ class InputOutput:
                                                                         int(t_nsec)))
 
             elif str_id == "PM":
-                print('Time of PM acceleration calculation averaged over {} loops: \n'
+                print('Time of PM acceleration calculation averaged over {} steps: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
                                                                         int(t_min),
                                                                         int(t_sec),
@@ -398,8 +403,7 @@ class InputOutput:
                                                                         int(t_nsec)))
 
             elif str_id == "Equilibration":
-                print('\n\n----------------- Averaged Evolution Times ---------------------\n')
-                print('Time of a single equilibration step averaged over {} loops: \n'
+                print('Time of a single equilibration step averaged over {} steps: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
                                                                         int(t_min),
                                                                         int(t_sec),
@@ -408,7 +412,7 @@ class InputOutput:
                                                                         int(t_nsec)))
 
             elif str_id == "Production":
-                print('Time of a single production step averaged over {} loops: \n'
+                print('Time of a single production step averaged over {} steps: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
                                                                         int(t_min),
                                                                         int(t_sec),
@@ -416,7 +420,95 @@ class InputOutput:
                                                                         int(t_usec),
                                                                         int(t_nsec)))
 
-                print('\n\n----------------- Total Simulation Times -----------------------')
+                print('\n\n----------------- Total Estimated Times -----------------------')
+
+            repeat -= 1
+            sys.stdout = screen
+
+        f_log.close()
+
+    def postprocess_info(self, simulation):
+        """Print Post-processing info to file first and then to screen if verbose."""
+
+        screen = sys.stdout
+        f_log = open(self.io_file, 'a+')
+        repeat = 2 if self.verbose else 1
+
+        # redirect printing to file
+        sys.stdout = f_log
+
+        while repeat > 0:
+            print('\n\n===================== Post Processing ============================')
+            if hasattr(simulation, 'rdf'):
+                print('\nRadial Distribution Function:')
+                print('No. bins = {}'.format(simulation.rdf.no_bins))
+                print('dr = {:1.4f} a_ws = {:1.4e} '.format(
+                    simulation.rdf.dr_rdf / simulation.parameters.a_ws, simulation.rdf.dr_rdf), end='')
+                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+                print('Maximum Distance (i.e. potential.rc)= {:1.4f} a_ws = {:1.4e} '.format(
+                    simulation.rdf.rc / simulation.parameters.a_ws, simulation.rdf.rc), end='')
+                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+
+            if hasattr(simulation, 'ssf'):
+                print('\nStatic Structure Factor:')
+                print('No. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
+                print('No. of ka values to calculate = {}'.format(len(simulation.ssf.k_list)))
+                print('Smallest wavevector k_min = 3.9 / N^(1/3)')
+                print('k_min = {:.4f} / a_ws = {:1.4e} '.format(
+                    simulation.ssf.ka_values[0], simulation.ssf.k_unique[0]), end='')
+                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
+                print('Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+                print('k_max = {:.4f} / a_ws = {:1.4e} '.format(
+                    simulation.ssf.ka_values[-1], simulation.ssf.k_unique[-1]), end='')
+                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
+
+            if hasattr(simulation, 'dsf'):
+                print('\nDynamic Structure Factor:')
+                print('Frequency Constants')
+                print('\tNo. of slices = {}'.format(simulation.dsf.no_slices))
+                print('\tNo. steps per slice = {}'.format(simulation.dsf.slice_steps))
+                print('\tNo. dumps per slice = {}'.format(simulation.dsf.no_dumps))
+                print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
+                print('\tdw = {:1.4f} w_p = {:1.4e} [Hz]'.format(
+                    simulation.dsf.w_min / simulation.parameters.total_plasma_frequency, simulation.dsf.w_min))
+                print('\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)')
+                print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
+                    simulation.dsf.w_max / simulation.parameters.total_plasma_frequency, simulation.dsf.w_max))
+                print('Wavevector Constants')
+                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
+                print('\tNo. of ka values to calculate = {}'.format(len(simulation.dsf.k_list)))
+                print('\tSmallest wavevector k_min = 3.9 / N^(1/3)')
+                print('\tk_min = {:.4f} / a_ws = {:1.4e} '.format(
+                    simulation.dsf.ka_values[0], simulation.dsf.k_unique[0]), end='')
+                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
+                print('\tLargest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+                print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(
+                    simulation.dsf.ka_values[-1], simulation.dsf.k_unique[-1]), end='')
+                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
+
+            if hasattr(simulation, 'ccf'):
+                print('\nCurrent Correlation Function:')
+                print('Frequency Constants')
+                print('\tNo. of slices = {}'.format(simulation.ccf.no_slices))
+                print('\tNo. steps per slice = {}'.format(simulation.ccf.slice_steps))
+                print('\tNo. dumps per slice = {}'.format(simulation.ccf.no_dumps))
+                print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
+                print('\tdw = {:1.4f} w_p = {:1.4e} [Hz]'.format(
+                    simulation.ccf.w_min / simulation.ccf.total_plasma_frequency, simulation.ccf.w_min))
+                print('\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)')
+                print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
+                    simulation.ccf.w_max / simulation.ccf.total_plasma_frequency, simulation.ccf.w_max))
+                print('Wavevector Constants')
+                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
+                print('\tNo. of ka values to calculate = {}'.format(len(simulation.ccf.k_list)))
+                print('\tSmallest wavevector k_min = 3.9 / N^(1/3)')
+                print('\tk_min = {:.4f} / a_ws = {:1.4e} '.format(
+                    simulation.ccf.ka_values[0], simulation.ccf.k_unique[0]), end='')
+                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
+                print('\tLargest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+                print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(
+                    simulation.ccf.ka_values[-1], simulation.ccf.k_unique[-1]), end='')
+                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
 
             repeat -= 1
             sys.stdout = screen
@@ -428,10 +520,13 @@ class InputOutput:
         """
         Print a colored figlet of Sarkas to screen.
         """
-        fg = FG_COLORS[np.random.randint(0, len(FG_COLORS))]
-        # bg = BG_COLORS[np.random.randint(0, len(BG_COLORS))]
+        if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+            # Assume white background in Jupyter Notebook
+            clr = DARK_COLORS[np.random.randint(0, len(DARK_COLORS))]
+        else:
+            # Assume dark background in IPython/Python Kernel
+            clr = LIGHT_COLORS[np.random.randint(0, len(LIGHT_COLORS))]
         fnt = FONTS[np.random.randint(0, len(FONTS))]
-        clr = fg  # + ':' + bg
         print_figlet('\nSarkas\n', font=fnt, colors=clr)
 
         print("\nAn open-source pure-python molecular dynamics code for non-ideal plasmas.")
@@ -449,8 +544,8 @@ class InputOutput:
         """
         print('Time step = {:2.6e} [s]'.format(simulation.integrator.dt))
         if simulation.potential.type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
-            print('(total) plasma frequency = {:1.6e} [Hz]'.format(simulation.parameters.total_plasma_frequency))
-            print('wp dt = {:2.4f}'.format(simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
+            print('Total plasma frequency = {:1.6e} [Hz]'.format(simulation.parameters.total_plasma_frequency))
+            print('w_p dt = {:2.4f}'.format(simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
         elif simulation.potential.type == 'QSP':
             print('e plasma frequency = {:2.6e} [Hz]'.format(simulation.species[0].wp))
             print('ion plasma frequency = {:2.6e} [Hz]'.format(simulation.species[1].wp))
@@ -458,39 +553,39 @@ class InputOutput:
         elif simulation.potential.type == 'LJ':
             print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(
                 simulation.parameters.total_plasma_frequency))
-            print('wp dt = {:2.4f}'.format(simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
+            print('w_p dt = {:2.4f}'.format(simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
 
         if simulation.parameters == 'prod_restart':
             print("Restart step: {}".format(simulation.parameters.restart_step))
-            print('Total post-equilibration steps = {} ~ {} wp T_prod'.format(
+            print('Total post-equilibration steps = {} ~ {} w_p T_prod'.format(
                 simulation.integrator.production_steps,
                 int(
                     simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
-            print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
                 simulation.integrator.prod_dump_step,
                 simulation.integrator.prod_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
         elif simulation.parameters == 'eq_restart':
             print("Restart step: {}".format(simulation.parameters.load_therm_restart_step))
-            print('Total equilibration steps = {} ~ {} wp T_prod'.format(
+            print('Total equilibration steps = {} ~ {} w_p T_prod'.format(
                 simulation.integrator.equilibration_steps,
                 int(
                     simulation.integrator.eq_dump_step * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
-            print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
                 simulation.integrator.eq_dump_step,
                 simulation.integrator.eq_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
         else:
-            print('No. of equilibration steps = {} ~ {} wp T_eq'.format(
+            print('No. of equilibration steps = {} ~ {} w_p T_eq'.format(
                 simulation.integrator.equilibration_steps,
                 int(
                     simulation.integrator.equilibration_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
-            print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
                 simulation.integrator.eq_dump_step,
                 simulation.integrator.eq_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
-            print('No. of post-equilibration steps = {} ~ {} wp T_prod'.format(
+            print('No. of post-equilibration steps = {} ~ {} w_p T_prod'.format(
                 simulation.integrator.production_steps,
                 int(
                     simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
-            print('snapshot interval = {} = {:1.3f} wp T_snap'.format(
+            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
                 simulation.integrator.prod_dump_step,
                 simulation.integrator.prod_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
 
@@ -568,25 +663,31 @@ class InputOutput:
         """
         if simulation.potential.type == 'Yukawa':
             print('kappa = {:1.4e}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
-            print('lambda_TF = {:1.4e}'.format(simulation.parameters.lambda_TF))
+            print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
 
         elif simulation.potential.type == 'EGS':
             print('kappa = {:1.4e}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
-            print('lambda_TF = {:1.4e}'.format(simulation.parameters.lambda_TF))
+            print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print('nu = {:1.4e}'.format(simulation.parameters.nu))
             if simulation.parameters.nu < 1:
                 print('Exponential decay:')
-                print('lambda_p = {:1.4e}'.format(simulation.parameters.lambda_p))
-                print('lambda_m = {:1.4e}'.format(simulation.parameters.lambda_m))
+                print('lambda_p = {:1.4e} '.format(simulation.parameters.lambda_p), end='')
+                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+                print('lambda_m = {:1.4e} '.format(simulation.parameters.lambda_m), end='')
+                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
                 print('alpha = {:1.4e}'.format(simulation.parameters.alpha))
                 print('Theta = {:1.4e}'.format(simulation.parameters.electron_degeneracy_parameter))
                 print('b = {:1.4e}'.format(simulation.parameters.b))
 
             else:
                 print('Oscillatory potential:')
-                print('gamma_p = {:1.4e}'.format(simulation.parameters.gamma_p))
-                print('gamma_m = {:1.4e}'.format(simulation.parameters.gamma_m))
+                print('gamma_p = {:1.4e} '.format(simulation.parameters.gamma_p), end='')
+                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+                print('gamma_m = {:1.4e} '.format(simulation.parameters.gamma_m), end='')
+                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
                 print('alpha = {:1.4e}'.format(simulation.parameters.alphap))
                 print('Theta = {:1.4e}'.format(simulation.parameters.electron_degeneracy_parameter))
                 print('b = {:1.4e}'.format(simulation.parameters.b))

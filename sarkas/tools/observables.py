@@ -1,13 +1,14 @@
 """
 Module for calculating physical quantities from Sarkas checkpoints.
 """
-import os
+from IPython import get_ipython
 
 if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
     from tqdm import tqdm_notebook as tqdm
 else:
     from tqdm import tqdm
 
+import os
 import numpy as np
 from numba import njit
 import pandas as pd
@@ -1643,6 +1644,9 @@ class FluxAutoCorrelationFunction(Observable):
 
         super().setup_init(params, self.phase)
 
+        if not hasattr(self, 'species_mass_densities'):
+            self.species_mass_densities = self.species_num_dens * self.species_masses
+
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'DiffusionFluxAutoCorrelationFunction')
         if not os.path.exists(saving_dir):
@@ -1684,8 +1688,6 @@ class FluxAutoCorrelationFunction(Observable):
                                     self.species_masses,
                                     time_averaging,
                                     it_skip)
-
-        self.species_mass_densities = self.species_num_dens * self.species_masses
 
         v_ij = 0
         for i, sp1 in enumerate(self.species_names):
@@ -2761,9 +2763,9 @@ def kspace_setup(no_ka, box_lengths):
         Magnitude of each allowed :math:`k` vector.
     """
     # Obtain all possible permutations of the wave number arrays
-    k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]]) for i in range(no_ka[0])
-             for j in range(no_ka[1])
-             for k in range(no_ka[2])]
+    k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]]) for i in range(no_ka[0] + 1)
+             for j in range(no_ka[1] + 1)
+             for k in range(no_ka[2] + 1)]
 
     # Compute wave number magnitude - don't use |k| (skipping first entry in k_arr)
     k_mag = np.sqrt(np.sum(np.array(k_arr) ** 2, axis=1)[..., None])

@@ -164,8 +164,10 @@ class Potential:
             if hasattr(self, "electron_temperature"):
                 params.electron_temperature = self.electron_temperature
             else:
-                params.electron_temperature = params.total_ion_temperature
                 # if the electron temperature is not defined. The total ion temperature will be used for it.
+                # print("\nWARNING: electron temperature not defined. I will use the total ion temperature.")
+                params.electron_temperature = params.total_ion_temperature
+
         self.calc_electron_properties(params)
 
         if hasattr(self, "kappa"):

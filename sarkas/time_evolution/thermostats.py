@@ -99,7 +99,7 @@ class Thermostat:
             self.temperatures_eV = np.copy(self.temperatures)/ params.eV2K
         else:
             # If you forgot to give thermostating temperatures
-            print("WARNING: Equilibration temperatures not defined. I will use the species's temperatures.")
+            print("\nWARNING: Equilibration temperatures not defined. I will use the species's temperatures.")
             self.temperatures = np.copy(params.species_temperatures)
             self.temperatures_eV = np.copy(self.temperatures)/ params.eV2K
 

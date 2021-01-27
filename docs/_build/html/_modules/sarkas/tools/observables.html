@@ -91,19 +91,28 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/H-He_Mixture.html">H He Mixture Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Source Code:</span></p>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/input_file.html">Input File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/thermostats.html">Thermostats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/force_error.html">Force Error</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">sarkas</a></li>
 </ul>
 
             
@@ -171,8 +180,14 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for calculating physical quantities from Sarkas checkpoints.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">IPython</span> <span class="kn">import</span> <span class="n">get_ipython</span>
+
+<span class="k">if</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ZMQInteractiveShell&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm_notebook</span> <span class="k">as</span> <span class="n">tqdm</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -364,7 +379,7 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;no_slices&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Observable.parse"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -626,7 +641,7 @@
             <span class="n">temp_dataframe_longitudinal</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_longitudinal</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">isl</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">,</span>
                                                <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
             <span class="n">temp_dataframe_transverse</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv_transverse</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">isl</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">,</span>
-                                               <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                                             <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
 
         <span class="c1"># Repeat the saving procedure for the total Lkw and Tkw</span>
         <span class="n">sp_indx</span> <span class="o">=</span> <span class="mi">0</span>
@@ -710,7 +725,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span> <span class="o">=</span> <span class="n">k_data</span><span class="p">[</span><span class="s2">&quot;k_counts&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span> <span class="o">=</span> <span class="n">k_data</span><span class="p">[</span><span class="s2">&quot;ka_values&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">no_ka_values</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)</span>
-            <span class="n">nkt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
+            <span class="n">nkt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span><span class="p">,</span> <span class="n">k_unique</span> <span class="o">=</span> <span class="n">kspace_setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_ka_harmonics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
@@ -737,7 +752,7 @@
                 <span class="n">start_slice</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
                 <span class="n">end_slice</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">isl</span><span class="p">),</span> <span class="n">nkt</span><span class="p">)</span>
- 
+
         <span class="n">frequencies</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
 
@@ -748,12 +763,12 @@
 
         <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">):</span>
             <span class="n">nkt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">isl</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
-            
+
             <span class="c1"># Calculate Skw</span>
             <span class="n">Skw</span> <span class="o">=</span> <span class="n">calc_Skw</span><span class="p">(</span><span class="n">nkt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
-                       <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">)</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">)</span>
 
-            <span class="n">Skw_tot</span> <span class="o">+=</span> <span class="n">Skw</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> 
+            <span class="n">Skw_tot</span> <span class="o">+=</span> <span class="n">Skw</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span>
 
             <span class="c1"># Save Skw</span>
             <span class="n">sp_indx</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1242,13 +1257,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Parse nkt otherwise calculate it</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">nkt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span><span class="p">)</span>
             <span class="n">k_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_file</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span> <span class="o">=</span> <span class="n">k_data</span><span class="p">[</span><span class="s2">&quot;k_list&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span> <span class="o">=</span> <span class="n">k_data</span><span class="p">[</span><span class="s2">&quot;k_counts&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span> <span class="o">=</span> <span class="n">k_data</span><span class="p">[</span><span class="s2">&quot;ka_values&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">no_ka_values</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;n(k,t) Loaded&quot;</span><span class="p">)</span>
+            <span class="n">nkt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
+
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span><span class="p">,</span> <span class="n">k_unique</span> <span class="o">=</span> <span class="n">kspace_setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_ka_harmonics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">k_unique</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_ws</span>
@@ -1262,13 +1277,32 @@
                      <span class="n">k_counts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span><span class="p">,</span>
                      <span class="n">ka_values</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)</span>
 
-            <span class="n">nkt</span> <span class="o">=</span> <span class="n">calc_nkt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span><span class="p">,</span> <span class="n">nkt</span><span class="p">)</span>
+            <span class="n">start_slice</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">end_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
+            <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">):</span>
+                <span class="n">nkt</span> <span class="o">=</span> <span class="n">calc_nkt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span>
+                               <span class="p">(</span><span class="n">start_slice</span><span class="p">,</span> <span class="n">end_slice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+                <span class="n">start_slice</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
+                <span class="n">end_slice</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">isl</span><span class="p">),</span> <span class="n">nkt</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;ka values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Calculating S(k) ...&quot;</span><span class="p">)</span>
-        <span class="n">Sk_all</span> <span class="o">=</span> <span class="n">calc_Sk</span><span class="p">(</span><span class="n">nkt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="p">)</span>
+        <span class="n">no_dumps_calculated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span>
+        <span class="n">Sk_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">no_obs</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span><span class="p">),</span> <span class="n">no_dumps_calculated</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Calculating S(k)&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)):</span>
+            <span class="n">nkt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nkt_file</span> <span class="o">+</span> <span class="s1">&#39;_slice_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">isl</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
+            <span class="n">init</span> <span class="o">=</span> <span class="n">isl</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span>
+            <span class="n">fin</span> <span class="o">=</span> <span class="p">(</span><span class="n">isl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span>
+            <span class="n">Sk_all</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">init</span><span class="p">:</span><span class="n">fin</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_Sk</span><span class="p">(</span><span class="n">nkt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_counts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">)</span>
+
         <span class="n">Sk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Sk_all</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">Sk_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">Sk_all</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
@@ -1789,6 +1823,9 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_init</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;species_mass_densities&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_mass_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span>
+
         <span class="c1"># Create the directory where to store the computed data</span>
         <span class="n">saving_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;DiffusionFluxAutoCorrelationFunction&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">saving_dir</span><span class="p">):</span>
@@ -1830,8 +1867,6 @@
                                     <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span>
                                     <span class="n">time_averaging</span><span class="p">,</span>
                                     <span class="n">it_skip</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_mass_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span>
 
         <span class="n">v_ij</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
@@ -2378,7 +2413,7 @@
     <span class="c1"># Read particles&#39; position for all times</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Calculating n(k,t).&quot;</span><span class="p">)</span>
     <span class="n">nkt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">species_np</span><span class="p">),</span> <span class="n">slices</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">k_list</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">it</span><span class="p">,</span> <span class="n">dump</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">slices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">slices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dump_step</span><span class="p">),</span><span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">verbose</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">it</span><span class="p">,</span> <span class="n">dump</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">slices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">slices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dump_step</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">verbose</span><span class="p">)):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">load_from_restart</span><span class="p">(</span><span class="n">fldr</span><span class="p">,</span> <span class="n">dump</span><span class="p">)</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span>
         <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2506,7 +2541,7 @@
     <span class="n">no_dim</span> <span class="o">=</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">no_dumps</span> <span class="o">=</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">no_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp_num</span><span class="p">)</span>
-    <span class="n">no_vacf</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">no_species</span> <span class="o">*</span> <span class="p">(</span><span class="n">no_species</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+    <span class="n">no_vacf</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">no_species</span> <span class="o">*</span> <span class="p">(</span><span class="n">no_species</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
 
     <span class="n">mass_densities</span> <span class="o">=</span> <span class="n">sp_dens</span> <span class="o">*</span> <span class="n">sp_mass</span>
     <span class="n">tot_mass_dens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mass_densities</span><span class="p">)</span>
@@ -2555,7 +2590,7 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rho1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mass_densities</span><span class="p">):</span>
             <span class="n">sp1_flux</span> <span class="o">=</span> <span class="n">rho1</span> <span class="o">*</span> <span class="p">(</span><span class="n">com_vel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot_com_vel</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">rho2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mass_densities</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">i</span><span class="p">):</span>
-                <span class="n">sign</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">))</span> <span class="c1"># this sign seems to be an issue in the calculation of</span>
+                <span class="n">sign</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">))</span>  <span class="c1"># this sign seems to be an issue in the calculation of</span>
                 <span class="n">sp2_flux</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">rho2</span> <span class="o">*</span> <span class="p">(</span><span class="n">com_vel</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot_com_vel</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_dim</span><span class="p">):</span>
@@ -2907,9 +2942,9 @@
 <span class="sd">        Magnitude of each allowed :math:`k` vector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Obtain all possible permutations of the wave number arrays</span>
-    <span class="n">k_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">j</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_ka</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_ka</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_ka</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+    <span class="n">k_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">j</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_ka</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_ka</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_ka</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
 
     <span class="c1"># Compute wave number magnitude - don&#39;t use |k| (skipping first entry in k_arr)</span>
     <span class="n">k_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k_arr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
@@ -3092,7 +3127,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Jan, 08, 2021.
+        Last updated on Jan, 27, 2021.
       </span>
 
     </p>

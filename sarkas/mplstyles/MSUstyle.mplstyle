@@ -251,7 +251,7 @@ lines.linewidth : 2  ## line width in points
 #font.variant : normal
 #font.weight  : normal
 #font.stretch : normal
-font.size    : 14.0
+font.size    : 16.0
 
 #font.serif      : DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif : DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
@@ -347,14 +347,14 @@ font.size    : 14.0
 ## Following are default face and edge colors, default tick sizes,
 ## default fontsizes for ticklabels, and so on.  See
 ## https://matplotlib.org/api/axes_api.html#module-matplotlib.axes
-axes.facecolor     : [0.86, 0.86, 0.86]   ## axes background color
+axes.facecolor     : [0.92, 0.92, 0.94]   ## axes background color
 axes.edgecolor     : black   ## axes edge color
 #axes.linewidth     : 0.8     ## edge linewidth
 axes.grid          : True   ## display grid or not
 axes.grid.axis     : both    ## which axis the grid should apply to
 #axes.grid.which    : major   ## gridlines at {major, minor, both} ticks
 #axes.titlelocation : center  ## alignment of the title: {left, right, center}
-axes.titlesize     : 16   ## fontsize of the axes title
+axes.titlesize     : 18   ## fontsize of the axes title
 #axes.titleweight   : normal  ## font weight of title
 #axes.titlecolor    : auto    ## color of the axes title, auto falls back to text.color
                               ## as default value

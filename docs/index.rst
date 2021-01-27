@@ -19,24 +19,29 @@ their choosing.
 In the following pages you will find tutorials and information on the functionalities that have been tested and work correctly. If you want to collaborate and help us improve
 Sarkas, Join us! :)
 
-
 .. toctree::
    :maxdepth: 2
    :caption: Getting Started:
-   
+
    why_sarkas/why_sarkas
    installation/installation
    quickstart/Quickstart
-   tutorial/tutorial
-   tutorial/H-He_Mixture
-   tutorial/QSP_Tutorial
 
 .. toctree::
    :maxdepth: 2
-   :caption: Source Code:
+   :caption: Tutorials:
 
-   api/modules
-   
+   tutorial/tutorial
+   tutorial/input_file
+   tutorial/Pre_Simulation_Testing
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples:
+
+   examples/H-He_Mixture
+   examples/QSP_Tutorial
+
 .. toctree::
    :maxdepth: 2
    :caption: Theoretical Background:
@@ -44,6 +49,13 @@ Sarkas, Join us! :)
    theory/potentials
    theory/thermostats
    theory/PPPM
+   theory/force_error
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Source Code:
+
+   api/modules
 
 Indices and tables
 ==================

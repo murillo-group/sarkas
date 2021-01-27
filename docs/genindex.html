@@ -91,19 +91,28 @@
 <li class="toctree-l1"><a class="reference internal" href="why_sarkas/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/H-He_Mixture.html">H He Mixture Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Source Code:</span></p>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/modules.html">sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/input_file.html">Input File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="theory/potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theory/thermostats.html">Thermostats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory/force_error.html">Force Error</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">sarkas</a></li>
 </ul>
 
             
@@ -701,8 +710,6 @@
 </li>
       <li><a href="api/sarkas.processes.html#sarkas.processes.PreProcess.make_line_plot">make_line_plot() (sarkas.processes.PreProcess method)</a>
 </li>
-      <li><a href="api/sarkas.processes.html#sarkas.processes.PreProcess.make_pppm_approximation_plots">make_pppm_approximation_plots() (sarkas.processes.PreProcess method)</a>
-</li>
       <li><a href="api/sarkas.base.html#sarkas.base.Species.mass">mass (sarkas.base.Species attribute)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Species.mass_density">mass_density (sarkas.base.Species attribute)</a>
@@ -894,6 +901,8 @@
 </li>
       <li><a href="api/sarkas.processes.html#sarkas.processes.PostProcess">PostProcess (class in sarkas.processes)</a>
 </li>
+      <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.postprocess_info">postprocess_info() (sarkas.utilities.io.InputOutput method)</a>
+</li>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.postprocessing_dir">postprocessing_dir (sarkas.base.Parameters attribute)</a>
 </li>
       <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential">Potential (class in sarkas.potentials.base)</a>
@@ -907,6 +916,8 @@
       <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.PP_err">PP_err (sarkas.potentials.base.Potential attribute)</a>
 </li>
       <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.pppm_aliases">pppm_aliases (sarkas.potentials.base.Potential attribute)</a>
+</li>
+      <li><a href="api/sarkas.processes.html#sarkas.processes.PreProcess.pppm_approximation">pppm_approximation() (sarkas.processes.PreProcess method)</a>
 </li>
       <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.pppm_cao">pppm_cao (sarkas.potentials.base.Potential attribute)</a>
 </li>
@@ -1452,7 +1463,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Nov, 21, 2020.
+        Last updated on Jan, 27, 2021.
       </span>
 
     </p>

@@ -182,6 +182,42 @@ class PreProcess:
             if lkey == "Control":
                 self.parameters.from_dict(dics[lkey])
 
+        for observable in dics['PostProcessing']:
+            for key, sub_dict in observable.items():
+                if key == 'RadialDistributionFunction':
+                    self.rdf = obs.RadialDistributionFunction()
+                    self.rdf.from_dict(sub_dict)
+                if key == 'HermiteCoefficients':
+                    self.hc = obs.HermiteCoefficients()
+                    self.hc.from_dict(sub_dict)
+                if key == 'Thermodynamics':
+                    self.therm = obs.Thermodynamics()
+                    self.therm.from_dict(sub_dict)
+                if key == 'DynamicStructureFactor':
+                    self.dsf = obs.DynamicStructureFactor()
+                    if sub_dict:
+                        self.dsf.from_dict(sub_dict)
+                if key == 'CurrentCorrelationFunction':
+                    self.ccf = obs.CurrentCorrelationFunction()
+                    if sub_dict:
+                        self.ccf.from_dict(sub_dict)
+                if key == 'StaticStructureFactor':
+                    self.ssf = obs.StaticStructureFactor()
+                    if sub_dict:
+                        self.ssf.from_dict(sub_dict)
+                if key == 'VelocityAutoCorrelationFunction':
+                    self.vacf = obs.VelocityAutoCorrelationFunction()
+                    if sub_dict:
+                        self.vacf.from_dict(sub_dict)
+                if key == 'VelocityMoments':
+                    self.vm = obs.VelocityMoments()
+                    if sub_dict:
+                        self.vm.from_dict(sub_dict)
+                if key == 'ElectricCurrent':
+                    self.ec = obs.ElectricCurrent()
+                    if sub_dict:
+                        self.ec.from_dict(sub_dict)
+
     def setup(self, read_yaml=False, other_inputs=None):
         """Setup simulations' parameters and io subclasses.
 
@@ -202,12 +238,53 @@ class PreProcess:
                 raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
 
             for class_name, class_attr in other_inputs.items():
-                if not class_name == 'Particles':
+                if class_name not in ['Particles', 'PostProcessing']:
                     self.__dict__[class_name.lower()].__dict__.update(class_attr)
 
+                if class_name == 'PostProcessing':
+
+                    for observable in class_attr:
+                        for key, sub_dict in observable.items():
+                            if key == 'RadialDistributionFunction':
+                                self.rdf = obs.RadialDistributionFunction()
+                                self.rdf.from_dict(sub_dict)
+                            if key == 'HermiteCoefficients':
+                                self.hc = obs.HermiteCoefficients()
+                                self.hc.from_dict(sub_dict)
+                            if key == 'Thermodynamics':
+                                self.therm = obs.Thermodynamics()
+                                self.therm.from_dict(sub_dict)
+                            if key == 'DynamicStructureFactor':
+                                self.dsf = obs.DynamicStructureFactor()
+                                if sub_dict:
+                                    self.dsf.from_dict(sub_dict)
+                            if key == 'CurrentCorrelationFunction':
+                                self.ccf = obs.CurrentCorrelationFunction()
+                                if sub_dict:
+                                    self.ccf.from_dict(sub_dict)
+                            if key == 'StaticStructureFactor':
+                                self.ssf = obs.StaticStructureFactor()
+                                if sub_dict:
+                                    self.ssf.from_dict(sub_dict)
+                            if key == 'VelocityAutoCorrelationFunction':
+                                self.vacf = obs.VelocityAutoCorrelationFunction()
+                                if sub_dict:
+                                    self.vacf.from_dict(sub_dict)
+                            if key == 'VelocityMoments':
+                                self.vm = obs.VelocityMoments()
+                                if sub_dict:
+                                    self.vm.from_dict(sub_dict)
+                            if key == 'ElectricCurrent':
+                                self.ec = obs.ElectricCurrent()
+                                if sub_dict:
+                                    self.ec.from_dict(sub_dict)
+
         self.io.preprocessing = True
+        # initialize the directories and filenames
         self.io.setup()
-        self.parameters.job_id = self.io.job_id
+        # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+        # Update parameters' dictionary with filenames and directories
+        self.parameters.from_dict(self.io.__dict__)
         # save some general info
         self.parameters.potential_type = self.potential.type
         self.parameters.cutoff_radius = self.potential.rc
@@ -221,7 +298,7 @@ class PreProcess:
         if not hasattr(self.parameters, 'equilibration_steps'):
             self.parameters.equilibration_steps = self.integrator.equilibration_steps
         if not hasattr(self.parameters, 'eq_dump_step'):
-                self.parameters.eq_dump_step = self.integrator.eq_dump_step
+            self.parameters.eq_dump_step = self.integrator.eq_dump_step
         if not hasattr(self.parameters, 'production_steps'):
             self.parameters.production_steps = self.integrator.production_steps
         if not hasattr(self.parameters, 'prod_dump_step'):
@@ -260,12 +337,18 @@ class PreProcess:
         self.potential.pppm_setup(self.parameters)
         return self.timer.stop()
 
-    def run(self, loops=None, estimate=None):
+    def run(self, loops=None, timing=True, pppm_plots=False, postprocessing=False, estimate=None):
         """
         Estimate the time of the simulation and best parameters if wanted.
 
         Parameters
         ----------
+        postprocessing : bool
+            Flag for calculating Post processing parameters.
+
+        timing : bool
+            Flag for estimating simulation times.
+
         loops : int
             Number of loops over which to average the acceleration calculation.
             Note that the number of timestep over which to averages is three times this value.
@@ -279,27 +362,81 @@ class PreProcess:
         if loops:
             self.loops = loops
 
+        if timing:
+
+            if self.potential.pppm_on:
+                green_time = self.timer.time_division(self.green_function_timer())
+                self.io.preprocess_timing("GF", green_time, 0)
+            else:
+                # TODO: Complete the case of PP-only force calculation
+                total_force_error, rcuts = self.analytical_approx_pp()
+
+            self.time_acceleration()
+            self.time_integrator_loop()
+
+            # Delete the energy files created during the estimation runs
+            os.remove(self.io.eq_energy_filename)
+            os.remove(self.io.prod_energy_filename)
+
+        if pppm_plots:
+            self.pppm_approximation()
+
         if estimate:
             self.estimate = estimate
-
-        if self.potential.pppm_on:
-            self.make_pppm_approximation_plots()
-            green_time = self.timer.time_division(self.green_function_timer())
-
-            self.io.preprocess_timing("GF", green_time, 0)
-        else:
-            total_force_error, rcuts = self.analytical_approx_pp()
-            print('\n\n----------------- Force Calculation Times -----------------------\n')
-
-        self.time_acceleration()
-        self.time_integrator_loop()
-
-        if self.estimate:
             self.estimate_best_parameters()
 
-        # Delete the energy files create during the estimation runs
-        os.remove(self.io.eq_energy_filename)
-        os.remove(self.io.prod_energy_filename)
+        if postprocessing:
+            # POST- PROCESSING
+            if hasattr(self, 'rdf'):
+                self.rdf.setup(self.parameters)
+                self.rdf.no_bins = self.particles.rdf_hist.shape[0]
+                self.rdf.dr_rdf = self.rdf.rc / self.rdf.no_bins
+
+            if hasattr(self, 'ssf'):
+                self.ssf.setup(self.parameters)
+                self.ssf.slice_steps = int(
+                    (self.integrator.production_steps + 1) / (self.ssf.dump_step * self.ssf.no_slices))
+                self.ssf.no_dumps = int(self.ssf.slice_steps / self.integrator.prod_dump_step)
+
+                self.ssf.k_list, self.ssf.k_counts, self.ssf.k_unique = obs.kspace_setup(self.ssf.no_ka_harmonics,
+                                                                                         self.ssf.box_lengths)
+                self.ssf.ka_values = 2.0 * np.pi * self.ssf.k_unique * self.ssf.a_ws
+
+            if hasattr(self, 'dsf'):
+                self.dsf.setup(self.parameters)
+                self.dsf.slice_steps = int(
+                    (self.integrator.production_steps + 1) / (self.dsf.dump_step * self.dsf.no_slices))
+                self.dsf.no_dumps = int(self.dsf.slice_steps / self.dsf.dump_step)
+                dt_r = self.dsf.dt * self.dsf.dump_step
+
+                self.dsf.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.dsf.slice_steps,
+                                                                    self.dsf.dt * self.dsf.dump_step)
+
+                self.dsf.w_min = 2.0 * np.pi / (self.dsf.no_dumps * dt_r)
+                self.dsf.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
+
+                self.dsf.k_list, self.dsf.k_counts, self.dsf.k_unique = obs.kspace_setup(self.dsf.no_ka_harmonics,
+                                                                                         self.dsf.box_lengths)
+                self.dsf.ka_values = 2.0 * np.pi * self.dsf.k_unique * self.dsf.a_ws
+
+            if hasattr(self, 'ccf'):
+                self.ccf.setup(self.parameters)
+                self.ccf.slice_steps = int(
+                    (self.integrator.production_steps + 1) / (self.ccf.dump_step * self.ccf.no_slices))
+                self.ccf.no_dumps = int(self.ccf.slice_steps / self.ccf.dump_step)
+                dt_r = self.ccf.dt * self.ccf.dump_step
+
+                self.ccf.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.ccf.slice_steps,
+                                                                    self.ccf.dt * self.ccf.dump_step)
+
+                self.ccf.w_min = 2.0 * np.pi / (self.ccf.no_dumps * dt_r)
+                self.ccf.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
+
+                self.ccf.k_list, self.ccf.k_counts, self.ccf.k_unique = obs.kspace_setup(self.ccf.no_ka_harmonics,
+                                                                                         self.ccf.box_lengths)
+                self.ccf.ka_values = 2.0 * np.pi * self.ccf.k_unique * self.ccf.a_ws
+
+            self.io.postprocess_info(self)
 
     def estimate_best_parameters(self):
         """Estimate the best number of mesh points and cutoff radius."""
@@ -457,29 +594,25 @@ class PreProcess:
         """Run several loops of the equilibration and production phase to estimate the total time of the simulation."""
         # Save the original number of timesteps
         steps = np.array([self.integrator.equilibration_steps, self.integrator.production_steps])
-        #dump_steps = np.array([self.integrator.eq_dump_step, self.integrator.prod_dump_step])
+        # dump_steps = np.array([self.integrator.eq_dump_step, self.integrator.prod_dump_step])
 
         # Update the equilibration and production timesteps for estimation
         self.integrator.production_steps = self.loops
         self.integrator.equilibration_steps = self.loops
 
         if self.io.verbose:
-            print('\n----------------- Estimating Simulation Times -------------------\n')
+            print('\nRunning {} equilibration and production steps to estimate simulation times\n'.format(self.loops))
 
         # Run few equilibration steps to estimate the equilibration time
         self.timer.start()
         self.integrator.equilibrate(0, self.particles, self.io)
         eq_time = self.timer.stop() / self.loops
-
+        # Print the average equilibration & production times
+        self.io.preprocess_timing("Equilibration", self.timer.time_division(eq_time), self.loops)
         # Run few production steps to estimate the equilibration time
         self.timer.start()
         self.integrator.produce(0, self.particles, self.io)
         prod_time = self.timer.stop() / self.loops
-        if self.io.verbose:
-            print('\n')
-
-        # Print the average equilibration & production times
-        self.io.preprocess_timing("Equilibration", self.timer.time_division(eq_time), self.loops)
         self.io.preprocess_timing("Production", self.timer.time_division(prod_time), self.loops)
 
         # Restore the original number of timesteps and print an estimate of run times
@@ -494,11 +627,15 @@ class PreProcess:
         tot_time = eq_prediction + prod_prediction
         self.io.time_stamp('Total Run', self.timer.time_division(tot_time))
 
-    def make_pppm_approximation_plots(self):
-        chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.a_ws
-        chosen_rcut = self.potential.rc / self.parameters.a_ws
+    def pppm_approximation(self):
+        """Calculate the Force error for a PPPM simulation using analytical approximations.
+        Plot the force error in the parameter space."""
+
         # Calculate Force error from analytic approximation given in Dharuman et al. J Chem Phys 2017
         total_force_error, pp_force_error, pm_force_error, rcuts, alphas = self.analytical_approx_pppm()
+
+        chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.a_ws
+        chosen_rcut = self.potential.rc / self.parameters.a_ws
 
         # Color Map
         self.make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error)
@@ -512,9 +649,10 @@ class PreProcess:
 
         Parameters
         ----------
-        rcuts: array
+        rcuts: numpy.ndarray
             Cut off distances.
-        alphas: array
+
+        alphas: numpy.ndarray
             Ewald parameters.
 
         chosen_alpha: float
@@ -523,11 +661,8 @@ class PreProcess:
         chosen_rcut: float
             Chosen cut off radius.
 
-        total_force_error: ndarray
+        total_force_error: numpy.ndarray
             Force error matrix.
-
-        parameters: class
-            Simulation's parameters.
 
         """
         # Plot the results
@@ -574,10 +709,10 @@ class PreProcess:
 
         Parameters
         ----------
-        rcuts: array
+        rcuts: numpy.ndarray
             Cut off distances.
 
-        alphas: array
+        alphas: numpy.ndarray
             Ewald parameters.
 
         chosen_alpha: float
@@ -586,7 +721,7 @@ class PreProcess:
         chosen_rcut: float
             Chosen cut off radius.
 
-        total_force_error: ndarray
+        total_force_error: numpy.ndarray
             Force error matrix.
         """
         # Plot the results
@@ -868,6 +1003,7 @@ class Simulation:
         self.io.save_pickle(self)
         self.io.simulation_summary(self)
         time_end = self.timer.current()
+
         self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
         self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
         self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
@@ -928,7 +1064,7 @@ class Simulation:
         if not hasattr(self.parameters, 'equilibration_steps'):
             self.parameters.equilibration_steps = self.integrator.equilibration_steps
         if not hasattr(self.parameters, 'eq_dump_step'):
-                self.parameters.eq_dump_step = self.integrator.eq_dump_step
+            self.parameters.eq_dump_step = self.integrator.eq_dump_step
         if not hasattr(self.parameters, 'production_steps'):
             self.parameters.production_steps = self.integrator.production_steps
         if not hasattr(self.parameters, 'prod_dump_step'):

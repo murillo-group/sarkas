@@ -1,5 +1,5 @@
 """
-Module for handling EGS Potential as described in Ref. [Stanton2015]_
+Module for handling EGS Potential as described in Ref. [Stanton2015]
 """
 import numpy as np
 from numba import njit
@@ -12,7 +12,7 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potential.Potential
+    potential : sarkas.potentials.base.Potential
         Class handling potential form.
 
     params: sarkas.base.Parameters

@@ -100,19 +100,28 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/H-He_Mixture.html">H He Mixture Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Source Code:</span></p>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/input_file.html">Input File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">sarkas</a></li>
 </ul>
 
             
@@ -457,7 +466,7 @@ div.rendered_html tbody tr:hover {
 <span class="n">example_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span>
                                  <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span><span class="s1">&#39;examples&#39;</span><span class="p">))</span>
 
-<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_directory</span><span class="p">,</span> <span class="s1">&#39;yukawa_cgs.yaml&#39;</span><span class="p">)</span>
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_directory</span><span class="p">,</span> <span class="s1">&#39;yocp_cgs_pp.yaml&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -470,7 +479,7 @@ Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-<p>You can find this notebook in the directory <code class="docutils literal notranslate"><span class="pre">sarkas/notebooks</span></code> that was download with the repository. This example notebook will run a short simulation using the <code class="docutils literal notranslate"><span class="pre">yukawa_cgs.yaml</span></code> input file found in the examples directory in <code class="docutils literal notranslate"><span class="pre">sarkas</span></code>.</p>
+<p>You can find this notebook in the directory <code class="docutils literal notranslate"><span class="pre">sarkas/notebooks</span></code> that was download with the repository. This example notebook will run a short simulation using the <code class="docutils literal notranslate"><span class="pre">yocp_cgs_pp.yaml</span></code> input file found in the examples directory in <code class="docutils literal notranslate"><span class="pre">sarkas</span></code>.</p>
 <p>The above commands imported the required libraries and define the file path to our input file.</p>
 <p>Let’s now run the simulation</p>
 <div class="nbinput docutils container">
@@ -492,47 +501,26 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span style="color: rgb(24,69,49)">
+<span style="color: rgb(83,80,84)">
 
 
 
 
 
-
-
-
- ____                     __
-/\  _`\                  /\ \
-\ \,\L\_\     __     _ __\ \ \/&#39;\      __      ____
- \/_\__ \   /&#39;__`\  /\`&#39;__\ \ , &lt;    /&#39;__`\   /&#39;,__\
-   /\ \L\ \/\ \L\.\_\ \ \/ \ \ \\`\ /\ \L\.\_/\__, `\
-   \ `\____\ \__/.\_\\ \_\  \ \_\ \_\ \__/.\_\/\____/
-    \/_____/\/__/\/_/ \/_/   \/_/\/_/\/__/\/_/\/___/
-
-
+  _________             __
+ /   _____/____ _______|  | _______    ______
+ \_____  \\__  \\_  __ \  |/ /\__  \  /  ___/
+ /        \/ __ \|  | \/    &lt;  / __ \_\___ \
+/_______  (____  /__|  |__|_ \(____  /____  &gt;
+        \/     \/           \/     \/     \/
 
 </span>
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-  0%|          | 0/5000 [00:00&lt;?, ?it/s]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
 An open-source pure-python molecular dynamics code for non-ideal plasmas.
+
 WARNING: Equilibration temperatures not defined. I will use the species&#39;s temperatures.
 
 
------------------ Simulation -----------------------
+======================= Simulation ==========================
 
 Job ID:  yocp_cgs_pp
 Job directory:  Simulations/yocp_cgs_pp
@@ -568,7 +556,7 @@ Thermostating Temperatures:  [5453.88]
 
 Potential:  Yukawa
 kappa = 2.7229e+00
-lambda_TF = 4.7033e-09
+lambda_TF = 4.7033e-09 [cm]
 Gamma_eff = 93.47
 
 Algorithm:  PP
@@ -581,19 +569,22 @@ Tot Force Error = 5.824357e-06
 Integrator:  Verlet
 
 Time scales:
-Time step = 5.000000e-17 [s]
-(total) plasma frequency = 2.531585e+14 [Hz]
-wp dt = 0.0127
-No. of equilibration steps = 5000 ~ 63 wp T_eq
-snapshot interval = 100 = 1.266 wp T_snap
-No. of post-equilibration steps = 10000 ~ 126 wp T_prod
-snapshot interval = 10 = 0.127 wp T_snap
+Time step = 1.000000e-16 [s]
+Total plasma frequency = 2.531585e+14 [Hz]
+w_p dt = 0.0253
+No. of equilibration steps = 5000 ~ 126 w_p T_eq
+snapshot interval = 10 = 0.253 w_p T_snap
+No. of post-equilibration steps = 30000 ~ 759 w_p T_prod
+snapshot interval = 10 = 0.253 w_p T_snap
 
-Potential Initialization Time: 0 sec 14 msec 778 usec 970 nsec
 
-Particles Initialization Time: 0 sec 0 msec 549 usec 883 nsec
+----------------- Initialization Times -----------------------
 
-Total Simulation Initialization Time: 0 sec 14 msec 778 usec 970 nsec
+Potential Initialization Time: 0 sec 14 msec 775 usec 414 nsec
+
+Particles Initialization Time: 0 sec 0 msec 456 usec 243 nsec
+
+Total Simulation Initialization Time: 0 sec 14 msec 775 usec 414 nsec
 
 ------------- Equilibration -------------
 </pre></div></div>
@@ -601,11 +592,8 @@ Total Simulation Initialization Time: 0 sec 14 msec 778 usec 970 nsec
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-100%|██████████| 5000/5000 [00:27&lt;00:00, 181.20it/s]
-  0%|          | 16/10000 [00:00&lt;01:02, 158.80it/s]
-</pre></div></div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "71e4d84199694cb1b9ef4f0501555c03", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -613,7 +601,8 @@ Total Simulation Initialization Time: 0 sec 14 msec 778 usec 970 nsec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Equilibration Time: 0 hrs 0 min 27 sec
+
+Equilibration Time: 0 hrs 0 min 28 sec
 
 ------------- Production -------------
 </pre></div></div>
@@ -621,28 +610,19 @@ Equilibration Time: 0 hrs 0 min 27 sec
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-100%|██████████| 10000/10000 [01:01&lt;00:00, 163.37it/s]
-</pre></div></div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "afa084826c2446479f75021a0822d304", "version_major": 2, "version_minor": 0}</script></div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Production Time: 0 hrs 1 min 1 sec
 
-Total Time: 0 hrs 1 min 28 sec
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
+Production Time: 0 hrs 3 min 0 sec
 
+Total Time: 0 hrs 3 min 28 sec
 </pre></div></div>
 </div>
 </div>
@@ -702,22 +682,32 @@ Total Time: 0 hrs 1 min 28 sec
 <h3>Observables<a class="headerlink" href="#Observables" title="Permalink to this headline">¶</a></h3>
 <p>Let’s calculate some physical quantities. The most common observable is the radial distribution function. This is calculated by calling the <code class="docutils literal notranslate"><span class="pre">RadialDistributionFunction</span></code> class within the postprocess. The radial distribution function is partially calculated during the production phase, hence, after initializing the class we will call the <code class="docutils literal notranslate"><span class="pre">save</span></code> function to complete the calculation. Finally we plot it and you should obtain a similar plot</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Initialize the Pair Distribution Function class</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
 <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">normalization</span><span class="o">=</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_{\rm ws}$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:xlabel=&#39;$r/a_{\\rm ws}$&#39;&gt;
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/quickstart_Quickstart_11_0.png" src="../_images/quickstart_Quickstart_11_0.png" />
+<img alt="../_images/quickstart_Quickstart_11_1.png" src="../_images/quickstart_Quickstart_11_1.png" />
 </div>
 </div>
 <p>Things to check in here are:</p>
@@ -754,7 +744,7 @@ Total Time: 0 hrs 1 min 28 sec
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Jan, 08, 2021.
+        Last updated on Jan, 27, 2021.
       </span>
 
     </p>
