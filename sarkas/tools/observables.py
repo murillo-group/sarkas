@@ -757,9 +757,6 @@ class HermiteCoefficients(Observable):
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of ``sarkas.base.Species``.
-
         """
 
         self.phase = phase if phase else 'equilibration'
@@ -947,9 +944,6 @@ class RadialDistributionFunction(Observable):
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of ``sarkas.base.Species``.
-
         """
         self.phase = phase if phase else 'production'
 
@@ -1054,9 +1048,6 @@ class StaticStructureFactor(Observable):
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of ``sarkas.base.Species``.
-
         """
 
         self.phase = phase if phase else 'production'
@@ -1156,9 +1147,6 @@ class Thermodynamics(Observable):
 
         params : sarkas.base.Parameters
             Simulation's parameters.
-
-        species : list
-            List of ``sarkas.base.Species``.
 
         """
         if not hasattr(self, 'phase'):
@@ -1388,7 +1376,6 @@ class Thermodynamics(Observable):
         if show:
             fig.show()
 
-        return
 
     def temp_energy_plot(self, simulation, phase=None, show=False):
         """
@@ -1409,7 +1396,7 @@ class Thermodynamics(Observable):
 
         if phase:
             self.phase = phase
-            if self.phase == 'equilibration':
+            if self.phase.lower() == 'equilibration':
                 self.no_dumps = self.eq_no_dumps
                 self.dump_dir = self.eq_dump_dir
                 self.dump_step = self.eq_dump_step
@@ -1428,6 +1415,8 @@ class Thermodynamics(Observable):
                 avg_array = np.array([i for i in range(1, self.no_dumps + 1)])
         else:
             self.parse()
+
+        completed_steps = self.dump_step * (self.no_dumps - 1)
 
         fig = plt.figure(figsize=(16, 9))
         gs = GridSpec(4, 8)
@@ -1541,12 +1530,12 @@ class Thermodynamics(Observable):
                        "Timestep = {:1.4f} {}".format(xmul * simulation.integrator.dt, xlbl), fontsize=fsz)
         Info_plot.text(0., y_coord - 3., "{} step interval = {}".format(self.phase, self.dump_step), fontsize=fsz)
         Info_plot.text(0., y_coord - 3.5,
-                       "{} completed steps = {}".format(self.phase, self.dump_step * (self.no_dumps - 1)),
+                       "{} completed steps = {}".format(self.phase, completed_steps ),
                        fontsize=fsz)
         Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(self.phase.capitalize(), self.no_steps),
                        fontsize=fsz)
         Info_plot.text(0., y_coord - 4.5, "{:1.2f} % {} Completed".format(
-            100 * self.dump_step * (self.no_dumps - 1) / self.no_steps, self.phase.capitalize()), fontsize=fsz)
+            100 * completed_steps / self.no_steps, self.phase.capitalize()), fontsize=fsz)
 
         Info_plot.axis('off')
         fig.tight_layout()

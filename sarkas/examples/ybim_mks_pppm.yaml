@@ -1,0 +1,85 @@
+# keywords: Carbon-Oxygen Mixture, Yukawa, P3M, mks, random_no_reject
+Particles:
+    - Species:
+        name: C
+        number_density: 1.0e+30       # /m^3
+        # mass: 1.9926467e-26            # /kg
+        num: 500                    # total number of particles of ion1
+        Z: 6.0                        # degree of ionization
+        atomic_weight: 12.011                      # atomic mass
+        temperature: 1.02e+5
+
+    - Species:
+        name: O
+        number_density: 1.0e+30       # /m^3
+        # mass: 2.6561982e-26         # /kg
+        num: 500
+        Z: 8.0                      # degree of ionization
+        atomic_weight: 16                   # atomic mass
+        temperature: 1.02e+5
+
+Potential:
+    type: Yukawa                 # potential type
+    method: PP                    # Linked-cell
+    rc: 2.954235e-10          # cut-off radius, meter
+    electron_temperature_eV: 1000.0
+    pppm_mesh: [32,32,32]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 6
+    pppm_alpha_ewald: 1.157660e+10
+
+Integrator:
+    type: Verlet                  # velocity integrator type
+    equilibration_steps: 5000
+    production_steps: 30000
+    eq_dump_step: 5
+    prod_dump_step: 5
+
+Thermostat:
+    type: Berendsen               # thermostat type
+    tau: 10.0
+    relaxation_timestep: 0
+
+Parameters:
+    units: mks                    # units
+    dt: 1.074182e-17            # sec
+    load_method: random_no_reject
+    boundary_conditions: periodic
+    rdf_nbins: 250
+
+IO:
+    verbose: yes
+    simulations_dir: Simulations
+    job_dir: CO_mks_pppm                         # dir name to save data.
+    job_id: CO_mks_pppm
+
+PostProcessing:
+  - RadialDistributionFunction:
+      no_bins: 250
+
+  - Thermodynamics:
+      phase: production
+
+  - HermiteCoefficients:
+      no_bins: 50
+      hermite_order: 8
+
+  - DynamicStructureFactor:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - CurrentCorrelationFunction:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - VelocityMoments:
+      no_bins: 50
+
+  - VelocityAutoCorrelationFunction:
+      phase: production
+
+  - ElectricCurrent:
