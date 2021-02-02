@@ -49,20 +49,21 @@ class InputOutput:
     def __init__(self):
         """Set default directory names."""
         self.input_file = None
-        self.simulations_dir = "Simulations"
-        self.production_dir = 'Production'
         self.equilibration_dir = 'Equilibration'
+        self.production_dir = 'Production'
+        self.magnetization_dir = "Magnetization"
+        self.simulations_dir = "Simulations"
         self.preprocessing_dir = "PreProcessing"
         self.postprocessing_dir = "PostProcessing"
         self.prod_dump_dir = 'dumps'
         self.eq_dump_dir = 'dumps'
+        self.mag_dump_dir = 'dumps'
         self.job_dir = None
         self.job_id = None
         self.log_file = None
         self.preprocess_file = None
         self.preprocessing = False
         self.verbose = False
-        self.check_status = False
         self.xyz_dir = None
         self.xyz_filename = None
 
@@ -111,14 +112,15 @@ class InputOutput:
             dics = yaml.load(stream, Loader=yaml.FullLoader)
             self.__dict__.update(dics["IO"])
 
-        if 'Control' in dics.keys():
-            keyed = 'Control'
-        elif 'Parameters' in dics.keys():
+        if 'Parameters' in dics.keys():
             keyed = 'Parameters'
             for key, value in dics[keyed].items():
 
                 if key == 'verbose':
                     self.verbose = value
+
+                if key == 'magnetized':
+                    self.magnetized = value
 
                 if key == 'load_method':
                     self.load_method = value
@@ -130,6 +132,13 @@ class InputOutput:
                 if key == 'preprocessing':
                     self.preprocessing = value
 
+        if 'Integrator' in dics.keys():
+            keyed = 'Integrator'
+            for key, value in dics[keyed].items():
+
+                if key == 'electrostatic_equilibration':
+                    self.electrostatic_equilibration = value
+
         if 'PostProcessing' in dics.keys():
             for i in dics['PostProcessing']:
                 if 'RadialDistributionFunction' in i.keys():
@@ -138,6 +147,7 @@ class InputOutput:
         return dics
 
     def create_file_paths(self):
+        """Create all the file and directory paths."""
 
         if self.job_dir is None:
             self.job_dir = os.path.basename(self.input_file).split('.')[0]
@@ -153,6 +163,10 @@ class InputOutput:
         # Production dir and sub_dir
         self.production_dir = os.path.join(self.job_dir, self.production_dir)
         self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
+        # Magnetic dir
+        if self.magnetized:
+            self.magnetization_dir = os.path.join(self.job_dir, self.magnetization_dir)
+            self.mag_dump_dir = os.path.join(self.magnetization_dir, "dumps")
 
         # Preprocessing dir
         self.preprocessing_dir = os.path.join(self.job_dir, self.preprocessing_dir)
@@ -172,6 +186,9 @@ class InputOutput:
         # Equilibration phase filenames
         self.eq_energy_filename = os.path.join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + '.csv')
         self.eq_ptcls_filename = os.path.join(self.eq_dump_dir, "checkpoint_")
+        # Magnetization phase filenames
+        self.mag_energy_filename = os.path.join(self.magnetization_dir, "MagnetizationEnergy_" + self.job_id + '.csv')
+        self.mag_ptcls_filename = os.path.join(self.mag_dump_dir, "checkpoint_")
 
         if self.preprocessing:
             self.io_file = self.preprocess_file
@@ -179,6 +196,7 @@ class InputOutput:
             self.io_file = self.log_file
 
     def make_directories(self):
+        """Create directories if non-existent."""
 
         # Check if the directories exist
         if not os.path.exists(self.simulations_dir):
@@ -199,6 +217,13 @@ class InputOutput:
         if not os.path.exists(self.prod_dump_dir):
             os.mkdir(self.prod_dump_dir)
 
+        if self.electrostatic_equilibration:
+            if not os.path.exists(self.magnetization_dir):
+                os.mkdir(self.magnetization_dir)
+
+            if not os.path.exists(self.mag_dump_dir):
+                os.mkdir(self.mag_dump_dir)
+
         if self.preprocessing:
             if not os.path.exists(self.preprocessing_dir):
                 os.mkdir(self.preprocessing_dir)
@@ -207,9 +232,9 @@ class InputOutput:
             os.mkdir(self.postprocessing_dir)
 
     def file_header(self):
+        """Create the log file and print the figlet if not a restart run."""
 
-        # Print figlet to file if not a restart run
-        if not self.restart or not self.check_status:
+        if not self.restart:
             with open(self.io_file, "w+") as f_log:
                 figlet_obj = Figlet(font='starwars')
                 print(figlet_obj.renderText('Sarkas'), file=f_log)
@@ -241,11 +266,14 @@ class InputOutput:
         # Print to file first then to screen if repeat == 2
         while repeat > 0:
 
-            if simulation.parameters.load_method == 'prod_restart':
-                print('\n\n--------------------------- Restart -------------------------------------')
+            if simulation.parameters.load_method in ['production_restart', 'prod_restart']:
+                print('\n\n--------------------------- Production Restart -------------------------------------')
                 self.time_info(simulation)
-            elif simulation.parameters.load_method == 'eq_restart':
-                print('\n\n------------------------ Therm Restart ----------------------------------')
+            elif simulation.parameters.load_method in ['equilibration_restart', 'eq_restart']:
+                print('\n\n------------------------ Equilibration Restart ----------------------------------')
+                self.time_info(simulation)
+            elif simulation.parameters.load_method in ['magnetization_restart', 'mag_restart']:
+                print('\n\n------------------------ Magnetization Restart ----------------------------------')
                 self.time_info(simulation)
             else:
 
@@ -272,18 +300,24 @@ class InputOutput:
                 print('\nPotential: ', simulation.potential.type)
                 self.potential_info(simulation)
 
-                if simulation.parameters.magnetized:
-                    print('\nMagnetized Plasma:')
-                    for ic in range(simulation.parameters.num_species):
-                        print('Cyclotron frequency of Species {:2} = {:2.6e}'.format(ic + 1,
-                                                                                     simulation.species[ic].omega_c))
-                        print('beta_c of Species {:2} = {:2.6e}'.format(ic + 1,
-                                                                        simulation.species[ic].omega_c
-                                                                        / simulation.species[ic].wp))
                 print("\nAlgorithm: ", simulation.potential.method)
                 self.algorithm_info(simulation)
 
                 print("\nIntegrator: ", simulation.integrator.type)
+                if simulation.parameters.magnetized:
+                    print('\nMagnetized Plasma:')
+                    print('Magnetic Field = [{:.4e}, {:.4e}, {:.4e}]'.format(*simulation.parameters.magnetic_field))
+                    print('Magnetic Field Magnitude = {:.4e} [Gauss]'.format(
+                        np.linalg.norm(simulation.parameters.magnetic_field)))
+                    print('Magnetic Field Unit Vector = [{:.4e}, {:.4e}, {:.4e}]'.format(
+                        *simulation.integrator.magnetic_field_uvector))
+
+                    for ic in range(simulation.parameters.num_species):
+
+                        print('Cyclotron frequency of Species {} = {:.4e} [Hz]'.format(simulation.species[ic].name,
+                                                                                     simulation.species[ic].omega_c))
+                        print('beta_c of Species {} = {:.4e}'.format(simulation.species[ic].name,
+                                                                        simulation.species[ic].beta_c))
 
                 print("\nTime scales:")
                 self.time_info(simulation)
@@ -374,11 +408,11 @@ class InputOutput:
         # redirect printing to file
         sys.stdout = f_log
         while repeat > 0:
-            if str_id == "GF":
+            if str_id == 'header':
                 print('\n\n====================== Times Estimates ===========================\n')
+            elif str_id == "GF":
                 print("Optimal Green's Function Time: \n"
-                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
-                                                                        int(t_min),
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(int(t_min),
                                                                         int(t_sec),
                                                                         int(t_msec),
                                                                         int(t_usec),
@@ -410,7 +444,14 @@ class InputOutput:
                                                                         int(t_msec),
                                                                         int(t_usec),
                                                                         int(t_nsec)))
-
+            elif str_id == "Magnetization":
+                print('Time of a single magnetization step averaged over {} steps: \n'
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                                                                        int(t_min),
+                                                                        int(t_sec),
+                                                                        int(t_msec),
+                                                                        int(t_usec),
+                                                                        int(t_nsec)))
             elif str_id == "Production":
                 print('Time of a single production step averaged over {} steps: \n'
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
@@ -542,52 +583,98 @@ class InputOutput:
             Simulation's parameters.
 
         """
+        wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
         print('Time step = {:2.6e} [s]'.format(simulation.integrator.dt))
         if simulation.potential.type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
             print('Total plasma frequency = {:1.6e} [Hz]'.format(simulation.parameters.total_plasma_frequency))
-            print('w_p dt = {:2.4f}'.format(simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
+            print('w_p dt = {:2.4f}'.format(wp_dt))
+            if simulation.parameters.magnetized:
+                if simulation.parameters.num_species > 1:
+                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+                    print('Highest w_c dt = {:2.4f}'.format(high_wc_dt))
+                    print('Smalles w_c dt = {:2.4f}'.format(low_wc_dt))
+                else:
+                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+                    print('w_c dt = {:2.4f}'.format(high_wc_dt))
         elif simulation.potential.type == 'QSP':
             print('e plasma frequency = {:2.6e} [Hz]'.format(simulation.species[0].wp))
             print('ion plasma frequency = {:2.6e} [Hz]'.format(simulation.species[1].wp))
             print('w_pe dt = {:2.4f}'.format(simulation.integrator.dt * simulation.species[0].wp))
+            if simulation.parameters.magnetized:
+                if simulation.parameters.num_species > 1:
+                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+                    print('Electron w_ce dt = {:2.4f}'.format(high_wc_dt))
+                    print('Ions w_ci dt = {:2.4f}'.format(low_wc_dt))
+                else:
+                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+                    print('w_c dt = {:2.4f}'.format(high_wc_dt))
         elif simulation.potential.type == 'LJ':
-            print('(total) equivalent plasma frequency = {:1.6e} [Hz]'.format(
+            print('Total equivalent plasma frequency = {:1.6e} [Hz]'.format(
                 simulation.parameters.total_plasma_frequency))
-            print('w_p dt = {:2.4f}'.format(simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
+            print('w_p dt = {:2.4f}'.format(wp_dt))
+            if simulation.parameters.magnetized:
+                if simulation.parameters.num_species > 1:
+                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+                    print('Highest w_c dt = {:2.4f}'.format(high_wc_dt))
+                    print('Smalles w_c dt = {:2.4f}'.format(low_wc_dt))
+                else:
+                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+                    print('w_c dt = {:2.4f}'.format(high_wc_dt))
 
-        if simulation.parameters == 'prod_restart':
+        # Print Time steps information
+        # Check for restart simulations
+        if simulation.parameters.load_method in ['production_restart', 'prod_restart']:
             print("Restart step: {}".format(simulation.parameters.restart_step))
             print('Total post-equilibration steps = {} ~ {} w_p T_prod'.format(
                 simulation.integrator.production_steps,
-                int(
-                    simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
+                int(simulation.integrator.production_steps * wp_dt)))
             print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
                 simulation.integrator.prod_dump_step,
-                simulation.integrator.prod_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
-        elif simulation.parameters == 'eq_restart':
-            print("Restart step: {}".format(simulation.parameters.load_therm_restart_step))
-            print('Total equilibration steps = {} ~ {} w_p T_prod'.format(
+                simulation.integrator.prod_dump_step * wp_dt))
+
+        elif simulation.parameters.load_method in ['equilibration_restart', 'eq_restart']:
+            print("Restart step: {}".format(simulation.parameters.restart_step))
+            print('Total equilibration steps = {} ~ {} w_p T_eq'.format(
                 simulation.integrator.equilibration_steps,
-                int(
-                    simulation.integrator.eq_dump_step * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
+                int(simulation.integrator.eq_dump_step * wp_dt)))
             print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
                 simulation.integrator.eq_dump_step,
-                simulation.integrator.eq_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
+                simulation.integrator.eq_dump_step * wp_dt))
+
+        elif simulation.parameters.load_method in ['magnetization_restart', 'mag_restart']:
+            print("Restart step: {}".format(simulation.parameters.restart_step))
+            print('Total magnetization steps = {} ~ {} w_p T_mag'.format(
+                simulation.integrator.magnetization_steps,
+                int(simulation.integrator.mag_dump_step * wp_dt)))
+            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
+                simulation.integrator.mag_dump_step,
+                simulation.integrator.mag_dump_step * wp_dt))
         else:
-            print('No. of equilibration steps = {} ~ {} w_p T_eq'.format(
+            # Equilibration
+            print('Equilibration: \nNo. of equilibration steps = {} ~ {} w_p T_eq'.format(
                 simulation.integrator.equilibration_steps,
-                int(
-                    simulation.integrator.equilibration_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
+                int(simulation.integrator.equilibration_steps * wp_dt)))
             print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
                 simulation.integrator.eq_dump_step,
-                simulation.integrator.eq_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
-            print('No. of post-equilibration steps = {} ~ {} w_p T_prod'.format(
+                simulation.integrator.eq_dump_step * wp_dt))
+            # Magnetization
+            if simulation.integrator.electrostatic_equilibration:
+                print('Magnetization: \nNo. of magnetization steps = {} ~ {} w_p T_mag'.format(
+                    simulation.integrator.magnetization_steps,
+                    int(simulation.integrator.magnetization_steps * wp_dt)))
+                print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
+                    simulation.integrator.mag_dump_step,
+                    simulation.integrator.mag_dump_step * wp_dt))
+            # Production
+            print('Production: \nNo. of production steps = {} ~ {} w_p T_prod'.format(
                 simulation.integrator.production_steps,
-                int(
-                    simulation.integrator.production_steps * simulation.parameters.total_plasma_frequency * simulation.integrator.dt)))
+                int(simulation.integrator.production_steps * wp_dt)))
             print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
                 simulation.integrator.prod_dump_step,
-                simulation.integrator.prod_dump_step * simulation.integrator.dt * simulation.parameters.total_plasma_frequency))
+                simulation.integrator.prod_dump_step * wp_dt))
 
     @staticmethod
     def algorithm_info(simulation):
@@ -824,6 +911,7 @@ class InputOutput:
         self.species_names = np.copy(params.species_names)
         self.coupling = params.coupling_constant * params.T_desired
 
+        # Check whether energy files exist already
         if not os.path.exists(self.prod_energy_filename):
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
@@ -831,7 +919,6 @@ class InputOutput:
                 for i, sp in enumerate(species):
                     dkeys.append("{} Kinetic Energy".format(sp.name))
                     dkeys.append("{} Temperature".format(sp.name))
-            dkeys.append("Gamma")
             data = dict.fromkeys(dkeys)
 
             with open(self.prod_energy_filename, 'w+') as f:
@@ -845,12 +932,25 @@ class InputOutput:
                 for i, sp_name in enumerate(params.species_names):
                     dkeys.append("{} Kinetic Energy".format(sp_name))
                     dkeys.append("{} Temperature".format(sp_name))
-            dkeys.append("Gamma")
             data = dict.fromkeys(dkeys)
 
             with open(self.eq_energy_filename, 'w+') as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
+
+        if self.electrostatic_equilibration:
+            if not os.path.exists(self.mag_energy_filename) and not params.load_method[-7:] == 'restart':
+                # Create the Energy file
+                dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
+                if len(species) > 1:
+                    for i, sp_name in enumerate(params.species_names):
+                        dkeys.append("{} Kinetic Energy".format(sp_name))
+                        dkeys.append("{} Temperature".format(sp_name))
+                data = dict.fromkeys(dkeys)
+
+                with open(self.mag_energy_filename, 'w+') as f:
+                    w = csv.writer(f)
+                    w.writerow(data.keys())
 
     def save_pickle(self, simulation):
         """
@@ -902,14 +1002,14 @@ class InputOutput:
         data = np.load(filename, allow_pickle=True)
         return py_copy.copy(data)
 
-    def dump(self, production, ptcls, it):
+    def dump(self, phase, ptcls, it):
         """
         Save particles' data to binary file for future restart.
 
         Parameters
         ----------
-        production: bool
-            Flag indicating whether to phase production or equilibration data.
+        phase: str
+            Simulation phase.
 
         ptcls: sarkas.base.Particles
             Particles data.
@@ -917,7 +1017,7 @@ class InputOutput:
         it : int
             Timestep number.
         """
-        if production:
+        if phase == 'production':
             ptcls_file = self.prod_ptcls_filename + str(it)
             tme = it * self.dt
             np.savez(ptcls_file,
@@ -932,7 +1032,7 @@ class InputOutput:
 
             energy_file = self.prod_energy_filename
 
-        else:
+        elif phase == 'equilibration':
             ptcls_file = self.eq_ptcls_filename + str(it)
             tme = it * self.dt
             np.savez(ptcls_file,
@@ -945,6 +1045,19 @@ class InputOutput:
 
             energy_file = self.eq_energy_filename
 
+        elif phase == 'magnetization':
+            ptcls_file = self.mag_ptcls_filename + str(it)
+            tme = it * self.dt
+            np.savez(ptcls_file,
+                     id=ptcls.id,
+                     names=ptcls.names,
+                     pos=ptcls.pos,
+                     vel=ptcls.vel,
+                     acc=ptcls.acc,
+                     time=tme)
+
+            energy_file = self.mag_energy_filename
+
         kinetic_energies, temperatures = ptcls.kinetic_temperature()
         # Prepare data for saving
         data = {"Time": it * self.dt,
@@ -953,9 +1066,10 @@ class InputOutput:
                 "Potential Energy": ptcls.potential_energy,
                 "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls
                 }
-        for sp, kin in enumerate(kinetic_energies):
-            data["{} Kinetic Energy".format(self.species_names[sp])] = kin
-            data["{} Temperature".format(self.species_names[sp])] = temperatures[sp]
+        if len(temperatures) > 1:
+            for sp, kin in enumerate(kinetic_energies):
+                data["{} Kinetic Energy".format(self.species_names[sp])] = kin
+                data["{} Temperature".format(self.species_names[sp])] = temperatures[sp]
         with open(energy_file, 'a') as f:
             w = csv.writer(f)
             w.writerow(data.values())

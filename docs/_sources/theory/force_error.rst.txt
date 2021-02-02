@@ -107,6 +107,3 @@ Finally, by calculating
             ( \Delta F_{\mathcal F}^{(\textrm{approx})} ) ^2 }
 
 we are able to investigate which parameters :math:`r_c,\; \alpha` are optimal for our simulation.
-
-.. bibliography::
-   :cited:

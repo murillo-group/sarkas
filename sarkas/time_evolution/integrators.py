@@ -71,14 +71,18 @@ class Integrator:
         self.dt = None
         self.kB = None
         self.magnetized = False
+        self.electrostatic_equilibration = False
         self.production_steps = None
         self.equilibration_steps = None
+        self.magnetization_steps = None
         self.prod_dump_step = None
         self.eq_dump_step = None
+        self.mag_dump_steps = None
         self.update = None
         self.species_num = None
         self.box_lengths = None
         self.verbose = False
+        self.supported_integrators = ['verlet', 'verlet_langevin', 'magnetic_verlet', 'magnetic_boris']
 
     # def __repr__(self):
     #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -116,7 +120,7 @@ class Integrator:
             Potential class.
 
         """
-        self.box_lengths = params.box_lengths
+        self.box_lengths = np.copy(params.box_lengths)
         self.kB = params.kB
         self.species_num = np.copy(params.species_num)
         self.verbose = params.verbose
@@ -134,15 +138,17 @@ class Integrator:
             if hasattr(params, 'prod_dump_step'):
                 self.prod_dump_step = params.prod_dump_step
             else:
-                self.prod_dump_step = int(0.01 * self.production_steps)
+                self.prod_dump_step = int(0.1 * self.production_steps)
 
         if self.eq_dump_step is None:
             if hasattr(params, 'eq_dump_step'):
                 self.eq_dump_step = params.eq_dump_step
             else:
-                self.eq_dump_step = int(0.01 * self.equilibration_steps)
+                self.eq_dump_step = int(0.1 * self.equilibration_steps)
 
-        # Run some checks
+        assert self.type.lower() in self.supported_integrators, 'Wrong integrator choice.'
+
+        # Assign integrator.update to the correct method
         if self.type.lower() == "verlet":
             self.update = self.verlet
 
@@ -156,23 +162,77 @@ class Integrator:
 
         elif self.type.lower() == "magnetic_verlet":
 
-            self.omega_c = np.copy(params.species_cyclotron_frequencies)
-            omc_dt = 0.5 * params.species_cyclotron_frequencies * self.dt
-            self.sdt = np.sin(omc_dt)
-            self.cdt = np.cos(omc_dt)
-            self.ccodt = self.cdt - 1.0
+            # Create the unit vector of the magnetic field
+            self.magnetic_field_uvector = params.magnetic_field / np.linalg.norm(params.magnetic_field)
+            self.omega_c = np.zeros((params.total_num_ptcls, params.dimensions))
+
+            sp_start = 0
+            sp_end = 0
+            for ic, sp_np in enumerate(params.species_num):
+                sp_end += sp_np
+                self.omega_c[sp_start: sp_end, :] = params.species_cyclotron_frequencies[ic]
+                sp_start += sp_np
+
+            # Calculate functions for magnetic integrator
+            # This could be used when the generalization to Forest-Ruth and MacLachlan algorithms will be implemented
+            # In a magnetic Velocity-Verlet the coefficient is 1/2, see eq.~(78) in :cite:`Chin2008`
+            self.magnetic_helpers(0.5)
 
             # array to temporary store velocities
+            # Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them
+            # each time step
             self.v_B = np.zeros((params.total_num_ptcls, params.dimensions))
             self.v_F = np.zeros((params.total_num_ptcls, params.dimensions))
 
-            self.update = self.magnetic_verlet
+            if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
+                self.update = self.magnetic_verlet_zdir
+            else:
+                self.update = self.magnetic_verlet
 
         elif self.type.lower() == "magnetic_boris":
 
-            self.update = self.magnetic_boris
-        else:
-            print("Only verlet integrator is supported. Check your input file, integrator part 2.")
+            # Create the unit vector of the magnetic field
+            self.magnetic_field_uvector = params.magnetic_field / np.linalg.norm(params.magnetic_field)
+            self.omega_c = np.zeros((params.total_num_ptcls, params.dimensions))
+
+            sp_start = 0
+            sp_end = 0
+            for ic, sp_np in enumerate(params.species_num):
+                sp_end += sp_np
+                self.omega_c[sp_start: sp_end, :] = params.species_cyclotron_frequencies[ic]
+                sp_start += sp_np
+
+            # In a leapfrog-type algorithm the coefficient is different for the acceleration and magnetic rotation
+            # see eq.~(79) in :cite:`Chin2008`
+            # self.magnetic_helpers(1.0)
+
+            if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
+                self.update = self.magnetic_boris_zdir
+            else:
+                self.update = self.magnetic_boris
+
+            # array to temporary store velocities
+            # Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them
+            # each time step
+            self.v_B = np.zeros((params.total_num_ptcls, params.dimensions))
+            self.v_F = np.zeros((params.total_num_ptcls, params.dimensions))
+
+        if params.magnetized:
+            self.magnetized = True
+
+            if self.electrostatic_equilibration:
+                params.electrostatic_equilibration = True
+                self.magnetic_integrator = self.update
+                self.update = self.verlet
+
+                if self.magnetization_steps is None:
+                    self.magnetization_steps = params.magnetization_steps
+
+                if self.prod_dump_step is None:
+                    if hasattr(params, 'mag_dump_step'):
+                        self.mag_dump_step = params.mag_dump_step
+                    else:
+                        self.mag_dump_step = int(0.1 * self.production_steps)
 
         if not potential.method == 'FMM':
             if potential.pppm_on:
@@ -203,14 +263,23 @@ class Integrator:
             IO class for saving dumps.
 
         """
+
         for it in tqdm(range(it_start, self.equilibration_steps), disable=not self.verbose):
             # Calculate the Potential energy and update particles' data
             self.update(ptcls)
             if (it + 1) % self.eq_dump_step == 0:
-                checkpoint.dump(False, ptcls, it + 1)
+                checkpoint.dump('equilibration', ptcls, it + 1)
             self.thermostate(ptcls, it)
-
         ptcls.remove_drift()
+
+    def magnetize(self, it_start, ptcls, checkpoint):
+        self.update = self.magnetic_integrator
+        for it in tqdm(range(it_start, self.magnetization_steps), disable=not self.verbose):
+            # Calculate the Potential energy and update particles' data
+            self.update(ptcls)
+            if (it + 1) % self.mag_dump_step == 0:
+                checkpoint.dump('magnetization', ptcls, it + 1)
+            self.thermostate(ptcls, it)
 
     def produce(self, it_start, ptcls, checkpoint):
         """
@@ -219,7 +288,7 @@ class Integrator:
         Parameters
         ----------
         it_start: int
-            Initial step of equilibration.
+            Initial step of production phase.
 
         ptcls: sarkas.base.Particles
             Particles' class.
@@ -234,7 +303,7 @@ class Integrator:
             self.update(ptcls)
             if (it + 1) % self.prod_dump_step == 0:
                 # Save particles' data for restart
-                checkpoint.dump(True, ptcls, it + 1)
+                checkpoint.dump('production', ptcls, it + 1)
 
     def verlet_langevin(self, ptcls):
         """
@@ -298,47 +367,69 @@ class Integrator:
         # Second half step velocity update
         ptcls.vel += 0.5 * ptcls.acc * self.dt
 
-    def magnetic_verlet(self, ptcls):
+    def magnetic_helpers(self, coefficient):
+        """Calculate the trigonometric functions of the magnetic integrators.
+
+        Parameters
+        ----------
+        coefficient: float
+            Timestep coefficient.
+
+        Notes
+        -----
+        This is useful for the Leapfrog magnetic algorithm and future Forest-Ruth and MacLachlan algorithms.
+
+        """
+        theta = self.omega_c * self.dt * coefficient
+        self.sdt = np.sin(theta)
+        self.cdt = np.cos(theta)
+        self.ccodt = 1.0 - self.cdt
+        self.ssodt = 1.0 - self.sdt / theta
+
+    def magnetic_verlet_zdir(self, ptcls):
         """
         Update particles' class based on velocity verlet method in the case of a
-        constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. [Chin2008]_
+        constant magnetic field along the :math:`z` axis. For more info see eq. (78) of Ref. :cite:`Chin2008`
 
         Parameters
         ----------
         ptcls: sarkas.base.Particles
             Particles data.
 
-        References
-        ----------
-        .. [Chin2008] `Chin Phys Rev E 77, 066401 (2008) <https://doi.org/10.1103/PhysRevE.77.066401>`_
+        Returns
+        -------
+        potential_energy : float
+             Total potential energy.
+
+        Notes
+        -----
+        This integrator is faster than `magnetic_verlet` but valid only for a magnetic field in the :math:`z`-direction.
+        This is the preferred choice in this case.
         """
 
-        sp_start = 0  # start index for species loop
-        sp_end = 0
-        for ic, num in enumerate(self.species_num):
-            # Cyclotron frequency
-            sp_end += num
-            # First half step of velocity update
-            self.v_B[sp_start:sp_end, 0] = ptcls.vel[sp_start:sp_end, 0] * self.cdt[ic] \
-                                           - ptcls.vel[sp_start:sp_end, 1] * self.sdt[ic]
-            self.v_F[sp_start:sp_end, 0] = - self.ccodt[ic] / self.self.omega_c[ic] * ptcls.acc[sp_start:sp_end, 1] \
-                                           + self.sdt[ic] / self.self.omega_c[ic] * ptcls.acc[sp_start:sp_end, 0]
+        # First half step of velocity update
+        # # Magnetic rotation x - velocity
+        # (B x v)_x  = -v_y, (B x B x v)_x = -v_x
+        self.v_B[:, 0] = ptcls.vel[:, 1] * self.sdt[:, 0] + ptcls.vel[:, 0] * self.cdt[:, 0]
+        # Magnetic rotation y - velocity
+        # (B x v)_y  = v_x, (B x B x v)_y = -v_y
+        self.v_B[:, 1] = - ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
 
-            self.v_B[sp_start:sp_end, 1] = ptcls.vel[sp_start:sp_end, 1] * self.cdt[ic] \
-                                           + ptcls.vel[sp_start:sp_end, 0] * self.sdt[ic]
-            self.v_F[sp_start:sp_end, 1] = self.ccodt[ic] / self.omega_c[ic] * ptcls.acc[sp_start:sp_end, 0] \
-                                           + self.sdt[ic] / self.omega_c[ic] * ptcls.acc[sp_start:sp_end, 1]
+        # Magnetic + Const force field x - velocity
+        # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
+        self.v_F[:, 0] = self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1] \
+                         + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        # Magnetic + Const force field y - velocity
+        # (B x a)_y  = a_x, (B x B x a)_y = -a_y
+        self.v_F[:, 1] = - self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0] \
+                         + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
 
-            ptcls.vel[sp_start:sp_end, 0] = self.v_B[sp_start:sp_end, 0] + self.v_F[sp_start:sp_end, 0]
-            ptcls.vel[sp_start:sp_end, 1] = self.v_B[sp_start:sp_end, 1] + self.v_F[sp_start:sp_end, 1]
-            ptcls.vel[sp_start:sp_end, 2] += 0.5 * self.dt * ptcls.acc[sp_start:sp_end, 2]
+        ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
+        ptcls.vel[:, 1] = self.v_B[:, 1] + self.v_F[:, 1]
+        ptcls.vel[:, 2] += 0.5 * self.dt * ptcls.acc[:, 2]
 
-            # Position update
-            ptcls.pos[sp_start:sp_end, 0] += (self.v_B[sp_start:sp_end, 0] + self.v_F[sp_start:sp_end, 0]) * self.dt
-            ptcls.pos[sp_start:sp_end, 1] += (self.v_B[sp_start:sp_end, 1] + self.v_F[sp_start:sp_end, 1]) * self.dt
-            ptcls.pos[sp_start:sp_end, 2] += ptcls.vel[sp_start:sp_end, 2] * self.dt
-
-            sp_start = sp_end
+        # Position update
+        ptcls.pos += ptcls.vel * self.dt
 
         # Periodic boundary condition
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
@@ -346,34 +437,96 @@ class Integrator:
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
 
-        sp_start = 0
-        sp_end = 0
-        for ic, num in enumerate(self.species_num):
-            sp_end += num
+        # # Magnetic rotation x - velocity
+        # (B x v)_x  = -v_y, (B x B x v)_x = -v_x
+        self.v_B[:, 0] = ptcls.vel[:, 1] * self.sdt[:, 0] + ptcls.vel[:, 0] * self.cdt[:, 0]
+        # Magnetic rotation y - velocity
+        # (B x v)_y  = v_x, (B x B x v)_y = -v_y
+        self.v_B[:, 1] = - ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
 
-            # Second half step velocity update
-            ptcls.vel[sp_start:sp_end, 0] = (self.v_B[sp_start:sp_end, 0] + self.v_F[sp_start:sp_end, 0]) * self.cdt[ic] \
-                                            - (self.v_B[sp_start:sp_end, 1] + self.v_F[sp_start:sp_end, 1]) * self.sdt[
-                                                ic] \
-                                            - self.ccodt[ic] / self.omega_c[ic] * ptcls.acc[sp_start:sp_end, 1] \
-                                            + self.sdt[ic] / self.omega_c[ic] * ptcls.acc[sp_start:sp_end, 0]
+        # Magnetic + Const force field x - velocity
+        # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
+        self.v_F[:, 0] = self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1] \
+                         + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        # Magnetic + Const force field y - velocity
+        # (B x a)_y  = a_x, (B x B x a)_y = -a_y
+        self.v_F[:, 1] = - self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0] \
+                         + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
 
-            ptcls.vel[sp_start:sp_end, 1] = (self.v_B[sp_start:sp_end, 1] + self.v_F[sp_start:sp_end, 1]) * self.cdt[ic] \
-                                            + (self.v_B[sp_start:sp_end, 0] + self.v_F[sp_start:sp_end, 0]) * self.sdt[
-                                                ic] \
-                                            + self.ccodt[ic] / self.omega_c[ic] * ptcls.acc[sp_start:sp_end, 0] \
-                                            + self.sdt[ic] / self.omega_c[ic] * ptcls.acc[sp_start:sp_end, 1]
-
-            ptcls.vel[sp_start:sp_end, 2] += 0.5 * self.dt * ptcls.acc[sp_start:sp_end, 2]
-
-            sp_start = sp_end
+        ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
+        ptcls.vel[:, 1] = self.v_B[:, 1] + self.v_F[:, 1]
+        ptcls.vel[:, 2] += 0.5 * self.dt * ptcls.acc[:, 2]
 
         return potential_energy
 
-    def magnetic_boris(self, ptcls):
+    def magnetic_verlet(self, ptcls):
+        """
+        Update particles' class based on velocity verlet method in the case of an arbitrary direction of the
+        constant magnetic field. For more info see eq. (78) of Ref. :cite:`Chin2008`
+
+        Parameters
+        ----------
+        ptcls: sarkas.base.Particles
+            Particles data.
+
+        Returns
+        -------
+        potential_energy : float
+             Total potential energy.
+
+        Notes
+        -----
+        :cite:`Chin2008` equations are written for a negative charge. This allows him to write
+        :math:`\dot{\mathbf v} = \omega_c \hat{B} \\times \mathbf v`. In the case of positive charges we will have
+        :math:`\dot{\mathbf v} = - \omega_c \hat{B} \\times \mathbf v`. Hence the reason of the different signs in the
+        formulas below compared to Chin's.
+
+        Warnings
+        --------
+        This integrator is valid for a magnetic field in an arbitrary direction. However, while the integrator works for
+        an arbitrary direction, methods in `sarkas.tool.observables` work only for a magnetic field in the
+        :math:`z` - direction. Hence, if you choose to use this integrator remember to change your physical observables.
+
+        """
+        # Calculate the cross products
+        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+
+        # First half step of velocity update
+        ptcls.vel += - self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
+
+        ptcls.vel += 0.5 * ptcls.acc * self.dt - self.ccodt / self.omega_c * b_cross_a \
+                   + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+
+        # Position update
+        ptcls.pos += ptcls.vel * self.dt
+
+        # Periodic boundary condition
+        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+
+        # Compute total potential energy and acceleration for second half step velocity update
+        potential_energy = self.update_accelerations(ptcls)
+
+        # Re-calculate the cross products
+        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+
+        # Second half step velocity update
+        ptcls.vel += - self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
+
+        ptcls.vel += 0.5 * ptcls.acc * self.dt - self.ccodt / self.omega_c * b_cross_a \
+                   + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+
+        return potential_energy
+
+    def magnetic_boris_zdir(self, ptcls):
         """
         Update particles' class using the Boris algorithm in the case of a
-        constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. [Chin2008]_
+        constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. :cite:`Chin2008`
 
         Parameters
         ----------
@@ -386,39 +539,106 @@ class Integrator:
              Total potential energy.
 
         """
-        # First step update velocities
-        ptcls.vel += 0.5 * ptcls.acc * self.dt
+        # First half step of velocity update: Apply exp(eV_BF)
+        # epsilon/2 V_F
+        self.magnetic_helpers(0.5)
+        # Magnetic + Const force field x - velocity
+        # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
+        self.v_F[:, 0] = self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1] \
+                         + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        # Magnetic + Const force field y - velocity
+        # (B x a)_y  = a_x, (B x B x a)_y = -a_y
+        self.v_F[:, 1] = - self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0] \
+                         + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
 
-        sp_start = 0  # start index for species loop
-        sp_end = 0  # end index for species loop
-        # Rotate velocities
-        for ic, num in enumerate(self.species_num):
-            # Cyclotron frequency
-            sp_end += num
-            # First half step of velocity update
-            self.v_B[sp_start:sp_end, 0] = ptcls.vel[sp_start:sp_end, 0] * self.cdt[ic] \
-                                      - ptcls.vel[sp_start:sp_end, 1] * self.sdt[ic]
+        ptcls.vel[:, 0] += self.v_F[:, 0]
+        ptcls.vel[:, 1] += self.v_F[:, 1]
+        ptcls.vel[:, 2] += 0.5 * self.dt * ptcls.acc[:, 2]
 
-            sp_start = 0  # start index for species loop
-            self.v_B[sp_start:sp_end, 1] = ptcls.vel[sp_start:sp_end, 1] * self.cdt[ic] \
-                                      + ptcls.vel[sp_start:sp_end, 0] * self.sdt[ic]
+        # epsilon V_B
+        self.magnetic_helpers(1.0)
+        # Magnetic rotation x - velocity
+        # (B x v)_x  = -v_y, (B x B x v)_x = -v_x
+        self.v_B[:, 0] = ptcls.vel[:, 1] * self.sdt[:, 0] + ptcls.vel[:, 0] * self.cdt[:, 0]
+        # Magnetic rotation y - velocity
+        # (B x v)_y  = v_x, (B x B x v)_y = -v_y
+        self.v_B[:, 1] = - ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
 
-            ptcls.vel[sp_start:sp_end, 0] = self.v_B[sp_start:sp_end, 0]
-            ptcls.vel[sp_start:sp_end, 1] = self.v_B[sp_start:sp_end, 1]
+        ptcls.vel[:, 0] = np.copy(self.v_B[:, 0])
+        ptcls.vel[:, 1] = np.copy(self.v_B[:, 1])
 
-            sp_start = sp_end
+        # # epsilon/2 V_F
+        self.magnetic_helpers(0.5)
+        # Magnetic + Const force field x - velocity
+        # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
+        self.v_F[:, 0] = self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1] \
+                         + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        # Magnetic + Const force field y - velocity
+        # (B x a)_y  = a_x, (B x B x a)_y = -a_y
+        self.v_F[:, 1] = - self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0] \
+                         + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
 
-        # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
-
-        # Second step update velocities
-        ptcls.vel += 0.5 * ptcls.acc * self.dt
+        ptcls.vel[:, 0] += self.v_F[:, 0]
+        ptcls.vel[:, 1] += self.v_F[:, 1]
+        ptcls.vel[:, 2] += 0.5 * self.dt * ptcls.acc[:, 2]
 
         # Full step position update
         ptcls.pos += ptcls.vel * self.dt
 
         # Periodic boundary condition
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+
+        # Compute total potential energy and acceleration for second half step velocity update
+        potential_energy = self.update_accelerations(ptcls)
+
+        return potential_energy
+
+    def magnetic_boris(self, ptcls):
+        """
+        Update particles' class using the Boris algorithm in the case of a
+        constant magnetic field along the :math:`z` axis. For more info see eqs. (80) - (81) of Ref. :cite:`Chin2008`
+
+        Parameters
+        ----------
+        ptcls: sarkas.base.Particles
+            Particles data.
+
+        Returns
+        -------
+        potential_energy : float
+             Total potential energy.
+
+        """
+
+        # First half step of velocity update: Apply exp(eV_BF)
+        # epsilon/2 V_F
+        self.magnetic_helpers(0.5)
+        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+        ptcls.vel += ptcls.acc * 0.5 * self.dt - self.ccodt/self.omega_c * b_cross_a \
+                     + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+
+        # epsilon V_B
+        self.magnetic_helpers(1.0)
+        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
+        ptcls.vel += - self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
+
+        # # epsilon/2 V_F
+        self.magnetic_helpers(0.5)
+        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+        ptcls.vel += ptcls.acc * 0.5 * self.dt - self.ccodt/self.omega_c * b_cross_a \
+                     + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+
+        # Full step position update
+        ptcls.pos += ptcls.vel * self.dt
+
+        # Periodic boundary condition
+        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+
+        # Compute total potential energy and acceleration for second half step velocity update
+        potential_energy = self.update_accelerations(ptcls)
 
         return potential_energy
 

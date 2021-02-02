@@ -1,0 +1,84 @@
+# keywords: Carbon-Oxygen Mixture, Yukawa, P3M, mks, random_no_reject
+Particles:
+    - Species:
+        name: C
+        number_density: 2.0e+30       # /m^3
+        # mass: 1.9926467e-26            # /kg
+        num: 1000                    # total number of particles of ion1
+        Z: 1.0                        # degree of ionization
+        atomic_weight: 1.                 # atomic mass
+        temperature_eV: 0.1
+
+Potential:
+    type: Yukawa                 # potential type
+    method: PP                    # Linked-cell
+    rc: 4.9e-11 #2.8361e-10          # cut-off radius, meter
+    electron_temperature_eV: 500.0
+#    pppm_mesh: [64, 64, 64]
+#    pppm_aliases: [3,3,3]
+#    pppm_cao: 6
+#    pppm_alpha_ewald: 1.1983e+10
+
+Integrator:
+    type: magnetic_verlet               # velocity integrator type
+    electrostatic_equilibration: False
+    equilibration_steps: 5000
+    magnetization_steps: 30000
+    production_steps: 1000
+    eq_dump_step: 5
+    prod_dump_step: 5
+    mag_dump_step: 5
+
+Thermostat:
+    type: Berendsen               # thermostat type
+    tau: 10.0
+    relaxation_timestep: 0
+
+Parameters:
+    units: mks                    # units
+    dt: 1.074182e-17            # sec
+    load_method: random_no_reject
+#    restart_step: 31000
+    boundary_conditions: periodic
+    rdf_nbins: 250
+    magnetized: True
+    magnetic_field: [0.0, 0.0, 140.0e+6]  # Gauss
+
+IO:
+    verbose: yes
+    simulations_dir: Simulations
+    job_dir: yocp_mag3                        # dir name to save data.
+
+PostProcessing:
+  - RadialDistributionFunction:
+      no_bins: 250
+
+  - Thermodynamics:
+      phase: production
+
+  - HermiteCoefficients:
+      no_bins: 50
+      hermite_order: 8
+
+  - DynamicStructureFactor:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - CurrentCorrelationFunction:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - VelocityMoments:
+      no_bins: 50
+
+  - VelocityAutoCorrelationFunction:
+      phase: production
+
+  - ElectricCurrent:
+
+
+

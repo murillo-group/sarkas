@@ -186,17 +186,25 @@ class Observable:
         self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
         self.prod_no_dumps = len(os.listdir(self.prod_dump_dir))
         self.eq_no_dumps = len(os.listdir(self.eq_dump_dir))
+        if self.magnetized and self.electrostatic_equilibration:
+            self.mag_no_dumps = len(os.listdir(self.mag_dump_dir))
 
         if phase == 'equilibration':
             self.no_dumps = self.eq_no_dumps
             self.dump_dir = self.eq_dump_dir
             self.dump_step = self.eq_dump_step
             self.no_steps = self.equilibration_steps
-        else:
+        elif self.phase == 'production':
             self.no_dumps = self.prod_no_dumps
             self.dump_dir = self.prod_dump_dir
             self.dump_step = self.prod_dump_step
             self.no_steps = self.production_steps
+        elif self.phase == 'magnetization':
+
+            self.no_dumps = self.mag_no_dumps
+            self.dump_dir = self.mag_dump_dir
+            self.dump_step = self.mag_dump_step
+            self.no_steps = self.magnetization_steps
 
         if not hasattr(self, 'no_slices'):
             self.no_slices = 1
@@ -1150,7 +1158,7 @@ class Thermodynamics(Observable):
 
         """
         if not hasattr(self, 'phase'):
-            self.phase = phase if phase else 'production'
+            self.phase = phase.lower() if phase else 'production'
 
         super().setup_init(params, self.phase)
         self.dataframe = pd.DataFrame()
@@ -1159,6 +1167,13 @@ class Thermodynamics(Observable):
             self.restart_sim = True
         else:
             self.restart_sim = False
+
+        if self.phase.lower() == 'production':
+            self.saving_dir = self.production_dir
+        elif self.phase.lower() == 'equilibration':
+            self.saving_dir = self.equilibration_dir
+        elif self.phase.lower() == 'magnetization':
+            self.saving_dir = self.magnetization_dir
 
     def compute_pressure_quantities(self):
         """
@@ -1256,75 +1271,75 @@ class Thermodynamics(Observable):
 
         return pressure
 
-    def plot(self, quantity="Total Energy", phase=None, show=False):
-        """
-        Plot ``quantity`` vs time and save the figure with appropriate name.
-
-        Parameters
-        ----------
-        phase
-        show : bool
-            Flag for displaying figure.
-
-        quantity : str
-            Quantity to plot. Default = Total Energy.
-        """
-
-        if phase:
-            self.phase = phase
-            self.parse(phase)
-
-        if quantity[:8] == "Pressure":
-            if not "Pressure" in self.dataframe.columns:
-                print("Calculating Pressure quantities ...")
-                self.compute_pressure_quantities()
-
-        xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                           self.dataframe[quantity],
-                                                           "Time", quantity, self.units)
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        yq = {"Total Energy": r"$E_{tot}(t)$", "Kinetic Energy": r"$K_{tot}(t)$", "Potential Energy": r"$U_{tot}(t)$",
-              "Temperature": r"$T(t)$",
-              "Pressure Tensor ACF": r'$P_{\alpha\beta} = \langle P_{\alpha\beta}(0)P_{\alpha\beta}(t)\rangle$',
-              "Pressure Tensor": r"$P_{\alpha\beta}(t)$", "Gamma": r"$\Gamma(t)$", "Pressure": r"$P(t)$"}
-        dim_lbl = ['x', 'y', 'z']
-
-        if quantity == "Pressure Tensor ACF":
-            for i, dim1 in enumerate(dim_lbl):
-                for j, dim2 in enumerate(dim_lbl):
-                    ax.plot(self.dataframe["Time"] * xmul,
-                            self.dataframe["Pressure Tensor ACF {}{}".format(dim1, dim2)] /
-                            self.dataframe["Pressure Tensor ACF {}{}".format(dim1, dim2)][0],
-                            label=r'$P_{' + dim1 + dim2 + '} (t)$')
-            ax.set_xscale('log')
-            ax.legend(loc='best', ncol=3)
-            ax.set_ylim(-1, 1.5)
-
-        elif quantity == "Pressure Tensor":
-            for i, dim1 in enumerate(dim_lbl):
-                for j, dim2 in enumerate(dim_lbl):
-                    ax.plot(self.dataframe["Time"] * xmul,
-                            self.dataframe["Pressure Tensor {}{}".format(dim1, dim2)] * ymul,
-                            label=r'$P_{' + dim1 + dim2 + '} (t)$')
-            ax.set_xscale('log')
-            ax.legend(loc='best', ncol=3)
-
-        elif quantity == 'Temperature' and self.num_species > 1:
-            for sp in self.species_names:
-                qstr = "{} Temperature".format(sp)
-                ax.plot(self.dataframe["Time"] * xmul, self.dataframe[qstr] * ymul, label=qstr)
-            ax.plot(self.dataframe["Time"] * xmul, self.dataframe["Temperature"] * ymul, label='Total Temperature')
-            ax.legend(loc='best')
-        else:
-            ax.plot(self.dataframe["Time"] * xmul, self.dataframe[quantity] * ymul)
-
-        ax.grid(True, alpha=0.3)
-        ax.set_ylabel(yq[quantity] + ylbl)
-        ax.set_xlabel(r'Time' + xlbl)
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, quantity + '_' + self.job_id + '.png'))
-        if show:
-            fig.show()
+    # def plot(self, quantity="Total Energy", phase=None, show=False):
+    #     """
+    #     Plot ``quantity`` vs time and save the figure with appropriate name.
+    #
+    #     Parameters
+    #     ----------
+    #     phase
+    #     show : bool
+    #         Flag for displaying figure.
+    #
+    #     quantity : str
+    #         Quantity to plot. Default = Total Energy.
+    #     """
+    #
+    #     if phase:
+    #         self.phase = phase
+    #         self.parse(phase)
+    #
+    #     if quantity[:8] == "Pressure":
+    #         if not "Pressure" in self.dataframe.columns:
+    #             print("Calculating Pressure quantities ...")
+    #             self.compute_pressure_quantities()
+    #
+    #     xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["Time"],
+    #                                                        self.dataframe[quantity],
+    #                                                        "Time", quantity, self.units)
+    #     fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+    #     yq = {"Total Energy": r"$E_{tot}(t)$", "Kinetic Energy": r"$K_{tot}(t)$", "Potential Energy": r"$U_{tot}(t)$",
+    #           "Temperature": r"$T(t)$",
+    #           "Pressure Tensor ACF": r'$P_{\alpha\beta} = \langle P_{\alpha\beta}(0)P_{\alpha\beta}(t)\rangle$',
+    #           "Pressure Tensor": r"$P_{\alpha\beta}(t)$", "Gamma": r"$\Gamma(t)$", "Pressure": r"$P(t)$"}
+    #     dim_lbl = ['x', 'y', 'z']
+    #
+    #     if quantity == "Pressure Tensor ACF":
+    #         for i, dim1 in enumerate(dim_lbl):
+    #             for j, dim2 in enumerate(dim_lbl):
+    #                 ax.plot(self.dataframe["Time"] * xmul,
+    #                         self.dataframe["Pressure Tensor ACF {}{}".format(dim1, dim2)] /
+    #                         self.dataframe["Pressure Tensor ACF {}{}".format(dim1, dim2)][0],
+    #                         label=r'$P_{' + dim1 + dim2 + '} (t)$')
+    #         ax.set_xscale('log')
+    #         ax.legend(loc='best', ncol=3)
+    #         ax.set_ylim(-1, 1.5)
+    #
+    #     elif quantity == "Pressure Tensor":
+    #         for i, dim1 in enumerate(dim_lbl):
+    #             for j, dim2 in enumerate(dim_lbl):
+    #                 ax.plot(self.dataframe["Time"] * xmul,
+    #                         self.dataframe["Pressure Tensor {}{}".format(dim1, dim2)] * ymul,
+    #                         label=r'$P_{' + dim1 + dim2 + '} (t)$')
+    #         ax.set_xscale('log')
+    #         ax.legend(loc='best', ncol=3)
+    #
+    #     elif quantity == 'Temperature' and self.num_species > 1:
+    #         for sp in self.species_names:
+    #             qstr = "{} Temperature".format(sp)
+    #             ax.plot(self.dataframe["Time"] * xmul, self.dataframe[qstr] * ymul, label=qstr)
+    #         ax.plot(self.dataframe["Time"] * xmul, self.dataframe["Temperature"] * ymul, label='Total Temperature')
+    #         ax.legend(loc='best')
+    #     else:
+    #         ax.plot(self.dataframe["Time"] * xmul, self.dataframe[quantity] * ymul)
+    #
+    #     ax.grid(True, alpha=0.3)
+    #     ax.set_ylabel(yq[quantity] + ylbl)
+    #     ax.set_xlabel(r'Time' + xlbl)
+    #     fig.tight_layout()
+    #     fig.savefig(os.path.join(self.fldr, quantity + '_' + self.job_id + '.png'))
+    #     if show:
+    #         fig.show()
 
     def parse(self, phase=None):
         """
@@ -1336,9 +1351,12 @@ class Thermodynamics(Observable):
         if self.phase == 'equilibration':
             self.dataframe = pd.read_csv(self.eq_energy_filename, index_col=False)
             self.fldr = self.equilibration_dir
-        else:
+        elif self.phase == 'production':
             self.dataframe = pd.read_csv(self.prod_energy_filename, index_col=False)
             self.fldr = self.production_dir
+        elif self.phase == 'magnetization':
+            self.dataframe = pd.read_csv(self.mag_energy_filename, index_col=False)
+            self.fldr = self.magnetization_dir
 
     def statistics(self, quantity="Total Energy", max_no_divisions=100, show=False):
         """
@@ -1376,7 +1394,6 @@ class Thermodynamics(Observable):
         if show:
             fig.show()
 
-
     def temp_energy_plot(self, simulation, phase=None, show=False):
         """
         Plot Temperature and Energy as a function of time with their cumulative sum and average.
@@ -1395,8 +1412,8 @@ class Thermodynamics(Observable):
         """
 
         if phase:
-            self.phase = phase
-            if self.phase.lower() == 'equilibration':
+            self.phase = phase.lower()
+            if self.phase == 'equilibration':
                 self.no_dumps = self.eq_no_dumps
                 self.dump_dir = self.eq_dump_dir
                 self.dump_step = self.eq_dump_step
@@ -1404,15 +1421,23 @@ class Thermodynamics(Observable):
                 self.no_steps = self.equilibration_steps
                 self.parse(phase)
                 self.dataframe = self.dataframe.iloc[1:, :]
-                avg_array = np.array([i for i in range(1, self.no_dumps)])
-            else:
+
+            elif self.phase == 'production':
                 self.no_dumps = self.prod_no_dumps
                 self.dump_dir = self.prod_dump_dir
                 self.dump_step = self.prod_dump_step
                 self.fldr = self.production_dir
                 self.no_steps = self.production_steps
                 self.parse(phase)
-                avg_array = np.array([i for i in range(1, self.no_dumps + 1)])
+
+            elif self.phase == 'magnetization':
+                self.no_dumps = self.mag_no_dumps
+                self.dump_dir = self.mag_dump_dir
+                self.dump_step = self.mag_dump_step
+                self.fldr = self.magnetization_dir
+                self.no_steps = self.magnetization_steps
+                self.parse(phase)
+
         else:
             self.parse()
 
@@ -1438,14 +1463,14 @@ class Thermodynamics(Observable):
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Temperature"], "Time",
                                                                "Temperature", self.units)
-        T_cumavg = self.dataframe["Temperature"].cumsum() / avg_array
+        T_cumavg = self.dataframe["Temperature"].expanding().mean()
 
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
         T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
         T_main_plot.axhline(ymul * self.T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
 
         Delta_T = (self.dataframe["Temperature"] - self.T_desired) * 100 / self.T_desired
-        Delta_T_cum_avg = Delta_T.cumsum() / avg_array
+        Delta_T_cum_avg = Delta_T.expanding().mean()
         T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T, alpha=0.5)
         T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T_cum_avg, alpha=0.8)
 
@@ -1466,10 +1491,10 @@ class Thermodynamics(Observable):
         xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
                                                                self.dataframe["Total Energy"],
                                                                "Time",
-                                                               "Total Energy",
+                                                               "Energy",
                                                                self.units)
 
-        E_cumavg = self.dataframe["Total Energy"].cumsum() / avg_array
+        E_cumavg = self.dataframe["Total Energy"].expanding().mean()
 
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
         E_main_plot.plot(xmul * self.dataframe["Time"], ymul * E_cumavg, label='Cum Avg')
@@ -1477,7 +1502,7 @@ class Thermodynamics(Observable):
 
         Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"].iloc[0]) * 100 / \
                   self.dataframe["Total Energy"].iloc[0]
-        Delta_E_cum_avg = Delta_E.cumsum() / avg_array
+        Delta_E_cum_avg = Delta_E.expanding().mean()
 
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E, alpha=0.5)
         E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E_cum_avg, alpha=0.8)

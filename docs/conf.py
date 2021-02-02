@@ -53,7 +53,8 @@ extensions = [
     'sphinxcontrib.bibtex',
     'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints',
-    'nbsphinx'
+    'nbsphinx',
+    'recommonmark'
 ]
 
 # Napoleon settings
@@ -69,6 +70,17 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 
+# LaTeX configuration
+latex_elements = {'preamble': r'\usepackage{physics}'}
+bibtex_bibfiles = ['references.bib']
+
+# # Equation Numbering
+# mathjax_config = {
+#     'TeX': {'equationNumbers': {'autoNumber': 'AMS', 'useLabelIds': True}},
+# }
+# To ensure LaTeX packages are read
+mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+
 autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
                         'pyfftw', 'pyfiglet', 'tqdm', 'fmm3dpy']
 
@@ -78,6 +90,10 @@ html_logo = 'logo.png'
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
@@ -89,9 +105,6 @@ exclude_patterns = ['_build',
                     'Thumbs.db',
                     '.DS_Store']
 
-# Additional files needed for generating LaTeX/PDF output:
-#latex_additional_files = ['references.bib']
-bibtex_bibfiles = ['references.bib']
 
 # -- Options for HTML output -------------------------------------------------
 

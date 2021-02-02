@@ -30,7 +30,7 @@ Thermostat:
     relaxation_timestep: 0
     tau: 5.0
 
-Control:
+Parameters:
     units: mks                    # units
     load_method: random_no_reject
     rdf_nbins: 500

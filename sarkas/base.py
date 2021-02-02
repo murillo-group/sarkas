@@ -203,15 +203,18 @@ class Parameters:
         self.job_dir = None
         self.log_file = None
         self.measure = False
+        self.magnetized = False
         self.plot_style = None
         self.pre_run = False
         self.simulations_dir = "Simulations"
         self.production_dir = 'Production'
+        self.magnetization_dir = 'Magnetization'
         self.equilibration_dir = 'Equilibration'
         self.preprocessing_dir = "PreProcessing"
         self.postprocessing_dir = "PostProcessing"
         self.prod_dump_dir = 'dumps'
         self.eq_dump_dir = 'dumps'
+        self.mag_dump_dir = 'dumps'
         self.verbose = True
 
         self.np_per_side = None
@@ -372,13 +375,6 @@ class Parameters:
                 sp.Z = 0.0
                 self.species_charges[i] = 0.0
 
-            if self.magnetized:
-                if self.units == "cgs":
-                    sp.calc_cyclotron_frequency(self.magnetic_field_strength / self.c0)
-                else:
-                    sp.calc_cyclotron_frequency(self.magnetic_field_strength)
-                self.species_cyclotron_frequencies[i] = sp.omega_c
-
             # Calculate the (total) plasma frequency
             if not self.potential_type == "LJ":
                 # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008)
@@ -398,6 +394,16 @@ class Parameters:
                 sp.calc_debye_length(self.kB, constant)
                 lambda_D += sp.debye_length ** 2
                 self.species_lj_sigmas[i] = sp.sigma
+
+            if self.magnetized:
+
+                if self.units == "cgs":
+                    sp.calc_cyclotron_frequency( np.linalg.norm(self.magnetic_field) / self.c0)
+                else:
+                    sp.calc_cyclotron_frequency( np.linalg.norm(self.magnetic_field))
+
+                sp.beta_c = sp.omega_c / sp.wp
+                self.species_cyclotron_frequencies[i] = sp.omega_c
 
             self.species_plasma_frequencies[i] = sp.wp
             self.species_num_dens[i] = sp.number_density
@@ -584,7 +590,7 @@ class Particles:
 
         self.masses = np.zeros(self.total_num_ptcls)  # mass of each particle
         self.charges = np.zeros(self.total_num_ptcls)  # charge of each particle
-
+        self.cyclotron_frequencies = np.zeros(self.total_num_ptcls)
         # No. of independent rdf
         self.no_grs = int(self.num_species * (self.num_species + 1) / 2)
         if hasattr(params, 'rdf_nbins'):
@@ -613,15 +619,19 @@ class Particles:
 
         """
         # Particles Position Initialization
-        if params.load_method in ['equilibration_restart', 'eq_restart', 'production_restart', 'prod_restart']:
+        if params.load_method in ['equilibration_restart', 'eq_restart',
+                                  'magnetization_restart', 'mag_restart',
+                                  'production_restart', 'prod_restart']:
             # checks
             assert hasattr(params, 'restart_step'), "Restart step not defined. Please define restart_step."
             assert type(params.restart_step) is int, "Only integers are allowed."
 
             if params.load_method[:2] == 'eq':
-                self.load_from_restart(True, params.restart_step)
-            else:
-                self.load_from_restart(False, params.restart_step)
+                self.load_from_restart('equilibration', params.restart_step)
+            elif params.load_method[:2] == 'pr':
+                self.load_from_restart('production', params.restart_step)
+            elif params.load_method[:2] == 'ma':
+                self.load_from_restart('magnetization', params.restart_step)
 
         elif params.load_method == 'file':
             msg = 'Input file not defined. Please define particle_input_file.'
@@ -693,6 +703,9 @@ class Particles:
             else:
                 self.charges[species_start:species_end] = 1.0
 
+            if hasattr(sp, 'omega_c'):
+                self.cyclotron_frequencies[species_start:species_end] = sp.omega_c
+
             self.id[species_start:species_end] = ic
 
             if hasattr(sp, "init_vel"):
@@ -706,7 +719,7 @@ class Particles:
                 self.vel[species_start:species_end, :] = self.gaussian(sp.initial_velocity,
                                                                        self.species_thermal_velocity[ic], sp.num)
 
-    def load_from_restart(self, equilibration, it):
+    def load_from_restart(self, phase, it):
         """
         Load particles' data from a checkpoint of a previous run
 
@@ -715,11 +728,11 @@ class Particles:
         it : int
             Timestep.
 
-        equilibration: bool
-            Flag for restart phase.
+        phase: str
+            Restart phase.
 
         """
-        if equilibration:
+        if phase == 'equilibration':
             file_name = os.path.join(self.eq_dump_dir, "checkpoint_" + str(it) + ".npz")
             data = np.load(file_name, allow_pickle=True)
             self.id = data["id"]
@@ -728,8 +741,19 @@ class Particles:
             self.vel = data["vel"]
             self.acc = data["acc"]
 
-        else:
+        elif phase == 'production':
             file_name = os.path.join(self.prod_dump_dir, "checkpoint_" + str(it) + ".npz")
+            data = np.load(file_name, allow_pickle=True)
+            self.id = data["id"]
+            self.names = data["names"]
+            self.pos = data["pos"]
+            self.vel = data["vel"]
+            self.acc = data["acc"]
+            self.pbc_cntr = data["cntr"]
+            self.rdf_hist = data["rdf_hist"]
+
+        elif phase == 'magnetization':
+            file_name = os.path.join(self.mag_dump_dir, "checkpoint_" + str(it) + ".npz")
             data = np.load(file_name, allow_pickle=True)
             self.id = data["id"]
             self.names = data["names"]

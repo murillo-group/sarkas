@@ -1,0 +1,79 @@
+# keywords: OCP, P3M, mks, random_no_reject
+Particles:
+    - Species:
+        name: H
+        number_density: 1.62e+30       # /m^3
+        mass: 1.673e-27                # kg, ptcl mass of ion1
+        num: 500                    # total number of particles of ion1
+        Z: 1.0                        # degree of ionization
+        temperature_eV: 0.272617
+
+Potential:
+    type: Coulomb                  # potential type
+    method: P3M                   # Linked-cell
+    rc: 3.29946255e-10             # cut-off radius, meter
+    pppm_mesh: [64,64,64]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 6
+    pppm_alpha_ewald: 1.277924e+10
+
+Integrator:
+    dt: 1.10e-17            # sec
+    type: magnetic_verlet                  # velocity integrator type
+    electrostatic_equilibration: True
+    equilibration_steps: 5000
+    magnetization_steps: 30000
+    production_steps: 50000
+    eq_dump_step: 10
+    prod_dump_step: 2
+    mag_dump_step: 10
+
+Thermostat:
+    type: Berendsen               # thermostat type
+    relaxation_timestep: 100
+    tau: 5.0
+
+Parameters:
+    units: mks                    # units
+    load_method: random_no_reject
+    boundary_conditions: periodic
+    rdf_nbins: 500
+    magnetized: True
+    magnetic_field: [0.0, 0.0, 17.0e+6]  # Gauss
+
+IO:
+    verbose: True
+    magnetized: True
+    job_dir: ocp_mag        # dir name to save data. The default is "Checkpoint"
+
+PostProcessing:
+  - RadialDistributionFunction:
+      no_bins: 500
+
+  - Thermodynamics:
+      phase: production
+
+  - HermiteCoefficients:
+      no_bins: 50
+      hermite_order: 8
+
+  - DynamicStructureFactor:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - StaticStructureFactor:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - CurrentCorrelationFunction:
+      no_ka_harmonics: 10
+      no_slices: 2
+
+  - VelocityMoments:
+      no_bins: 50
+
+  - VelocityAutoCorrelationFunction:
+      phase: production
+
+  - ElectricCurrent:
+

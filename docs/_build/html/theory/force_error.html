@@ -29,9 +29,8 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -39,7 +38,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sarkas" href="../api/modules.html" />
+    <link rel="next" title="References" href="references.html" />
     <link rel="prev" title="Particle-Particle Particle-Mesh Algorithm" href="PPPM.html" /> 
 </head>
 
@@ -104,13 +103,16 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Force Error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -207,7 +209,7 @@
 <div class="section" id="force-error">
 <span id="id1"></span><h1>Force Error<a class="headerlink" href="#force-error" title="Permalink to this headline">¶</a></h1>
 <p>The Force error is the error incurred when we cut the potential interaction after a certain distance. Following the works
-of <span class="bibtex" id="id2">[Kolafa1992]</span><span class="bibtex" id="id3">[Stern2008]</span><span class="bibtex" id="id4">[Dharuman2017]</span> we define the total force error for our P3M algorithm as</p>
+of <a class="bibtex reference internal" href="references.html#kolafa1992" id="id2">[KP92]</a><a class="bibtex reference internal" href="references.html#stern2008" id="id3">[SC08]</a><a class="bibtex reference internal" href="references.html#dharuman2017" id="id4">[DSGM17]</a> we define the total force error for our P3M algorithm as</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\textrm{tot}} = \sqrt{ \Delta F_{\mathcal R}^2 + \Delta F_{\mathcal F}^2 }\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta F_{\mathcal R}\)</span> is the error obtained in the PP part of the force calculation and
@@ -261,7 +263,7 @@ the equation for <span class="math notranslate nohighlight">\(\Delta F_{\mathcal
 see in the second part of the output the time it takes to calculate <span class="math notranslate nohighlight">\(G_{\mathbf k}\)</span> is in the order of seconds,
 thus, a loop over several <span class="math notranslate nohighlight">\(\alpha\)</span> values would be very time consuming. Fortunately researchers
 have calculated an analytical approximation allowing for the exploration of the whole <span class="math notranslate nohighlight">\(r_c,\; \alpha\)</span> parameter
-space <span class="bibtex" id="id5">[Dharuman2017]</span>. The equations of this approximation are</p>
+space <a class="bibtex reference internal" href="references.html#dharuman2017" id="id5">[DSGM17]</a>. The equations of this approximation are</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\mathcal F}^{(\textrm{approx})} \simeq Q^2 \sqrt{\frac{N}{V}} A_{\mathcal F}^{1/2},\]</div>
 <div class="math notranslate nohighlight">
@@ -269,7 +271,7 @@ space <span class="bibtex" id="id5">[Dharuman2017]</span>. The equations of this
                         \frac{2}{1 + 2(p + m)} \beta(p,m),\]</div>
 <div class="math notranslate nohighlight">
 \[\beta(p,m) = \int_0^{\infty} dk \; G_k^2 k^{2(p + m + 2)},\]</div>
-<p>where <span class="math notranslate nohighlight">\(h = L_x/M_x\)</span> and the coefficients <span class="math notranslate nohighlight">\(C_m^{(p)}\)</span> are listed in Table I of <span class="bibtex" id="id6">[Deserno1998]</span>.</p>
+<p>where <span class="math notranslate nohighlight">\(h = L_x/M_x\)</span> and the coefficients <span class="math notranslate nohighlight">\(C_m^{(p)}\)</span> are listed in Table I of <a class="bibtex reference internal" href="references.html#deserno1998" id="id6">[DH98]</a>.</p>
 <p>Finally, by calculating</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\textrm{tot}}^{(\textrm{apprx})}( r_c, \alpha) = \sqrt{ \Delta F_{\mathcal R}^2 +
@@ -285,7 +287,7 @@ space <span class="bibtex" id="id5">[Dharuman2017]</span>. The equations of this
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../api/modules.html" class="btn btn-neutral float-right" title="sarkas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="references.html" class="btn btn-neutral float-right" title="References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="PPPM.html" class="btn btn-neutral float-left" title="Particle-Particle Particle-Mesh Algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -300,7 +302,7 @@ space <span class="bibtex" id="id5">[Dharuman2017]</span>. The equations of this
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Jan, 26, 2021.
+        Last updated on Feb, 02, 2021.
       </span>
 
     </p>

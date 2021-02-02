@@ -29,9 +29,8 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -40,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Thermostats" href="thermostats.html" />
-    <link rel="prev" title="Quantum Statistical Potential Simulation" href="../examples/QSP_Tutorial.html" /> 
+    <link rel="prev" title="Integrators" href="integrators.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -104,9 +103,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrators</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Potentials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#coulomb-potential">Coulomb Potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#yukawa-potential">Yukawa Potential</a></li>
@@ -117,6 +118,7 @@
 <li class="toctree-l1"><a class="reference internal" href="thermostats.html">Thermostats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="force_error.html">Force Error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -212,7 +214,8 @@
 </style>
 <div class="section" id="potentials">
 <span id="id1"></span><h1>Potentials<a class="headerlink" href="#potentials" title="Permalink to this headline">¶</a></h1>
-<p>Sarkas supports a variety of potentials both built-in and user defined. Currently the potential functions that are implemented include</p>
+<p>Sarkas supports a variety of potentials both built-in and user defined. Currently the potential functions that are
+implemented include</p>
 <ul class="simple">
 <li><p>Coulomb</p></li>
 <li><p>Yukawa</p></li>
@@ -228,20 +231,25 @@ All the equations will be given in cgs units, however, for easy conversion, we d
 <p>which when substituted in gives the equivalent mks formula.</p>
 <div class="section" id="coulomb-potential">
 <h2>Coulomb Potential<a class="headerlink" href="#coulomb-potential" title="Permalink to this headline">¶</a></h2>
-<p>Two charged particle with charge numbers <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> interact with each other via the Coulomb potential given by</p>
+<p>Two charged particle with charge numbers <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> interact with each other via the Coulomb potential
+given by</p>
 <div class="math notranslate nohighlight">
 \[V(r) = \frac{Z_{a}Z_b\bar{e}^2}{r}.\]</div>
 <p>where <span class="math notranslate nohighlight">\(r\)</span> is the distance between ions, <span class="math notranslate nohighlight">\(e\)</span> is the elementary charge.</p>
 </div>
 <div class="section" id="yukawa-potential">
 <h2>Yukawa Potential<a class="headerlink" href="#yukawa-potential" title="Permalink to this headline">¶</a></h2>
-<p>The Yukawa potential, or screened Coulomb potential, is widely used in the plasma community to describe the interactions of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two ions of charge number <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> is given by</p>
+<p>The Yukawa potential, or screened Coulomb potential, is widely used in the plasma community to describe the interactions
+of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two ions of charge
+number <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> is given by</p>
 <div class="math notranslate nohighlight">
 \[V(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{-\kappa r},\]</div>
-<p>where <span class="math notranslate nohighlight">\(\kappa = 1/\lambda_{\text{TF}}\)</span> is the screening parameter. In Sarkas this can be either given as an input or it can be calculated from the Thomas-Fermi formula</p>
+<p>where <span class="math notranslate nohighlight">\(\kappa = 1/\lambda_{\text{TF}}\)</span> is the screening parameter. In Sarkas this can be either given as an input
+or it can be calculated from the Thomas-Fermi formula</p>
 <div class="math notranslate nohighlight">
 \[\frac{1}{\lambda_{TF}^2} = \frac{4 \sqrt{\pi} \bar{e}^2 \beta}{\Lambda_e^3}\frac{\mathcal I_{-1/2}(\eta)}{2},\]</div>
-<p>where <span class="math notranslate nohighlight">\(\Lambda_e\)</span> is the thermal de Broglie wavelength of the electrons and <span class="math notranslate nohighlight">\(\mathcal I_p(\eta)\)</span> is the Dirac-Fermi integral of order <span class="math notranslate nohighlight">\(p\)</span> defined as</p>
+<p>where <span class="math notranslate nohighlight">\(\Lambda_e\)</span> is the thermal de Broglie wavelength of the electrons and <span class="math notranslate nohighlight">\(\mathcal I_p(\eta)\)</span> is the
+Dirac-Fermi integral of order <span class="math notranslate nohighlight">\(p\)</span> defined as</p>
 <div class="math notranslate nohighlight">
 \[\mathcal I_p ( \eta) = \int_0^\infty dx \frac{x^p}{1 + e^{x- \eta}}.\]</div>
 <p>where <span class="math notranslate nohighlight">\(\eta = \beta \mu\)</span> is the chemical potential.
@@ -249,10 +257,13 @@ Notice that when <span class="math notranslate nohighlight">\(\kappa = 0\)</span
 </div>
 <div class="section" id="exact-gradient-corrected-screened-yukawa-potential">
 <h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
-<p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects. Stanton and Murillo <span id="id2">[Stanton2015]</span>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
+<p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects.
+Stanton and Murillo <a class="bibtex reference internal" href="references.html#stanton2015" id="id2">[SM15]</a>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[\nu = - 3 \lambda \frac{4\pi \bar{e}^2 \beta }{ 4 \pi \Lambda_{e}} \mathcal I_{-3/2}(\eta),\]</div>
-<p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a correction factor; <span class="math notranslate nohighlight">\(\lambda = 1/9\)</span> for the true gradient corrected Thomas-Fermi model and <span class="math notranslate nohighlight">\(\lambda = 1\)</span> for the traditional  von Weissaecker model. In the case <span class="math notranslate nohighlight">\(\nu &lt; 1\)</span> the EGS potential takes the form</p>
+<p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a correction factor; <span class="math notranslate nohighlight">\(\lambda = 1/9\)</span> for the true gradient corrected Thomas-Fermi model
+and <span class="math notranslate nohighlight">\(\lambda = 1\)</span> for the traditional von Weissaecker model.</p>
+<p>In the case <span class="math notranslate nohighlight">\(\nu &lt; 1\)</span> the EGS potential takes the form</p>
 <div class="math notranslate nohighlight">
 \[V(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],\]</div>
 <p>with</p>
@@ -278,17 +289,18 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 </div>
 <div class="section" id="quantum-statistical-potential">
 <h2>Quantum Statistical Potential<a class="headerlink" href="#quantum-statistical-potential" title="Permalink to this headline">¶</a></h2>
+<p>The Quantum Statistical Potential between two charged particles <span class="math notranslate nohighlight">\(a,b\)</span> used in Sarkas is given by eq.(5)
+in <a class="bibtex reference internal" href="references.html#glosli2008" id="id3">[GGM+08]</a></p>
 <div class="math notranslate nohighlight">
 \[\phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left ( 1 - e^{ - 2\pi r/\Lambda_{ab}}\right ) + \delta_{ae} \delta_{be} k_BT \ln(2) \exp \left \{ - \frac{4 \pi r^2}{\Lambda_{ab}^2 \ln (2)} \right \}\]</div>
-<p>where</p>
+<p>where the screening length <span class="math notranslate nohighlight">\(\Lambda_{ab}\)</span> is the thermal de Broglie wavelength between the two charges defined as</p>
 <div class="math notranslate nohighlight">
-\[\Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}},\]</div>
-<p>and</p>
-<div class="math notranslate nohighlight">
-\[\mu_{ab} = \frac{m_a m_b}{m_a + m_b}\]</div>
-<p>is the thermal de Broglie wavelength between particles <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>. The last term, present only in the
-interaction between two electrons, accounts for spin-averaged effects. The choice of this potential is due to its
-widespread use in the High Energy Density Physics community.</p>
+\[\Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}}, \quad  \mu_{ab} = \frac{m_a m_b}{m_a + m_b}\]</div>
+<p>The last term, present only in the interaction between two electrons, accounts for spin-averaged effects.</p>
+<p>Note that the de Broglie wavelength is defined differently in <a class="bibtex reference internal" href="references.html#hansen1981" id="id4">[HM81]</a> hence the factor of <span class="math notranslate nohighlight">\(2\pi\)</span> in
+the exponential. The long range part of the potential is computed using the PPPM algorithm where only the
+<span class="math notranslate nohighlight">\(1/r\)</span> term is split into a short range and long range part.</p>
+<p>The choice of this potential is due to its widespread use in the High Energy Density Physics community.</p>
 </div>
 </div>
 
@@ -303,7 +315,7 @@ widespread use in the High Energy Density Physics community.</p>
         <a href="thermostats.html" class="btn btn-neutral float-right" title="Thermostats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../examples/QSP_Tutorial.html" class="btn btn-neutral float-left" title="Quantum Statistical Potential Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="integrators.html" class="btn btn-neutral float-left" title="Integrators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -315,7 +327,7 @@ widespread use in the High Energy Density Physics community.</p>
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Jan, 27, 2021.
+        Last updated on Feb, 02, 2021.
       </span>
 
     </p>

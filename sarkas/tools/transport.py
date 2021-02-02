@@ -138,25 +138,50 @@ class TransportCoefficient:
 
         time = np.array(vacf.dataframe["Time"])
         coefficient["Time"] = time
-        D = np.zeros((params.num_species, len(time)))
 
         fig, ax1 = plt.subplots(1, 1, figsize=(10, 10))
         ax2 = ax1.twinx()  # Diffusion axes
         ax21 = ax2.twiny()  # Index axes
         # extra space for the second axis at the bottom
         fig.subplots_adjust(bottom=0.1)
-        const = 1.0 / 3.0
-        for i, sp in enumerate(params.species_names):
-            integrand = np.array(vacf.dataframe["{} Total Velocity ACF".format(sp)])
-            for it in range(1, len(time)):
-                D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
+        if not params.magnetized:
+            D = np.zeros((params.num_species, len(time)))
 
-            coefficient["{} Diffusion".format(sp)] = D[i, :]
+            const = 1.0 / 3.0
+            for i, sp in enumerate(params.species_names):
+                integrand = np.array(vacf.dataframe["{} Total Velocity ACF".format(sp)])
+                for it in range(1, len(time)):
+                    D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
 
-            xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D[i, :], "Time", "Diffusion", vacf.units)
-            ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp + '}(t)$')
-            ax21.semilogx(ymul * D[i, :], '--')
-            ax2.semilogx(xmul * time, ymul * D[i, :], '--', label=r'$D_{' + sp + '}(t)$')
+                coefficient["{} Diffusion".format(sp)] = D[i, :]
+
+                xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D[i, :], "Time", "Diffusion", vacf.units)
+                ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp + '}(t)$')
+                ax21.semilogx(ymul * D[i, :], '--')
+                ax2.semilogx(xmul * time, ymul * D[i, :], '--', label=r'$D_{' + sp + '}(t)$')
+        else:
+            D = np.zeros((params.num_species, 2, len(time)))
+
+            for i, sp in enumerate(params.species_names):
+                integrand_par = np.array(vacf.dataframe["{} Z Velocity ACF".format(sp)])
+                integrand_perp = np.array(vacf.dataframe["{} X Velocity ACF".format(sp)]) + \
+                                 np.array(vacf.dataframe["{} Y Velocity ACF".format(sp)])
+                for it in range(1, len(time)):
+                    D[i, 0, it] = np.trapz(integrand_par[:it], x=time[:it])
+                    D[i, 1, it] = 0.5 * np.trapz(integrand_perp[:it], x=time[:it])
+
+                coefficient["{} Parallel Diffusion".format(sp)] = D[i, 0, :]
+                coefficient["{} Perpendicular Diffusion".format(sp)] = D[i, 1, :]
+
+                xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D[i, 0, :], "Time", "Diffusion", vacf.units)
+                zpar = ax1.semilogx(xmul * time, integrand_par / integrand_par[0],
+                                    label='{}  '.format(sp) + r'$Z_{\parallel}(t)$')
+                zperp = ax1.semilogx(xmul * time, integrand_perp / integrand_perp[0],
+                                     label='{}  '.format(sp) + r'$Z_{\perp}(t)$')
+                ax21.semilogx(ymul * D[i, 0, :], '--')
+                ax21.semilogx(ymul * D[i, 1, :], '--')
+                ax2.semilogx(xmul * time, ymul * D[i, 0, :], '--', label='{}  '.format(sp) + r'$D_{\parallel}(t)$')
+                ax2.semilogx(xmul * time, ymul * D[i, 1, :], '--', label='{}  '.format(sp) + r'$D_{\perp}(t)$')
 
         # Complete figure
         ax1.grid(False)

@@ -41,15 +41,18 @@ Sarkas, Join us! :)
 
    examples/H-He_Mixture
    examples/QSP_Tutorial
+   examples/Magnetized_Plasma
 
 .. toctree::
    :maxdepth: 2
    :caption: Theoretical Background:
 
+   theory/integrators
    theory/potentials
    theory/thermostats
    theory/PPPM
    theory/force_error
+   theory/references
 
 .. toctree::
    :maxdepth: 2

@@ -1,0 +1,1138 @@
+  
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Magnetized Plasma &mdash; Sarkas 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Integrators" href="../theory/integrators.html" />
+    <link rel="prev" title="Quantum Statistical Potential Simulation" href="QSP_Tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/input_file.html">Input File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Magnetized Plasma</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Simulation">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#PostProcessing">PostProcessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Transport">Transport</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/integrators.html">Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/references.html">References</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">sarkas</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Magnetized Plasma</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/Magnetized_Plasma.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Magnetized-Plasma">
+<h1>Magnetized Plasma<a class="headerlink" href="#Magnetized-Plasma" title="Permalink to this headline">¶</a></h1>
+<p>This codes tests the magnetic integrator by reproducing results of Bernu Journal de Physique, <strong>42</strong> L253 (1981). This notebook can be found in the <code class="docutils literal notranslate"><span class="pre">sarkas/notebook</span></code> folder of the Github repo.</p>
+<p>We simulate a One Component Plasma composed of <span class="math notranslate nohighlight">\(N = 500\)</span> Hydrogen atoms at a density of <span class="math notranslate nohighlight">\(n = 1.62 \times 10^{30}\)</span> <span class="math notranslate nohighlight">\(N/m^3\)</span>, and temperature <span class="math notranslate nohighlight">\(T = 0.3\)</span> <span class="math notranslate nohighlight">\(eV\)</span>, which leads to <span class="math notranslate nohighlight">\(\Gamma = 100\)</span>. The system is in a constant magnetic field <span class="math notranslate nohighlight">\(B = B_0 \hat{\mathbf z}\)</span> with <span class="math notranslate nohighlight">\(B_0 = 17 \times 10^6\)</span> Gauss. The ratio of the cyclotron frequency to the plasma frequency is <span class="math notranslate nohighlight">\(\beta \sim 1.0\)</span>.</p>
+<p>This simulation is run on Dell XPS 8930 with an Intel i7-8700K and 48 Gb of RAM running Ubuntu 18.04 LTS.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Import the usual libraries</span>
+<span class="o">%</span><span class="k">pylab</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
+<span class="c1"># Import sarkas</span>
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
+
+<span class="c1"># Create the file path to the YAML input file</span>
+<span class="n">example_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span>
+                                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span><span class="s1">&#39;examples&#39;</span><span class="p">))</span>
+
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_directory</span><span class="p">,</span>  <span class="s1">&#39;mag_ocp_mks.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using matplotlib backend: Qt5Agg
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+<div class="section" id="PreProcessing">
+<h2>PreProcessing<a class="headerlink" href="#PreProcessing" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">preproc</span> <span class="o">=</span> <span class="n">PreProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">preproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">preproc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">timing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">loops</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">pppm_plots</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">postprocessing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span style="color: rgb(110,0,95)">
+
+
+
+
+
+  _________             __
+ /   _____/____ _______|  | _______    ______
+ \_____  \\__  \\_  __ \  |/ /\__  \  /  ___/
+ /        \/ __ \|  | \/    &lt;  / __ \_\___ \
+/_______  (____  /__|  |__|_ \(____  /____  &gt;
+        \/     \/           \/     \/     \/
+
+</span>
+An open-source pure-python molecular dynamics code for non-ideal plasmas.
+
+WARNING: Equilibration temperatures not defined. I will use the species&#39;s temperatures.
+
+
+======================= Simulation ==========================
+
+Job ID:  ocp_mag
+Job directory:  Simulations/ocp_mag
+Equilibration dumps directory:  Simulations/ocp_mag/Equilibration/dumps
+Production dumps directory:  Simulations/ocp_mag/Production/dumps
+
+Units:  mks
+Total No. of particles =  500
+
+Particle Species:
+No. of species =  1
+Species 1 : H
+        Species ID: 0
+        No. of particles = 500
+        Number density = 1.620000e+30 [N/m^3]
+        Mass = 1.673000e-27 [kg]
+        Charge = 1.602177e-19 [C]
+        Temperature = 3.163589e+03 [K]
+
+Lengths scales:
+Wigner-Seitz radius = 5.282005e-11 [m]
+No. of non-zero box dimensions =  3
+Box length along x axis = 1.279439e+01 a_ws = 6.758002e-10 [m]
+Box length along y axis = 1.279439e+01 a_ws = 6.758002e-10 [m]
+Box length along z axis = 1.279439e+01 a_ws = 6.758002e-10 [m]
+The remaining lengths scales are given in [m]
+
+Boundary conditions: periodic
+
+Thermostat:  Berendsen
+Berendsen Relaxation rate: 0.200
+Thermostating Temperatures:  [3163.58891632]
+
+Potential:  Coulomb
+Gamma_eff = 100.00
+
+Algorithm:  P3M
+Ewald parameter alpha = 0.6750 / a_ws = 1.277924e+10 [1/m]
+Mesh size * Ewald_parameter (h * alpha) = 0.1349, 0.1349, 0.1349
+                                        ~ 1/7, 1/7, 1/7
+rcut = 6.2466 a_ws = 3.299463e-10 [m]
+Mesh = 64 x 64 x 64
+No. of PP cells per dimension =  2,  2,  2
+No. of particles in PP loop =   1571
+No. of PP neighbors per particle =    243
+PM Force Error = 1.627883e-08
+PP Force Error = 7.430793e-09
+Tot Force Error = 1.789461e-08
+
+Integrator:  magnetic_verlet
+
+Magnetized Plasma:
+Magnetic Field = [0.0000e+00, 0.0000e+00, 1.7000e+07]
+Magnetic Field Magnitude = 1.7000e+07 [Gauss]
+Magnetic Field Unit Vector = [0.0000e+00, 0.0000e+00, 1.0000e+00]
+Cyclotron frequency of Species H = 1.6280e+15 [Hz]
+beta_c of Species H = 9.7167e-01
+
+Time scales:
+Time step = 1.100000e-17 [s]
+Total plasma frequency = 1.675504e+15 [Hz]
+w_p dt = 0.0184
+w_c dt = 0.0179
+Equilibration:
+No. of equilibration steps = 5000 ~ 92 w_p T_eq
+snapshot interval = 10 = 0.184 w_p T_snap
+Magnetization:
+No. of magnetization steps = 30000 ~ 552 w_p T_mag
+snapshot interval = 10 = 0.184 w_p T_snap
+Production:
+No. of production steps = 50000 ~ 921 w_p T_prod
+snapshot interval = 2 = 0.037 w_p T_snap
+
+
+----------------- Initialization Times -----------------------
+
+Potential Initialization Time: 0 hrs 0 min 4 sec
+
+Particles Initialization Time: 0 sec 0 msec 747 usec 198 nsec
+
+Total Simulation Initialization Time: 0 hrs 0 min 4 sec
+
+
+====================== Times Estimates ===========================
+
+Optimal Green&#39;s Function Time:
+0 min 3 sec 238 msec 149 usec 516 nsec
+
+Time of PP acceleration calculation averaged over 100 steps:
+0 min 0 sec 6 msec 204 usec 432 nsec
+
+Time of PM acceleration calculation averaged over 100 steps:
+0 min 0 sec 23 msec 634 usec 595 nsec
+
+
+Running 100 equilibration and production steps to estimate simulation times
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "bcbf6b71d56c45d5a19cf587d880be90", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Time of a single equilibration step averaged over 100 steps:
+0 min 0 sec 39 msec 856 usec 227 nsec
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "297d711fe2724ce197212e715ce02cec", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Time of a single magnetization step averaged over 100 steps:
+0 min 0 sec 35 msec 808 usec 512 nsec
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "c9a0ab29476040ab951be6f4825df85d", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Time of a single production step averaged over 100 steps:
+0 min 0 sec 36 msec 293 usec 14 nsec
+
+
+
+----------------- Total Estimated Times -----------------------
+
+Equilibration Time: 0 hrs 3 min 19 sec
+
+Magnetization Time: 0 hrs 17 min 54 sec
+
+Production Time: 0 hrs 30 min 14 sec
+
+Total Run Time: 0 hrs 51 min 28 sec
+
+
+===================== Post Processing ============================
+
+Radial Distribution Function:
+No. bins = 500
+dr = 0.0125 a_ws = 6.5989e-13 [m]
+Maximum Distance (i.e. potential.rc)= 6.2466 a_ws = 3.2995e-10 [m]
+
+Static Structure Factor:
+No. of ka harmonics = n_x, n_y, n_z = 10, 10, 10
+No. of ka values to calculate = 1330
+Smallest wavevector k_min = 3.9 / N^(1/3)
+k_min = 0.4911 / a_ws = 1.4797e+09 [1/m]
+Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
+k_max = 8.5059 / a_ws = 2.5630e+10 [1/m]
+
+Dynamic Structure Factor:
+Frequency Constants
+        No. of slices = 2
+        No. steps per slice = 12500
+        No. dumps per slice = 6250
+        Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
+        dw = 0.0273 w_p = 4.5696e+13 [Hz]
+        Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
+        w_max = 85.2279 w_p = 1.4280e+17 [Hz]
+Wavevector Constants
+        No. of ka harmonics = n_x, n_y, n_z = 10, 10, 10
+        No. of ka values to calculate = 1330
+        Smallest wavevector k_min = 3.9 / N^(1/3)
+        k_min = 0.4911 / a_ws = 1.4797e+09 [1/m]
+        Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
+        k_max = 8.5059 / a_ws = 2.5630e+10 [1/m]
+
+Current Correlation Function:
+Frequency Constants
+        No. of slices = 2
+        No. steps per slice = 12500
+        No. dumps per slice = 6250
+        Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
+        dw = 0.0273 w_p = 4.5696e+13 [Hz]
+        Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
+        w_max = 85.2279 w_p = 1.4280e+17 [Hz]
+Wavevector Constants
+        No. of ka harmonics = n_x, n_y, n_z = 10, 10, 10
+        No. of ka values to calculate = 1330
+        Smallest wavevector k_min = 3.9 / N^(1/3)
+        k_min = 0.4911 / a_ws = 1.4797e+09 [1/m]
+        Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
+        k_max = 8.5059 / a_ws = 2.5630e+10 [1/m]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Magnetized_Plasma_3_7.png" src="../_images/examples_Magnetized_Plasma_3_7.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Magnetized_Plasma_3_8.png" src="../_images/examples_Magnetized_Plasma_3_8.png" />
+</div>
+</div>
+<p>PreProcessing shows that have chosen good parameters for the pppm algorithm. The black dot in the first plot shows how choice of parameters. This leads to a Total Force Error <span class="math notranslate nohighlight">\(\sim 2 \times 10^8\)</span>. The horizontal and vertical lines in the above plots represent the value <span class="math notranslate nohighlight">\(r = L/2 a_{\rm ws}\)</span>.</p>
+<p>We confirm that our choice of parameters leads to the same physical system as the one simulated by Bernu. <span class="math notranslate nohighlight">\(\Gamma = 100\)</span>, <span class="math notranslate nohighlight">\(\beta = 1.0\)</span>. Contrarily to Bernu we choose to run our simulation for a much longer time. This is for no particular reason, we just can.</p>
+<p>A common technique used in magnetized MD is to equilibrate the system in two steps. First without the presence of the magnetic field and then with the magnetic field turned on. This is because, the magnetic field can greatly delay the relaxation to equilibrium see :cite:<code class="docutils literal notranslate"><span class="pre">Ott2017</span></code>. Hence the magnetization phase before the production phase.</p>
+<p>The estimated times, on this machine, are</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-----------------</span> <span class="n">Total</span> <span class="n">Estimated</span> <span class="n">Times</span> <span class="o">-----------------------</span>
+
+<span class="n">Equilibration</span> <span class="n">Time</span><span class="p">:</span> <span class="mi">0</span> <span class="n">hrs</span> <span class="mi">3</span> <span class="nb">min</span> <span class="mi">19</span> <span class="n">sec</span>
+
+<span class="n">Magnetization</span> <span class="n">Time</span><span class="p">:</span> <span class="mi">0</span> <span class="n">hrs</span> <span class="mi">17</span> <span class="nb">min</span> <span class="mi">54</span> <span class="n">sec</span>
+
+<span class="n">Production</span> <span class="n">Time</span><span class="p">:</span> <span class="mi">0</span> <span class="n">hrs</span> <span class="mi">30</span> <span class="nb">min</span> <span class="mi">14</span> <span class="n">sec</span>
+
+<span class="n">Total</span> <span class="n">Run</span> <span class="n">Time</span><span class="p">:</span> <span class="mi">0</span> <span class="n">hrs</span> <span class="mi">51</span> <span class="nb">min</span> <span class="mi">28</span> <span class="n">sec</span>
+</pre></div>
+</div>
+<p>We are ready to start the simulation.</p>
+</div>
+<div class="section" id="Simulation">
+<h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span style="color: rgb(24,69,49)">
+
+
+
+
+
+ __            _
+/ _\ __ _ _ __| | ____ _ ___
+\ \ / _` | &#39;__| |/ / _` / __|
+_\ \ (_| | |  |   &lt; (_| \__ \
+\__/\__,_|_|  |_|\_\__,_|___/
+
+
+</span>
+An open-source pure-python molecular dynamics code for non-ideal plasmas.
+
+WARNING: Equilibration temperatures not defined. I will use the species&#39;s temperatures.
+
+
+======================= Simulation ==========================
+
+Job ID:  ocp_mag
+Job directory:  Simulations/ocp_mag
+Equilibration dumps directory:  Simulations/ocp_mag/Equilibration/dumps
+Production dumps directory:  Simulations/ocp_mag/Production/dumps
+
+Units:  mks
+Total No. of particles =  500
+
+Particle Species:
+No. of species =  1
+Species 1 : H
+        Species ID: 0
+        No. of particles = 500
+        Number density = 1.620000e+30 [N/m^3]
+        Mass = 1.673000e-27 [kg]
+        Charge = 1.602177e-19 [C]
+        Temperature = 3.163589e+03 [K]
+
+Lengths scales:
+Wigner-Seitz radius = 5.282005e-11 [m]
+No. of non-zero box dimensions =  3
+Box length along x axis = 1.279439e+01 a_ws = 6.758002e-10 [m]
+Box length along y axis = 1.279439e+01 a_ws = 6.758002e-10 [m]
+Box length along z axis = 1.279439e+01 a_ws = 6.758002e-10 [m]
+The remaining lengths scales are given in [m]
+
+Boundary conditions: periodic
+
+Thermostat:  Berendsen
+Berendsen Relaxation rate: 0.200
+Thermostating Temperatures:  [3163.58891632]
+
+Potential:  Coulomb
+Gamma_eff = 100.00
+
+Algorithm:  P3M
+Ewald parameter alpha = 0.6750 / a_ws = 1.277924e+10 [1/m]
+Mesh size * Ewald_parameter (h * alpha) = 0.1349, 0.1349, 0.1349
+                                        ~ 1/7, 1/7, 1/7
+rcut = 6.2466 a_ws = 3.299463e-10 [m]
+Mesh = 64 x 64 x 64
+No. of PP cells per dimension =  2,  2,  2
+No. of particles in PP loop =   1571
+No. of PP neighbors per particle =    243
+PM Force Error = 1.627883e-08
+PP Force Error = 7.430793e-09
+Tot Force Error = 1.789461e-08
+
+Integrator:  magnetic_verlet
+
+Magnetized Plasma:
+Magnetic Field = [0.0000e+00, 0.0000e+00, 1.7000e+07]
+Magnetic Field Magnitude = 1.7000e+07 [Gauss]
+Magnetic Field Unit Vector = [0.0000e+00, 0.0000e+00, 1.0000e+00]
+Cyclotron frequency of Species H = 1.6280e+15 [Hz]
+beta_c of Species H = 9.7167e-01
+
+Time scales:
+Time step = 1.100000e-17 [s]
+Total plasma frequency = 1.675504e+15 [Hz]
+w_p dt = 0.0184
+w_c dt = 0.0179
+Equilibration:
+No. of equilibration steps = 5000 ~ 92 w_p T_eq
+snapshot interval = 10 = 0.184 w_p T_snap
+Magnetization:
+No. of magnetization steps = 30000 ~ 552 w_p T_mag
+snapshot interval = 10 = 0.184 w_p T_snap
+Production:
+No. of production steps = 50000 ~ 921 w_p T_prod
+snapshot interval = 2 = 0.037 w_p T_snap
+
+
+----------------- Initialization Times -----------------------
+
+Potential Initialization Time: 0 hrs 0 min 3 sec
+
+Particles Initialization Time: 0 sec 1 msec 94 usec 281 nsec
+
+Total Simulation Initialization Time: 0 hrs 0 min 3 sec
+
+------------- Equilibration -------------
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "29a15cbd344e4ebeadb380493b9821bd", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Equilibration Time: 0 hrs 2 min 24 sec
+
+------------- Magnetization -------------
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f74d448835984685ac533cc69f64dda6", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Magnetization Time: 0 hrs 14 min 46 sec
+
+------------- Production -------------
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6def0265090944ddbfd6aa3bf82f4094", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Production Time: 0 hrs 25 min 39 sec
+
+Total Time: 0 hrs 42 min 53 sec
+</pre></div></div>
+</div>
+<p>The run completed in a time faster than the predicted one. Woohoo!</p>
+</div>
+<div class="section" id="PostProcessing">
+<h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Before proceeding to the calculation of the diffusion coefficient we check for conservation of energy during the production phase.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">temp_energy_plot</span><span class="p">(</span><span class="n">postproc</span><span class="p">,</span> <span class="s1">&#39;production&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Magnetized_Plasma_10_0.png" src="../_images/examples_Magnetized_Plasma_10_0.png" />
+</div>
+</div>
+<p>The energy remained fairly constant over the entire production phase after an initial drop of <span class="math notranslate nohighlight">\(\sim 2 \%\)</span>. The Temperature similarly had a jump of <span class="math notranslate nohighlight">\(\sim 5\%\)</span>. However, both the Temperature and Total Energy show a Gaussian distribution around their means.</p>
+<p>We are ready to calculate the diffusion coefficient</p>
+<div class="section" id="Transport">
+<h3>Transport<a class="headerlink" href="#Transport" title="Permalink to this headline">¶</a></h3>
+<p>Transport coefficient are calculated using the <code class="docutils literal notranslate"><span class="pre">TransportCoefficient</span></code> class in <code class="docutils literal notranslate"><span class="pre">sarkas.tools.transport</span></code>. Once the class is imported the diffusion coefficient is calculated by calling the method <code class="docutils literal notranslate"><span class="pre">diffusion</span></code>. This method requires the parameters of the simulation passed as <code class="docutils literal notranslate"><span class="pre">postproc.parameters</span></code>. The <code class="docutils literal notranslate"><span class="pre">phase</span></code> argument in this case is not needed since <code class="docutils literal notranslate"><span class="pre">production</span></code> is the default phase.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficient</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">diffusion</span> <span class="o">=</span> <span class="n">TransportCoefficient</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">phase</span> <span class="o">=</span> <span class="s1">&#39;production&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Magnetized_Plasma_13_0.png" src="../_images/examples_Magnetized_Plasma_13_0.png" />
+</div>
+</div>
+<p>This method calculates the diffusion coefficient from the velocity auto-correlation functions. If these functions are not available <code class="docutils literal notranslate"><span class="pre">Sarkas</span></code> will automatically calculate them, hence the <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">not</span> <span class="pre">found</span></code> message at the beginning.</p>
+<p>In the case of a magnetized plasma we have two diffusion coefficients:</p>
+<div class="math notranslate nohighlight">
+\[D_{\parallel}(\tau) = \frac{k_B T}{m} \int_0^\tau dt Z_{\parallel}(t), \quad D_{\perp}(\tau) = \frac{k_B T}{m} \int_0^\tau dt Z_{\perp}(t)\]</div>
+<p>where, for the case of a constant magnetic field in the <span class="math notranslate nohighlight">\(z\)</span>-direction</p>
+<div class="math notranslate nohighlight">
+\[Z_{\parallel}(t) = \langle v_z(t)v_z(0) \rangle, \quad Z_{\perp}(t) = \frac{1}{2} \left [ \langle v_x(t)v_x(0) \rangle + \langle v_y(t)v_y(0) \rangle \right ],\]</div>
+<p>are the velocity autocorrelation functions. These functions are calculated by the class <code class="docutils literal notranslate"><span class="pre">VelocityAutocorrelationFunction</span></code> in <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables</span></code>. This class calculates and saves <span class="math notranslate nohighlight">\(Z(t)\)</span> for each axis and the total <span class="math notranslate nohighlight">\(Z(t) = \frac{1}{3} \left [ Z_x(t) + Z_y(t) + Z_z(t) \right ]\)</span>. The <code class="docutils literal notranslate"><span class="pre">diffusion</span></code> method takes care in dividing it into the perpendicular and parallel.</p>
+<p>It is important to note that the <code class="docutils literal notranslate"><span class="pre">diffusion</span></code> method assume a constant magnetic field in the <span class="math notranslate nohighlight">\(z\)</span>-direction. Arbitrary directions of the magnetic field are not supported at the moment.</p>
+<p>Once the calculation is complete <code class="docutils literal notranslate"><span class="pre">Sarkas</span></code> will produce a figure containing a plot of <span class="math notranslate nohighlight">\(Z_{\perp}(t)\)</span> and <span class="math notranslate nohighlight">\(Z_{\parallel}(t)\)</span> on the left <code class="docutils literal notranslate"><span class="pre">y</span></code> axis and a plot of <span class="math notranslate nohighlight">\(D_{\parallel}(\tau)\)</span> and <span class="math notranslate nohighlight">\(D_{\perp}(\tau)\)</span> on the right <span class="math notranslate nohighlight">\(y\)</span>-axis. <span class="math notranslate nohighlight">\(Z_{\parallel, \perp}(t)\)</span> are plotted with solid lines, while <span class="math notranslate nohighlight">\(D_{\parallel, \perp}(\tau)\)</span> are plotted as dashed lines.</p>
+<p>The above plots can be confusing and definitely not suitable for publication. Therefore, we re-plot the diffusion only by rescaling it by <span class="math notranslate nohighlight">\(\omega_p a_{\rm ws}^2\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Parallel Diffusion&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+       <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$D_{\parallel}$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Perpendicular Diffusion&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$D_{\perp}$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time [fs]&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$D_{\parallel,\perp}$ [$\omega_p a_</span><span class="si">{ws}</span><span class="s1">^2$]&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;$D_{\\parallel,\\perp}$ [$\\omega_p a_{ws}^2$]&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Magnetized_Plasma_15_1.png" src="../_images/examples_Magnetized_Plasma_15_1.png" />
+</div>
+</div>
+<p>This gives a clearer picture of the diffusion coefficient. Note that the diffusion is a constant and not a function of time. This plot is meant to show how the diffusion changes as the upper limit of the time integration is varied. This plot shows that we need to integrate for a time <span class="math notranslate nohighlight">\(\tau &gt; 200\)</span> fs in order to obtain a good value. The shifted <span class="math notranslate nohighlight">\(x\)</span>-axis <code class="docutils literal notranslate"><span class="pre">Index</span></code> in the previous plot indicates the corresponding array index of time <span class="math notranslate nohighlight">\(t\)</span>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../theory/integrators.html" class="btn btn-neutral float-right" title="Integrators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="QSP_Tutorial.html" class="btn btn-neutral float-left" title="Quantum Statistical Potential Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020,MurilloGroup
+      <span class="lastupdated">
+        Last updated on Feb, 02, 2021.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

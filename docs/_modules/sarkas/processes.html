@@ -29,9 +29,8 @@
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
@@ -102,13 +101,16 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/integrators.html">Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/potentials.html">Potentials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/thermostats.html">Thermostats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/force_error.html">Force Error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/references.html">References</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -358,9 +360,6 @@
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Parameters&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
 
-            <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Control&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
-
         <span class="k">for</span> <span class="n">observable</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;PostProcessing&#39;</span><span class="p">]:</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">observable</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span><span class="p">:</span>
@@ -459,6 +458,7 @@
                                     <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocessing</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="c1"># initialize the directories and filenames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="c1"># Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.</span>
@@ -467,7 +467,6 @@
         <span class="c1"># save some general info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">potential_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetized</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">thermostat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">type</span>
 
@@ -482,6 +481,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;prod_dump_step&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">electrostatic_equilibration</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;mag_dump_step&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;magnetization_steps&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
 
@@ -542,7 +548,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">loops</span> <span class="o">=</span> <span class="n">loops</span>
 
         <span class="k">if</span> <span class="n">timing</span><span class="p">:</span>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocess_timing</span><span class="p">(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_on</span><span class="p">:</span>
                 <span class="n">green_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">green_function_timer</span><span class="p">())</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocess_timing</span><span class="p">(</span><span class="s2">&quot;GF&quot;</span><span class="p">,</span> <span class="n">green_time</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -556,6 +562,8 @@
             <span class="c1"># Delete the energy files created during the estimation runs</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">eq_energy_filename</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">prod_energy_filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">mag_energy_filename</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">pppm_plots</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pppm_approximation</span><span class="p">()</span>
@@ -771,9 +779,16 @@
 
 <div class="viewcode-block" id="PreProcess.time_integrator_loop"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.time_integrator_loop">[docs]</a>    <span class="k">def</span> <span class="nf">time_integrator_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run several loops of the equilibration and production phase to estimate the total time of the simulation.&quot;&quot;&quot;</span>
-        <span class="c1"># Save the original number of timesteps</span>
-        <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">])</span>
-        <span class="c1"># dump_steps = np.array([self.integrator.eq_dump_step, self.integrator.prod_dump_step])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="c1"># Save the original number of timesteps</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loops</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Save the original number of timesteps</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">])</span>
 
         <span class="c1"># Update the equilibration and production timesteps for estimation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loops</span>
@@ -788,6 +803,14 @@
         <span class="n">eq_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">loops</span>
         <span class="c1"># Print the average equilibration &amp; production times</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocess_timing</span><span class="p">(</span><span class="s2">&quot;Equilibration&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">eq_time</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">loops</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="p">)</span>
+            <span class="n">mag_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">loops</span>
+            <span class="c1"># Print the average equilibration &amp; production times</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocess_timing</span><span class="p">(</span><span class="s2">&quot;Magnetization&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">mag_time</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">loops</span><span class="p">)</span>
+
         <span class="c1"># Run few production steps to estimate the equilibration time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">produce</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="p">)</span>
@@ -798,8 +821,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
+        <span class="c1"># Print the estimate for the full run</span>
         <span class="n">eq_prediction</span> <span class="o">=</span> <span class="n">eq_time</span> <span class="o">*</span> <span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s1">&#39;Equilibration&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">eq_prediction</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">mag_prediction</span> <span class="o">=</span> <span class="n">mag_time</span> <span class="o">*</span> <span class="n">steps</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s1">&#39;Magnetization&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">mag_prediction</span><span class="p">))</span>
+            <span class="n">eq_prediction</span> <span class="o">+=</span> <span class="n">mag_prediction</span>
+
         <span class="n">prod_prediction</span> <span class="o">=</span> <span class="n">prod_time</span> <span class="o">*</span> <span class="n">steps</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s1">&#39;Production&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">prod_prediction</span><span class="p">))</span>
 
@@ -1117,62 +1148,79 @@
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Control&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="Simulation.equilibrate"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.equilibrate">[docs]</a>    <span class="k">def</span> <span class="nf">equilibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it_start</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.equilibrate"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.equilibrate">[docs]</a>    <span class="k">def</span> <span class="nf">equilibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        it_start: int</span>
-<span class="sd">            Initial step number of the equilibration loop.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------------- Equilibration -------------&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Check if this is restart</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;equilibration_restart&quot;</span><span class="p">,</span> <span class="s2">&quot;eq_restart&quot;</span><span class="p">]:</span>
+            <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">it_start</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s1">&#39;equilibration&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Start timer, equilibrate, and print run time.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibrate</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="p">)</span>
         <span class="n">time_eq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Equilibration&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_eq</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Equilibration&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_eq</span><span class="p">))</span>
+
+        <span class="c1"># Check for magnetization phase</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">------------- Magnetization -------------&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;magnetization_restart&quot;</span><span class="p">,</span> <span class="s2">&quot;mag_restart&quot;</span><span class="p">]:</span>
+                <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">it_start</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s1">&#39;magnetization&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">)</span>
+
+            <span class="c1"># Start timer, magnetize, and print run time.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetize</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="p">)</span>
+            <span class="n">time_eq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Magnetization&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_eq</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Simulation.evolve"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.evolve">[docs]</a>    <span class="k">def</span> <span class="nf">evolve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the time integrator to evolve the system for the duration of the production phase.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">##############################################</span>
-        <span class="c1"># Prepare for Production Phase</span>
-        <span class="c1">##############################################</span>
 
-        <span class="c1"># Open output files</span>
+        <span class="c1"># Check for simulation restart.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;prod_restart&quot;</span><span class="p">,</span> <span class="s2">&quot;production_restart&quot;</span><span class="p">]:</span>
             <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">it_start</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="c1"># Restart the pbc counter</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># Restart the pbc counter.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------------- Production -------------&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Update measurement flag for rdf</span>
+        <span class="c1"># Update measurement flag for rdf.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">measure</span> <span class="o">=</span> <span class="kc">True</span>
 
+        <span class="c1"># Start timer, produce data, and print run time.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">produce</span><span class="p">(</span><span class="n">it_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="p">)</span>
         <span class="n">time_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Production&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_end</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Simulation.initialization"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.initialization">[docs]</a>    <span class="k">def</span> <span class="nf">initialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.initialization"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.initialization">[docs]</a>    <span class="k">def</span> <span class="nf">initialization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize all the sub classes of the simulation and save simulation details to log file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="c1"># Start timer and initialize Potential class.</span>
         <span class="n">t0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
         <span class="n">time_pot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
 
+        <span class="c1"># Initialize the other classes.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thermostat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
@@ -1183,22 +1231,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">simulation_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">time_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
 
+        <span class="c1"># Print Timing.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Potential Initialization&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Particles Initialization&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_ptcls</span> <span class="o">-</span> <span class="n">time_pot</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Total Simulation Initialization&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Simulation.run"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
+<div class="viewcode-block" id="Simulation.run"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Run the simulation.&quot;&quot;&quot;</span>
         <span class="n">time0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialization</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;prod_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;production_restart&#39;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;equilibration_restart&quot;</span><span class="p">,</span> <span class="s2">&quot;eq_restart&quot;</span><span class="p">]:</span>
-                <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">it_start</span> <span class="o">=</span> <span class="mi">0</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">equilibrate</span><span class="p">(</span><span class="n">it_start</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">equilibrate</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">evolve</span><span class="p">()</span>
         <span class="n">time_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
@@ -1235,7 +1279,6 @@
         <span class="c1"># save some general info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">potential_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetized</span>
 
         <span class="c1"># Copy some integrator parameters if not already defined</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;dt&#39;</span><span class="p">):</span>
@@ -1248,6 +1291,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;prod_dump_step&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">electrostatic_equilibration</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;mag_dump_step&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;magnetization_steps&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
 
@@ -1369,7 +1419,7 @@
         
         &copy; Copyright 2020,MurilloGroup
       <span class="lastupdated">
-        Last updated on Jan, 27, 2021.
+        Last updated on Feb, 02, 2021.
       </span>
 
     </p>
