@@ -336,9 +336,11 @@ class PreProcess:
             plt.style.use(self.parameters.plot_style)
 
     def green_function_timer(self):
+        """Time Potential setup."""
 
         self.timer.start()
         self.potential.pppm_setup(self.parameters)
+
         return self.timer.stop()
 
     def run(self, loops=None, timing=True, pppm_plots=False, postprocessing=False, estimate=None):
@@ -351,7 +353,7 @@ class PreProcess:
             Flag for calculating Post processing parameters.
 
         timing : bool
-            Flag for estimating simulation times.
+            Flag for estimating simulation times. Default =True.
 
         loops : int
             Number of loops over which to average the acceleration calculation.
@@ -377,6 +379,23 @@ class PreProcess:
 
             self.time_acceleration()
             self.time_integrator_loop()
+
+            # Estimate size of dump folder
+            eq_dump_size = os.stat(os.path.join(self.io.eq_dump_dir,'checkpoint_0.npz')).st_size
+            eq_dump_fldr_size = eq_dump_size * (self.integrator.equilibration_steps / self.integrator.eq_dump_step)
+            prod_dump_size = os.stat(os.path.join(self.io.prod_dump_dir, 'checkpoint_0.npz')).st_size
+            prod_dump_fldr_size = prod_dump_size * (self.integrator.production_steps / self.integrator.prod_dump_step)
+            sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
+                             [prod_dump_size, prod_dump_fldr_size]])
+            if self.integrator.electrostatic_equilibration:
+                dump = self.integrator.mag_dump_step
+                mag_dump_size = os.stat(os.path.join(self.io.mag_dump_dir, 'checkpoint_' + str(dump) + '.npz')).st_size
+                mag_dump_fldr_size = mag_dump_size * (self.integrator.magnetization_steps / self.integrator.mag_dump_step)
+                sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
+                                 [prod_dump_size, prod_dump_fldr_size],
+                                 [mag_dump_size, mag_dump_fldr_size]])
+
+            self.io.preprocess_sizing(sizes)
 
             # Delete the energy files created during the estimation runs
             os.remove(self.io.eq_energy_filename)

@@ -403,6 +403,67 @@ class InputOutput:
 
         f_log.close()
 
+    def preprocess_sizing(self, sizes):
+        """Print the estimated file sizes. """
+
+        screen = sys.stdout
+        f_log = open(self.io_file, 'a+')
+        repeat = 2 if self.verbose else 1
+
+        # redirect printing to file
+        sys.stdout = f_log
+        while repeat > 0:
+            print('\n\n====================== Filesize Estimates ===========================\n')
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0,0])
+            print('\nEquilibration:\n')
+            print("Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                    int(size_MB),
+                                                                    int(size_KB),
+                                                                    int(rem)))
+
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 1])
+            print("Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                    int(size_MB),
+                                                                    int(size_KB),
+                                                                    int(rem)))
+            if self.electrostatic_equilibration:
+
+                print('\nMagnetization:\n')
+                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 0])
+                print("Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                                  int(size_MB),
+                                                                                  int(size_KB),
+                                                                                  int(rem)))
+
+                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 1])
+                print("Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                                     int(size_MB),
+                                                                                     int(size_KB),
+                                                                                     int(rem)))
+
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 0])
+            print('\nProduction:\n')
+            print("Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                              int(size_MB),
+                                                                              int(size_KB),
+                                                                              int(rem)))
+
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 1])
+            print("Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                                 int(size_MB),
+                                                                                 int(size_KB),
+                                                                                 int(rem)))
+
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[:, 1].sum())
+            print("\nTotal minimum needed space: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                                 int(size_MB),
+                                                                                 int(size_KB),
+                                                                                 int(rem)))
+            repeat -= 1
+            sys.stdout = screen
+
+        f_log.close()
+
     def preprocess_timing(self, str_id, t, loops):
         """Print times estimates of simulation to file first and then to screen if verbose."""
         screen = sys.stdout
@@ -1220,3 +1281,12 @@ def num_sort(text):
     """
 
     return [alpha_to_int(c) for c in re.split(r'(\d+)', text)]
+
+
+def convert_bytes(bytes):
+
+    GB, rem = divmod(bytes, 1024 * 1024 * 1024)
+    MB, rem = divmod(rem, 1024 * 1024)
+    KB, rem = divmod(rem, 1024)
+
+    return [GB, MB, KB, rem]
