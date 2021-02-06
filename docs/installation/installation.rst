@@ -83,13 +83,7 @@ for creating the ``sarkas`` virtual environment.
 
         $ conda deactivate
 
-#. Activate your new sarkas environment enter the sarkas directory
-
-    .. code-block:: bash
-
-        $ cd sarkas
-
-    and install sarkas system wide via
+#. Once the environment has been activated you can install sarkas system wide via
 
     .. code-block:: bash
 

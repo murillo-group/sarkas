@@ -63,6 +63,8 @@ class InputOutput:
         self.log_file = None
         self.preprocess_file = None
         self.preprocessing = False
+        self.magnetized = False
+        self.electrostatic_equilibration = False
         self.verbose = False
         self.xyz_dir = None
         self.xyz_filename = None
@@ -163,10 +165,15 @@ class InputOutput:
         # Production dir and sub_dir
         self.production_dir = os.path.join(self.job_dir, self.production_dir)
         self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
+
         # Magnetic dir
-        if self.magnetized:
+        if self.electrostatic_equilibration:
             self.magnetization_dir = os.path.join(self.job_dir, self.magnetization_dir)
             self.mag_dump_dir = os.path.join(self.magnetization_dir, "dumps")
+            # Magnetization phase filenames
+            self.mag_energy_filename = os.path.join(self.magnetization_dir,
+                                                    "MagnetizationEnergy_" + self.job_id + '.csv')
+            self.mag_ptcls_filename = os.path.join(self.mag_dump_dir, "checkpoint_")
 
         # Preprocessing dir
         self.preprocessing_dir = os.path.join(self.job_dir, self.preprocessing_dir)
@@ -186,9 +193,6 @@ class InputOutput:
         # Equilibration phase filenames
         self.eq_energy_filename = os.path.join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + '.csv')
         self.eq_ptcls_filename = os.path.join(self.eq_dump_dir, "checkpoint_")
-        # Magnetization phase filenames
-        self.mag_energy_filename = os.path.join(self.magnetization_dir, "MagnetizationEnergy_" + self.job_id + '.csv')
-        self.mag_ptcls_filename = os.path.join(self.mag_dump_dir, "checkpoint_")
 
         if self.preprocessing:
             self.io_file = self.preprocess_file
@@ -494,6 +498,7 @@ class InputOutput:
                 print('\nStatic Structure Factor:')
                 print('No. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
                 print('No. of ka values to calculate = {}'.format(len(simulation.ssf.k_list)))
+                print('No. of unique ka values to calculate = {}'.format(len(simulation.ssf.k_unique)))
                 print('Smallest wavevector k_min = 3.9 / N^(1/3)')
                 print('k_min = {:.4f} / a_ws = {:1.4e} '.format(
                     simulation.ssf.ka_values[0], simulation.ssf.k_unique[0]), end='')

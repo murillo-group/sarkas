@@ -24,7 +24,6 @@ Potential:
     rc: 2.954235e-10          # cut-off radius, meter
     electron_temperature_eV: 10.0
 
-
 Integrator:
     type: Verlet                  # velocity integrator type
     equilibration_steps: 5000
@@ -49,6 +48,8 @@ IO:
     simulations_dir: Simulations
     job_dir: CO_mks_pp                         # dir name to save data.
     job_id: CO_mks_pp
+    magnetized: False
+    electrostatic_equilibration: False
 
 PostProcessing:
   - RadialDistributionFunction:

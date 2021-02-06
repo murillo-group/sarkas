@@ -148,6 +148,7 @@ class Potential:
                 self.rc = params.box_lengths.min() / 2.
                 self.linked_list_on = False  # linked list off
 
+        # Check for electrons as dynamical species
         if self.type.lower() == 'qsp':
             mask = params.species_names == 'e'
             self.electron_temperature = params.species_temperatures[mask]
@@ -171,6 +172,8 @@ class Potential:
         self.calc_electron_properties(params)
 
         if hasattr(self, "kappa"):
+            if self.electron_temperature != params.total_ion_temperature :
+                print("WARNING: You have defined both kappa and the electron_temperature. kappa's value will be used.")
             # Thomas-Fermi Length
             params.lambda_TF = params.a_ws / self.kappa
 
