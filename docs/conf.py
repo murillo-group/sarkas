@@ -30,7 +30,7 @@ intersphinx_mapping = {
 # -- Project information -----------------------------------------------------
 project = 'Sarkas'
 author = 'MurilloGroup'
-copyright = '2020,' + author
+copyright = '2020, ' + author
 
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
@@ -44,6 +44,7 @@ release = '0.1.0'
 extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.todo',
     'sphinx_rtd_theme',
     'sphinxcontrib.apidoc',
@@ -86,7 +87,7 @@ autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
 
 
 html_last_updated_fmt = '%b, %d, %Y'
-html_logo = 'logo.png'
+html_logo = os.path.join('graphics', os.path.join('logo','web_logo_orange.png'))
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

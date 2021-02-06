@@ -1,54 +1,15 @@
 .. _install:
 
-============
+************
 Installation
-============
+************
 
-To install Sarkas you first need to download the source code from its GitHub repository_.
+.. warning::
+    Sarkas is under heavy development and not yet available via package managers like ``pip`` and ``conda``.
+    Therefore, please follow the instructions :ref:`here<dev_install>`  for installation.
 
-Forking and Cloning Sarkas repository
-=====================================
-The instructions that follow are a copy of those found in the Github help fork_ page. If you have problems cloning
-the repository please visit the fork_ page.
-
-A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without
-affecting the original project.
-
-#. Navigate to the main page of Sarkas' repository_
-
-#. In the top right corner of the page, under your account icon, click on **Fork**.
-
-#. Great you have successfully forked Sarkas repository. Now we need to clone it on your local computer.
-
-#. Navigate to your Github page and select your Sarkas repository
-
-#. Above the list of files, click on the green button **Clone**
-
-#. At this point you can either
-
-    * a. Click on **Download ZIP** and save it in the folder where you want to store your copy of Sarkas.
-    * b. Copy the link shown
-
-#. Depending on your choice above
-
-        * a. Unzip the folder and enter the ``sarkas-master`` folder. Jump to point 8.
-        * b. Open a terminal window and ``cd`` into the folder where you want to store your copy of Sarkas. Then type
-
-        .. code-block:: bash
-
-            $ git clone https://github.com/murillo-group/sarkas.git
-
-#. At this point you can choose to
-
-    #. Create a virtual environment for you work
-    #. Use the docker image
-    #. Manually install all the required packages
-
-.. note::
-    We strongly suggest Option 1.
-
-Option 1: Virtual environment
-=============================
+Virtual environment
+===================
 It is good practice to create virtual environment for your each of your programming projects. Below are instructions
 for creating the ``sarkas`` virtual environment.
 
@@ -65,10 +26,9 @@ for creating the ``sarkas`` virtual environment.
 
     .. code-block:: bash
 
-        $ conda env create -f sarkas_env.yaml
+        $ conda env create sarkas
 
-    This command will read the file (``-f`` option) ``sarkas_env.yaml`` which contains all the necessary packages for
-    running Sarkas. It will create the virtual environment ``sarkas`` in the ``envs`` directory of your conda directory
+    This command will create the virtual environment ``sarkas`` in the ``envs`` directory of your conda directory
     (the one printed above by the command ``which``).
 
 #. Once the enviroment has been created you can activate it by
@@ -83,42 +43,12 @@ for creating the ``sarkas`` virtual environment.
 
         $ conda deactivate
 
-#. Activate your new sarkas environment enter the sarkas directory
+#. Once the environment has been activated you can install sarkas system wide via
 
     .. code-block:: bash
 
-        $ cd sarkas
+        $ pip install sarkas-md
 
-    and install sarkas system wide via
-
-    .. code-block:: bash
-
-        $ python setup.py install
-
-Option 2: Docker Image
-======================
-Alternatively, you can install the whole sarkas package including all dependencies/preliminary-packages using Docker_.
-To install Sarkas using Docker, run the following commands:
-
-.. code-block:: bash
-
-   $ cd sarkas
-   $ docker build -t sarkas -f Docker/Dockerfile .
-
-Once you install Sarkas using Docker, you can go inside the Docker container by running the following:
-
-.. code-block:: bash
-
-   $ docker run -u 0 -it sarkas bash
-
-.. _Docker: https://www.docker.com/products/docker-desktop
-
-Option 3: Manual installation
-=============================
-If you don't have a version of Python 3.* installed, visit Anaconda_ and download_ their Python 3.* installer.
-Then jump back to Option 1.
-
-If you have Python 3.* installed jump back to Option 1.
 
 .. _Anaconda: https://www.anaconda.org
 .. _repository: https://github.com/murillo-group/sarkas-repo

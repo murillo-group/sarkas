@@ -3,12 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-======
+******
 Sarkas
-======
----------------------------------------------------------------
- A Pure Python Molecular Dynamics package for Non-Ideal Plasmas
----------------------------------------------------------------
+******
+
+
+A Pure Python Molecular Dynamics package for Non-Ideal Plasmas
+##############################################################
 
 Sarkas is a pure-Python Molecular Dynamics (MD) package designed with plasma physics in mind. The
 pure-python construction allows users to quickly add their own features to model the systems of
@@ -20,7 +21,7 @@ In the following pages you will find tutorials and information on the functional
 Sarkas, Join us! :)
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Getting Started:
 
    why_sarkas/why_sarkas
@@ -28,7 +29,7 @@ Sarkas, Join us! :)
    quickstart/Quickstart
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Tutorials:
 
    tutorial/tutorial
@@ -36,7 +37,7 @@ Sarkas, Join us! :)
    tutorial/Pre_Simulation_Testing
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Examples:
 
    examples/H-He_Mixture
@@ -44,7 +45,7 @@ Sarkas, Join us! :)
    examples/Magnetized_Plasma
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Theoretical Background:
 
    theory/integrators
@@ -55,7 +56,13 @@ Sarkas, Join us! :)
    theory/references
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :caption: Code Development:
+
+   development/code_dev
+
+.. toctree::
+   :maxdepth: 1
    :caption: Source Code:
 
    api/modules

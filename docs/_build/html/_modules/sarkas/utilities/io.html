@@ -56,7 +56,7 @@
 
           
             
-            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+            <img src="../../../_static/web_logo_orange.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -111,6 +111,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/force_error.html">Force Error</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/references.html">References</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/code_dev.html">Code Development</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -244,6 +248,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xyz_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xyz_filename</span> <span class="o">=</span> <span class="kc">None</span>
@@ -344,10 +350,15 @@
         <span class="c1"># Production dir and sub_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">,</span> <span class="s2">&quot;dumps&quot;</span><span class="p">)</span>
+
         <span class="c1"># Magnetic dir</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">,</span> <span class="s2">&quot;dumps&quot;</span><span class="p">)</span>
+            <span class="c1"># Magnetization phase filenames</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_energy_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">,</span>
+                                                    <span class="s2">&quot;MagnetizationEnergy_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_ptcls_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint_&quot;</span><span class="p">)</span>
 
         <span class="c1"># Preprocessing dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">)</span>
@@ -367,9 +378,6 @@
         <span class="c1"># Equilibration phase filenames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eq_energy_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span><span class="p">,</span> <span class="s2">&quot;EquilibrationEnergy_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eq_ptcls_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint_&quot;</span><span class="p">)</span>
-        <span class="c1"># Magnetization phase filenames</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mag_energy_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">,</span> <span class="s2">&quot;MagnetizationEnergy_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mag_ptcls_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint_&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">io_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_file</span>
@@ -675,6 +683,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Static Structure Factor:&#39;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of ka harmonics = n_x, n_y, n_z = </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">simulation</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">no_ka_harmonics</span><span class="p">))</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of ka values to calculate = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">k_list</span><span class="p">)))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of unique ka values to calculate = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">k_unique</span><span class="p">)))</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Smallest wavevector k_min = 3.9 / N^(1/3)&#39;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;k_min = </span><span class="si">{:.4f}</span><span class="s1"> / a_ws = </span><span class="si">{:1.4e}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">simulation</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">ka_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">simulation</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">k_unique</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -1409,9 +1418,9 @@
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2020,MurilloGroup
+        &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 02, 2021.
+        Last updated on Feb, 06, 2021.
       </span>
 
     </p>
