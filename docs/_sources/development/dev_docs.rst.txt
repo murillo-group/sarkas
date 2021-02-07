@@ -64,13 +64,16 @@ Here are the steps
 
             $ cp -rf _build/html/* .
 
+        The option ``-rf`` is needed for copying folders and avoid any confirmation.
+        
         On Windows run (?)
 
         .. code-block:: bash
 
-            $ copy -rf _build\\html\\* .
+            $ Xcopy /E /I _build\html\* .
 
-        The option ``-rf`` is needed for copying folders and avoid any confirmation.
+        The option ``/E`` makes sure that empty subfolders are copied to the destination. 
+        The option  ``/I`` avoids prompting if the destination is a folder or file.
 
 Congratulations! The Documentation is up to date.
 

@@ -126,7 +126,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Source Code:</span></p>
+<p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">sarkas</a></li>
 </ul>
@@ -273,11 +273,13 @@ You can ignore warnings about duplicate citations.</p>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cp -rf _build/html/* .
 </pre></div>
 </div>
+<p>The option <code class="docutils literal notranslate"><span class="pre">-rf</span></code> is needed for copying folders and avoid any confirmation.</p>
 <p>On Windows run (?)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ copy -rf _build<span class="se">\\</span>html<span class="se">\\</span>* .
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ Xcopy /E /I _build<span class="se">\h</span>tml<span class="se">\*</span> .
 </pre></div>
 </div>
-<p>The option <code class="docutils literal notranslate"><span class="pre">-rf</span></code> is needed for copying folders and avoid any confirmation.</p>
+<p>The option <code class="docutils literal notranslate"><span class="pre">/E</span></code> makes sure that empty subfolders are copied to the destination.
+The option  <code class="docutils literal notranslate"><span class="pre">/I</span></code> avoids prompting if the destination is a folder or file.</p>
 </div></blockquote>
 </li>
 </ol>

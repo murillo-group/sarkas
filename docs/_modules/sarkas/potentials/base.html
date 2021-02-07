@@ -116,7 +116,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Source Code:</span></p>
+<p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">sarkas</a></li>
 </ul>
@@ -521,17 +521,24 @@
 <span class="sd">            Simulation&#39;s parameters</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># P3M parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pppm_h_array</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span>
+        <span class="c1"># Change lists to numpy arrays for Numba compatibility</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pppm_aliases</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pppm_aliases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pppm_aliases</span><span class="p">)</span>
+
+        <span class="c1"># P3M parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pppm_h_array</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span>
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span>
-        <span class="c1"># Calculate the Optimized Green&#39;s Function</span>
+        <span class="c1"># Pack constants together for brevity in input list </span>
         <span class="n">kappa</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="k">else</span> <span class="mf">0.0</span>
         <span class="n">constants</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">kappa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">])</span>
+        <span class="c1"># Calculate the Optimized Green&#39;s Function</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pppm_green_function</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_kx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_ky</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_kz</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pppm_pm_err</span> <span class="o">=</span> <span class="n">gf_opt</span><span class="p">(</span>
             <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_aliases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_cao</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span>
+        
         <span class="c1"># Complete PM Force error calculation</span>
         <span class="n">params</span><span class="o">.</span><span class="n">pppm_pm_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
         <span class="n">params</span><span class="o">.</span><span class="n">pppm_pm_err</span> <span class="o">/=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">**</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>

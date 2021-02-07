@@ -116,7 +116,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Source Code:</span></p>
+<p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">sarkas</a></li>
 </ul>
@@ -462,27 +462,29 @@
                     <span class="n">xmul</span><span class="p">,</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">plot_labels</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Diffusion&quot;</span><span class="p">,</span>
                                                                    <span class="n">jc_acf</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
                     <span class="n">ax1</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">integrand</span> <span class="o">/</span> <span class="n">integrand</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$J_{&#39;</span> <span class="o">+</span> <span class="n">sp1</span> <span class="o">+</span> <span class="n">sp2</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span><span class="p">)</span>
-                    <span class="n">ax21</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
+                    <span class="n">ax21</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">ymul</span> <span class="o">*</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
                     <span class="n">ax2</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">ymul</span> <span class="o">*</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$D_{&#39;</span> <span class="o">+</span> <span class="n">sp1</span> <span class="o">+</span> <span class="n">sp2</span> <span class="o">+</span> <span class="s1">&#39;}(t)$&#39;</span><span class="p">)</span>
                 <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="c1"># Complete figure</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Diffusion Flux ACF&#39;</span><span class="p">)</span>
-
         <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+        <span class="n">ax21</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Diffusion Flux ACF&#39;</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Inter Diffusion&#39;</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
-
+        
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Time&quot;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
+        
         <span class="n">ax21</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
+
+        <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
-
         <span class="c1"># Offset the twin axis below the host</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="s2">&quot;axes&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">))</span>
-
+        <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="s2">&quot;axes&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">))</span>
+        
         <span class="c1"># Turn on the frame for the twin axis, but then hide all</span>
         <span class="c1"># but the bottom spine</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">set_frame_on</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -490,10 +492,9 @@
 
         <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">sp</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
         <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Index&quot;</span><span class="p">)</span>
-        <span class="c1"># ax21.set_xbound(1, len(time))</span>
 
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;InterDiffusionPlot_&#39;</span> <span class="o">+</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
