@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>sarkas.processes &mdash; Sarkas 0.1.0 documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -114,7 +117,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Code Development:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../development/code_dev.html">Code Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development/code_dev.html">Guidelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
@@ -144,6 +147,8 @@
         <div class="rst-content">
         
           
+
+
 
 
 
@@ -521,11 +526,9 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">plot_style</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PreProcess.green_function_timer"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.green_function_timer">[docs]</a>    <span class="k">def</span> <span class="nf">green_function_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Time Potential setup.&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="PreProcess.run"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loops</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pppm_plots</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">postprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">estimate</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -538,7 +541,7 @@
 <span class="sd">            Flag for calculating Post processing parameters.</span>
 
 <span class="sd">        timing : bool</span>
-<span class="sd">            Flag for estimating simulation times. Default =True.</span>
+<span class="sd">            Flag for estimating simulation times.</span>
 
 <span class="sd">        loops : int</span>
 <span class="sd">            Number of loops over which to average the acceleration calculation.</span>
@@ -564,23 +567,6 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">time_acceleration</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">time_integrator_loop</span><span class="p">()</span>
-
-            <span class="c1"># Estimate size of dump folder</span>
-            <span class="n">eq_dump_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">eq_dump_dir</span><span class="p">,</span><span class="s1">&#39;checkpoint_</span><span class="si">{}</span><span class="s1">.npz&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">))))</span><span class="o">.</span><span class="n">st_size</span>
-            <span class="n">eq_dump_fldr_size</span> <span class="o">=</span> <span class="n">eq_dump_size</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">)</span>
-            <span class="n">prod_dump_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">,</span> <span class="s1">&#39;checkpoint_</span><span class="si">{}</span><span class="s1">.npz&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">))))</span><span class="o">.</span><span class="n">st_size</span>
-            <span class="n">prod_dump_fldr_size</span> <span class="o">=</span> <span class="n">prod_dump_size</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">)</span>
-            <span class="n">sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">eq_dump_size</span><span class="p">,</span> <span class="n">eq_dump_fldr_size</span><span class="p">],</span>
-                             <span class="p">[</span><span class="n">prod_dump_size</span><span class="p">,</span> <span class="n">prod_dump_fldr_size</span><span class="p">]])</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
-                <span class="n">dump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span>
-                <span class="n">mag_dump_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">mag_dump_dir</span><span class="p">,</span> <span class="s1">&#39;checkpoint_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.npz&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">st_size</span>
-                <span class="n">mag_dump_fldr_size</span> <span class="o">=</span> <span class="n">mag_dump_size</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span><span class="p">)</span>
-                <span class="n">sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">eq_dump_size</span><span class="p">,</span> <span class="n">eq_dump_fldr_size</span><span class="p">],</span>
-                                 <span class="p">[</span><span class="n">prod_dump_size</span><span class="p">,</span> <span class="n">prod_dump_fldr_size</span><span class="p">],</span>
-                                 <span class="p">[</span><span class="n">mag_dump_size</span><span class="p">,</span> <span class="n">mag_dump_fldr_size</span><span class="p">]])</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocess_sizing</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
 
             <span class="c1"># Delete the energy files created during the estimation runs</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">eq_energy_filename</span><span class="p">)</span>
@@ -1433,16 +1419,14 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, MurilloGroup
+        &#169; Copyright 2020, MurilloGroup.
       <span class="lastupdated">
-        Last updated on Feb, 06, 2021.
+        Last updated on Feb, 07, 2021.
       </span>
 
     </p>
@@ -1450,14 +1434,13 @@
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

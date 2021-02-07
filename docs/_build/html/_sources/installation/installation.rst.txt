@@ -6,7 +6,7 @@ Installation
 
 .. warning::
     Sarkas is under heavy development and not yet available via package managers like ``pip`` and ``conda``.
-    Therefore, please follow the instructions :ref:`here<dev_install>`  for installation.
+    Therefore, please follow the instructions :ref:`here<dev_setup>`  for installation.
 
 Virtual environment
 ===================

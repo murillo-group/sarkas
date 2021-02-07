@@ -1,8 +1,8 @@
-.. _dev_install:
+.. _dev_index:
 
-****************
-Code Development
-****************
+**********
+Guidelines
+**********
 
 In the following we will present a workflow for adding your own feature to Sarkas and contributing it to the entire world.
 
@@ -11,5 +11,6 @@ In the following we will present a workflow for adding your own feature to Sarka
 
     dev_setup
     dev_docs
+    dev_contributing
 
 

@@ -41,8 +41,16 @@ Here are the steps
     #. Make changes to the documentation by creating new ``.rst`` files or ``.ipynb`` notebooks.
 
     #. Enter the ``docs`` folder in your Sarkas repo. For example ``sarkas-master/docs``.
+    
+    #. Make sure to activate your ``sarkas`` environment: open a terminal window and type 
 
-    #. Open a terminal window and run the following
+        .. code-block:: bash
+            
+            $ conda activate sarkas
+
+        This is needed because when building the documentation you import the ``sarkas`` package, see the line ``import sarkas``  in the file ``conf.py``.
+    
+    #. Then run the following
 
         .. code-block:: bash
 
@@ -66,7 +74,7 @@ Here are the steps
 
         The option ``-rf`` is needed for copying folders and avoid any confirmation.
         
-        On Windows run (?)
+        On Windows run
 
         .. code-block:: bash
 
