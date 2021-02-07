@@ -87,7 +87,7 @@ autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
 
 
 html_last_updated_fmt = '%b, %d, %Y'
-html_logo = os.path.join('graphics', os.path.join('logo','web_logo_orange.png'))
+html_logo = os.path.join('graphics', os.path.join('logo','logo_orange_gray_v3.png'))
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
