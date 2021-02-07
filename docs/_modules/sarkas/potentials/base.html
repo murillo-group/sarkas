@@ -59,7 +59,7 @@
 
           
             
-            <img src="../../../_static/web_logo_orange.png" class="logo" alt="Logo"/>
+            <img src="../../../_static/logo_orange_gray_v3.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -338,7 +338,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">linked_list_on</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># linked list off</span>
 
-        <span class="c1"># Check for electrons as dynamical species</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;qsp&#39;</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_names</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_temperatures</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
@@ -362,8 +361,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">calc_electron_properties</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;kappa&quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_ion_temperature</span> <span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: You have defined both kappa and the electron_temperature. kappa&#39;s value will be used.&quot;</span><span class="p">)</span>
             <span class="c1"># Thomas-Fermi Length</span>
             <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span>
 

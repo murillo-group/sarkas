@@ -61,7 +61,7 @@
 
           
             
-            <img src="../_static/web_logo_orange.png" class="logo" alt="Logo"/>
+            <img src="../_static/logo_orange_gray_v3.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -427,7 +427,7 @@
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_boris">
 <code class="sig-name descname">magnetic_boris</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class using the Boris algorithm in the case of a
-constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id1">[<a class="reference internal" href="../theory/references.html#id11"><span>Chi08</span></a>]</span></p>
+constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <a class="reference internal" href="#chin2008" id="id1"><span>[Chin2008]</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
@@ -439,93 +439,25 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetic_boris_zdir">
-<code class="sig-name descname">magnetic_boris_zdir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris_zdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris_zdir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update particles’ class using the Boris algorithm in the case of a
-constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id2">[<a class="reference internal" href="../theory/references.html#id11"><span>Chi08</span></a>]</span></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetic_helpers">
-<code class="sig-name descname">magnetic_helpers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coefficient</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_helpers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_helpers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the trigonometric functions of the magnetic integrators.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>coefficient</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Timestep coefficient.</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>This is useful for the Leapfrog magnetic algorithm and future Forest-Ruth and MacLachlan algorithms.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet">
 <code class="sig-name descname">magnetic_verlet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update particles’ class based on velocity verlet method in the case of an arbitrary direction of the
-constant magnetic field. For more info see eq. (78) of Ref. <span id="id3">[<a class="reference internal" href="../theory/references.html#id11"><span>Chi08</span></a>]</span></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p><span id="id4">[<a class="reference internal" href="../theory/references.html#id11"><span>Chi08</span></a>]</span> equations are written for a negative charge. This allows him to write
-<span class="math notranslate nohighlight">\(\dot{\mathbf v} = \omega_c \hat{B} \times \mathbf v\)</span>. In the case of positive charges we will have
-<span class="math notranslate nohighlight">\(\dot{\mathbf v} = - \omega_c \hat{B} \times \mathbf v\)</span>. Hence the reason of the different signs in the
-formulas below compared to Chin’s.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This integrator is valid for a magnetic field in an arbitrary direction. However, while the integrator works for
-an arbitrary direction, methods in <cite>sarkas.tool.observables</cite> work only for a magnetic field in the
-<span class="math notranslate nohighlight">\(z\)</span> - direction. Hence, if you choose to use this integrator remember to change your physical observables.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet_zdir">
-<code class="sig-name descname">magnetic_verlet_zdir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet_zdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet_zdir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class based on velocity verlet method in the case of a
-constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <span id="id5">[<a class="reference internal" href="../theory/references.html#id11"><span>Chi08</span></a>]</span></p>
+constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <a class="reference internal" href="#chin2008" id="id2"><span>[Chin2008]</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dl>
+<p class="rubric">References</p>
+<dl class="citation">
+<dt class="label" id="chin2008"><span class="brackets">Chin2008</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>)</span></dt>
+<dd><p><a class="reference external" href="https://doi.org/10.1103/PhysRevE.77.066401">Chin Phys Rev E 77, 066401 (2008)</a></p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>This integrator is faster than <cite>magnetic_verlet</cite> but valid only for a magnetic field in the <span class="math notranslate nohighlight">\(z\)</span>-direction.
-This is the preferred choice in this case.</p>
 </dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetize">
-<code class="sig-name descname">magnetize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">it_start</span></em>, <em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">checkpoint</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.time_evolution.integrators.Integrator.produce">
@@ -534,7 +466,7 @@ This is the preferred choice in this case.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial step of production phase.</p></li>
+<li><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial step of equilibration.</p></li>
 <li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles’ class.</p></li>
 <li><p><strong>checkpoint</strong> (<em>sarkas.utilities.InputOutput</em>) – IO class for saving dumps.</p></li>
 </ul>

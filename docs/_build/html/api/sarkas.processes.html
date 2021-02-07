@@ -60,7 +60,7 @@
 
           
             
-            <img src="../_static/web_logo_orange.png" class="logo" alt="Logo"/>
+            <img src="../_static/logo_orange_gray_v3.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -444,11 +444,11 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 
 <dl class="py method">
 <dt id="sarkas.processes.Simulation.equilibrate">
-<code class="sig-name descname">equilibrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.equilibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.Simulation.equilibrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">equilibrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">it_start</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.equilibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.Simulation.equilibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial step number of the equilibration loop.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -468,23 +468,12 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dt id="sarkas.processes.Simulation.initialization">
 <code class="sig-name descname">initialization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.initialization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.Simulation.initialization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize all the sub classes of the simulation and save simulation details to log file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.processes.Simulation.run">
 <code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.Simulation.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run the simulation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.processes.Simulation.setup">

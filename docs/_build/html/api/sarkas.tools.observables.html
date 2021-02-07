@@ -61,7 +61,7 @@
 
           
             
-            <img src="../_static/web_logo_orange.png" class="logo" alt="Logo"/>
+            <img src="../_static/logo_orange_gray_v3.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -394,7 +394,7 @@
 <dd><p>Dataframe of the longitudinal velocity correlation functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+641.gd558bce8e)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+657.g508b9f988)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -559,7 +559,7 @@
 <dd><p>Dataframe containing the computed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+641.gd558bce8e)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+657.g508b9f988)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -570,7 +570,7 @@
 <dd><p>Dataframe containing the longitudinal part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+641.gd558bce8e)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+657.g508b9f988)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -581,7 +581,7 @@
 <dd><p>Dataframe containing the transverse part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+641.gd558bce8e)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+657.g508b9f988)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -973,6 +973,21 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <dt id="sarkas.tools.observables.Thermodynamics.parse">
 <code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grab the pandas dataframe from the saved csv file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.Thermodynamics.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">'Total Energy'</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot <code class="docutils literal notranslate"><span class="pre">quantity</span></code> vs time and save the figure with appropriate name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phase</strong> – </p></li>
+<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for displaying figure.</p></li>
+<li><p><strong>quantity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Quantity to plot. Default = Total Energy.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

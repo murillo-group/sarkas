@@ -7,6 +7,8 @@ In order to make changes to Sarkas you first need to download the source code fr
 It is highly recommended to fork Sarkas repo for any code development. This is to ensure that your code changes
 do not conflict with Sarkas master branch.
 
+If you already have a copy of the repository on your computer you can skip the next session.
+
 Forking and Cloning Sarkas repository
 -------------------------------------
 The instructions that follow are a copy of those found in the Github help fork_ page. If you have problems cloning
@@ -81,6 +83,23 @@ Below are instructions for creating the ``sarkas`` virtual environment.
 
         $ conda deactivate
 
+Updating your repository
+------------------------
+
+The first thing to do is to update your local repository with the GitHub repo.
+Open a terminal (command prompt in Windows) and move to the directory where you stored your repository. Assuming you
+have your ``git`` all set up, run the command
+
+.. code-block:: bash
+
+    $ git pull
+
+This updates your repo files with the latest from the trunk.
+
+Alternatively you can download the zip file again and copy the extracted files into your local Sarkas repo.
+However, this might cause problem later on when push committing your changes.
+
+
 Install Sarkas in development mode
 ----------------------------------
 Once the environment has been activated you can install Sarkas in Development mode via
@@ -90,7 +109,7 @@ Once the environment has been activated you can install Sarkas in Development mo
         $ pip install -e .
 
     .. note::
-        Don't forget the final dot ``.`` after ``-e`` as that is the location the ``pip`` will look for a ``setup.py``
+        Don't forget the final dot ``.`` after ``-e`` as that is the location ``pip`` will look for a ``setup.py``
 
 The development mode is useful so that you don't need to reinstall Sarkas everytime you change something in the source code.
 In more detail, ``pip`` will create a symlink to Sarkas' files in this folder, instead of copying the source code
