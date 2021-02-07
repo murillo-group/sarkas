@@ -381,9 +381,9 @@ class PreProcess:
             self.time_integrator_loop()
 
             # Estimate size of dump folder
-            eq_dump_size = os.stat(os.path.join(self.io.eq_dump_dir,'checkpoint_0.npz')).st_size
+            eq_dump_size = os.stat(os.path.join(self.io.eq_dump_dir,'checkpoint_{}.npz'.format(int(self.integrator.eq_dump_step)))).st_size
             eq_dump_fldr_size = eq_dump_size * (self.integrator.equilibration_steps / self.integrator.eq_dump_step)
-            prod_dump_size = os.stat(os.path.join(self.io.prod_dump_dir, 'checkpoint_0.npz')).st_size
+            prod_dump_size = os.stat(os.path.join(self.io.prod_dump_dir, 'checkpoint_{}.npz'.format(int(self.integrator.prod_dump_step)))).st_size
             prod_dump_fldr_size = prod_dump_size * (self.integrator.production_steps / self.integrator.prod_dump_step)
             sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
                              [prod_dump_size, prod_dump_fldr_size]])

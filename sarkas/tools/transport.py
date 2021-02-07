@@ -277,27 +277,29 @@ class TransportCoefficient:
                     xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D_ij[index, :], "Time", "Diffusion",
                                                                    jc_acf.units)
                     ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$J_{' + sp1 + sp2 + '}$')
-                    ax21.semilogx(D_ij[index, :], '--')
+                    ax21.semilogx(ymul * D_ij[index, :], '--')
                     ax2.semilogx(xmul * time, ymul * D_ij[index, :], '--', label=r'$D_{' + sp1 + sp2 + '}(t)$')
                 index += 1
 
         # Complete figure
         ax1.grid(False)
-        ax1.legend(loc='best')
-        ax1.set_ylabel(r'Diffusion Flux ACF')
-
         ax2.grid(False)
-        ax2.legend(loc='best')
+        ax21.grid(False)
+        
+        ax1.set_ylabel(r'Diffusion Flux ACF')
         ax2.set_ylabel(r'Inter Diffusion' + ylbl)
-        ax2.set_xlabel(r'Time' + xlbl)
-
+        
+        ax1.set_xlabel(r"Time" + xlbl)
+        
         ax21.xaxis.set_ticks_position("bottom")
         ax21.xaxis.set_label_position("bottom")
+
+        ax1.legend(loc='best')
+        ax2.legend(loc='best')
         ax21.set_xscale('log')
-
         # Offset the twin axis below the host
-        ax21.spines["bottom"].set_position(("axes", -0.3))
-
+        ax21.spines["bottom"].set_position(("axes", -0.2))
+        
         # Turn on the frame for the twin axis, but then hide all
         # but the bottom spine
         ax21.set_frame_on(True)
@@ -305,10 +307,9 @@ class TransportCoefficient:
 
         for sp in ax21.spines.values():
             sp.set_visible(False)
+
         ax21.spines["bottom"].set_visible(True)
-        ax2.set_xlabel(r'Time' + xlbl)
         ax21.set_xlabel(r"Index")
-        # ax21.set_xbound(1, len(time))
 
         fig.tight_layout()
         fig.savefig(os.path.join(jc_acf.saving_dir, 'InterDiffusionPlot_' + jc_acf.job_id + '.png'))

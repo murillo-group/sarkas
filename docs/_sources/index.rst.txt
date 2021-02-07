@@ -21,7 +21,7 @@ In the following pages you will find tutorials and information on the functional
 Sarkas, Join us! :)
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Getting Started:
 
    why_sarkas/why_sarkas
@@ -29,7 +29,7 @@ Sarkas, Join us! :)
    quickstart/Quickstart
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Tutorials:
 
    tutorial/tutorial
@@ -37,7 +37,7 @@ Sarkas, Join us! :)
    tutorial/Pre_Simulation_Testing
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Examples:
 
    examples/H-He_Mixture
@@ -45,7 +45,7 @@ Sarkas, Join us! :)
    examples/Magnetized_Plasma
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Theoretical Background:
 
    theory/integrators
@@ -56,13 +56,13 @@ Sarkas, Join us! :)
    theory/references
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Code Development:
 
-   development/dev_install
+   development/code_dev
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Source Code:
 
    api/modules

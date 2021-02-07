@@ -1,0 +1,373 @@
+  
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Documentation &mdash; Sarkas 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sarkas" href="../api/modules.html" />
+    <link rel="prev" title="Setup" href="dev_setup.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/web_logo_orange.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/input_file.html">Input File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/integrators.html">Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/references.html">References</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Development:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="code_dev.html">Code Development</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dev_setup.html">Setup</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#writing-documentation">Writing Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-documentation">Building Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">sarkas</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="code_dev.html">Code Development</a> &raquo;</li>
+        
+      <li>Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/development/dev_docs.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="documentation">
+<span id="dev-docs"></span><h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<p>High-quality and consistent documentation is very important for any coding project, but even more when distributing your
+project. A well written documentation allows new users to find out how to use Sarkas as well as helps developers (like you!)
+to understand the best practices.</p>
+<p>Sarkas uses the popular Python documentation generator <a class="reference external" href="https://www.sphinx-doc.org/&gt;">Sphinx</a>.
+Sphinx translates a set of plain text source files (often written in <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">reStructuredText</a>) to HTML files,
+automatically producing cross-references, indices, etc.
+If you haven’t worked with <a class="reference external" href="https://www.sphinx-doc.org/&gt;">Sphinx</a> before, you should first read their
+<a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/quickstart.html">quickstart</a> guide.</p>
+<div class="section" id="writing-documentation">
+<h2>Writing Documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">¶</a></h2>
+<p>When making or adding changes to Sarkas source code an example <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> notebook and/or an <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file
+should be created to demonstrate how it works.
+A good example are the notebooks in the <a class="reference external" href="https://murillo-group.github.io/sarkas/tutorial/tutorial.html">tutorial page</a>.</p>
+<p>You will also need to add the <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file and/or <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> notebook’s path in the relevant section in the
+<code class="docutils literal notranslate"><span class="pre">index.rst</span></code> file (you can find this in <code class="docutils literal notranslate"><span class="pre">sarkas-master/docs/</span></code>).</p>
+<p>Besides this, the functions and classes in your code must always contain <strong>docstrings</strong>.</p>
+<p>Sphinx uses these docstrings to auto-generate the <a class="reference external" href="https://murillo-group.github.io/sarkas/api/modules.html">API documentation</a>
+for the entire Sarkas package.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please make sure that you have correctly formatted the docstrings by checking how the corresponding module’s API looks
+once you build the documentation.</p>
+</div>
+</div>
+<div class="section" id="building-documentation">
+<h2>Building Documentation<a class="headerlink" href="#building-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Once you have updated the documentation we can check our changes by building it locally on your machine.
+Here are the steps</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Make changes to the documentation by creating new <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files or <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> notebooks.</p></li>
+<li><p>Enter the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder in your Sarkas repo. For example <code class="docutils literal notranslate"><span class="pre">sarkas-master/docs</span></code>.</p></li>
+<li><p>Open a terminal window and run the following</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make clean
+$ make html
+</pre></div>
+</div>
+<p>The first command removes all the content in <code class="docutils literal notranslate"><span class="pre">_build/html</span></code>. This command is not necessary, but suggested
+so to avoid any conflicts.</p>
+<p>The second command updates the documentation with your changes and creates html files in the folder <code class="docutils literal notranslate"><span class="pre">_build/html</span></code>.
+Fix any Error and/or Warning messages. You might need to run the command few times.
+You can ignore warnings about duplicate citations.</p>
+</div></blockquote>
+</li>
+<li><p>Check the changes in the Documentation by opening the any of the new/updated <code class="docutils literal notranslate"><span class="pre">.html</span></code> files using a browser. Note you need to look at the files in <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> as these are the new/updated ones.</p></li>
+<li><p>Now you need to copy all the content of the <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> folder into <code class="docutils literal notranslate"><span class="pre">docs</span></code>. On Unix system run the command</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cp -rf _build/html/* .
+</pre></div>
+</div>
+<p>On Windows run (?)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ copy -rf _build<span class="se">\\</span>html<span class="se">\\</span>* .
+</pre></div>
+</div>
+<p>The option <code class="docutils literal notranslate"><span class="pre">-rf</span></code> is needed for copying folders and avoid any confirmation.</p>
+</div></blockquote>
+</li>
+</ol>
+</div></blockquote>
+<p>Congratulations! The Documentation is up to date.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../api/modules.html" class="btn btn-neutral float-right" title="sarkas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dev_setup.html" class="btn btn-neutral float-left" title="Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Feb, 06, 2021.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

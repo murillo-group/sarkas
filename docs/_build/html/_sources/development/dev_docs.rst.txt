@@ -68,7 +68,7 @@ Here are the steps
 
         .. code-block:: bash
 
-            $ cp -rf _build\\html\\* .
+            $ copy -rf _build\\html\\* .
 
         The option ``-rf`` is needed for copying folders and avoid any confirmation.
 

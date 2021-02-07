@@ -63,7 +63,7 @@ Sarkas, Join us! :)
 
 .. toctree::
    :maxdepth: 1
-   :caption: Source Code:
+   :caption: API:
 
    api/modules
 

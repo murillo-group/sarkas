@@ -114,7 +114,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Code Development:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../development/dev_install.html">Development Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/code_dev.html">Code Development</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Code:</span></p>
 <ul>
@@ -585,6 +585,67 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_info</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
             <span class="n">repeat</span> <span class="o">-=</span> <span class="mi">1</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">screen</span>  <span class="c1"># Restore the original sys.stdout</span>
+
+        <span class="n">f_log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InputOutput.preprocess_sizing"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.preprocess_sizing">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess_sizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sizes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the estimated file sizes. &quot;&quot;&quot;</span>
+
+        <span class="n">screen</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="n">f_log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io_file</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">)</span>
+        <span class="n">repeat</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="mi">1</span>
+
+        <span class="c1"># redirect printing to file</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">f_log</span>
+        <span class="k">while</span> <span class="n">repeat</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">====================== Filesize Estimates ===========================</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Equilibration:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint filesize: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint folder size: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Magnetization:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint filesize: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                                  <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                                  <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                                  <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+                <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint folder size: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                                     <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                                     <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                                     <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Production:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint filesize: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                              <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                              <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                              <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint folder size: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total minimum needed space: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+            <span class="n">repeat</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">screen</span>
 
         <span class="n">f_log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -1405,6 +1466,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">return</span> <span class="p">[</span><span class="n">alpha_to_int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="convert_bytes"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.convert_bytes">[docs]</a><span class="k">def</span> <span class="nf">convert_bytes</span><span class="p">(</span><span class="nb">bytes</span><span class="p">):</span>
+
+    <span class="n">GB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+    <span class="n">MB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+    <span class="n">KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">GB</span><span class="p">,</span> <span class="n">MB</span><span class="p">,</span> <span class="n">KB</span><span class="p">,</span> <span class="n">rem</span><span class="p">]</span></div>
 </pre></div>
 
            </div>

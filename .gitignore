@@ -6,8 +6,10 @@
 *.swp
 *.npy
 *.npz
+*.vscode
 *.idea
 *.prof
+*.ipynb_checkpoints
 nohup.out
 Simulations
 dist

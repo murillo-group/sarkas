@@ -32,6 +32,7 @@ dependencies:
   - sphinx_rtd_theme
   - sphinx-autodoc-typehints
   - nbsphinx
+  - recommonmark
   
   - pip:
       - fdint
