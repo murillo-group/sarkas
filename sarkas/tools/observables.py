@@ -508,6 +508,20 @@ class CurrentCorrelationFunction(Observable):
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
+        # These calculation are needed for the io.postprocess_info().
+        # This is a hack and we need to find a faster way to do it
+        self.slice_steps = int(
+            (self.production_steps + 1) / (self.dump_step * self.no_slices))
+        self.no_dumps = int(self.slice_steps / self.dump_step)
+        dt_r = self.dt * self.dump_step
+
+        self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
+
+        self.w_min = 2.0 * np.pi / (self.no_dumps * dt_r)
+        self.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
+
+        self.parse_k_data()
+
         self.filename_csv_longitudinal = os.path.join(self.saving_dir,
                                                       "LongitudinalCurrentCorrelationFunction_" + self.job_id + '.csv')
         self.filename_csv_transverse = os.path.join(self.saving_dir,
@@ -517,22 +531,21 @@ class CurrentCorrelationFunction(Observable):
         """
         Calculate the velocity fluctuations correlation functions.
         """
-
         # Parse vkt otherwise calculate them
-        self.parse_k_data()
+        self.parse_k_data() # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=False, vkt_flag=True)
         # Initialize dataframes and add frequencies to it.
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
         self.dataframe = pd.DataFrame()
-        frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-        self.dataframe_longitudinal["Frequencies"] = np.fft.fftshift(frequencies)
-        self.dataframe_transverse["Frequencies"] = np.fft.fftshift(frequencies)
+        self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
+        self.dataframe_longitudinal["Frequencies"] = np.fft.fftshift(self.frequencies)
+        self.dataframe_transverse["Frequencies"] = np.fft.fftshift(self.frequencies)
 
         temp_dataframe_longitudinal = pd.DataFrame()
-        temp_dataframe_longitudinal["Frequencies"] = np.fft.fftshift(frequencies)
+        temp_dataframe_longitudinal["Frequencies"] = np.fft.fftshift(self.frequencies)
 
         temp_dataframe_transverse = pd.DataFrame()
-        temp_dataframe_transverse["Frequencies"] = np.fft.fftshift(frequencies)
+        temp_dataframe_transverse["Frequencies"] = np.fft.fftshift(self.frequencies)
 
         Lkw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
         Tkw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
@@ -639,9 +652,23 @@ class DynamicStructureFactor(Observable):
         if not os.path.exists(saving_dir):
             os.mkdir(saving_dir)
 
+        # Create the phase directory
         self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
+
+        # These calculation are needed for the io.postprocess_info().
+        # This is a hack and we need to find a faster way to do it
+        self.slice_steps = int((self.production_steps + 1) / (self.dump_step * self.no_slices))
+        self.no_dumps = int(self.slice_steps / self.dump_step)
+        dt_r = self.dt * self.dump_step
+
+        self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
+
+        self.w_min = 2.0 * np.pi / (self.no_dumps * self.dt * self.dump_step)
+        self.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
+
+        self.parse_k_data()
 
         self.filename_csv = os.path.join(self.saving_dir, "DynamicStructureFactor_" + self.job_id + '.csv')
 
@@ -652,16 +679,16 @@ class DynamicStructureFactor(Observable):
         """
 
         # Parse nkt otherwise calculate it
-        self.parse_k_data()
+        self.parse_k_data() # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=True)
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
         self.dataframe = pd.DataFrame()
 
-        frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-        self.dataframe["Frequencies"] = np.fft.fftshift(frequencies)
+        self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
+        self.dataframe["Frequencies"] = np.fft.fftshift(self.frequencies)
 
         temp_dataframe = pd.DataFrame()
-        temp_dataframe["Frequencies"] = np.fft.fftshift(frequencies)
+        temp_dataframe["Frequencies"] = np.fft.fftshift(self.frequencies)
 
         Skw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
 
@@ -1043,6 +1070,8 @@ class RadialDistributionFunction(Observable):
         self.filename_csv = os.path.join(self.saving_dir,
                                          "RadialDistributionFunction_" + self.job_id + ".csv")
         self.rc = self.cutoff_radius
+        self.no_bins = self.rdf_nbins
+        self.dr_rdf = self.rc / self.no_bins
 
     def compute(self, rdf_hist=None):
         """
@@ -1144,6 +1173,13 @@ class StaticStructureFactor(Observable):
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
+        # These calculation are needed for the io.postprocess_info().
+        # This is a hack and we need to find a faster way to do it
+        self.slice_steps = int((self.production_steps + 1) / (self.dump_step * self.no_slices))
+        self.no_dumps = int(self.slice_steps / self.prod_dump_step)
+
+        self.parse_k_data()
+
         self.filename_csv = os.path.join(self.saving_dir, "StaticStructureFunction_" + self.job_id + ".csv")
 
     def compute(self):
@@ -1151,7 +1187,7 @@ class StaticStructureFactor(Observable):
         Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a csv.
         """
         # Parse nkt otherwise calculate it
-        self.parse_k_data()
+        self.parse_k_data() # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=True)
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
         self.dataframe = pd.DataFrame()

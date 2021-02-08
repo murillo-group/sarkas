@@ -25,23 +25,23 @@ FONTS = ['speed',
 
 # Light Colors.
 LIGHT_COLORS = ['255;255;255',
-             '13;177;75',
-             '153;162;162',
-             '240;133;33',
-             '144;154;183',
-             '209;222;63',
-             '232;217;181',
-             '200;154;88',
-             '148;174;74',
-             '203;90;40'
-             ]
+                '13;177;75',
+                '153;162;162',
+                '240;133;33',
+                '144;154;183',
+                '209;222;63',
+                '232;217;181',
+                '200;154;88',
+                '148;174;74',
+                '203;90;40'
+                ]
 
 # Dark Colors.
 DARK_COLORS = ['24;69;49',
-             '0;129;131',
-             '83;80;84',
-             '110;0;95'
-             ]
+               '0;129;131',
+               '83;80;84',
+               '110;0;95'
+               ]
 
 
 class InputOutput:
@@ -317,11 +317,10 @@ class InputOutput:
                         *simulation.integrator.magnetic_field_uvector))
 
                     for ic in range(simulation.parameters.num_species):
-
                         print('Cyclotron frequency of Species {} = {:.4e} [Hz]'.format(simulation.species[ic].name,
-                                                                                     simulation.species[ic].omega_c))
+                                                                                       simulation.species[ic].omega_c))
                         print('beta_c of Species {} = {:.4e}'.format(simulation.species[ic].name,
-                                                                        simulation.species[ic].beta_c))
+                                                                     simulation.species[ic].beta_c))
 
                 print("\nTime scales:")
                 self.time_info(simulation)
@@ -414,51 +413,50 @@ class InputOutput:
         sys.stdout = f_log
         while repeat > 0:
             print('\n\n====================== Filesize Estimates ===========================\n')
-            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0,0])
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 0])
             print('\nEquilibration:\n')
             print("Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(int(size_GB),
-                                                                    int(size_MB),
-                                                                    int(size_KB),
-                                                                    int(rem)))
+                                                                           int(size_MB),
+                                                                           int(size_KB),
+                                                                           int(rem)))
 
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 1])
             print("Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(int(size_GB),
-                                                                    int(size_MB),
-                                                                    int(size_KB),
-                                                                    int(rem)))
+                                                                              int(size_MB),
+                                                                              int(size_KB),
+                                                                              int(rem)))
             if self.electrostatic_equilibration:
-
                 print('\nMagnetization:\n')
                 size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 0])
                 print("Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                               int(size_MB),
+                                                                               int(size_KB),
+                                                                               int(rem)))
+
+                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 1])
+                print("Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(int(size_GB),
                                                                                   int(size_MB),
                                                                                   int(size_KB),
                                                                                   int(rem)))
 
-                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 1])
-                print("Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(int(size_GB),
-                                                                                     int(size_MB),
-                                                                                     int(size_KB),
-                                                                                     int(rem)))
-
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 0])
             print('\nProduction:\n')
             print("Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(int(size_GB),
+                                                                           int(size_MB),
+                                                                           int(size_KB),
+                                                                           int(rem)))
+
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 1])
+            print("Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(int(size_GB),
                                                                               int(size_MB),
                                                                               int(size_KB),
                                                                               int(rem)))
 
-            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 1])
-            print("Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(int(size_GB),
-                                                                                 int(size_MB),
-                                                                                 int(size_KB),
-                                                                                 int(rem)))
-
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[:, 1].sum())
             print("\nTotal minimum needed space: {} GB {} MB {} KB {} bytes".format(int(size_GB),
-                                                                                 int(size_MB),
-                                                                                 int(size_KB),
-                                                                                 int(rem)))
+                                                                                    int(size_MB),
+                                                                                    int(size_KB),
+                                                                                    int(rem)))
             repeat -= 1
             sys.stdout = screen
 
@@ -533,19 +531,50 @@ class InputOutput:
 
         f_log.close()
 
-    def postprocess_info(self, simulation):
-        """Print Post-processing info to file first and then to screen if verbose."""
+    def postprocess_info(self, simulation, write_to_file=False, observable=None):
+        """
+        Print Post-processing info to file and/or screen in a reader-friendly format.
 
-        screen = sys.stdout
-        f_log = open(self.io_file, 'a+')
-        repeat = 2 if self.verbose else 1
+        Parameters
+        ----------
+        simulation : sarkas.processes.PostProcess
+            Sarkas processing stage.
 
-        # redirect printing to file
-        sys.stdout = f_log
+        write_to_file : bool
+            Flag for printing info also to file. Default= False.
+
+        observable : str
+            Observable whose info to print. Default = None.
+            Choices = ['header','rdf', 'ccf', 'dsf', 'ssf', 'vm']
+
+        """
+
+        choices = ['header', 'rdf', 'ccf', 'dsf', 'ssf', 'vm']
+        assert observable is not None, 'Observable not defined.'
+
+        assert observable in choices, "Observable not defined. " \
+                                      "Please choose an observable from this list \n" \
+                                      "'rdf' = Radial Distribution Function, \n" \
+                                      "'ccf' = Current Correlation Function, \n" \
+                                      "'dsf' = Dynamic Structure Function, \n" \
+                                      "'ssf' = Static Structure Factor, \n" \
+                                      "'vm' = Velocity Moments"
+
+        if write_to_file:
+            screen = sys.stdout
+            f_log = open(self.io_file, 'a+')
+            repeat = 2 if self.verbose else 1
+
+            # redirect printing to file
+            sys.stdout = f_log
+        else:
+            repeat = 1
 
         while repeat > 0:
-            print('\n\n===================== Post Processing ============================')
-            if hasattr(simulation, 'rdf'):
+            if observable == 'header':
+                print('\n\n===================== Post Processing ============================')
+
+            elif observable == 'rdf':
                 print('\nRadial Distribution Function:')
                 print('No. bins = {}'.format(simulation.rdf.no_bins))
                 print('dr = {:1.4f} a_ws = {:1.4e} '.format(
@@ -555,21 +584,24 @@ class InputOutput:
                     simulation.rdf.rc / simulation.parameters.a_ws, simulation.rdf.rc), end='')
                 print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
-            if hasattr(simulation, 'ssf'):
+            elif observable == 'ssf':
                 print('\nStatic Structure Factor:')
-                print('No. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
+                print('No. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ssf.no_ka_harmonics))
+                if simulation.ssf.all_k_values:
+                    print('All the possible k values will be calculated.')
                 print('No. of ka values to calculate = {}'.format(len(simulation.ssf.k_list)))
-                print('No. of unique ka values to calculate = {}'.format(len(simulation.ssf.k_unique)))
-                print('Smallest wavevector k_min = 3.9 / N^(1/3)')
+                print('No. of unique ka values to calculate = {}'.format(len(simulation.ssf.ka_values)))
+                print('Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
                 print('k_min = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.ssf.ka_values[0], simulation.ssf.k_unique[0]), end='')
-                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-                print('Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-                print('k_max = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.ssf.ka_values[-1], simulation.ssf.k_unique[-1]), end='')
+                    simulation.ssf.ka_values[0], simulation.ssf.ka_values[0] / simulation.ssf.a_ws), end='')
                 print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
 
-            if hasattr(simulation, 'dsf'):
+                print('Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+                print('k_max = {:.4f} / a_ws = {:1.4e} '.format(
+                    simulation.ssf.ka_values[-1], simulation.ssf.ka_values[-1] / simulation.ssf.a_ws), end='')
+                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
+
+            elif observable == 'dsf':
                 print('\nDynamic Structure Factor:')
                 print('Frequency Constants')
                 print('\tNo. of slices = {}'.format(simulation.dsf.no_slices))
@@ -582,18 +614,21 @@ class InputOutput:
                 print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
                     simulation.dsf.w_max / simulation.parameters.total_plasma_frequency, simulation.dsf.w_max))
                 print('Wavevector Constants')
-                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
+                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.dsf.no_ka_harmonics))
+                if simulation.dsf.all_k_values:
+                    print('\tAll the possible k values will be calculated.')
                 print('\tNo. of ka values to calculate = {}'.format(len(simulation.dsf.k_list)))
-                print('\tSmallest wavevector k_min = 3.9 / N^(1/3)')
+                print('\tNo. of unique ka values to calculate = {}'.format(len(simulation.dsf.ka_values)))
+                print('\tSmallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
                 print('\tk_min = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.dsf.ka_values[0], simulation.dsf.k_unique[0]), end='')
+                    simulation.dsf.ka_values[0], simulation.dsf.ka_values[0] / simulation.dsf.a_ws), end='')
                 print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
                 print('\tLargest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
                 print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.dsf.ka_values[-1], simulation.dsf.k_unique[-1]), end='')
+                    simulation.dsf.ka_values[-1], simulation.dsf.ka_values[-1] / simulation.dsf.a_ws), end='')
                 print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
 
-            if hasattr(simulation, 'ccf'):
+            elif observable == 'ccf':
                 print('\nCurrent Correlation Function:')
                 print('Frequency Constants')
                 print('\tNo. of slices = {}'.format(simulation.ccf.no_slices))
@@ -607,20 +642,33 @@ class InputOutput:
                     simulation.ccf.w_max / simulation.ccf.total_plasma_frequency, simulation.ccf.w_max))
                 print('Wavevector Constants')
                 print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
+                if simulation.ccf.all_k_values:
+                    print('\tAll the possible k values will be calculated.')
                 print('\tNo. of ka values to calculate = {}'.format(len(simulation.ccf.k_list)))
-                print('\tSmallest wavevector k_min = 3.9 / N^(1/3)')
+                print('\tNo. of unique ka values to calculate = {}'.format(len(simulation.ccf.ka_values)))
+                print('\tSmallest wavevector k_min = 2 pi / L =  3.9 / N^(1/3)')
                 print('\tk_min = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.ccf.ka_values[0], simulation.ccf.k_unique[0]), end='')
+                    simulation.ccf.ka_values[0], simulation.ccf.ka_values[0] / simulation.ccf.a_ws), end='')
                 print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
                 print('\tLargest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
                 print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.ccf.ka_values[-1], simulation.ccf.k_unique[-1]), end='')
+                    simulation.ccf.ka_values[-1], simulation.ccf.ka_values[-1] / simulation.ccf.a_ws), end='')
                 print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
 
-            repeat -= 1
-            sys.stdout = screen
+            elif observable == 'vm':
+                simulation.vm.setup(simulation.parameters)
+                print('\nVelocity Moments:')
+                print('Maximum no. of moments = {}'.format(simulation.vm.max_no_moment))
+                print('Maximum velocity moment = {}'.format(int(2 * simulation.vm.max_no_moment)))
+                print('No. bins = {}'.format(simulation.vm.no_bins))
 
-        f_log.close()
+            repeat -= 1
+
+            if write_to_file:
+                sys.stdout = screen
+
+        if write_to_file:
+            f_log.close()
 
     @staticmethod
     def screen_figlet():
@@ -817,7 +865,7 @@ class InputOutput:
         if simulation.potential.type == 'Yukawa':
             print('electron temperature = {:1.4e} [K] = {:1.4e} [eV]'.format(
                 simulation.parameters.electron_temperature,
-                simulation.parameters.electron_temperature/simulation.parameters.eV2K) )
+                simulation.parameters.electron_temperature / simulation.parameters.eV2K))
             print('kappa = {:1.4e}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
             print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
@@ -1284,7 +1332,6 @@ def num_sort(text):
 
 
 def convert_bytes(bytes):
-
     GB, rem = divmod(bytes, 1024 * 1024 * 1024)
     MB, rem = divmod(rem, 1024 * 1024)
     KB, rem = divmod(rem, 1024)

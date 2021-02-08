@@ -79,6 +79,10 @@ class PostProcess:
                     self.ec = obs.ElectricCurrent()
                     if sub_dict:
                         self.ec.from_dict(sub_dict)
+                if key == 'FluxAutoCorrelationFunction':
+                    self.facf = obs.FluxAutoCorrelationFunction()
+                    if sub_dict:
+                        self.facf.from_dict(sub_dict)
 
     def setup(self, read_yaml=False, other_inputs=None):
         """
@@ -412,56 +416,27 @@ class PreProcess:
 
         if postprocessing:
             # POST- PROCESSING
+            self.io.postprocess_info(self, write_to_file=True, observable='header')
+
             if hasattr(self, 'rdf'):
                 self.rdf.setup(self.parameters)
-                self.rdf.no_bins = self.particles.rdf_hist.shape[0]
-                self.rdf.dr_rdf = self.rdf.rc / self.rdf.no_bins
+                self.io.postprocess_info(self, write_to_file=True, observable='rdf')
 
             if hasattr(self, 'ssf'):
                 self.ssf.setup(self.parameters)
-                self.ssf.slice_steps = int(
-                    (self.integrator.production_steps + 1) / (self.ssf.dump_step * self.ssf.no_slices))
-                self.ssf.no_dumps = int(self.ssf.slice_steps / self.integrator.prod_dump_step)
-
-                self.ssf.k_list, self.ssf.k_counts, self.ssf.k_unique = obs.kspace_setup(self.ssf.no_ka_harmonics,
-                                                                                         self.ssf.box_lengths)
-                self.ssf.ka_values = 2.0 * np.pi * self.ssf.k_unique * self.ssf.a_ws
+                self.io.postprocess_info(self, write_to_file=True, observable='ssf')
 
             if hasattr(self, 'dsf'):
                 self.dsf.setup(self.parameters)
-                self.dsf.slice_steps = int(
-                    (self.integrator.production_steps + 1) / (self.dsf.dump_step * self.dsf.no_slices))
-                self.dsf.no_dumps = int(self.dsf.slice_steps / self.dsf.dump_step)
-                dt_r = self.dsf.dt * self.dsf.dump_step
-
-                self.dsf.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.dsf.slice_steps,
-                                                                    self.dsf.dt * self.dsf.dump_step)
-
-                self.dsf.w_min = 2.0 * np.pi / (self.dsf.no_dumps * dt_r)
-                self.dsf.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
-
-                self.dsf.k_list, self.dsf.k_counts, self.dsf.k_unique = obs.kspace_setup(self.dsf.no_ka_harmonics,
-                                                                                         self.dsf.box_lengths)
-                self.dsf.ka_values = 2.0 * np.pi * self.dsf.k_unique * self.dsf.a_ws
+                self.io.postprocess_info(self, write_to_file=True, observable='dsf')
 
             if hasattr(self, 'ccf'):
                 self.ccf.setup(self.parameters)
-                self.ccf.slice_steps = int(
-                    (self.integrator.production_steps + 1) / (self.ccf.dump_step * self.ccf.no_slices))
-                self.ccf.no_dumps = int(self.ccf.slice_steps / self.ccf.dump_step)
-                dt_r = self.ccf.dt * self.ccf.dump_step
+                self.io.postprocess_info(self, write_to_file=True, observable='ccf')
 
-                self.ccf.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.ccf.slice_steps,
-                                                                    self.ccf.dt * self.ccf.dump_step)
-
-                self.ccf.w_min = 2.0 * np.pi / (self.ccf.no_dumps * dt_r)
-                self.ccf.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
-
-                self.ccf.k_list, self.ccf.k_counts, self.ccf.k_unique = obs.kspace_setup(self.ccf.no_ka_harmonics,
-                                                                                         self.ccf.box_lengths)
-                self.ccf.ka_values = 2.0 * np.pi * self.ccf.k_unique * self.ccf.a_ws
-
-            self.io.postprocess_info(self)
+            if hasattr(self, 'vm'):
+                self.ccf.setup(self.parameters)
+                self.io.postprocess_info(self, write_to_file=True, observable='vm')
 
     def estimate_best_parameters(self):
         """Estimate the best number of mesh points and cutoff radius."""
