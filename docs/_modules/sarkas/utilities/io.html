@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>sarkas.utilities.io &mdash; Sarkas 0.1.0 documentation</title>
   
@@ -16,10 +16,7 @@
 
   
   
-
   
-  
-
   
 
   
@@ -162,8 +159,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -239,20 +234,23 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set default directory names.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">simulations_dir</span> <span class="o">=</span> <span class="s2">&quot;Simulations&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span> <span class="o">=</span> <span class="s1">&#39;Production&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_dir</span> <span class="o">=</span> <span class="s1">&#39;Equilibration&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span> <span class="o">=</span> <span class="s1">&#39;Production&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span> <span class="o">=</span> <span class="s2">&quot;Magnetization&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulations_dir</span> <span class="o">=</span> <span class="s2">&quot;Simulations&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_dir</span> <span class="o">=</span> <span class="s2">&quot;PreProcessing&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span> <span class="o">=</span> <span class="s2">&quot;PostProcessing&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span> <span class="o">=</span> <span class="s1">&#39;dumps&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_dir</span> <span class="o">=</span> <span class="s1">&#39;dumps&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_dir</span> <span class="o">=</span> <span class="s1">&#39;dumps&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_status</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xyz_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xyz_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -301,14 +299,15 @@
             <span class="n">dics</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="s2">&quot;IO&quot;</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="s1">&#39;Control&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">keyed</span> <span class="o">=</span> <span class="s1">&#39;Control&#39;</span>
-        <span class="k">elif</span> <span class="s1">&#39;Parameters&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;Parameters&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">keyed</span> <span class="o">=</span> <span class="s1">&#39;Parameters&#39;</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">keyed</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;verbose&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">value</span>
+
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;magnetized&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="n">value</span>
 
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;load_method&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">load_method</span> <span class="o">=</span> <span class="n">value</span>
@@ -320,6 +319,13 @@
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;preprocessing&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span> <span class="o">=</span> <span class="n">value</span>
 
+        <span class="k">if</span> <span class="s1">&#39;Integrator&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">keyed</span> <span class="o">=</span> <span class="s1">&#39;Integrator&#39;</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="n">keyed</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;electrostatic_equilibration&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span> <span class="o">=</span> <span class="n">value</span>
+
         <span class="k">if</span> <span class="s1">&#39;PostProcessing&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;PostProcessing&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -328,6 +334,7 @@
         <span class="k">return</span> <span class="n">dics</span></div>
 
 <div class="viewcode-block" id="InputOutput.create_file_paths"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.create_file_paths">[docs]</a>    <span class="k">def</span> <span class="nf">create_file_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create all the file and directory paths.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -343,6 +350,15 @@
         <span class="c1"># Production dir and sub_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_dir</span><span class="p">,</span> <span class="s2">&quot;dumps&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Magnetic dir</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">,</span> <span class="s2">&quot;dumps&quot;</span><span class="p">)</span>
+            <span class="c1"># Magnetization phase filenames</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_energy_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">,</span>
+                                                    <span class="s2">&quot;MagnetizationEnergy_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_ptcls_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint_&quot;</span><span class="p">)</span>
 
         <span class="c1"># Preprocessing dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">)</span>
@@ -369,6 +385,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">io_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span></div>
 
 <div class="viewcode-block" id="InputOutput.make_directories"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.make_directories">[docs]</a>    <span class="k">def</span> <span class="nf">make_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create directories if non-existent.&quot;&quot;&quot;</span>
 
         <span class="c1"># Check if the directories exist</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulations_dir</span><span class="p">):</span>
@@ -389,6 +406,13 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_dir</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_dir</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_dir</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">):</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">)</span>
@@ -397,9 +421,9 @@
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InputOutput.file_header"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.file_header">[docs]</a>    <span class="k">def</span> <span class="nf">file_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the log file and print the figlet if not a restart run.&quot;&quot;&quot;</span>
 
-        <span class="c1"># Print figlet to file if not a restart run</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_status</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io_file</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_log</span><span class="p">:</span>
                 <span class="n">figlet_obj</span> <span class="o">=</span> <span class="n">Figlet</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="s1">&#39;starwars&#39;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">figlet_obj</span><span class="o">.</span><span class="n">renderText</span><span class="p">(</span><span class="s1">&#39;Sarkas&#39;</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">f_log</span><span class="p">)</span>
@@ -431,11 +455,14 @@
         <span class="c1"># Print to file first then to screen if repeat == 2</span>
         <span class="k">while</span> <span class="n">repeat</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">--------------------------- Restart -------------------------------------&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;production_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">--------------------------- Production Restart -------------------------------------&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">time_info</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="o">==</span> <span class="s1">&#39;eq_restart&#39;</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">------------------------ Therm Restart ----------------------------------&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;equilibration_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_restart&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">------------------------ Equilibration Restart ----------------------------------&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_info</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;magnetization_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;mag_restart&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">------------------------ Magnetization Restart ----------------------------------&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">time_info</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
 
@@ -462,18 +489,24 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Potential: &#39;</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential_info</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Magnetized Plasma:&#39;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cyclotron frequency of Species </span><span class="si">{:2}</span><span class="s1"> = </span><span class="si">{:2.6e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ic</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-                                                                                     <span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span><span class="p">))</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;beta_c of Species </span><span class="si">{:2}</span><span class="s1"> = </span><span class="si">{:2.6e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ic</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-                                                                        <span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span>
-                                                                        <span class="o">/</span> <span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span><span class="p">))</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Algorithm: &quot;</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_info</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
 
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Integrator: &quot;</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Magnetized Plasma:&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Magnetic Field = [</span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Magnetic Field Magnitude = </span><span class="si">{:.4e}</span><span class="s1"> [Gauss]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Magnetic Field Unit Vector = [</span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="o">*</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetic_field_uvector</span><span class="p">))</span>
+
+                    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">num_species</span><span class="p">):</span>
+
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cyclotron frequency of Species </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:.4e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                                     <span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">omega_c</span><span class="p">))</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;beta_c of Species </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:.4e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                        <span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">beta_c</span><span class="p">))</span>
 
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Time scales:&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">time_info</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
@@ -555,6 +588,67 @@
 
         <span class="n">f_log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
+<div class="viewcode-block" id="InputOutput.preprocess_sizing"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.preprocess_sizing">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess_sizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sizes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the estimated file sizes. &quot;&quot;&quot;</span>
+
+        <span class="n">screen</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="n">f_log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io_file</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">)</span>
+        <span class="n">repeat</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="mi">1</span>
+
+        <span class="c1"># redirect printing to file</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">f_log</span>
+        <span class="k">while</span> <span class="n">repeat</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">====================== Filesize Estimates ===========================</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Equilibration:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint filesize: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint folder size: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                    <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Magnetization:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint filesize: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                                  <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                                  <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                                  <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+                <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint folder size: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                                     <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                                     <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                                     <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Production:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint filesize: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                              <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                              <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                              <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint folder size: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+
+            <span class="n">size_GB</span><span class="p">,</span> <span class="n">size_MB</span><span class="p">,</span> <span class="n">size_KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">convert_bytes</span><span class="p">(</span><span class="n">sizes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total minimum needed space: </span><span class="si">{}</span><span class="s2"> GB </span><span class="si">{}</span><span class="s2"> MB </span><span class="si">{}</span><span class="s2"> KB </span><span class="si">{}</span><span class="s2"> bytes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">size_GB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">size_MB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">size_KB</span><span class="p">),</span>
+                                                                                 <span class="nb">int</span><span class="p">(</span><span class="n">rem</span><span class="p">)))</span>
+            <span class="n">repeat</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">screen</span>
+
+        <span class="n">f_log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="InputOutput.preprocess_timing"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.preprocess_timing">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess_timing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">str_id</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">loops</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print times estimates of simulation to file first and then to screen if verbose.&quot;&quot;&quot;</span>
         <span class="n">screen</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
@@ -564,11 +658,11 @@
         <span class="c1"># redirect printing to file</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">f_log</span>
         <span class="k">while</span> <span class="n">repeat</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;GF&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s1">&#39;header&#39;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">====================== Times Estimates ===========================</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;GF&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimal Green&#39;s Function Time: </span><span class="se">\n</span><span class="s2">&quot;</span>
-                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
-                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
+                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
@@ -600,7 +694,14 @@
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
-
+            <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;Magnetization&quot;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of a single magnetization step averaged over </span><span class="si">{}</span><span class="s1"> steps: </span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_usec</span><span class="p">),</span>
+                                                                        <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;Production&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of a single production step averaged over </span><span class="si">{}</span><span class="s1"> steps: </span><span class="se">\n</span><span class="s1">&#39;</span>
                       <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
@@ -643,6 +744,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Static Structure Factor:&#39;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of ka harmonics = n_x, n_y, n_z = </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">simulation</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">no_ka_harmonics</span><span class="p">))</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of ka values to calculate = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">k_list</span><span class="p">)))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of unique ka values to calculate = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">k_unique</span><span class="p">)))</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Smallest wavevector k_min = 3.9 / N^(1/3)&#39;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;k_min = </span><span class="si">{:.4f}</span><span class="s1"> / a_ws = </span><span class="si">{:1.4e}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">simulation</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">ka_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">simulation</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">k_unique</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -732,52 +834,98 @@
 <span class="sd">            Simulation&#39;s parameters.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wp_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time step = </span><span class="si">{:2.6e}</span><span class="s1"> [s]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Yukawa&#39;</span><span class="p">,</span> <span class="s1">&#39;EGS&#39;</span><span class="p">,</span> <span class="s1">&#39;Coulomb&#39;</span><span class="p">,</span> <span class="s1">&#39;Moliere&#39;</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total plasma frequency = </span><span class="si">{:1.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_p dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_p dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_dt</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">num_species</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="n">low_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Highest w_c dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Smalles w_c dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_wc_dt</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_c dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;QSP&#39;</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;e plasma frequency = </span><span class="si">{:2.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ion plasma frequency = </span><span class="si">{:2.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_pe dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">wp</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">num_species</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="n">low_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Electron w_ce dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ions w_ci dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_wc_dt</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_c dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;LJ&#39;</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;(total) equivalent plasma frequency = </span><span class="si">{:1.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total equivalent plasma frequency = </span><span class="si">{:1.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_p dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_p dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_dt</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">num_species</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="n">low_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Highest w_c dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Smalles w_c dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_wc_dt</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_c dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span> <span class="o">==</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">:</span>
+        <span class="c1"># Print Time steps information</span>
+        <span class="c1"># Check for restart simulations</span>
+        <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;production_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;prod_restart&#39;</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total post-equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_prod&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">,</span>
-                <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> w_p T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">,</span>
-                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span> <span class="o">==</span> <span class="s1">&#39;eq_restart&#39;</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_therm_restart_step</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_prod&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;equilibration_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_restart&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_eq&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">,</span>
-                <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> w_p T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">,</span>
-                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">load_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;magnetization_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;mag_restart&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total magnetization steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_mag&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span><span class="p">,</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">)))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> w_p T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span><span class="p">,</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_eq&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="c1"># Equilibration</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Equilibration: </span><span class="se">\n</span><span class="s1">No. of equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_eq&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">,</span>
-                <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> w_p T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">,</span>
-                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. of post-equilibration steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_prod&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+            <span class="c1"># Magnetization</span>
+            <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Magnetization: </span><span class="se">\n</span><span class="s1">No. of magnetization steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_mag&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span><span class="p">,</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">)))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> w_p T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span><span class="p">,</span>
+                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+            <span class="c1"># Production</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Production: </span><span class="se">\n</span><span class="s1">No. of production steps = </span><span class="si">{}</span><span class="s1"> ~ </span><span class="si">{}</span><span class="s1"> w_p T_prod&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">,</span>
-                <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span><span class="p">)))</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot interval = </span><span class="si">{}</span><span class="s1"> = </span><span class="si">{:1.3f}</span><span class="s1"> w_p T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">,</span>
-                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">))</span></div>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="InputOutput.algorithm_info"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.algorithm_info">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">algorithm_info</span><span class="p">(</span><span class="n">simulation</span><span class="p">):</span>
@@ -1014,6 +1162,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coupling</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">coupling_constant</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">T_desired</span>
 
+        <span class="c1"># Check whether energy files exist already</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_energy_filename</span><span class="p">):</span>
             <span class="c1"># Create the Energy file</span>
             <span class="n">dkeys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Total Energy&quot;</span><span class="p">,</span> <span class="s2">&quot;Total Kinetic Energy&quot;</span><span class="p">,</span> <span class="s2">&quot;Potential Energy&quot;</span><span class="p">,</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">]</span>
@@ -1021,7 +1170,6 @@
                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
                     <span class="n">dkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Kinetic Energy&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
                     <span class="n">dkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Temperature&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-            <span class="n">dkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Gamma&quot;</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">dkeys</span><span class="p">)</span>
 
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_energy_filename</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1035,12 +1183,25 @@
                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
                     <span class="n">dkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Kinetic Energy&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp_name</span><span class="p">))</span>
                     <span class="n">dkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Temperature&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp_name</span><span class="p">))</span>
-            <span class="n">dkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Gamma&quot;</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">dkeys</span><span class="p">)</span>
 
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_energy_filename</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-                <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+                <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_energy_filename</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">load_method</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;restart&#39;</span><span class="p">:</span>
+                <span class="c1"># Create the Energy file</span>
+                <span class="n">dkeys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Total Energy&quot;</span><span class="p">,</span> <span class="s2">&quot;Total Kinetic Energy&quot;</span><span class="p">,</span> <span class="s2">&quot;Potential Energy&quot;</span><span class="p">,</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">species</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
+                        <span class="n">dkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Kinetic Energy&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp_name</span><span class="p">))</span>
+                        <span class="n">dkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Temperature&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp_name</span><span class="p">))</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">dkeys</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_energy_filename</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                    <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="InputOutput.save_pickle"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.save_pickle">[docs]</a>    <span class="k">def</span> <span class="nf">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1092,14 +1253,14 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">py_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="InputOutput.dump"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">production</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="InputOutput.dump"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save particles&#39; data to binary file for future restart.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        production: bool</span>
-<span class="sd">            Flag indicating whether to phase production or equilibration data.</span>
+<span class="sd">        phase: str</span>
+<span class="sd">            Simulation phase.</span>
 
 <span class="sd">        ptcls: sarkas.base.Particles</span>
 <span class="sd">            Particles data.</span>
@@ -1107,7 +1268,7 @@
 <span class="sd">        it : int</span>
 <span class="sd">            Timestep number.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">production</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;production&#39;</span><span class="p">:</span>
             <span class="n">ptcls_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_ptcls_filename</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
             <span class="n">tme</span> <span class="o">=</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
             <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">ptcls_file</span><span class="p">,</span>
@@ -1122,7 +1283,7 @@
 
             <span class="n">energy_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_energy_filename</span>
 
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;equilibration&#39;</span><span class="p">:</span>
             <span class="n">ptcls_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_ptcls_filename</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
             <span class="n">tme</span> <span class="o">=</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
             <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">ptcls_file</span><span class="p">,</span>
@@ -1135,6 +1296,19 @@
 
             <span class="n">energy_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_energy_filename</span>
 
+        <span class="k">elif</span> <span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;magnetization&#39;</span><span class="p">:</span>
+            <span class="n">ptcls_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_ptcls_filename</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+            <span class="n">tme</span> <span class="o">=</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">ptcls_file</span><span class="p">,</span>
+                     <span class="nb">id</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                     <span class="n">names</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+                     <span class="n">pos</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                     <span class="n">vel</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span>
+                     <span class="n">acc</span><span class="o">=</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">,</span>
+                     <span class="n">time</span><span class="o">=</span><span class="n">tme</span><span class="p">)</span>
+
+            <span class="n">energy_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_energy_filename</span>
+
         <span class="n">kinetic_energies</span><span class="p">,</span> <span class="n">temperatures</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">kinetic_temperature</span><span class="p">()</span>
         <span class="c1"># Prepare data for saving</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
@@ -1143,9 +1317,10 @@
                 <span class="s2">&quot;Potential Energy&quot;</span><span class="p">:</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">potential_energy</span><span class="p">,</span>
                 <span class="s2">&quot;Total Temperature&quot;</span><span class="p">:</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">species_num</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">@</span> <span class="n">temperatures</span> <span class="o">/</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">total_num_ptcls</span>
                 <span class="p">}</span>
-        <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">kin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kinetic_energies</span><span class="p">):</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Kinetic Energy&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">sp</span><span class="p">])]</span> <span class="o">=</span> <span class="n">kin</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Temperature&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">sp</span><span class="p">])]</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">kin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kinetic_energies</span><span class="p">):</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Kinetic Energy&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">sp</span><span class="p">])]</span> <span class="o">=</span> <span class="n">kin</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Temperature&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">sp</span><span class="p">])]</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">energy_file</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="n">w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
@@ -1291,20 +1466,31 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">return</span> <span class="p">[</span><span class="n">alpha_to_int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="convert_bytes"><a class="viewcode-back" href="../../../api/sarkas.utilities.io.html#sarkas.utilities.io.convert_bytes">[docs]</a><span class="k">def</span> <span class="nf">convert_bytes</span><span class="p">(</span><span class="nb">bytes</span><span class="p">):</span>
+
+    <span class="n">GB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+    <span class="n">MB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+    <span class="n">KB</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">GB</span><span class="p">,</span> <span class="n">MB</span><span class="p">,</span> <span class="n">KB</span><span class="p">,</span> <span class="n">rem</span><span class="p">]</span></div>
 </pre></div>
 
            </div>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, MurilloGroup.
+        
+        &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 07, 2021.
+        Last updated on Feb, 08, 2021.
       </span>
 
     </p>
@@ -1312,13 +1498,14 @@
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

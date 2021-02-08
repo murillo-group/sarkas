@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Integrators &mdash; Sarkas 0.1.0 documentation</title>
   
@@ -16,10 +16,7 @@
 
   
   
-
   
-  
-
   
 
   
@@ -169,8 +166,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -182,7 +177,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="../_sources/theory/integrators.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -280,7 +275,7 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
 <div class="section" id="magnetic-velocity-verlet">
 <h2>Magnetic Velocity Verlet<a class="headerlink" href="#magnetic-velocity-verlet" title="Permalink to this headline">¶</a></h2>
 <p>A generalization to include constant external magnetic fields leads to the Liouville operator
-<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <span id="id2">[<a class="reference internal" href="references.html#id11"><span>Chi08</span></a>]</span></p>
+<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <a class="bibtex reference internal" href="references.html#chin2008" id="id2">[Chi08]</a></p>
 <div class="math notranslate nohighlight">
 \[L_B = \omega_c \left ( \hat{\mathbf B} \times \mathbf v \right ) \cdot \frac{\partial}{\partial \mathbf v}  = \omega_c \hat{\mathbf B} \cdot \left( \mathbf v \times \frac{\partial}{\partial \mathbf v} \right ) = \omega_c \hat{\mathbf B} \cdot \mathbf J_{\mathbf v}.\]</div>
 <p>Application of this operator leads to <span class="math notranslate nohighlight">\(e^{i \epsilon L_B}\vb{r}_0 = 0\)</span> and</p>
@@ -300,10 +295,10 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
 <p>Time integrators of various order can be found by exponential splitting, that is</p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx \prod_{ j = 1}^{N} e^{i a_j \epsilon K} e^{i b_j \epsilon \left ( L_B + V \right ) }.\]</div>
-<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <span id="id3">[<a class="reference internal" href="references.html#id11"><span>Chi08</span></a>]</span></p>
+<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <a class="bibtex reference internal" href="references.html#chin2008" id="id3">[Chi08]</a></p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx e^{i \epsilon K} e^{i \epsilon V/2}  e^{i \epsilon L_B} e^{i \epsilon V/2}\]</div>
-<p>while a generalization of the Velocity-Verlet <span id="id4">[<a class="reference internal" href="references.html#id11"><span>Chi08</span></a>,<a class="reference internal" href="references.html#id9"><span>SW99</span></a>]</span></p>
+<p>while a generalization of the Velocity-Verlet <a class="bibtex reference internal" href="references.html#chin2008" id="id4">[Chi08]</a><a class="bibtex reference internal" href="references.html#spreiter1999" id="id5">[SW99]</a></p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx  e^{i \epsilon (L_B + V) /2} e^{i \epsilon K} e^{i \epsilon ( L_B + V)/2}.\]</div>
 <p>Notice that all the above algorithm require one force calculation per time step.</p>
@@ -315,18 +310,25 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
            
           </div>
           <footer>
+  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="potentials.html" class="btn btn-neutral float-right" title="Potentials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="../examples/Magnetized_Plasma.html" class="btn btn-neutral float-left" title="Magnetized Plasma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+        <a href="potentials.html" class="btn btn-neutral float-right" title="Potentials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../examples/Magnetized_Plasma.html" class="btn btn-neutral float-left" title="Magnetized Plasma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
     </div>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, MurilloGroup.
+        
+        &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 07, 2021.
+        Last updated on Feb, 08, 2021.
       </span>
 
     </p>
@@ -334,13 +336,14 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

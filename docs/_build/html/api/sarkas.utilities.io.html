@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>sarkas.utilities.io module &mdash; Sarkas 0.1.0 documentation</title>
   
@@ -16,10 +16,7 @@
 
   
   
-
   
-  
-
   
 
   
@@ -178,8 +175,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -197,7 +192,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="../_sources/api/sarkas.utilities.io.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -255,16 +250,17 @@
 <dl class="py method">
 <dt id="sarkas.utilities.io.InputOutput.create_file_paths">
 <code class="sig-name descname">create_file_paths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.create_file_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.create_file_paths" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create all the file and directory paths.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.utilities.io.InputOutput.dump">
-<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">production</span></em>, <em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.dump" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phase</span></em>, <em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save particles’ data to binary file for future restart.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>production</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag indicating whether to phase production or equilibration data.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Simulation phase.</p></li>
 <li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p></li>
 <li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep number.</p></li>
 </ul>
@@ -289,7 +285,8 @@
 <dl class="py method">
 <dt id="sarkas.utilities.io.InputOutput.file_header">
 <code class="sig-name descname">file_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.file_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.file_header" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create the log file and print the figlet if not a restart run.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.utilities.io.InputOutput.from_dict">
@@ -333,7 +330,8 @@
 <dl class="py method">
 <dt id="sarkas.utilities.io.InputOutput.make_directories">
 <code class="sig-name descname">make_directories</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.make_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.make_directories" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create directories if non-existent.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.utilities.io.InputOutput.postprocess_info">
@@ -350,6 +348,12 @@
 <dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.preprocess_sizing">
+<code class="sig-name descname">preprocess_sizing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sizes</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.preprocess_sizing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.preprocess_sizing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the estimated file sizes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -516,6 +520,11 @@ If verbose output then it will print twice: the first time to file and second ti
 <dd></dd></dl>
 
 <dl class="py function">
+<dt id="sarkas.utilities.io.convert_bytes">
+<code class="sig-prename descclassname">sarkas.utilities.io.</code><code class="sig-name descname">convert_bytes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bytes</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#convert_bytes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.convert_bytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt id="sarkas.utilities.io.num_sort">
 <code class="sig-prename descclassname">sarkas.utilities.io.</code><code class="sig-name descname">num_sort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#num_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.num_sort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method copied from
@@ -543,18 +552,25 @@ If verbose output then it will print twice: the first time to file and second ti
            
           </div>
           <footer>
+  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="sarkas.utilities.timing.html" class="btn btn-neutral float-right" title="sarkas.utilities.timing module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="sarkas.utilities.html" class="btn btn-neutral float-left" title="sarkas.utilities package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+        <a href="sarkas.utilities.timing.html" class="btn btn-neutral float-right" title="sarkas.utilities.timing module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sarkas.utilities.html" class="btn btn-neutral float-left" title="sarkas.utilities package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
     </div>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, MurilloGroup.
+        
+        &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 07, 2021.
+        Last updated on Feb, 08, 2021.
       </span>
 
     </p>
@@ -562,13 +578,14 @@ If verbose output then it will print twice: the first time to file and second ti
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

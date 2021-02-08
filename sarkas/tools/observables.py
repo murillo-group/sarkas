@@ -178,6 +178,9 @@ class Observable:
         else:
             self.no_ka_harmonics = [5, 5, 5]
 
+        if not hasattr(self, 'all_k_values'):
+            self.all_k_values = False
+
         self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
         self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
         self.nkt_file = os.path.join(self.k_space_dir, "nkt")
@@ -249,6 +252,138 @@ class Observable:
                 print("\nComputing Observable now ...")
                 self.compute()
 
+    def parse_k_data(self):
+        """Read in the precomputed Fourier space data. Recalculate if not correct."""
+
+        try:
+            k_data = np.load(self.k_file)
+            # Check for the correct number of k values
+            if self.all_k_values == k_data["all_k_values"]:
+                # Check for the correct max harmonics
+                comp = self.no_ka_harmonics == k_data["max_harmonics"]
+                if comp.all():
+                    self.k_list = k_data["k_list"]
+                    self.k_counts = k_data["k_counts"]
+                    self.ka_values = k_data["ka_values"]
+                    self.no_ka_values = len(self.ka_values)
+                else:
+                    self.calc_k_data()
+            else:
+                self.calc_k_data()
+
+        except FileNotFoundError:
+            self.calc_k_data()
+
+    def calc_k_data(self):
+        """Calculate and save Fourier space data."""
+
+        self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths,
+                                                            self.all_k_values)
+        self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
+        self.no_ka_values = len(self.ka_values)
+
+        if not (os.path.exists(self.k_space_dir)):
+            os.mkdir(self.k_space_dir)
+
+        np.savez(self.k_file,
+                 k_list=self.k_list,
+                 k_counts=self.k_counts,
+                 ka_values=self.ka_values,
+                 max_harmonics=self.no_ka_harmonics,
+                 all_k_values=self.all_k_values)
+
+    def parse_kt_data(self, nkt_flag=False, vkt_flag=False):
+        """Read in the precomputed time dependent Fourier space data. Recalculate if not.
+
+        Parameters
+        ----------
+        nkt_flag : bool
+            Flag for reading microscopic density Fourier components ``n(\mathbf k, t)``. Default = False.
+
+        vkt_flag : bool
+            Flag for reading microscopic velocity Fourier components,``v(\mathbf k, t)``. Default = False.
+
+        """
+        if nkt_flag:
+            try:
+                nkt_data = np.load(self.nkt_file + '_slice_' + str(self.no_slices - 1) + '.npz')
+                # Check for the correct number of k values
+                if self.all_k_values == nkt_data["all_k_values"]:
+                    # Check for the correct max harmonics
+                    comp = self.no_ka_harmonics == nkt_data["max_harmonics"]
+                    if not comp.all():
+                        self.calc_kt_data(nkt_flag=True)
+                else:
+                    self.calc_kt_data(nkt_flag=True)
+
+            except FileNotFoundError:
+                self.calc_kt_data(nkt_flag=True)
+
+        if vkt_flag:
+            try:
+                vkt_data = np.load(self.vkt_file + '_slice_' + str(self.no_slices - 1) + '.npz')
+                # Check for the correct number of k values
+                if self.all_k_values == vkt_data["all_k_values"]:
+                    # Check for the correct max harmonics
+                    comp = self.no_ka_harmonics == vkt_data["max_harmonics"]
+                    if not comp.all():
+                        self.calc_kt_data(vkt_flag=True)
+                else:
+                    self.calc_kt_data(vkt_flag=True)
+
+            except FileNotFoundError:
+                self.calc_kt_data(vkt_flag=True)
+
+    def calc_kt_data(self, nkt_flag=False, vkt_flag=False):
+        """Calculate Time dependent Fourier space quantities.
+
+        Parameters
+        ----------
+        nkt_flag : bool
+            Flag for calculating microscopic density Fourier components ``n(\mathbf k, t)``. Default = False.
+
+        vkt_flag : bool
+            Flag for calculating microscopic velocity Fourier components,``v(\mathbf k, t)``. Default = False.
+
+        """
+        start_slice = 0
+        end_slice = self.slice_steps * self.dump_step
+        if nkt_flag:
+            for isl in range(self.no_slices):
+                print("Calculating n(k,t) for slice {}/{}.".format(isl, self.no_slices))
+                nkt = calc_nkt(self.dump_dir,
+                               (start_slice, end_slice, self.slice_steps),
+                               self.dump_step,
+                               self.species_num,
+                               self.k_list,
+                               self.verbose)
+                start_slice += self.slice_steps * self.dump_step
+                end_slice += self.slice_steps * self.dump_step
+                np.savez(self.nkt_file + '_slice_' + str(isl) + '.npz',
+                         nkt=nkt,
+                         max_harmonics=self.no_ka_harmonics,
+                         all_k_values=self.all_k_values)
+        if vkt_flag:
+            for isl in range(self.no_slices):
+                print("Calculating longitudinal and transverse "
+                      "velocity fluctuations v(k,t) for slice {}/{}.".format(isl, self.no_slices))
+                vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir,
+                                                    (start_slice, end_slice, self.slice_steps),
+                                                    self.dump_step,
+                                                    self.species_num,
+                                                    self.k_list,
+                                                    self.verbose)
+                start_slice += self.slice_steps * self.dump_step
+                end_slice += self.slice_steps * self.dump_step
+
+                np.savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
+                         longitudinal=vkt,
+                         transverse_i=vkt_i,
+                         transverse_j=vkt_j,
+                         transverse_k=vkt_k,
+                         max_harmonics=self.no_ka_harmonics,
+                         all_k_values=self.all_k_values)
+
     def plot(self, normalization=None, figname=None, show=False, acf=False, longitudinal=True, **kwargs):
         """
         Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
@@ -299,15 +434,15 @@ class Observable:
                 plot_dataframe[col] /= plot_dataframe[col].iloc[0]
             kwargs['logx'] = True
 
-        if self.__class__.__name__ == 'StaticStructureFactor':
-            errorbars = plot_dataframe.copy()
-            for i, col in enumerate(self.dataframe.columns):
-                if col[-8:] == 'Errorbar':
-                    errorbars.drop(col[:-9], axis=1, inplace=True)
-                    errorbars.rename({col: col[:-9]}, axis=1, inplace=True)
-                    plot_dataframe.drop(col, axis=1, inplace=True)
-            kwargs['yerr'] = errorbars
-
+        # if self.__class__.__name__ == 'StaticStructureFactor':
+        #     errorbars = plot_dataframe.copy()
+        #     for i, col in enumerate(self.dataframe.columns):
+        #         if col[-8:] == 'Errorbar':
+        #             errorbars.drop(col, axis=1, inplace=True)
+        #             errorbars.rename({col: col[:-9]}, axis=1, inplace=True)
+        #             plot_dataframe.drop(col, axis=1, inplace=True)
+        #     kwargs['yerr'] = errorbars
+        #
         axes_handle = plot_dataframe.plot(x=plot_dataframe.columns[0], **kwargs)
         fig = axes_handle.figure
         fig.tight_layout()
@@ -316,7 +451,7 @@ class Observable:
         if figname:
             fig.savefig(os.path.join(self.saving_dir, figname + '_' + self.job_id + '.png'))
         else:
-            fig.savefig(os.path.join(self.saving_dir, self.__class__.__name__ + '_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, 'Plot_' + self.__class__.__name__ + '_' + self.job_id + '.png'))
 
         if show:
             fig.show()
@@ -384,47 +519,12 @@ class CurrentCorrelationFunction(Observable):
         """
 
         # Parse vkt otherwise calculate them
-        try:
-            data = np.load(self.vkt_file + '_slice_' + str(self.no_slices - 1) + '.npz')
-            k_data = np.load(self.k_file)
-            self.k_list = k_data["k_list"]
-            self.k_counts = k_data["k_counts"]
-            self.ka_values = k_data["ka_values"]
-            self.no_ka_values = len(self.ka_values)
-
-        except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
-            self.no_ka_values = len(self.ka_values)
-
-            if not (os.path.exists(self.k_space_dir)):
-                os.mkdir(self.k_space_dir)
-
-            np.savez(self.k_file,
-                     k_list=self.k_list,
-                     k_counts=self.k_counts,
-                     ka_values=self.ka_values)
-            start_slice = 0
-            end_slice = self.slice_steps * self.dump_step
-            for isl in range(self.no_slices):
-                vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir,
-                                                    (start_slice, end_slice, self.slice_steps),
-                                                    self.dump_step,
-                                                    self.species_num,
-                                                    self.k_list,
-                                                    self.verbose)
-                start_slice += self.slice_steps * self.dump_step
-                end_slice += self.slice_steps * self.dump_step
-
-                np.savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
-                         longitudinal=vkt,
-                         transverse_i=vkt_i,
-                         transverse_j=vkt_j,
-                         transverse_k=vkt_k)
-
+        self.parse_k_data()
+        self.parse_kt_data(nkt_flag=False, vkt_flag=True)
         # Initialize dataframes and add frequencies to it.
-        no_dumps = self.slice_steps
-        frequencies = 2.0 * np.pi * np.fft.fftfreq(no_dumps, self.dt * self.dump_step)
+        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
+        self.dataframe = pd.DataFrame()
+        frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
         self.dataframe_longitudinal["Frequencies"] = np.fft.fftshift(frequencies)
         self.dataframe_transverse["Frequencies"] = np.fft.fftshift(frequencies)
 
@@ -434,8 +534,8 @@ class CurrentCorrelationFunction(Observable):
         temp_dataframe_transverse = pd.DataFrame()
         temp_dataframe_transverse["Frequencies"] = np.fft.fftshift(frequencies)
 
-        Lkw_tot = np.zeros((self.no_obs, len(self.k_counts), no_dumps))
-        Tkw_tot = np.zeros((self.no_obs, len(self.k_counts), no_dumps))
+        Lkw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
+        Tkw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
 
         for isl in range(self.no_slices):
             data = np.load(self.vkt_file + '_slice_' + str(isl) + '.npz')
@@ -445,10 +545,14 @@ class CurrentCorrelationFunction(Observable):
             vkt_k = data["transverse_k"]
 
             # Calculate Lkw and Tkw
-            Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt, self.dump_step)
-            Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt, self.dump_step)
-            Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt, self.dump_step)
-            Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_num, no_dumps, self.dt, self.dump_step)
+            Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt, self.dump_step)
+            Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
+                             self.dump_step)
+            Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
+                             self.dump_step)
+            Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
+                             self.dump_step)
+
             Tkw = (Tkw_i + Tkw_j + Tkw_k) / 3.0
 
             Lkw_tot += Lkw / self.no_slices
@@ -548,39 +652,10 @@ class DynamicStructureFactor(Observable):
         """
 
         # Parse nkt otherwise calculate it
-        try:
-            k_data = np.load(self.k_file)
-            self.k_list = k_data["k_list"]
-            self.k_counts = k_data["k_counts"]
-            self.ka_values = k_data["ka_values"]
-            self.no_ka_values = len(self.ka_values)
-            nkt = np.load(self.nkt_file + '_slice_' + str(self.no_slices - 1) + '.npy')
-
-        except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
-            self.no_ka_values = len(self.ka_values)
-
-            if not (os.path.exists(self.k_space_dir)):
-                os.mkdir(self.k_space_dir)
-
-            np.savez(self.k_file,
-                     k_list=self.k_list,
-                     k_counts=self.k_counts,
-                     ka_values=self.ka_values)
-
-            start_slice = 0
-            end_slice = self.slice_steps * self.dump_step
-            for isl in range(self.no_slices):
-                nkt = calc_nkt(self.dump_dir,
-                               (start_slice, end_slice, self.slice_steps),
-                               self.dump_step,
-                               self.species_num,
-                               self.k_list,
-                               self.verbose)
-                start_slice += self.slice_steps * self.dump_step
-                end_slice += self.slice_steps * self.dump_step
-                np.save(self.nkt_file + '_slice_' + str(isl), nkt)
+        self.parse_k_data()
+        self.parse_kt_data(nkt_flag=True)
+        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
+        self.dataframe = pd.DataFrame()
 
         frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
         self.dataframe["Frequencies"] = np.fft.fftshift(frequencies)
@@ -591,8 +666,8 @@ class DynamicStructureFactor(Observable):
         Skw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
 
         for isl in range(0, self.no_slices):
-            nkt = np.load(self.nkt_file + '_slice_' + str(isl) + '.npy')
-
+            nkt_data = np.load(self.nkt_file + '_slice_' + str(isl) + '.npz')
+            nkt = nkt_data["nkt"]
             # Calculate Skw
             Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
                            self.dump_step)
@@ -1076,40 +1151,10 @@ class StaticStructureFactor(Observable):
         Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a csv.
         """
         # Parse nkt otherwise calculate it
-        try:
-            k_data = np.load(self.k_file)
-            self.k_list = k_data["k_list"]
-            self.k_counts = k_data["k_counts"]
-            self.ka_values = k_data["ka_values"]
-            self.no_ka_values = len(self.ka_values)
-            nkt = np.load(self.nkt_file + '_slice_' + str(self.no_slices - 1) + '.npy')
-
-        except FileNotFoundError:
-            self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths)
-            self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
-            self.no_ka_values = len(self.ka_values)
-
-            if not (os.path.exists(self.k_space_dir)):
-                os.mkdir(self.k_space_dir)
-
-            np.savez(self.k_file,
-                     k_list=self.k_list,
-                     k_counts=self.k_counts,
-                     ka_values=self.ka_values)
-
-            start_slice = 0
-            end_slice = self.slice_steps * self.dump_step
-            for isl in range(self.no_slices):
-                nkt = calc_nkt(self.dump_dir,
-                               (start_slice, end_slice, self.slice_steps),
-                               self.dump_step,
-                               self.species_num,
-                               self.k_list,
-                               self.verbose)
-                start_slice += self.slice_steps * self.dump_step
-                end_slice += self.slice_steps * self.dump_step
-                np.save(self.nkt_file + '_slice_' + str(isl), nkt)
-
+        self.parse_k_data()
+        self.parse_kt_data(nkt_flag=True)
+        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
+        self.dataframe = pd.DataFrame()
         self.dataframe["ka values"] = self.ka_values
 
         no_dumps_calculated = self.slice_steps * self.no_slices
@@ -1118,7 +1163,8 @@ class StaticStructureFactor(Observable):
         print("Calculating S(k)")
 
         for isl in tqdm(range(self.no_slices)):
-            nkt = np.load(self.nkt_file + '_slice_' + str(isl) + '.npy')
+            nkt_data = np.load(self.nkt_file + '_slice_' + str(isl) + '.npz')
+            nkt = nkt_data["nkt"]
             init = isl * self.slice_steps
             fin = (isl + 1) * self.slice_steps
             Sk_all[:, :, init:fin] = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps)
@@ -1346,7 +1392,7 @@ class Thermodynamics(Observable):
         Grab the pandas dataframe from the saved csv file.
         """
         if phase:
-            self.phase = phase
+            self.phase = phase.lower()
 
         if self.phase == 'equilibration':
             self.dataframe = pd.read_csv(self.eq_energy_filename, index_col=False)
@@ -1412,14 +1458,15 @@ class Thermodynamics(Observable):
         """
 
         if phase:
-            self.phase = phase.lower()
+            phase = phase.lower()
+            self.phase = phase
             if self.phase == 'equilibration':
                 self.no_dumps = self.eq_no_dumps
                 self.dump_dir = self.eq_dump_dir
                 self.dump_step = self.eq_dump_step
                 self.fldr = self.equilibration_dir
                 self.no_steps = self.equilibration_steps
-                self.parse(phase)
+                self.parse(self.phase)
                 self.dataframe = self.dataframe.iloc[1:, :]
 
             elif self.phase == 'production':
@@ -1428,7 +1475,7 @@ class Thermodynamics(Observable):
                 self.dump_step = self.prod_dump_step
                 self.fldr = self.production_dir
                 self.no_steps = self.production_steps
-                self.parse(phase)
+                self.parse(self.phase)
 
             elif self.phase == 'magnetization':
                 self.no_dumps = self.mag_no_dumps
@@ -1436,7 +1483,7 @@ class Thermodynamics(Observable):
                 self.dump_step = self.mag_dump_step
                 self.fldr = self.magnetization_dir
                 self.no_steps = self.magnetization_steps
-                self.parse(phase)
+                self.parse(self.phase)
 
         else:
             self.parse()
@@ -1555,7 +1602,7 @@ class Thermodynamics(Observable):
                        "Timestep = {:1.4f} {}".format(xmul * simulation.integrator.dt, xlbl), fontsize=fsz)
         Info_plot.text(0., y_coord - 3., "{} step interval = {}".format(self.phase, self.dump_step), fontsize=fsz)
         Info_plot.text(0., y_coord - 3.5,
-                       "{} completed steps = {}".format(self.phase, completed_steps ),
+                       "{} completed steps = {}".format(self.phase, completed_steps),
                        fontsize=fsz)
         Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(self.phase.capitalize(), self.no_steps),
                        fontsize=fsz)
@@ -1606,6 +1653,15 @@ class VelocityAutoCorrelationFunction(Observable):
     def compute(self, time_averaging=False, it_skip=100):
         """
         Compute the velocity auto-correlation functions.
+
+        Parameters
+        ----------
+        time_averaging: bool
+            Flag for species diffusion flux time averaging. Default = False.
+
+        it_skip: int
+            Timestep interval for species diffusion flux time averaging. Default = 100
+
         """
 
         # Parse the particles from the dump files
@@ -1639,7 +1695,7 @@ class VelocityAutoCorrelationFunction(Observable):
 
 
 class FluxAutoCorrelationFunction(Observable):
-    """Diffusion Flux Auto-correlation function."""
+    """Species Diffusion Flux Auto-correlation function."""
 
     def setup(self, params, phase=None):
         """
@@ -1675,6 +1731,15 @@ class FluxAutoCorrelationFunction(Observable):
     def compute(self, time_averaging=False, it_skip=100):
         """
         Compute the velocity auto-correlation functions.
+
+        Parameters
+        ----------
+        time_averaging: bool
+            Flag for species diffusion flux time averaging. Default = False.
+
+        it_skip: int
+            Timestep interval for species diffusion flux time averaging. Default = 100
+
         """
 
         # Parse the particles from the dump files
@@ -2245,8 +2310,8 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
     nkt : numpy.ndarray, complex
         Density fluctuations.  Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
     """
-    # Read particles' position for all times
-    print("Calculating n(k,t).")
+
+    # Read particles' position for times in the slice
     nkt = np.zeros((len(species_np), slices[2], len(k_list)), dtype=np.complex128)
     for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step), disable=not verbose)):
         data = load_from_restart(fldr, dump)
@@ -2626,7 +2691,6 @@ def calc_vkt(fldr, slices, dump_step, species_np, k_list, verbose):
     """
 
     # Read particles' position for all times
-    print("Calculating longitudinal and transverse microscopic velocity fluctuations v(k,t).")
     no_dumps = slices[2]
     vkt_par = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
     vkt_perp_i = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
@@ -2753,7 +2817,7 @@ def correlationfunction_1D(At, Bt):
     return CF / Norm_counter
 
 
-def kspace_setup(no_ka, box_lengths):
+def kspace_setup(no_ka, box_lengths, full=False):
     """
     Calculate all allowed :math:`k` vectors.
 
@@ -2764,6 +2828,9 @@ def kspace_setup(no_ka, box_lengths):
 
     box_lengths : numpy.ndarray
         Length of each box's side.
+
+    full : bool
+        Flag for calculating all the possible `k` vector directions and magnitudes. Defauly = False
 
     Returns
     -------
@@ -2776,10 +2843,20 @@ def kspace_setup(no_ka, box_lengths):
     k_unique : numpy.ndarray
         Magnitude of each allowed :math:`k` vector.
     """
-    # Obtain all possible permutations of the wave number arrays
-    k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]]) for i in range(no_ka[0] + 1)
-             for j in range(no_ka[1] + 1)
-             for k in range(no_ka[2] + 1)]
+    if full:
+        # Obtain all possible permutations of the wave number arrays
+        k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]]) for i in range(no_ka[0] + 1)
+                 for j in range(no_ka[1] + 1)
+                 for k in range(no_ka[2] + 1)]
+    else:
+        # Obtain all possible permutations of the wave number arrays
+        k_arr = [np.array([i / box_lengths[0], 0, 0]) for i in range(1, no_ka[0] + 1)]
+        k_arr = np.append(k_arr,
+                          [np.array([0, i / box_lengths[1], 0]) for i in range(1, no_ka[1] + 1)],
+                          axis=0)
+        k_arr = np.append(k_arr,
+                          [np.array([0, 0, i / box_lengths[2]]) for i in range(1, no_ka[2] + 1)],
+                          axis=0)
 
     # Compute wave number magnitude - don't use |k| (skipping first entry in k_arr)
     k_mag = np.sqrt(np.sum(np.array(k_arr) ** 2, axis=1)[..., None])
@@ -2792,13 +2869,15 @@ def kspace_setup(no_ka, box_lengths):
     k_arr = k_arr[ind]
 
     # Count how many times a |k| value appears
-    k_unique, k_counts = np.unique(k_arr[1:, -1], return_counts=True)
+    # int(full) = 1 if True else = 0. This is needed because if full==True
+    # the first vector is k = [0, 0, 0] and needs not be counted
+    k_unique, k_counts = np.unique(k_arr[int(full):, -1], return_counts=True)
 
     # Generate a 1D array containing index to be used in S array
     k_index = np.repeat(range(len(k_counts)), k_counts)[..., None]
 
     # Add index to k_array
-    k_arr = np.concatenate((k_arr[1:, :], k_index), 1)
+    k_arr = np.concatenate((k_arr[int(full):, :], k_index), 1)
     return k_arr, k_counts, k_unique
 
 

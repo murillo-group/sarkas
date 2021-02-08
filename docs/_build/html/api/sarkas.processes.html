@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>sarkas.processes module &mdash; Sarkas 0.1.0 documentation</title>
   
@@ -16,10 +16,7 @@
 
   
   
-
   
-  
-
   
 
   
@@ -175,8 +172,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -192,7 +187,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="../_sources/api/sarkas.processes.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -314,7 +309,8 @@
 <dl class="py method">
 <dt id="sarkas.processes.PreProcess.green_function_timer">
 <code class="sig-name descname">green_function_timer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.green_function_timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.PreProcess.green_function_timer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Time Potential setup.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.processes.PreProcess.make_color_map">
@@ -381,7 +377,7 @@ Plot the force error in the parameter space.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>postprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating Post processing parameters.</p></li>
-<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating simulation times.</p></li>
+<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating simulation times. Default =True.</p></li>
 <li><p><strong>loops</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of loops over which to average the acceleration calculation.
 Note that the number of timestep over which to averages is three times this value.
 Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.</p></li>
@@ -437,18 +433,18 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Input YAML file</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.processes.Simulation.equilibrate">
-<code class="sig-name descname">equilibrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">it_start</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.equilibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.Simulation.equilibrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">equilibrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.equilibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.Simulation.equilibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial step number of the equilibration loop.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -459,7 +455,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Run the time integrator to evolve the system for the duration of the production phase.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -468,12 +464,23 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dt id="sarkas.processes.Simulation.initialization">
 <code class="sig-name descname">initialization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.initialization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.Simulation.initialization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize all the sub classes of the simulation and save simulation details to log file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.processes.Simulation.run">
 <code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.processes.Simulation.run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Run the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.processes.Simulation.setup">
@@ -552,17 +559,23 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
            
           </div>
           <footer>
+  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="sarkas.base.html" class="btn btn-neutral float-left" title="sarkas.base module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+      
+        <a href="sarkas.base.html" class="btn btn-neutral float-left" title="sarkas.base module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
     </div>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, MurilloGroup.
+        
+        &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 07, 2021.
+        Last updated on Feb, 08, 2021.
       </span>
 
     </p>
@@ -570,13 +583,14 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

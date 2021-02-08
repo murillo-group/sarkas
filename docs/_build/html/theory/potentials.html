@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Potentials &mdash; Sarkas 0.1.0 documentation</title>
   
@@ -16,10 +16,7 @@
 
   
   
-
   
-  
-
   
 
   
@@ -170,8 +167,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -183,7 +178,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="../_sources/theory/potentials.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -267,7 +262,7 @@ Notice that when <span class="math notranslate nohighlight">\(\kappa = 0\)</span
 <div class="section" id="exact-gradient-corrected-screened-yukawa-potential">
 <h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects.
-Stanton and Murillo <span id="id2">[<a class="reference internal" href="references.html#id13"><span>SM15</span></a>]</span>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
+Stanton and Murillo <a class="bibtex reference internal" href="references.html#stanton2015" id="id2">[SM15]</a>, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[\nu = - 3 \lambda \frac{4\pi \bar{e}^2 \beta }{ 4 \pi \Lambda_{e}} \mathcal I_{-3/2}(\eta),\]</div>
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a correction factor; <span class="math notranslate nohighlight">\(\lambda = 1/9\)</span> for the true gradient corrected Thomas-Fermi model
@@ -299,14 +294,14 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 <div class="section" id="quantum-statistical-potential">
 <h2>Quantum Statistical Potential<a class="headerlink" href="#quantum-statistical-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Quantum Statistical Potential between two charged particles <span class="math notranslate nohighlight">\(a,b\)</span> used in Sarkas is given by eq.(5)
-in <span id="id3">[<a class="reference internal" href="references.html#id14"><span>GGM+08</span></a>]</span></p>
+in <a class="bibtex reference internal" href="references.html#glosli2008" id="id3">[GGM+08]</a></p>
 <div class="math notranslate nohighlight">
 \[\phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left ( 1 - e^{ - 2\pi r/\Lambda_{ab}}\right ) + \delta_{ae} \delta_{be} k_BT \ln(2) \exp \left \{ - \frac{4 \pi r^2}{\Lambda_{ab}^2 \ln (2)} \right \}\]</div>
 <p>where the screening length <span class="math notranslate nohighlight">\(\Lambda_{ab}\)</span> is the thermal de Broglie wavelength between the two charges defined as</p>
 <div class="math notranslate nohighlight">
 \[\Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}}, \quad  \mu_{ab} = \frac{m_a m_b}{m_a + m_b}\]</div>
 <p>The last term, present only in the interaction between two electrons, accounts for spin-averaged effects.</p>
-<p>Note that the de Broglie wavelength is defined differently in <span id="id4">[<a class="reference internal" href="references.html#id15"><span>HM81</span></a>]</span> hence the factor of <span class="math notranslate nohighlight">\(2\pi\)</span> in
+<p>Note that the de Broglie wavelength is defined differently in <a class="bibtex reference internal" href="references.html#hansen1981" id="id4">[HM81]</a> hence the factor of <span class="math notranslate nohighlight">\(2\pi\)</span> in
 the exponential. The long range part of the potential is computed using the PPPM algorithm where only the
 <span class="math notranslate nohighlight">\(1/r\)</span> term is split into a short range and long range part.</p>
 <p>The choice of this potential is due to its widespread use in the High Energy Density Physics community.</p>
@@ -318,18 +313,25 @@ the exponential. The long range part of the potential is computed using the PPPM
            
           </div>
           <footer>
+  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="thermostats.html" class="btn btn-neutral float-right" title="Thermostats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="integrators.html" class="btn btn-neutral float-left" title="Integrators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+        <a href="thermostats.html" class="btn btn-neutral float-right" title="Thermostats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="integrators.html" class="btn btn-neutral float-left" title="Integrators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
     </div>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, MurilloGroup.
+        
+        &copy; Copyright 2020, MurilloGroup
       <span class="lastupdated">
-        Last updated on Feb, 07, 2021.
+        Last updated on Feb, 08, 2021.
       </span>
 
     </p>
@@ -337,13 +339,14 @@ the exponential. The long range part of the potential is computed using the PPPM
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

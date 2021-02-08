@@ -110,12 +110,18 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def diffusion(params, phase=None, show=False):
+    def diffusion(params, phase=None, show=False, time_averaging=False, it_skip=100):
         """
         Calculate the self-diffusion coefficient from the velocity auto-correlation function.
 
         Parameters
         ----------
+        time_averaging: bool
+            Flag for VACF time averaging. Default = False.
+
+        it_skip: int
+            Timestep interval for VACF time averaging. Default = 100
+
         params : sarkas.base.Parameters
             Simulation's parameters.
 
@@ -193,7 +199,7 @@ class TransportCoefficient:
         ax2.grid(False)
         ax2.legend(loc='best')
         ax2.set_ylabel(r'Diffusion' + ylbl)
-        #ax2.set_xlabel(r'Time' + xlbl)
+        # ax2.set_xlabel(r'Time' + xlbl)
 
         ax21.xaxis.set_ticks_position("bottom")
         ax21.xaxis.set_label_position("bottom")
@@ -221,12 +227,18 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def interdiffusion(params, phase=None, show=False):
+    def interdiffusion(params, phase=None, show=False, time_averaging=False, it_skip=100):
         """
         Calculate the interdiffusion coefficients from the diffusion flux auto-correlation function.
 
         Parameters
         ----------
+        time_averaging: bool
+            Flag for species diffusion flux time averaging. Default = False.
+
+        it_skip: int
+            Timestep interval for species diffusion flux time averaging. Default = 100
+
         params : sarkas.base.Parameters
             Simulation's parameters.
 
@@ -246,7 +258,7 @@ class TransportCoefficient:
         coefficient = pd.DataFrame()
         jc_acf = obs.FluxAutoCorrelationFunction()
         jc_acf.setup(params, phase)
-        jc_acf.parse()
+        jc_acf.compute(time_averaging=time_averaging, it_skip=it_skip)
         no_int = jc_acf.prod_no_dumps
         no_obs = jc_acf.no_obs
         D_ij = np.zeros((no_obs, no_int))
@@ -285,12 +297,12 @@ class TransportCoefficient:
         ax1.grid(False)
         ax2.grid(False)
         ax21.grid(False)
-        
+
         ax1.set_ylabel(r'Diffusion Flux ACF')
         ax2.set_ylabel(r'Inter Diffusion' + ylbl)
-        
+
         ax1.set_xlabel(r"Time" + xlbl)
-        
+
         ax21.xaxis.set_ticks_position("bottom")
         ax21.xaxis.set_label_position("bottom")
 
@@ -299,7 +311,7 @@ class TransportCoefficient:
         ax21.set_xscale('log')
         # Offset the twin axis below the host
         ax21.spines["bottom"].set_position(("axes", -0.2))
-        
+
         # Turn on the frame for the twin axis, but then hide all
         # but the bottom spine
         ax21.set_frame_on(True)
