@@ -52,7 +52,7 @@ def update_params(potential, params):
                          + (5.6686 * theta - 0.6453 * theta ** 2 + 21.1036 * theta ** 3) / Dtheta) # derivative of Ntheta
                  )
         # eq.(31) of Ref. [1]_
-        b = 1.0 - 1.0 / 8.0 * theta * (h - 2.0 * theta * gradh)  # *(params.hbar2/lambda_TF**2)/params.me
+        b = 1.0 - 1.0 / 8.0 * beta_e * theta * (h - 2.0 * theta * gradh) *params.hbar2/params.me
     else:
         b = 1.0
 

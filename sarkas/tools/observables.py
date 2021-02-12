@@ -2885,7 +2885,7 @@ def kspace_setup(no_ka, box_lengths, full=False):
                  for j in range(no_ka[1] + 1)
                  for k in range(no_ka[2] + 1)]
     else:
-        # Obtain all possible permutations of the wave number arrays
+        # Calculate the k vectors along the principal axis only
         k_arr = [np.array([i / box_lengths[0], 0, 0]) for i in range(1, no_ka[0] + 1)]
         k_arr = np.append(k_arr,
                           [np.array([0, i / box_lengths[1], 0]) for i in range(1, no_ka[1] + 1)],
