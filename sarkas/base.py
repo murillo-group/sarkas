@@ -419,6 +419,11 @@ class Parameters:
 
         self.total_mass_density = self.species_masses.transpose() @ self.species_num_dens
 
+        self.average_charge = np.transpose(self.species_charges) @ self.species_concentrations
+        self.average_mass = np.transpose(self.species_masses) @ self.species_concentrations
+        self.hydrodynamic_frequency = np.sqrt( 4.0* np.pi * self.average_charge**2 * self.total_num_density /
+                                               (self.fourpie0 * self.average_mass))
+
         # Simulation Box Parameters
         # Wigner-Seitz radius calculated from the total number density
         self.a_ws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
