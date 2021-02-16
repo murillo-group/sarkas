@@ -289,7 +289,8 @@ class InputOutput:
                 print('Production dumps directory: ', self.prod_dump_dir)
                 print('\nUnits: ', simulation.parameters.units)
                 print('Total No. of particles = ', simulation.parameters.total_num_ptcls)
-
+                if hasattr(simulation.parameters, 'rand_seed'):
+                    print('Random Seed = ', simulation.parameters.rand_seed)
                 print('\nParticle Species:')
                 self.species_info(simulation)
 
@@ -587,7 +588,7 @@ class InputOutput:
             elif observable == 'ssf':
                 print('\nStatic Structure Factor:')
                 print('No. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ssf.no_ka_harmonics))
-                if simulation.ssf.all_k_values:
+                if simulation.ssf.angle_averaging:
                     print('All the possible k values will be calculated.')
                 print('No. of ka values to calculate = {}'.format(len(simulation.ssf.k_list)))
                 print('No. of unique ka values to calculate = {}'.format(len(simulation.ssf.ka_values)))
@@ -615,7 +616,7 @@ class InputOutput:
                     simulation.dsf.w_max / simulation.parameters.total_plasma_frequency, simulation.dsf.w_max))
                 print('Wavevector Constants')
                 print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.dsf.no_ka_harmonics))
-                if simulation.dsf.all_k_values:
+                if simulation.dsf.angle_averaging:
                     print('\tAll the possible k values will be calculated.')
                 print('\tNo. of ka values to calculate = {}'.format(len(simulation.dsf.k_list)))
                 print('\tNo. of unique ka values to calculate = {}'.format(len(simulation.dsf.ka_values)))
@@ -642,7 +643,7 @@ class InputOutput:
                     simulation.ccf.w_max / simulation.ccf.total_plasma_frequency, simulation.ccf.w_max))
                 print('Wavevector Constants')
                 print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
-                if simulation.ccf.all_k_values:
+                if simulation.ccf.angle_averaging:
                     print('\tAll the possible k values will be calculated.')
                 print('\tNo. of ka values to calculate = {}'.format(len(simulation.ccf.k_list)))
                 print('\tNo. of unique ka values to calculate = {}'.format(len(simulation.ccf.ka_values)))
@@ -742,52 +743,77 @@ class InputOutput:
         # Check for restart simulations
         if simulation.parameters.load_method in ['production_restart', 'prod_restart']:
             print("Restart step: {}".format(simulation.parameters.restart_step))
-            print('Total post-equilibration steps = {} ~ {} w_p T_prod'.format(
+            print('Total production steps = {} \n'
+                  'Total production time = {:.4e} [s] ~ {} w_p T_prod '.format(
                 simulation.integrator.production_steps,
+                simulation.integrator.production_steps * simulation.integrator.dt,
                 int(simulation.integrator.production_steps * wp_dt)))
-            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
                 simulation.integrator.prod_dump_step,
+                simulation.integrator.prod_dump_step * simulation.integrator.dt,
                 simulation.integrator.prod_dump_step * wp_dt))
 
         elif simulation.parameters.load_method in ['equilibration_restart', 'eq_restart']:
             print("Restart step: {}".format(simulation.parameters.restart_step))
-            print('Total equilibration steps = {} ~ {} w_p T_eq'.format(
+            print('Total equilibration steps = {} \n'
+                  'Total equilibration time = {:.4e} [s] ~ {} w_p T_eq'.format(
                 simulation.integrator.equilibration_steps,
+                simulation.integrator.equilibration_steps * simulation.integrator.dt,
                 int(simulation.integrator.eq_dump_step * wp_dt)))
-            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
                 simulation.integrator.eq_dump_step,
+                simulation.integrator.eq_dump_step * simulation.integrator.dt,
                 simulation.integrator.eq_dump_step * wp_dt))
 
         elif simulation.parameters.load_method in ['magnetization_restart', 'mag_restart']:
             print("Restart step: {}".format(simulation.parameters.restart_step))
-            print('Total magnetization steps = {} ~ {} w_p T_mag'.format(
+            print('Total magnetization steps = {} \n'
+                  'Total magnetization time = {:.4e} [s] ~ {} w_p T_mag'.format(
                 simulation.integrator.magnetization_steps,
+                simulation.integrator.magnetization_steps * simulation.integrator.dt,
                 int(simulation.integrator.mag_dump_step * wp_dt)))
-            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] ~ {:1.4f} w_p T_snap'.format(
                 simulation.integrator.mag_dump_step,
+                simulation.integrator.mag_dump_step * simulation.integrator.dt,
                 simulation.integrator.mag_dump_step * wp_dt))
         else:
             # Equilibration
-            print('Equilibration: \nNo. of equilibration steps = {} ~ {} w_p T_eq'.format(
+            print('\nEquilibration: \nNo. of equilibration steps = {} \n'
+                  'Total equilibration time = {:.4e} [s] ~ {} w_p T_eq '.format(
                 simulation.integrator.equilibration_steps,
+                simulation.integrator.equilibration_steps * simulation.integrator.dt,
                 int(simulation.integrator.equilibration_steps * wp_dt)))
-            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
                 simulation.integrator.eq_dump_step,
+                simulation.integrator.eq_dump_step * simulation.integrator.dt,
                 simulation.integrator.eq_dump_step * wp_dt))
-            # Magnetization
+             # Magnetization
             if simulation.integrator.electrostatic_equilibration:
-                print('Magnetization: \nNo. of magnetization steps = {} ~ {} w_p T_mag'.format(
-                    simulation.integrator.magnetization_steps,
-                    int(simulation.integrator.magnetization_steps * wp_dt)))
-                print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
+                print('\nMagnetization: \nNo. of magnetization steps = {} \n'
+                      'Total magnetization time = {:.4e} [s] ~ {} w_p T_mag '.format(
+                simulation.integrator.magnetization_steps,
+                simulation.integrator.magnetization_stepss * simulation.integrator.dt,
+                int(simulation.integrator.magnetization_steps * wp_dt)))
+
+                print('snapshot interval step = {} \n'
+                      'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
                     simulation.integrator.mag_dump_step,
+                    simulation.integrator.mag_dump_step * simulation.integrator.dt,
                     simulation.integrator.mag_dump_step * wp_dt))
             # Production
-            print('Production: \nNo. of production steps = {} ~ {} w_p T_prod'.format(
+            print('\nProduction: \nNo. of production steps = {} \n'
+                  'Total production time = {:.4e} [s] ~ {} w_p T_prod '.format(
                 simulation.integrator.production_steps,
+                simulation.integrator.production_steps * simulation.integrator.dt,
                 int(simulation.integrator.production_steps * wp_dt)))
-            print('snapshot interval = {} = {:1.3f} w_p T_snap'.format(
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
                 simulation.integrator.prod_dump_step,
+                simulation.integrator.prod_dump_step * simulation.integrator.dt,
                 simulation.integrator.prod_dump_step * wp_dt))
 
     @staticmethod
@@ -803,10 +829,20 @@ class InputOutput:
 
         """
         if simulation.potential.method == 'P3M':
+            print('Mesh = {} x {} x {}'.format(*simulation.potential.pppm_mesh))
             print('Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(
                 simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
                 simulation.potential.pppm_alpha_ewald), end='')
             print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
+            print('Mesh width = {:.4f}, {:.4f}, {:.4f} a_ws'.format(
+                simulation.potential.pppm_h_array[0]/simulation.parameters.a_ws,
+                simulation.potential.pppm_h_array[1]/simulation.parameters.a_ws,
+                simulation.potential.pppm_h_array[2]/simulation.parameters.a_ws))
+            print('           = {:.4e}, {:.4e}, {:.4e} '.format(
+                simulation.potential.pppm_h_array[0],
+                simulation.potential.pppm_h_array[1],
+                simulation.potential.pppm_h_array[2]), end='')
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print('Mesh size * Ewald_parameter (h * alpha) = {:2.4f}, {:2.4f}, {:2.4f} '.format(
                 simulation.potential.pppm_h_array[0] * simulation.potential.pppm_alpha_ewald,
                 simulation.potential.pppm_h_array[1] * simulation.potential.pppm_alpha_ewald,
@@ -820,7 +856,6 @@ class InputOutput:
                 'rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
                                                         simulation.potential.rc), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print('Mesh = {} x {} x {}'.format(*simulation.potential.pppm_mesh))
             print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
                 int(simulation.parameters.box_lengths[0] / simulation.potential.rc),
                 int(simulation.parameters.box_lengths[1] / simulation.potential.rc),

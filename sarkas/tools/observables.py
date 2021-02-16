@@ -178,8 +178,8 @@ class Observable:
         else:
             self.no_ka_harmonics = [5, 5, 5]
 
-        if not hasattr(self, 'all_k_values'):
-            self.all_k_values = False
+        if not hasattr(self, 'angle_averaging'):
+            self.angle_averaging = False
 
         self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
         self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
@@ -258,7 +258,7 @@ class Observable:
         try:
             k_data = np.load(self.k_file)
             # Check for the correct number of k values
-            if self.all_k_values == k_data["all_k_values"]:
+            if self.angle_averaging == k_data["angle_averaging"]:
                 # Check for the correct max harmonics
                 comp = self.no_ka_harmonics == k_data["max_harmonics"]
                 if comp.all():
@@ -278,7 +278,7 @@ class Observable:
         """Calculate and save Fourier space data."""
 
         self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths,
-                                                            self.all_k_values)
+                                                            self.angle_averaging)
         self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
         self.no_ka_values = len(self.ka_values)
 
@@ -290,7 +290,7 @@ class Observable:
                  k_counts=self.k_counts,
                  ka_values=self.ka_values,
                  max_harmonics=self.no_ka_harmonics,
-                 all_k_values=self.all_k_values)
+                 angle_averaging=self.angle_averaging)
 
     def parse_kt_data(self, nkt_flag=False, vkt_flag=False):
         """Read in the precomputed time dependent Fourier space data. Recalculate if not.
@@ -308,7 +308,7 @@ class Observable:
             try:
                 nkt_data = np.load(self.nkt_file + '_slice_' + str(self.no_slices - 1) + '.npz')
                 # Check for the correct number of k values
-                if self.all_k_values == nkt_data["all_k_values"]:
+                if self.angle_averaging == nkt_data["angle_averaging"]:
                     # Check for the correct max harmonics
                     comp = self.no_ka_harmonics == nkt_data["max_harmonics"]
                     if not comp.all():
@@ -323,7 +323,7 @@ class Observable:
             try:
                 vkt_data = np.load(self.vkt_file + '_slice_' + str(self.no_slices - 1) + '.npz')
                 # Check for the correct number of k values
-                if self.all_k_values == vkt_data["all_k_values"]:
+                if self.angle_averaging == vkt_data["angle_averaging"]:
                     # Check for the correct max harmonics
                     comp = self.no_ka_harmonics == vkt_data["max_harmonics"]
                     if not comp.all():
@@ -362,7 +362,7 @@ class Observable:
                 np.savez(self.nkt_file + '_slice_' + str(isl) + '.npz',
                          nkt=nkt,
                          max_harmonics=self.no_ka_harmonics,
-                         all_k_values=self.all_k_values)
+                         angle_averaging=self.angle_averaging)
         if vkt_flag:
             for isl in range(self.no_slices):
                 print("Calculating longitudinal and transverse "
@@ -382,7 +382,7 @@ class Observable:
                          transverse_j=vkt_j,
                          transverse_k=vkt_k,
                          max_harmonics=self.no_ka_harmonics,
-                         all_k_values=self.all_k_values)
+                         angle_averaging=self.angle_averaging)
 
     def plot(self, normalization=None, figname=None, show=False, acf=False, longitudinal=True, **kwargs):
         """
@@ -397,7 +397,7 @@ class Observable:
             Flag for renormalizing the autocorrelation functions. Default= False
 
         figname : str
-            Name with which to save the file. It automaticall saves it in the correct directory.
+            Name with which to save the file. It automatically saves it in the correct directory.
 
         normalization: float
             Factor by which to divide the distance array.
@@ -532,7 +532,7 @@ class CurrentCorrelationFunction(Observable):
         Calculate the velocity fluctuations correlation functions.
         """
         # Parse vkt otherwise calculate them
-        self.parse_k_data() # repeat from setup in case parameters have been updated
+        self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=False, vkt_flag=True)
         # Initialize dataframes and add frequencies to it.
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
@@ -679,7 +679,7 @@ class DynamicStructureFactor(Observable):
         """
 
         # Parse nkt otherwise calculate it
-        self.parse_k_data() # repeat from setup in case parameters have been updated
+        self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=True)
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
         self.dataframe = pd.DataFrame()
@@ -1187,7 +1187,7 @@ class StaticStructureFactor(Observable):
         Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a csv.
         """
         # Parse nkt otherwise calculate it
-        self.parse_k_data() # repeat from setup in case parameters have been updated
+        self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=True)
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
         self.dataframe = pd.DataFrame()
@@ -1785,8 +1785,8 @@ class FluxAutoCorrelationFunction(Observable):
         time = np.zeros(self.no_dumps)
         for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
             dump = int(it * self.dump_step)
-            time[it] = dump * self.dt
             datap = load_from_restart(self.dump_dir, dump)
+            time[it] = datap["time"]
             vel[0, :, it] = datap["vel"][:, 0]
             vel[1, :, it] = datap["vel"][:, 1]
             vel[2, :, it] = datap["vel"][:, 2]
@@ -1870,20 +1870,17 @@ class VelocityMoments(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "VelocityMoments_" + self.job_id + '.csv')
 
-        if not hasattr(self, 'no_bins'):
-            self.no_bins = int(0.05 * params.total_num_ptcls)
-
         if not hasattr(self, 'max_no_moment'):
-            self.max_no_moment = 3
+            self.max_no_moment = 6
 
         self.species_plots_dirs = None
 
-    def compute(self):
+    def compute(self, multi_run_average=True, runs=5, dimensional_average=True):
         """
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
         """
-        vscale = 1. / (self.a_ws * self.total_plasma_frequency)
-        vel = np.zeros((self.no_dumps, self.total_num_ptcls, 3))
+        "TODO:"
+        self.dataframe = pd.DataFrame()
 
         time = np.zeros(self.no_dumps)
         for it in range(self.no_dumps):
@@ -1894,8 +1891,8 @@ class VelocityMoments(Observable):
             vel[it, :, 2] = datap["vel"][:, 2] * vscale
             time[it] = datap["time"]
 
-        data = {"Time": time}
-        self.dataframe = pd.DataFrame(data)
+        self.dataframe["Time"] = time
+
         print("Calculating velocity moments ...")
         moments = calc_moments(vel, self.no_bins, self.species_num)
 
@@ -1903,20 +1900,13 @@ class VelocityMoments(Observable):
         ratios = calc_moment_ratios(moments, self.species_num, self.no_dumps)
         # Save the dataframe
         for i, sp in enumerate(self.species_names):
-            self.dataframe["{} vx 2nd moment".format(sp)] = moments[:, int(9 * i)]
-            self.dataframe["{} vx 4th moment".format(sp)] = moments[:, int(9 * i) + 1]
-            self.dataframe["{} vx 6th moment".format(sp)] = moments[:, int(9 * i) + 2]
+            for m in range(self.max_no_moment):
+                for d in range(dim):
+                    self.dataframe["{} {} moment axis {}".format(sp, m + 1, d)] = moments[i, :, m, d]
 
-            self.dataframe["{} vy 2nd moment".format(sp)] = moments[:, int(9 * i) + 3]
-            self.dataframe["{} vy 4th moment".format(sp)] = moments[:, int(9 * i) + 4]
-            self.dataframe["{} vy 6th moment".format(sp)] = moments[:, int(9 * i) + 5]
-
-            self.dataframe["{} vz 2nd moment".format(sp)] = moments[:, int(9 * i) + 6]
-            self.dataframe["{} vz 4th moment".format(sp)] = moments[:, int(9 * i) + 7]
-            self.dataframe["{} vz 6th moment".format(sp)] = moments[:, int(9 * i) + 8]
-
-            self.dataframe["{} 4-2 moment ratio".format(sp)] = ratios[i, 0, :]
-            self.dataframe["{} 6-2 moment ratio".format(sp)] = ratios[i, 1, :]
+            # for j in range(len(ratios)):
+            #     self.dataframe["{} moment ratio".format(sp)] = ratios[i, 0, :]
+            #     self.dataframe["{} 6-2 moment ratio".format(sp)] = ratios[i, 1, :]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -2227,17 +2217,17 @@ def calc_moment_ratios(moments, species_np, no_dumps):
     return ratios
 
 
-def calc_moments(vel, nbins, species_np):
+def calc_moments(dist, max_moment):
     """
-    Calculate the even moments of the velocity distributions.
+    Calculate the moments of the (velocity) distribution.
 
     Parameters
     ----------
-    vel: numpy.ndarray
-        Particles' velocity at each time step.
+    dist: numpy.ndarray
+        Distribution of each time step. Shape = (``no_dumps``, ``total_num_ptlcs``, ``no_dim``)
 
-    nbins: int
-        Number of bins to be used for the distribution.
+    max_moment: int
+        Maximum moment to calculate
 
     species_np: numpy.ndarray
         Number of particles of each species.
@@ -2245,41 +2235,22 @@ def calc_moments(vel, nbins, species_np):
     Returns
     -------
     moments: numpy.ndarray
-        2nd, 4th, 8th moment of the velocity distributions.
-        Shape=( ``no_dumps``, ``9 * len(species_np)``)
+        Moments of the distribution.
+        Shape=( ``no_species``, ``no_dumps``, ``max_moment``, ``no_dim``)
     """
 
-    no_dumps = vel.shape[0]
-    moments = np.empty((no_dumps, int(9 * len(species_np))))
+    from scipy.stats import moment as scp_moment
 
-    for it in range(no_dumps):
-        sp_start = 0
-        for sp, nsp in enumerate(species_np):
-            sp_end = sp_start + int(nsp)
+    no_species = dist.shape[0]
+    no_dumps = dist.shape[1]
+    no_dim = dist.shape[-1]
+    moments = np.empty((no_species, no_dumps, max_moment, no_dim))
 
-            xdist, xbins = np.histogram(vel[it, sp_start:sp_end, 0], bins=nbins, density=True)
-            ydist, ybins = np.histogram(vel[it, sp_start:sp_end, 1], bins=nbins, density=True)
-            zdist, zbins = np.histogram(vel[it, sp_start:sp_end, 2], bins=nbins, density=True)
-
-            vx = (xbins[:-1] + xbins[1:]) / 2.
-            vy = (ybins[:-1] + ybins[1:]) / 2.
-            vz = (zbins[:-1] + zbins[1:]) / 2.
-
-            moments[it, int(9 * sp)] = np.sum(vx ** 2 * xdist) * abs(vx[1] - vx[0])
-            moments[it, int(9 * sp) + 1] = np.sum(vx ** 4 * xdist) * abs(vx[1] - vx[0])
-            moments[it, int(9 * sp) + 2] = np.sum(vx ** 6 * xdist) * abs(vx[1] - vx[0])
-
-            moments[it, int(9 * sp) + 3] = np.sum(vy ** 2 * ydist) * abs(vy[1] - vy[0])
-            moments[it, int(9 * sp) + 4] = np.sum(vy ** 4 * ydist) * abs(vy[1] - vy[0])
-            moments[it, int(9 * sp) + 5] = np.sum(vy ** 6 * ydist) * abs(vy[1] - vy[0])
-
-            moments[it, int(9 * sp) + 6] = np.sum(vz ** 2 * zdist) * abs(vz[1] - vz[0])
-            moments[it, int(9 * sp) + 7] = np.sum(vz ** 4 * zdist) * abs(vz[1] - vz[0])
-            moments[it, int(9 * sp) + 8] = np.sum(vz ** 6 * zdist) * abs(vz[1] - vz[0])
-
-            sp_start = sp_end
+    for mom in range(max_moment ):
+        moments[:, : mom, :] = scp_moment(dist, moment=mom + 1, axis=2)
 
     return moments
+
 
 
 @njit

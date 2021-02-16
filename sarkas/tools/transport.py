@@ -53,7 +53,7 @@ class TransportCoefficient:
         j_current.setup(params, phase)
         j_current.parse()
         sigma = np.zeros(j_current.prod_no_dumps)
-        integrand = np.array(j_current.dataframe["Total Current ACF"] / j_current.dataframe["Total Current ACF"][0])
+        integrand = np.array(j_current.dataframe["Total Current ACF"] / j_current.dataframe["Total Current ACF"].iloc[0])
         time = np.array(j_current.dataframe["Time"])
         const = params.total_plasma_frequency ** 2
         for it in range(1, j_current.prod_no_dumps):
@@ -110,12 +110,15 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def diffusion(params, phase=None, show=False, time_averaging=False, it_skip=100):
+    def diffusion(params, phase=None, time_averaging=False, it_skip=100, show=False, figname=None):
         """
         Calculate the self-diffusion coefficient from the velocity auto-correlation function.
 
         Parameters
         ----------
+        figname : str
+            Name with which to save the file. It automatically saves it in the correct directory.
+
         time_averaging: bool
             Flag for VACF time averaging. Default = False.
 
@@ -140,8 +143,7 @@ class TransportCoefficient:
         coefficient = pd.DataFrame()
         vacf = obs.VelocityAutoCorrelationFunction()
         vacf.setup(params, phase)
-        vacf.parse()
-
+        vacf.compute(time_averaging=time_averaging, it_skip = it_skip)
         time = np.array(vacf.dataframe["Time"])
         coefficient["Time"] = time
 
@@ -220,19 +222,25 @@ class TransportCoefficient:
         ax21.set_xlabel(r"Index")
         # ax21.set_xbound(1, len(time))
         fig.tight_layout()
-        fig.savefig(os.path.join(vacf.saving_dir, 'DiffusionPlot_' + vacf.job_id + '.png'))
+        if figname:
+            fig.savefig(os.path.join(vacf.saving_dir, figname) )
+        else:
+            fig.savefig(os.path.join(vacf.saving_dir, 'Plot_Diffusion_' + vacf.job_id + '.png'))
         if show:
             fig.show()
 
         return coefficient
 
     @staticmethod
-    def interdiffusion(params, phase=None, show=False, time_averaging=False, it_skip=100):
+    def interdiffusion(params, phase=None, time_averaging=False, it_skip=100, show=False, figname=None):
         """
         Calculate the interdiffusion coefficients from the diffusion flux auto-correlation function.
 
         Parameters
         ----------
+        figname : str
+            Name with which to save the file. It automatically saves it in the correct directory.
+
         time_averaging: bool
             Flag for species diffusion flux time averaging. Default = False.
 
@@ -324,7 +332,10 @@ class TransportCoefficient:
         ax21.set_xlabel(r"Index")
 
         fig.tight_layout()
-        fig.savefig(os.path.join(jc_acf.saving_dir, 'InterDiffusionPlot_' + jc_acf.job_id + '.png'))
+        if figname:
+            fig.savefig(os.path.join(jc_acf.saving_dir, figname) )
+        else:
+            fig.savefig(os.path.join(jc_acf.saving_dir, 'Plot_InterDiffusion_' + jc_acf.job_id + '.png'))
         if show:
             fig.show()
 
