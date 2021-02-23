@@ -241,6 +241,10 @@ class PreProcess:
             for class_name, class_attr in other_inputs.items():
                 if class_name not in ['Particles', 'PostProcessing']:
                     self.__dict__[class_name.lower()].__dict__.update(class_attr)
+                else:
+                    for sp, species in enumerate(other_inputs["Particles"]):
+                        spec = Species(species["Species"])
+                        self.species[sp].__dict__.update(spec.__dict__)
 
                 if class_name == 'PostProcessing':
 
@@ -1083,7 +1087,10 @@ class Simulation:
             for class_name, class_attr in other_inputs.items():
                 if not class_name == 'Particles':
                     self.__dict__[class_name.lower()].from_dict(class_attr)
-
+                else:
+                    for sp, species in enumerate(other_inputs["Particles"]):
+                        spec = Species(species["Species"])
+                        self.species[sp].__dict__.update(spec.__dict__)
         # initialize the directories and filenames
         self.io.setup()
         # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.

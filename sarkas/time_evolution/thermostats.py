@@ -36,6 +36,7 @@ class Thermostat:
         Berendsen parameter.
 
     """
+
     def __init__(self):
         self.temperatures = None
         self.temperatures_eV = None
@@ -57,7 +58,7 @@ class Thermostat:
         disp += ')'
         return disp
 
-    def from_dict(self, input_dict: dict) :
+    def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
 
@@ -96,15 +97,15 @@ class Thermostat:
         if self.eV_temp_flag:
             self.temperatures = params.eV2K * np.copy(self.temperatures_eV)
         elif self.K_temp_flag:
-            self.temperatures_eV = np.copy(self.temperatures)/ params.eV2K
+            self.temperatures_eV = np.copy(self.temperatures) / params.eV2K
         else:
             # If you forgot to give thermostating temperatures
             print("\nWARNING: Equilibration temperatures not defined. I will use the species's temperatures.")
             self.temperatures = np.copy(params.species_temperatures)
-            self.temperatures_eV = np.copy(self.temperatures)/ params.eV2K
+            self.temperatures_eV = np.copy(self.temperatures) / params.eV2K
 
         if self.tau:
-            self.relaxation_rate = 1.0/self.tau
+            self.relaxation_rate = 1.0 / self.tau
 
         if not self.temperatures.all():
             self.temperatures = np.copy(params.species_temperatures)
@@ -130,7 +131,7 @@ class Thermostat:
         """
         K, T = ptcls.kinetic_temperature()
         berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep,
-                              self.relaxation_rate, it)
+                  self.relaxation_rate, it)
 
 
 @njit
@@ -174,7 +175,7 @@ def calc_kin_temp(vel, nums, masses, kB):
         species_end += num
         K[i] = np.sum(kinetic_energies[:, species_start:species_end])
         T[i] = const[i] * K[i]
-        species_start = species_end
+        species_start += num
 
     return K, T
 
@@ -213,18 +214,16 @@ def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
 
     """
 
-    if it < therm_timestep:
-        fact = np.sqrt(T_desired / T)
-    else:
-        fact = np.sqrt(1.0 + (T_desired / T - 1.0) * tau)  # eq.(11)
+    # if it < therm_timestep:
+    #     fact = np.sqrt(T_desired / T)
+    # else:
+    #     fact = np.sqrt(1.0 + (T_desired / T - 1.0) * tau)  # eq.(11)
 
+    fact = 1.0 * (it < therm_timestep) + np.sqrt(1.0 + (T_desired / T - 1.0) * tau) * (it >= therm_timestep)
     species_start = 0
     species_end = 0
 
     for i, num in enumerate(species_np):
         species_end += num
         vel[species_start:species_end, :] *= fact[i]
-        species_start = species_end
-
-
-
+        species_start += num

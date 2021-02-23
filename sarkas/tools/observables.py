@@ -1102,11 +1102,12 @@ class RadialDistributionFunction(Observable):
         gr = np.zeros((self.no_bins, self.no_obs))
         # No. of pairs per volume
         for i, sp1 in enumerate(self.species_num):
-            pair_density[i, i] = 0.5 * sp1 * (sp1 - 1) / self.box_volume
+            pair_density[i, i] = sp1 * (sp1 - 1) / self.box_volume
             if self.num_species > 1:
-                for j, sp2 in enumerate(self.species_num[i:], i):
+                for j, sp2 in enumerate(self.species_num[i+1:], i + 1):
                     pair_density[i, j] = sp1 * sp2 / self.box_volume
-        # Calculate each bin's volume
+
+        # Calculate the volume of each bin
         sphere_shell_const = 4.0 * np.pi / 3.0
         bin_vol[0] = sphere_shell_const * self.dr_rdf ** 3
         for ir in range(1, self.no_bins):
@@ -1881,32 +1882,92 @@ class VelocityMoments(Observable):
         """
         "TODO:"
         self.dataframe = pd.DataFrame()
-
         time = np.zeros(self.no_dumps)
-        for it in range(self.no_dumps):
-            dump = int(it * self.dump_step)
-            datap = load_from_restart(self.dump_dir, dump)
-            vel[it, :, 0] = datap["vel"][:, 0] * vscale
-            vel[it, :, 1] = datap["vel"][:, 1] * vscale
-            vel[it, :, 2] = datap["vel"][:, 2] * vscale
-            time[it] = datap["time"]
+
+        print("Collecting data from snapshots ...")
+        if multi_run_average:
+            dim = 1 if dimensional_average else self.dimensions
+            inv_dim = self.dimensions if dimensional_average else 1
+            vel_raw = np.zeros((self.no_dumps, dim, runs * inv_dim * self.total_num_ptcls))
+
+            if dimensional_average:
+                # Loop over the runs
+                for r in tqdm(range(runs), disable=(not self.verbose)):
+                    dump_dir = os.path.join('run{}'.format(r), os.path.join(self.phase.capitalize(), 'dumps'))
+                    self.dump_dir = os.path.join(self.simulations_dir, dump_dir)
+                    # Loop over the timesteps
+                    for it in range(self.no_dumps):
+                        dump = int(it * self.dump_step)
+                        # Read data from file
+                        datap = load_from_restart(self.dump_dir, dump)
+                        # Loop over the particles' species
+                        for sp_name, sp_num in zip(self.species_names, self.species_num):
+                            # Stored data in the correct place using a mask
+                            for d in range(inv_dim):
+                                vel_raw[it, 0, (inv_dim * r + d) * sp_num: (inv_dim * r + d + 1) * sp_num] = datap["vel"][ datap["names"] == sp_name][:,d]
+
+                        time[it] = datap["time"]
+            else:
+                # Loop over the runs
+                for r in tqdm(range(runs), disable=(not self.verbose)):
+                    dump_dir = os.path.join('run{}'.format(r), os.path.join(self.phase.capitalize(), 'dumps'))
+                    self.dump_dir = os.path.join(self.simulations_dir, dump_dir)
+                    # Loop over the timesteps
+                    for it in range(self.no_dumps):
+                        dump = int(it * self.dump_step)
+                        # Read data from file
+                        datap = load_from_restart(self.dump_dir, dump)
+                        # Loop over the particles' species
+                        for sp_name, sp_num in zip(self.species_names, self.species_num):
+                            # Stored data in the correct place using a mask
+                            vel_raw[it, :, r * sp_num: (r + 1) * sp_num] = datap["vel"][ datap["names"] == sp_name].transpose()
+
+                    time[it] = datap["time"]
+        else:
+            if dimensional_average:
+                # Loop over the timesteps
+                for it in range(self.no_dumps):
+                    dump = int(it * self.dump_step)
+                    # Read data from file
+                    datap = load_from_restart(self.dump_dir, dump)
+                    # Loop over the particles' species
+                    for sp_name, sp_num in zip(self.species_names, self.species_num):
+                        # Stored data in the correct place using a mask
+                        for d in range(inv_dim):
+                            vel_raw[it, 0,  (sp * inv_dim + d) * sp_num: (sp * inv_dim + d + 1) * sp_num] = datap["vel"][ datap["names"] == sp_name][:,d]
+
+                        time[it] = datap["time"]
+            else:
+                # Loop over the timesteps
+                for it in range(self.no_dumps):
+                    dump = int(it * self.dump_step)
+                    # Read data from file
+                    datap = load_from_restart(self.dump_dir, dump)
+                    # Loop over the particles' species
+                    vel_raw[it, :, :] = datap["vel"][:,:].transpose()
+
+                    time[it] = datap["time"]
 
         self.dataframe["Time"] = time
-
         print("Calculating velocity moments ...")
-        moments = calc_moments(vel, self.no_bins, self.species_num)
+        moments, ratios = calc_moments(vel_raw, self.max_no_moment, runs * inv_dim * self.species_num)
 
-        print("Calculating ratios ...")
-        ratios = calc_moment_ratios(moments, self.species_num, self.no_dumps)
         # Save the dataframe
-        for i, sp in enumerate(self.species_names):
-            for m in range(self.max_no_moment):
-                for d in range(dim):
-                    self.dataframe["{} {} moment axis {}".format(sp, m + 1, d)] = moments[i, :, m, d]
+        if dimensional_average:
+            for i, sp in enumerate(self.species_names):
+                for m in range(self.max_no_moment):
+                    self.dataframe["{} {} moment".format(sp, m + 1)] = moments[i, :, :, m][:,0]
+                for m in range(self.max_no_moment):
+                    self.dataframe["{} {} moment ratio".format(sp, m + 1)] = ratios[i, :, :, m][:,0]
+        else:
+            for i, sp in enumerate(self.species_names):
+                for m in range(self.max_no_moment):
+                    for d in range(dim):
+                        self.dataframe["{} {} moment axis {}".format(sp, m + 1, d)] = moments[i, :, d, m][:,0]
 
-            # for j in range(len(ratios)):
-            #     self.dataframe["{} moment ratio".format(sp)] = ratios[i, 0, :]
-            #     self.dataframe["{} 6-2 moment ratio".format(sp)] = ratios[i, 1, :]
+                for m in range(self.max_no_moment):
+                    for d in range(dim):
+                        self.dataframe["{} {} moment ratio axis {}".format(sp, m + 1, d)] = ratios[i, :, d, m][:,0]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -2217,14 +2278,14 @@ def calc_moment_ratios(moments, species_np, no_dumps):
     return ratios
 
 
-def calc_moments(dist, max_moment):
+def calc_moments(dist, max_moment, species_np):
     """
     Calculate the moments of the (velocity) distribution.
 
     Parameters
     ----------
     dist: numpy.ndarray
-        Distribution of each time step. Shape = (``no_dumps``, ``total_num_ptlcs``, ``no_dim``)
+        Distribution of each time step. Shape = (``no_dumps``, ``dim``, ``runs * inv_dim * total_num_ptlcs``)
 
     max_moment: int
         Maximum moment to calculate
@@ -2236,20 +2297,40 @@ def calc_moments(dist, max_moment):
     -------
     moments: numpy.ndarray
         Moments of the distribution.
-        Shape=( ``no_species``, ``no_dumps``, ``max_moment``, ``no_dim``)
+        Shape=( ``no_species``, ``no_dumps``, ``dim``, ``max_moment`` )
+
+    ratios: numpy.ndarray
+        Ratios of each moments with respect to the expected Maxwellian value.
+        Shape=( ``no_species``, ``no_dumps``,  ``no_dim``, ``max_moment - 1``)
+
+    Notes
+    -----
+    See these `equations <https://en.wikipedia.org/wiki/Normal_distribution#Moments:~:text=distribution.-,Moments>`_
     """
 
     from scipy.stats import moment as scp_moment
+    from scipy.special import gamma as scp_gamma
 
-    no_species = dist.shape[0]
-    no_dumps = dist.shape[1]
-    no_dim = dist.shape[-1]
-    moments = np.empty((no_species, no_dumps, max_moment, no_dim))
+    no_species = len(species_np)
+    no_dumps = dist.shape[0]
+    dim = dist.shape[1]
+    moments = np.zeros((no_species, no_dumps, dim, max_moment))
+    ratios = np.zeros((no_species, no_dumps, dim, max_moment))
 
-    for mom in range(max_moment ):
-        moments[:, : mom, :] = scp_moment(dist, moment=mom + 1, axis=2)
+    sp_start = 0
+    sp_end = 0
+    for sp, sp_num in enumerate(species_np):
+        sp_end += sp_num
+        for mom in range(max_moment):
+            moments[sp, :, :, mom] = scp_moment(dist[:, :, sp_start:sp_end], moment=mom + 1, axis=2)
+        sp_start += sp_num
+    sigma = np.sqrt(moments[:,:,:,1])
+    for mom in range(max_moment):
+        pwr = mom + 1
+        const = 2.0**(pwr/2) * scp_gamma((pwr + 1)/2)/np.sqrt(np.pi)
+        ratios[:, :, :, mom] = moments[:, :, :, mom]/(const * sigma**pwr)
 
-    return moments
+    return moments, ratios
 
 
 
