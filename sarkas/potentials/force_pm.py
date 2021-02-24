@@ -550,31 +550,40 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
         Long range part of particles' accelerations.
 
     """
-
+    # number of particles
     N = pos.shape[0]
-
+    # Mesh spacings = h_x, h_y, h_z
     mesh_spacings = box_lengths/mesh_sizes
-
+    # Calculate charge density on mesh
     rho_r = calc_charge_dens(pos, charges, N, cao, mesh_sizes, mesh_spacings)
-
+    # Prepare for fft
     fftw_n = pyfftw.builders.fftn(rho_r)
+    # Calculate fft
     rho_k_fft = fftw_n()
+
+    # Shift the DC value at the center of the ndarray
     rho_k = np.fft.fftshift(rho_k_fft)
 
+    # Potential from Poisson eq.
     phi_k = G_k * rho_k
 
+    # Charge density
     rho_k_real = np.real(rho_k)
     rho_k_imag = np.imag(rho_k)
     rho_k_sq = rho_k_real * rho_k_real + rho_k_imag * rho_k_imag
 
+    # Long range part of the potential
     U_f = 0.5 * np.sum(rho_k_sq * G_k) / np.prod(box_lengths)
 
+    # Calculate the Electric field's component on the mesh
     E_kx, E_ky, E_kz = calc_field(phi_k, kx_v, ky_v, kz_v)
 
+    # Prepare for fft. Shift the DC value back to its original position that is [0, 0, 0]
     E_kx_unsh = np.fft.ifftshift(E_kx)
     E_ky_unsh = np.fft.ifftshift(E_ky)
     E_kz_unsh = np.fft.ifftshift(E_kz)
 
+    # Prepare and compute IFFT
     ifftw_n = pyfftw.builders.ifftn(E_kx_unsh)
     E_x = ifftw_n()
     ifftw_n = pyfftw.builders.ifftn(E_ky_unsh)
@@ -582,6 +591,7 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
     ifftw_n = pyfftw.builders.ifftn(E_kz_unsh)
     E_z = ifftw_n()
 
+    # I am worried that this normalization is not needed
     E_x_r = np.real(E_x) / np.prod(mesh_spacings)
     E_y_r = np.real(E_y) / np.prod(mesh_spacings)
     E_z_r = np.real(E_z) / np.prod(mesh_spacings)

@@ -8,12 +8,19 @@ if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
 else:
     from tqdm import tqdm
 
+from numba import njit, jit
+from matplotlib.gridspec import GridSpec
+
 import os
 import numpy as np
-from numba import njit
 import pandas as pd
-from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
+import pyfftw
+# import logging
+
+from scipy import signal as scp_signal
+
+from sarkas.utilities.timing import SarkasTimer
 
 UNITS = [
     {"Energy": 'J',
@@ -146,6 +153,8 @@ class Observable:
         self.filename_csv_longitudinal = None
         self.filename_csv_transverse = None
         self.phase = None
+        self.screen_output = True
+        self.timer = SarkasTimer()
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -212,6 +221,14 @@ class Observable:
         if not hasattr(self, 'no_slices'):
             self.no_slices = 1
         self.slice_steps = int(self.no_dumps / self.no_slices)
+
+        # Logger
+        # log_file = os.path.join(self.postprocessing_dir, 'Logger_PostProcessing_' + self.job_id + '.out')
+        # logging.basicConfig(filename=log_file,
+        #                     filemode='a',
+        #                     # format='%(levelname)s:%(message)s',
+        #                     # format='%(levelname)s: %(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
+        #                     level=logging.INFO)
 
     def parse(self):
         """
@@ -384,7 +401,7 @@ class Observable:
                          max_harmonics=self.no_ka_harmonics,
                          angle_averaging=self.angle_averaging)
 
-    def plot(self, normalization=None, figname=None, show=False, acf=False, longitudinal=True, **kwargs):
+    def plot(self, scaling=None, figname=None, show=False, acf=False, longitudinal=True, **kwargs):
         """
         Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
 
@@ -399,8 +416,8 @@ class Observable:
         figname : str
             Name with which to save the file. It automatically saves it in the correct directory.
 
-        normalization: float
-            Factor by which to divide the distance array.
+        scaling: float, tuple
+            Factor by which to rescale the x and y quantities.
 
         show : bool
             Flag for prompting the plot to screen. Default=False
@@ -416,7 +433,7 @@ class Observable:
         """
 
         # Grab the data
-        self.parse()
+        # self.parse()
         # Make a copy of the dataframe for plotting
         if self.__class__.__name__ != 'CurrentCorrelationFunction':
             plot_dataframe = self.dataframe.copy()
@@ -425,8 +442,12 @@ class Observable:
         else:
             plot_dataframe = self.dataframe_transverse.copy()
 
-        if normalization:
-            plot_dataframe.iloc[:, 0] /= normalization
+        if scaling:
+            if isinstance(scaling, tuple):
+                plot_dataframe.iloc[:, 0] /= scaling[0]
+                plot_dataframe[kwargs['y']] /= scaling[1]
+            else:
+                plot_dataframe.iloc[:, 0] /= scaling
 
         # Autocorrelation function renormalization
         if acf:
@@ -457,6 +478,24 @@ class Observable:
             fig.show()
 
         return axes_handle
+
+    def time_stamp(self, message: str, timing: tuple):
+        """Print to screen the elapsed time of the calculation."""
+
+        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = timing
+
+        if t_hrs == 0 and t_min == 0 and t_sec <= 2:
+            print_message = '\n{} Time: {} sec {} msec {} usec {} nsec'.format(message,
+                                                                               int(t_sec),
+                                                                               int(t_msec),
+                                                                               int(t_usec),
+                                                                               int(t_nsec))
+
+        else:
+            print_message = '\n{} Time: {} hrs {} min {} sec'.format(message, int(t_hrs), int(t_min), int(t_sec))
+
+        # logging.info(print_message)
+        print(print_message)
 
 
 class CurrentCorrelationFunction(Observable):
@@ -1104,7 +1143,7 @@ class RadialDistributionFunction(Observable):
         for i, sp1 in enumerate(self.species_num):
             pair_density[i, i] = sp1 * (sp1 - 1) / self.box_volume
             if self.num_species > 1:
-                for j, sp2 in enumerate(self.species_num[i+1:], i + 1):
+                for j, sp2 in enumerate(self.species_num[i + 1:], i + 1):
                     pair_density[i, j] = sp1 * sp2 / self.box_volume
 
         # Calculate the volume of each bin
@@ -1197,8 +1236,9 @@ class StaticStructureFactor(Observable):
         no_dumps_calculated = self.slice_steps * self.no_slices
         Sk_all = np.zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
 
-        print("Calculating S(k)")
+        print("Calculating S(k) ...")
 
+        tinit = self.timer.current()
         for isl in tqdm(range(self.no_slices)):
             nkt_data = np.load(self.nkt_file + '_slice_' + str(isl) + '.npz')
             nkt = nkt_data["nkt"]
@@ -1208,6 +1248,9 @@ class StaticStructureFactor(Observable):
 
         Sk = np.mean(Sk_all, axis=-1)
         Sk_err = np.std(Sk_all, axis=-1)
+        tend = self.timer.current()
+
+        self.time_stamp("Static Structure Factor Calculation", self.timer.time_division(tend - tinit))
 
         sp_indx = 0
         for i, sp1 in enumerate(self.species_names):
@@ -1268,7 +1311,7 @@ class Thermodynamics(Observable):
         acc = np.zeros((self.dimensions, self.total_num_ptcls))
 
         pressure = np.zeros(self.no_dumps)
-        pressure_tensor_temp = np.zeros((3, 3, self.no_dumps))
+        pressure_tensor_temp = np.zeros((self.dimensions, self.dimensions, self.no_dumps))
 
         # Collect particles' positions, velocities and accelerations
         for it in range(int(self.no_dumps)):
@@ -1295,6 +1338,8 @@ class Thermodynamics(Observable):
 
         if self.dimensions == 3:
             dim_lbl = ['x', 'y', 'z']
+        elif self.dimensions == 2:
+            dim_lbl = ['x', 'y']
 
         # Calculate the acf of the pressure tensor
         for i, ax1 in enumerate(dim_lbl):
@@ -1330,7 +1375,7 @@ class Thermodynamics(Observable):
             Pressure divided by :math:`k_BT`.
 
         """
-        r *= self.a_ws
+
         r2 = r * r
         r3 = r2 * r
 
@@ -1339,6 +1384,7 @@ class Thermodynamics(Observable):
             # Check for finiteness of first element when r[0] = 0.0
             if not np.isfinite(dv_dr[0]):
                 dv_dr[0] = dv_dr[1]
+            gr -= 1
         elif potential == "Yukawa":
             pass
         elif potential == "QSP":
@@ -1348,81 +1394,11 @@ class Thermodynamics(Observable):
 
         # No. of independent g(r)
         T = np.mean(self.dataframe["Temperature"])
-        pressure = self.kB * T - 2.0 / 3.0 * np.pi * self.species_dens[0] \
-                   * potential_matrix[1, 0, 0] * np.trapz(dv_dr * r3 * gr, x=r)
-        pressure *= self.species_dens[0]
+        pressure = self.kB * T - 2.0 / 3.0 * np.pi * self.species_num_dens[0] \
+                   * potential_matrix[0, 0, 0] * np.trapz(dv_dr * r3 * gr, x=r)
+        pressure *= self.species_num_dens[0]
 
         return pressure
-
-    # def plot(self, quantity="Total Energy", phase=None, show=False):
-    #     """
-    #     Plot ``quantity`` vs time and save the figure with appropriate name.
-    #
-    #     Parameters
-    #     ----------
-    #     phase
-    #     show : bool
-    #         Flag for displaying figure.
-    #
-    #     quantity : str
-    #         Quantity to plot. Default = Total Energy.
-    #     """
-    #
-    #     if phase:
-    #         self.phase = phase
-    #         self.parse(phase)
-    #
-    #     if quantity[:8] == "Pressure":
-    #         if not "Pressure" in self.dataframe.columns:
-    #             print("Calculating Pressure quantities ...")
-    #             self.compute_pressure_quantities()
-    #
-    #     xmul, ymul, xpref, ypref, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-    #                                                        self.dataframe[quantity],
-    #                                                        "Time", quantity, self.units)
-    #     fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-    #     yq = {"Total Energy": r"$E_{tot}(t)$", "Kinetic Energy": r"$K_{tot}(t)$", "Potential Energy": r"$U_{tot}(t)$",
-    #           "Temperature": r"$T(t)$",
-    #           "Pressure Tensor ACF": r'$P_{\alpha\beta} = \langle P_{\alpha\beta}(0)P_{\alpha\beta}(t)\rangle$',
-    #           "Pressure Tensor": r"$P_{\alpha\beta}(t)$", "Gamma": r"$\Gamma(t)$", "Pressure": r"$P(t)$"}
-    #     dim_lbl = ['x', 'y', 'z']
-    #
-    #     if quantity == "Pressure Tensor ACF":
-    #         for i, dim1 in enumerate(dim_lbl):
-    #             for j, dim2 in enumerate(dim_lbl):
-    #                 ax.plot(self.dataframe["Time"] * xmul,
-    #                         self.dataframe["Pressure Tensor ACF {}{}".format(dim1, dim2)] /
-    #                         self.dataframe["Pressure Tensor ACF {}{}".format(dim1, dim2)][0],
-    #                         label=r'$P_{' + dim1 + dim2 + '} (t)$')
-    #         ax.set_xscale('log')
-    #         ax.legend(loc='best', ncol=3)
-    #         ax.set_ylim(-1, 1.5)
-    #
-    #     elif quantity == "Pressure Tensor":
-    #         for i, dim1 in enumerate(dim_lbl):
-    #             for j, dim2 in enumerate(dim_lbl):
-    #                 ax.plot(self.dataframe["Time"] * xmul,
-    #                         self.dataframe["Pressure Tensor {}{}".format(dim1, dim2)] * ymul,
-    #                         label=r'$P_{' + dim1 + dim2 + '} (t)$')
-    #         ax.set_xscale('log')
-    #         ax.legend(loc='best', ncol=3)
-    #
-    #     elif quantity == 'Temperature' and self.num_species > 1:
-    #         for sp in self.species_names:
-    #             qstr = "{} Temperature".format(sp)
-    #             ax.plot(self.dataframe["Time"] * xmul, self.dataframe[qstr] * ymul, label=qstr)
-    #         ax.plot(self.dataframe["Time"] * xmul, self.dataframe["Temperature"] * ymul, label='Total Temperature')
-    #         ax.legend(loc='best')
-    #     else:
-    #         ax.plot(self.dataframe["Time"] * xmul, self.dataframe[quantity] * ymul)
-    #
-    #     ax.grid(True, alpha=0.3)
-    #     ax.set_ylabel(yq[quantity] + ylbl)
-    #     ax.set_xlabel(r'Time' + xlbl)
-    #     fig.tight_layout()
-    #     fig.savefig(os.path.join(self.fldr, quantity + '_' + self.job_id + '.png'))
-    #     if show:
-    #         fig.show()
 
     def parse(self, phase=None):
         """
@@ -1656,7 +1632,7 @@ class Thermodynamics(Observable):
 class VelocityAutoCorrelationFunction(Observable):
     """Velocity Auto-correlation function."""
 
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = None):
         """
         Assign attributes from simulation's parameters.
 
@@ -1687,7 +1663,7 @@ class VelocityAutoCorrelationFunction(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "VelocityACF_" + self.job_id + '.csv')
 
-    def compute(self, time_averaging=False, it_skip=100):
+    def compute(self, time_averaging: bool = False, timesteps_to_skip: int = 100):
         """
         Compute the velocity auto-correlation functions.
 
@@ -1696,8 +1672,8 @@ class VelocityAutoCorrelationFunction(Observable):
         time_averaging: bool
             Flag for species diffusion flux time averaging. Default = False.
 
-        it_skip: int
-            Timestep interval for species diffusion flux time averaging. Default = 100
+        timesteps_to_skip: int
+            Number of timesteps to skip for time_averaging. Default = 100.
 
         """
 
@@ -1715,12 +1691,15 @@ class VelocityAutoCorrelationFunction(Observable):
             vel[2, :, it] = datap["vel"][:, 2]
         #
         self.dataframe["Time"] = time
-        if time_averaging:
-            print("Calculating vacf with time averaging on...")
-        else:
-            print("Calculating vacf with time averaging off...")
+        message = "Calculating velocity acf with time averaging "
+        ta = "on" if time_averaging else "off"
+        print('Please wait. ' + message + ta + ' ...')
 
-        vacf = calc_vacf(vel, self.species_num, time_averaging, it_skip)
+        t0 = self.timer.current()
+        vacf = calc_vacf(vel, self.species_num, time_averaging, timesteps_to_skip)
+        tend = self.timer.current()
+
+        self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
 
         for i, sp1 in enumerate(self.species_names):
             self.dataframe["{} X Velocity ACF".format(sp1)] = vacf[i, 0, :]
@@ -1734,7 +1713,7 @@ class VelocityAutoCorrelationFunction(Observable):
 class FluxAutoCorrelationFunction(Observable):
     """Species Diffusion Flux Auto-correlation function."""
 
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = None):
         """
         Assign attributes from simulation's parameters.
 
@@ -1765,7 +1744,7 @@ class FluxAutoCorrelationFunction(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "DiffusionFluxACF_" + self.job_id + '.csv')
 
-    def compute(self, time_averaging=False, it_skip=100):
+    def compute(self, time_averaging: bool = False, timesteps_to_skip: int = 100):
         """
         Compute the velocity auto-correlation functions.
 
@@ -1774,8 +1753,8 @@ class FluxAutoCorrelationFunction(Observable):
         time_averaging: bool
             Flag for species diffusion flux time averaging. Default = False.
 
-        it_skip: int
-            Timestep interval for species diffusion flux time averaging. Default = 100
+        timesteps_to_skip: int
+            Number of timesteps to skip for time_averaging. Default = 100.
 
         """
 
@@ -1793,18 +1772,21 @@ class FluxAutoCorrelationFunction(Observable):
             vel[2, :, it] = datap["vel"][:, 2]
         #
         self.dataframe["Time"] = time
-        if time_averaging:
-            print("Calculating diffusion flux acf with time averaging on ...")
-        else:
-            print("Calculating diffusion flux acf with time averaging off ...")
-
+        message = "Calculating diffusion flux acf with time averaging "
+        ta = "on" if time_averaging else "off"
+        print('Please wait. ' + message + ta + ' ...')
+        t0 = self.timer.current()
         df_acf = calc_diff_flux_acf(vel,
                                     self.species_num,
                                     self.species_num_dens,
                                     self.species_masses,
                                     time_averaging,
-                                    it_skip)
+                                    timesteps_to_skip)
+        tend = self.timer.current()
 
+        self.time_stamp("Diffusion Flux ACF Calculation", self.timer.time_division(tend - t0))
+
+        # Store the data
         v_ij = 0
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
@@ -1904,7 +1886,8 @@ class VelocityMoments(Observable):
                         for sp_name, sp_num in zip(self.species_names, self.species_num):
                             # Stored data in the correct place using a mask
                             for d in range(inv_dim):
-                                vel_raw[it, 0, (inv_dim * r + d) * sp_num: (inv_dim * r + d + 1) * sp_num] = datap["vel"][ datap["names"] == sp_name][:,d]
+                                vel_raw[it, 0, (inv_dim * r + d) * sp_num: (inv_dim * r + d + 1) * sp_num] = \
+                                    datap["vel"][datap["names"] == sp_name][:, d]
 
                         time[it] = datap["time"]
             else:
@@ -1920,7 +1903,8 @@ class VelocityMoments(Observable):
                         # Loop over the particles' species
                         for sp_name, sp_num in zip(self.species_names, self.species_num):
                             # Stored data in the correct place using a mask
-                            vel_raw[it, :, r * sp_num: (r + 1) * sp_num] = datap["vel"][ datap["names"] == sp_name].transpose()
+                            vel_raw[it, :, r * sp_num: (r + 1) * sp_num] = datap["vel"][
+                                datap["names"] == sp_name].transpose()
 
                     time[it] = datap["time"]
         else:
@@ -1934,7 +1918,10 @@ class VelocityMoments(Observable):
                     for sp_name, sp_num in zip(self.species_names, self.species_num):
                         # Stored data in the correct place using a mask
                         for d in range(inv_dim):
-                            vel_raw[it, 0,  (sp * inv_dim + d) * sp_num: (sp * inv_dim + d + 1) * sp_num] = datap["vel"][ datap["names"] == sp_name][:,d]
+                            vel_raw[it, 0, (sp * inv_dim + d) * sp_num: (sp * inv_dim + d + 1) * sp_num] = datap["vel"][
+                                                                                                               datap[
+                                                                                                                   "names"] == sp_name][
+                                                                                                           :, d]
 
                         time[it] = datap["time"]
             else:
@@ -1944,7 +1931,7 @@ class VelocityMoments(Observable):
                     # Read data from file
                     datap = load_from_restart(self.dump_dir, dump)
                     # Loop over the particles' species
-                    vel_raw[it, :, :] = datap["vel"][:,:].transpose()
+                    vel_raw[it, :, :] = datap["vel"][:, :].transpose()
 
                     time[it] = datap["time"]
 
@@ -1956,18 +1943,18 @@ class VelocityMoments(Observable):
         if dimensional_average:
             for i, sp in enumerate(self.species_names):
                 for m in range(self.max_no_moment):
-                    self.dataframe["{} {} moment".format(sp, m + 1)] = moments[i, :, :, m][:,0]
+                    self.dataframe["{} {} moment".format(sp, m + 1)] = moments[i, :, :, m][:, 0]
                 for m in range(self.max_no_moment):
-                    self.dataframe["{} {} moment ratio".format(sp, m + 1)] = ratios[i, :, :, m][:,0]
+                    self.dataframe["{} {} moment ratio".format(sp, m + 1)] = ratios[i, :, :, m][:, 0]
         else:
             for i, sp in enumerate(self.species_names):
                 for m in range(self.max_no_moment):
                     for d in range(dim):
-                        self.dataframe["{} {} moment axis {}".format(sp, m + 1, d)] = moments[i, :, d, m][:,0]
+                        self.dataframe["{} {} moment axis {}".format(sp, m + 1, d)] = moments[i, :, d, m][:, 0]
 
                 for m in range(self.max_no_moment):
                     for d in range(dim):
-                        self.dataframe["{} {} moment ratio axis {}".format(sp, m + 1, d)] = ratios[i, :, d, m][:,0]
+                        self.dataframe["{} {} moment ratio axis {}".format(sp, m + 1, d)] = ratios[i, :, d, m][:, 0]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
@@ -2020,72 +2007,6 @@ class VelocityMoments(Observable):
             else:
                 # this is useful because it will have too many figures open.
                 plt.close(fig)
-
-
-@njit
-def autocorrelationfunction(At):
-    """
-    Calculate the autocorrelation function of the array input.
-
-    .. math::
-        A(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)A_j(t_i + \\tau)
-
-    where :math:`D` is the number of dimensions and :math:`T` is the total length
-    of the simulation.
-
-    Parameters
-    ----------
-    At : numpy.ndarray
-        Observable to autocorrelate. Shape=(``no_dim``, ``no_steps``).
-
-    Returns
-    -------
-    ACF : numpy.ndarray
-        Autocorrelation function of ``At``.
-    """
-    no_steps = At.shape[1]
-    no_dim = At.shape[0]
-
-    ACF = np.zeros(no_steps)
-    Norm_counter = np.zeros(no_steps)
-
-    for it in range(no_steps):
-        for dim in range(no_dim):
-            ACF[: no_steps - it] += At[dim, it] * At[dim, it:no_steps]
-        Norm_counter[: no_steps - it] += 1.0
-
-    return ACF / Norm_counter
-
-
-@njit
-def autocorrelationfunction_1D(At):
-    """
-    Calculate the autocorrelation function of the input.
-
-    .. math::
-        A(\\tau) =  \sum_i^T A(t_i)A(t_i + \\tau)
-
-    where :math:`T` is the total length of the simulation.
-
-    Parameters
-    ----------
-    At : numpy.ndarray
-        Array to autocorrelate. Shape=(``no_steps``).
-
-    Returns
-    -------
-    ACF : numpy.ndarray
-        Autocorrelation function of ``At``.
-    """
-    no_steps = At.shape[0]
-    ACF = np.zeros(no_steps)
-    Norm_counter = np.zeros(no_steps)
-
-    for it in range(no_steps):
-        ACF[: no_steps - it] += At[it] * At[it:no_steps]
-        Norm_counter[: no_steps - it] += 1.0
-
-    return ACF / Norm_counter
 
 
 @njit
@@ -2324,14 +2245,13 @@ def calc_moments(dist, max_moment, species_np):
         for mom in range(max_moment):
             moments[sp, :, :, mom] = scp_moment(dist[:, :, sp_start:sp_end], moment=mom + 1, axis=2)
         sp_start += sp_num
-    sigma = np.sqrt(moments[:,:,:,1])
+    sigma = np.sqrt(moments[:, :, :, 1])
     for mom in range(max_moment):
         pwr = mom + 1
-        const = 2.0**(pwr/2) * scp_gamma((pwr + 1)/2)/np.sqrt(np.pi)
-        ratios[:, :, :, mom] = moments[:, :, :, mom]/(const * sigma**pwr)
+        const = 2.0 ** (pwr / 2) * scp_gamma((pwr + 1) / 2) / np.sqrt(np.pi)
+        ratios[:, :, :, mom] = moments[:, :, :, mom] / (const * sigma ** pwr)
 
     return moments, ratios
-
 
 
 @njit
@@ -2449,12 +2369,13 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
 
     """
     sp_start = 0
+    sp_end = 0
     # Rescale vel and acc of each particle by their individual mass
     for sp, num in enumerate(species_np):
-        sp_end = sp_start + num
+        sp_end += num
         vel[:, sp_start: sp_end] *= np.sqrt(species_mass[sp])
         acc[:, sp_start: sp_end] *= species_mass[sp]  # force
-        sp_start = sp_end
+        sp_start += num
 
     pressure_tensor = (vel @ np.transpose(vel) + pos @ np.transpose(acc)) / box_volume
     pressure = np.trace(pressure_tensor) / 3.0
@@ -2495,8 +2416,8 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
     return tau_blk, sigma2_blk, statistical_efficiency
 
 
-@njit
-def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
+# @jit Numba doesn't like scipy.signal
+def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, timesteps_to_skip):
     """
     Calculate the diffusion flux autocorrelation function of each species and in each direction.
 
@@ -2505,8 +2426,8 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
     time_averaging: bool
         Flag for time averaging.
 
-    it_skip: int
-        Timestep interval for time averaging.
+    timesteps_to_skip: int
+        Number of timesteps to skip for time_averaging.
 
     vel : numpy.ndarray
         Particles' velocities.
@@ -2523,9 +2444,10 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
     Returns
     -------
     jc_acf: numpy.ndarray
-        Diffusion flux autocorrelation function. Shape Ns*(Ns +1)/2 x Ndim + 1 x Nt, where Ns = number of species,
-        Ndim = Number of cartesian dimensions, Nt = Number of dumps.
+        Diffusion flux autocorrelation function. Shape = ( Ns*(Ns +1)/2, Ndim + 1 , Nt)
+        where Ns = number of species, Ndim = Number of cartesian dimensions, Nt = Number of dumps.
     """
+
     no_dim = vel.shape[0]
     no_dumps = vel.shape[2]
     no_species = len(sp_num)
@@ -2533,7 +2455,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
 
     mass_densities = sp_dens * sp_mass
     tot_mass_dens = np.sum(mass_densities)
-    # Center of mass velocity field of each species
+    # Center of mass velocity field of each species in each direction and at each timestep
     com_vel = np.zeros((no_species, no_dim, no_dumps))
     # Total center of mass velocity field, see eq.(18) in
     # Haxhimali T. et al., Diffusivity of Mixtures in Warm Dense Matter Regime.In: Graziani F., et al. (eds)
@@ -2543,6 +2465,8 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
 
     sp_start = 0
     sp_end = 0
+    # Calculate the total center of mass velocity (tot_com_vel)
+    # and the center of mass velocity of each species (com_vel)
     for i, ns in enumerate(sp_num):
         sp_end += ns
         com_vel[i, :, :] = np.sum(vel[:, sp_start: sp_end, :], axis=1)
@@ -2550,47 +2474,46 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, it_skip):
         sp_start = sp_end
 
     jc_acf = np.zeros((no_vacf, no_dim + 1, no_dumps))
-    # the flux is given by eq.(19) of the above reference
+    it_skip = timesteps_to_skip if time_averaging else no_dumps
     indx = 0
-    if time_averaging:
-        indx = 0
-        for i in range(no_species):
-            sp1_flux = mass_densities[i] * (com_vel[i] - tot_com_vel)
-            for j in range(i, no_species):
-                sp2_flux = mass_densities[j] * (com_vel[j] - tot_com_vel)
-                for d in range(no_dim):
-                    norm_counter = np.zeros(no_dumps)
-                    temp = np.zeros(no_dumps)
-                    for it in range(0, no_dumps, it_skip):
-                        temp[:no_dumps - it] += correlationfunction_1D(sp1_flux[d, it:], sp2_flux[d, it:])
-                        norm_counter[:(no_dumps - it)] += 1.0
-                    jc_acf[indx, d, :] = temp / norm_counter
-
+    # the flux is given by eq.(19) of the above reference
+    for i, rho1 in enumerate(mass_densities):
+        # Flux of species i
+        sp1_flux = rho1 * (com_vel[i] - tot_com_vel)
+        for j, rho2 in enumerate(mass_densities[i:], i):
+            # this sign seems to be an issue in the calculation of the flux
+            sign = (1 - 2 * (i != j))
+            # Flux of species j
+            sp2_flux = sign * rho2 * (com_vel[j] - tot_com_vel)
+            # Calculate the correlation function in each direction
+            for d in range(no_dim):
+                # Counter for time origins
                 norm_counter = np.zeros(no_dumps)
+                # temporary storage of correlation function
                 temp = np.zeros(no_dumps)
+                # Grab the correct time intervals
                 for it in range(0, no_dumps, it_skip):
-                    temp[: no_dumps - it] += correlationfunction(sp1_flux[:, it:], sp2_flux[:, it:])
+                    # Calculate the full correlation function.
+                    full_corr = scp_signal.correlate(sp1_flux[d, it:], sp2_flux[d, it:], mode='full')
+                    # Normalization of the full correlation function, Similar to norm_counter
+                    norm_corr = np.array([no_dumps - it - ii for ii in range(no_dumps - it)])
+                    # Find the mid point of the array
+                    mid = full_corr.size // 2
+                    # I want only the second half of the array, i.e. the positive lags only
+                    temp[:no_dumps - it] += full_corr[mid:] / norm_corr
+                    # Note that norm_counter = 1 if time_averaging is false
                     norm_counter[:(no_dumps - it)] += 1.0
-                jc_acf[indx, no_dim, :] = temp / norm_counter
-                indx += 1
+                # Divide by the number time origins
+                jc_acf[indx, d, :] = temp / norm_counter
+                # Calculate the total correlation function by summing the three directions
+                jc_acf[indx, -1, :] += temp / norm_counter
+            indx += 1
 
-    else:
-        for i, rho1 in enumerate(mass_densities):
-            sp1_flux = rho1 * (com_vel[i] - tot_com_vel)
-            for j, rho2 in enumerate(mass_densities[i:], i):
-                sign = (1 - 2 * (i != j))  # this sign seems to be an issue in the calculation of
-                sp2_flux = sign * rho2 * (com_vel[j] - tot_com_vel)
-
-                for d in range(no_dim):
-                    jc_acf[indx, d, :] = correlationfunction_1D(sp1_flux[d, :], sp2_flux[d, :])
-
-                jc_acf[indx, - 1, :] = correlationfunction(sp1_flux, sp2_flux)
-                indx += 1
     return jc_acf
 
 
-@njit
-def calc_vacf(vel, sp_num, time_averaging, it_skip):
+# @jit Numba doesn't like Scipy
+def calc_vacf(vel, sp_num, time_averaging, timesteps_to_skip):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
 
@@ -2599,12 +2522,12 @@ def calc_vacf(vel, sp_num, time_averaging, it_skip):
     time_averaging: bool
         Flag for time averaging.
 
-    it_skip: int
-        Timestep interval for time averaging.
+    timesteps_to_skip: int
+        Number of timesteps to skip for time_averaging.
 
     vel : numpy.ndarray
-        Particles' velocities stored in a 3D array with shape D x Np x Nt. D = cartesian dimensions,
-        Np = Number of particles, Nt = number of dumps.
+        Particles' velocities stored in a 3D array with shape = (D x Np x Nt).
+        D = cartesian dimensions, Np = Number of particles, Nt = number of dumps.
 
     sp_num: numpy.ndarray
         Number of particles of each species.
@@ -2612,7 +2535,7 @@ def calc_vacf(vel, sp_num, time_averaging, it_skip):
     Returns
     -------
     vacf: numpy.ndarray
-        Velocity autocorrelation functions.
+        Velocity autocorrelation functions. Shape= (No_species, D + 1, Nt)
 
     """
     no_dim = vel.shape[0]
@@ -2620,48 +2543,43 @@ def calc_vacf(vel, sp_num, time_averaging, it_skip):
 
     vacf = np.zeros((len(sp_num), no_dim + 1, no_dumps))
 
-    if time_averaging:
-        for d in range(no_dim):
-            vacf_temp = np.zeros(no_dumps)
-            norm_counter = np.zeros(no_dumps)
-
-            for ptcl in range(sp_num[0]):
-                for it in range(0, no_dumps, it_skip):
-                    vacf_temp[: no_dumps - it] += autocorrelationfunction_1D(vel[d, ptcl, it:])
-                    norm_counter[: no_dumps - it] += 1.0
-
-            vacf[0, d, :] = vacf_temp / norm_counter
-
-        vacf_temp = np.zeros(no_dumps)
-        norm_counter = np.zeros(no_dumps)
-        for ptcl in range(sp_num[0]):
-            for it in range(0, no_dumps, it_skip):
-                vacf_temp[: no_dumps - it] += autocorrelationfunction(vel[:, ptcl, it:])
-                norm_counter[: no_dumps - it] += 1.0
-
-        vacf[0, -1, :] = vacf_temp / norm_counter
-    else:
-        # Calculate the vacf of each species in each dimension
-        for i in range(no_dim):
-            vacf_temp = np.zeros(no_dumps)
-            sp_start = 0
-            sp_end = 0
-            for sp, n_sp in enumerate(sp_num):
-                sp_end += n_sp
-                for ptcl in range(sp_start, sp_end):
-                    vacf_temp += autocorrelationfunction_1D(vel[i, ptcl, :])
-                vacf[sp, i, :] = vacf_temp / n_sp
-                sp_start = sp_end
-
-        vacf_temp = np.zeros(no_dumps)
+    it_skip = timesteps_to_skip if time_averaging else no_dumps
+    # Calculate the vacf of each species in each dimension
+    for i in range(no_dim):
         sp_start = 0
         sp_end = 0
         for sp, n_sp in enumerate(sp_num):
             sp_end += n_sp
+            # Temporary species vacf
+            sp_vacf = np.zeros(no_dumps)
+            # Calculate the vacf for each particle of species sp
             for ptcl in range(sp_start, sp_end):
-                vacf_temp += autocorrelationfunction(vel[:, ptcl, :])
-            vacf[sp, -1, :] = vacf_temp / n_sp
-            sp_start = sp_end
+                # temporary vacf
+                ptcl_vacf = np.zeros(no_dumps)
+                # Counter of time origins
+                norm_counter = np.zeros(no_dumps)
+                # Grab the correct time interval
+                for it in range(0, no_dumps, it_skip):
+                    # Calculate the full correlation function.
+                    full_corr = scp_signal.correlate(vel[i, ptcl, it:], vel[i, ptcl, it:], mode='full')
+                    # Normalization of the full correlation function, Similar to norm_counter
+                    norm_corr = np.array([no_dumps - it - ii for ii in range(no_dumps - it)])
+                    # Find the mid point of the array
+                    mid = full_corr.size // 2
+                    # I want only the second half of the array, i.e. the positive lags only
+                    ptcl_vacf[:no_dumps - it] += full_corr[mid:] / norm_corr
+                    # Note that norm_counter = 1 if time_averaging is false
+                    norm_counter[:(no_dumps - it)] += 1.0
+
+                # Add this particle vacf to the species vacf and normalize by the time origins
+                sp_vacf += ptcl_vacf / norm_counter
+
+            # Save the species vacf for dimension i
+            vacf[sp, i, :] = sp_vacf / n_sp
+            # Save the total vacf
+            vacf[sp, -1, :] += sp_vacf / n_sp
+            # Move to the next species first particle position
+            sp_start += n_sp
 
     return vacf
 
@@ -2831,78 +2749,6 @@ def calculate_herm_coeff(v, distribution, maxpower):
         coeff[i] = np.trapz(distribution * Hp, x=v)
 
     return coeff
-
-
-@njit
-def correlationfunction(At, Bt):
-    """
-    Calculate the correlation function :math:`\mathbf{A}(t)` and :math:`\mathbf{B}(t)`
-
-    .. math::
-        C_{AB}(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)B_j(t_i + \\tau)
-
-    where :math:`D` (= ``no_dim``) is the number of dimensions and :math:`T` (= ``no_steps``) is the total length
-    of the simulation.
-
-    Parameters
-    ----------
-    At : numpy.ndarray
-        Observable to correlate. Shape=(``no_dim``, ``no_steps``).
-
-    Bt : numpy.ndarray
-        Observable to correlate. Shape=(``no_dim``, ``no_steps``).
-
-    Returns
-    -------
-    CF : numpy.ndarray
-        Correlation function :math:`C_{AB}(\\tau)`
-    """
-    no_steps = At.shape[1]
-    no_dim = At.shape[0]
-
-    CF = np.zeros(no_steps)
-    Norm_counter = np.zeros(no_steps)
-
-    for it in range(no_steps):
-        for dim in range(no_dim):
-            CF[: no_steps - it] += At[dim, it] * Bt[dim, it:no_steps]
-        Norm_counter[: no_steps - it] += 1.0
-
-    return CF / Norm_counter
-
-
-@njit
-def correlationfunction_1D(At, Bt):
-    """
-    Calculate the correlation function between :math:`A(t)` and :math:`B(t)`
-
-    .. math::
-        C_{AB}(\\tau) =  \sum_i^T A(t_i)B(t_i + \\tau)
-
-    where :math:`T` (= ``no_steps``) is the total length of the simulation.
-
-    Parameters
-    ----------
-    At : numpy.ndarray
-        Observable to correlate. Shape=(``no_steps``).
-
-    Bt : numpy.ndarray
-        Observable to correlate. Shape=(``no_steps``).
-
-    Returns
-    -------
-    CF : numpy.ndarray
-        Correlation function :math:`C_{AB}(\\tau)`
-    """
-    no_steps = At.shape[0]
-    CF = np.zeros(no_steps)
-    Norm_counter = np.zeros(no_steps)
-
-    for it in range(no_steps):
-        CF[: no_steps - it] += At[it] * Bt[it:no_steps]
-        Norm_counter[: no_steps - it] += 1.0
-
-    return CF / Norm_counter
 
 
 def kspace_setup(no_ka, box_lengths, full=False):
@@ -3114,3 +2960,353 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         xlabel = ''
 
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
+
+
+# These are old functions that should not be trusted.
+# @njit
+# def autocorrelationfunction_slow(At):
+#     """
+#     Calculate the autocorrelation function of the array input.
+#
+#     .. math::
+#         A(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)A_j(t_i + \\tau)
+#
+#     where :math:`D` is the number of dimensions and :math:`T` is the total length
+#     of the simulation.
+#
+#     Parameters
+#     ----------
+#     At : numpy.ndarray
+#         Observable to autocorrelate. Shape=(``no_dim``, ``no_steps``).
+#
+#     Returns
+#     -------
+#     ACF : numpy.ndarray
+#         Autocorrelation function of ``At``.
+#     """
+#     no_steps = At.shape[1]
+#     no_dim = At.shape[0]
+#
+#     ACF = np.zeros(no_steps)
+#     Norm_counter = np.zeros(no_steps)
+#
+#     for it in range(no_steps):
+#         for dim in range(no_dim):
+#             ACF[: no_steps - it] += At[dim, it] * At[dim, it:no_steps]
+#         Norm_counter[: no_steps - it] += 1.0
+#
+#     return ACF / Norm_counter
+#
+#
+# @njit
+# def autocorrelationfunction_1D_slow(At):
+#     """
+#     Calculate the autocorrelation function of the input.
+#
+#     .. math::
+#         A(\\tau) =  \sum_i^T A(t_i)A(t_i + \\tau)
+#
+#     where :math:`T` is the total length of the simulation.
+#
+#     Parameters
+#     ----------
+#     At : numpy.ndarray
+#         Array to autocorrelate. Shape=(``no_steps``).
+#
+#     Returns
+#     -------
+#     ACF : numpy.ndarray
+#         Autocorrelation function of ``At``.
+#     """
+#     no_steps = At.shape[0]
+#     ACF = np.zeros(no_steps)
+#     Norm_counter = np.zeros(no_steps)
+#
+#     for it in range(no_steps):
+#         ACF[: no_steps - it] += At[it] * At[it:no_steps]
+#         Norm_counter[: no_steps - it] += 1.0
+#
+#     return ACF / Norm_counter
+#
+#
+# @jit
+# def autocorrelationfunction(At):
+#     """
+#     Calculate the autocorrelation function of the array input.
+#
+#     .. math::
+#         A(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)A_j(t_i + \\tau)
+#
+#     where :math:`D` is the number of dimensions and :math:`T` is the total length
+#     of the simulation.
+#
+#     Parameters
+#     ----------
+#     At : numpy.ndarray
+#         Observable to autocorrelate. Shape=(``no_dim``, ``no_steps``).
+#
+#     Returns
+#     -------
+#     ACF : numpy.ndarray
+#         Autocorrelation function of ``At``.
+#     """
+#     no_steps = At.shape[1]
+#     no_dim = At.shape[0]
+#
+#     norm_counter = np.zeros(no_steps)
+#     # Number of time origins for each time step
+#     for it in range(no_steps):
+#         norm_counter[: no_steps - it] += 1.0
+#
+#     ACF_total = np.zeros(no_steps)
+#     for i in range(no_dim):
+#         At2 = np.zeros(int(2 * no_steps), dtype=np.complex128)
+#         At2[:no_steps] = At[i, :] + 1j * 0.0
+#         # Prepare for FFTW
+#         fftw_obj = pyfftw.builders.fft(At2)
+#         # Calculate FFTW
+#         Aw = fftw_obj()
+#         # ACF in frequency space
+#         Aw2 = np.conj(Aw) * Aw
+#         # Prepare for IFFTW
+#         ifftw_obj = pyfftw.builders.ifft(Aw2)
+#         # IFFTW to get ACF
+#         At2 = ifftw_obj()
+#         # Normalization associated with FFTW
+#         # At2 /= 2 * no_steps
+#         ACF_total += np.real(At2[:no_steps]) / norm_counter
+#
+#     return ACF_total
+#
+#
+# @jit
+# def autocorrelationfunction_1D(At):
+#     """
+#     Calculate the autocorrelation function of the input using the FFT method.
+#
+#     .. math::
+#         A(\\tau) =  \sum_i^T A(t_i)A(t_i + \\tau)
+#
+#     where :math:`T` is the total length of the simulation.
+#
+#     Parameters
+#     ----------
+#     At : numpy.ndarray
+#         Array to autocorrelate. Shape=(``no_steps``).
+#
+#     Returns
+#     -------
+#     ACF : numpy.ndarray
+#         Autocorrelation function of ``At``.
+#
+#     Notes
+#     -----
+#     This code is a reproduction of Allen-Tildesley
+#     `code <https://github.com/Allen-Tildesley/examples/blob/master/python_examples/corfun.py>`_
+#
+#     """
+#     no_steps = At.shape[0]
+#     # Normalization. Number of time origins for each time step
+#     norm_counter = np.zeros(no_steps)
+#     for it in range(no_steps):
+#         norm_counter[: no_steps - it] += 1.0
+#
+#     # Create the arrays for FFTW
+#     At2 = pyfftw.empty_aligned(int(2 * no_steps), dtype=np.complex128)
+#     Aw = pyfftw.empty_aligned(int(2 * no_steps), dtype=np.complex128)
+#     # Append an array of zeros to the function A(t)
+#     At2[:no_steps] = At + 1j * 0.0
+#     # Prepare for FFTW
+#     fftw_obj = pyfftw.builders.fft(At2, Aw)
+#     # Calculate FFTW
+#     Aw = fftw_obj()
+#     # ACF in frequency space
+#     Aw2 = np.conj(Aw) * Aw
+#     # Prepare for IFFTW, Aw2 At2 is the out_array
+#     ifftw_obj = pyfftw.builders.fft(Aw2, At2)
+#     # IFFTW to get ACF
+#     At2 = ifftw_obj()
+#     return np.real(At2[:no_steps]) / norm_counter
+#
+#
+# @njit
+# def correlationfunction_slow(At, Bt):
+#     """
+#     Calculate the correlation function :math:`\mathbf{A}(t)` and :math:`\mathbf{B}(t)`
+#
+#     .. math::
+#         C_{AB}(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)B_j(t_i + \\tau)
+#
+#     where :math:`D` (= ``no_dim``) is the number of dimensions and :math:`T` (= ``no_steps``) is the total length
+#     of the simulation.
+#
+#     Parameters
+#     ----------
+#     At : numpy.ndarray
+#         Observable to correlate. Shape=(``no_dim``, ``no_steps``).
+#
+#     Bt : numpy.ndarray
+#         Observable to correlate. Shape=(``no_dim``, ``no_steps``).
+#
+#     Returns
+#     -------
+#     CF : numpy.ndarray
+#         Correlation function :math:`C_{AB}(\\tau)`
+#     """
+#     no_steps = At.shape[1]
+#     no_dim = At.shape[0]
+#
+#     CF = np.zeros(no_steps)
+#     Norm_counter = np.zeros(no_steps)
+#
+#     for it in range(no_steps):
+#         for dim in range(no_dim):
+#             CF[: no_steps - it] += At[dim, it] * Bt[dim, it:no_steps]
+#         Norm_counter[: no_steps - it] += 1.0
+#
+#     return CF / Norm_counter
+#
+#
+# @njit
+# def correlationfunction_1D_slow(At, Bt):
+#     """
+#     Calculate the correlation function between :math:`A(t)` and :math:`B(t)`
+#
+#     .. math::
+#         C_{AB}(\\tau) =  \sum_i^T A(t_i)B(t_i + \\tau)
+#
+#     where :math:`T` (= ``no_steps``) is the total length of the simulation.
+#
+#     Parameters
+#     ----------
+#     At : numpy.ndarray
+#         Observable to correlate. Shape=(``no_steps``).
+#
+#     Bt : numpy.ndarray
+#         Observable to correlate. Shape=(``no_steps``).
+#
+#     Returns
+#     -------
+#     CF : numpy.ndarray
+#         Correlation function :math:`C_{AB}(\\tau)`
+#     """
+#     no_steps = At.shape[0]
+#     CF = np.zeros(no_steps)
+#     Norm_counter = np.zeros(no_steps)
+#
+#     for it in range(no_steps):
+#         CF[: no_steps - it] += At[it] * Bt[it:no_steps]
+#         Norm_counter[: no_steps - it] += 1.0
+#
+#     return CF / Norm_counter
+#
+#
+# @jit
+# def correlationfunction(At, Bt):
+#     """
+#     Calculate the autocorrelation function of the array input.
+#
+#     .. math::
+#         A(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)A_j(t_i + \\tau)
+#
+#     where :math:`D` is the number of dimensions and :math:`T` is the total length
+#     of the simulation.
+#
+#     Parameters
+#     ----------
+#     At : numpy.ndarray
+#         Observable to autocorrelate. Shape=(``no_dim``, ``no_steps``).
+#
+#     Returns
+#     -------
+#     ACF : numpy.ndarray
+#         Autocorrelation function of ``At``.
+#     """
+#     no_steps = At.shape[1]
+#     no_dim = At.shape[0]
+#
+#     norm_counter = np.zeros(no_steps)
+#     # Number of time origins for each time step
+#     for it in range(no_steps):
+#         norm_counter[: no_steps - it] += 1.0
+#
+#     CF_total = np.zeros(no_steps)
+#     for i in range(no_dim):
+#         # Create a larger array for storing A(t)
+#         At2 = np.zeros(int(2 * no_steps), dtype=np.complex128)
+#         At2[:no_steps] = At[i, :] + 1j * 0.0
+#         # Create a larger array for storing B(t)
+#         Bt2 = np.zeros(int(2 * no_steps), dtype=np.complex128)
+#         Bt2[:no_steps] = Bt[i, :] + 1j * 0.0
+#         # Prepare for FFTW
+#         A_fftw_obj = pyfftw.builders.fft(At2)
+#         # Calculate FFTW
+#         Aw = A_fftw_obj()
+#         # Prepare for B FFTW
+#         B_fftw_obj = pyfftw.builders.fft(Bt2)
+#         # Calculate FFTW
+#         Bw = B_fftw_obj()
+#         # ACF in frequency space
+#         CFw2 = np.conj(Aw) * Bw
+#         # Prepare for IFFTW
+#         ifftw_obj = pyfftw.builders.ifft(CFw2)
+#         # IFFTW to get ACF
+#         CF_t = ifftw_obj()
+#
+#         # Normalization associated with FFTW
+#         # At2 /= 2 * no_steps
+#         CF_total += np.real(CF_t[:no_steps]) / norm_counter
+#
+#     return CF_total
+#
+#
+# @jit
+# def correlationfunction_1D(At, Bt):
+#     """
+#     Calculate the autocorrelation function of the input.
+#
+#     .. math::
+#         A(\\tau) =  \sum_i^T A(t_i)A(t_i + \\tau)
+#
+#     where :math:`T` is the total length of the simulation.
+#
+#     Parameters
+#     ----------
+#     At : numpy.ndarray
+#         Array to autocorrelate. Shape=(``no_steps``).
+#
+#     Returns
+#     -------
+#     ACF : numpy.ndarray
+#         Autocorrelation function of ``At``.
+#     """
+#     no_steps = At.shape[0]
+#     norm_counter = np.zeros(no_steps)
+#     # Create a larger array for storing A(t)
+#     At2 = np.zeros(int(2 * no_steps), dtype=np.complex128)
+#     At2[:no_steps] = At + 1j * 0.0
+#     # Create a larger array for storing B(t)
+#     Bt2 = np.zeros(int(2 * no_steps), dtype=np.complex128)
+#     Bt2[:no_steps] = Bt + 1j * 0.0
+#     # Prepare for FFTW
+#     A_fftw_obj = pyfftw.builders.fft(At2)
+#     # Calculate FFTW
+#     Aw = A_fftw_obj()
+#     # Prepare for B FFTW
+#     B_fftw_obj = pyfftw.builders.fft(Bt2)
+#     # Calculate FFTW
+#     Bw = B_fftw_obj()
+#
+#     # ACF in frequency space
+#     ACFw2 = np.conj(Aw) * Bw
+#     # Prepare for IFFTW
+#     ifftw_obj = pyfftw.builders.ifft(ACFw2)
+#     # IFFTW to get ACF
+#     CF_t = ifftw_obj()
+#     # Normalization associated with FFTW
+#     # At2 /= 2 * no_steps
+#     # Number of time origins for each time step
+#     for it in range(no_steps):
+#         norm_counter[: no_steps - it] += 1.0
+#
+#     return np.real(CF_t[:no_steps]) / norm_counter

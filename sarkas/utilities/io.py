@@ -337,7 +337,7 @@ class InputOutput:
 
         Parameters
         ----------
-        time_stamp : array
+        time_stamp : str
             Array of time stamps.
 
         t : float
@@ -1145,7 +1145,6 @@ class InputOutput:
 
         """
         import copy as py_copy
-        file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']
 
         filename = os.path.join(self.job_dir, class_to_read + ".pickle")
         data = np.load(filename, allow_pickle=True)

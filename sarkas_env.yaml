@@ -17,9 +17,11 @@ dependencies:
   - tqdm
   - pyfiglet
   - pickle5
+  - h5py
 
   # Analysis
   - jupyter
+  - jupyterlab
   - notebook
   - matplotlib
   - seaborn

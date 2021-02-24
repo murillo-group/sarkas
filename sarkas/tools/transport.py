@@ -53,7 +53,8 @@ class TransportCoefficient:
         j_current.setup(params, phase)
         j_current.parse()
         sigma = np.zeros(j_current.prod_no_dumps)
-        integrand = np.array(j_current.dataframe["Total Current ACF"] / j_current.dataframe["Total Current ACF"].iloc[0])
+        integrand = np.array(
+            j_current.dataframe["Total Current ACF"] / j_current.dataframe["Total Current ACF"].iloc[0])
         time = np.array(j_current.dataframe["Time"])
         const = params.total_plasma_frequency ** 2
         for it in range(1, j_current.prod_no_dumps):
@@ -110,7 +111,12 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def diffusion(params, phase=None, time_averaging=False, it_skip=100, show=False, figname=None):
+    def diffusion(params,
+                  phase: str = None,
+                  time_averaging: bool = False,
+                  timesteps_to_skip: int = 100,
+                  show: bool = False,
+                  figname: str = None):
         """
         Calculate the self-diffusion coefficient from the velocity auto-correlation function.
 
@@ -122,7 +128,7 @@ class TransportCoefficient:
         time_averaging: bool
             Flag for VACF time averaging. Default = False.
 
-        it_skip: int
+        timesteps_to_skip: int
             Timestep interval for VACF time averaging. Default = 100
 
         params : sarkas.base.Parameters
@@ -143,7 +149,7 @@ class TransportCoefficient:
         coefficient = pd.DataFrame()
         vacf = obs.VelocityAutoCorrelationFunction()
         vacf.setup(params, phase)
-        vacf.compute(time_averaging=time_averaging, it_skip = it_skip)
+        vacf.compute(time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
         time = np.array(vacf.dataframe["Time"])
         coefficient["Time"] = time
 
@@ -221,18 +227,27 @@ class TransportCoefficient:
         ax2.set_xlabel(r'Time' + xlbl)
         ax21.set_xlabel(r"Index")
         # ax21.set_xbound(1, len(time))
+
         fig.tight_layout()
         if figname:
-            fig.savefig(os.path.join(vacf.saving_dir, figname) )
+            fig.savefig(os.path.join(vacf.saving_dir, figname))
         else:
             fig.savefig(os.path.join(vacf.saving_dir, 'Plot_Diffusion_' + vacf.job_id + '.png'))
+
         if show:
             fig.show()
-
+        coefficient.to_csv(os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.csv'),
+                           index=False,
+                           encoding='utf-8')
         return coefficient
 
     @staticmethod
-    def interdiffusion(params, phase=None, time_averaging=False, it_skip=100, show=False, figname=None):
+    def interdiffusion(params,
+                       phase: str = None,
+                       time_averaging: bool = False,
+                       timesteps_to_skip: int = 100,
+                       show: bool = False,
+                       figname: str = None):
         """
         Calculate the interdiffusion coefficients from the diffusion flux auto-correlation function.
 
@@ -244,7 +259,7 @@ class TransportCoefficient:
         time_averaging: bool
             Flag for species diffusion flux time averaging. Default = False.
 
-        it_skip: int
+        timesteps_to_skip: int
             Timestep interval for species diffusion flux time averaging. Default = 100
 
         params : sarkas.base.Parameters
@@ -266,7 +281,7 @@ class TransportCoefficient:
         coefficient = pd.DataFrame()
         jc_acf = obs.FluxAutoCorrelationFunction()
         jc_acf.setup(params, phase)
-        jc_acf.compute(time_averaging=time_averaging, it_skip=it_skip)
+        jc_acf.compute(time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
         no_int = jc_acf.prod_no_dumps
         no_obs = jc_acf.no_obs
         D_ij = np.zeros((no_obs, no_int))
@@ -333,12 +348,15 @@ class TransportCoefficient:
 
         fig.tight_layout()
         if figname:
-            fig.savefig(os.path.join(jc_acf.saving_dir, figname) )
+            fig.savefig(os.path.join(jc_acf.saving_dir, figname))
         else:
             fig.savefig(os.path.join(jc_acf.saving_dir, 'Plot_InterDiffusion_' + jc_acf.job_id + '.png'))
         if show:
             fig.show()
-
+        # Save to dataframe
+        coefficient.to_csv(os.path.join(jc_acf.saving_dir, 'InterDiffusion_' + jc_acf.job_id + '.csv'),
+                           index=False,
+                           encoding='utf-8')
         return coefficient
 
     @staticmethod

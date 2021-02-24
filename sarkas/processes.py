@@ -26,7 +26,7 @@ class PostProcess:
 
     """
 
-    def __init__(self, input_file=None):
+    def __init__(self, input_file = None):
         self.potential = Potential()
         self.integrator = Integrator()
         self.thermostat = Thermostat()
@@ -84,7 +84,7 @@ class PostProcess:
                     if sub_dict:
                         self.facf.from_dict(sub_dict)
 
-    def setup(self, read_yaml=False, other_inputs=None):
+    def setup(self, read_yaml: bool = False, other_inputs=None):
         """
         Setup subclasses and attributes by reading the pickle files first
         """
@@ -1065,7 +1065,7 @@ class Simulation:
         time_tot = self.timer.current()
         self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
 
-    def setup(self, read_yaml=False, other_inputs=None):
+    def setup(self, read_yaml: bool =False, other_inputs=None):
         """Setup simulations' parameters and io subclasses.
 
         Parameters
