@@ -65,15 +65,15 @@ PostProcessing:
       hermite_order: 8
 
   - DynamicStructureFactor:
-      no_ka_harmonics: 10
+      max_k_harmonics: 10
       no_slices: 2
 
   - StaticStructureFactor:
-      no_ka_harmonics: 10
+      max_k_harmonics: 10
       no_slices: 2
 
   - CurrentCorrelationFunction:
-      no_ka_harmonics: 10
+      max_k_harmonics: 10
       no_slices: 2
 
   - VelocityMoments:

@@ -16,10 +16,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+# import h5py
 # import logging
 
-from scipy import signal as scp_signal
+import scipy.signal as scp_signal
 
 from sarkas.utilities.timing import SarkasTimer
 
@@ -93,7 +93,7 @@ class Observable:
     dataframe_transverse : pandas.DataFrame
         Dataframe containing the transverse part of the computed observable.
 
-    no_ka_harmonics : list
+    max_k_harmonics : list
         Maximum number of :math:`\mathbf{k}` harmonics to calculatealong each dimension.
 
     phase : str
@@ -156,6 +156,7 @@ class Observable:
         self.phase = None
         self.screen_output = True
         self.timer = SarkasTimer()
+        self.k_observable = False
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -181,27 +182,107 @@ class Observable:
     def setup_init(self, params, phase):
         self.__dict__.update(params.__dict__)
 
-        # Create the lists of k vectors
-        if hasattr(self, 'no_ka_harmonics'):
-            if isinstance(self.no_ka_harmonics, np.ndarray) == 0:
-                self.no_ka_harmonics = np.ones(3, dtype=int) * self.no_ka_harmonics
-        else:
-            self.no_ka_harmonics = [5, 5, 5]
+        if self.k_observable:
+            # Check for k space information.
+            if not hasattr(self, 'angle_averaging'):
+                self.angle_averaging = 'principal_axis'
+                self.max_aa_harmonics = np.array([0, 0, 0])
 
-        if not hasattr(self, 'angle_averaging'):
-            self.angle_averaging = False
+            if self.angle_averaging == 'custom':
+                if not hasattr(self, 'max_aa_ka_value'):
+                    assert self.max_aa_harmonics, 'max_aa_harmonics and max_aa_ka_value not defined.'
+                elif not hasattr(self, 'max_aa_harmonics'):
+                    assert self.max_aa_ka_value, 'max_aa_harmonics and max_aa_ka_value not defined.'
 
-        self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
-        self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
-        self.nkt_file = os.path.join(self.k_space_dir, "nkt")
-        self.vkt_file = os.path.join(self.k_space_dir, "vkt")
+            # More checks on k attributes and initialization of k vectors
 
+            # Dev Notes:
+            #           Make sure that max_k_harmonics and max_aa_harmonics are defined once this if is done.
+            #           The user can either define max_k_harmonics or max_ka_value
+            #           Based on this choice the user can define max_aa_harmonics or max_aa_ka_value
+
+            if hasattr(self, 'max_k_harmonics'):
+                # Convert max_k_harmonics to a numpy array
+                if isinstance(self.max_k_harmonics, np.ndarray) == 0:
+                    self.max_k_harmonics = np.ones(3, dtype=int) * self.max_k_harmonics
+
+                # Calculate max_aa_harmonics based on the choice of angle averaging and inputs
+                if self.angle_averaging == 'full':
+                    self.max_aa_harmonics = np.copy(self.max_k_harmonics)
+
+                elif self.angle_averaging == 'custom':
+                    # Check if the user has defined the max_aa_harmonics
+                    if self.max_aa_ka_value:
+                        nx = int( self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
+                        self.max_aa_harmonics = np.array([nx, nx, nx])
+                    # else max_aa_harmonics is user defined
+                elif self.angle_averaging == 'principal_axis':
+                    self.max_aa_harmonics = np.array([0, 0, 0])
+
+            elif hasattr(self, 'max_ka_value'):
+                # Calculate max_k_harmonics from max_ka_value
+
+                # Check for angle_averaging choice
+                if self.angle_averaging == 'full':
+                    # The maximum value is calculated assuming that max nx = max ny = max nz
+                    # ka_max = 2pi a/L sqrt( nx^2 + ny^2 + nz^2) = 2pi a/L nx sqrt(3)
+                    nx = int( self.max_ka_value * self.box_lengths[0]/(2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
+                    self.max_k_harmonics = np.array([nx, nx, nx])
+                    self.max_aa_harmonics = np.array([nx, nx, nx])
+
+                elif self.angle_averaging == 'custom':
+                    # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws))
+                    self.max_k_harmonics = np.array([nx, nx, nx])
+                    # Check if the user has defined the max_aa_harmonics
+                    if self.max_aa_ka_value:
+                        nx = int( self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
+                        self.max_aa_harmonics = np.array([nx, nx, nx])
+                    # else max_aa_harmonics is user defined
+                elif self.angle_averaging == 'principal_axis':
+                    # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws))
+                    self.max_k_harmonics = np.array([nx, nx, nx])
+                    self.max_aa_harmonics = np.array([0, 0, 0])
+
+            else:
+                # Executive decision
+                self.max_k_harmonics = np.array([5, 5, 5])
+                self.max_aa_harmonics = np.array([5, 5, 5])
+                self.angle_averaging = 'full'
+
+            # Calculate the maximum ka value based on user's choice of angle_averaging
+            # Dev notes: Make sure max_ka_value, max_aa_ka_value are defined when this if is done
+            if self.angle_averaging == 'full':
+                self.max_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_k_harmonics / self.box_lengths)
+                self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_k_harmonics / self.box_lengths)
+
+            elif self.angle_averaging == 'principal_axis':
+                self.max_ka_value = 2.0 * np.pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
+                self.max_aa_ka_value = 0.0
+
+            elif self.angle_averaging == 'custom':
+                self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_aa_harmonics / self.box_lengths)
+                self.max_ka_value = 2.0 * np.pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
+
+            # Create paths for files
+            self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
+            self.k_file = os.path.join(self.k_space_dir, "k_arrays")
+            self.nkt_file = os.path.join(self.k_space_dir, "nkt")
+            self.vkt_file = os.path.join(self.k_space_dir, "vkt")
+
+
+        # Get the number of independent observables if multi-species
         self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
+
+        # Get the total number of dumps by looking at the files in the directory
         self.prod_no_dumps = len(os.listdir(self.prod_dump_dir))
         self.eq_no_dumps = len(os.listdir(self.eq_dump_dir))
+        # Check for magnetized plasma options
         if self.magnetized and self.electrostatic_equilibration:
             self.mag_no_dumps = len(os.listdir(self.mag_dump_dir))
 
+        # Assign dumps variables based on the choice of phase
         if phase == 'equilibration':
             self.no_dumps = self.eq_no_dumps
             self.dump_dir = self.eq_dump_dir
@@ -278,7 +359,7 @@ class Observable:
             # Check for the correct number of k values
             if self.angle_averaging == k_data["angle_averaging"]:
                 # Check for the correct max harmonics
-                comp = self.no_ka_harmonics == k_data["max_harmonics"]
+                comp = self.max_k_harmonics == k_data["max_k_harmonics"]
                 if comp.all():
                     self.k_list = k_data["k_list"]
                     self.k_counts = k_data["k_counts"]
@@ -295,20 +376,31 @@ class Observable:
     def calc_k_data(self):
         """Calculate and save Fourier space data."""
 
-        self.k_list, self.k_counts, k_unique = kspace_setup(self.no_ka_harmonics, self.box_lengths,
-                                                            self.angle_averaging)
+        # Do some checks
+        assert isinstance(self.angle_averaging, str), 'angle_averaging not a string.'
+        assert self.max_k_harmonics.all(), 'max_k_harmonics not defined.'
+
+        # Calculate the k arrays
+        self.k_list, self.k_counts, k_unique = kspace_setup(self.box_lengths,
+                                                            self.angle_averaging,
+                                                            self.max_k_harmonics,
+                                                            self.max_aa_harmonics)
+        # Save the ka values
         self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
         self.no_ka_values = len(self.ka_values)
 
+        # Check if the writing folder exist
         if not (os.path.exists(self.k_space_dir)):
             os.mkdir(self.k_space_dir)
 
+        # Write the npz file
         np.savez(self.k_file,
                  k_list=self.k_list,
                  k_counts=self.k_counts,
                  ka_values=self.ka_values,
-                 max_harmonics=self.no_ka_harmonics,
-                 angle_averaging=self.angle_averaging)
+                 angle_averaging=self.angle_averaging,
+                 max_k_harmonics=self.max_k_harmonics,
+                 max_aa_harmonics=self.max_aa_harmonics)
 
     def parse_kt_data(self, nkt_flag=False, vkt_flag=False):
         """Read in the precomputed time dependent Fourier space data. Recalculate if not.
@@ -328,7 +420,7 @@ class Observable:
                 # Check for the correct number of k values
                 if self.angle_averaging == nkt_data["angle_averaging"]:
                     # Check for the correct max harmonics
-                    comp = self.no_ka_harmonics == nkt_data["max_harmonics"]
+                    comp = self.max_k_harmonics == nkt_data["max_harmonics"]
                     if not comp.all():
                         self.calc_kt_data(nkt_flag=True)
                 else:
@@ -343,7 +435,7 @@ class Observable:
                 # Check for the correct number of k values
                 if self.angle_averaging == vkt_data["angle_averaging"]:
                     # Check for the correct max harmonics
-                    comp = self.no_ka_harmonics == vkt_data["max_harmonics"]
+                    comp = self.max_k_harmonics == vkt_data["max_harmonics"]
                     if not comp.all():
                         self.calc_kt_data(vkt_flag=True)
                 else:
@@ -377,9 +469,10 @@ class Observable:
                                self.verbose)
                 start_slice += self.slice_steps * self.dump_step
                 end_slice += self.slice_steps * self.dump_step
+
                 np.savez(self.nkt_file + '_slice_' + str(isl) + '.npz',
                          nkt=nkt,
-                         max_harmonics=self.no_ka_harmonics,
+                         max_harmonics=self.max_k_harmonics,
                          angle_averaging=self.angle_averaging)
         if vkt_flag:
             for isl in range(self.no_slices):
@@ -399,7 +492,7 @@ class Observable:
                          transverse_i=vkt_i,
                          transverse_j=vkt_j,
                          transverse_k=vkt_k,
-                         max_harmonics=self.no_ka_harmonics,
+                         max_harmonics=self.max_k_harmonics,
                          angle_averaging=self.angle_averaging)
 
     def plot(self, scaling=None, figname=None, show=False, acf=False, longitudinal=True, **kwargs):
@@ -846,26 +939,23 @@ class ElectricCurrent(Observable):
         self.dataframe["Total Current Z"] = total_current[2, :]
 
         # Calculate the ACF in each direction
-        current_acf = calc_current_acf(total_current)
-        for i in range(no_dim):
-            # Full correlation from Scipy correlate
-            full_corr = scp_signal.correlate(total_current[i, :], total_current[i, :], mode='full')
-            # find th
-        cur_acf_xx = autocorrelationfunction_1D(total_current[0, :])
-        cur_acf_yy = autocorrelationfunction_1D(total_current[1, :])
-        cur_acf_zz = autocorrelationfunction_1D(total_current[2, :])
+        cur_acf_xx = correlationfunction(total_current[0, :], total_current[0, :])
+        cur_acf_yy = correlationfunction(total_current[1, :], total_current[1, :])
+        cur_acf_zz = correlationfunction(total_current[2, :], total_current[2, :])
+        # Total Current ACF
+        tot_cur_acf = cur_acf_xx + cur_acf_yy + cur_acf_zz
 
-        tot_cur_acf = autocorrelationfunction(total_current)
-        # Normalize and save
+        # Save
         self.dataframe["X Current ACF"] = cur_acf_xx
         self.dataframe["Y Current ACF"] = cur_acf_yy
         self.dataframe["Z Current ACF"] = cur_acf_zz
         self.dataframe["Total Current ACF"] = tot_cur_acf
         for i, sp in enumerate(self.species_names):
-            tot_acf = autocorrelationfunction(species_current[i, :, :])
-            acf_xx = autocorrelationfunction_1D(species_current[i, 0, :])
-            acf_yy = autocorrelationfunction_1D(species_current[i, 1, :])
-            acf_zz = autocorrelationfunction_1D(species_current[i, 2, :])
+
+            acf_xx = correlationfunction(species_current[i, 0, :],species_current[i, 0, :])
+            acf_yy = correlationfunction(species_current[i, 1, :],species_current[i, 1, :])
+            acf_zz = correlationfunction(species_current[i, 2, :], species_current[i, 2, :])
+            tot_acf = acf_xx + acf_yy + acf_zz
 
             self.dataframe["{} Total Current".format(sp)] = np.sqrt(
                 species_current[i, 0, :] ** 2 + species_current[i, 1, :] ** 2 + species_current[i, 2, :] ** 2)
@@ -1210,6 +1300,7 @@ class StaticStructureFactor(Observable):
         """
 
         self.phase = phase if phase else 'production'
+        self.k_observable = True
         super().setup_init(params, self.phase)
 
         saving_dir = os.path.join(self.postprocessing_dir, 'StaticStructureFunction')
@@ -1270,6 +1361,41 @@ class StaticStructureFactor(Observable):
                 sp_indx += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+
+    def calculation_info_print_out(self):
+        print('\nStatic Structure Factor:')
+        print('\nSmallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
+        print('k_min = {:.4f} / a_ws = {:.4e} '.format(self.ka_values[0], self.ka_values[0] / self.a_ws), end='')
+        print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print('\nAngle averaging choice: {}'.format(self.angle_averaging) )
+        if self.angle_averaging == 'full':
+            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
+            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
+                                                            self.max_aa_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == 'custom':
+            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
+            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+            print('\tAA k_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
+                                                            self.max_aa_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
+            print('\tLargest wavector k_max = k_min * n_x')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
+                                                            self.max_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == 'principal_axis':
+            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
+            print('\tLargest wavector k_max = k_min * n_x')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
+                                                            self.max_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print('\nTotal number of k values to calculate = {}'.format(len(self.k_list)))
+        print('No. of unique ka values to calculate = {}'.format(len(self.ka_values)))
 
 
 class Thermodynamics(Observable):
@@ -1341,7 +1467,7 @@ class Thermodynamics(Observable):
                                                                                 self.species_num, self.box_volume)
 
         self.dataframe["Pressure"] = pressure
-        self.dataframe["Pressure ACF"] = autocorrelationfunction_1D(pressure)
+        self.dataframe["Pressure ACF"] = correlationfunction(pressure, pressure)
 
         if self.dimensions == 3:
             dim_lbl = ['x', 'y', 'z']
@@ -1352,7 +1478,8 @@ class Thermodynamics(Observable):
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
                 self.dataframe["Pressure Tensor {}{}".format(ax1, ax2)] = pressure_tensor_temp[i, j, :]
-                pressure_tensor_acf_temp = autocorrelationfunction_1D(pressure_tensor_temp[i, j, :])
+                pressure_tensor_acf_temp = correlationfunction(pressure_tensor_temp[i, j, :],
+                                                               pressure_tensor_temp[i, j, :])
                 self.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] = pressure_tensor_acf_temp
 
         # Save the pressure acf to file
@@ -2228,92 +2355,6 @@ def calc_elec_current(vel, sp_charge, sp_num):
     return Js, Jtot
 
 
-def calc_electric_current_quantities(vel, sp_charge, sp_num):
-    """
-    Calculate the total electric current and electric current of each species.
-
-    Parameters
-    ----------
-    vel: numpy.ndarray
-        Particles' velocities.
-
-    sp_charge: numpy.ndarray
-        Charge of each species.
-
-    sp_num: numpy.ndarray
-        Number of particles of each species.
-
-    Returns
-    -------
-    Js : numpy.ndarray
-        Electric current of each species. Shape = (``no_species``, ``no_dim``, ``no_dumps``)
-
-    Jtot : numpy.ndarray
-        Total electric current. Shape = (``no_dim``, ``no_dumps``)
-    """
-    no_dim = vel.shape[0]
-    no_dumps = vel.shape[2]
-    no_species = len(sp_num)
-    no_vacf = int(no_species * (no_species + 1) / 2.)
-
-    mass_densities = sp_dens * sp_mass
-    tot_mass_dens = np.sum(mass_densities)
-    # Center of mass velocity field of each species in each direction and at each timestep
-    com_vel = np.zeros((no_species, no_dim, no_dumps))
-    # Total center of mass velocity field, see eq.(18) in
-    # Haxhimali T. et al., Diffusivity of Mixtures in Warm Dense Matter Regime.In: Graziani F., et al. (eds)
-    # Frontiers and Challenges in Warm Dense Matter. Lecture Notes in Computational Science and Engineering, vol 96.
-    # Springer (2014)
-    tot_com_vel = np.zeros((no_dim, no_dumps))
-
-    sp_start = 0
-    sp_end = 0
-    # Calculate the total center of mass velocity (tot_com_vel)
-    # and the center of mass velocity of each species (com_vel)
-    for i, ns in enumerate(sp_num):
-        sp_end += ns
-        com_vel[i, :, :] = np.sum(vel[:, sp_start: sp_end, :], axis=1)
-        tot_com_vel += sp_charge[i] * com_vel[i, :, :] / tot_mass_dens
-        sp_start += ns
-
-    jc_acf = np.zeros((no_vacf, no_dim + 1, no_dumps))
-    it_skip = timesteps_to_skip if time_averaging else no_dumps
-    indx = 0
-    # the flux is given by eq.(19) of the above reference
-    for i, rho1 in enumerate(mass_densities):
-        # Flux of species i
-        sp1_flux = rho1 * (com_vel[i] - tot_com_vel)
-        for j, rho2 in enumerate(mass_densities[i:], i):
-            # this sign seems to be an issue in the calculation of the flux
-            sign = (1 - 2 * (i != j))
-            # Flux of species j
-            sp2_flux = sign * rho2 * (com_vel[j] - tot_com_vel)
-            # Calculate the correlation function in each direction
-            for d in range(no_dim):
-                # Counter for time origins
-                norm_counter = np.zeros(no_dumps)
-                # temporary storage of correlation function
-                temp = np.zeros(no_dumps)
-                # Grab the correct time intervals
-                for it in range(0, no_dumps, it_skip):
-                    # Calculate the full correlation function.
-                    full_corr = scp_signal.correlate(sp1_flux[d, it:], sp2_flux[d, it:], mode='full')
-                    # Normalization of the full correlation function, Similar to norm_counter
-                    norm_corr = np.array([no_dumps - it - ii for ii in range(no_dumps - it)])
-                    # Find the mid point of the array
-                    mid = full_corr.size // 2
-                    # I want only the second half of the array, i.e. the positive lags only
-                    temp[:no_dumps - it] += full_corr[mid:] / norm_corr
-                    # Note that norm_counter = 1 if time_averaging is false
-                    norm_counter[:(no_dumps - it)] += 1.0
-                # Divide by the number time origins
-                jc_acf[indx, d, :] = temp / norm_counter
-                # Calculate the total correlation function by summing the three directions
-                jc_acf[indx, -1, :] += temp / norm_counter
-            indx += 1
-
-    return jc_acf
-
 
 @njit
 def calc_moment_ratios(moments, species_np, no_dumps):
@@ -2660,14 +2701,8 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, timesteps_
                 temp = np.zeros(no_dumps)
                 # Grab the correct time intervals
                 for it in range(0, no_dumps, it_skip):
-                    # Calculate the full correlation function.
-                    full_corr = scp_signal.correlate(sp1_flux[d, it:], sp2_flux[d, it:], mode='full')
-                    # Normalization of the full correlation function, Similar to norm_counter
-                    norm_corr = np.array([no_dumps - it - ii for ii in range(no_dumps - it)])
-                    # Find the mid point of the array
-                    mid = full_corr.size // 2
-                    # I want only the second half of the array, i.e. the positive lags only
-                    temp[:no_dumps - it] += full_corr[mid:] / norm_corr
+                    # Calculate the correlation function and add it to the array
+                    temp[:no_dumps - it] += correlationfunction(sp1_flux[d, it:], sp2_flux[d, it:])
                     # Note that norm_counter = 1 if time_averaging is false
                     norm_counter[:(no_dumps - it)] += 1.0
                 # Divide by the number time origins
@@ -2727,14 +2762,8 @@ def calc_vacf(vel, sp_num, time_averaging, timesteps_to_skip):
                 norm_counter = np.zeros(no_dumps)
                 # Grab the correct time interval
                 for it in range(0, no_dumps, it_skip):
-                    # Calculate the full correlation function.
-                    full_corr = scp_signal.correlate(vel[i, ptcl, it:], vel[i, ptcl, it:], mode='full')
-                    # Normalization of the full correlation function, Similar to norm_counter
-                    norm_corr = np.array([no_dumps - it - ii for ii in range(no_dumps - it)])
-                    # Find the mid point of the array
-                    mid = full_corr.size // 2
-                    # I want only the second half of the array, i.e. the positive lags only
-                    ptcl_vacf[:no_dumps - it] += full_corr[mid:] / norm_corr
+                    # Calculate the correlation function and add it to the array
+                    ptcl_vacf[:no_dumps - it] += correlationfunction(vel[i, ptcl, it:], vel[i, ptcl, it:])
                     # Note that norm_counter = 1 if time_averaging is false
                     norm_counter[:(no_dumps - it)] += 1.0
 
@@ -2918,20 +2947,23 @@ def calculate_herm_coeff(v, distribution, maxpower):
     return coeff
 
 
-def kspace_setup(no_ka, box_lengths, full=False):
+def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics):
     """
     Calculate all allowed :math:`k` vectors.
 
     Parameters
     ----------
-    no_ka : numpy.ndarray
+    max_k_harmonics : numpy.ndarray
         Number of harmonics in each direction.
 
     box_lengths : numpy.ndarray
         Length of each box's side.
 
-    full : bool
-        Flag for calculating all the possible `k` vector directions and magnitudes. Defauly = False
+    angle_averaging : str
+        Flag for calculating all the possible `k` vector directions and magnitudes. Default = 'principal_axis'
+
+    max_aa_harmonics : numpy.ndarray
+        Maximum `k` harmonics in each direction for angle average.
 
     Returns
     -------
@@ -2944,20 +2976,47 @@ def kspace_setup(no_ka, box_lengths, full=False):
     k_unique : numpy.ndarray
         Magnitude of each allowed :math:`k` vector.
     """
-    if full:
+    if angle_averaging == 'full':
+        # The first value of k_arr = [0, 0, 0]
+        first_non_zero = 1
         # Obtain all possible permutations of the wave number arrays
-        k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]]) for i in range(no_ka[0] + 1)
-                 for j in range(no_ka[1] + 1)
-                 for k in range(no_ka[2] + 1)]
-    else:
+        k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
+                 for i in range(max_k_harmonics[0] + 1)
+                 for j in range(max_k_harmonics[1] + 1)
+                 for k in range(max_k_harmonics[2] + 1)]
+    elif angle_averaging == 'principal_axis':
+        # The first value of k_arr = [1, 0, 0]
+        first_non_zero = 0
         # Calculate the k vectors along the principal axis only
-        k_arr = [np.array([i / box_lengths[0], 0, 0]) for i in range(1, no_ka[0] + 1)]
+        k_arr = [np.array([i / box_lengths[0], 0, 0]) for i in range(1, max_k_harmonics[0] + 1)]
         k_arr = np.append(k_arr,
-                          [np.array([0, i / box_lengths[1], 0]) for i in range(1, no_ka[1] + 1)],
+                          [np.array([0, i / box_lengths[1], 0]) for i in range(1, max_k_harmonics[1] + 1)],
                           axis=0)
         k_arr = np.append(k_arr,
-                          [np.array([0, 0, i / box_lengths[2]]) for i in range(1, no_ka[2] + 1)],
+                          [np.array([0, 0, i / box_lengths[2]]) for i in range(1, max_k_harmonics[2] + 1)],
                           axis=0)
+    elif angle_averaging == 'custom':
+        # The first value of k_arr = [0, 0, 0]
+        first_non_zero = 1
+        # Obtain all possible permutations of the wave number arrays up to max_aa_harmonics included
+        k_arr = [np.array([i / box_lengths[0],
+                           j / box_lengths[1],
+                           k / box_lengths[2]]) for i in range(max_aa_harmonics[0] + 1)
+                 for j in range(max_aa_harmonics[1] + 1)
+                 for k in range(max_aa_harmonics[2] + 1)]
+        # Append the rest of k values calculated from principal axis
+        k_arr = np.append(
+            k_arr,
+            [np.array([i / box_lengths[0], 0, 0]) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
+            axis=0)
+        k_arr = np.append(
+            k_arr,
+            [np.array([0, i / box_lengths[1], 0]) for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
+            axis=0)
+        k_arr = np.append(
+            k_arr,
+            [np.array([0, 0, i / box_lengths[2]]) for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
+            axis=0)
 
     # Compute wave number magnitude - don't use |k| (skipping first entry in k_arr)
     k_mag = np.sqrt(np.sum(np.array(k_arr) ** 2, axis=1)[..., None])
@@ -2970,15 +3029,13 @@ def kspace_setup(no_ka, box_lengths, full=False):
     k_arr = k_arr[ind]
 
     # Count how many times a |k| value appears
-    # int(full) = 1 if True else = 0. This is needed because if full==True
-    # the first vector is k = [0, 0, 0] and needs not be counted
-    k_unique, k_counts = np.unique(k_arr[int(full):, -1], return_counts=True)
+    k_unique, k_counts = np.unique(k_arr[first_non_zero:, -1], return_counts=True)
 
     # Generate a 1D array containing index to be used in S array
     k_index = np.repeat(range(len(k_counts)), k_counts)[..., None]
 
     # Add index to k_array
-    k_arr = np.concatenate((k_arr[int(full):, :], k_index), 1)
+    k_arr = np.concatenate((k_arr[int(first_non_zero):, :], k_index), 1)
     return k_arr, k_counts, k_unique
 
 
@@ -3127,6 +3184,43 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         xlabel = ''
 
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
+
+
+def correlationfunction(At, Bt):
+    """
+    Calculate the correlation function :math:`\mathbf{A}(t)` and :math:`\mathbf{B}(t)` using
+    ``scipy.signal.correlate``
+
+    .. math::
+        C_{AB}(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)B_j(t_i + \\tau)
+
+    where :math:`D` (= ``no_dim``) is the number of dimensions and :math:`T` (= ``no_steps``) is the total length
+    of the simulation.
+
+    Parameters
+    ----------
+    At : numpy.ndarray
+        Observable to correlate. Shape=(``no_steps``).
+
+    Bt : numpy.ndarray
+        Observable to correlate. Shape=(``no_steps``).
+
+    Returns
+    -------
+    CF : numpy.ndarray
+        Correlation function :math:`C_{AB}(\\tau)`
+    """
+    no_steps = At.size
+
+    # Calculate the full correlation function.
+    full_corr = scp_signal.correlate(At, Bt, mode='full')
+    # Normalization of the full correlation function, Similar to norm_counter
+    norm_corr = np.array([no_steps - ii for ii in range(no_steps)])
+    # Find the mid point of the array
+    mid = full_corr.size // 2
+    # I want only the second half of the array, i.e. the positive lags only
+    return full_corr[mid:] / norm_corr
+
 
 # These are old functions that should not be trusted.
 # @njit
@@ -3296,41 +3390,7 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
 #
 #
 # @njit
-# def correlationfunction_slow(At, Bt):
-#     """
-#     Calculate the correlation function :math:`\mathbf{A}(t)` and :math:`\mathbf{B}(t)`
-#
-#     .. math::
-#         C_{AB}(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)B_j(t_i + \\tau)
-#
-#     where :math:`D` (= ``no_dim``) is the number of dimensions and :math:`T` (= ``no_steps``) is the total length
-#     of the simulation.
-#
-#     Parameters
-#     ----------
-#     At : numpy.ndarray
-#         Observable to correlate. Shape=(``no_dim``, ``no_steps``).
-#
-#     Bt : numpy.ndarray
-#         Observable to correlate. Shape=(``no_dim``, ``no_steps``).
-#
-#     Returns
-#     -------
-#     CF : numpy.ndarray
-#         Correlation function :math:`C_{AB}(\\tau)`
-#     """
-#     no_steps = At.shape[1]
-#     no_dim = At.shape[0]
-#
-#     CF = np.zeros(no_steps)
-#     Norm_counter = np.zeros(no_steps)
-#
-#     for it in range(no_steps):
-#         for dim in range(no_dim):
-#             CF[: no_steps - it] += At[dim, it] * Bt[dim, it:no_steps]
-#         Norm_counter[: no_steps - it] += 1.0
-#
-#     return CF / Norm_counter
+
 #
 #
 # @njit

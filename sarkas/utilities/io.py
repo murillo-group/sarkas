@@ -587,7 +587,7 @@ class InputOutput:
 
             elif observable == 'ssf':
                 print('\nStatic Structure Factor:')
-                print('No. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ssf.no_ka_harmonics))
+                print('No. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ssf.max_k_harmonics))
                 if simulation.ssf.angle_averaging:
                     print('All the possible k values will be calculated.')
                 print('No. of ka values to calculate = {}'.format(len(simulation.ssf.k_list)))
@@ -615,7 +615,7 @@ class InputOutput:
                 print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
                     simulation.dsf.w_max / simulation.parameters.total_plasma_frequency, simulation.dsf.w_max))
                 print('Wavevector Constants')
-                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.dsf.no_ka_harmonics))
+                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.dsf.max_k_harmonics))
                 if simulation.dsf.angle_averaging:
                     print('\tAll the possible k values will be calculated.')
                 print('\tNo. of ka values to calculate = {}'.format(len(simulation.dsf.k_list)))
@@ -642,7 +642,7 @@ class InputOutput:
                 print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
                     simulation.ccf.w_max / simulation.ccf.total_plasma_frequency, simulation.ccf.w_max))
                 print('Wavevector Constants')
-                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.no_ka_harmonics))
+                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.max_k_harmonics))
                 if simulation.ccf.angle_averaging:
                     print('\tAll the possible k values will be calculated.')
                 print('\tNo. of ka values to calculate = {}'.format(len(simulation.ccf.k_list)))

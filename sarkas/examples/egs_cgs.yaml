@@ -55,7 +55,7 @@ PostProcessing:
       hermite_order: 8
 
   - StaticStructureFactor:
-      no_ka_harmonics: 5
+      max_k_harmonics: 5
 
   - VelocityMoments:
       no_bins: 500

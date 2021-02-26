@@ -63,7 +63,7 @@ PostProcessing:
       phase: production
 
   - StaticStructureFactor:
-      no_ka_harmonics: 5
+      max_k_harmonics: 5
 
   - VelocityAutoCorrelationFunction:
       phase: production
