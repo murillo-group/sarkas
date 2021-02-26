@@ -79,11 +79,9 @@ for i in range(job_id, job_id + 1):
     #         Tot_vacf[:, v_ij] = VACF.dataframe["{}-{} Total Current ACF".format(VACF.species_names[sp],
     #                                                         VACF.species_names[sp2])] 
 
-    
     print("Job: {}, Run {} out of 3 completed".format(job_id, i) )
     del params, E, J, SSF, VACF, #sigma, diff, eta
 
-# plt.style.use("MSUstyle")
 # fig, ax = plt.subplots(1,1)
 # fig2, ax2 = plt.subplots(1,1)
 

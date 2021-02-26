@@ -14,8 +14,9 @@ from matplotlib.gridspec import GridSpec
 import os
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
-import pyfftw
+
 # import logging
 
 from scipy import signal as scp_signal
@@ -844,6 +845,12 @@ class ElectricCurrent(Observable):
         self.dataframe["Total Current Y"] = total_current[1, :]
         self.dataframe["Total Current Z"] = total_current[2, :]
 
+        # Calculate the ACF in each direction
+        current_acf = calc_current_acf(total_current)
+        for i in range(no_dim):
+            # Full correlation from Scipy correlate
+            full_corr = scp_signal.correlate(total_current[i, :], total_current[i, :], mode='full')
+            # find th
         cur_acf_xx = autocorrelationfunction_1D(total_current[0, :])
         cur_acf_yy = autocorrelationfunction_1D(total_current[1, :])
         cur_acf_zz = autocorrelationfunction_1D(total_current[2, :])
@@ -1453,14 +1460,18 @@ class Thermodynamics(Observable):
         if show:
             fig.show()
 
-    def temp_energy_plot(self, simulation, phase=None, show=False):
+    def temp_energy_plot(self, process,
+                         phase: str = None,
+                         show: bool = False,
+                         publication: bool = False,
+                         figname: str = None):
         """
         Plot Temperature and Energy as a function of time with their cumulative sum and average.
 
         Parameters
         ----------
-        simulation : sarkas.processes.PostProcess
-            Wrapper class.
+        process : sarkas.processes.PostProcess
+            Sarkas Process.
 
         phase: str
             Phase to plot. "equilibration" or "production".
@@ -1468,7 +1479,14 @@ class Thermodynamics(Observable):
         show: bool
             Flag for displaying the figure.
 
+        publication: bool
+            Flag for publication style plotting.
+
+        figname: str
+            Name with which to save the plot.
+
         """
+        import scipy.stats as scp_stats
 
         if phase:
             phase = phase.lower()
@@ -1477,7 +1495,7 @@ class Thermodynamics(Observable):
                 self.no_dumps = self.eq_no_dumps
                 self.dump_dir = self.eq_dump_dir
                 self.dump_step = self.eq_dump_step
-                self.fldr = self.equilibration_dir
+                self.phase_fldr = self.equilibration_dir
                 self.no_steps = self.equilibration_steps
                 self.parse(self.phase)
                 self.dataframe = self.dataframe.iloc[1:, :]
@@ -1486,7 +1504,7 @@ class Thermodynamics(Observable):
                 self.no_dumps = self.prod_no_dumps
                 self.dump_dir = self.prod_dump_dir
                 self.dump_step = self.prod_dump_step
-                self.fldr = self.production_dir
+                self.phase_fldr = self.production_dir
                 self.no_steps = self.production_steps
                 self.parse(self.phase)
 
@@ -1494,7 +1512,7 @@ class Thermodynamics(Observable):
                 self.no_dumps = self.mag_no_dumps
                 self.dump_dir = self.mag_dump_dir
                 self.dump_step = self.mag_dump_step
-                self.fldr = self.magnetization_dir
+                self.phase_fldr = self.magnetization_dir
                 self.no_steps = self.magnetization_steps
                 self.parse(self.phase)
 
@@ -1502,131 +1520,190 @@ class Thermodynamics(Observable):
             self.parse()
 
         completed_steps = self.dump_step * (self.no_dumps - 1)
-
-        fig = plt.figure(figsize=(16, 9))
-        gs = GridSpec(4, 8)
+        fig = plt.figure(figsize=(20, 8))
         fsz = 16
+        if publication:
 
-        nbins = int(0.05 * self.no_dumps)
+            plt.style.use('PUBstyle')
+            gs = GridSpec(3, 7)
 
-        Info_plot = fig.add_subplot(gs[0:4, 0:2])
+            # Temperature plots
+            T_delta_plot = fig.add_subplot(gs[0, 0:2])
+            T_main_plot = fig.add_subplot(gs[1:3, 0:2])
+            T_hist_plot = fig.add_subplot(gs[1:3, 2])
+            # Energy plots
+            E_delta_plot = fig.add_subplot(gs[0, 4:6])
+            E_main_plot = fig.add_subplot(gs[1:3, 4:6])
+            E_hist_plot = fig.add_subplot(gs[1:3, 6])
 
-        T_hist_plot = fig.add_subplot(gs[1:4, 2])
-        T_delta_plot = fig.add_subplot(gs[0, 3:5])
-        T_main_plot = fig.add_subplot(gs[1:4, 3:5])
+        else:
 
-        E_delta_plot = fig.add_subplot(gs[0, 5:7])
-        E_main_plot = fig.add_subplot(gs[1:4, 5:7])
-        E_hist_plot = fig.add_subplot(gs[1:4, 7])
+            gs = GridSpec(4, 8)
 
-        # Temperature plots
-        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                               self.dataframe["Temperature"], "Time",
-                                                               "Temperature", self.units)
-        T_cumavg = self.dataframe["Temperature"].expanding().mean()
+            Info_plot = fig.add_subplot(gs[0:4, 0:2])
+            # Temperature plots
+            T_delta_plot = fig.add_subplot(gs[0, 2:4])
+            T_main_plot = fig.add_subplot(gs[1:4, 2:4])
+            T_hist_plot = fig.add_subplot(gs[1:4, 4])
+            # Energy plots
+            E_delta_plot = fig.add_subplot(gs[0, 5:7])
+            E_main_plot = fig.add_subplot(gs[1:4, 5:7])
+            E_hist_plot = fig.add_subplot(gs[1:4, 7])
+        # Grab the current rcParams so that I can restore it later
+        current_rcParams = plt.rcParams.copy()
+        # Update rcParams with the necessary values
+        plt.rc('font', size=fsz)  # controls default text sizes
+        plt.rc('axes', titlesize=fsz)  # fontsize of the axes title
+        plt.rc('axes', labelsize=fsz)  # fontsize of the x and y labels
+        plt.rc('xtick', labelsize=fsz - 2)  # fontsize of the tick labels
+        plt.rc('ytick', labelsize=fsz - 2)  # fontsize of the tick labels
 
-        T_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Temperature"], alpha=0.7)
-        T_main_plot.plot(xmul * self.dataframe["Time"], ymul * T_cumavg, label='Cum Avg')
-        T_main_plot.axhline(ymul * self.T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
+        # Grab the color line list from the plt cycler. I will used this in the hist plots
+        color_from_cycler = plt.rcParams['axes.prop_cycle'].by_key()["color"]
 
-        Delta_T = (self.dataframe["Temperature"] - self.T_desired) * 100 / self.T_desired
+        # ------------------------------------------- Temperature -------------------------------------------#
+        # Calculate Temperature plot's labels and multipliers
+        time_mul, temp_mul, time_prefix, temp_prefix, time_lbl, temp_lbl = plot_labels(self.dataframe["Time"],
+                                                                                       self.dataframe["Temperature"],
+                                                                                       "Time",
+                                                                                       "Temperature", self.units)
+        # Rescale quantities
+        time = time_mul * self.dataframe["Time"]
+        Temperature = temp_mul * self.dataframe["Temperature"]
+        T_desired = temp_mul * self.T_desired
+
+        # Temperature moving average
+        T_cumavg = Temperature.expanding().mean()
+
+        # Temperature deviation and its moving average
+        Delta_T = (Temperature - T_desired) * 100 / T_desired
         Delta_T_cum_avg = Delta_T.expanding().mean()
-        T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T, alpha=0.5)
-        T_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_T_cum_avg, alpha=0.8)
 
-        T_delta_plot.get_xaxis().set_ticks([])
-        T_delta_plot.set_ylabel(r'Deviation [%]')
-        T_delta_plot.tick_params(labelsize=fsz - 2)
-        T_main_plot.tick_params(labelsize=fsz)
+        # Temperature Main plot
+        T_main_plot.plot(time, Temperature, alpha=0.7)
+        T_main_plot.plot(time, T_cumavg, label='Moving Average')
+        T_main_plot.axhline(T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
         T_main_plot.legend(loc='best')
-        T_main_plot.set_ylabel("Temperature" + ylbl, fontsize=fsz)
-        T_main_plot.set_xlabel("Time" + xlbl, fontsize=fsz)
-        T_hist_plot.hist(self.dataframe['Temperature'], bins=nbins, density=True, orientation='horizontal',
-                         alpha=0.75)
-        T_hist_plot.get_xaxis().set_ticks([])
-        T_hist_plot.get_yaxis().set_ticks([])
-        T_hist_plot.set_xlim(T_hist_plot.get_xlim()[::-1])
+        T_main_plot.set(ylabel="Temperature" + temp_lbl, xlabel="Time" + time_lbl)
 
-        # Energy plots
-        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                               self.dataframe["Total Energy"],
-                                                               "Time",
-                                                               "Energy",
-                                                               self.units)
+        # Temperature Deviation plot
+        T_delta_plot.plot(time, Delta_T, alpha=0.5)
+        T_delta_plot.plot(time, Delta_T_cum_avg, alpha=0.8)
+        T_delta_plot.set(xticks=[], ylabel=r'Deviation [%]')
 
-        E_cumavg = self.dataframe["Total Energy"].expanding().mean()
+        # This was a failed attempt to calculate the theoretical Temperature distribution.
+        # Gaussian
+        T_dist = scp_stats.norm(loc=T_desired, scale=Temperature.std())
+        # Histogram plot
+        sns.histplot(y=Temperature,
+                     bins='auto',
+                     stat='density',
+                     alpha=0.75,
+                     legend='False',
+                     ax=T_hist_plot)
+        T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
+        T_hist_plot.plot(T_dist.pdf(Temperature), Temperature, color=color_from_cycler[1])
 
-        E_main_plot.plot(xmul * self.dataframe["Time"], ymul * self.dataframe["Total Energy"], alpha=0.7)
-        E_main_plot.plot(xmul * self.dataframe["Time"], ymul * E_cumavg, label='Cum Avg')
-        E_main_plot.axhline(ymul * self.dataframe["Total Energy"].mean(), ls='--', c='r', alpha=0.7, label='Avg')
+        # ------------------------------------------- Total Energy -------------------------------------------#
+        # Calculate Energy plot's labels and multipliers
+        time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(self.dataframe["Time"],
+                                                                       self.dataframe["Total Energy"],
+                                                                       "Time",
+                                                                       "Energy",
+                                                                       self.units)
 
-        Delta_E = (self.dataframe["Total Energy"] - self.dataframe["Total Energy"].iloc[0]) * 100 / \
-                  self.dataframe["Total Energy"].iloc[0]
+        Energy = energy_mul * self.dataframe["Total Energy"]
+        # Total Energy moving average
+        E_cumavg = Energy.expanding().mean()
+        # Total Energy Deviation and its moving average
+        Delta_E = (Energy - Energy.iloc[0]) * 100 / Energy.iloc[0]
         Delta_E_cum_avg = Delta_E.expanding().mean()
 
-        E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E, alpha=0.5)
-        E_delta_plot.plot(self.dataframe["Time"] * xmul, Delta_E_cum_avg, alpha=0.8)
-        E_delta_plot.get_xaxis().set_ticks([])
-        E_delta_plot.set_ylabel(r'Deviation [%]')
-        E_delta_plot.tick_params(labelsize=fsz - 2)
-
-        E_main_plot.tick_params(labelsize=fsz)
+        # Energy main plot
+        E_main_plot.plot(time, Energy, alpha=0.7)
+        E_main_plot.plot(time, E_cumavg, label='Moving Average')
+        E_main_plot.axhline(Energy.mean(), ls='--', c='r', alpha=0.7, label='Avg')
         E_main_plot.legend(loc='best')
-        E_main_plot.set_ylabel("Total Energy" + ylbl, fontsize=fsz)
-        E_main_plot.set_xlabel("Time" + xlbl, fontsize=fsz)
+        E_main_plot.set(ylabel="Total Energy" + energy_lbl, xlabel="Time" + time_lbl)
 
-        E_hist_plot.hist(xmul * self.dataframe['Total Energy'], bins=nbins, density=True,
-                         orientation='horizontal', alpha=0.75)
-        E_hist_plot.get_xaxis().set_ticks([])
-        E_hist_plot.get_yaxis().set_ticks([])
+        # Deviation Plot
+        E_delta_plot.plot(time, Delta_E, alpha=0.5)
+        E_delta_plot.plot(time, Delta_E_cum_avg, alpha=0.8)
+        E_delta_plot.set(xticks=[], ylabel=r'Deviation [%]')
 
-        xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dt,
-                                                               self.dataframe["Temperature"],
-                                                               "Time",
-                                                               "Temperature",
-                                                               self.units)
-        Info_plot.axis([0, 10, 0, 10])
-        Info_plot.grid(False)
+        # (Failed) Attempt to calculate the theoretical Energy distribution
+        # In an NVT ensemble Energy fluctuation are given by sigma(E) = sqrt( k_B T^2 C_v)
+        # where C_v is the isothermal heat capacity
+        # Since this requires a lot of prior calculation I skip it and just make a Gaussian
+        E_dist = scp_stats.norm(loc=Energy.mean(), scale=Energy.std())
+        # Histogram plot
+        sns.histplot(y=Energy,
+                     bins='auto',
+                     stat='density',
+                     alpha=0.75,
+                     legend='False',
+                     ax=E_hist_plot)
+        # Grab the second color since the first is used for histplot
+        E_hist_plot.plot(E_dist.pdf(Energy), Energy, color=color_from_cycler[1])
 
-        Info_plot.text(0., 10, "Job ID: {}".format(self.job_id), fontsize=fsz)
-        Info_plot.text(0., 9.5, "Phase: {}".format(self.phase.capitalize()), fontsize=fsz)
-        Info_plot.text(0., 9.0, "No. of species = {}".format(len(self.species_num)), fontsize=fsz)
-        y_coord = 8.5
-        for isp, sp in enumerate(simulation.species):
-            Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp.name), fontsize=fsz)
-            Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num), fontsize=fsz)
-            Info_plot.text(0.0, y_coord - 1., "  Temperature = {:.4e} {}".format(ymul * sp.temperature, ylbl),
-                           fontsize=fsz)
-            y_coord -= 1.5
+        E_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
 
-        y_coord -= 0.25
-        Info_plot.text(0., y_coord,
-                       "Total $N$ = {}".format(simulation.parameters.total_num_ptcls), fontsize=fsz)
-        Info_plot.text(0., y_coord - 0.5,
-                       "Thermostat: {}".format(simulation.thermostat.type), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1.,
-                       "Berendsen rate = {:1.2f}".format(simulation.thermostat.relaxation_rate), fontsize=fsz)
-        Info_plot.text(0., y_coord - 1.5,
-                       "Potential: {}".format(simulation.potential.type), fontsize=fsz)
-        Info_plot.text(0., y_coord - 2.,
-                       "Tot Force Error = {:1.4e}".format(simulation.parameters.force_error), fontsize=fsz)
+        if not publication:
+            dt_mul, _, _, _, dt_lbl, _ = plot_labels(process.integrator.dt,
+                                                         self.dataframe["Total Energy"],
+                                                         "Time",
+                                                         "Energy",
+                                                         self.units)
+            # Information section
+            Info_plot.axis([0, 10, 0, 10])
+            Info_plot.grid(False)
 
-        Info_plot.text(0., y_coord - 2.5,
-                       "Timestep = {:1.4f} {}".format(xmul * simulation.integrator.dt, xlbl), fontsize=fsz)
-        Info_plot.text(0., y_coord - 3., "{} step interval = {}".format(self.phase, self.dump_step), fontsize=fsz)
-        Info_plot.text(0., y_coord - 3.5,
-                       "{} completed steps = {}".format(self.phase, completed_steps),
-                       fontsize=fsz)
-        Info_plot.text(0., y_coord - 4., "Tot {} steps = {}".format(self.phase.capitalize(), self.no_steps),
-                       fontsize=fsz)
-        Info_plot.text(0., y_coord - 4.5, "{:1.2f} % {} Completed".format(
-            100 * completed_steps / self.no_steps, self.phase.capitalize()), fontsize=fsz)
+            Info_plot.text(0., 10, "Job ID: {}".format(self.job_id))
+            Info_plot.text(0., 9.5, "Phase: {}".format(self.phase.capitalize()))
+            Info_plot.text(0., 9.0, "No. of species = {}".format(len(self.species_num)))
+            y_coord = 8.5
+            for isp, sp in enumerate(process.species):
+                Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp.name))
+                Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num))
+                Info_plot.text(0.0, y_coord - 1.,
+                               "  Temperature = {:.2f} {}".format(temp_mul * sp.temperature, temp_lbl))
+                y_coord -= 1.5
 
-        Info_plot.axis('off')
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.fldr, 'EnsembleCheckPlot_' + self.job_id + '.png'))
+            y_coord -= 0.25
+            Info_plot.text(0., y_coord, "Total $N$ = {}".format(process.parameters.total_num_ptcls))
+            Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(process.thermostat.type))
+            Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(process.thermostat.relaxation_rate))
+            Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(process.potential.type))
+            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.2e}".format(process.parameters.force_error))
+            delta_t = dt_mul * process.integrator.dt
+            Info_plot.text(0., y_coord - 2.5, "$\Delta t$ = {:.2f} {}".format(delta_t, dt_lbl))
+            Info_plot.text(0., y_coord - 3., "Step interval = {}".format(self.dump_step))
+            Info_plot.text(0., y_coord - 3.5,
+                           "Step interval time = {:.2f} {}".format(self.dump_step * delta_t, dt_lbl))
+            Info_plot.text(0., y_coord - 4., "Completed steps = {}".format(completed_steps))
+            Info_plot.text(0., y_coord - 4.5,
+                           "Completed time = {:.2f} {}".format(completed_steps * delta_t/dt_mul*time_mul, time_lbl))
+            Info_plot.text(0., y_coord - 5., "Total timesteps = {}".format(self.no_steps))
+            Info_plot.text(0., y_coord - 5.5,
+                           "Total time = {:.2f} {}".format(self.no_steps * delta_t/dt_mul*time_mul, time_lbl))
+            Info_plot.text(0., y_coord - 6.,
+                           "{:1.2f} % Completed".format(100 * completed_steps / self.no_steps) )
+            Info_plot.axis('off')
+
+        if not publication:
+            fig.tight_layout()
+
+        # Saving
+        if figname:
+            fig.savefig(os.path.join(self.phase_fldr, figname + '_' + self.job_id + '.png'))
+        else:
+            fig.savefig(os.path.join(self.phase_fldr, 'Plot_EnsembleCheck_' + self.job_id + '.png'))
+
         if show:
             fig.show()
+
+        # Restore the previous rcParams
+        plt.rcParams = current_rcParams
 
 
 class VelocityAutoCorrelationFunction(Observable):
@@ -2137,15 +2214,105 @@ def calc_elec_current(vel, sp_charge, sp_num):
 
     for it in range(no_dumps):
         sp_start = 0
-        for s in range(num_species):
-            sp_end = sp_start + sp_num[s]
+        sp_end = 0
+        for s, q_sp, n_sp in zip(range(len(num_species)), sp_charge, num_species):
+            # Find the index of the last particle of species s
+            sp_end += n_sp
             # Calculate the current of each species
-            Js[s, :, it] = sp_charge[s] * np.sum(vel[it, :, sp_start:sp_end], axis=1)
+            Js[s, :, it] = q_sp * np.sum(vel[it, :, sp_start:sp_end], axis=1)
+            # Add to the total current
             Jtot[:, it] += Js[s, :, it]
 
-            sp_start = sp_end
+            sp_start += sp_end
 
     return Js, Jtot
+
+
+def calc_electric_current_quantities(vel, sp_charge, sp_num):
+    """
+    Calculate the total electric current and electric current of each species.
+
+    Parameters
+    ----------
+    vel: numpy.ndarray
+        Particles' velocities.
+
+    sp_charge: numpy.ndarray
+        Charge of each species.
+
+    sp_num: numpy.ndarray
+        Number of particles of each species.
+
+    Returns
+    -------
+    Js : numpy.ndarray
+        Electric current of each species. Shape = (``no_species``, ``no_dim``, ``no_dumps``)
+
+    Jtot : numpy.ndarray
+        Total electric current. Shape = (``no_dim``, ``no_dumps``)
+    """
+    no_dim = vel.shape[0]
+    no_dumps = vel.shape[2]
+    no_species = len(sp_num)
+    no_vacf = int(no_species * (no_species + 1) / 2.)
+
+    mass_densities = sp_dens * sp_mass
+    tot_mass_dens = np.sum(mass_densities)
+    # Center of mass velocity field of each species in each direction and at each timestep
+    com_vel = np.zeros((no_species, no_dim, no_dumps))
+    # Total center of mass velocity field, see eq.(18) in
+    # Haxhimali T. et al., Diffusivity of Mixtures in Warm Dense Matter Regime.In: Graziani F., et al. (eds)
+    # Frontiers and Challenges in Warm Dense Matter. Lecture Notes in Computational Science and Engineering, vol 96.
+    # Springer (2014)
+    tot_com_vel = np.zeros((no_dim, no_dumps))
+
+    sp_start = 0
+    sp_end = 0
+    # Calculate the total center of mass velocity (tot_com_vel)
+    # and the center of mass velocity of each species (com_vel)
+    for i, ns in enumerate(sp_num):
+        sp_end += ns
+        com_vel[i, :, :] = np.sum(vel[:, sp_start: sp_end, :], axis=1)
+        tot_com_vel += sp_charge[i] * com_vel[i, :, :] / tot_mass_dens
+        sp_start += ns
+
+    jc_acf = np.zeros((no_vacf, no_dim + 1, no_dumps))
+    it_skip = timesteps_to_skip if time_averaging else no_dumps
+    indx = 0
+    # the flux is given by eq.(19) of the above reference
+    for i, rho1 in enumerate(mass_densities):
+        # Flux of species i
+        sp1_flux = rho1 * (com_vel[i] - tot_com_vel)
+        for j, rho2 in enumerate(mass_densities[i:], i):
+            # this sign seems to be an issue in the calculation of the flux
+            sign = (1 - 2 * (i != j))
+            # Flux of species j
+            sp2_flux = sign * rho2 * (com_vel[j] - tot_com_vel)
+            # Calculate the correlation function in each direction
+            for d in range(no_dim):
+                # Counter for time origins
+                norm_counter = np.zeros(no_dumps)
+                # temporary storage of correlation function
+                temp = np.zeros(no_dumps)
+                # Grab the correct time intervals
+                for it in range(0, no_dumps, it_skip):
+                    # Calculate the full correlation function.
+                    full_corr = scp_signal.correlate(sp1_flux[d, it:], sp2_flux[d, it:], mode='full')
+                    # Normalization of the full correlation function, Similar to norm_counter
+                    norm_corr = np.array([no_dumps - it - ii for ii in range(no_dumps - it)])
+                    # Find the mid point of the array
+                    mid = full_corr.size // 2
+                    # I want only the second half of the array, i.e. the positive lags only
+                    temp[:no_dumps - it] += full_corr[mid:] / norm_corr
+                    # Note that norm_counter = 1 if time_averaging is false
+                    norm_counter[:(no_dumps - it)] += 1.0
+                # Divide by the number time origins
+                jc_acf[indx, d, :] = temp / norm_counter
+                # Calculate the total correlation function by summing the three directions
+                jc_acf[indx, -1, :] += temp / norm_counter
+            indx += 1
+
+    return jc_acf
 
 
 @njit
@@ -2960,7 +3127,6 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         xlabel = ''
 
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
-
 
 # These are old functions that should not be trusted.
 # @njit
