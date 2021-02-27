@@ -79,6 +79,7 @@ PREFIXES = {
     "Y": 1e24
 }
 
+
 class Observable:
     """
     Parent class of all the observables.
@@ -116,9 +117,6 @@ class Observable:
         Correct step interval.
         It is either ``sarkas.base.Parameters.prod_dump_step`` or ``sarkas.base.Parameters.eq_dump_step``.
 
-    species : list
-        List of ``sarkas.base.Species`` indicating simulation's species.
-
     no_obs : int
         Number of independent binary observable quantities.
         It is calculated as :math:`N_s (N_s + 1) / 2` where :math: `N_s` is the number of species.
@@ -144,6 +142,17 @@ class Observable:
     saving_dir : str
         Path to the directory where computed data is stored.
 
+    dimensional_average: bool
+            Flag for averaging over all dimensions. Default = False.
+
+    runs: int
+            Number of independent MD runs. Default = 1.
+
+    multi_run_average: bool
+        Flag for averaging over multiple runs. Default = False.
+        If True, `runs` needs be specified. It will collect data from all runs and stored them in a large ndarray to
+        be averaged over.
+
     """
 
     def __init__(self):
@@ -155,6 +164,9 @@ class Observable:
         self.filename_csv_longitudinal = None
         self.filename_csv_transverse = None
         self.phase = None
+        self.multi_run_average = False
+        self.dimensional_average = False
+        self.runs = 1
         self.screen_output = True
         self.timer = SarkasTimer()
         self.k_observable = False
@@ -2014,125 +2026,133 @@ class VelocityMoments(Observable):
 
     """
 
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = 'production', max_no_moment: int = 6, **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
         phase : str
-            Phase to compute.
+            Phase to compute. Default = 'production'.
+            If None it will calculate
+
+        max_no_moment : int
+            Maximum number of moments to calculate. Default = 6.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
-        self.phase = phase if phase else 'production'
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
+
         super().setup_init(params, self.phase)
+        # Update the attribute with the passed arguments
+        self.__dict__.update( kwargs.copy() )
+        # Default number of moments to calculate
+        self.max_no_moment = max_no_moment
 
         # Create the directory where to store the computed data
+        # First the name of the observable
         saving_dir = os.path.join(self.postprocessing_dir, 'VelocityMoments')
         if not os.path.exists(saving_dir):
             os.mkdir(saving_dir)
-
+        # then the phase
         self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
-
+        # then the directory in which to store the plots
         self.plots_dir = os.path.join(self.saving_dir, 'Plots')
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
-
+        # finally the filename, with its path, to contain the calculated observable
         self.filename_csv = os.path.join(self.saving_dir, "VelocityMoments_" + self.job_id + '.csv')
-
-        if not hasattr(self, 'max_no_moment'):
-            self.max_no_moment = 6
 
         self.species_plots_dirs = None
 
-    def compute(self, multi_run_average=True, runs=5, dimensional_average=True):
+        self.adjusted_dump_dir = []
+
+        if self.multi_run_average:
+            for r in range(self.runs):
+                # Direct to the correct dumps directory
+                dump_dir = os.path.join('run{}'.format(r), os.path.join(self.phase.capitalize(), 'dumps'))
+                dump_dir = os.path.join(self.simulations_dir, dump_dir)
+                self.adjusted_dump_dir.append(dump_dir)
+        else:
+            self.adjusted_dump_dir = [self.dump_dir]
+
+    def compute(self):
         """
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
         """
-        "TODO:"
         self.dataframe = pd.DataFrame()
         time = np.zeros(self.no_dumps)
 
+        # 2nd Dimension of the raw velocity array
+        dim = 1 if self.dimensional_average else self.dimensions
+        # range(inv_dim) for the loop over dimension
+        inv_dim = self.dimensions if self.dimensional_average else 1
+        # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]
+        species_index_start = np.array([0, *self.species_num], dtype=int) * inv_dim * self.runs
+        # Velocity array for storing simulation data
+        vel_raw = np.zeros((self.no_dumps, dim, self.runs * inv_dim * self.total_num_ptcls))
+
         print("Collecting data from snapshots ...")
-        if multi_run_average:
-            dim = 1 if dimensional_average else self.dimensions
-            inv_dim = self.dimensions if dimensional_average else 1
-            vel_raw = np.zeros((self.no_dumps, dim, runs * inv_dim * self.total_num_ptcls))
 
-            if dimensional_average:
-                # Loop over the runs
-                for r in tqdm(range(runs), disable=(not self.verbose)):
-                    dump_dir = os.path.join('run{}'.format(r), os.path.join(self.phase.capitalize(), 'dumps'))
-                    self.dump_dir = os.path.join(self.simulations_dir, dump_dir)
-                    # Loop over the timesteps
-                    for it in range(self.no_dumps):
-                        dump = int(it * self.dump_step)
-                        # Read data from file
-                        datap = load_from_restart(self.dump_dir, dump)
-                        # Loop over the particles' species
-                        for sp_name, sp_num in zip(self.species_names, self.species_num):
-                            # Stored data in the correct place using a mask
-                            for d in range(inv_dim):
-                                vel_raw[it, 0, (inv_dim * r + d) * sp_num: (inv_dim * r + d + 1) * sp_num] = \
-                                    datap["vel"][datap["names"] == sp_name][:, d]
-
-                        time[it] = datap["time"]
-            else:
-                # Loop over the runs
-                for r in tqdm(range(runs), disable=(not self.verbose)):
-                    dump_dir = os.path.join('run{}'.format(r), os.path.join(self.phase.capitalize(), 'dumps'))
-                    self.dump_dir = os.path.join(self.simulations_dir, dump_dir)
-                    # Loop over the timesteps
-                    for it in range(self.no_dumps):
-                        dump = int(it * self.dump_step)
-                        # Read data from file
-                        datap = load_from_restart(self.dump_dir, dump)
-                        # Loop over the particles' species
-                        for sp_name, sp_num in zip(self.species_names, self.species_num):
-                            # Stored data in the correct place using a mask
-                            vel_raw[it, :, r * sp_num: (r + 1) * sp_num] = datap["vel"][
-                                datap["names"] == sp_name].transpose()
+        if self.dimensional_average:
+            # Loop over the runs
+            for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc='Runs Loop')):
+                # Loop over the timesteps
+                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc='Timestep Loop'):
+                    # Read data from file
+                    dump = int(it * self.dump_step)
+                    datap = load_from_restart(dump_dir_r, dump)
+                    # Loop over the particles' species
+                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num) ):
+                        # Calculate the correct start and end index for storage
+                        start_indx = species_index_start[sp_indx] + inv_dim * sp_num * r
+                        end_indx = species_index_start[sp_indx] + inv_dim * sp_num * (r + 1)
+                        # Use a mask to grab only the selected species and flatten along the first axis
+                        # data = ( v1_x, v1_y, v1_z,
+                        #          v2_x, v2_y, v2_z,
+                        #          v3_x, v3_y, v3_z,
+                        #          ...)
+                        # The flatten array would like this
+                        # flattened = ( v1_x, v2_x, v3_x, ..., v1_y, v2_y, v3_y, ..., v1_z, v2_z, v3_z, ...)
+                        vel_raw[it, 0, start_indx: end_indx] = datap["vel"][datap["names"] == sp_name].flatten('F')
 
                     time[it] = datap["time"]
-        else:
-            if dimensional_average:
+        else: # Dimensional Average = False
+            # Loop over the runs
+            for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc='Runs Loop')):
                 # Loop over the timesteps
-                for it in range(self.no_dumps):
-                    dump = int(it * self.dump_step)
+                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc='Timestep Loop'):
                     # Read data from file
-                    datap = load_from_restart(self.dump_dir, dump)
-                    # Loop over the particles' species
-                    for sp_name, sp_num in zip(self.species_names, self.species_num):
-                        # Stored data in the correct place using a mask
-                        for d in range(inv_dim):
-                            vel_raw[it, 0, (sp * inv_dim + d) * sp_num: (sp * inv_dim + d + 1) * sp_num] = datap["vel"][
-                                                                                                               datap[
-                                                                                                                   "names"] == sp_name][
-                                                                                                           :, d]
-
-                        time[it] = datap["time"]
-            else:
-                # Loop over the timesteps
-                for it in range(self.no_dumps):
                     dump = int(it * self.dump_step)
-                    # Read data from file
-                    datap = load_from_restart(self.dump_dir, dump)
+                    datap = load_from_restart(dump_dir_r, dump)
                     # Loop over the particles' species
-                    vel_raw[it, :, :] = datap["vel"][:, :].transpose()
+                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num) ):
+                        # Calculate the correct start and end index for storage
+                        start_indx = species_index_start[sp_indx] + inv_dim * sp_num * r
+                        end_indx = species_index_start[sp_indx] + inv_dim * sp_num * (r + 1)
+                        # Use a mask to grab only the selected species and transpose the array to put dimensions first
+                        vel_raw[it, :, start_indx: end_indx] = datap["vel"][datap["names"] == sp_name].transpose()
 
-                    time[it] = datap["time"]
+                time[it] = datap["time"]
 
         self.dataframe["Time"] = time
+
         print("Calculating velocity moments ...")
-        moments, ratios = calc_moments(vel_raw, self.max_no_moment, runs * inv_dim * self.species_num)
+        tinit = self.timer.current()
+        moments, ratios = calc_moments(vel_raw, self.max_no_moment, species_index_start)
+        tend = self.timer.current()
+        self.time_stamp("Velocity moments calculation", self.timer.time_division(tend - tinit))
 
         # Save the dataframe
-        if dimensional_average:
+        if self.dimensional_average:
             for i, sp in enumerate(self.species_names):
                 for m in range(self.max_no_moment):
                     self.dataframe["{} {} moment".format(sp, m + 1)] = moments[i, :, :, m][:, 0]
@@ -2149,56 +2169,6 @@ class VelocityMoments(Observable):
                         self.dataframe["{} {} moment ratio axis {}".format(sp, m + 1, d)] = ratios[i, :, d, m][:, 0]
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-
-    def plot_ratios(self, show=False):
-        """
-        Plot the moment ratios and save the figure.
-
-        Parameters
-        ----------
-        show : bool
-            Flag for displaying the figure.
-        """
-        self.parse()
-
-        if not os.path.exists(self.plots_dir):
-            os.mkdir(self.plots_dir)
-
-        if self.num_species > 1:
-            self.species_plots_dirs = []
-            for i, sp in enumerate(self.species_names):
-                new_dir = os.path.join(self.plots_dir, "{}".format(sp))
-                self.species_plots_dirs.append(new_dir)
-                if not os.path.exists(new_dir):
-                    os.mkdir(os.path.join(self.plots_dir, "{}".format(sp)))
-        else:
-            self.species_plots_dirs = [self.plots_dir]
-
-        for i, sp in enumerate(self.species_names):
-            fig, ax = plt.subplots(1, 1)
-            xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"],
-                                                                   np.array([1]), 'Time', 'none', self.units)
-            ax.plot(self.dataframe["Time"] * xmul,
-                    self.dataframe["{} 4-2 moment ratio".format(sp)], label=r"4/2 ratio")
-            ax.plot(self.dataframe["Time"] * xmul,
-                    self.dataframe["{} 6-2 moment ratio".format(sp)], label=r"6/2 ratio")
-
-            ax.axhline(1.0, ls='--', c='k', label='Equilibrium')
-            ax.grid(True, alpha=0.3)
-            ax.legend(loc='upper right')
-            #
-            ax.set_xscale('log')
-            if self.phase == 'equilibration':
-                ax.set_yscale('log')
-            ax.set_xlabel(r'$t$' + xlbl)
-            #
-            ax.set_title("Moments ratios of {}".format(sp) + '  Phase: ' + self.phase.capitalize())
-            fig.savefig(os.path.join(self.species_plots_dirs[i], "MomentRatios_" + self.job_id + '.png'))
-            if show:
-                fig.show()
-            else:
-                # this is useful because it will have too many figures open.
-                plt.close(fig)
 
 
 @njit
@@ -2347,7 +2317,8 @@ def calc_elec_current(vel, sp_charge, sp_num):
 @njit
 def calc_moment_ratios(moments, species_np, no_dumps):
     """
-    Take the ratio of the velocity moments.
+    Take the ratio of each velocity moments with respect to the second moment.
+    The zeroth moment is 1 and the first moment is usually zero.
 
     Parameters
     ----------
@@ -2395,7 +2366,7 @@ def calc_moment_ratios(moments, species_np, no_dumps):
     return ratios
 
 
-def calc_moments(dist, max_moment, species_np):
+def calc_moments(dist, max_moment, species_index_start):
     """
     Calculate the moments of the (velocity) distribution.
 
@@ -2407,8 +2378,8 @@ def calc_moments(dist, max_moment, species_np):
     max_moment: int
         Maximum moment to calculate
 
-    species_np: numpy.ndarray
-        Number of particles of each species.
+    species_index_start: numpy.ndarray
+        Array containing the start index of each species. The last value is equivalent to dist.shape[-1]
 
     Returns
     -------
@@ -2428,24 +2399,24 @@ def calc_moments(dist, max_moment, species_np):
     from scipy.stats import moment as scp_moment
     from scipy.special import gamma as scp_gamma
 
-    no_species = len(species_np)
+    no_species = len(species_index_start)
     no_dumps = dist.shape[0]
     dim = dist.shape[1]
     moments = np.zeros((no_species, no_dumps, dim, max_moment))
     ratios = np.zeros((no_species, no_dumps, dim, max_moment))
 
-    sp_start = 0
-    sp_end = 0
-    for sp, sp_num in enumerate(species_np):
-        sp_end += sp_num
+    for indx, sp_start in enumerate(species_index_start[:-1]):
+        # Calculate the correct start and end index for storage
+        sp_end = species_index_start[indx + 1]
+
         for mom in range(max_moment):
-            moments[sp, :, :, mom] = scp_moment(dist[:, :, sp_start:sp_end], moment=mom + 1, axis=2)
-        sp_start += sp_num
-    sigma = np.sqrt(moments[:, :, :, 1])
+            moments[indx, :, :, mom] = scp_moment(dist[:, :, sp_start:sp_end], moment=mom + 1, axis=2)
+
+    # sqrt( <v^2> ) = standard deviation = moments[:, :, :, 1] ** (1/2)
     for mom in range(max_moment):
         pwr = mom + 1
         const = 2.0 ** (pwr / 2) * scp_gamma((pwr + 1) / 2) / np.sqrt(np.pi)
-        ratios[:, :, :, mom] = moments[:, :, :, mom] / (const * sigma ** pwr)
+        ratios[:, :, :, mom] = moments[:, :, :, mom] / (const * moments[:, :, :, 1] ** (pwr/2.))
 
     return moments, ratios
 
