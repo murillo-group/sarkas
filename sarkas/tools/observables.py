@@ -24,6 +24,7 @@ import scipy.signal as scp_signal
 from sarkas.utilities.timing import SarkasTimer
 
 UNITS = [
+    # MKS Units
     {"Energy": 'J',
      "Time": 's',
      "Length": 'm',
@@ -39,6 +40,7 @@ UNITS = [
      "Diffusion": r"m$^2$/s",
      "Viscosity": r"Pa s",
      "none": ""},
+    # CGS Units
     {"Energy": 'erg',
      "Time": 's',
      "Length": 'm',
@@ -50,33 +52,32 @@ UNITS = [
      "Current": "esu/s",
      "Power": "erg/s",
      "Pressure": "Ba",
-     "Conductivity": "mho/cm",
-     "Diffusion": r"cm$^2$/s",
+     "Conductivity": "mho/m",
+     "Diffusion": r"m$^2$/s",
      "Viscosity": r"Ba s",
      "none": ""}
 ]
 
 PREFIXES = {
-    "Y": 1e24,
-    "Z": 1e21,
-    "E": 1e18,
-    "P": 1e15,
-    "T": 1e12,
-    "G": 1e9,
-    "M": 1e6,
-    "k": 1e3,
-    "": 1e0,
-    "c": 1.0e-2,
-    "m": 1.0e-3,
-    r"$\mu$": 1.0e-6,
-    "n": 1.0e-9,
-    "p": 1.0e-12,
-    "f": 1.0e-15,
-    "a": 1.0e-18,
+    "y": 1.0e-24,
     "z": 1.0e-21,
-    "y": 1.0e-24
+    "a": 1.0e-18,
+    "f": 1.0e-15,
+    "p": 1.0e-12,
+    "n": 1.0e-9,
+    r"$\mu$": 1.0e-6,
+    "m": 1.0e-3,
+    "c": 1.0e-2,
+    "": 1.0,
+    "k": 1e3,
+    "M": 1e6,
+    "G": 1e9,
+    "T": 1e12,
+    "P": 1e15,
+    "E": 1e18,
+    "Z": 1e21,
+    "Y": 1e24
 }
-
 
 class Observable:
     """
@@ -267,7 +268,7 @@ class Observable:
 
             # Create paths for files
             self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
-            self.k_file = os.path.join(self.k_space_dir, "k_arrays")
+            self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
             self.nkt_file = os.path.join(self.k_space_dir, "nkt")
             self.vkt_file = os.path.join(self.k_space_dir, "vkt")
 
@@ -328,19 +329,6 @@ class Observable:
             except FileNotFoundError:
                 print("\nFile {} not found!".format(self.filename_csv_longitudinal))
                 print("\nFile {} not found!".format(self.filename_csv_transverse))
-                print("\nComputing Observable now ...")
-                self.compute()
-
-        elif self.__class__.__name__[-15:] == 'StructureFactor':
-            try:
-                self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-                k_data = np.load(self.k_file)
-                self.k_list = k_data["k_list"]
-                self.k_counts = k_data["k_counts"]
-                self.ka_values = k_data["ka_values"]
-
-            except FileNotFoundError:
-                print("\nFile {} not found!".format(self.filename_csv))
                 print("\nComputing Observable now ...")
                 self.compute()
         else:
@@ -3123,24 +3111,26 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
     if units == 'cgs' and ylbl == 'Length':
         ymax *= 1e2
 
+    # Use scientific notation. This returns a string
     x_str = np.format_float_scientific(xmax)
     y_str = np.format_float_scientific(ymax)
 
+    # Grab the exponent
     x_exp = 10.0 ** (float(x_str[x_str.find('e') + 1:]))
     y_exp = 10.0 ** (float(y_str[y_str.find('e') + 1:]))
 
-    # find the prefix
+    # Find the units' prefix by looping over the possible values
     xprefix = "none"
     xmul = -1.5
-    i = 0.1
+    # This is a 10 multiplier
+    i = 1.0
     while xmul < 0:
-        i *= 10.
         for key, value in PREFIXES.items():
             ratio = i * x_exp / value
             if abs(ratio - 1) < 1.0e-6:
                 xprefix = key
-                xmul = i / value
-
+                xmul = 1 / value
+        i /= 10
     # find the prefix
     yprefix = "none"
     ymul = - 1.5
@@ -3150,8 +3140,8 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
             ratio = i * y_exp / value
             if abs(ratio - 1) < 1.0e-6:
                 yprefix = key
-                ymul = i / value
-        i *= 10.
+                ymul = 1 / value
+        i /= 10.
 
     if "Energy" in ylbl:
         yname = "Energy"
