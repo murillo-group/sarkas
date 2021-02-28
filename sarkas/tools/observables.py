@@ -8,7 +8,7 @@ if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
 else:
     from tqdm import tqdm
 
-from numba import njit, jit
+from numba import njit
 from matplotlib.gridspec import GridSpec
 
 import os
@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-# import h5py
+import h5py
 # import logging
 
 import scipy.signal as scp_signal
@@ -226,7 +226,7 @@ class Observable:
                 elif self.angle_averaging == 'custom':
                     # Check if the user has defined the max_aa_harmonics
                     if self.max_aa_ka_value:
-                        nx = int( self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
+                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
                         self.max_aa_harmonics = np.array([nx, nx, nx])
                     # else max_aa_harmonics is user defined
                 elif self.angle_averaging == 'principal_axis':
@@ -239,7 +239,7 @@ class Observable:
                 if self.angle_averaging == 'full':
                     # The maximum value is calculated assuming that max nx = max ny = max nz
                     # ka_max = 2pi a/L sqrt( nx^2 + ny^2 + nz^2) = 2pi a/L nx sqrt(3)
-                    nx = int( self.max_ka_value * self.box_lengths[0]/(2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
                     self.max_k_harmonics = np.array([nx, nx, nx])
                     self.max_aa_harmonics = np.array([nx, nx, nx])
 
@@ -249,7 +249,7 @@ class Observable:
                     self.max_k_harmonics = np.array([nx, nx, nx])
                     # Check if the user has defined the max_aa_harmonics
                     if self.max_aa_ka_value:
-                        nx = int( self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
+                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
                         self.max_aa_harmonics = np.array([nx, nx, nx])
                     # else max_aa_harmonics is user defined
                 elif self.angle_averaging == 'principal_axis':
@@ -275,7 +275,8 @@ class Observable:
                 self.max_aa_ka_value = 0.0
 
             elif self.angle_averaging == 'custom':
-                self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_aa_harmonics / self.box_lengths)
+                self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(
+                    self.max_aa_harmonics / self.box_lengths)
                 self.max_ka_value = 2.0 * np.pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
 
             # Create paths for files
@@ -283,7 +284,6 @@ class Observable:
             self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
             self.nkt_file = os.path.join(self.k_space_dir, "nkt")
             self.vkt_file = os.path.join(self.k_space_dir, "vkt")
-
 
         # Get the number of independent observables if multi-species
         self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
@@ -612,24 +612,24 @@ class CurrentCorrelationFunction(Observable):
 
     """
 
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = 'production', **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
         phase : str
-            Phase to analyze.
+            Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of sarkas.base.Species.
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
 
         """
-
-        self.phase = phase if phase else 'production'
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
 
         super().setup_init(params, self.phase)
 
@@ -660,10 +660,23 @@ class CurrentCorrelationFunction(Observable):
         self.filename_csv_transverse = os.path.join(self.saving_dir,
                                                     "TransverseCurrentCorrelationFunction_" + self.job_id + '.csv')
 
-    def compute(self):
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, **kwargs):
         """
-        Calculate the velocity fluctuations correlation functions.
+        Calculate the microscopic current fluctuations correlation functions.
+
+        Parameters
+        ----------
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
         # Parse vkt otherwise calculate them
         self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=False, vkt_flag=True)
@@ -739,45 +752,79 @@ class CurrentCorrelationFunction(Observable):
         self.dataframe_longitudinal.to_csv(self.filename_csv_longitudinal, index=False, encoding='utf-8')
         self.dataframe_transverse.to_csv(self.filename_csv_transverse, index=False, encoding='utf-8')
 
+    def calculation_print_out(self):
+        """Print current correlation function calculation parameters for help in choice of simulation parameters."""
+
+        print('\nCurrent Correlation Function:')
+
+        print('Frequency Space Parameters:')
+        print('\tNo. of slices = {}'.format(self.no_slices))
+        print('\tNo. steps per slice = {}'.format(self.slice_steps))
+        print('\tNo. dumps per slice = {}'.format(self.no_dumps))
+        print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
+        print('\tdw = {:1.4f} w_p = {:1.4e} [Hz]'.format(
+            self.w_min / self.total_plasma_frequency, self.w_min))
+        print('\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)')
+        print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
+            self.w_max / self.total_plasma_frequency, self.w_max))
+
+        print('\n\nWavevector parameters:')
+        print('Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
+        print('k_min = {:.4f} / a_ws = {:.4e} '.format(self.ka_values[0], self.ka_values[0] / self.a_ws), end='')
+        print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print('\nAngle averaging choice: {}'.format(self.angle_averaging))
+        if self.angle_averaging == 'full':
+            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
+            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
+                                                              self.max_aa_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == 'custom':
+            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
+            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+            print('\tAA k_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
+                                                                 self.max_aa_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
+            print('\tLargest wavector k_max = k_min * n_x')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
+                                                              self.max_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == 'principal_axis':
+            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
+            print('\tLargest wavector k_max = k_min * n_x')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
+                                                              self.max_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print('\nTotal number of k values to calculate = {}'.format(len(self.k_list)))
+        print('No. of unique ka values to calculate = {}'.format(len(self.ka_values)))
+
 
 class DynamicStructureFactor(Observable):
-    """
-    Dynamic Structure factor.
+    """Dynamic Structure factor.    """
 
-    Attributes
-    ----------
-    k_list : list
-        List of all possible :math:`k` vectors with their corresponding magnitudes and indexes.
-
-    k_counts : numpy.ndarray
-        Number of occurrences of each :math:`k` magnitude.
-
-    ka_values : numpy.ndarray
-        Magnitude of each allowed :math:`ka` vector.
-
-    no_ka_values: int
-        Length of ``ka_values`` array.
-
-    """
-
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = 'production', **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        phase : (optional), str
-            Phase to analyze.
+        phase : str
+            Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of ``sarkas.base.Species``.
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
 
         """
 
-        self.phase = phase if phase else 'production'
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
         super().setup_init(params, self.phase)
 
         # Create the directory where to store the computed data
@@ -805,11 +852,24 @@ class DynamicStructureFactor(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "DynamicStructureFactor_" + self.job_id + '.csv')
 
-    def compute(self):
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, **kwargs):
         """
         Compute :math:`S_{ij} (k,\\omega)` and the array of :math:`\\omega` values.
-        ``self.Skw``. Shape = (``no_ws``, ``no_Sij``)
+        Shape = (``no_ws``, ``no_Sij``)
+
+        Parameters
+        ----------
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
 
         # Parse nkt otherwise calculate it
         self.parse_k_data()  # repeat from setup in case parameters have been updated
@@ -862,41 +922,79 @@ class DynamicStructureFactor(Observable):
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
+    def calculation_print_out(self):
+        """Print dynamic structure factor calculation parameters for help in choice of simulation parameters."""
+
+        print('\nDynamic Structure Factor:')
+
+        print('Frequency Space Parameters:')
+        print('\tNo. of slices = {}'.format(self.no_slices))
+        print('\tNo. steps per slice = {}'.format(self.slice_steps))
+        print('\tNo. dumps per slice = {}'.format(self.no_dumps))
+        print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
+        print('\tdw = {:1.4f} w_p = {:1.4e} [Hz]'.format(
+            self.w_min / self.total_plasma_frequency, self.w_min))
+        print('\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)')
+        print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
+            self.w_max / self.total_plasma_frequency, self.w_max))
+
+        print('\n\nWavevector parameters:')
+        print('Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
+        print('k_min = {:.4f} / a_ws = {:.4e} '.format(self.ka_values[0], self.ka_values[0] / self.a_ws), end='')
+        print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print('\nAngle averaging choice: {}'.format(self.angle_averaging))
+        if self.angle_averaging == 'full':
+            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
+            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
+                                                              self.max_aa_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == 'custom':
+            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
+            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
+            print('\tAA k_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
+                                                                 self.max_aa_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
+            print('\tLargest wavector k_max = k_min * n_x')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
+                                                              self.max_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == 'principal_axis':
+            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
+            print('\tLargest wavector k_max = k_min * n_x')
+            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
+                                                              self.max_ka_value / self.a_ws), end='')
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print('\nTotal number of k values to calculate = {}'.format(len(self.k_list)))
+        print('No. of unique ka values to calculate = {}'.format(len(self.ka_values)))
+
 
 class ElectricCurrent(Observable):
-    """
-    Electric Current Auto-correlation function.
+    """Electric Current Auto-correlation function."""
 
-    Attributes
-    ----------
-    dataframe : pandas.DataFrame
-        Dataframe of the longitudinal velocity correlation functions.
-
-    saving_dir : str
-        Path to directory where computed data is stored.
-
-    filename_csv : str
-        Name of file for the longitudinal velocities fluctuation correlation function.
-
-    """
-
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = 'production', **kwargs):
         """
         Initialize the attributes from simulation's parameters.
 
         Parameters
         ----------
-        phase : (optional), str
-            Phase to analyze.
+        phase : str
+            Phase to compute. Default = 'production'.
 
-        params: sarkas.base.Parameters
+        params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of ``sarkas.base.Species``.
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
 
         """
-        self.phase = phase if phase else 'production'
+
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
 
         super().setup_init(params, self.phase)
 
@@ -911,10 +1009,23 @@ class ElectricCurrent(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "ElectricCurrent_" + self.job_id + '.csv')
 
-    def compute(self):
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, **kwargs):
         """
         Compute the electric current and the corresponding auto-correlation functions.
+
+        Parameters
+        ----------
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
 
         # Parse the particles from the dump files
         vel = np.zeros((self.no_dumps, 3, self.total_num_ptcls))
@@ -951,9 +1062,8 @@ class ElectricCurrent(Observable):
         self.dataframe["Z Current ACF"] = cur_acf_zz
         self.dataframe["Total Current ACF"] = tot_cur_acf
         for i, sp in enumerate(self.species_names):
-
-            acf_xx = correlationfunction(species_current[i, 0, :],species_current[i, 0, :])
-            acf_yy = correlationfunction(species_current[i, 1, :],species_current[i, 1, :])
+            acf_xx = correlationfunction(species_current[i, 0, :], species_current[i, 0, :])
+            acf_yy = correlationfunction(species_current[i, 1, :], species_current[i, 1, :])
             acf_zz = correlationfunction(species_current[i, 2, :], species_current[i, 2, :])
             tot_acf = acf_xx + acf_yy + acf_zz
 
@@ -991,21 +1101,25 @@ class HermiteCoefficients(Observable):
 
     """
 
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = 'production', **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        phase : (optional), str
-            Phase to analyze.
+        phase : str
+            Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
 
-        self.phase = phase if phase else 'equilibration'
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
 
         super().setup_init(params, self.phase)
 
@@ -1032,10 +1146,24 @@ class HermiteCoefficients(Observable):
 
         self.species_plots_dirs = None
 
-    def compute(self):
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, **kwargs):
         """
         Calculate Hermite coefficients and save the pandas dataframe.
+
+        Parameters
+        ----------
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
         vscale = 1.0 / (self.a_ws * self.total_plasma_frequency)
         vel = np.zeros((self.dimensions, self.total_num_ptcls))
 
@@ -1178,20 +1306,24 @@ class RadialDistributionFunction(Observable):
 
     """
 
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = 'production', **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        phase : (optional), str
-            Phase to analyze.
+        phase : str
+            Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
-        self.phase = phase if phase else 'production'
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
 
         super().setup_init(params, self.phase)
 
@@ -1205,20 +1337,33 @@ class RadialDistributionFunction(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir,
                                          "RadialDistributionFunction_" + self.job_id + ".csv")
+
+        # These definitions are needed for the print out.
         self.rc = self.cutoff_radius
         self.no_bins = self.rdf_nbins
         self.dr_rdf = self.rc / self.no_bins
 
-    def compute(self, rdf_hist=None):
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, rdf_hist=None, **kwargs):
         """
         Parameters
         ----------
         rdf_hist : numpy.ndarray
             Histogram of the radial distribution function.
 
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
         if not isinstance(rdf_hist, np.ndarray):
-            # Find the last dump by looking for the longest filename in
+            # Find the last dump by looking for the largest number in the checkpoints filenames
             dumps_list = os.listdir(self.dump_dir)
             last = 0
             for file in dumps_list:
@@ -1229,6 +1374,7 @@ class RadialDistributionFunction(Observable):
             data = load_from_restart(self.dump_dir, int(last))
             rdf_hist = data["rdf_hist"]
 
+        # Make sure you are getting the right number of bins and redefine dr_rdf.
         self.no_bins = rdf_hist.shape[0]
         self.dr_rdf = self.rc / self.no_bins
 
@@ -1252,7 +1398,7 @@ class RadialDistributionFunction(Observable):
             bin_vol[ir] = sphere_shell_const * (r2 ** 3 - r1 ** 3)
             r_values[ir] = (ir + 0.5) * self.dr_rdf
 
-        self.dataframe["distance"] = r_values
+        self.dataframe["Distance"] = r_values
         gr_ij = 0
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
@@ -1263,6 +1409,17 @@ class RadialDistributionFunction(Observable):
 
                 gr_ij += 1
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+
+    def calculation_print_out(self):
+        """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
+
+        print('\nRadial Distribution Function:')
+        print('No. bins = {}'.format(self.no_bins))
+        print('dr = {:1.4f} a_ws = {:1.4e} '.format(self.dr_rdf / self.a_ws, self.dr_rdf), end='')
+        print("[cm]" if self.units == "cgs" else "[m]")
+        print('Maximum Distance (i.e. potential.rc)= {:1.4f} a_ws = {:1.4e} '.format(
+            self.rc / self.a_ws, self.rc), end='')
+        print("[cm]" if self.units == "cgs" else "[m]")
 
 
 class StaticStructureFactor(Observable):
@@ -1285,21 +1442,26 @@ class StaticStructureFactor(Observable):
 
     """
 
-    def setup(self, params, phase=None):
+    def setup(self, params, phase: str = 'production', **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        phase : (optional), str
-            Phase to analyze.
+        phase : str
+            Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
 
-        self.phase = phase if phase else 'production'
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
+
         self.k_observable = True
         super().setup_init(params, self.phase)
 
@@ -1320,10 +1482,24 @@ class StaticStructureFactor(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "StaticStructureFunction_" + self.job_id + ".csv")
 
-    def compute(self):
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, **kwargs):
         """
         Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a csv.
+
+        Parameters
+        ----------
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
         # Parse nkt otherwise calculate it
         self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=True)
@@ -1363,35 +1539,37 @@ class StaticStructureFactor(Observable):
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
     def calculation_info_print_out(self):
+        """Print static structure factor calculation parameters for help in choice of simulation parameters."""
+
         print('\nStatic Structure Factor:')
         print('\nSmallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
         print('k_min = {:.4f} / a_ws = {:.4e} '.format(self.ka_values[0], self.ka_values[0] / self.a_ws), end='')
         print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
-        print('\nAngle averaging choice: {}'.format(self.angle_averaging) )
+        print('\nAngle averaging choice: {}'.format(self.angle_averaging))
         if self.angle_averaging == 'full':
             print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
             print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
             print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
-                                                            self.max_aa_ka_value / self.a_ws), end='')
+                                                              self.max_aa_ka_value / self.a_ws), end='')
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
         elif self.angle_averaging == 'custom':
             print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
             print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
             print('\tAA k_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
-                                                            self.max_aa_ka_value / self.a_ws), end='')
+                                                                 self.max_aa_ka_value / self.a_ws), end='')
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
             print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
             print('\tLargest wavector k_max = k_min * n_x')
             print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
-                                                            self.max_ka_value / self.a_ws), end='')
+                                                              self.max_ka_value / self.a_ws), end='')
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
         elif self.angle_averaging == 'principal_axis':
             print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
             print('\tLargest wavector k_max = k_min * n_x')
             print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
-                                                            self.max_ka_value / self.a_ws), end='')
+                                                              self.max_ka_value / self.a_ws), end='')
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
         print('\nTotal number of k values to calculate = {}'.format(len(self.k_list)))
@@ -1403,21 +1581,25 @@ class Thermodynamics(Observable):
     Thermodynamic functions.
     """
 
-    def setup(self, params, phase=None):
+    def setup(self, params,  phase: str = 'production', **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        phase : (optional), str
-            Phase to analyze.
+        phase : str
+            Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
-        if not hasattr(self, 'phase'):
-            self.phase = phase.lower() if phase else 'production'
+
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
 
         super().setup_init(params, self.phase)
         self.dataframe = pd.DataFrame()
@@ -1433,6 +1615,9 @@ class Thermodynamics(Observable):
             self.saving_dir = self.equilibration_dir
         elif self.phase.lower() == 'magnetization':
             self.saving_dir = self.magnetization_dir
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
 
     def compute_pressure_quantities(self):
         """
@@ -1485,7 +1670,7 @@ class Thermodynamics(Observable):
         # Save the pressure acf to file
         self.dataframe.to_csv(self.prod_energy_filename, index=False, encoding='utf-8')
 
-    def compute_pressure_from_rdf(self, r, gr, potential, potential_matrix):
+    def compute_pressure_from_rdf(self, r, gr, potential, potential_matrix,**kwargs):
         """
         Calculate the Pressure using the radial distribution function
 
@@ -1503,12 +1688,18 @@ class Thermodynamics(Observable):
         gr : numpy.ndarray
             Pair distribution function.
 
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         Returns
         -------
         pressure : float
             Pressure divided by :math:`k_BT`.
 
         """
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
 
         r2 = r * r
         r3 = r2 * r
@@ -1777,10 +1968,10 @@ class Thermodynamics(Observable):
 
         if not publication:
             dt_mul, _, _, _, dt_lbl, _ = plot_labels(process.integrator.dt,
-                                                         self.dataframe["Total Energy"],
-                                                         "Time",
-                                                         "Energy",
-                                                         self.units)
+                                                     self.dataframe["Total Energy"],
+                                                     "Time",
+                                                     "Energy",
+                                                     self.units)
             # Information section
             Info_plot.axis([0, 10, 0, 10])
             Info_plot.grid(False)
@@ -1809,12 +2000,12 @@ class Thermodynamics(Observable):
                            "Step interval time = {:.2f} {}".format(self.dump_step * delta_t, dt_lbl))
             Info_plot.text(0., y_coord - 4., "Completed steps = {}".format(completed_steps))
             Info_plot.text(0., y_coord - 4.5,
-                           "Completed time = {:.2f} {}".format(completed_steps * delta_t/dt_mul*time_mul, time_lbl))
+                           "Completed time = {:.2f} {}".format(completed_steps * delta_t / dt_mul * time_mul, time_lbl))
             Info_plot.text(0., y_coord - 5., "Total timesteps = {}".format(self.no_steps))
             Info_plot.text(0., y_coord - 5.5,
-                           "Total time = {:.2f} {}".format(self.no_steps * delta_t/dt_mul*time_mul, time_lbl))
+                           "Total time = {:.2f} {}".format(self.no_steps * delta_t / dt_mul * time_mul, time_lbl))
             Info_plot.text(0., y_coord - 6.,
-                           "{:1.2f} % Completed".format(100 * completed_steps / self.no_steps) )
+                           "{:1.2f} % Completed".format(100 * completed_steps / self.no_steps))
             Info_plot.axis('off')
 
         if not publication:
@@ -1836,23 +2027,37 @@ class Thermodynamics(Observable):
 class VelocityAutoCorrelationFunction(Observable):
     """Velocity Auto-correlation function."""
 
-    def setup(self, params, phase: str = None):
+    def setup(self, params,
+              phase: str = 'production',
+              time_averaging: bool = False,
+              timesteps_to_skip: int = 100,
+              **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        phase : (optional), str
-            Phase to analyze.
+        phase : str
+            Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        species : list
-            List of ``sarkas.base.Species``.
+        time_averaging: bool
+            Flag for species diffusion flux time averaging. Default = False.
+
+        timesteps_to_skip: int
+            Number of timesteps to skip for time_averaging. Default = 100.
+
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
 
         """
-        self.phase = phase if phase else 'production'
+
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
+        self.time_averaging = time_averaging
+        self.timesteps_to_skip = timesteps_to_skip
 
         super().setup_init(params, self.phase)
 
@@ -1867,19 +2072,23 @@ class VelocityAutoCorrelationFunction(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "VelocityACF_" + self.job_id + '.csv')
 
-    def compute(self, time_averaging: bool = False, timesteps_to_skip: int = 100):
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, **kwargs):
         """
         Compute the velocity auto-correlation functions.
 
         Parameters
         ----------
-        time_averaging: bool
-            Flag for species diffusion flux time averaging. Default = False.
-
-        timesteps_to_skip: int
-            Number of timesteps to skip for time_averaging. Default = 100.
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
 
         """
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
 
         # Parse the particles from the dump files
         vel = np.zeros((self.dimensions, self.total_num_ptcls, self.no_dumps))
@@ -1896,11 +2105,11 @@ class VelocityAutoCorrelationFunction(Observable):
         #
         self.dataframe["Time"] = time
         message = "Calculating velocity acf with time averaging "
-        ta = "on" if time_averaging else "off"
+        ta = "on" if self.time_averaging else "off"
         print('Please wait. ' + message + ta + ' ...')
 
         t0 = self.timer.current()
-        vacf = calc_vacf(vel, self.species_num, time_averaging, timesteps_to_skip)
+        vacf = calc_vacf(vel, self.species_num, self.time_averaging, self.timesteps_to_skip)
         tend = self.timer.current()
 
         self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
@@ -1917,20 +2126,38 @@ class VelocityAutoCorrelationFunction(Observable):
 class FluxAutoCorrelationFunction(Observable):
     """Species Diffusion Flux Auto-correlation function."""
 
-    def setup(self, params, phase: str = None):
+    def setup(self,
+              params,
+              phase: str = 'production',
+              time_averaging: bool = False,
+              timesteps_to_skip: int = 100,
+              **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
-        phase : (optional), str
-            Phase to analyze.
+        phase : str
+            Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
 
+        time_averaging: bool
+            Flag for species diffusion flux time averaging. Default = False.
+
+        timesteps_to_skip: int
+            Number of timesteps to skip for time_averaging. Default = 100.
+
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
-        self.phase = phase if phase else 'production'
+
+        self.phase = phase.lower() if phase.lower() != 'production' else 'production'
+        self.time_averaging = time_averaging
+        self.timesteps_to_skip = timesteps_to_skip
 
         super().setup_init(params, self.phase)
 
@@ -1948,19 +2175,22 @@ class FluxAutoCorrelationFunction(Observable):
 
         self.filename_csv = os.path.join(self.saving_dir, "DiffusionFluxACF_" + self.job_id + '.csv')
 
-    def compute(self, time_averaging: bool = False, timesteps_to_skip: int = 100):
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, **kwargs):
         """
         Compute the velocity auto-correlation functions.
 
         Parameters
         ----------
-        time_averaging: bool
-            Flag for species diffusion flux time averaging. Default = False.
-
-        timesteps_to_skip: int
-            Number of timesteps to skip for time_averaging. Default = 100.
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
 
         """
+        # Update the attribute with the passed arguments. e.g time_averaging and timesteps_to_skip
+        self.__dict__.update(kwargs.copy())
 
         # Parse the particles from the dump files
         vel = np.zeros((self.dimensions, self.total_num_ptcls, self.no_dumps))
@@ -1977,15 +2207,15 @@ class FluxAutoCorrelationFunction(Observable):
         #
         self.dataframe["Time"] = time
         message = "Calculating diffusion flux acf with time averaging "
-        ta = "on" if time_averaging else "off"
+        ta = "on" if self.time_averaging else "off"
         print('Please wait. ' + message + ta + ' ...')
         t0 = self.timer.current()
         df_acf = calc_diff_flux_acf(vel,
                                     self.species_num,
                                     self.species_num_dens,
                                     self.species_masses,
-                                    time_averaging,
-                                    timesteps_to_skip)
+                                    self.time_averaging,
+                                    self.timesteps_to_skip)
         tend = self.timer.current()
 
         self.time_stamp("Diffusion Flux ACF Calculation", self.timer.time_division(tend - t0))
@@ -2034,7 +2264,6 @@ class VelocityMoments(Observable):
         ----------
         phase : str
             Phase to compute. Default = 'production'.
-            If None it will calculate
 
         max_no_moment : int
             Maximum number of moments to calculate. Default = 6.
@@ -2051,7 +2280,7 @@ class VelocityMoments(Observable):
 
         super().setup_init(params, self.phase)
         # Update the attribute with the passed arguments
-        self.__dict__.update( kwargs.copy() )
+        self.__dict__.update(kwargs.copy())
         # Default number of moments to calculate
         self.max_no_moment = max_no_moment
 
@@ -2084,10 +2313,20 @@ class VelocityMoments(Observable):
         else:
             self.adjusted_dump_dir = [self.dump_dir]
 
-    def compute(self):
+    def compute(self, **kwargs):
         """
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
+
+        Parameters
+        ----------
+        **kwargs :
+            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
         """
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
         self.dataframe = pd.DataFrame()
         time = np.zeros(self.no_dumps)
 
@@ -2111,7 +2350,7 @@ class VelocityMoments(Observable):
                     dump = int(it * self.dump_step)
                     datap = load_from_restart(dump_dir_r, dump)
                     # Loop over the particles' species
-                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num) ):
+                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
                         # Calculate the correct start and end index for storage
                         start_indx = species_index_start[sp_indx] + inv_dim * sp_num * r
                         end_indx = species_index_start[sp_indx] + inv_dim * sp_num * (r + 1)
@@ -2125,7 +2364,7 @@ class VelocityMoments(Observable):
                         vel_raw[it, 0, start_indx: end_indx] = datap["vel"][datap["names"] == sp_name].flatten('F')
 
                     time[it] = datap["time"]
-        else: # Dimensional Average = False
+        else:  # Dimensional Average = False
             # Loop over the runs
             for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc='Runs Loop')):
                 # Loop over the timesteps
@@ -2134,7 +2373,7 @@ class VelocityMoments(Observable):
                     dump = int(it * self.dump_step)
                     datap = load_from_restart(dump_dir_r, dump)
                     # Loop over the particles' species
-                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num) ):
+                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
                         # Calculate the correct start and end index for storage
                         start_indx = species_index_start[sp_indx] + inv_dim * sp_num * r
                         end_indx = species_index_start[sp_indx] + inv_dim * sp_num * (r + 1)
@@ -2313,59 +2552,6 @@ def calc_elec_current(vel, sp_charge, sp_num):
     return Js, Jtot
 
 
-
-@njit
-def calc_moment_ratios(moments, species_np, no_dumps):
-    """
-    Take the ratio of each velocity moments with respect to the second moment.
-    The zeroth moment is 1 and the first moment is usually zero.
-
-    Parameters
-    ----------
-    moments: numpy.ndarray
-        Velocity moments of each species per direction at each time step.
-
-    no_dumps: int
-        Number of saved timesteps.
-
-    species_np: numpy.ndarray
-        Number of particles of each species.
-
-    Returns
-    -------
-    ratios: numpy.ndarray
-        Ratios of high order velocity moments with respoect the 2nd moment.
-        Shape=(``no_species``,2, ``no_dumps``)
-    """
-
-    no_ratios = 2
-    ratios = np.zeros((len(species_np), no_ratios, no_dumps))
-
-    sp_start = 0
-    for sp, nsp in enumerate(species_np):
-        sp_end = sp_start + nsp
-
-        vx2_mom = moments[:, int(9 * sp)]
-        vx4_mom = moments[:, int(9 * sp) + 1]
-        vx6_mom = moments[:, int(9 * sp) + 2]
-
-        vy2_mom = moments[:, int(9 * sp) + 3]
-        vy4_mom = moments[:, int(9 * sp) + 4]
-        vy6_mom = moments[:, int(9 * sp) + 5]
-
-        vz2_mom = moments[:, int(9 * sp) + 6]
-        vz4_mom = moments[:, int(9 * sp) + 7]
-        vz6_mom = moments[:, int(9 * sp) + 8]
-
-        ratios[sp, 0, :] = (vx4_mom / vx2_mom ** 2) * (vy4_mom / vy2_mom ** 2) * (vz4_mom / vz2_mom ** 2) / 27.0
-        ratios[sp, 1, :] = (vx6_mom / vx2_mom ** 3) * (vy6_mom / vy2_mom ** 3) * (vz6_mom / vz2_mom ** 3) / 15.0 ** 3
-
-        sp_start = sp_end
-
-    print('Done')
-    return ratios
-
-
 def calc_moments(dist, max_moment, species_index_start):
     """
     Calculate the moments of the (velocity) distribution.
@@ -2416,7 +2602,7 @@ def calc_moments(dist, max_moment, species_index_start):
     for mom in range(max_moment):
         pwr = mom + 1
         const = 2.0 ** (pwr / 2) * scp_gamma((pwr + 1) / 2) / np.sqrt(np.pi)
-        ratios[:, :, :, mom] = moments[:, :, :, mom] / (const * moments[:, :, :, 1] ** (pwr/2.))
+        ratios[:, :, :, mom] = moments[:, :, :, mom] / (const * moments[:, :, :, 1] ** (pwr / 2.))
 
     return moments, ratios
 
@@ -3181,7 +3367,6 @@ def correlationfunction(At, Bt):
     mid = full_corr.size // 2
     # I want only the second half of the array, i.e. the positive lags only
     return full_corr[mid:] / norm_corr
-
 
 # These are old functions that should not be trusted.
 # @njit

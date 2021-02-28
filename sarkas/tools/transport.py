@@ -112,7 +112,7 @@ class TransportCoefficient:
 
     @staticmethod
     def diffusion(params,
-                  phase: str = None,
+                  phase: str = 'production',
                   time_averaging: bool = False,
                   timesteps_to_skip: int = 100,
                   show: bool = False,
@@ -148,8 +148,8 @@ class TransportCoefficient:
         """
         coefficient = pd.DataFrame()
         vacf = obs.VelocityAutoCorrelationFunction()
-        vacf.setup(params, phase)
-        vacf.compute(time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
+        vacf.setup(params, phase=phase, time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
+        vacf.compute()
         time = np.array(vacf.dataframe["Time"])
         coefficient["Time"] = time
 
@@ -243,7 +243,7 @@ class TransportCoefficient:
 
     @staticmethod
     def interdiffusion(params,
-                       phase: str = None,
+                       phase: str = 'production',
                        time_averaging: bool = False,
                        timesteps_to_skip: int = 100,
                        show: bool = False,
@@ -266,7 +266,7 @@ class TransportCoefficient:
             Simulation's parameters.
 
         phase : str
-            Phase to analyze. Default = 'production'.
+            Phase to compute. Default = 'production'.
 
         show : bool
             Flag for prompting plot to screen.
@@ -280,8 +280,8 @@ class TransportCoefficient:
 
         coefficient = pd.DataFrame()
         jc_acf = obs.FluxAutoCorrelationFunction()
-        jc_acf.setup(params, phase)
-        jc_acf.compute(time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
+        jc_acf.setup(params, phase=phase, time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
+        jc_acf.compute()
         no_int = jc_acf.prod_no_dumps
         no_obs = jc_acf.no_obs
         D_ij = np.zeros((no_obs, no_int))
@@ -360,7 +360,7 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def viscosity(params, phase=None, show=False):
+    def viscosity(params, phase: str = 'production', show=False):
         """
         Calculate bulk and shear viscosity from pressure auto-correlation function.
 

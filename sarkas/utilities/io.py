@@ -576,92 +576,18 @@ class InputOutput:
                 print('\n\n===================== Post Processing ============================')
 
             elif observable == 'rdf':
-                print('\nRadial Distribution Function:')
-                print('No. bins = {}'.format(simulation.rdf.no_bins))
-                print('dr = {:1.4f} a_ws = {:1.4e} '.format(
-                    simulation.rdf.dr_rdf / simulation.parameters.a_ws, simulation.rdf.dr_rdf), end='')
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print('Maximum Distance (i.e. potential.rc)= {:1.4f} a_ws = {:1.4e} '.format(
-                    simulation.rdf.rc / simulation.parameters.a_ws, simulation.rdf.rc), end='')
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-
+                simulation.rdf.calculation_print_out()
             elif observable == 'ssf':
-                print('\nStatic Structure Factor:')
-                print('No. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ssf.max_k_harmonics))
-                if simulation.ssf.angle_averaging:
-                    print('All the possible k values will be calculated.')
-                print('No. of ka values to calculate = {}'.format(len(simulation.ssf.k_list)))
-                print('No. of unique ka values to calculate = {}'.format(len(simulation.ssf.ka_values)))
-                print('Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
-                print('k_min = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.ssf.ka_values[0], simulation.ssf.ka_values[0] / simulation.ssf.a_ws), end='')
-                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-
-                print('Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-                print('k_max = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.ssf.ka_values[-1], simulation.ssf.ka_values[-1] / simulation.ssf.a_ws), end='')
-                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-
+                simulation.ssf.calculation_info_print_out()
             elif observable == 'dsf':
-                print('\nDynamic Structure Factor:')
-                print('Frequency Constants')
-                print('\tNo. of slices = {}'.format(simulation.dsf.no_slices))
-                print('\tNo. steps per slice = {}'.format(simulation.dsf.slice_steps))
-                print('\tNo. dumps per slice = {}'.format(simulation.dsf.no_dumps))
-                print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
-                print('\tdw = {:1.4f} w_p = {:1.4e} [Hz]'.format(
-                    simulation.dsf.w_min / simulation.parameters.total_plasma_frequency, simulation.dsf.w_min))
-                print('\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)')
-                print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
-                    simulation.dsf.w_max / simulation.parameters.total_plasma_frequency, simulation.dsf.w_max))
-                print('Wavevector Constants')
-                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.dsf.max_k_harmonics))
-                if simulation.dsf.angle_averaging:
-                    print('\tAll the possible k values will be calculated.')
-                print('\tNo. of ka values to calculate = {}'.format(len(simulation.dsf.k_list)))
-                print('\tNo. of unique ka values to calculate = {}'.format(len(simulation.dsf.ka_values)))
-                print('\tSmallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
-                print('\tk_min = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.dsf.ka_values[0], simulation.dsf.ka_values[0] / simulation.dsf.a_ws), end='')
-                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-                print('\tLargest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-                print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.dsf.ka_values[-1], simulation.dsf.ka_values[-1] / simulation.dsf.a_ws), end='')
-                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-
+                simulation.dsf.calculation_print_out()
             elif observable == 'ccf':
-                print('\nCurrent Correlation Function:')
-                print('Frequency Constants')
-                print('\tNo. of slices = {}'.format(simulation.ccf.no_slices))
-                print('\tNo. steps per slice = {}'.format(simulation.ccf.slice_steps))
-                print('\tNo. dumps per slice = {}'.format(simulation.ccf.no_dumps))
-                print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
-                print('\tdw = {:1.4f} w_p = {:1.4e} [Hz]'.format(
-                    simulation.ccf.w_min / simulation.ccf.total_plasma_frequency, simulation.ccf.w_min))
-                print('\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)')
-                print('\tw_max = {:1.4f} w_p = {:1.4e} [Hz]'.format(
-                    simulation.ccf.w_max / simulation.ccf.total_plasma_frequency, simulation.ccf.w_max))
-                print('Wavevector Constants')
-                print('\tNo. of ka harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*simulation.ccf.max_k_harmonics))
-                if simulation.ccf.angle_averaging:
-                    print('\tAll the possible k values will be calculated.')
-                print('\tNo. of ka values to calculate = {}'.format(len(simulation.ccf.k_list)))
-                print('\tNo. of unique ka values to calculate = {}'.format(len(simulation.ccf.ka_values)))
-                print('\tSmallest wavevector k_min = 2 pi / L =  3.9 / N^(1/3)')
-                print('\tk_min = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.ccf.ka_values[0], simulation.ccf.ka_values[0] / simulation.ccf.a_ws), end='')
-                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-                print('\tLargest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-                print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(
-                    simulation.ccf.ka_values[-1], simulation.ccf.ka_values[-1] / simulation.ccf.a_ws), end='')
-                print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-
+                simulation.ccf.calculation_print_out()
             elif observable == 'vm':
                 simulation.vm.setup(simulation.parameters)
                 print('\nVelocity Moments:')
                 print('Maximum no. of moments = {}'.format(simulation.vm.max_no_moment))
                 print('Maximum velocity moment = {}'.format(int(2 * simulation.vm.max_no_moment)))
-                print('No. bins = {}'.format(simulation.vm.no_bins))
 
             repeat -= 1
 
