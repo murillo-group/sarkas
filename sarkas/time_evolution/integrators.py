@@ -13,7 +13,7 @@ if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
 else:
     from tqdm import tqdm
 # import fmm3dpy as fmm
-from sarkas.potentials import force_pm, force_pp
+# from sarkas.potentials import force_pm, force_pp
 
 
 class Integrator:
@@ -641,6 +641,134 @@ class Integrator:
         potential_energy = self.update_accelerations(ptcls)
 
         return potential_energy
+
+    def pretty_print(self, frequency, restart, restart_step):
+        """Print integrator attributes in a user friendly way."""
+
+        if self.magnetized:
+            print("Type: {}".format(self.magnetic_integrator.__name__))
+        else:
+            print("Type: {}".format(self.type))
+
+        wp_dt = frequency * self.dt
+        print('Time step = {:.6e} [s]'.format(self.dt))
+        print('Total plasma frequency = {:.6e} [Hz]'.format(frequency))
+        print('w_p dt = {:.4f}'.format(wp_dt))
+        # if potential_type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
+        #     # if simulation.parameters.magnetized:
+        #     #     if simulation.parameters.num_species > 1:
+        #     #         high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #     #         low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+        #     #         print('Highest w_c dt = {:2.4f}'.format(high_wc_dt))
+        #     #         print('Smalles w_c dt = {:2.4f}'.format(low_wc_dt))
+        #     #     else:
+        #     #         high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #     #         print('w_c dt = {:2.4f}'.format(high_wc_dt))
+        # elif simulation.potential.type == 'QSP':
+        #     print('e plasma frequency = {:.6e} [Hz]'.format(simulation.species[0].plasma_frequency))
+        #     print('ion plasma frequency = {:.6e} [Hz]'.format(simulation.species[1].plasma_frequency))
+        #     print('w_pe dt = {:2.4f}'.format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
+        #     if simulation.parameters.magnetized:
+        #         if simulation.parameters.num_species > 1:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+        #             print('Electron w_ce dt = {:2.4f}'.format(high_wc_dt))
+        #             print('Ions w_ci dt = {:2.4f}'.format(low_wc_dt))
+        #         else:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             print('w_c dt = {:2.4f}'.format(high_wc_dt))
+        # elif simulation.potential.type == 'LJ':
+        #     print('Total equivalent plasma frequency = {:1.6e} [Hz]'.format(
+        #         simulation.parameters.total_plasma_frequency))
+        #     print('w_p dt = {:2.4f}'.format(wp_dt))
+        #     if simulation.parameters.magnetized:
+        #         if simulation.parameters.num_species > 1:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+        #             print('Highest w_c dt = {:2.4f}'.format(high_wc_dt))
+        #             print('Smalles w_c dt = {:2.4f}'.format(low_wc_dt))
+        #         else:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             print('w_c dt = {:2.4f}'.format(high_wc_dt))
+
+        # Print Time steps information
+        # Check for restart simulations
+        if restart in ['production_restart', 'prod_restart']:
+            print("Restart step: {}".format(restart_step))
+            print('Total production steps = {} \n'
+                  'Total production time = {:.4e} [s] ~ {} w_p T_prod '.format(
+                self.production_steps,
+                self.production_steps * self.dt,
+                int(self.production_steps * wp_dt)))
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
+                self.prod_dump_step,
+                self.prod_dump_step * self.dt,
+                self.prod_dump_step * wp_dt))
+
+        elif restart in ['equilibration_restart', 'eq_restart']:
+            print("Restart step: {}".format(restart_step))
+            print('Total equilibration steps = {} \n'
+                  'Total equilibration time = {:.4e} [s] ~ {} w_p T_eq'.format(
+                self.equilibration_steps,
+                self.equilibration_steps * self.dt,
+                int(self.eq_dump_step * wp_dt)))
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
+                self.eq_dump_step,
+                self.eq_dump_step * self.dt,
+                self.eq_dump_step * wp_dt))
+
+        elif restart in ['magnetization_restart', 'mag_restart']:
+            print("Restart step: {}".format(restart_step))
+            print('Total magnetization steps = {} \n'
+                  'Total magnetization time = {:.4e} [s] ~ {} w_p T_mag'.format(
+                self.magnetization_steps,
+                self.magnetization_steps * self.dt,
+                int(self.mag_dump_step * wp_dt)))
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] ~ {:.4f} w_p T_snap'.format(
+                self.mag_dump_step,
+                self.mag_dump_step * self.dt,
+                self.mag_dump_step * wp_dt))
+        else:
+            # Equilibration
+            print('\nEquilibration: \nNo. of equilibration steps = {} \n'
+                  'Total equilibration time = {:.4e} [s] ~ {} w_p T_eq '.format(
+                self.equilibration_steps,
+                self.equilibration_steps * self.dt,
+                int(self.equilibration_steps * wp_dt)))
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
+                self.eq_dump_step,
+                self.eq_dump_step * self.dt,
+                self.eq_dump_step * wp_dt))
+            # Magnetization
+            if self.electrostatic_equilibration:
+                print('Electrostatic Equilibration Type: {}'.format(self.type))
+
+                print('\nMagnetization: \nNo. of magnetization steps = {} \n'
+                      'Total magnetization time = {:.4e} [s] ~ {} w_p T_mag '.format(
+                    self.magnetization_steps,
+                    self.magnetization_steps * self.dt,
+                    int(self.magnetization_steps * wp_dt)))
+
+                print('snapshot interval step = {} \n'
+                      'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
+                    self.mag_dump_step,
+                    self.mag_dump_step * self.dt,
+                    self.mag_dump_step * wp_dt))
+            # Production
+            print('\nProduction: \nNo. of production steps = {} \n'
+                  'Total production time = {:.4e} [s] ~ {} w_p T_prod '.format(
+                self.production_steps,
+                self.production_steps * self.dt,
+                int(self.production_steps * wp_dt)))
+            print('snapshot interval step = {} \n'
+                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
+                self.prod_dump_step,
+                self.prod_dump_step * self.dt,
+                self.prod_dump_step * wp_dt))
 
 
 @njit

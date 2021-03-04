@@ -48,6 +48,8 @@ Sarkas, Join us! :)
    :maxdepth: 1
    :caption: Theoretical Background:
 
+   theory/coupling_constant
+   theory/electron_properties
    theory/integrators
    theory/potentials
    theory/thermostats

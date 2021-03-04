@@ -287,44 +287,32 @@ class InputOutput:
                 print('Job directory: ', self.job_dir)
                 print('Equilibration dumps directory: ', self.eq_dump_dir)
                 print('Production dumps directory: ', self.prod_dump_dir)
-                print('\nUnits: ', simulation.parameters.units)
-                print('Total No. of particles = ', simulation.parameters.total_num_ptcls)
+
                 if hasattr(simulation.parameters, 'rand_seed'):
                     print('Random Seed = ', simulation.parameters.rand_seed)
-                print('\nParticle Species:')
-                self.species_info(simulation)
 
-                print('\nLengths scales:')
-                self.length_info(simulation)
+                print('\nPARTICLES:')
+                print('Total No. of particles = ', simulation.parameters.total_num_ptcls)
+                print('No. of species = ', len(simulation.species))
+                for isp, sp in enumerate(simulation.species):
+                    print("Species ID: {}".format(isp))
+                    sp.pretty_print(simulation.potential.type, simulation.parameters.units)
 
-                print('\nBoundary conditions: {}'.format(simulation.parameters.boundary_conditions))
+                simulation.parameters.pretty_print()
 
-                print("\nThermostat: ", simulation.thermostat.type)
-                self.thermostat_info(simulation)
+                print("\nTHERMOSTAT: ")
+                simulation.thermostat.pretty_print()
 
-                print('\nPotential: ', simulation.potential.type)
+                print('\nPOTENTIAL: ', simulation.potential.type)
                 self.potential_info(simulation)
 
-                print("\nAlgorithm: ", simulation.potential.method)
+                print("\nALGORITHM: ", simulation.potential.method)
                 self.algorithm_info(simulation)
 
-                print("\nIntegrator: ", simulation.integrator.type)
-                if simulation.parameters.magnetized:
-                    print('\nMagnetized Plasma:')
-                    print('Magnetic Field = [{:.4e}, {:.4e}, {:.4e}]'.format(*simulation.parameters.magnetic_field))
-                    print('Magnetic Field Magnitude = {:.4e} [Gauss]'.format(
-                        np.linalg.norm(simulation.parameters.magnetic_field)))
-                    print('Magnetic Field Unit Vector = [{:.4e}, {:.4e}, {:.4e}]'.format(
-                        *simulation.integrator.magnetic_field_uvector))
-
-                    for ic in range(simulation.parameters.num_species):
-                        print('Cyclotron frequency of Species {} = {:.4e} [Hz]'.format(simulation.species[ic].name,
-                                                                                       simulation.species[ic].omega_c))
-                        print('beta_c of Species {} = {:.4e}'.format(simulation.species[ic].name,
-                                                                     simulation.species[ic].beta_c))
-
-                print("\nTime scales:")
-                self.time_info(simulation)
+                print("\nINTEGRATOR: ")
+                simulation.integrator.pretty_print(simulation.parameters.total_plasma_frequency,
+                                                   simulation.parameters.load_method,
+                                                   simulation.parameters.restart_step)
 
             repeat -= 1
             sys.stdout = screen  # Restore the original sys.stdout
@@ -393,7 +381,7 @@ class InputOutput:
                 simulation.potential.pppm_alpha_ewald), end='')
             print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
             print(
-                'Suggested rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
+                'Suggested rcut = {:2.4f} a_ws = {:.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
                                                                   simulation.potential.rc), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
 
@@ -625,7 +613,7 @@ class InputOutput:
 
         """
         wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
-        print('Time step = {:2.6e} [s]'.format(simulation.integrator.dt))
+        print('Time step = {:.6e} [s]'.format(simulation.integrator.dt))
         if simulation.potential.type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
             print('Total plasma frequency = {:1.6e} [Hz]'.format(simulation.parameters.total_plasma_frequency))
             print('w_p dt = {:2.4f}'.format(wp_dt))
@@ -639,9 +627,9 @@ class InputOutput:
                     high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
                     print('w_c dt = {:2.4f}'.format(high_wc_dt))
         elif simulation.potential.type == 'QSP':
-            print('e plasma frequency = {:2.6e} [Hz]'.format(simulation.species[0].wp))
-            print('ion plasma frequency = {:2.6e} [Hz]'.format(simulation.species[1].wp))
-            print('w_pe dt = {:2.4f}'.format(simulation.integrator.dt * simulation.species[0].wp))
+            print('e plasma frequency = {:.6e} [Hz]'.format(simulation.species[0].plasma_frequency))
+            print('ion plasma frequency = {:.6e} [Hz]'.format(simulation.species[1].plasma_frequency))
+            print('w_pe dt = {:2.4f}'.format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
             if simulation.parameters.magnetized:
                 if simulation.parameters.num_species > 1:
                     high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
@@ -779,7 +767,7 @@ class InputOutput:
                 int(1. / (simulation.potential.pppm_h_array[2] * simulation.potential.pppm_alpha_ewald)),
             ))
             print(
-                'rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
+                'rcut = {:2.4f} a_ws = {:.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
                                                         simulation.potential.rc), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print('No. of PP cells per dimension = {:2}, {:2}, {:2}'.format(
@@ -791,12 +779,12 @@ class InputOutput:
             print('No. of PP neighbors per particle = {:6}'.format(
                 int(simulation.parameters.total_num_ptcls * 4.0 / 3.0 * np.pi * (
                         simulation.potential.rc / simulation.parameters.box_lengths.min()) ** 3.0)))
-            print('PM Force Error = {:2.6e}'.format(simulation.parameters.pppm_pm_err))
-            print('PP Force Error = {:2.6e}'.format(simulation.parameters.pppm_pp_err))
+            print('PM Force Error = {:.6e}'.format(simulation.parameters.pppm_pm_err))
+            print('PP Force Error = {:.6e}'.format(simulation.parameters.pppm_pp_err))
 
         elif simulation.potential.method == 'PP':
             print(
-                'rcut = {:2.4f} a_ws = {:2.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
+                'rcut = {:2.4f} a_ws = {:.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
                                                         simulation.potential.rc),
                 end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
@@ -810,7 +798,7 @@ class InputOutput:
                 int(simulation.parameters.total_num_ptcls * 4.0 / 3.0 * np.pi * (
                         simulation.potential.rc / simulation.parameters.box_lengths.min()) ** 3.0)))
 
-        print('Tot Force Error = {:2.6e}'.format(simulation.parameters.force_error))
+        print('Tot Force Error = {:.6e}'.format(simulation.parameters.force_error))
 
     @staticmethod
     def potential_info(simulation):
@@ -827,144 +815,63 @@ class InputOutput:
             print('electron temperature = {:1.4e} [K] = {:1.4e} [eV]'.format(
                 simulation.parameters.electron_temperature,
                 simulation.parameters.electron_temperature / simulation.parameters.eV2K))
-            print('kappa = {:1.4e}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
-            print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
+            print('kappa = {:.4f}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
+            print('Gamma_eff = {:.2f}'.format(simulation.parameters.coupling_constant))
 
         elif simulation.potential.type == 'EGS':
-            print('electron temperature = {:1.4e} [K] = {:1.4e} eV'.format(
-                simulation.parameters.electron_temperature,
-                simulation.parameters.electron_temperature / simulation.parameters.eV2K))
-            print('kappa = {:1.4e}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
-            print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print('nu = {:1.4e}'.format(simulation.parameters.nu))
+            # print('electron temperature = {:1.4e} [K] = {:1.4e} eV'.format(
+            #     simulation.parameters.electron_temperature,
+            #     simulation.parameters.electron_temperature / simulation.parameters.eV2K))
+            print('kappa = {:.4f}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
+            # print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
+            # print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+            print('nu = {:.4f}'.format(simulation.parameters.nu))
             if simulation.parameters.nu < 1:
                 print('Exponential decay:')
-                print('lambda_p = {:1.4e} '.format(simulation.parameters.lambda_p), end='')
+                print('lambda_p = {:.6e} '.format(simulation.parameters.lambda_p), end='')
                 print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print('lambda_m = {:1.4e} '.format(simulation.parameters.lambda_m), end='')
+                print('lambda_m = {:.6e} '.format(simulation.parameters.lambda_m), end='')
                 print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print('alpha = {:1.4e}'.format(simulation.parameters.alpha))
-                print('Theta = {:1.4e}'.format(simulation.parameters.electron_degeneracy_parameter))
-                print('b = {:1.4e}'.format(simulation.parameters.b))
+                print('alpha = {:.4f}'.format(simulation.parameters.alpha))
+                # print('Theta = {:1.4e}'.format(simulation.parameters.electron_degeneracy_parameter))
+                print('b = {:.4f}'.format(simulation.parameters.b))
 
             else:
                 print('Oscillatory potential:')
-                print('gamma_p = {:1.4e} '.format(simulation.parameters.gamma_p), end='')
+                print('gamma_p = {:.6e} '.format(simulation.parameters.gamma_p), end='')
                 print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print('gamma_m = {:1.4e} '.format(simulation.parameters.gamma_m), end='')
+                print('gamma_m = {:.6e} '.format(simulation.parameters.gamma_m), end='')
                 print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print('alpha = {:1.4e}'.format(simulation.parameters.alphap))
-                print('Theta = {:1.4e}'.format(simulation.parameters.electron_degeneracy_parameter))
-                print('b = {:1.4e}'.format(simulation.parameters.b))
+                print('alpha = {:.4f}'.format(simulation.parameters.alphap))
+                print('b = {:.4f}'.format(simulation.parameters.b))
 
             print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
 
         elif simulation.potential.type == 'Coulomb':
-            print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
+            print('Effective Coupling constant: Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
+            simulation.parameters.pretty_print()
 
         elif simulation.potential.type == 'LJ':
-            print('epsilon = {:2.6e}'.format(simulation.potential.matrix[0, 0, 0]))
-            print('sigma = {:2.6e}'.format(simulation.potential.matrix[1, 0, 0]))
-            print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
+            print('epsilon = {:.6e}'.format(simulation.potential.matrix[0, 0, 0]))
+            print('sigma = {:.6e}'.format(simulation.potential.matrix[1, 0, 0]))
+            print('Gamma_eff = {:.2f}'.format(simulation.parameters.coupling_constant))
 
         elif simulation.potential.type == "QSP":
-            print("e de Broglie wavelength = {:2.4f} ai = {:2.6e} ".format(
+            print("e de Broglie wavelength = {:.4f} ai = {:.6e} ".format(
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / (np.sqrt(2.0) * simulation.parameters.ai),
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("e-e screening parameter = {:2.4f}".format(
+            print("e-e screening parameter = {:.4f}".format(
                 simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws))
-            print("ion de Broglie wavelength  = {:2.4f} ai = {:2.6e} ".format(
+            print("ion de Broglie wavelength  = {:.4f} ai = {:.6e} ".format(
                 2.0 * np.pi / simulation.potential.matrix[1, 1, 1] / (np.sqrt(2.0) * simulation.parameters.ai),
                 2.0 * np.pi / simulation.potential.matrix[1, 1, 1] / np.sqrt(2.0)), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("i-i screening parameter = {:2.4f}".format(
+            print("i-i screening parameter = {:.4f}".format(
                 simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws))
-            print("e-i screening parameter = {:2.4f}".format(
+            print("e-i screening parameter = {:.4f}".format(
                 simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws))
-            print("e-i Coupling Parameter = {:3.3f} ".format(simulation.parameters.coupling_constant))
-            print("rs Coupling Parameter = {:3.3f} ".format(simulation.parameters.rs))
-            print("e-e Coupling Parameter = {:3.3f} ".format(simulation.species[0].coupling))
-            print("Warm Dense Matter Parameter = {:3.3f} ".format(simulation.parameters.wdm_parameter))
-
-    @staticmethod
-    def thermostat_info(simulation):
-        """
-        Print thermostat information.
-
-        Parameters
-        ----------
-        simulation: sarkas.base.Simulation
-            Simulation's parameters.
-
-        """
-        print("Berendsen Relaxation rate: {:1.3f}".format(simulation.thermostat.relaxation_rate))
-        print("Thermostating Temperatures: ", simulation.thermostat.temperatures)
-
-    @staticmethod
-    def length_info(simulation):
-        """
-        Print length information.
-
-        Parameters
-        ----------
-        simulation: sarkas.base.Simulation
-            Simulation's parameters.
-
-        """
-        print('Wigner-Seitz radius = {:2.6e} '.format(simulation.parameters.a_ws), end='')
-        print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-        print('No. of non-zero box dimensions = ', int(simulation.parameters.dimensions))
-        print('Box length along x axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[0] / simulation.parameters.a_ws, simulation.parameters.box_lengths[0]),
-            end='')
-        print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-
-        print('Box length along y axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[1] / simulation.parameters.a_ws, simulation.parameters.box_lengths[1]),
-            end='')
-        print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-
-        print('Box length along z axis = {:2.6e} a_ws = {:2.6e} '.format(
-            simulation.parameters.box_lengths[2] / simulation.parameters.a_ws, simulation.parameters.box_lengths[2]),
-            end='')
-        print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-
-        print("The remaining lengths scales are given in ", end='')
-        print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-
-    @staticmethod
-    def species_info(simulation):
-        """
-        Print Species information.
-
-        Parameters
-        ----------
-        simulation: sarkas.base.Simulation
-            Simulation's parameters.
-
-        """
-        print('No. of species = ', len(simulation.species))
-        for isp, sp in enumerate(simulation.species):
-            print("Species {} : {}".format(isp + 1, sp.name))
-            print("\tSpecies ID: {}".format(isp))
-            print("\tNo. of particles = {} ".format(sp.num))
-            print("\tNumber density = {:2.6e} ".format(sp.number_density), end='')
-            print("[N/cc]" if simulation.parameters.units == "cgs" else "[N/m^3]")
-            print("\tMass = {:2.6e} ".format(sp.mass), end='')
-            print("[g]" if simulation.parameters.units == "cgs" else "[kg]")
-            print("\tCharge = {:2.6e} ".format(sp.charge), end='')
-            print("[esu]" if simulation.parameters.units == "cgs" else "[C]")
-            if simulation.potential.type == 'LJ':
-                print("\tEpsilon = {:2.6e} ".format(sp.epsilon), end='')
-                print("[erg]" if simulation.parameters.units == "cgs" else "[J]")
-                print("\tSigma = {:2.6e} ".format(sp.sigma), end='')
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-
-            print('\tTemperature = {:2.6e} [K]'.format(sp.temperature))
+            print("e-i Coupling Parameter = {:.4f} ".format(simulation.parameters.coupling_constant))
 
     def setup_checkpoint(self, params, species):
         """

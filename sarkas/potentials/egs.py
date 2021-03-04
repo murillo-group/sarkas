@@ -26,15 +26,13 @@ def update_params(potential, params):
     if not hasattr(potential, 'lmbda'):
         potential.lmbda = 1.0 / 9.0
 
-    fdint_fdk_vec = np.vectorize(fdint.fdk)
     fdint_dfdk_vec = np.vectorize(fdint.dfdk)
     beta_e = 1. / (params.kB * params.electron_temperature)
     thermal_wavelength = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
     # eq. (14) of Ref. [1]_
-    # params.nu = np.sqrt(8 * (4.0 * np.pi * params.qe ** 2 * beta_e / params.fourpie0 / thermal_wavelength))
-    params.nu = np.sqrt(8.0/twopi)* 3/2 * (2 * twopi * params.qe ** 2 * beta_e / params.fourpie0 / thermal_wavelength)
+    params.nu = 3/(4.0*np.pi**2) * params.qe**2 / params.eps0 * np.sqrt( 8 * params.me * beta_e)/params.hbar
     params.nu *= potential.lmbda * fdint_dfdk_vec(k=-0.5, phi=params.eta_e)
-    print(params.nu)
+
     # Degeneracy Parameter
     theta = params.electron_degeneracy_parameter
     if 0.1 <= theta <= 12:
@@ -52,7 +50,7 @@ def update_params(potential, params):
                          + (5.6686 * theta - 0.6453 * theta ** 2 + 21.1036 * theta ** 3) / Dtheta) # derivative of Ntheta
                  )
         # eq.(31) of Ref. [1]_
-        b = 1.0 - 1.0 / 8.0 * beta_e * theta * (h - 2.0 * theta * gradh) *params.hbar2/params.me
+        b = 1.0 - 2.0 / ( 8.0 * (params.kF * params.lambda_TF)**2) * (h - 2.0 * theta * gradh)
     else:
         b = 1.0
 

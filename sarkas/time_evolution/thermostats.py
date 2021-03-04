@@ -73,13 +73,28 @@ class Thermostat:
         # Make sure list are turned into numpy arrays
         if self.temperatures_eV:
             if not isinstance(self.temperatures_eV, np.ndarray):
-                self.temperatures_eV = np.array(self.temperatures_eV)
+                self.temperatures_eV = np.array([self.temperatures_eV])
             self.eV_temp_flag = True
 
         if self.temperatures:
             if not isinstance(self.temperatures, np.ndarray):
-                self.temperatures = np.array(self.temperatures)
+                self.temperatures = np.array([self.temperatures])
             self.K_temp_flag = True
+
+    def pretty_print(self):
+        """Print Thermostat information in a user-friendly way."""
+        print('Type: {}'.format(self.type))
+        print('First thermostating timestep, i.e. relaxation_timestep = {}'.format(self.relaxation_timestep))
+        print("Berendsen parameter tau: {:.3f} [s]".format(self.tau))
+        print("Berendsen relaxation rate: {:.3f} [Hz] ".format(self.relaxation_rate))
+        if not self.eV_temp_flag and not self.K_temp_flag:
+            # If you forgot to give thermostating temperatures
+            print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("Equilibration temperatures not defined. I will use the species's temperatures.")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        print("Thermostating temperatures: ")
+        for i, (t, t_ev) in enumerate(zip(self.temperatures, self.temperatures_eV)):
+            print("Species ID {}: T_eq = {:.6e} [K], {:.6e} [eV]".format(i,t, t_ev))
 
     def setup(self, params):
         """
@@ -99,8 +114,6 @@ class Thermostat:
         elif self.K_temp_flag:
             self.temperatures_eV = np.copy(self.temperatures) / params.eV2K
         else:
-            # If you forgot to give thermostating temperatures
-            print("\nWARNING: Equilibration temperatures not defined. I will use the species's temperatures.")
             self.temperatures = np.copy(params.species_temperatures)
             self.temperatures_eV = np.copy(self.temperatures) / params.eV2K
 

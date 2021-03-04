@@ -26,7 +26,7 @@ class PostProcess:
 
     """
 
-    def __init__(self, input_file = None):
+    def __init__(self, input_file=None):
         self.potential = Potential()
         self.integrator = Integrator()
         self.thermostat = Thermostat()
@@ -389,19 +389,22 @@ class PreProcess:
             self.time_integrator_loop()
 
             # Estimate size of dump folder
-            eq_dump_size = os.stat(os.path.join(self.io.eq_dump_dir,'checkpoint_{}.npz'.format(int(self.integrator.eq_dump_step)))).st_size
+            eq_dump_size = os.stat(os.path.join(self.io.eq_dump_dir,
+                                                'checkpoint_{}.npz'.format(int(self.integrator.eq_dump_step)))).st_size
             eq_dump_fldr_size = eq_dump_size * (self.integrator.equilibration_steps / self.integrator.eq_dump_step)
-            prod_dump_size = os.stat(os.path.join(self.io.prod_dump_dir, 'checkpoint_{}.npz'.format(int(self.integrator.prod_dump_step)))).st_size
+            prod_dump_size = os.stat(os.path.join(self.io.prod_dump_dir, 'checkpoint_{}.npz'.format(
+                int(self.integrator.prod_dump_step)))).st_size
             prod_dump_fldr_size = prod_dump_size * (self.integrator.production_steps / self.integrator.prod_dump_step)
             sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
-                             [prod_dump_size, prod_dump_fldr_size]])
+                              [prod_dump_size, prod_dump_fldr_size]])
             if self.integrator.electrostatic_equilibration:
                 dump = self.integrator.mag_dump_step
                 mag_dump_size = os.stat(os.path.join(self.io.mag_dump_dir, 'checkpoint_' + str(dump) + '.npz')).st_size
-                mag_dump_fldr_size = mag_dump_size * (self.integrator.magnetization_steps / self.integrator.mag_dump_step)
+                mag_dump_fldr_size = mag_dump_size * (
+                            self.integrator.magnetization_steps / self.integrator.mag_dump_step)
                 sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
-                                 [prod_dump_size, prod_dump_fldr_size],
-                                 [mag_dump_size, mag_dump_fldr_size]])
+                                  [prod_dump_size, prod_dump_fldr_size],
+                                  [mag_dump_size, mag_dump_fldr_size]])
 
             self.io.preprocess_sizing(sizes)
 
@@ -1065,7 +1068,7 @@ class Simulation:
         time_tot = self.timer.current()
         self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
 
-    def setup(self, read_yaml: bool =False, other_inputs=None):
+    def setup(self, read_yaml: bool = False, other_inputs=None):
         """Setup simulations' parameters and io subclasses.
 
         Parameters
@@ -1213,7 +1216,7 @@ def linear(x, a):
 
     Parameters
     ----------
-    x : array
+    x : np.ndarray
         Values at which to calculate the function.
 
     a: float
@@ -1221,6 +1224,7 @@ def linear(x, a):
 
     Returns
     -------
-    linear formula
+    _ : np.ndarray
+        linear formula
     """
     return a * x

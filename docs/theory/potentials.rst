@@ -21,6 +21,8 @@ All the equations will be given in cgs units, however, for easy conversion, we d
 
 which when substituted in gives the equivalent mks formula.
 
+Electron parameters and thermodynamic formulas are given in :ref:`electron_properties`.
+
 Coulomb Potential
 -----------------
 Two charged particle with charge numbers :math:`Z_a` and :math:`Z_b` interact with each other via the Coulomb potential
@@ -39,33 +41,30 @@ of positively charged ions in a uniform background of electrons. The form of the
 number :math:`Z_a` and :math:`Z_b` is given by
 
 .. math::
-   V(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{-\kappa r},
+   V(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{- r /\lambda_{\textrm{TF}}}, \quad \kappa = \frac{a_{\textrm{ws}}}{\lambda_{\textrm{TF}} }
 
-where :math:`\kappa = 1/\lambda_{\text{TF}}` is the screening parameter. In Sarkas this can be either given as an input
-or it can be calculated from the Thomas-Fermi formula
+where :math:`\lambda_{\textrm{TF}}` is the Thomas-Fermi wavelength and :math:`\kappa` is the screening parameter.
+In Sarkas :math:`\kappa` can be given as an input or it can be calculated from the
+:ref:`Thomas-Fermi Wavelength` formula.
 
-.. math::
-   \frac{1}{\lambda_{TF}^2} = \frac{4 \sqrt{\pi} \bar{e}^2 \beta}{\Lambda_e^3}\frac{\mathcal I_{-1/2}(\eta)}{2},
-
-where :math:`\Lambda_e` is the thermal de Broglie wavelength of the electrons and :math:`\mathcal I_p(\eta)` is the
-Dirac-Fermi integral of order :math:`p` defined as
-
-.. math::
-   \mathcal I_p ( \eta) = \int_0^\infty dx \frac{x^p}{1 + e^{x- \eta}}.
-
-where :math:`\eta = \beta \mu` is the chemical potential.
 Notice that when :math:`\kappa = 0` we recover the Coulomb Potential.
 
 Exact Gradient-corrected Screened Yukawa Potential
 --------------------------------------------------
-The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas. Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects.
-Stanton and Murillo :cite:`Stanton2015`, using a DFT formalism derived an exact-gradient corrected ion pair potential across a wide range of densities and temperatures. The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs. Density gradient corrections to the free energy functional lead to the first parameter, :math:`\nu`,
+The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas.
+Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects.
+Stanton and Murillo :cite:`Stanton2015`, using a DFT formalism, derived an exact-gradient corrected ion pair potential
+across a wide range of densities and temperatures.
+
+The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs.
+Density gradient corrections to the free energy functional lead to the first parameter, :math:`\nu`,
 
 .. math::
-   \nu = - 3 \lambda \frac{4\pi \bar{e}^2 \beta }{ 4 \pi \Lambda_{e}} \mathcal I_{-3/2}(\eta),
+   \nu = - \frac{3\lambda}{\pi^{3/2}}  \frac{4\pi \bar{e}^2 \beta }{\Lambda_{e}} \frac{d}{d\eta} \mathcal I_{-1/2}(\eta),
 
 where :math:`\lambda` is a correction factor; :math:`\lambda = 1/9` for the true gradient corrected Thomas-Fermi model
-and :math:`\lambda = 1` for the traditional von Weissaecker model.
+and :math:`\lambda = 1` for the traditional von Weissaecker model, :math:`\mathcal I_{-1/2}[\eta_0]` is the
+:ref:`Fermi Integral` of order :math:`-1/2`, and :math:`\Lambda_e` is the :ref:`de Broglie wavelength` of the electrons.
 
 In the case :math:`\nu < 1` the EGS potential takes the form
 
@@ -91,9 +90,10 @@ with
 Neglect of exchange-correlational effects leads to :math:`b = 1` otherwise
 
 .. math::
-   b = 1 - \frac{\Theta}8 \left [ h\left ( \Theta \right ) - 2 \Theta h'(\Theta) \right ]
+   b = 1 - \frac{2}{8} \frac{1}{k_{\textrm{F}}^2 \lambda_{\textrm{TF}}^2 }  \left [ h\left ( \Theta \right ) - 2 \Theta h'(\Theta) \right ]
 
-where :math:`\Theta = (\beta E_F)^{-1}` and
+where :math:`k_{\textrm{F}}` is the Fermi wavenumber and :math:`\Theta = (\beta E_{\textrm{F}})^{-1}` is the electron
+:ref:`Degeneracy Parameter` calculated from the :ref:`Fermi Energy`.
 
 .. math::
    h \left ( \Theta \right) = \frac{N(\Theta)}{D(\Theta)}\tanh \left( \Theta^{-1} \right ),

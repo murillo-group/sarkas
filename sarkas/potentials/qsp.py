@@ -87,17 +87,17 @@ def update_params(potential, params):
 
             if name1 == 'e' or name2 == 'e':
                 # Use electron temperature in e-e and e-i interactions
-                Lambda_dB = np.sqrt(deBroglie_const / (reduced * params.electron_temperature))
+                lambda_deB = np.sqrt(deBroglie_const / (reduced * params.electron_temperature))
             else:
                 # Use ion temperature in i-i interactions only
-                Lambda_dB = np.sqrt(deBroglie_const / (reduced * params.total_ion_temperature))
+                lambda_deB = np.sqrt(deBroglie_const / (reduced * params.total_ion_temperature))
 
             if name2 == name1:  # e-e
                 QSP_matrix[2, i, j] = log2 * params.kB * params.electron_temperature
-                QSP_matrix[3, i, j] = four_pi / (log2 * Lambda_dB ** 2)
+                QSP_matrix[3, i, j] = four_pi / (log2 * lambda_deB ** 2)
 
             QSP_matrix[0, i, j] = q1 * q2 / params.fourpie0
-            QSP_matrix[1, i, j] = two_pi / Lambda_dB
+            QSP_matrix[1, i, j] = two_pi / lambda_deB
 
     if not potential.qsp_pauli:
         QSP_matrix[2, :, :] = 0.0

@@ -218,7 +218,7 @@ class Potential:
 
     @staticmethod
     def calc_electron_properties(params):
-        """Calculate electronic parameters.
+        """Calculate electronic parameters. See DFT notes on website.
 
         Parameters
         ----------
@@ -228,27 +228,46 @@ class Potential:
         """
 
         twopi = 2.0 * np.pi
-        # Calculate electron gas properties
+        spin_degeneracy = 2.0  # g in the notes
+
+        # FDINT calculates the I integrals not the F integrals see notes.
         fdint_fdk_vec = np.vectorize(fdint.fdk)
         fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
-        beta_e = 1. / (params.kB * params.electron_temperature)
-        lambda_DB = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
-        lambda3 = lambda_DB ** 3
-        # chemical potential of electron gas/(kB T). See eq.(4) in Ref.[3]_
-        params.eta_e = fdint_ifd1h_vec(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
-        # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
-        params.lambda_TF = np.sqrt(params.fourpie0 * np.sqrt(np.pi) * lambda3 / (
-                8.0 * np.pi * params.qe ** 2 * beta_e * fdint_fdk_vec(k=-0.5, phi=params.eta_e)))
 
-        params.ae_ws = (3.0/(4.0 * np.pi * params.ne))**(1./3.) # Electron WS radius
+        # Inverse temperature for convenience
+        beta_e = 1. / (params.kB * params.electron_temperature)
+
+        # de Broglie wavelength
+        params.lambda_deB = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
+        lambda3 = params.lambda_deB ** 3
+
+        # Landau length 4pi e^2 beta. The division by fourpie0 is needed for MKS units
+        params.landau_length = 4.0 * np.pi * params.qe**2 * beta_e/params.fourpie0
+
+        # chemical potential of electron gas/(kB T), obtained by inverting the density equation.
+        params.eta_e = fdint_ifd1h_vec(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
+
+        # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
+        lambda_TF_sq = lambda3 / params.landau_length
+        lambda_TF_sq /= (spin_degeneracy / np.sqrt(np.pi) * fdint_fdk_vec(k=-0.5, phi=params.eta_e))
+        params.lambda_TF = np.sqrt(lambda_TF_sq)
+
+        # Electron WS radius
+        params.ae_ws = (3.0/(4.0 * np.pi * params.ne))**(1./3.)
+        # Brueckner parameters
         params.rs = params.ae_ws / params.a0
-        kF = (3.0 * np.pi ** 2 * params.ne) ** (1. / 3.)
-        params.fermi_energy = params.hbar2 * kF ** 2 / (2.0 * params.me)
+        # Fermi wave number
+        params.kF = (3.0 * np.pi ** 2 * params.ne) ** (1. / 3.)
+        # Fermi energy
+        params.fermi_energy = params.hbar2 * params.kF ** 2 / (2.0 * params.me)
+        # Other electron parameters
         params.electron_degeneracy_parameter = params.kB * params.electron_temperature / params.fermi_energy
-        params.relativistic_parameter = params.hbar * kF / (params.me * params.c0)
+        params.relativistic_parameter = params.hbar * params.kF / (params.me * params.c0)
+
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
         params.electron_coupling = params.qe**2/(
                 params.fourpie0 * params.fermi_energy * params.ae_ws* np.sqrt(params.electron_degeneracy_parameter**2))
+
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
         params.wdm_parameter = 2.0/(params.electron_degeneracy_parameter + 1.0/params.electron_degeneracy_parameter)
         params.wdm_parameter *= 2.0/(params.electron_coupling + 1.0/params.electron_coupling)
@@ -327,7 +346,7 @@ class Potential:
         self.update_linked_list(ptcls)
         self.update_pm(ptcls)
 
-    def pppm_setup(self, params) -> None:
+    def pppm_setup(self, params):
         """Calculate the P3M parameters.
 
         Parameters

@@ -59,24 +59,24 @@ UNITS = [
 ]
 
 PREFIXES = {
-    "y": 1.0e-24,
-    "z": 1.0e-21,
-    "a": 1.0e-18,
-    "f": 1.0e-15,
-    "p": 1.0e-12,
-    "n": 1.0e-9,
-    r"$\mu$": 1.0e-6,
-    "m": 1.0e-3,
-    "c": 1.0e-2,
+    "y": 1.0e-24,  # yocto
+    "z": 1.0e-21,  # zepto
+    "a": 1.0e-18,  # atto
+    "f": 1.0e-15,  # femto
+    "p": 1.0e-12,  # pico
+    "n": 1.0e-9,   # nano
+    r"$\mu$": 1.0e-6,  # micro
+    "m": 1.0e-3,  # milli
+    "c": 1.0e-2,  # centi
     "": 1.0,
-    "k": 1e3,
-    "M": 1e6,
-    "G": 1e9,
-    "T": 1e12,
-    "P": 1e15,
-    "E": 1e18,
-    "Z": 1e21,
-    "Y": 1e24
+    "k": 1e3,  # kilo
+    "M": 1e6,  # mega
+    "G": 1e9,  # giga
+    "T": 1e12,  # tera
+    "P": 1e15,  # peta
+    "E": 1e18,  # exa
+    "Z": 1e21,  # zetta
+    "Y": 1e24   # yotta
 }
 
 
