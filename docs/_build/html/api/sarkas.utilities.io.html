@@ -1,0 +1,614 @@
+  
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sarkas.utilities.io module &mdash; Sarkas 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sarkas.utilities.timing module" href="sarkas.utilities.timing.html" />
+    <link rel="prev" title="sarkas.utilities package" href="sarkas.utilities.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo_orange_gray_v3.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/input_file.html">Input File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/coupling_constant.html">Coupling Constant</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/electron_properties.html">Electron Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/integrators.html">Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/potentials.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/references.html">References</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/code_dev.html">Guidelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">sarkas</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sarkas.html">sarkas package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sarkas.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sarkas.utilities.html">sarkas.utilities package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.html#module-sarkas">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sarkas</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">sarkas</a> &raquo;</li>
+        
+          <li><a href="sarkas.html">sarkas package</a> &raquo;</li>
+        
+          <li><a href="sarkas.utilities.html">sarkas.utilities package</a> &raquo;</li>
+        
+      <li>sarkas.utilities.io module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/sarkas.utilities.io.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-sarkas.utilities.io">
+<span id="sarkas-utilities-io-module"></span><h1>sarkas.utilities.io module<a class="headerlink" href="#module-sarkas.utilities.io" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="sarkas.utilities.io.InputOutput">
+<em class="property">class </em><code class="sig-prename descclassname">sarkas.utilities.io.</code><code class="sig-name descname">InputOutput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">process</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.algorithm_info">
+<em class="property">static </em><code class="sig-name descname">algorithm_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.algorithm_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.algorithm_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print algorithm information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.create_file_paths">
+<code class="sig-name descname">create_file_paths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.create_file_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.create_file_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create all directories’, subdirectories’, and files’ paths .</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.dump">
+<code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phase</span></em>, <em class="sig-param"><span class="n">ptcls</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save particles’ data to binary file for future restart.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Simulation phase.</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p></li>
+<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep number.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.dump_xyz">
+<code class="sig-name descname">dump_xyz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">'production'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.dump_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.dump_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the XYZ file by reading Sarkas dumps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase from which to read dumps. ‘equilibration’ or ‘production’.</p></li>
+<li><p><strong>dump_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Interval of dumps to skip. Default = 1</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.file_header">
+<code class="sig-name descname">file_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.file_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.file_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the log file and print the figlet if not a restart run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.from_dict">
+<code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update attributes from input dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary to be copied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.from_yaml">
+<code class="sig-name descname">from_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse inputs from YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Input YAML file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dics</strong> – Content of YAML file parsed in a nested dictionary</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.make_directories">
+<code class="sig-name descname">make_directories</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.make_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.make_directories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create directories if non-existent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.postprocess_info">
+<code class="sig-name descname">postprocess_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em>, <em class="sig-param"><span class="n">write_to_file</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">observable</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.postprocess_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.postprocess_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print Post-processing info to file and/or screen in a reader-friendly format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>simulation</strong> (<a class="reference internal" href="sarkas.processes.html#sarkas.processes.PostProcess" title="sarkas.processes.PostProcess"><em>sarkas.processes.PostProcess</em></a>) – Sarkas processing stage.</p></li>
+<li><p><strong>write_to_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for printing info also to file. Default= False.</p></li>
+<li><p><strong>observable</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Observable whose info to print. Default = None.
+Choices = [‘header’,’rdf’, ‘ccf’, ‘dsf’, ‘ssf’, ‘vm’]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.potential_info">
+<em class="property">static </em><code class="sig-name descname">potential_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.potential_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.potential_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print potential information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.preprocess_sizing">
+<code class="sig-name descname">preprocess_sizing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sizes</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.preprocess_sizing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.preprocess_sizing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the estimated file sizes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.preprocess_timing">
+<code class="sig-name descname">preprocess_timing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">str_id</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">loops</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.preprocess_timing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.preprocess_timing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print times estimates of simulation to file first and then to screen if verbose.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.read_npz">
+<em class="property">static </em><code class="sig-name descname">read_npz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldr</span></em>, <em class="sig-param"><span class="n">it</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.read_npz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.read_npz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load particles’ data from dumps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Folder containing dumps.</p></li>
+<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Timestep to load.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>struct_array</strong> – Structured data array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.read_pickle">
+<code class="sig-name descname">read_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">process</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.read_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.read_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read pickle files containing all the simulation information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>process</strong> (<em>cls</em>) – Simulation’s parameters. It can be one of three (sarkas.tools.PreProcess,
+sarkas.base.Simulation, sarkas.tools.PostProcess)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.read_pickle_single">
+<code class="sig-name descname">read_pickle_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">class_to_read</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.read_pickle_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.read_pickle_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the desired pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>class_to_read</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the class to read.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Desired class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>cls</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.save_pickle">
+<code class="sig-name descname">save_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.save_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.save_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save all simulations parameters in pickle files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.screen_figlet">
+<em class="property">static </em><code class="sig-name descname">screen_figlet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.screen_figlet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.screen_figlet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a colored figlet of Sarkas to screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create file paths and directories for the simulation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.setup_checkpoint">
+<code class="sig-name descname">setup_checkpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.setup_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.setup_checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign attributes needed for saving dumps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – General simulation parameters.</p></li>
+<li><p><strong>species</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Species" title="sarkas.base.Species"><em>sarkas.base.Species</em></a>) – List of Species classes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.simulation_summary">
+<code class="sig-name descname">simulation_summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.simulation_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.simulation_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print out to file a summary of simulation’s parameters.
+If verbose output then it will print twice: the first time to file and second time to screen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>cls</em>) – Simulation’s parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.time_info">
+<em class="property">static </em><code class="sig-name descname">time_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.time_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.time_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print time simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.time_stamp">
+<code class="sig-name descname">time_stamp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time_stamp</span></em>, <em class="sig-param"><span class="n">t</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.time_stamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.time_stamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print out to screen elapsed times. If verbose output, print to file first and then to screen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_stamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Array of time stamps.</p></li>
+<li><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Elapsed time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.utilities.io.InputOutput.timing_study">
+<code class="sig-name descname">timing_study</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.timing_study"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.timing_study" title="Permalink to this definition">¶</a></dt>
+<dd><p>Info specific for timing study.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation’s parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.utilities.io.alpha_to_int">
+<code class="sig-prename descclassname">sarkas.utilities.io.</code><code class="sig-name descname">alpha_to_int</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#alpha_to_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.alpha_to_int" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.utilities.io.convert_bytes">
+<code class="sig-prename descclassname">sarkas.utilities.io.</code><code class="sig-name descname">convert_bytes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tot_bytes</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#convert_bytes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.convert_bytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="sarkas.utilities.io.num_sort">
+<code class="sig-prename descclassname">sarkas.utilities.io.</code><code class="sig-name descname">num_sort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#num_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sarkas.utilities.io.num_sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method copied from
+<a class="reference external" href="https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside">https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside</a></p>
+<p class="rubric">Notes</p>
+<p>originally from <a class="reference external" href="http://nedbatchelder.com/blog/200712/human_sorting.html">http://nedbatchelder.com/blog/200712/human_sorting.html</a>
+(See Toothy’s implementation in the comments)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Text to be split into str and int</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List containing text and integers</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sarkas.utilities.timing.html" class="btn btn-neutral float-right" title="sarkas.utilities.timing module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sarkas.utilities.html" class="btn btn-neutral float-left" title="sarkas.utilities package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, MurilloGroup
+      <span class="lastupdated">
+        Last updated on Mar, 05, 2021.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+/*  .wy-nav-content {
+    max-width: 900px !important;
+  }*/
+}
+  </style>
+
+
+</body>
+</html>

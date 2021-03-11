@@ -46,13 +46,17 @@ DARK_COLORS = ['24;69;49',
 
 class InputOutput:
 
-    def __init__(self):
+    def __init__(self, process: str = None):
         """Set default directory names."""
+        self.__name__ = 'io'
+        self.process = process if process else 'preprocessing'
         self.input_file = None
         self.equilibration_dir = 'Equilibration'
         self.production_dir = 'Production'
         self.magnetization_dir = "Magnetization"
         self.simulations_dir = "Simulations"
+        self.processes_dir = None
+        self.simulation_dir = "Simulation"
         self.preprocessing_dir = "PreProcessing"
         self.postprocessing_dir = "PostProcessing"
         self.prod_dump_dir = 'dumps'
@@ -90,6 +94,7 @@ class InputOutput:
         self.__dict__.update(input_dict)
 
     def setup(self):
+        """Create file paths and directories for the simulation."""
         self.create_file_paths()
         self.make_directories()
         self.file_header()
@@ -141,6 +146,8 @@ class InputOutput:
                 if key == 'electrostatic_equilibration':
                     self.electrostatic_equilibration = value
 
+        # rdf_nbins can be defined in either Parameters or Postprocessing. However, Postprocessing will always
+        # supersede Parameters choice.
         if 'PostProcessing' in dics.keys():
             for i in dics['PostProcessing']:
                 if 'RadialDistributionFunction' in i.keys():
@@ -149,7 +156,7 @@ class InputOutput:
         return dics
 
     def create_file_paths(self):
-        """Create all the file and directory paths."""
+        """Create all directories', subdirectories', and files' paths ."""
 
         if self.job_dir is None:
             self.job_dir = os.path.basename(self.input_file).split('.')[0]
@@ -159,45 +166,56 @@ class InputOutput:
 
         self.job_dir = os.path.join(self.simulations_dir, self.job_dir)
 
+        # Create Processes directories
+        self.processes_dir = [os.path.join(self.job_dir, self.preprocessing_dir),
+                               os.path.join(self.job_dir, self.simulation_dir),
+                               os.path.join(self.job_dir, self.postprocessing_dir)]
+
+        # Redundancy
+        self.preprocessing_dir = self.processes_dir[0]
+        self.simulation_dir = self.processes_dir[1]
+        self.postprocessing_dir = self.processes_dir[2]
+
+        # Redirect to the correct process folder
+        if self.process == 'preprocessing':
+            indx = 0
+        else:
+            # Note that Postprocessing needs the link to simulation's folder
+            # because that is where I look for energy files and pickle files
+            indx = 1
+
         # Equilibration directory and sub_dir
-        self.equilibration_dir = os.path.join(self.job_dir, self.equilibration_dir)
+        self.equilibration_dir = os.path.join(self.processes_dir[indx], self.equilibration_dir)
         self.eq_dump_dir = os.path.join(self.equilibration_dir, 'dumps')
         # Production dir and sub_dir
-        self.production_dir = os.path.join(self.job_dir, self.production_dir)
+        self.production_dir = os.path.join(self.processes_dir[indx], self.production_dir)
         self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
+
+        # Production phase filenames
+        self.prod_energy_filename = os.path.join(self.production_dir, "ProductionEnergy_" + self.job_id + '.csv')
+        self.prod_ptcls_filename = os.path.join(self.prod_dump_dir, "checkpoint_")
+
+        # Equilibration phase filenames
+        self.eq_energy_filename = os.path.join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + '.csv')
+        self.eq_ptcls_filename = os.path.join(self.eq_dump_dir, "checkpoint_")
 
         # Magnetic dir
         if self.electrostatic_equilibration:
-            self.magnetization_dir = os.path.join(self.job_dir, self.magnetization_dir)
+            self.magnetization_dir = os.path.join(self.processes_dir[indx], self.magnetization_dir)
             self.mag_dump_dir = os.path.join(self.magnetization_dir, "dumps")
             # Magnetization phase filenames
             self.mag_energy_filename = os.path.join(self.magnetization_dir,
                                                     "MagnetizationEnergy_" + self.job_id + '.csv')
             self.mag_ptcls_filename = os.path.join(self.mag_dump_dir, "checkpoint_")
 
-        # Preprocessing dir
-        self.preprocessing_dir = os.path.join(self.job_dir, self.preprocessing_dir)
+        if self.process == 'postprocessing':
+            indx = 2  # Redirect to the correct folder
 
-        # Postprocessing dir
-        self.postprocessing_dir = os.path.join(self.job_dir, self.postprocessing_dir)
-
+        # Log File
         if self.log_file is None:
-            self.log_file = os.path.join(self.job_dir, "log_" + self.job_id + ".out")
-
-        # Pre run file name
-        self.preprocess_file = os.path.join(self.preprocessing_dir, 'PreProcessing_' + self.job_id + '.out')
-
-        # Production phase filenames
-        self.prod_energy_filename = os.path.join(self.production_dir, "ProductionEnergy_" + self.job_id + '.csv')
-        self.prod_ptcls_filename = os.path.join(self.prod_dump_dir, "checkpoint_")
-        # Equilibration phase filenames
-        self.eq_energy_filename = os.path.join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + '.csv')
-        self.eq_ptcls_filename = os.path.join(self.eq_dump_dir, "checkpoint_")
-
-        if self.preprocessing:
-            self.io_file = self.preprocess_file
+            self.log_file = os.path.join(self.processes_dir[indx], "log_" + self.job_id + ".out")
         else:
-            self.io_file = self.log_file
+            self.log_file = os.path.join(self.processes_dir[indx], self.log_file)
 
     def make_directories(self):
         """Create directories if non-existent."""
@@ -209,6 +227,11 @@ class InputOutput:
         if not os.path.exists(self.job_dir):
             os.mkdir(self.job_dir)
 
+        # Create Process' directories and their subdir
+        for i in self.processes_dir:
+            if not os.path.exists(i):
+                os.mkdir(i)
+        # The following automatically create directories in the correct Process
         if not os.path.exists(self.equilibration_dir):
             os.mkdir(self.equilibration_dir)
 
@@ -239,7 +262,7 @@ class InputOutput:
         """Create the log file and print the figlet if not a restart run."""
 
         if not self.restart:
-            with open(self.io_file, "w+") as f_log:
+            with open(self.log_file, "w+") as f_log:
                 figlet_obj = Figlet(font='starwars')
                 print(figlet_obj.renderText('Sarkas'), file=f_log)
                 print("An open-source pure-Python molecular dynamics code for non-ideal plasmas.", file=f_log)
@@ -255,13 +278,13 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation : cls
+        simulation : sarkas.processes.Process
             Simulation's parameters
 
         """
 
         screen = sys.stdout
-        f_log = open(self.io_file, 'a+')
+        f_log = open(self.log_file, 'a+')
 
         repeat = 2 if self.verbose else 1
         # redirect printing to file
@@ -279,9 +302,27 @@ class InputOutput:
             elif simulation.parameters.load_method in ['magnetization_restart', 'mag_restart']:
                 print('\n\n------------------------ Magnetization Restart ----------------------------------')
                 self.time_info(simulation)
+            elif self.process == 'postprocessing':
+                # Header of process
+                process_title = '{:^90}'.format(self.process.capitalize())
+                print('\n\n')
+                print(*['*' for i in range(50)])
+                print(process_title)
+                print(*['*' for i in range(50)])
+
+                print('\nJob ID: ', self.job_id)
+                print('Job directory: ', self.job_dir)
+                print('Equilibration dumps directory: ', self.eq_dump_dir)
+                print('Production dumps directory: ', self.prod_dump_dir)
+
             else:
 
-                print('\n\n======================= Simulation ==========================')
+                # Header of process
+                process_title = '{:^90}'.format(self.process.capitalize())
+                print('\n\n')
+                print(*['*' for i in range(50)])
+                print(process_title)
+                print(*['*' for i in range(50)])
 
                 print('\nJob ID: ', self.job_id)
                 print('Job directory: ', self.job_dir)
@@ -332,7 +373,7 @@ class InputOutput:
             Elapsed time.
         """
         screen = sys.stdout
-        f_log = open(self.io_file, 'a+')
+        f_log = open(self.log_file, 'a+')
         repeat = 2 if self.verbose else 1
         t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
         # redirect printing to file
@@ -340,7 +381,7 @@ class InputOutput:
 
         while repeat > 0:
             if 'Potential Initialization' in time_stamp:
-                print('\n\n----------------- Initialization Times -----------------------')
+                print('\n\n{:-^70} \n'.format(' Initialization Times '))
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
                 print('\n{} Time: {} sec {} msec {} usec {} nsec'.format(time_stamp,
                                                                          int(t_sec),
@@ -366,7 +407,7 @@ class InputOutput:
 
         """
         screen = sys.stdout
-        f_log = open(self.io_file, 'a+')
+        f_log = open(self.log_file, 'a+')
         repeat = 2 if self.verbose else 1
 
         # redirect printing to file
@@ -395,13 +436,13 @@ class InputOutput:
         """Print the estimated file sizes. """
 
         screen = sys.stdout
-        f_log = open(self.io_file, 'a+')
+        f_log = open(self.log_file, 'a+')
         repeat = 2 if self.verbose else 1
 
         # redirect printing to file
         sys.stdout = f_log
         while repeat > 0:
-            print('\n\n====================== Filesize Estimates ===========================\n')
+            print('\n\n{:=^70} \n'.format(' Filesize Estimates '))
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 0])
             print('\nEquilibration:\n')
             print("Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(int(size_GB),
@@ -454,14 +495,14 @@ class InputOutput:
     def preprocess_timing(self, str_id, t, loops):
         """Print times estimates of simulation to file first and then to screen if verbose."""
         screen = sys.stdout
-        f_log = open(self.io_file, 'a+')
+        f_log = open(self.log_file, 'a+')
         repeat = 2 if self.verbose else 1
         t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
         # redirect printing to file
         sys.stdout = f_log
         while repeat > 0:
             if str_id == 'header':
-                print('\n\n====================== Times Estimates ===========================\n')
+                print('\n\n{:=^70} \n'.format(' Times Estimates '))
             elif str_id == "GF":
                 print("Optimal Green's Function Time: \n"
                       '{} min {} sec {} msec {} usec {} nsec \n'.format(int(t_min),
@@ -513,8 +554,7 @@ class InputOutput:
                                                                         int(t_usec),
                                                                         int(t_nsec)))
 
-                print('\n\n----------------- Total Estimated Times -----------------------')
-
+                print('\n\n{:-^70} \n'.format(' Total Estimated Times '))
             repeat -= 1
             sys.stdout = screen
 
@@ -538,7 +578,7 @@ class InputOutput:
 
         """
 
-        choices = ['header', 'rdf', 'ccf', 'dsf', 'ssf', 'vm']
+        choices = ['header', 'rdf', 'ccf', 'dsf', 'ssf', 'vd']
         assert observable is not None, 'Observable not defined.'
 
         assert observable in choices, "Observable not defined. " \
@@ -547,11 +587,11 @@ class InputOutput:
                                       "'ccf' = Current Correlation Function, \n" \
                                       "'dsf' = Dynamic Structure Function, \n" \
                                       "'ssf' = Static Structure Factor, \n" \
-                                      "'vm' = Velocity Moments"
+                                      "'vd' = Velocity Distribution"
 
         if write_to_file:
             screen = sys.stdout
-            f_log = open(self.io_file, 'a+')
+            f_log = open(self.log_file, 'a+')
             repeat = 2 if self.verbose else 1
 
             # redirect printing to file
@@ -561,17 +601,22 @@ class InputOutput:
 
         while repeat > 0:
             if observable == 'header':
-                print('\n\n===================== Post Processing ============================')
+                # Header of process
+                process_title = '{:^90}'.format(self.process.capitalize())
+                print('\n\n')
+                print(*['*' for i in range(50)])
+                print(process_title)
+                print(*['*' for i in range(50)])
 
             elif observable == 'rdf':
-                simulation.rdf.calculation_print_out()
+                simulation.rdf.pretty_print()
             elif observable == 'ssf':
-                simulation.ssf.calculation_info_print_out()
+                simulation.ssf.pretty_print()
             elif observable == 'dsf':
-                simulation.dsf.calculation_print_out()
+                simulation.dsf.pretty_print()
             elif observable == 'ccf':
-                simulation.ccf.calculation_print_out()
-            elif observable == 'vm':
+                simulation.ccf.pretty_print()
+            elif observable == 'vd':
                 simulation.vm.setup(simulation.parameters)
                 print('\nVelocity Moments:')
                 print('Maximum no. of moments = {}'.format(simulation.vm.max_no_moment))
@@ -705,7 +750,7 @@ class InputOutput:
                 simulation.integrator.eq_dump_step,
                 simulation.integrator.eq_dump_step * simulation.integrator.dt,
                 simulation.integrator.eq_dump_step * wp_dt))
-             # Magnetization
+            # Magnetization
             if simulation.integrator.electrostatic_equilibration:
                 print('\nMagnetization: \nNo. of magnetization steps = {} \n'
                       'Total magnetization time = {:.4e} [s] ~ {} w_p T_mag '.format(
@@ -939,8 +984,17 @@ class InputOutput:
         Save all simulations parameters in pickle files.
         """
         file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']
+
+        # Redirect to the correct process folder
+        if self.process == 'preprocessing':
+            indx = 0
+        else:
+            # Note that Postprocessing needs the link to simulation's folder
+            # because that is where I look for energy files and pickle files
+            indx = 1
+
         for fl in file_list:
-            filename = os.path.join(self.job_dir, fl + ".pickle")
+            filename = os.path.join(self.processes_dir[indx], fl + ".pickle")
             pickle_file = open(filename, "wb")
             pickle.dump(simulation.__dict__[fl], pickle_file)
             pickle_file.close()
@@ -957,8 +1011,17 @@ class InputOutput:
         """
         import copy as py_copy
         file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']
+
+        # Redirect to the correct process folder
+        if self.process == 'preprocessing':
+            indx = 0
+        else:
+            # Note that Postprocessing needs the link to simulation's folder
+            # because that is where I look for energy files and pickle files
+            indx = 1
+
         for fl in file_list:
-            filename = os.path.join(self.job_dir, fl + ".pickle")
+            filename = os.path.join(self.processes_dir[indx], fl + ".pickle")
             data = np.load(filename, allow_pickle=True)
             process.__dict__[fl] = py_copy.copy(data)
 
@@ -979,7 +1042,15 @@ class InputOutput:
         """
         import copy as py_copy
 
-        filename = os.path.join(self.job_dir, class_to_read + ".pickle")
+        # Redirect to the correct process folder
+        if self.process == 'preprocessing':
+            indx = 0
+        else:
+            # Note that Postprocessing needs the link to simulation's folder
+            # because that is where I look for energy files and pickle files
+            indx = 1
+
+        filename = os.path.join(self.processes_dir[indx], class_to_read + ".pickle")
         data = np.load(filename, allow_pickle=True)
         return py_copy.copy(data)
 
@@ -1040,7 +1111,7 @@ class InputOutput:
             energy_file = self.mag_energy_filename
 
         kinetic_energies, temperatures = ptcls.kinetic_temperature()
-        # Prepare data for saving
+        # Save Energy data
         data = {"Time": it * self.dt,
                 "Total Energy": np.sum(kinetic_energies) + ptcls.potential_energy,
                 "Total Kinetic Energy": np.sum(kinetic_energies),
@@ -1051,6 +1122,7 @@ class InputOutput:
             for sp, kin in enumerate(kinetic_energies):
                 data["{} Kinetic Energy".format(self.species_names[sp])] = kin
                 data["{} Temperature".format(self.species_names[sp])] = temperatures[sp]
+
         with open(energy_file, 'a') as f:
             w = csv.writer(f)
             w.writerow(data.values())
@@ -1198,8 +1270,8 @@ def num_sort(text):
     return [alpha_to_int(c) for c in re.split(r'(\d+)', text)]
 
 
-def convert_bytes(bytes):
-    GB, rem = divmod(bytes, 1024 * 1024 * 1024)
+def convert_bytes(tot_bytes):
+    GB, rem = divmod(tot_bytes, 1024 * 1024 * 1024)
     MB, rem = divmod(rem, 1024 * 1024)
     KB, rem = divmod(rem, 1024)
 

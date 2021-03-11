@@ -146,6 +146,7 @@ class TransportCoefficient:
             Pandas dataframe containing the value of the transport coefficient as a function of integration time.
 
         """
+        print('\n\n{:=^70} \n'.format(' Diffusion Coefficient '))
         coefficient = pd.DataFrame()
         vacf = obs.VelocityAutoCorrelationFunction()
         vacf.setup(params, phase=phase, time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
@@ -277,7 +278,7 @@ class TransportCoefficient:
             Pandas dataframe containing the value of the transport coefficient as a function of integration time.
 
         """
-
+        print('\n\n{:=^70} \n'.format(' Interdiffusion Coefficient '))
         coefficient = pd.DataFrame()
         jc_acf = obs.FluxAutoCorrelationFunction()
         jc_acf.setup(params, phase=phase, time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
@@ -362,7 +363,7 @@ class TransportCoefficient:
     @staticmethod
     def viscosity(params, phase: str = 'production', show=False):
         """
-        Calculate bulk and shear viscosity from pressure auto-correlation function.
+        TODO: Calculate bulk and shear viscosity from pressure auto-correlation function.
 
         Parameters
         ----------
@@ -381,6 +382,7 @@ class TransportCoefficient:
             Pandas dataframe containing the value of the transport coefficient as a function of integration time.
 
         """
+        print('\n\n{:=^70} \n'.format(' Viscosity Coefficient '))
         coefficient = pd.DataFrame()
         energies = obs.Thermodynamics()
         energies.setup(params, phase)

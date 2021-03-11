@@ -562,7 +562,7 @@ class Parameters:
             print('Coupling: r_s = {:.6f},  Gamma_e = {:.6f}'.format(self.rs, self.electron_coupling) )
             print('Warm Dense Matter Parameter: W = {:.4f}'.format(self.wdm_parameter))
 
-            print("Chemical potential (rescaled): mu = {:.6f} k_B T_e = {:.4f} E_F".format(
+            print("Chemical potential: mu = {:.6f} k_B T_e = {:.4f} E_F".format(
                 self.eta_e, self.eta_e * self.kB * self.electron_temperature / self.fermi_energy))
 
         if self.magnetized:

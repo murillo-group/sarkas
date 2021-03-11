@@ -27,10 +27,8 @@ def update_params(potential, params):
         potential.lmbda = 1.0 / 9.0
 
     fdint_dfdk_vec = np.vectorize(fdint.dfdk)
-    beta_e = 1. / (params.kB * params.electron_temperature)
-    thermal_wavelength = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
     # eq. (14) of Ref. [1]_
-    params.nu = 3/(4.0*np.pi**2) * params.qe**2 / params.eps0 * np.sqrt( 8 * params.me * beta_e)/params.hbar
+    params.nu = 3.0/np.pi ** 1.5 * params.landau_length / params.lambda_deB
     params.nu *= potential.lmbda * fdint_dfdk_vec(k=-0.5, phi=params.eta_e)
 
     # Degeneracy Parameter
@@ -125,7 +123,7 @@ def EGS_force_PP(r, pot_matrix):
     """
     # nu = pot_matrix[1]
     if pot_matrix[1] <= 1.0:
-        # pot_matrix[0] = Charge factor
+        # pot_matrix[0] = Charge factor = q^2/4pi eps0 if mks q^2 if cgs
         # pot_matrix[2] = 1 + alpha
         # pot_matrix[3] = 1 - alpha
         # pot_matrix[4] = 1.0 / lambda_minus
@@ -133,7 +131,9 @@ def EGS_force_PP(r, pot_matrix):
 
         temp1 = pot_matrix[2] * np.exp(-r * pot_matrix[4])
         temp2 = pot_matrix[3] * np.exp(-r * pot_matrix[5])
+        # Potential
         U = (temp1 + temp2) * pot_matrix[0] / r
+        # Force
         fr = U / r + pot_matrix[0] * (temp1 * pot_matrix[4] + temp2 * pot_matrix[5]) / r
 
     else:

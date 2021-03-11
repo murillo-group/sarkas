@@ -12,21 +12,49 @@ from sarkas.potentials.base import Potential
 from sarkas.time_evolution.integrators import Integrator
 from sarkas.time_evolution.thermostats import Thermostat
 from sarkas.base import Particles, Parameters, Species
-import sarkas.tools.observables as obs
+import sarkas.tools.observables as sk_obs
 
 
-class PostProcess:
-    """
-    Class handling the post-processing stage of a simulation.
+class Process:
+    """Stage of a Molecular Dynamics simulation. This is the Parent class for PreProcess, Simulation, and PostProcess.
 
     Parameters
     ----------
     input_file : str
         Path to the YAML input file.
 
+    Attributes
+    ----------
+    potential : sarkas.potential.base.Potential
+        Class handling the interaction between particles.
+
+    integrator: sarkas.time_evolution.integrators.Integrator
+        Class handling the integrator.
+
+    thermostat: sarkas.time_evolution.thermostats.Thermostat
+        Class handling the equilibration thermostat.
+
+    particles: sarkas.base.Particles
+        Class handling particles properties.
+
+    parameters: sarkas.base.Parameters
+        Class handling simulation's parameters.
+
+    species: list
+        List of :meth:`sarkas.base.Species` classes.
+
+    input_file: str
+        Path to YAML input file.
+
+    timer: sarkas.utilities.timing.SarkasTimer
+        Class handling the timing of processes.
+
+    io: sarkas.utilities.io.InputOutput
+        Class handling the IO in Sarkas.
+
     """
 
-    def __init__(self, input_file=None):
+    def __init__(self, input_file: str = None):
         self.potential = Potential()
         self.integrator = Integrator()
         self.thermostat = Thermostat()
@@ -35,121 +63,9 @@ class PostProcess:
         self.species = []
         self.input_file = input_file if input_file else None
         self.timer = SarkasTimer()
-        self.io = InputOutput()
+        self.io = InputOutput(process=self.__name__)
 
-    def common_parser(self, filename=None):
-
-        if filename:
-            self.input_file = filename
-
-        dics = self.io.from_yaml(self.input_file)
-
-        for observable in dics['PostProcessing']:
-            for key, sub_dict in observable.items():
-                if key == 'RadialDistributionFunction':
-                    self.rdf = obs.RadialDistributionFunction()
-                    self.rdf.from_dict(sub_dict)
-                if key == 'HermiteCoefficients':
-                    self.hc = obs.HermiteCoefficients()
-                    self.hc.from_dict(sub_dict)
-                if key == 'Thermodynamics':
-                    self.therm = obs.Thermodynamics()
-                    self.therm.from_dict(sub_dict)
-                if key == 'DynamicStructureFactor':
-                    self.dsf = obs.DynamicStructureFactor()
-                    if sub_dict:
-                        self.dsf.from_dict(sub_dict)
-                if key == 'CurrentCorrelationFunction':
-                    self.ccf = obs.CurrentCorrelationFunction()
-                    if sub_dict:
-                        self.ccf.from_dict(sub_dict)
-                if key == 'StaticStructureFactor':
-                    self.ssf = obs.StaticStructureFactor()
-                    if sub_dict:
-                        self.ssf.from_dict(sub_dict)
-                if key == 'VelocityAutoCorrelationFunction':
-                    self.vacf = obs.VelocityAutoCorrelationFunction()
-                    if sub_dict:
-                        self.vacf.from_dict(sub_dict)
-                if key == 'VelocityMoments':
-                    self.vm = obs.VelocityMoments()
-                    if sub_dict:
-                        self.vm.from_dict(sub_dict)
-                if key == 'ElectricCurrent':
-                    self.ec = obs.ElectricCurrent()
-                    if sub_dict:
-                        self.ec.from_dict(sub_dict)
-                if key == 'FluxAutoCorrelationFunction':
-                    self.facf = obs.FluxAutoCorrelationFunction()
-                    if sub_dict:
-                        self.facf.from_dict(sub_dict)
-
-    def setup(self, read_yaml: bool = False, other_inputs=None):
-        """
-        Setup subclasses and attributes by reading the pickle files first
-        """
-        if read_yaml:
-            self.common_parser()
-
-        if other_inputs:
-            if not isinstance(other_inputs, dict):
-                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
-
-            for class_name, class_attr in other_inputs.items():
-                if not class_name == 'Particles':
-                    self.__dict__[class_name.lower()].from_dict(class_attr)
-
-        self.io.create_file_paths()
-        self.io.read_pickle(self)
-
-        # if self.parameters.plot_style:
-        #     plt.style.use(self.parameters.plot_style)
-
-    def setup_from_simulation(self, simulation):
-        """
-        Setup postprocess' subclasses by (shallow) copying them from simulation object.
-
-        Parameters
-        ----------
-        simulation: sarkas.base.Simulation
-            Simulation object
-
-        """
-        self.parameters = py_copy.copy(simulation.parameters)
-        self.integrator = py_copy.copy(simulation.integrator)
-        self.potential = py_copy.copy(simulation.potential)
-        self.species = py_copy.copy(simulation.species)
-        self.thermostat = py_copy.copy(simulation.thermostat)
-        self.io = py_copy.copy(simulation.io)
-
-
-class PreProcess:
-    """
-    Wrapper class handling the estimation of time and best parameters of a simulation.
-
-    Parameters
-    ----------
-    input_file : str
-        Path to the YAML input file.
-
-    """
-
-    def __init__(self, input_file=None):
-        self.potential = Potential()
-        self.integrator = Integrator()
-        self.thermostat = Thermostat()
-        self.parameters = Parameters()
-        self.particles = Particles()
-        self.species = []
-        self.input_file = input_file if input_file else None
-        self.loops = 10
-        self.estimate = False
-        self.pm_meshes = np.array([8, 16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
-        self.pp_cells = np.arange(3, 16, dtype=int)
-        self.timer = SarkasTimer()
-        self.io = InputOutput()
-
-    def common_parser(self, filename=None):
+    def common_parser(self, filename: str = None) -> None:
         """
         Parse simulation parameters from YAML file.
 
@@ -157,7 +73,6 @@ class PreProcess:
         ----------
         filename: str
             Input YAML file
-
 
         """
         if filename:
@@ -183,41 +98,60 @@ class PreProcess:
             if lkey == "Parameters":
                 self.parameters.from_dict(dics[lkey])
 
+        self.observables_list = []
+        # This is not needed in the case of process = simulation
         for observable in dics['PostProcessing']:
             for key, sub_dict in observable.items():
                 if key == 'RadialDistributionFunction':
-                    self.rdf = obs.RadialDistributionFunction()
-                    self.rdf.from_dict(sub_dict)
+                    self.observables_list.append('rdf')
+                    self.rdf = sk_obs.RadialDistributionFunction()
+                    if sub_dict:
+                        self.rdf.from_dict(sub_dict)
                 if key == 'HermiteCoefficients':
-                    self.hc = obs.HermiteCoefficients()
+                    self.hc = sk_obs.HermiteCoefficients()
                     self.hc.from_dict(sub_dict)
                 if key == 'Thermodynamics':
-                    self.therm = obs.Thermodynamics()
+                    self.therm = sk_obs.Thermodynamics()
                     self.therm.from_dict(sub_dict)
+                    self.observables_list.append('therm')
                 if key == 'DynamicStructureFactor':
-                    self.dsf = obs.DynamicStructureFactor()
+                    self.observables_list.append('dsf')
+                    self.dsf = sk_obs.DynamicStructureFactor()
                     if sub_dict:
                         self.dsf.from_dict(sub_dict)
                 if key == 'CurrentCorrelationFunction':
-                    self.ccf = obs.CurrentCorrelationFunction()
+                    self.observables_list.append('ccf')
+                    self.ccf = sk_obs.CurrentCorrelationFunction()
                     if sub_dict:
                         self.ccf.from_dict(sub_dict)
                 if key == 'StaticStructureFactor':
-                    self.ssf = obs.StaticStructureFactor()
+                    self.observables_list.append('ssf')
+                    self.ssf = sk_obs.StaticStructureFactor()
                     if sub_dict:
                         self.ssf.from_dict(sub_dict)
                 if key == 'VelocityAutoCorrelationFunction':
-                    self.vacf = obs.VelocityAutoCorrelationFunction()
+                    self.observables_list.append('vacf')
+                    self.vacf = sk_obs.VelocityAutoCorrelationFunction()
                     if sub_dict:
                         self.vacf.from_dict(sub_dict)
-                if key == 'VelocityMoments':
-                    self.vm = obs.VelocityMoments()
+                if key == 'VelocityDistribution':
+                    self.observables_list.append('vd')
+                    self.vm = sk_obs.VelocityDistribution()
                     if sub_dict:
                         self.vm.from_dict(sub_dict)
                 if key == 'ElectricCurrent':
-                    self.ec = obs.ElectricCurrent()
+                    self.observables_list.append('ec')
+                    self.ec = sk_obs.ElectricCurrent()
                     if sub_dict:
                         self.ec.from_dict(sub_dict)
+                if key == 'FluxAutoCorrelationFunction':
+                    self.observables_list.append('facf')
+                    self.facf = sk_obs.FluxAutoCorrelationFunction()
+                    if sub_dict:
+                        self.facf.from_dict(sub_dict)
+
+        if 'TransportCoefficients' in dics.keys():
+            self.transport_dict = dics["TransportCoefficients"].copy()
 
     def setup(self, read_yaml=False, other_inputs=None):
         """Setup simulations' parameters and io subclasses.
@@ -235,8 +169,7 @@ class PreProcess:
             self.common_parser()
 
         if other_inputs:
-            if not isinstance(other_inputs, dict):
-                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
+            assert isinstance(other_inputs, dict), "Wrong input type. other_inputs should be a nested dictionary"
 
             for class_name, class_attr in other_inputs.items():
                 if class_name not in ['Particles', 'PostProcessing']:
@@ -251,97 +184,211 @@ class PreProcess:
                     for observable in class_attr:
                         for key, sub_dict in observable.items():
                             if key == 'RadialDistributionFunction':
-                                self.rdf = obs.RadialDistributionFunction()
+                                self.rdf = sk_obs.RadialDistributionFunction()
                                 self.rdf.from_dict(sub_dict)
                             if key == 'HermiteCoefficients':
-                                self.hc = obs.HermiteCoefficients()
+                                self.hc = sk_obs.HermiteCoefficients()
                                 self.hc.from_dict(sub_dict)
                             if key == 'Thermodynamics':
-                                self.therm = obs.Thermodynamics()
+                                self.therm = sk_obs.Thermodynamics()
                                 self.therm.from_dict(sub_dict)
                             if key == 'DynamicStructureFactor':
-                                self.dsf = obs.DynamicStructureFactor()
+                                self.dsf = sk_obs.DynamicStructureFactor()
                                 if sub_dict:
                                     self.dsf.from_dict(sub_dict)
                             if key == 'CurrentCorrelationFunction':
-                                self.ccf = obs.CurrentCorrelationFunction()
+                                self.ccf = sk_obs.CurrentCorrelationFunction()
                                 if sub_dict:
                                     self.ccf.from_dict(sub_dict)
                             if key == 'StaticStructureFactor':
-                                self.ssf = obs.StaticStructureFactor()
+                                self.ssf = sk_obs.StaticStructureFactor()
                                 if sub_dict:
                                     self.ssf.from_dict(sub_dict)
                             if key == 'VelocityAutoCorrelationFunction':
-                                self.vacf = obs.VelocityAutoCorrelationFunction()
+                                self.vacf = sk_obs.VelocityAutoCorrelationFunction()
                                 if sub_dict:
                                     self.vacf.from_dict(sub_dict)
                             if key == 'VelocityMoments':
-                                self.vm = obs.VelocityMoments()
+                                self.vm = sk_obs.VelocityMoments()
                                 if sub_dict:
                                     self.vm.from_dict(sub_dict)
                             if key == 'ElectricCurrent':
-                                self.ec = obs.ElectricCurrent()
+                                self.ec = sk_obs.ElectricCurrent()
                                 if sub_dict:
                                     self.ec.from_dict(sub_dict)
 
-        self.io.preprocessing = True
+        if self.__name__ == 'postprocessing':
 
-        # initialize the directories and filenames
-        self.io.setup()
-        # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
-        # Update parameters' dictionary with filenames and directories
-        self.parameters.from_dict(self.io.__dict__)
-        # save some general info
-        self.parameters.potential_type = self.potential.type
-        self.parameters.cutoff_radius = self.potential.rc
-        self.parameters.integrator = self.integrator.type
-        self.parameters.thermostat = self.thermostat.type
+            # Create the file paths without creating directories and redefining io attributes
+            self.io.create_file_paths()
 
-        # Copy some integrator parameters if not already defined
-        if not hasattr(self.parameters, 'dt'):
-            self.parameters.dt = self.integrator.dt
-        if not hasattr(self.parameters, 'equilibration_steps'):
-            self.parameters.equilibration_steps = self.integrator.equilibration_steps
-        if not hasattr(self.parameters, 'eq_dump_step'):
-            self.parameters.eq_dump_step = self.integrator.eq_dump_step
-        if not hasattr(self.parameters, 'production_steps'):
-            self.parameters.production_steps = self.integrator.production_steps
-        if not hasattr(self.parameters, 'prod_dump_step'):
-            self.parameters.prod_dump_step = self.integrator.prod_dump_step
+            # Read previouly stored files
+            self.io.read_pickle(self)
 
-        if self.integrator.electrostatic_equilibration:
-            self.parameters.electrostatic_equilibration = True
-            if not hasattr(self.parameters, 'mag_dump_step'):
-                self.parameters.mag_dump_step = self.integrator.mag_dump_step
-            if not hasattr(self.parameters, 'magnetization_steps'):
-                self.parameters.magnetization_steps = self.integrator.magnetization_steps
+            # Print parameters to log file
+            self.io.simulation_summary(self)
+        else:
+            # initialize the directories and filenames
+            self.io.setup()
 
-        self.parameters.setup(self.species)
+            # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
 
-        t0 = self.timer.current()
-        self.potential.setup(self.parameters)
-        time_pot = self.timer.current()
+            # Update parameters' dictionary with filenames and directories
+            self.parameters.from_dict(self.io.__dict__)
+            # save some general info
+            self.parameters.potential_type = self.potential.type
+            self.parameters.cutoff_radius = self.potential.rc
+            self.parameters.integrator = self.integrator.type
+            self.parameters.thermostat = self.thermostat.type
 
-        self.thermostat.setup(self.parameters)
-        self.integrator.setup(self.parameters, self.thermostat, self.potential)
-        self.particles.setup(self.parameters, self.species)
-        time_ptcls = self.timer.current()
+            # Copy some integrator parameters if not already defined
+            if not hasattr(self.parameters, 'dt'):
+                self.parameters.dt = self.integrator.dt
+            if not hasattr(self.parameters, 'equilibration_steps'):
+                self.parameters.equilibration_steps = self.integrator.equilibration_steps
+            if not hasattr(self.parameters, 'eq_dump_step'):
+                self.parameters.eq_dump_step = self.integrator.eq_dump_step
+            if not hasattr(self.parameters, 'production_steps'):
+                self.parameters.production_steps = self.integrator.production_steps
+            if not hasattr(self.parameters, 'prod_dump_step'):
+                self.parameters.prod_dump_step = self.integrator.prod_dump_step
 
-        # For restart and backups.
-        self.io.save_pickle(self)
-        self.io.simulation_summary(self)
-        time_end = self.timer.current()
+            # Check for magnetization phase
+            if self.integrator.electrostatic_equilibration:
+                self.parameters.electrostatic_equilibration = True
+                if not hasattr(self.parameters, 'mag_dump_step'):
+                    self.parameters.mag_dump_step = self.integrator.mag_dump_step
+                if not hasattr(self.parameters, 'magnetization_steps'):
+                    self.parameters.magnetization_steps = self.integrator.magnetization_steps
 
-        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
-        self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
-        self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
+            self.parameters.setup(self.species)
 
-        self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
+            t0 = self.timer.current()
+            self.potential.setup(self.parameters)
+            time_pot = self.timer.current()
 
-        self.io.setup_checkpoint(self.parameters, self.species)
+            self.thermostat.setup(self.parameters)
+            self.integrator.setup(self.parameters, self.thermostat, self.potential)
+            self.particles.setup(self.parameters, self.species)
+            time_ptcls = self.timer.current()
+
+            # For restart and backups.
+            self.io.setup_checkpoint(self.parameters, self.species)
+            self.io.save_pickle(self)
+
+            # Print Process summary to file and screen
+            self.io.simulation_summary(self)
+            time_end = self.timer.current()
+
+            # Print timing
+            self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
+            self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
+            self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
 
         if self.parameters.plot_style:
             plt.style.use(self.parameters.plot_style)
+
+
+class PostProcess(Process):
+    """
+    Class handling the post-processing stage of a simulation.
+
+    Parameters
+    ----------
+    input_file : str
+        Path to the YAML input file.
+
+    """
+
+    def __init__(self, input_file: str = None):
+        self.__name__ = 'postprocessing'
+        super().__init__(input_file)
+
+    def setup_from_simulation(self, simulation):
+        """
+        Setup postprocess' subclasses by (shallow) copying them from simulation object.
+
+        Parameters
+        ----------
+        simulation: sarkas.base.processes.Simulation
+            Simulation object
+
+        """
+        self.parameters = py_copy.copy(simulation.parameters)
+        self.integrator = py_copy.copy(simulation.integrator)
+        self.potential = py_copy.copy(simulation.potential)
+        self.species = py_copy.copy(simulation.species)
+        self.thermostat = py_copy.copy(simulation.thermostat)
+        self.io = py_copy.copy(simulation.io)
+
+    def run(self):
+        """Calculate all the observables from the YAML input file."""
+
+        for obs in self.observables_list:
+            if obs in self.__dict__.keys():
+                self.__dict__[obs].setup(self.parameters)
+                if obs == 'therm':
+                    self.therm.temp_energy_plot(self)
+                else:
+                    self.io.postprocess_info(self, write_to_file=True, observable=obs)
+                    self.__dict__[obs].compute()
+
+        if hasattr(self, 'transport_dict'):
+            from sarkas.tools.transport import TransportCoefficient as TC
+
+            for coeff in self.transport_dict:
+
+                for key, coeff_kwargs in coeff.items():
+
+                    if key == 'Diffusion':
+                        TC.diffusion(self.parameters, **coeff_kwargs)
+
+                    if key == 'Interdiffusion':
+                        TC.interdiffusion(self.parameters, **coeff_kwargs)
+
+                    if key == 'viscosity':
+                        TC.viscosity(self.parameters, **coeff_kwargs)
+
+                    if key == 'electrical_conductivity':
+                        TC.electrical_conductivity(self.parameters, **coeff_kwargs)
+
+
+class PreProcess(Process):
+    """
+    Wrapper class handling the estimation of time and best parameters of a simulation.
+
+    Parameters
+    ----------
+    input_file : str
+        Path to the YAML input file.
+
+    Attributes
+    ----------
+    loops: int
+        Number of timesteps to run for time and size estimates. Default = 10
+
+    estimate: bool
+        Run an estimate for the best PPPM parameters in the simulation. Default=False.
+
+    pm_meshes: numpy.ndarray
+        Array of mesh sizes used in the PPPM parameters estimation.
+
+    pp_cells: numpy.ndarray
+        Array of simulations box cells used in the PPPM parameters estimation.
+
+    kappa: float
+        Screening parameter. Calculated from :meth:`sarkas.potentials.base.Potential.matrix`.
+
+    """
+
+    def __init__(self, input_file: str = None):
+        self.__name__ = 'preprocessing'
+        self.loops = 10
+        self.estimate = False
+        self.pm_meshes = np.array([8, 16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
+        self.pp_cells = np.arange(3, 16, dtype=int)
+        self.kappa = None
+        super().__init__(input_file)
 
     def green_function_timer(self):
         """Time Potential setup."""
@@ -351,12 +398,24 @@ class PreProcess:
 
         return self.timer.stop()
 
-    def run(self, loops=None, timing=True, pppm_plots=False, postprocessing=False, estimate=None):
+    def run(self,
+            loops: int = None,
+            timing: bool = True,
+            pppm_plots: bool = False,
+            postprocessing:bool = False,
+            remove: bool = True,
+            estimate: bool = False):
         """
         Estimate the time of the simulation and best parameters if wanted.
 
         Parameters
         ----------
+        remove : bool
+            Flag for removing energy files and dumps created during times estimation. Default = True.
+
+        pppm_plots : bool
+            Flag for showing the force error plots in case of pppm algorithm.
+
         postprocessing : bool
             Flag for calculating Post processing parameters.
 
@@ -372,7 +431,12 @@ class PreProcess:
             Flag for estimating best PPPM parameters.
 
         """
+
         plt.close('all')
+
+        # Set the screening parameter
+        self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
+
         if loops:
             self.loops = loops
 
@@ -389,30 +453,44 @@ class PreProcess:
             self.time_integrator_loop()
 
             # Estimate size of dump folder
-            eq_dump_size = os.stat(os.path.join(self.io.eq_dump_dir,
-                                                'checkpoint_{}.npz'.format(int(self.integrator.eq_dump_step)))).st_size
+            # Grab one file from the dump directory and get the size of it.
+            eq_dump_size = os.stat(os.path.join(self.io.eq_dump_dir, os.listdir(self.io.eq_dump_dir)[0])).st_size
             eq_dump_fldr_size = eq_dump_size * (self.integrator.equilibration_steps / self.integrator.eq_dump_step)
-            prod_dump_size = os.stat(os.path.join(self.io.prod_dump_dir, 'checkpoint_{}.npz'.format(
-                int(self.integrator.prod_dump_step)))).st_size
+            # Grab one file from the dump directory and get the size of it.
+            prod_dump_size = os.stat(os.path.join(self.io.eq_dump_dir, os.listdir(self.io.eq_dump_dir)[0])).st_size
             prod_dump_fldr_size = prod_dump_size * (self.integrator.production_steps / self.integrator.prod_dump_step)
+            # Prepare arguments to pass for print out
             sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
                               [prod_dump_size, prod_dump_fldr_size]])
+            # Check for electrostatic equilibration
             if self.integrator.electrostatic_equilibration:
                 dump = self.integrator.mag_dump_step
                 mag_dump_size = os.stat(os.path.join(self.io.mag_dump_dir, 'checkpoint_' + str(dump) + '.npz')).st_size
                 mag_dump_fldr_size = mag_dump_size * (
-                            self.integrator.magnetization_steps / self.integrator.mag_dump_step)
+                        self.integrator.magnetization_steps / self.integrator.mag_dump_step)
                 sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
                                   [prod_dump_size, prod_dump_fldr_size],
                                   [mag_dump_size, mag_dump_fldr_size]])
 
             self.io.preprocess_sizing(sizes)
 
-            # Delete the energy files created during the estimation runs
-            os.remove(self.io.eq_energy_filename)
-            os.remove(self.io.prod_energy_filename)
-            if self.integrator.electrostatic_equilibration:
-                os.remove(self.io.mag_energy_filename)
+            if remove:
+                # Delete the energy files created during the estimation runs
+                os.remove(self.io.eq_energy_filename)
+                os.remove(self.io.prod_energy_filename)
+
+                # Delete dumps created during the estimation runs
+                for npz in os.listdir(self.io.eq_dump_dir):
+                    os.remove(os.path.join(self.io.eq_dump_dir, npz))
+
+                for npz in os.listdir(self.io.prod_dump_dir):
+                    os.remove(os.path.join(self.io.prod_dump_dir, npz))
+
+                if self.integrator.electrostatic_equilibration:
+                    os.remove(self.io.mag_energy_filename)
+                    # Remove dumps
+                    for npz in os.listdir(self.io.mag_dump_dir):
+                        os.remove(os.path.join(self.io.mag_dump_dir, npz))
 
         if pppm_plots:
             self.pppm_approximation()
@@ -910,7 +988,7 @@ class PreProcess:
         fig.savefig(os.path.join(fig_path, 'Timing_Fit.png'))
 
 
-class Simulation:
+class Simulation(Process):
     """
     Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.
 
@@ -921,52 +999,9 @@ class Simulation:
 
     """
 
-    def __init__(self, input_file: str = None) -> None:
-        self.potential = Potential()
-        self.integrator = Integrator()
-        self.thermostat = Thermostat()
-        self.parameters = Parameters()
-        self.particles = Particles()
-        self.species = []
-        self.input_file = input_file if input_file else None
-        self.timer = SarkasTimer()
-        self.io = InputOutput()
-
-    def common_parser(self, filename: str = None) -> None:
-        """
-        Parse simulation parameters from YAML file.
-
-        Parameters
-        ----------
-        filename: str
-            Input YAML file
-
-        """
-        if filename:
-            self.input_file = filename
-
-        dics = self.io.from_yaml(self.input_file)
-
-        for lkey in dics:
-            if lkey == "Particles":
-                for species in dics["Particles"]:
-                    spec = Species(species["Species"])
-                    self.species.append(spec)
-
-            if lkey == "Potential":
-                self.potential.from_dict(dics[lkey])
-
-            if lkey == "Thermostat":
-                self.thermostat.from_dict(dics[lkey])
-
-            if lkey == "Integrator":
-                self.integrator.from_dict(dics[lkey])
-
-            if lkey == "Parameters":
-                self.parameters.from_dict(dics[lkey])
-
-            if lkey == "Control":
-                self.parameters.from_dict(dics[lkey])
+    def __init__(self, input_file: str = None):
+        self.__name__ = 'simulation'
+        super().__init__(input_file)
 
     def equilibrate(self) -> None:
         """
@@ -1097,6 +1132,7 @@ class Simulation:
         # initialize the directories and filenames
         self.io.setup()
         # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+
         # Update parameters' dictionary with filenames and directories
         self.parameters.from_dict(self.io.__dict__)
         # save some general info
@@ -1125,9 +1161,6 @@ class Simulation:
         self.parameters.setup(self.species)
 
         self.io.setup_checkpoint(self.parameters, self.species)
-
-        if self.parameters.plot_style:
-            plt.style.use(self.parameters.plot_style)
 
 
 @njit
