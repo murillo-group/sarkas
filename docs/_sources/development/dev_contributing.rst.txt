@@ -1,23 +1,25 @@
+.. _dev-contributing:
+
 **********************
 Contributing to Sarkas
 **********************
 
 The first thing to do is to make sure your distribution is up to date. Type
 
-.. code-block:: bash
+.. code-block:: console
     
     $ git status
 
 This shows the state of your local repository. Assuming no changes have been made you will receive the following
 
-.. code-block:: bash
+.. code-block:: console
     
     Your branch is up to date with 'origin/master'.
         
 It is good practice to create a new branch for each modification to the code. For example, let us say you want to create a new branch called ``plot_style``. 
 This can be done by
 
-.. code-block:: bash
+.. code-block:: console
     
     $ git checkout -b plot_style
     Switched to a new branch 'plot_style'
@@ -25,7 +27,7 @@ This can be done by
 Now you are ready to modify the code or add files, always according to our coding guidelines. For this example, say you want to add four logo files.
 Once you are done, review the changes by 
 
-.. code-block:: bash
+.. code-block:: console
     
     $ git status
     On branch plot_style
@@ -42,7 +44,7 @@ Make sure you are in the correct branch: you can see this on the first line righ
 
 Add and commit your changes by 
 
-.. code-block:: bash
+.. code-block:: console
 
     $ git add -A
     $ git commit -m  'Added logo files.'
@@ -58,7 +60,7 @@ Note that this should be a short message describing what you have done.
 
 Your changes are now only on your local repository. You can push them to GitHub via
 
-.. code-block:: bash
+.. code-block:: console
 
     $ git push
     fatal: The current branch plot_style has no upstream branch.
@@ -68,7 +70,7 @@ Your changes are now only on your local repository. You can push them to GitHub 
 
 In this case, there is no ``plot_style`` branch in your GitHub repository (``upstream``) and you need to create it. To do so, follow the given instructions.
 
-.. code-block:: bash
+.. code-block:: console
 
     $ git push --set-upstream origin plot_style
     Username for 'https://github.com': username
@@ -91,7 +93,6 @@ In this case, there is no ``plot_style`` branch in your GitHub repository (``ups
 The output of the ``git push`` command will be different depending on your changes. 
 
 Finally, you need to make a Pull Request (PR) for your changes to be included in the SARKAS main repository.
-
-Go to GitHub and make follow the instructions on this `link <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request>`_.
+You can do this by following the instructions on this `link <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request>`_.
 
 

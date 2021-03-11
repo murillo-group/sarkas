@@ -35,53 +35,49 @@ for the entire Sarkas package.
 
 Building Documentation
 ----------------------
-Once you have updated the documentation we can check our changes by building it locally on your machine.
-Here are the steps
+Once you have updated the documentation we can check our changes by building it locally on your machine. Here are the steps:
 
-    #. Make changes to the documentation by creating new ``.rst`` files or ``.ipynb`` notebooks.
+Make sure to activate your ``sarkas`` environment: open a terminal window and type 
 
-    #. Enter the ``docs`` folder in your Sarkas repo. For example ``sarkas-master/docs``.
-    
-    #. Make sure to activate your ``sarkas`` environment: open a terminal window and type 
-
-        .. code-block:: bash
-            
-            $ conda activate sarkas
-
-        This is needed because when building the documentation you import the ``sarkas`` package, see the line ``import sarkas``  in the file ``conf.py``.
-    
-    #. Then run the following
-
-        .. code-block:: bash
-
-            $ make clean
-            $ make html
-
-        The first command removes all the content in ``_build/html``. This command is not necessary, but suggested
-        so to avoid any conflicts.
-
-        The second command updates the documentation with your changes and creates html files in the folder ``_build/html``.
-        Fix any Error and/or Warning messages. You might need to run the command few times.
-        You can ignore warnings about duplicate citations.
-
-    #. Check the changes in the Documentation by opening the any of the new/updated ``.html`` files using a browser. Note you need to look at the files in ``_build/html`` as these are the new/updated ones.
-
-    #. Now you need to copy all the content of the ``_build/html`` folder into ``docs``. On Unix system run the command
-
-        .. code-block:: bash
-
-            $ cp -rf _build/html/* .
-
-        The option ``-rf`` is needed for copying folders and avoid any confirmation.
+    .. code-block:: console
         
-        On Windows run
+        $ conda activate sarkas
 
-        .. code-block:: bash
+This is needed because when building the documentation you import the ``sarkas`` package, see the line ``import sarkas``  in the file ``conf.py``.
 
-            $ Xcopy /E /I _build\html\* .
+Then run the following
 
-        The option ``/E`` makes sure that empty subfolders are copied to the destination. 
-        The option  ``/I`` avoids prompting if the destination is a folder or file.
+    .. code-block:: console
+
+        $ make clean && make html
+
+The first command removes all the content in ``_build/html``. This command is not necessary, but suggested
+so to avoid any conflicts.
+
+The second command updates the documentation with your changes and creates html files in the folder ``_build/html``.
+Fix any Error and/or Warning messages. You might need to run the command few times.
+You can ignore warnings about duplicate citations.
+
+Check the changes in the Documentation by opening the any of the new/updated ``.html`` files using a browser. Note you need to look at the files in ``_build/html`` as these are the new/updated ones.
+
+Now you need to copy all the content of the ``_build/html`` folder into ``docs``. On Unix system run the command
+
+    .. code-block:: console
+
+        $ cp -rf _build/html/* .
+
+The option ``-rf`` is needed for copying folders and avoid any confirmation.
+
+On Windows run
+
+    .. code-block:: powershell
+
+        $ Xcopy /E /I _build\html\* .
+
+The option ``/E`` makes sure that empty subfolders are copied to the destination. 
+The option  ``/I`` avoids prompting if the destination is a folder or file.
+
+Finally, type ``make clean`` again to remove the files from the ``_build`` folder. 
 
 Congratulations! The Documentation is up to date.
 
