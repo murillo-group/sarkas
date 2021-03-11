@@ -37,7 +37,7 @@ affecting the original project.
         * a. Unzip the folder and enter the ``sarkas-master`` folder. Jump to point 8.
         * b. Open a terminal window and ``cd`` into the folder where you want to store your copy of Sarkas. Then type
 
-        .. code-block:: bash
+        .. code-block:: console
 
             $ git clone https://github.com/murillo-group/sarkas.git
 
@@ -54,7 +54,7 @@ Below are instructions for creating the ``sarkas`` virtual environment.
 
 #. Check if you have ``conda`` installed
 
-    .. code-block:: bash
+    .. code-block:: console
 
         $ which conda
 
@@ -63,7 +63,7 @@ Below are instructions for creating the ``sarkas`` virtual environment.
 
 #. Create your virtual environment via
 
-    .. code-block:: bash
+    .. code-block:: console
 
         $ conda env create -f sarkas_env.yaml
 
@@ -73,13 +73,13 @@ Below are instructions for creating the ``sarkas`` virtual environment.
 
 #. Once the enviroment has been created you can activate it by
 
-    .. code-block:: bash
+    .. code-block:: console
 
         $ conda activate sarkas
 
     and deactivate it by
 
-    .. code-block:: bash
+    .. code-block:: console
 
         $ conda deactivate
 
@@ -90,7 +90,7 @@ The first thing to do is to update your local repository with the GitHub repo.
 Open a terminal (command prompt in Windows) and move to the directory where you stored your repository. Assuming you
 have your ``git`` all set up, run the command
 
-.. code-block:: bash
+.. code-block:: console
 
     $ git pull
 
@@ -104,7 +104,7 @@ Install Sarkas in development mode
 ----------------------------------
 Once the environment has been activated you can install Sarkas in Development mode via
 
-    .. code-block:: bash
+    .. code-block:: console
 
         $ pip install -e .
 
@@ -122,7 +122,7 @@ refers to Sarkas version and python version.
 
 To uninstall Sarkas you can run
 
-    .. code-block:: bash
+    .. code-block:: console
 
         $ pip uninstall sarkas-md
 
@@ -135,16 +135,16 @@ Docker Image
 Alternatively, you can install Sarkas package including all dependencies/preliminary-packages using Docker_.
 To install Sarkas using Docker, run the following commands:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ cd sarkas
    $ docker build -t sarkas -f Docker/Dockerfile .
 
 Once you install Sarkas using Docker, you can go inside the Docker container by running the following:
 
-.. code-block:: bash
+.. code-block:: console
 
-   $ docker run -u 0 -it sarkas bash
+   $ docker run -u 0 -it sarkas console
 
 .. _Docker: https://www.docker.com/products/docker-desktop
 

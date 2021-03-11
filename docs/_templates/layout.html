@@ -1,9 +1,22 @@
   {% extends "!layout.html" %}
+
+
+  {# Custom CSS overrides #}
+  {% set css_files = css_files + ['_static/my-styles.css'] %} 
+
+
+  {%- block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ pathto('_static/language_data.js', 1) }}"></script>
+  {% endblock %}
+
+
   {% block footer %} {{ super() }}
 
   <style>
     /* Sidebar header (and topbar for mobile) */
-    .wy-side-nav-search, .wy-nav-top {
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
       background: #18453b;
     }
     /* Sidebar */
@@ -19,9 +32,9 @@
 	.wy-menu-vertical a:hover {
     background-color: #18453b;
   }
-/*  .wy-nav-content {
+ /* .wy-nav-content {
     max-width: 900px !important;
-  }*/
+  } */
 }
   </style>
 {% endblock %}

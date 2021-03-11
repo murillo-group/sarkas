@@ -1,0 +1,310 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API reference &#8212; Sarkas 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
+    <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sarkas.base module" href="sarkas.base.html" />
+    <link rel="prev" title="Contributing to Sarkas" href="../development/dev_contributing.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation/installation.html">Get Started</a></li>
+                <li><a href="../examples/examples.html">Examples</a></li>
+                <li><a href="../development/code_dev.html">Code Development</a></li>
+                <li><a href="#">API</a></li>
+                <li><a href="../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">API reference</a><ul>
+<li><a class="reference internal" href="#base">Base</a></li>
+<li><a class="reference internal" href="#potentials">Potentials</a></li>
+<li><a class="reference internal" href="#processes">Processes</a></li>
+<li><a class="reference internal" href="#time-evolution">Time Evolution</a></li>
+<li><a class="reference internal" href="#tools">Tools</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="api-reference">
+<span id="api-ref"></span><h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="base">
+<span id="base-api"></span><h2>Base<a class="headerlink" href="#base" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.base.html#module-sarkas.base" title="sarkas.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">base</span></code></a></p></td>
+<td><p>Module defining the three basic classes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="potentials">
+<span id="potentials-api"></span><h2>Potentials<a class="headerlink" href="#potentials" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.base.html#module-sarkas.potentials.base" title="sarkas.potentials.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.base</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.coulomb.html#module-sarkas.potentials.coulomb" title="sarkas.potentials.coulomb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.coulomb</span></code></a></p></td>
+<td><p>Module for handling Coulomb interaction</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.egs.html#module-sarkas.potentials.egs" title="sarkas.potentials.egs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.egs</span></code></a></p></td>
+<td><p>Module for handling EGS Potential as described in Ref.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.force_pm.html#module-sarkas.potentials.force_pm" title="sarkas.potentials.force_pm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.force_pm</span></code></a></p></td>
+<td><p>Module for handling the Particle-Mesh part of the force and potential calculation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.force_pp.html#module-sarkas.potentials.force_pp" title="sarkas.potentials.force_pp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.force_pp</span></code></a></p></td>
+<td><p>Module for handling Particle-Particle interaction.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.lennardjones.html#module-sarkas.potentials.lennardjones" title="sarkas.potentials.lennardjones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.lennardjones</span></code></a></p></td>
+<td><p>Module for handling Lennard-Jones interaction</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.moliere.html#module-sarkas.potentials.moliere" title="sarkas.potentials.moliere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.moliere</span></code></a></p></td>
+<td><p>Module for handling Moliere Potential</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.qsp.html#module-sarkas.potentials.qsp" title="sarkas.potentials.qsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.qsp</span></code></a></p></td>
+<td><p>Module for handling the Quantum Statistical Potential.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.yukawa.html#module-sarkas.potentials.yukawa" title="sarkas.potentials.yukawa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.yukawa</span></code></a></p></td>
+<td><p>Module for handling Yukawa interaction</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="processes">
+<span id="processes-api"></span><h2>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.processes.html#module-sarkas.processes" title="sarkas.processes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">processes</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="time-evolution">
+<span id="timeevo-api"></span><h2>Time Evolution<a class="headerlink" href="#time-evolution" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.time_evolution.html#module-sarkas.time_evolution" title="sarkas.time_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_evolution</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="tools">
+<span id="tools-api"></span><h2>Tools<a class="headerlink" href="#tools" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.tools.html#module-sarkas.tools" title="sarkas.tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tools</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="utilities">
+<span id="utilities-api"></span><h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.utilities.html#module-sarkas.utilities" title="sarkas.utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utilities</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Mar 11, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.0.<br/>
+    </p>
+  </div>
+</footer>
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>

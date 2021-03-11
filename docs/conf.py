@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import sphinx_bootstrap_theme
 sys.path.insert(0, os.path.abspath('../sarkas'))
 sys.path.insert(0, os.path.abspath('../sarkas/time_evolution'))
 sys.path.insert(0, os.path.abspath('../sarkas/utilities'))
@@ -30,7 +31,7 @@ intersphinx_mapping = {
 # -- Project information -----------------------------------------------------
 project = 'Sarkas'
 author = 'MurilloGroup'
-copyright = '2020, ' + author
+copyright = '2019-2021, ' + author
 
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
@@ -45,18 +46,25 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosectionlabel',
+    'sphinx.ext.autosummary',
     'sphinx.ext.todo',
-    'sphinx_rtd_theme',
+    # 'sphinx_rtd_theme',
     'sphinxcontrib.apidoc',
     # 'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.viewcode',
-    'sphinx.ext.mathjax',
+    # 'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
     'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints',
     'nbsphinx',
-    'recommonmark'
+    'recommonmark',
+    'sphinx_panels',
+    # 'gallery_generator',
 ]
+
+# Add any paths that contain templates here, relative to this directory.
+templates_path = ['_templates']
+
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -71,9 +79,6 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 
-# LaTeX configuration
-latex_elements = {'preamble': r'\usepackage{physics}'}
-bibtex_bibfiles = ['references.bib']
 
 # # Equation Numbering
 # mathjax_config = {
@@ -82,14 +87,22 @@ bibtex_bibfiles = ['references.bib']
 # To ensure LaTeX packages are read
 mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 
+# _PREAMBLE = r'''
+# \usepackage{physics}
+# '''
+# LaTeX configuration
+latex_engine = 'xelatex'
+latex_elements = {'preamble': r'\usepackage{physics}',}
+# latex_additional_files = ["physics.sty"]
+bibtex_bibfiles = ['references.bib']
+
+
 autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
                         'pyfftw', 'pyfiglet', 'tqdm', 'fmm3dpy']
 
 
-html_last_updated_fmt = '%b, %d, %Y'
-html_logo = os.path.join('graphics', os.path.join('logo','logo_orange_gray_v3.png'))
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+html_last_updated_fmt = '%b %d, %Y'
+html_logo = os.path.join('graphics', os.path.join('logo','logo_s_orange.png'))
 
 source_suffix = {
     '.rst': 'restructuredtext',
@@ -112,17 +125,62 @@ exclude_patterns = ['_build',
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
-html_theme_options = {'logo_only': True}
+html_theme = 'bootstrap'
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+# html_theme = 'sphinx_rtd_theme'
+html_theme_options = {
+    # Navigation bar title. (Default: ``project`` value)
+    'navbar_title': "ARKAS",
+
+    # Bootswatch (http://bootswatch.com/) theme.
+    #
+    # Options are nothing with "" (default) or the name of a valid theme such
+    # as "amelia" or "cosmo".
+    #
+    # Note that this is served off CDN, so won't be available offline.
+    'bootswatch_theme': "flatly",
+    
+    # Choose Bootstrap version.
+    # Values: "3" (default) or "2" (in quotes)
+    'bootstrap_version': "3",
+    
+    'body_max_width': '100%',
+    
+    # Render the next and previous page links in navbar. (Default: true)
+    'navbar_sidebarrel': False,
+
+    
+    'navbar_links': [
+        ("Get Started", "installation/installation"),
+        ("Examples","examples/examples"),
+        ("Code Development", "development/code_dev"),
+        ("API", "api/api"),
+        ("Credits","credits/credits"),
+    ],
+    }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_css_files = ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", 
+"https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap",
+"my-style.css"]
+# panels_add_fontawesome_latex = True
+# If true, links to the reST sources are added to the pages.
+html_show_sourcelink = False
+# Add any paths that contain custom themes here, relative to this directory.
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+
+
 
 import sarkas
 
 # -- APIDoc configuration -----------------------------------------------------
+
+# Generate the API documentation when building
+autosummary_generate = True
+
 apidoc_module_dir = '../sarkas'
 apidoc_output_dir = 'api'
 apidoc_excluded_paths = ['*tests*', '*notebooks*']
