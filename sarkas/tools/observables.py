@@ -482,7 +482,7 @@ class Observable:
         end_slice = self.slice_steps * self.dump_step
         if nkt_flag:
             for isl in range(self.no_slices):
-                print("Calculating n(k,t) for slice {}/{}.".format(isl, self.no_slices))
+                print("\nCalculating n(k,t) for slice {}/{}.".format(isl, self.no_slices))
                 nkt = calc_nkt(self.dump_dir,
                                (start_slice, end_slice, self.slice_steps),
                                self.dump_step,
@@ -498,7 +498,7 @@ class Observable:
                          angle_averaging=self.angle_averaging)
         if vkt_flag:
             for isl in range(self.no_slices):
-                print("Calculating longitudinal and transverse "
+                print("\nCalculating longitudinal and transverse "
                       "velocity fluctuations v(k,t) for slice {}/{}.".format(isl, self.no_slices))
                 vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir,
                                                     (start_slice, end_slice, self.slice_steps),
@@ -2409,6 +2409,9 @@ class VelocityDistribution(Observable):
 
         self.__name__ = 'vd'
         self.__long_name__ = 'Velocity Distribution'
+        if curve_fit_kwargs:
+            self.curve_fit_kwargs = curve_fit_kwargs
+
         if phase:
             self.phase = phase.lower()
 
@@ -2604,10 +2607,10 @@ class VelocityDistribution(Observable):
         self.create_distribution(vel_raw, time)
 
         # Calculate velocity moments
-        if self.max_no_moment:
+        if hasattr(self, "max_no_moment"):
             self.compute_moments(False, vel_raw, time)
         #
-        if self.max_hermite_order:
+        if hasattr(self, "max_hermite_order"):
             self.compute_hermite_expansion(False)
 
     def prepare_histogram_args(self):
@@ -2718,7 +2721,7 @@ class VelocityDistribution(Observable):
 
         full_df_columns = []
         # At the first time step I will create the columns list.
-        dist_matrix = np.zeros((len(time), self.dim * (np.sum(self.hist_kwargs["bins"]) + 3)))
+        dist_matrix = np.zeros((len(time), self.dim * (np.sum(self.hist_kwargs["bins"]) + self.num_species)))
         # The +1 at the end is because I decided to add a column containing the timestep
         # For convenience save the bin edges somewhere else. The columns of the dataframe are string. This will give
         # problems when plotting.
@@ -2761,7 +2764,6 @@ class VelocityDistribution(Observable):
         # first_column_row=['H_X', 'H_X', 'H_X', 'He_X', 'He_X', 'H_Y', 'H_Y', 'H_Y', 'He_Y', 'He_Y' ... Z-axis]
         # I think this is easier to understand than using nested list comprehension
         # see https://stackabuse.com/python-how-to-flatten-list-of-lists/
-
         full_df_columns = list(np.concatenate(full_df_columns).flat)
         self.dataframe = pd.DataFrame(dist_matrix, columns=full_df_columns)
         # Save it
@@ -2793,7 +2795,7 @@ class VelocityDistribution(Observable):
 
         """
         self.moments_dataframe = pd.DataFrame()
-        moments_hierarchical_dataframe = pd.DataFrame()
+        self.moments_hdf_dataframe = pd.DataFrame()
 
         if parse_data:
             time, vel_raw = self.grab_sim_data()
@@ -2809,36 +2811,36 @@ class VelocityDistribution(Observable):
         # Save the dataframe
         if self.dimensional_average:
             for i, sp in enumerate(self.species_names):
-                moments_hierarchical_dataframe["{}_X_Time".format(sp)] = time
+                self.moments_hdf_dataframe["{}_X_Time".format(sp)] = time
                 for m in range(self.max_no_moment):
                     self.moments_dataframe["{} {} moment".format(sp, m + 1)] = moments[i, :, :, m][:, 0]
-                    moments_hierarchical_dataframe["{}_X_{} moment".format(sp, m + 1)] = moments[i, :, :, m][:, 0]
+                    self.moments_hdf_dataframe["{}_X_{} moment".format(sp, m + 1)] = moments[i, :, :, m][:, 0]
                 for m in range(self.max_no_moment):
                     self.moments_dataframe["{} {} moment ratio".format(sp, m + 1)] = ratios[i, :, :, m][:, 0]
-                    moments_hierarchical_dataframe["{}_X_{}-2 ratio".format(sp, m + 1)] = ratios[i, :, :, m][:, 0]
+                    self.moments_hdf_dataframe["{}_X_{}-2 ratio".format(sp, m + 1)] = ratios[i, :, :, m][:, 0]
         else:
             for i, sp in enumerate(self.species_names):
                 for d, ds in zip(range(self.dim), ["X", "Y", "Z"]):
-                    moments_hierarchical_dataframe["{}_{}_Time".format(sp,ds)] = time
+                    self.moments_hdf_dataframe["{}_{}_Time".format(sp,ds)] = time
                     for m in range(self.max_no_moment):
                         self.moments_dataframe["{} {} moment axis {}".format(sp, m + 1, ds)] = moments[i, :, d, m][:, 0]
-                        moments_hierarchical_dataframe["{}_{}_{} moment".format(sp, ds, m + 1)] = moments[i, :, :, m][:, 0]
+                        self.moments_hdf_dataframe["{}_{}_{} moment".format(sp, ds, m + 1)] = moments[i, :, :, m][:, 0]
 
                 for d, ds in zip(range(self.dim), ["X", "Y", "Z"]):
-                    moments_hierarchical_dataframe["{}_{}_Time".format(sp, ds)] = time
+                    self.moments_hdf_dataframe["{}_{}_Time".format(sp, ds)] = time
                     for m in range(self.max_no_moment):
                         self.moments_dataframe[
                             "{} {} moment ratio axis {}".format(sp, m + 1, ds)] = ratios[i, :, d, m][:, 0]
-                        moments_hierarchical_dataframe[
+                        self.moments_hdf_dataframe[
                             "{}_{}_{}-2 ratio ".format(sp, ds, m + 1)] = ratios[i, :, d, m][:, 0]
 
         self.moments_dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
         # Hierarchical DF Save
         # Make the columns
-        moments_hierarchical_dataframe.columns = pd.MultiIndex.from_tuples(
-            [tuple(c.split("_")) for c in moments_hierarchical_dataframe.columns])
+        self.moments_hdf_dataframe.columns = pd.MultiIndex.from_tuples(
+            [tuple(c.split("_")) for c in self.moments_hdf_dataframe.columns])
         # Save the df in the hierarchical df with a new key/group
-        moments_hierarchical_dataframe.to_hdf(
+        self.moments_hdf_dataframe.to_hdf(
             self.filename_hdf,
             mode='a',
             key='velocity_moments',
@@ -2859,11 +2861,13 @@ class VelocityDistribution(Observable):
         from scipy.optimize import curve_fit
 
         self.hermite_dataframe = pd.DataFrame()
-        hermite_hierarchical_dataframe = pd.DataFrame()
-
+        self.hermite_hdf_dataframe = pd.DataFrame()
 
         if calc_moments:
             self.compute_moments(parse_data=True)
+
+        if not hasattr(self,'hermite_rms_tol'):
+            self.hermite_rms_tol = 0.05
 
         self.hermite_dataframe["Time"] = np.copy(self.moments_dataframe["Time"])
         self.hermite_sigmas = np.zeros((self.num_species, self.dim, len(self.hermite_dataframe["Time"])))
@@ -2905,7 +2909,7 @@ class VelocityDistribution(Observable):
                         # Fit the rms only to the Grad expansion. This finds the underlying Gaussian
                         res, _ = curve_fit(
                             # the lambda func is because i need to fit only rms not the h_coeff
-                            grad_expansion,
+                            lambda x, rms: grad_expansion(x, rms, h_coeff),
                             v_bins / vrms,
                             dist / norm,
                             maxfev=1000)  # TODO: let the user pass curve_fit arguments.
@@ -2916,7 +2920,7 @@ class VelocityDistribution(Observable):
                             cntrl = False
                             self.hermite_sigmas[sp, d, it] = vrms
                             self.hermite_epochs[sp, d, it] = j
-                            hermite_coeff[sp, d, :, it] = res[1:]
+                            hermite_coeff[sp, d, :, it] = h_coeff
                         j += 1
 
         tend = self.timer.current()
@@ -2926,22 +2930,22 @@ class VelocityDistribution(Observable):
                 for h in range(self.max_hermite_order):
                     self.hermite_dataframe["{} {} {} Hermite coeff".format(sp_name, ds, h)] = hermite_coeff[sp, d, h, :]
                     if h == 0:
-                        hermite_hierarchical_dataframe[
+                        self.hermite_hdf_dataframe[
                             "{}_{}_Time".format(sp_name, ds, h)] = hermite_coeff[sp, d, h, :]
-                        hermite_hierarchical_dataframe[
+                        self.hermite_hdf_dataframe[
                             "{}_{}_RMS".format(sp_name, ds, h)] = self.hermite_sigmas[sp, d, :]
-                        hermite_hierarchical_dataframe[
+                        self.hermite_hdf_dataframe[
                             "{}_{}_epoch".format(sp_name, ds, h)] = self.hermite_epochs[sp, d, :]
                     else:
-                        hermite_hierarchical_dataframe["{}_{}_{} coeff".format(sp_name, ds, h)] = hermite_coeff[sp, d, h, :]
+                        self.hermite_hdf_dataframe["{}_{}_{} coeff".format(sp_name, ds, h)] = hermite_coeff[sp, d, h, :]
 
         # Save the CSV
         self.hermite_dataframe.to_csv(self.herm_df_filename_csv, index=False, encoding='utf-8')
         # Make the columns
-        hermite_hierarchical_dataframe.columns = pd.MultiIndex.from_tuples(
-            [tuple(c.split("_")) for c in hermite_hierarchical_dataframe.columns])
+        self.hermite_hdf_dataframe.columns = pd.MultiIndex.from_tuples(
+            [tuple(c.split("_")) for c in self.hermite_hdf_dataframe.columns])
         # Save the df in the hierarchical df with a new key/group
-        hermite_hierarchical_dataframe.to_hdf(
+        self.hermite_hdf_dataframe.to_hdf(
             self.filename_hdf,
             mode='a',
             key='hermite_coefficients',
@@ -2984,13 +2988,13 @@ class VelocityDistribution(Observable):
         if hasattr(self,"max_no_moment"):
             print('\nMoments Information:')
             print('CSV dataframe saved in:\n\t ', self.mom_df_filename_csv)
-            print('Data accessible at: self.moments_dataframe')
+            print('Data accessible at: self.moments_dataframe, self.moments_hdf_dataframe')
             print('Highest moment to calculate: {}'.format(self.max_no_moment))
 
         if hasattr(self,"max_hermite_order"):
             print('\nGrad Expansion Information:')
             print('CSV dataframe saved in:\n\t ', self.herm_df_filename_csv)
-            print('Data accessible at: self.hermite_dataframe')
+            print('Data accessible at: self.hermite_dataframe, self.hermite_hdf_dataframe')
             print('Highest order to calculate: {}'.format(self.max_hermite_order))
             print('RMS Tolerance: {:.3f}'.format(self.hermite_rms_tol))
 
@@ -3675,7 +3679,7 @@ def grad_expansion(x, rms, h_coeff):
     gaussian = np.exp(- 0.5 * (x / rms) ** 2) / (np.sqrt(2.0 * np.pi * rms ** 2))
 
     herm_coef = h_coeff / [np.math.factorial(i) for i in range(len(h_coeff))]
-    hermite_series = np.polynomial.hermite_e.hermeval(x/rms, herm_coef)
+    hermite_series = np.polynomial.hermite_e.hermeval(x, herm_coef)
 
     return gaussian * hermite_series
 

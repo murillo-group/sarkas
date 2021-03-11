@@ -150,8 +150,8 @@ class Process:
                     if sub_dict:
                         self.facf.from_dict(sub_dict)
 
-        if 'TransportCoefficients' in dics.keys():
-            self.transport_dict = dics["TransportCoefficients"].copy()
+        if 'Transport' in dics.keys():
+            self.transport_dict = dics["Transport"].copy()
 
     def setup(self, read_yaml=False, other_inputs=None):
         """Setup simulations' parameters and io subclasses.

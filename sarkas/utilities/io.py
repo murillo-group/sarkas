@@ -868,6 +868,7 @@ class InputOutput:
             #     simulation.parameters.electron_temperature,
             #     simulation.parameters.electron_temperature / simulation.parameters.eV2K))
             print('kappa = {:.4f}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
+            print('SGA Correction factor: lmbda = {:.4f}'.format(simulation.potential.lmbda))
             # print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
             # print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print('nu = {:.4f}'.format(simulation.parameters.nu))

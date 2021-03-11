@@ -527,7 +527,7 @@ class Parameters:
             self.box_lengths[2] / self.a_ws, self.box_lengths[2]),
             end='')
         print("[cm]" if self.units == "cgs" else "[m]")
-        print("Box Volume = {:.6e}".format(self.box_volume), end='')
+        print("Box Volume = {:.6e} ".format(self.box_volume), end='')
         print("[cm^3]" if self.units == "cgs" else "[m^3]")
 
         print('Boundary conditions: {}'.format(self.boundary_conditions))
@@ -1459,7 +1459,7 @@ class Species:
         print("\tNo. of particles = {} ".format(self.num))
         print("\tNumber density = {:.6e} ".format(self.number_density), end='')
         print("[N/cc]" if units == "cgs" else "[N/m^3]")
-        print("\tAtomic weight = {:.4f} ".format(self.atomic_weight))
+        print("\tAtomic weight = {:.4f} [a.u.]".format(self.atomic_weight))
         print("\tMass = {:.6e} ".format(self.mass), end='')
         print("[g]" if units == "cgs" else "[kg]")
         print("\tMass density = {:.6e} ".format(self.mass_density), end='')
