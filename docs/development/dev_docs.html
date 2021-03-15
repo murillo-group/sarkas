@@ -7,8 +7,8 @@
     <title>Documentation &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -177,14 +177,14 @@ once you build the documentation.</p>
 <p>Once you have updated the documentation we can check our changes by building it locally on your machine. Here are the steps:</p>
 <p>Make sure to activate your <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> environment: open a terminal window and type</p>
 <blockquote>
-<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda activate sarkas
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> conda activate sarkas
 </pre></div>
 </div>
 </div></blockquote>
 <p>This is needed because when building the documentation you import the <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> package, see the line <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">sarkas</span></code>  in the file <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>.</p>
 <p>Then run the following</p>
 <blockquote>
-<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make clean <span class="o">&amp;&amp;</span> make html
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> make clean <span class="o">&amp;&amp;</span> make html
 </pre></div>
 </div>
 </div></blockquote>
@@ -196,7 +196,7 @@ You can ignore warnings about duplicate citations.</p>
 <p>Check the changes in the Documentation by opening the any of the new/updated <code class="docutils literal notranslate"><span class="pre">.html</span></code> files using a browser. Note you need to look at the files in <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> as these are the new/updated ones.</p>
 <p>Now you need to copy all the content of the <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> folder into <code class="docutils literal notranslate"><span class="pre">docs</span></code>. On Unix system run the command</p>
 <blockquote>
-<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cp -rf _build/html/* .
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> cp -rf _build/html/* .
 </pre></div>
 </div>
 </div></blockquote>
@@ -227,8 +227,8 @@ The option  <code class="docutils literal notranslate"><span class="pre">/I</spa
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 11, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.0.<br/>
+      Last updated on Mar 15, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>
 </footer>

@@ -33,3 +33,12 @@ Examples
                 </p>
             </div>
     </div>
+
+    <div class="ex-thumbcontainer">
+            <div class="figure align-default">
+                <img src="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_7_1.png" alt="">
+                <p class="caption">
+                    <span class="text-center"><a href="Yukawa vs Exact-Gradient Corrected Potential.html">Yukawa vs EGS</a></span>
+                </p>
+            </div>
+    </div>

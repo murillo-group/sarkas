@@ -113,10 +113,12 @@ class TransportCoefficient:
     @staticmethod
     def diffusion(params,
                   phase: str = 'production',
+                  no_slices: int = 1,
                   time_averaging: bool = False,
                   timesteps_to_skip: int = 100,
                   show: bool = False,
-                  figname: str = None):
+                  figname: str = None,
+                  **kwargs):
         """
         Calculate the self-diffusion coefficient from the velocity auto-correlation function.
 
@@ -140,6 +142,9 @@ class TransportCoefficient:
         show : bool
             Flag for prompting plot to screen.
 
+        **kwargs:
+            Arguments to pass :meth:`sarkas.tools.observables.VelocityAutoCorrelationFunction`
+
         Returns
         -------
         coefficient : pandas.DataFrame
@@ -149,7 +154,12 @@ class TransportCoefficient:
         print('\n\n{:=^70} \n'.format(' Diffusion Coefficient '))
         coefficient = pd.DataFrame()
         vacf = obs.VelocityAutoCorrelationFunction()
-        vacf.setup(params, phase=phase, time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
+        vacf.setup(params,
+                   phase=phase,
+                   time_averaging=time_averaging,
+                   timesteps_to_skip=timesteps_to_skip,
+                   no_slices=no_slices,
+                   **kwargs)
         vacf.compute()
         time = np.array(vacf.dataframe["Time"])
         coefficient["Time"] = time
@@ -245,32 +255,44 @@ class TransportCoefficient:
     @staticmethod
     def interdiffusion(params,
                        phase: str = 'production',
+                       no_slices: int = 1,
                        time_averaging: bool = False,
                        timesteps_to_skip: int = 100,
+                       plot: bool = True,
                        show: bool = False,
-                       figname: str = None):
+                       figname: str = None,
+                       **kwargs):
         """
         Calculate the interdiffusion coefficients from the diffusion flux auto-correlation function.
 
         Parameters
         ----------
-        figname : str
-            Name with which to save the file. It automatically saves it in the correct directory.
-
-        time_averaging: bool
-            Flag for species diffusion flux time averaging. Default = False.
-
-        timesteps_to_skip: int
-            Timestep interval for species diffusion flux time averaging. Default = 100
-
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        phase : str
+        phase : str, optional
             Phase to compute. Default = 'production'.
 
-        show : bool
-            Flag for prompting plot to screen.
+        no_slices : int, optional
+            Number of slices of the simulation. Default = 1.
+
+        time_averaging: bool, optional
+            Flag for species diffusion flux time averaging. Default = False.
+
+        timesteps_to_skip: int, optional
+            Timestep interval for species diffusion flux time averaging. Default = 100
+
+        plot : bool, optional
+            Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.
+
+        figname : str, optional
+            Name with which to save the file. It automatically saves it in the correct directory.
+
+        show : bool, optional
+            Flag for prompting plot to screen when using IPython kernel. Default = False.
+
+        **kwargs:
+            Arguments to pass :meth:`sarkas.tools.observables.FluxAutoCorrelationFunction`
 
         Returns
         -------
@@ -281,79 +303,106 @@ class TransportCoefficient:
         print('\n\n{:=^70} \n'.format(' Interdiffusion Coefficient '))
         coefficient = pd.DataFrame()
         jc_acf = obs.FluxAutoCorrelationFunction()
-        jc_acf.setup(params, phase=phase, time_averaging=time_averaging, timesteps_to_skip=timesteps_to_skip)
+        # jc_acf.no_slices = no_slices
+        jc_acf.setup(
+            params,
+            phase=phase,
+            time_averaging=time_averaging,
+            timesteps_to_skip=timesteps_to_skip,
+            no_slices=no_slices,
+            **kwargs)
         jc_acf.compute()
-        no_int = jc_acf.prod_no_dumps
+        no_int = jc_acf.slice_steps
         no_obs = jc_acf.no_obs
-        D_ij = np.zeros((no_obs, no_int))
+
         const = 1. / (3.0 * jc_acf.total_num_ptcls)
 
         time = np.array(jc_acf.dataframe["Time"])
         coefficient["Time"] = time
 
-        fig, ax1 = plt.subplots(1, 1, figsize=(10, 10))
-        ax2 = ax1.twinx()
-        ax21 = ax2.twiny()
-        index = 0
-        # extra space for the second axis at the bottom
-        fig.subplots_adjust(bottom=0.2)
+        for isl in range(jc_acf.no_slices):
+            D_ij = np.zeros((no_obs, jc_acf.slice_steps))
+            index = 0
+            for i, sp1 in enumerate(params.species_names):
+                conc1 = jc_acf.species_concentrations[i] * jc_acf.species_mass_densities[i]
+                for j, sp2 in enumerate(params.species_names[i:], i):
+                    conc2 = jc_acf.species_concentrations[j] * jc_acf.species_mass_densities[j]
+
+                    integrand = np.array(
+                        jc_acf.dataframe["{}-{} Total Diffusion Flux ACF slice {}".format(sp1, sp2, isl)])
+
+                    for it in range(1, no_int):
+                        D_ij[index, it] = const / (conc1 * conc2) * np.trapz(integrand[:it], x=time[:it])
+
+                    coefficient["{}-{} Inter Diffusion slice {}".format(sp1, sp2, isl)] = D_ij[index, :]
+
+                    index += 1
+
         for i, sp1 in enumerate(params.species_names):
-            conc1 = jc_acf.species_concentrations[i] * jc_acf.species_mass_densities[i]
             for j, sp2 in enumerate(params.species_names[i:], i):
-                conc2 = jc_acf.species_concentrations[j] * jc_acf.species_mass_densities[j]
+                col_str = ["{}-{} Inter Diffusion slice {}".format(sp1, sp2, isl) for isl in range(jc_acf.no_slices)]
+                coefficient["{}-{} Inter Diffusion avg".format(sp1, sp2)] = coefficient[col_str].mean(axis=1)
+                coefficient["{}-{} Inter Diffusion std".format(sp1, sp2)] = coefficient[col_str].std(axis=1)
 
-                integrand = np.array(jc_acf.dataframe["{}-{} Total Diffusion Flux ACF".format(sp1, sp2)])
+        if plot or figname:
+            # Make the plot
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
 
-                for it in range(1, no_int):
-                    D_ij[index, it] = const / (conc1 * conc2) * np.trapz(integrand[:it], x=time[:it])
+            # extra space for the second axis at the bottom
+            fig.subplots_adjust(bottom=0.2)
+            for i, sp1 in enumerate(params.species_names):
+                for j, sp2 in enumerate(params.species_names[i + 1:], i + 1):
+                    acf_avg = jc_acf.dataframe["{}-{} Total Diffusion Flux ACF avg".format(sp1, sp2)]
+                    acf_std = jc_acf.dataframe["{}-{} Total Diffusion Flux ACF std".format(sp1, sp2)]
 
-                coefficient["{}-{} Inter Diffusion".format(sp1, sp2)] = D_ij[index, :]
+                    d_avg = coefficient["{}-{} Inter Diffusion avg".format(sp1, sp2)]
+                    d_std = coefficient["{}-{} Inter Diffusion std".format(sp1, sp2)]
 
-                if i != j:
-                    xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D_ij[index, :], "Time", "Diffusion",
-                                                                   jc_acf.units)
-                    ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$J_{' + sp1 + sp2 + '}$')
-                    ax21.semilogx(ymul * D_ij[index, :], '--')
-                    ax2.semilogx(xmul * time, ymul * D_ij[index, :], '--', label=r'$D_{' + sp1 + sp2 + '}(t)$')
-                index += 1
+                    # Calculate axis multipliers and labels
+                    xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Diffusion", jc_acf.units)
 
-        # Complete figure
-        ax1.grid(False)
-        ax2.grid(False)
-        ax21.grid(False)
+                    ax1.plot(xmul * time, acf_avg / acf_avg[0], label=r'$J_{' + sp1 + sp2 + '}$')
+                    ax1.fill_between(
+                        xmul * time,
+                        (acf_avg + acf_std) / (acf_avg[0] + acf_std[0]),
+                        (acf_avg - acf_std) / (acf_avg[0] - acf_std[0]), alpha=0.2)
 
-        ax1.set_ylabel(r'Diffusion Flux ACF')
-        ax2.set_ylabel(r'Inter Diffusion' + ylbl)
+                    # ax21.semilogx(ymul * D_ij[index, :], '--')
+                    ax2.plot(xmul * time, ymul* d_avg, label=r'$D_{' + sp1 + sp2 + '}$')
+                    ax2.fill_between(xmul * time, ymul * (d_avg + d_std), ymul*(d_avg - d_std), alpha=0.2)
 
-        ax1.set_xlabel(r"Time" + xlbl)
+            ax1.set(xscale='log', ylabel=r'Diffusion Flux ACF', xlabel=r"Time" + xlbl)
+            ax2.set(xscale='log', ylabel=r'Inter Diffusion' + ylbl, xlabel=r"Time" + xlbl)
 
-        ax21.xaxis.set_ticks_position("bottom")
-        ax21.xaxis.set_label_position("bottom")
+            # ax21.xaxis.set_ticks_position("bottom")
+            # ax21.xaxis.set_label_position("bottom")
 
-        ax1.legend(loc='best')
-        ax2.legend(loc='best')
-        ax21.set_xscale('log')
-        # Offset the twin axis below the host
-        ax21.spines["bottom"].set_position(("axes", -0.2))
+            ax1.legend(loc='best')
+            ax2.legend(loc='best')
+            # ax21.set_xscale('log')
+            # Offset the twin axis below the host
+            # ax21.spines["bottom"].set_position(("axes", -0.2))
 
-        # Turn on the frame for the twin axis, but then hide all
-        # but the bottom spine
-        ax21.set_frame_on(True)
-        ax21.patch.set_visible(False)
+            # Turn on the frame for the twin axis, but then hide all
+            # but the bottom spine
+            # ax21.set_frame_on(True)
+            # ax21.patch.set_visible(False)
 
-        for sp in ax21.spines.values():
-            sp.set_visible(False)
+            # for sp in ax21.spines.values():
+            #     sp.set_visible(False)
 
-        ax21.spines["bottom"].set_visible(True)
-        ax21.set_xlabel(r"Index")
+            # ax21.spines["bottom"].set_visible(True)
+            # ax21.set_xlabel(r"Index")
 
-        fig.tight_layout()
-        if figname:
-            fig.savefig(os.path.join(jc_acf.saving_dir, figname))
-        else:
-            fig.savefig(os.path.join(jc_acf.saving_dir, 'Plot_InterDiffusion_' + jc_acf.job_id + '.png'))
-        if show:
-            fig.show()
+            fig.tight_layout()
+            if figname:
+                fig.savefig(os.path.join(jc_acf.saving_dir, figname))
+            else:
+                fig.savefig(os.path.join(jc_acf.saving_dir, 'Plot_InterDiffusion_' + jc_acf.job_id + '.png'))
+
+            if show:
+                fig.show()
+
         # Save to dataframe
         coefficient.to_csv(os.path.join(jc_acf.saving_dir, 'InterDiffusion_' + jc_acf.job_id + '.csv'),
                            index=False,

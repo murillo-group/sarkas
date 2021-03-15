@@ -172,14 +172,14 @@ html_show_sourcelink = False
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
-
-
 import sarkas
 
 # -- APIDoc configuration -----------------------------------------------------
 
 # Generate the API documentation when building
 autosummary_generate = True
+# # A list of ignored prefixes for module index sorting.
+modindex_common_prefix = ['sarkas.']
 
 apidoc_module_dir = '../sarkas'
 apidoc_output_dir = 'api'

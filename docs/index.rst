@@ -78,7 +78,7 @@ SARKAS: Python MD code for plasma physics
         <div class="col-sm-4">
 
             <h4 class="text-center"><i class="fa fa-smile-o fa-3x mb-3 text-muted"></i><br>User Friendly</h4>
-            <p>Set-up a simulation with only 3 lines of code, Run your simulation with 3 more lines, Calculate physics observables with final 3 lines</p>
+            <p>Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.</p>
 
         </div>
 

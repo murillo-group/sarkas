@@ -56,10 +56,6 @@ PostProcessing:
   - Thermodynamics:
       phase: production
 
-  - HermiteCoefficients:
-      no_bins: 50
-      hermite_order: 8
-
   - DynamicStructureFactor:
       max_k_harmonics: 10
       no_slices: 2
@@ -71,11 +67,3 @@ PostProcessing:
   - CurrentCorrelationFunction:
       max_k_harmonics: 10
       no_slices: 2
-
-  - VelocityMoments:
-      no_bins: 50
-
-  - VelocityAutoCorrelationFunction:
-      phase: production
-
-  - ElectricCurrent:

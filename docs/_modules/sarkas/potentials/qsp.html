@@ -7,8 +7,8 @@
     <title>sarkas.potentials.qsp &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -227,17 +227,17 @@
 
             <span class="k">if</span> <span class="n">name1</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span> <span class="ow">or</span> <span class="n">name2</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>
                 <span class="c1"># Use electron temperature in e-e and e-i interactions</span>
-                <span class="n">Lambda_dB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">deBroglie_const</span> <span class="o">/</span> <span class="p">(</span><span class="n">reduced</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span><span class="p">))</span>
+                <span class="n">lambda_deB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">deBroglie_const</span> <span class="o">/</span> <span class="p">(</span><span class="n">reduced</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Use ion temperature in i-i interactions only</span>
-                <span class="n">Lambda_dB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">deBroglie_const</span> <span class="o">/</span> <span class="p">(</span><span class="n">reduced</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_ion_temperature</span><span class="p">))</span>
+                <span class="n">lambda_deB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">deBroglie_const</span> <span class="o">/</span> <span class="p">(</span><span class="n">reduced</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_ion_temperature</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">name2</span> <span class="o">==</span> <span class="n">name1</span><span class="p">:</span>  <span class="c1"># e-e</span>
                 <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">log2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span>
-                <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">log2</span> <span class="o">*</span> <span class="n">Lambda_dB</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">log2</span> <span class="o">*</span> <span class="n">lambda_deB</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
             <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
-            <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">/</span> <span class="n">Lambda_dB</span>
+            <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">/</span> <span class="n">lambda_deB</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">potential</span><span class="o">.</span><span class="n">qsp_pauli</span><span class="p">:</span>
         <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -387,8 +387,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 11, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.0.<br/>
+      Last updated on Mar 15, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>
 </footer>

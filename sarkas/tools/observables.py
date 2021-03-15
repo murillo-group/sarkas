@@ -331,6 +331,7 @@ class Observable:
             self.no_steps = self.magnetization_steps
             self.dump_dir = self.mag_dump_dir
 
+        # Time slicing for long runs
         if not hasattr(self, 'no_slices'):
             self.no_slices = 1
 
@@ -669,14 +670,11 @@ class CurrentCorrelationFunction(Observable):
 
         # These calculation are needed for the io.postprocess_info().
         # This is a hack and we need to find a faster way to do it
-        self.slice_steps = int(
-            (self.production_steps + 1) / (self.dump_step * self.no_slices))
-        self.no_dumps = int(self.slice_steps / self.dump_step)
         dt_r = self.dt * self.dump_step
 
         self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
 
-        self.w_min = 2.0 * np.pi / (self.no_dumps * dt_r)
+        self.w_min = 2.0 * np.pi / (self.slice_steps * dt_r)
         self.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
 
         self.parse_k_data()
@@ -788,8 +786,7 @@ class CurrentCorrelationFunction(Observable):
               ' \n\t self.dataframe_longitudinal, self.dataframe_transverse')
         print('Frequency Space Parameters:')
         print('\tNo. of slices = {}'.format(self.no_slices))
-        print('\tNo. steps per slice = {}'.format(self.slice_steps))
-        print('\tNo. dumps per slice = {}'.format(self.no_dumps))
+        print('\tNo. dumps per slice = {}'.format(self.slice_steps))
         print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
         print('\tdw = {:1.4f} w_p = {:1.4e} [Hz]'.format(
             self.w_min / self.total_plasma_frequency, self.w_min))
@@ -855,6 +852,8 @@ class DynamicStructureFactor(Observable):
 
         self.__name__ = 'dsf'
         self.__long_name__ = 'Dynamic Structure Factor'
+        self.k_observable = True
+
         if phase:
             self.phase = phase.lower()
 
@@ -872,13 +871,12 @@ class DynamicStructureFactor(Observable):
 
         # These calculation are needed for the io.postprocess_info().
         # This is a hack and we need to find a faster way to do it
-        self.slice_steps = int((self.production_steps + 1) / (self.dump_step * self.no_slices))
-        self.no_dumps = int(self.slice_steps / self.dump_step)
+
         dt_r = self.dt * self.dump_step
 
         self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
 
-        self.w_min = 2.0 * np.pi / (self.no_dumps * self.dt * self.dump_step)
+        self.w_min = 2.0 * np.pi / (self.slice_steps * self.dt * self.dump_step)
         self.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
 
         self.parse_k_data()
@@ -966,8 +964,7 @@ class DynamicStructureFactor(Observable):
 
         print('Frequency Space Parameters:')
         print('\tNo. of slices = {}'.format(self.no_slices))
-        print('\tNo. steps per slice = {}'.format(self.slice_steps))
-        print('\tNo. dumps per slice = {}'.format(self.no_dumps))
+        print('\tNo. dumps per slice = {}'.format(self.slice_steps))
         print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
         print('\tdw = {:1.4f} w_p = {:1.4e} [Hz]'.format(
             self.w_min / self.total_plasma_frequency, self.w_min))
@@ -2168,7 +2165,7 @@ class VelocityAutoCorrelationFunction(Observable):
         """
 
         self.__name__ = 'vacf'
-
+        self.__long_name__ = 'Velocity AutoCorrelation Function'
         if phase:
             self.phase = phase.lower()
 
@@ -2206,37 +2203,78 @@ class VelocityAutoCorrelationFunction(Observable):
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
 
-        # Parse the particles from the dump files
-        vel = np.zeros((self.dimensions, self.total_num_ptcls, self.no_dumps))
-        #
-        print("Parsing particles' velocities.")
-        time = np.zeros(self.no_dumps)
-        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
-            dump = int(it * self.dump_step)
-            time[it] = dump * self.dt
-            datap = load_from_restart(self.dump_dir, dump)
-            vel[0, :, it] = datap["vel"][:, 0]
-            vel[1, :, it] = datap["vel"][:, 1]
-            vel[2, :, it] = datap["vel"][:, 2]
-        #
-        self.dataframe["Time"] = time
-        message = "Calculating velocity acf with time averaging "
-        ta = "on" if self.time_averaging else "off"
-        print('Please wait. ' + message + ta + ' ...')
+        # Recalculate the slicing parameters if no_slices has been passed
+        self.slice_steps = int(self.no_dumps / self.no_slices)
 
-        t0 = self.timer.current()
-        vacf = calc_vacf(vel, self.species_num, self.time_averaging, self.timesteps_to_skip)
-        tend = self.timer.current()
+        start_slice = 0
+        end_slice = self.slice_steps * self.dump_step
+        time = np.zeros(self.slice_steps)
+        for isl in range(self.no_slices):
+            print("\nCalculating vacf for slice {}/{}.".format(isl, self.no_slices))
+            # Parse the particles from the dump files
+            vel = np.zeros((self.dimensions, self.total_num_ptcls, self.slice_steps))
+            #
+            print("\nParsing particles' velocities.")
+            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step), disable=not self.verbose)):
+                time[it] = it * self.dt
+                datap = load_from_restart(self.dump_dir, dump)
+                vel[0, :, it] = datap["vel"][:, 0]
+                vel[1, :, it] = datap["vel"][:, 1]
+                vel[2, :, it] = datap["vel"][:, 2]
+            #
+            if isl == 0:
+                self.dataframe["Time"] = time
 
-        self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
+            # message = "Calculating velocity acf with time averaging "
+            # ta = "on" if self.time_averaging else "off"
+            # print('Please wait. ' + message + ta + ' ...')
 
+            # t0 = self.timer.current()
+            #
+            # Return an array of shape( num_species, dim + 1, slice_steps)
+            vacf = calc_vacf(vel, self.species_num, self.time_averaging, self.timesteps_to_skip)
+            # tend.append = self.timer.current()
+
+            # self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
+
+            for i, sp1 in enumerate(self.species_names):
+                self.dataframe["{} X Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 0, :]
+                self.dataframe["{} Y Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 1, :]
+                self.dataframe["{} Z Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 2, :]
+                self.dataframe["{} Total Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 3, :]
+
+            start_slice += self.slice_steps * self.dump_step
+            end_slice += self.slice_steps * self.dump_step
+
+        # Average the stuff
         for i, sp1 in enumerate(self.species_names):
-            self.dataframe["{} X Velocity ACF".format(sp1)] = vacf[i, 0, :]
-            self.dataframe["{} Y Velocity ACF".format(sp1)] = vacf[i, 1, :]
-            self.dataframe["{} Z Velocity ACF".format(sp1)] = vacf[i, 2, :]
-            self.dataframe["{} Total Velocity ACF".format(sp1)] = vacf[i, 3, :]
+            xcol_str = ["{} X Velocity ACF slice {}".format(sp1, isl) for isl in range(self.no_slices)]
+            ycol_str = ["{} Y Velocity ACF slice {}".format(sp1, isl) for isl in range(self.no_slices)]
+            zcol_str = ["{} Z Velocity ACF slice {}".format(sp1, isl) for isl in range(self.no_slices)]
+            tot_col_str = ["{} Total Velocity ACF slice {}".format(sp1, isl) for isl in range(self.no_slices)]
+
+            self.dataframe["{} X Velocity ACF avg".format(sp1)] = self.dataframe[xcol_str].mean(axis=1)
+            self.dataframe["{} X Velocity ACF std".format(sp1)] = self.dataframe[xcol_str].std(axis=1)
+            self.dataframe["{} Y Velocity ACF avg".format(sp1)] = self.dataframe[ycol_str].mean(axis=1)
+            self.dataframe["{} Y Velocity ACF std".format(sp1)] = self.dataframe[ycol_str].std(axis=1)
+            self.dataframe["{} Z Velocity ACF avg".format(sp1)] = self.dataframe[zcol_str].mean(axis=1)
+            self.dataframe["{} Z Velocity ACF std".format(sp1)] = self.dataframe[zcol_str].std(axis=1)
+            self.dataframe["{} Total Velocity ACF avg".format(sp1)] = self.dataframe[tot_col_str].mean(axis=1)
+            self.dataframe["{} Total Velocity ACF std".format(sp1)] = self.dataframe[tot_col_str].std(axis=1)
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+
+    def pretty_print(self):
+        """Print observable parameters for help in choice of simulation parameters."""
+
+        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
+        print('Data saved in: ', self.filename_csv)
+        print('Data accessible at: self.dataframe')
+
+        print('\nNo. of slices = {}'.format(self.no_slices))
+        print('No. dumps per slice = {}'.format(self.slice_steps))
+
+        print('Time interval of autocorrelation function = {}'.format(self.dt * self.slice_steps * self.dump_step))
 
 
 class FluxAutoCorrelationFunction(Observable):
@@ -2272,6 +2310,7 @@ class FluxAutoCorrelationFunction(Observable):
         """
 
         self.__name__ = 'facf'
+        self.__long_name__ = 'Flux AutoCorrelation Function'
 
         if phase:
             self.phase = phase.lower()
@@ -2312,45 +2351,92 @@ class FluxAutoCorrelationFunction(Observable):
         # Update the attribute with the passed arguments. e.g time_averaging and timesteps_to_skip
         self.__dict__.update(kwargs.copy())
 
-        # Parse the particles from the dump files
-        vel = np.zeros((self.dimensions, self.no_dumps, self.total_num_ptcls))
-        #
-        print("Parsing particles' velocities.")
-        time = np.zeros(self.no_dumps)
-        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
-            dump = int(it * self.dump_step)
-            datap = load_from_restart(self.dump_dir, dump)
-            time[it] = datap["time"]
-            vel[0, it, :] = datap["vel"][:, 0]
-            vel[1, it, :] = datap["vel"][:, 1]
-            vel[2, it, :] = datap["vel"][:, 2]
-        #
-        self.dataframe["Time"] = time
-        message = "Calculating diffusion flux acf with time averaging "
-        ta = "on" if self.time_averaging else "off"
-        print('Please wait. ' + message + ta + ' ...')
-        t0 = self.timer.current()
-        df_acf = calc_diff_flux_acf(vel,
-                                    self.species_num,
-                                    self.species_num_dens,
-                                    self.species_masses,
-                                    self.time_averaging,
-                                    self.timesteps_to_skip)
-        tend = self.timer.current()
+        # Recalculate the slicing parameters if no_slices has been passed
+        self.slice_steps = int(self.no_dumps / self.no_slices)
 
-        self.time_stamp("Diffusion Flux ACF Calculation", self.timer.time_division(tend - t0))
+        start_slice = 0
+        end_slice = self.slice_steps * self.dump_step
+        time = np.zeros(self.slice_steps)
+        for isl in range(self.no_slices):
+            print("\nCalculating diffusion flux acf for slice {}/{}.".format(isl, self.no_slices))
+            # Parse the particles from the dump files
+            vel = np.zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
+            #
+            # print("\nParsing particles' velocities.")
+            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
+                                           desc = 'Read in data',
+                                           disable=not self.verbose)):
+                datap = load_from_restart(self.dump_dir, dump)
+                time[it] = datap["time"]
+                vel[0, it, :] = datap["vel"][:, 0]
+                vel[1, it, :] = datap["vel"][:, 1]
+                vel[2, it, :] = datap["vel"][:, 2]
+            #
+            if isl == 0:
+                self.dataframe["Time"] = time
+            # message = "Calculating diffusion flux acf with time averaging "
+            # ta = "on" if self.time_averaging else "off"
+            # print('Please wait. ' + message + ta + ' ...')
+            # t0 = self.timer.current()
+            df_acf = calc_diff_flux_acf(vel,
+                                        self.species_num,
+                                        self.species_num_dens,
+                                        self.species_masses,
+                                        self.time_averaging,
+                                        self.timesteps_to_skip)
+            # tend = self.timer.current()
+            #
+            # self.time_stamp("Diffusion Flux ACF Calculation", self.timer.time_division(tend - t0))
 
-        # Store the data
+            # Store the data
+            v_ij = 0
+            for i, sp1 in enumerate(self.species_names):
+                for j, sp2 in enumerate(self.species_names[i:], i):
+                    self.dataframe["{}-{} X Diffusion Flux ACF slice {}".format(sp1, sp2, isl)] = df_acf[v_ij, 0, :]
+                    self.dataframe["{}-{} Y Diffusion Flux ACF slice {}".format(sp1, sp2, isl)] = df_acf[v_ij, 1, :]
+                    self.dataframe["{}-{} Z Diffusion Flux ACF slice {}".format(sp1, sp2, isl)] = df_acf[v_ij, 2, :]
+                    self.dataframe["{}-{} Total Diffusion Flux ACF slice {}".format(sp1, sp2, isl)] = df_acf[v_ij, 3, :]
+                    v_ij += 1
+
+            start_slice += self.slice_steps * self.dump_step
+            end_slice += self.slice_steps * self.dump_step
+
+        # Average
         v_ij = 0
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
-                self.dataframe["{}-{} X Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 0, :]
-                self.dataframe["{}-{} Y Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 1, :]
-                self.dataframe["{}-{} Z Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 2, :]
-                self.dataframe["{}-{} Total Diffusion Flux ACF".format(sp1, sp2)] = df_acf[v_ij, 3, :]
+                xcol_str = ["{}-{} X Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
+                ycol_str = ["{}-{} Y Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
+                zcol_str = ["{}-{} Z Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
+                tot_col_str = ["{}-{} Total Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
+
+                self.dataframe["{}-{} X Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[xcol_str].mean(axis=1)
+                self.dataframe["{}-{} X Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[xcol_str].std(
+                    axis=1)
+                self.dataframe["{}-{} Y Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[ycol_str].mean(axis=1)
+                self.dataframe["{}-{} Y Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[ycol_str].std(
+                    axis=1)
+                self.dataframe["{}-{} Z Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[zcol_str].mean(axis=1)
+                self.dataframe["{}-{} Z Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[zcol_str].std(
+                    axis=1)
+                self.dataframe["{}-{} Total Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[tot_col_str].mean(axis=1)
+                self.dataframe["{}-{} Total Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[
+                    tot_col_str].std(axis=1)
                 v_ij += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+
+    def pretty_print(self):
+        """Print observable parameters for help in choice of simulation parameters."""
+
+        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
+        print('Data saved in: ', self.filename_csv)
+        print('Data accessible at: self.dataframe')
+
+        print('\nNo. of slices = {}'.format(self.no_slices))
+        print('No. dumps per slice = {}'.format(self.slice_steps))
+
+        print('Time interval of autocorrelation function = {}'.format(self.dt * self.slice_steps * self.dump_step))
 
 
 class VelocityDistribution(Observable):
@@ -2463,8 +2549,12 @@ class VelocityDistribution(Observable):
             os.mkdir(self.plots_dir)
 
         # Paths where to store the dataframes
-        self.filename_csv = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + '.csv')
-        self.filename_hdf = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + '.h5')
+        if self.multi_run_average:
+            self.filename_csv = os.path.join(self.saving_dir, "VelocityDistribution.csv")
+            self.filename_hdf = os.path.join(self.saving_dir, "VelocityDistribution.h5")
+        else:
+            self.filename_csv = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + '.csv')
+            self.filename_hdf = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + '.h5')
 
         if hasattr(self, 'max_no_moment'):
             self.moments_dataframe = None
@@ -3255,7 +3345,7 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
         Initial, final step number of the slice, total number of slice steps.
 
     dump_step : int
-        Timestep interval saving.
+        Snapshot interval.
 
     species_np : numpy.ndarray
         Number of particles of each species.

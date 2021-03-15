@@ -94,7 +94,7 @@ class Thermostat:
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
         print("Thermostating temperatures: ")
         for i, (t, t_ev) in enumerate(zip(self.temperatures, self.temperatures_eV)):
-            print("Species ID {}: T_eq = {:.6e} [K], {:.6e} [eV]".format(i,t, t_ev))
+            print("Species ID {}: T_eq = {:.6e} [K] = {:.6e} [eV]".format(i, t, t_ev))
 
     def setup(self, params):
         """

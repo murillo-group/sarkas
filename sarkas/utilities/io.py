@@ -304,7 +304,7 @@ class InputOutput:
                 self.time_info(simulation)
             elif self.process == 'postprocessing':
                 # Header of process
-                process_title = '{:^90}'.format(self.process.capitalize())
+                process_title = '{:^80}'.format(self.process.capitalize())
                 print('\n\n')
                 print(*['*' for i in range(50)])
                 print(process_title)
@@ -318,7 +318,7 @@ class InputOutput:
             else:
 
                 # Header of process
-                process_title = '{:^90}'.format(self.process.capitalize())
+                process_title = '{:^80}'.format(self.process.capitalize())
                 print('\n\n')
                 print(*['*' for i in range(50)])
                 print(process_title)
@@ -602,7 +602,7 @@ class InputOutput:
         while repeat > 0:
             if observable == 'header':
                 # Header of process
-                process_title = '{:^90}'.format(self.process.capitalize())
+                process_title = '{:^80}'.format(self.process.capitalize())
                 print('\n\n')
                 print(*['*' for i in range(50)])
                 print(process_title)
@@ -856,14 +856,14 @@ class InputOutput:
             Simulation's parameters.
 
         """
-        if simulation.potential.type == 'Yukawa':
+        if simulation.potential.type.lower() == 'yukawa':
             print('electron temperature = {:1.4e} [K] = {:1.4e} [eV]'.format(
                 simulation.parameters.electron_temperature,
                 simulation.parameters.electron_temperature / simulation.parameters.eV2K))
             print('kappa = {:.4f}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
             print('Gamma_eff = {:.2f}'.format(simulation.parameters.coupling_constant))
 
-        elif simulation.potential.type == 'EGS':
+        elif simulation.potential.type.lower() == 'egs':
             # print('electron temperature = {:1.4e} [K] = {:1.4e} eV'.format(
             #     simulation.parameters.electron_temperature,
             #     simulation.parameters.electron_temperature / simulation.parameters.eV2K))
@@ -893,16 +893,16 @@ class InputOutput:
 
             print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
 
-        elif simulation.potential.type == 'Coulomb':
+        elif simulation.potential.type.lower() == 'coulomb':
             print('Effective Coupling constant: Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
             simulation.parameters.pretty_print()
 
-        elif simulation.potential.type == 'LJ':
+        elif simulation.potential.type.lower() == 'lj':
             print('epsilon = {:.6e}'.format(simulation.potential.matrix[0, 0, 0]))
             print('sigma = {:.6e}'.format(simulation.potential.matrix[1, 0, 0]))
             print('Gamma_eff = {:.2f}'.format(simulation.parameters.coupling_constant))
 
-        elif simulation.potential.type == "QSP":
+        elif simulation.potential.type.lower() == "qsp":
             print("e de Broglie wavelength = {:.4f} ai = {:.6e} ".format(
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / (np.sqrt(2.0) * simulation.parameters.ai),
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')

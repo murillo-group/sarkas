@@ -7,8 +7,8 @@
     <title>sarkas.base module &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -722,7 +722,8 @@ The product of its components should be equal to <code class="docutils literal n
 <dl class="py method">
 <dt id="sarkas.base.Parameters.calc_coupling_constant">
 <code class="sig-name descname"><span class="pre">calc_coupling_constant</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.calc_coupling_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.base.Parameters.calc_coupling_constant" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the coupling constant of each species and the total coupling constant.</p>
+<dd><p>Calculate the coupling constant of each species and the total coupling constant. For more information see
+the theory pages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code> objects.</p>
@@ -747,7 +748,7 @@ The product of its components should be equal to <code class="docutils literal n
 <dd><p>Adjust default physical constants for cgs unit system and check for LJ potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -759,6 +760,17 @@ The product of its components should be equal to <code class="docutils literal n
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary to be copied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Parameters.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Parameters.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.base.Parameters.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print simulation parameters in a user-friendly way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>electron_properties</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for printing electron properties. Default = True</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1145,7 +1157,7 @@ Updates: N/A</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<a class="reference internal" href="#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code> objects.</p></li>
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <a class="reference internal" href="#sarkas.base.Species" title="sarkas.base.Species"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.base.Species()</span></code></a> objects.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1189,11 +1201,6 @@ Updates: N/A</p>
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.base.</span></code><code class="sig-name descname"><span class="pre">Species</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.base.Species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class used to store all the information of a single species.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary to be copied.</p>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt id="sarkas.base.Species.name">
 <code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#sarkas.base.Species.name" title="Permalink to this definition">¶</a></dt>
@@ -1252,7 +1259,7 @@ Updates: N/A</p>
 <dl class="py attribute">
 <dt id="sarkas.base.Species.Z">
 <code class="sig-name descname"><span class="pre">Z</span></code><a class="headerlink" href="#sarkas.base.Species.Z" title="Permalink to this definition">¶</a></dt>
-<dd><p>Species charge number.</p>
+<dd><p>Species charge number or ionization degree.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
@@ -1263,7 +1270,19 @@ Updates: N/A</p>
 <dl class="py attribute">
 <dt id="sarkas.base.Species.ai">
 <code class="sig-name descname"><span class="pre">ai</span></code><a class="headerlink" href="#sarkas.base.Species.ai" title="Permalink to this definition">¶</a></dt>
-<dd><p>Species Wigner - Seitz radius.</p>
+<dd><p>Species Wigner - Seitz radius calculate from electron density.
+Used in the calculation of the effective coupling constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.base.Species.ai_dens">
+<code class="sig-name descname"><span class="pre">ai_dens</span></code><a class="headerlink" href="#sarkas.base.Species.ai_dens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Species Wigner - Seitz radius calculate from the species density.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
@@ -1283,8 +1302,8 @@ Updates: N/A</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.base.Species.wp">
-<code class="sig-name descname"><span class="pre">wp</span></code><a class="headerlink" href="#sarkas.base.Species.wp" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.base.Species.plasma_frequency">
+<code class="sig-name descname"><span class="pre">plasma_frequency</span></code><a class="headerlink" href="#sarkas.base.Species.plasma_frequency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Species’ plasma frequency.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1305,8 +1324,8 @@ Updates: N/A</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.base.Species.omega_c">
-<code class="sig-name descname"><span class="pre">omega_c</span></code><a class="headerlink" href="#sarkas.base.Species.omega_c" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.base.Species.cyclotron_frequency">
+<code class="sig-name descname"><span class="pre">cyclotron_frequency</span></code><a class="headerlink" href="#sarkas.base.Species.cyclotron_frequency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Species’ cyclotron frequency.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1411,7 +1430,7 @@ Updates: N/A</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a_ws</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total Wigner-Seitz radius.</p></li>
-<li><p><strong>z_avg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Species charge.</p></li>
+<li><p><strong>z_avg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Average charge of the system.</p></li>
 <li><p><strong>const</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Electrostatic * Thermal constants.</p></li>
 </ul>
 </dd>
@@ -1421,8 +1440,7 @@ Updates: N/A</p>
 <dl class="py method">
 <dt id="sarkas.base.Species.calc_cyclotron_frequency">
 <code class="sig-name descname"><span class="pre">calc_cyclotron_frequency</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magnetic_field_strength</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.calc_cyclotron_frequency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.base.Species.calc_cyclotron_frequency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the cyclotron frequency.
-See <a class="reference external" href="https://en.wikipedia.org/wiki/Lorentz_force">https://en.wikipedia.org/wiki/Lorentz_force</a></p>
+<dd><p>Calculate the cyclotron frequency. See <a class="reference external" href="https://en.wikipedia.org/wiki/Lorentz_force">Wikipedia link</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>magnetic_field_strength</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Magnetic field strength.</p>
@@ -1460,10 +1478,24 @@ Neutral systems: :math: <cite>1/nsigma^2</cite></p>
 <dl class="py method">
 <dt id="sarkas.base.Species.from_dict">
 <code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.base.Species.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update attributes from input dictionary.</p>
+<dd><p>Update attributes from input dictionary using the <code class="docutils literal notranslate"><span class="pre">__dict__.update()</span></code> method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary to be copied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.base.Species.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potential_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mks'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/base.html#Species.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.base.Species.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print Species information in a user-friendly way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>potential_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Interaction potential. If ‘LJ’ it will print out the epsilon and sigma attributes.</p></li>
+<li><p><strong>units</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Unit system used in the simulation. Default = ‘mks’.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1485,8 +1517,8 @@ Neutral systems: :math: <cite>1/nsigma^2</cite></p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 11, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.0.<br/>
+      Last updated on Mar 15, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>
 </footer>

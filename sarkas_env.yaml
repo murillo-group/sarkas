@@ -29,6 +29,7 @@ dependencies:
   # Documentation
   - sphinx
   - sphinx_bootstrap_theme
+  - sphinx_panels
   - sphinxcontrib-bibtex
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme

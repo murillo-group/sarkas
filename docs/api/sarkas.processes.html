@@ -7,8 +7,8 @@
     <title>sarkas.processes module &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -155,7 +155,7 @@
 <dl class="py class">
 <dt id="sarkas.processes.PostProcess">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></code><code class="sig-name descname"><span class="pre">PostProcess</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PostProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PostProcess" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.processes.Process" title="sarkas.processes.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.processes.Process</span></code></a></p>
 <p>Class handling the post-processing stage of a simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -163,14 +163,9 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt id="sarkas.processes.PostProcess.common_parser">
-<code class="sig-name descname"><span class="pre">common_parser</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PostProcess.common_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PostProcess.common_parser" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.processes.PostProcess.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PostProcess.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PostProcess.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup subclasses and attributes by reading the pickle files first</p>
+<dt id="sarkas.processes.PostProcess.run">
+<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PostProcess.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PostProcess.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate all the observables from the YAML input file.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -179,7 +174,7 @@
 <dd><p>Setup postprocess’ subclasses by (shallow) copying them from simulation object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.Simulation</em>) – Simulation object</p>
+<dd class="field-odd"><p><strong>simulation</strong> (<em>sarkas.base.processes.Simulation</em>) – Simulation object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -189,13 +184,68 @@
 <dl class="py class">
 <dt id="sarkas.processes.PreProcess">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></code><code class="sig-name descname"><span class="pre">PreProcess</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.processes.Process" title="sarkas.processes.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.processes.Process</span></code></a></p>
 <p>Wrapper class handling the estimation of time and best parameters of a simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Path to the YAML input file.</p>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt id="sarkas.processes.PreProcess.loops">
+<code class="sig-name descname"><span class="pre">loops</span></code><a class="headerlink" href="#sarkas.processes.PreProcess.loops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of timesteps to run for time and size estimates. Default = 10</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.PreProcess.estimate">
+<code class="sig-name descname"><span class="pre">estimate</span></code><a class="headerlink" href="#sarkas.processes.PreProcess.estimate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run an estimate for the best PPPM parameters in the simulation. Default=False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.PreProcess.pm_meshes">
+<code class="sig-name descname"><span class="pre">pm_meshes</span></code><a class="headerlink" href="#sarkas.processes.PreProcess.pm_meshes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of mesh sizes used in the PPPM parameters estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.PreProcess.pp_cells">
+<code class="sig-name descname"><span class="pre">pp_cells</span></code><a class="headerlink" href="#sarkas.processes.PreProcess.pp_cells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of simulations box cells used in the PPPM parameters estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.PreProcess.kappa">
+<code class="sig-name descname"><span class="pre">kappa</span></code><a class="headerlink" href="#sarkas.processes.PreProcess.kappa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Screening parameter. Calculated from <a class="reference internal" href="sarkas.potentials.base.html#sarkas.potentials.base.Potential.matrix" title="sarkas.potentials.base.Potential.matrix"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.potentials.base.Potential.matrix()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="sarkas.processes.PreProcess.analytical_approx_pp">
 <code class="sig-name descname"><span class="pre">analytical_approx_pp</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.analytical_approx_pp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.analytical_approx_pp" title="Permalink to this definition">¶</a></dt>
@@ -209,17 +259,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.processes.PreProcess.common_parser">
-<code class="sig-name descname"><span class="pre">common_parser</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.common_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.common_parser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse simulation parameters from YAML file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Input YAML file</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="sarkas.processes.PreProcess.estimate_best_parameters">
 <code class="sig-name descname"><span class="pre">estimate_best_parameters</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.estimate_best_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.estimate_best_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate the best number of mesh points and cutoff radius.</p>
@@ -228,7 +267,8 @@
 <dl class="py method">
 <dt id="sarkas.processes.PreProcess.green_function_timer">
 <code class="sig-name descname"><span class="pre">green_function_timer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.green_function_timer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.green_function_timer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Time Potential setup.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.processes.PreProcess.make_color_map">
@@ -289,31 +329,19 @@ Plot the force error in the parameter space.</p>
 
 <dl class="py method">
 <dt id="sarkas.processes.PreProcess.run">
-<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pppm_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pppm_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate the time of the simulation and best parameters if wanted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>remove</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for removing energy files and dumps created during times estimation. Default = True.</p></li>
+<li><p><strong>pppm_plots</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for showing the force error plots in case of pppm algorithm.</p></li>
 <li><p><strong>postprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating Post processing parameters.</p></li>
-<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating simulation times.</p></li>
+<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating simulation times. Default =True.</p></li>
 <li><p><strong>loops</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of loops over which to average the acceleration calculation.
 Note that the number of timestep over which to averages is three times this value.
 Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.</p></li>
 <li><p><strong>estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating best PPPM parameters.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.processes.PreProcess.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup simulations’ parameters and io subclasses.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>read_yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading YAML input file. Default = False.</p></li>
-<li><p><strong>other_inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Dictionary with additional simulations options.</p></li>
 </ul>
 </dd>
 </dl>
@@ -333,9 +361,148 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 </dd></dl>
 
 <dl class="py class">
+<dt id="sarkas.processes.Process">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></code><code class="sig-name descname"><span class="pre">Process</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Stage of a Molecular Dynamics simulation. This is the Parent class for PreProcess, Simulation, and PostProcess.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Path to the YAML input file.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.potential">
+<code class="sig-name descname"><span class="pre">potential</span></code><a class="headerlink" href="#sarkas.processes.Process.potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class handling the interaction between particles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>sarkas.potential.base.Potential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.integrator">
+<code class="sig-name descname"><span class="pre">integrator</span></code><a class="headerlink" href="#sarkas.processes.Process.integrator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class handling the integrator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator" title="sarkas.time_evolution.integrators.Integrator">sarkas.time_evolution.integrators.Integrator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.thermostat">
+<code class="sig-name descname"><span class="pre">thermostat</span></code><a class="headerlink" href="#sarkas.processes.Process.thermostat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class handling the equilibration thermostat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat" title="sarkas.time_evolution.thermostats.Thermostat">sarkas.time_evolution.thermostats.Thermostat</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.particles">
+<code class="sig-name descname"><span class="pre">particles</span></code><a class="headerlink" href="#sarkas.processes.Process.particles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class handling particles properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles">sarkas.base.Particles</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.parameters">
+<code class="sig-name descname"><span class="pre">parameters</span></code><a class="headerlink" href="#sarkas.processes.Process.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class handling simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters">sarkas.base.Parameters</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.species">
+<code class="sig-name descname"><span class="pre">species</span></code><a class="headerlink" href="#sarkas.processes.Process.species" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of <a class="reference internal" href="sarkas.base.html#sarkas.base.Species" title="sarkas.base.Species"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.base.Species()</span></code></a> classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.input_file">
+<code class="sig-name descname"><span class="pre">input_file</span></code><a class="headerlink" href="#sarkas.processes.Process.input_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to YAML input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.timer">
+<code class="sig-name descname"><span class="pre">timer</span></code><a class="headerlink" href="#sarkas.processes.Process.timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class handling the timing of processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer" title="sarkas.utilities.timing.SarkasTimer">sarkas.utilities.timing.SarkasTimer</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.processes.Process.io">
+<code class="sig-name descname"><span class="pre">io</span></code><a class="headerlink" href="#sarkas.processes.Process.io" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class handling the IO in Sarkas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sarkas.utilities.io.html#sarkas.utilities.io.InputOutput" title="sarkas.utilities.io.InputOutput">sarkas.utilities.io.InputOutput</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.processes.Process.common_parser">
+<code class="sig-name descname"><span class="pre">common_parser</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Process.common_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Process.common_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse simulation parameters from YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Input YAML file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.processes.Process.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Process.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Process.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup simulations’ parameters and io subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading YAML input file. Default = False.</p></li>
+<li><p><strong>other_inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Dictionary with additional simulations options.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="sarkas.processes.Simulation">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></code><code class="sig-name descname"><span class="pre">Simulation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Simulation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.processes.Process" title="sarkas.processes.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.processes.Process</span></code></a></p>
 <p>Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -343,26 +510,12 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 </dd>
 </dl>
 <dl class="py method">
-<dt id="sarkas.processes.Simulation.common_parser">
-<code class="sig-name descname"><span class="pre">common_parser</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.common_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Simulation.common_parser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse simulation parameters from YAML file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Input YAML file</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="sarkas.processes.Simulation.equilibrate">
 <code class="sig-name descname"><span class="pre">equilibrate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.equilibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Simulation.equilibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -373,7 +526,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Run the time integrator to evolve the system for the duration of the production phase.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -384,7 +537,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Initialize all the sub classes of the simulation and save simulation details to log file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -395,7 +548,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Run the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -435,15 +588,15 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>array</em>) – Values at which to calculate the function.</p></li>
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Values at which to calculate the function.</p></li>
 <li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Coefficient of linear term.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p><strong>_</strong> – linear formula</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>linear formula</p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -485,8 +638,8 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 11, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.0.<br/>
+      Last updated on Mar 15, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>
 </footer>

@@ -7,8 +7,8 @@
     <title>Integrators &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -209,7 +209,7 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
 <div class="section" id="magnetic-velocity-verlet">
 <h2>Magnetic Velocity Verlet<a class="headerlink" href="#magnetic-velocity-verlet" title="Permalink to this headline">¶</a></h2>
 <p>A generalization to include constant external magnetic fields leads to the Liouville operator
-<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <span id="id2">[<a class="reference internal" href="references.html#id11"><span>Chi08</span></a>]</span></p>
+<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <a class="bibtex reference internal" href="references.html#chin2008" id="id2">[Chi08]</a></p>
 <div class="math notranslate nohighlight">
 \[L_B = \omega_c \left ( \hat{\mathbf B} \times \mathbf v \right ) \cdot \frac{\partial}{\partial \mathbf v}  = \omega_c \hat{\mathbf B} \cdot \left( \mathbf v \times \frac{\partial}{\partial \mathbf v} \right ) = \omega_c \hat{\mathbf B} \cdot \mathbf J_{\mathbf v}.\]</div>
 <p>Application of this operator leads to <span class="math notranslate nohighlight">\(e^{i \epsilon L_B}\vb{r}_0 = 0\)</span> and</p>
@@ -229,10 +229,10 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
 <p>Time integrators of various order can be found by exponential splitting, that is</p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx \prod_{ j = 1}^{N} e^{i a_j \epsilon K} e^{i b_j \epsilon \left ( L_B + V \right ) }.\]</div>
-<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <span id="id3">[<a class="reference internal" href="references.html#id11"><span>Chi08</span></a>]</span></p>
+<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <a class="bibtex reference internal" href="references.html#chin2008" id="id3">[Chi08]</a></p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx e^{i \epsilon K} e^{i \epsilon V/2}  e^{i \epsilon L_B} e^{i \epsilon V/2}\]</div>
-<p>while a generalization of the Velocity-Verlet <span id="id4">[<a class="reference internal" href="references.html#id11"><span>Chi08</span></a>,<a class="reference internal" href="references.html#id9"><span>SW99</span></a>]</span></p>
+<p>while a generalization of the Velocity-Verlet <a class="bibtex reference internal" href="references.html#chin2008" id="id4">[Chi08]</a><a class="bibtex reference internal" href="references.html#spreiter1999" id="id5">[SW99]</a></p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx  e^{i \epsilon (L_B + V) /2} e^{i \epsilon K} e^{i \epsilon ( L_B + V)/2}.\]</div>
 <p>Notice that all the above algorithm require one force calculation per time step.</p>
@@ -252,8 +252,8 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 11, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.0.<br/>
+      Last updated on Mar 15, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>
 </footer>

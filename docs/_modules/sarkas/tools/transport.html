@@ -7,8 +7,8 @@
     <title>sarkas.tools.transport &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -193,7 +193,8 @@
         <span class="n">j_current</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
         <span class="n">j_current</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">j_current</span><span class="o">.</span><span class="n">prod_no_dumps</span><span class="p">)</span>
-        <span class="n">integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">j_current</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Total Current ACF&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">j_current</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Total Current ACF&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">j_current</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Total Current ACF&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">j_current</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Total Current ACF&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">j_current</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">])</span>
         <span class="n">const</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">j_current</span><span class="o">.</span><span class="n">prod_no_dumps</span><span class="p">):</span>
@@ -250,12 +251,28 @@
         <span class="k">return</span> <span class="n">coefficient</span></div>
 
 <div class="viewcode-block" id="TransportCoefficient.diffusion"><a class="viewcode-back" href="../../../api/sarkas.tools.transport.html#sarkas.tools.transport.TransportCoefficient.diffusion">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">diffusion</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">diffusion</span><span class="p">(</span><span class="n">params</span><span class="p">,</span>
+                  <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;production&#39;</span><span class="p">,</span>
+                  <span class="n">no_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">time_averaging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">timesteps_to_skip</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+                  <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">figname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the self-diffusion coefficient from the velocity auto-correlation function.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        figname : str</span>
+<span class="sd">            Name with which to save the file. It automatically saves it in the correct directory.</span>
+
+<span class="sd">        time_averaging: bool</span>
+<span class="sd">            Flag for VACF time averaging. Default = False.</span>
+
+<span class="sd">        timesteps_to_skip: int</span>
+<span class="sd">            Timestep interval for VACF time averaging. Default = 100</span>
+
 <span class="sd">        params : sarkas.base.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
@@ -265,17 +282,25 @@
 <span class="sd">        show : bool</span>
 <span class="sd">            Flag for prompting plot to screen.</span>
 
+<span class="sd">        **kwargs:</span>
+<span class="sd">            Arguments to pass :meth:`sarkas.tools.observables.VelocityAutoCorrelationFunction`</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        coefficient : pandas.DataFrame</span>
 <span class="sd">            Pandas dataframe containing the value of the transport coefficient as a function of integration time.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="si">{:=^70}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; Diffusion Coefficient &#39;</span><span class="p">))</span>
         <span class="n">coefficient</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="n">vacf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">VelocityAutoCorrelationFunction</span><span class="p">()</span>
-        <span class="n">vacf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
-        <span class="n">vacf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
-
+        <span class="n">vacf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span>
+                   <span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span>
+                   <span class="n">time_averaging</span><span class="o">=</span><span class="n">time_averaging</span><span class="p">,</span>
+                   <span class="n">timesteps_to_skip</span><span class="o">=</span><span class="n">timesteps_to_skip</span><span class="p">,</span>
+                   <span class="n">no_slices</span><span class="o">=</span><span class="n">no_slices</span><span class="p">,</span>
+                   <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">vacf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vacf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">])</span>
         <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
 
@@ -333,7 +358,7 @@
         <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Diffusion&#39;</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">)</span>
-        <span class="c1">#ax2.set_xlabel(r&#39;Time&#39; + xlbl)</span>
+        <span class="c1"># ax2.set_xlabel(r&#39;Time&#39; + xlbl)</span>
 
         <span class="n">ax21</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
@@ -353,15 +378,30 @@
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
         <span class="n">ax21</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Index&quot;</span><span class="p">)</span>
         <span class="c1"># ax21.set_xbound(1, len(time))</span>
+
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vacf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;DiffusionPlot_&#39;</span> <span class="o">+</span> <span class="n">vacf</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">figname</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vacf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">figname</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vacf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;Plot_Diffusion_&#39;</span> <span class="o">+</span> <span class="n">vacf</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
+
         <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
             <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
+        <span class="n">coefficient</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vacf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;Diffusion_&#39;</span> <span class="o">+</span> <span class="n">vacf</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">),</span>
+                           <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">coefficient</span></div>
 
 <div class="viewcode-block" id="TransportCoefficient.interdiffusion"><a class="viewcode-back" href="../../../api/sarkas.tools.transport.html#sarkas.tools.transport.TransportCoefficient.interdiffusion">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">interdiffusion</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">interdiffusion</span><span class="p">(</span><span class="n">params</span><span class="p">,</span>
+                       <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;production&#39;</span><span class="p">,</span>
+                       <span class="n">no_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                       <span class="n">time_averaging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                       <span class="n">timesteps_to_skip</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+                       <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                       <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                       <span class="n">figname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                       <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the interdiffusion coefficients from the diffusion flux auto-correlation function.</span>
 
@@ -370,11 +410,29 @@
 <span class="sd">        params : sarkas.base.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
-<span class="sd">        phase : str</span>
-<span class="sd">            Phase to analyze. Default = &#39;production&#39;.</span>
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
-<span class="sd">        show : bool</span>
-<span class="sd">            Flag for prompting plot to screen.</span>
+<span class="sd">        no_slices : int, optional</span>
+<span class="sd">            Number of slices of the simulation. Default = 1.</span>
+
+<span class="sd">        time_averaging: bool, optional</span>
+<span class="sd">            Flag for species diffusion flux time averaging. Default = False.</span>
+
+<span class="sd">        timesteps_to_skip: int, optional</span>
+<span class="sd">            Timestep interval for species diffusion flux time averaging. Default = 100</span>
+
+<span class="sd">        plot : bool, optional</span>
+<span class="sd">            Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.</span>
+
+<span class="sd">        figname : str, optional</span>
+<span class="sd">            Name with which to save the file. It automatically saves it in the correct directory.</span>
+
+<span class="sd">        show : bool, optional</span>
+<span class="sd">            Flag for prompting plot to screen when using IPython kernel. Default = False.</span>
+
+<span class="sd">        **kwargs:</span>
+<span class="sd">            Arguments to pass :meth:`sarkas.tools.observables.FluxAutoCorrelationFunction`</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -382,85 +440,119 @@
 <span class="sd">            Pandas dataframe containing the value of the transport coefficient as a function of integration time.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="si">{:=^70}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; Interdiffusion Coefficient &#39;</span><span class="p">))</span>
         <span class="n">coefficient</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="n">jc_acf</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">FluxAutoCorrelationFunction</span><span class="p">()</span>
-        <span class="n">jc_acf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
-        <span class="n">jc_acf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
-        <span class="n">no_int</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">prod_no_dumps</span>
+        <span class="c1"># jc_acf.no_slices = no_slices</span>
+        <span class="n">jc_acf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span>
+            <span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span>
+            <span class="n">time_averaging</span><span class="o">=</span><span class="n">time_averaging</span><span class="p">,</span>
+            <span class="n">timesteps_to_skip</span><span class="o">=</span><span class="n">timesteps_to_skip</span><span class="p">,</span>
+            <span class="n">no_slices</span><span class="o">=</span><span class="n">no_slices</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">jc_acf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="n">no_int</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">slice_steps</span>
         <span class="n">no_obs</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">no_obs</span>
-        <span class="n">D_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">no_obs</span><span class="p">,</span> <span class="n">no_int</span><span class="p">))</span>
+
         <span class="n">const</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span>
 
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">])</span>
         <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
 
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-        <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
-        <span class="n">ax21</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="c1"># extra space for the second axis at the bottom</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">no_slices</span><span class="p">):</span>
+            <span class="n">D_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">no_obs</span><span class="p">,</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">))</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
+                <span class="n">conc1</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">species_concentrations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">species_mass_densities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">i</span><span class="p">):</span>
+                    <span class="n">conc2</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">species_concentrations</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">species_mass_densities</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+                    <span class="n">integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="n">jc_acf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)])</span>
+
+                    <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">no_int</span><span class="p">):</span>
+                        <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span> <span class="o">/</span> <span class="p">(</span><span class="n">conc1</span> <span class="o">*</span> <span class="n">conc2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">integrand</span><span class="p">[:</span><span class="n">it</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="n">time</span><span class="p">[:</span><span class="n">it</span><span class="p">])</span>
+
+                    <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Inter Diffusion slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
+
+                    <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
-            <span class="n">conc1</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">species_concentrations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">species_mass_densities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">i</span><span class="p">):</span>
-                <span class="n">conc2</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">species_concentrations</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">species_mass_densities</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">col_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Inter Diffusion slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+                <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Inter Diffusion avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">coefficient</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Inter Diffusion std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">coefficient</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-                <span class="n">integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">plot</span> <span class="ow">or</span> <span class="n">figname</span><span class="p">:</span>
+            <span class="c1"># Make the plot</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
 
-                <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">no_int</span><span class="p">):</span>
-                    <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span> <span class="o">/</span> <span class="p">(</span><span class="n">conc1</span> <span class="o">*</span> <span class="n">conc2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">integrand</span><span class="p">[:</span><span class="n">it</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="n">time</span><span class="p">[:</span><span class="n">it</span><span class="p">])</span>
+            <span class="c1"># extra space for the second axis at the bottom</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">acf_avg</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span>
+                    <span class="n">acf_std</span> <span class="o">=</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span>
 
-                <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Inter Diffusion&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
+                    <span class="n">d_avg</span> <span class="o">=</span> <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Inter Diffusion avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span>
+                    <span class="n">d_std</span> <span class="o">=</span> <span class="n">coefficient</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Inter Diffusion std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span>
 
-                <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
-                    <span class="n">xmul</span><span class="p">,</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">plot_labels</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Diffusion&quot;</span><span class="p">,</span>
-                                                                   <span class="n">jc_acf</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
-                    <span class="n">ax1</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">integrand</span> <span class="o">/</span> <span class="n">integrand</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$J_{&#39;</span> <span class="o">+</span> <span class="n">sp1</span> <span class="o">+</span> <span class="n">sp2</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span><span class="p">)</span>
-                    <span class="n">ax21</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
-                    <span class="n">ax2</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">ymul</span> <span class="o">*</span> <span class="n">D_ij</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$D_{&#39;</span> <span class="o">+</span> <span class="n">sp1</span> <span class="o">+</span> <span class="n">sp2</span> <span class="o">+</span> <span class="s1">&#39;}(t)$&#39;</span><span class="p">)</span>
-                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c1"># Calculate axis multipliers and labels</span>
+                    <span class="n">xmul</span><span class="p">,</span> <span class="n">ymul</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">xlbl</span><span class="p">,</span> <span class="n">ylbl</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">plot_labels</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">d_avg</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Diffusion&quot;</span><span class="p">,</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
 
-        <span class="c1"># Complete figure</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Diffusion Flux ACF&#39;</span><span class="p">)</span>
+                    <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">acf_avg</span> <span class="o">/</span> <span class="n">acf_avg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$J_{&#39;</span> <span class="o">+</span> <span class="n">sp1</span> <span class="o">+</span> <span class="n">sp2</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span><span class="p">)</span>
+                    <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+                        <span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">acf_avg</span> <span class="o">+</span> <span class="n">acf_std</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">acf_avg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">acf_std</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                        <span class="p">(</span><span class="n">acf_avg</span> <span class="o">-</span> <span class="n">acf_std</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">acf_avg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">acf_std</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 
-        <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Inter Diffusion&#39;</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
+                    <span class="c1"># ax21.semilogx(ymul * D_ij[index, :], &#39;--&#39;)</span>
+                    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">ymul</span><span class="o">*</span> <span class="n">d_avg</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$D_{&#39;</span> <span class="o">+</span> <span class="n">sp1</span> <span class="o">+</span> <span class="n">sp2</span> <span class="o">+</span> <span class="s1">&#39;}$&#39;</span><span class="p">)</span>
+                    <span class="n">ax2</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">xmul</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">ymul</span> <span class="o">*</span> <span class="p">(</span><span class="n">d_avg</span> <span class="o">+</span> <span class="n">d_std</span><span class="p">),</span> <span class="n">ymul</span><span class="o">*</span><span class="p">(</span><span class="n">d_avg</span> <span class="o">-</span> <span class="n">d_std</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 
-        <span class="n">ax21</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;Diffusion Flux ACF&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;Time&quot;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;Inter Diffusion&#39;</span> <span class="o">+</span> <span class="n">ylbl</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;Time&quot;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
 
-        <span class="c1"># Offset the twin axis below the host</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="s2">&quot;axes&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">))</span>
+            <span class="c1"># ax21.xaxis.set_ticks_position(&quot;bottom&quot;)</span>
+            <span class="c1"># ax21.xaxis.set_label_position(&quot;bottom&quot;)</span>
 
-        <span class="c1"># Turn on the frame for the twin axis, but then hide all</span>
-        <span class="c1"># but the bottom spine</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">set_frame_on</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+            <span class="c1"># ax21.set_xscale(&#39;log&#39;)</span>
+            <span class="c1"># Offset the twin axis below the host</span>
+            <span class="c1"># ax21.spines[&quot;bottom&quot;].set_position((&quot;axes&quot;, -0.2))</span>
 
-        <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">sp</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Time&#39;</span> <span class="o">+</span> <span class="n">xlbl</span><span class="p">)</span>
-        <span class="n">ax21</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Index&quot;</span><span class="p">)</span>
-        <span class="c1"># ax21.set_xbound(1, len(time))</span>
+            <span class="c1"># Turn on the frame for the twin axis, but then hide all</span>
+            <span class="c1"># but the bottom spine</span>
+            <span class="c1"># ax21.set_frame_on(True)</span>
+            <span class="c1"># ax21.patch.set_visible(False)</span>
 
-        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;InterDiffusionPlot_&#39;</span> <span class="o">+</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="c1"># for sp in ax21.spines.values():</span>
+            <span class="c1">#     sp.set_visible(False)</span>
 
+            <span class="c1"># ax21.spines[&quot;bottom&quot;].set_visible(True)</span>
+            <span class="c1"># ax21.set_xlabel(r&quot;Index&quot;)</span>
+
+            <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">figname</span><span class="p">:</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">figname</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;Plot_InterDiffusion_&#39;</span> <span class="o">+</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="c1"># Save to dataframe</span>
+        <span class="n">coefficient</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jc_acf</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s1">&#39;InterDiffusion_&#39;</span> <span class="o">+</span> <span class="n">jc_acf</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">),</span>
+                           <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">coefficient</span></div>
 
 <div class="viewcode-block" id="TransportCoefficient.viscosity"><a class="viewcode-back" href="../../../api/sarkas.tools.transport.html#sarkas.tools.transport.TransportCoefficient.viscosity">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">viscosity</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">viscosity</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate bulk and shear viscosity from pressure auto-correlation function.</span>
+<span class="sd">        TODO: Calculate bulk and shear viscosity from pressure auto-correlation function.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -479,6 +571,7 @@
 <span class="sd">            Pandas dataframe containing the value of the transport coefficient as a function of integration time.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="si">{:=^70}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; Viscosity Coefficient &#39;</span><span class="p">))</span>
         <span class="n">coefficient</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="n">energies</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">Thermodynamics</span><span class="p">()</span>
         <span class="n">energies</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
@@ -586,8 +679,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 11, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.0.<br/>
+      Last updated on Mar 15, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>
 </footer>

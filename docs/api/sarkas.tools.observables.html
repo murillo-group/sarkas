@@ -7,8 +7,8 @@
     <title>sarkas.tools.observables module &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -198,20 +198,33 @@
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.CurrentCorrelationFunction.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#CurrentCorrelationFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.CurrentCorrelationFunction.compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the velocity fluctuations correlation functions.</p>
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#CurrentCorrelationFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.CurrentCorrelationFunction.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the microscopic current fluctuations correlation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.CurrentCorrelationFunction.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#CurrentCorrelationFunction.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.CurrentCorrelationFunction.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print current correlation function calculation parameters for help in choice of simulation parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.CurrentCorrelationFunction.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#CurrentCorrelationFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.CurrentCorrelationFunction.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#CurrentCorrelationFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.CurrentCorrelationFunction.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of sarkas.base.Species.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
@@ -224,67 +237,36 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">DynamicStructureFactor</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Dynamic Structure factor.</p>
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.DynamicStructureFactor.k_list">
-<code class="sig-name descname"><span class="pre">k_list</span></code><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.k_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of all possible <span class="math notranslate nohighlight">\(k\)</span> vectors with their corresponding magnitudes and indexes.</p>
+<dl class="py method">
+<dt id="sarkas.tools.observables.DynamicStructureFactor.compute">
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute <span class="math notranslate nohighlight">\(S_{ij} (k,\omega)\)</span> and the array of <span class="math notranslate nohighlight">\(\omega\)</span> values.
+Shape = (<code class="docutils literal notranslate"><span class="pre">no_ws</span></code>, <code class="docutils literal notranslate"><span class="pre">no_Sij</span></code>)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.DynamicStructureFactor.k_counts">
-<code class="sig-name descname"><span class="pre">k_counts</span></code><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.k_counts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of occurrences of each <span class="math notranslate nohighlight">\(k\)</span> magnitude.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.DynamicStructureFactor.ka_values">
-<code class="sig-name descname"><span class="pre">ka_values</span></code><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.ka_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Magnitude of each allowed <span class="math notranslate nohighlight">\(ka\)</span> vector.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.DynamicStructureFactor.no_ka_values">
-<code class="sig-name descname"><span class="pre">no_ka_values</span></code><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.no_ka_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Length of <code class="docutils literal notranslate"><span class="pre">ka_values</span></code> array.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.tools.observables.DynamicStructureFactor.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute <span class="math notranslate nohighlight">\(S_{ij} (k,\omega)\)</span> and the array of <span class="math notranslate nohighlight">\(\omega\)</span> values.
-<code class="docutils literal notranslate"><span class="pre">self.Skw</span></code>. Shape = (<code class="docutils literal notranslate"><span class="pre">no_ws</span></code>, <code class="docutils literal notranslate"><span class="pre">no_Sij</span></code>)</p>
+<dt id="sarkas.tools.observables.DynamicStructureFactor.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print dynamic structure factor calculation parameters for help in choice of simulation parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.DynamicStructureFactor.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
@@ -297,55 +279,29 @@
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">ElectricCurrent</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#ElectricCurrent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Electric Current Auto-correlation function.</p>
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.ElectricCurrent.dataframe">
-<code class="sig-name descname"><span class="pre">dataframe</span></code><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent.dataframe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dataframe of the longitudinal velocity correlation functions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1022.gbf31347a1e)">pandas.DataFrame</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.ElectricCurrent.saving_dir">
-<code class="sig-name descname"><span class="pre">saving_dir</span></code><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent.saving_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Path to directory where computed data is stored.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.ElectricCurrent.filename_csv">
-<code class="sig-name descname"><span class="pre">filename_csv</span></code><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent.filename_csv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Name of file for the longitudinal velocities fluctuation correlation function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt id="sarkas.tools.observables.ElectricCurrent.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#ElectricCurrent.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent.compute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#ElectricCurrent.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent.compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the electric current and the corresponding auto-correlation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.ElectricCurrent.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#ElectricCurrent.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#ElectricCurrent.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
@@ -357,99 +313,38 @@
 <dt id="sarkas.tools.observables.FluxAutoCorrelationFunction">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">FluxAutoCorrelationFunction</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
-<p>Diffusion Flux Auto-correlation function.</p>
+<p>Species Diffusion Flux Auto-correlation function.</p>
 <dl class="py method">
 <dt id="sarkas.tools.observables.FluxAutoCorrelationFunction.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_averaging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it_skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.compute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the velocity auto-correlation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.FluxAutoCorrelationFunction.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print observable parameters for help in choice of simulation parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.FluxAutoCorrelationFunction.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps_to_skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="sarkas.tools.observables.HermiteCoefficients">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">HermiteCoefficients</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#HermiteCoefficients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.HermiteCoefficients" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
-<p>Hermite coefficients of the Hermite expansion.</p>
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.HermiteCoefficients.hermite_order">
-<code class="sig-name descname"><span class="pre">hermite_order</span></code><a class="headerlink" href="#sarkas.tools.observables.HermiteCoefficients.hermite_order" title="Permalink to this definition">¶</a></dt>
-<dd><p>Order of the Hermite expansion.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.HermiteCoefficients.no_bins">
-<code class="sig-name descname"><span class="pre">no_bins</span></code><a class="headerlink" href="#sarkas.tools.observables.HermiteCoefficients.no_bins" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of bins used to calculate the velocity distribution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.HermiteCoefficients.plots_dir">
-<code class="sig-name descname"><span class="pre">plots_dir</span></code><a class="headerlink" href="#sarkas.tools.observables.HermiteCoefficients.plots_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Directory in which to store Hermite coefficients plots.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.HermiteCoefficients.species_plots_dirs">
-<code class="sig-name descname"><span class="pre">species_plots_dirs</span></code><a class="headerlink" href="#sarkas.tools.observables.HermiteCoefficients.species_plots_dirs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Directory for each species where to save Hermite coefficients plots.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.tools.observables.HermiteCoefficients.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#HermiteCoefficients.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.HermiteCoefficients.compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate Hermite coefficients and save the pandas dataframe.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.tools.observables.HermiteCoefficients.plot">
-<code class="sig-name descname"><span class="pre">plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#HermiteCoefficients.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.HermiteCoefficients.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the Hermite coefficients and save the figure</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.tools.observables.HermiteCoefficients.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#HermiteCoefficients.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.HermiteCoefficients.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assign attributes from simulation’s parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
-<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>time_averaging</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for species diffusion flux time averaging. Default = False.</p></li>
+<li><p><strong>timesteps_to_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of timesteps to skip for time_averaging. Default = 100.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
@@ -468,7 +363,7 @@
 <dd><p>Dataframe containing the computed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1022.gbf31347a1e)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1060.gb8a71f3314)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -479,7 +374,7 @@
 <dd><p>Dataframe containing the longitudinal part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1022.gbf31347a1e)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1060.gb8a71f3314)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -490,14 +385,14 @@
 <dd><p>Dataframe containing the transverse part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1022.gbf31347a1e)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1060.gb8a71f3314)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.tools.observables.Observable.no_ka_harmonics">
-<code class="sig-name descname"><span class="pre">no_ka_harmonics</span></code><a class="headerlink" href="#sarkas.tools.observables.Observable.no_ka_harmonics" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.Observable.max_k_harmonics">
+<code class="sig-name descname"><span class="pre">max_k_harmonics</span></code><a class="headerlink" href="#sarkas.tools.observables.Observable.max_k_harmonics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of <span class="math notranslate nohighlight">\(\mathbf{k}\)</span> harmonics to calculatealong each dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -569,17 +464,6 @@ It is either <code class="docutils literal notranslate"><span class="pre">sarkas
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="sarkas.tools.observables.Observable.species">
-<code class="sig-name descname"><span class="pre">species</span></code><a class="headerlink" href="#sarkas.tools.observables.Observable.species" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code> indicating simulation’s species.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -673,6 +557,61 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt id="sarkas.tools.observables.Observable.dimensional_average">
+<code class="sig-name descname"><span class="pre">dimensional_average</span></code><a class="headerlink" href="#sarkas.tools.observables.Observable.dimensional_average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for averaging over all dimensions. Default = False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.tools.observables.Observable.runs">
+<code class="sig-name descname"><span class="pre">runs</span></code><a class="headerlink" href="#sarkas.tools.observables.Observable.runs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of independent MD runs. Default = 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="sarkas.tools.observables.Observable.multi_run_average">
+<code class="sig-name descname"><span class="pre">multi_run_average</span></code><a class="headerlink" href="#sarkas.tools.observables.Observable.multi_run_average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag for averaging over multiple runs. Default = False.
+If True, <cite>runs</cite> needs be specified. It will collect data from all runs and stored them in a large ndarray to
+be averaged over.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.Observable.calc_k_data">
+<code class="sig-name descname"><span class="pre">calc_k_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.calc_k_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.calc_k_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate and save Fourier space data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.Observable.calc_kt_data">
+<code class="sig-name descname"><span class="pre">calc_kt_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nkt_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vkt_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.calc_kt_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.calc_kt_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Time dependent Fourier space quantities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nkt_flag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating microscopic density Fourier components <code class="docutils literal notranslate"><span class="pre">n(\mathbf</span> <span class="pre">k,</span> <span class="pre">t)</span></code>. Default = False.</p></li>
+<li><p><strong>vkt_flag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating microscopic velocity Fourier components,``v(mathbf k, t)``. Default = False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="sarkas.tools.observables.Observable.from_dict">
 <code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.from_dict" title="Permalink to this definition">¶</a></dt>
@@ -691,16 +630,36 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 </dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.tools.observables.Observable.parse_k_data">
+<code class="sig-name descname"><span class="pre">parse_k_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.parse_k_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.parse_k_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in the precomputed Fourier space data. Recalculate if not correct.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.Observable.parse_kt_data">
+<code class="sig-name descname"><span class="pre">parse_kt_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nkt_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vkt_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.parse_kt_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.parse_kt_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in the precomputed time dependent Fourier space data. Recalculate if not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nkt_flag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading microscopic density Fourier components <code class="docutils literal notranslate"><span class="pre">n(\mathbf</span> <span class="pre">k,</span> <span class="pre">t)</span></code>. Default = False.</p></li>
+<li><p><strong>vkt_flag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading microscopic velocity Fourier components,``v(mathbf k, t)``. Default = False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.tools.observables.Observable.plot">
-<code class="sig-name descname"><span class="pre">plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">longitudinal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">longitudinal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>longitudinal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for longitudinal plot in case of CurrenCurrelationFunction</p></li>
 <li><p><strong>acf</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for renormalizing the autocorrelation functions. Default= False</p></li>
-<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name with which to save the file. It automaticall saves it in the correct directory.</p></li>
-<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Factor by which to divide the distance array.</p></li>
+<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name with which to save the file. It automatically saves it in the correct directory.</p></li>
+<li><p><strong>scaling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – Factor by which to rescale the x and y quantities.</p></li>
 <li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for prompting the plot to screen. Default=False</p></li>
 <li><p><strong>**kwargs</strong> – Options to pass to matplotlib plotting method.</p></li>
 </ul>
@@ -717,7 +676,22 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <dl class="py method">
 <dt id="sarkas.tools.observables.Observable.setup_init">
 <code class="sig-name descname"><span class="pre">setup_init</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.setup_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.setup_init" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Assign Observables attributes and copy the simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s Parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.Observable.time_stamp">
+<code class="sig-name descname"><span class="pre">time_stamp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.time_stamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.time_stamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print to screen the elapsed time of the calculation.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -750,23 +724,35 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.RadialDistributionFunction.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rdf_hist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#RadialDistributionFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.RadialDistributionFunction.compute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rdf_hist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#RadialDistributionFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.RadialDistributionFunction.compute" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>rdf_hist</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Histogram of the radial distribution function.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rdf_hist</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Histogram of the radial distribution function.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.tools.observables.RadialDistributionFunction.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#RadialDistributionFunction.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.RadialDistributionFunction.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print radial distribution function calculation parameters for help in choice of simulation parameters.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.tools.observables.RadialDistributionFunction.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#RadialDistributionFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.RadialDistributionFunction.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#RadialDistributionFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.RadialDistributionFunction.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
@@ -825,19 +811,33 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.StaticStructureFactor.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#StaticStructureFactor.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.StaticStructureFactor.compute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#StaticStructureFactor.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.StaticStructureFactor.compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate all <span class="math notranslate nohighlight">\(S_{ij}(k)\)</span>, save them into a Pandas dataframe, and write them to a csv.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.StaticStructureFactor.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#StaticStructureFactor.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.StaticStructureFactor.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print static structure factor calculation parameters for help in choice of simulation parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.StaticStructureFactor.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#StaticStructureFactor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.StaticStructureFactor.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#StaticStructureFactor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.StaticStructureFactor.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
@@ -852,7 +852,7 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <p>Thermodynamic functions.</p>
 <dl class="py method">
 <dt id="sarkas.tools.observables.Thermodynamics.compute_pressure_from_rdf">
-<code class="sig-name descname"><span class="pre">compute_pressure_from_rdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.compute_pressure_from_rdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.compute_pressure_from_rdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute_pressure_from_rdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_matrix</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.compute_pressure_from_rdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.compute_pressure_from_rdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Pressure using the radial distribution function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -861,6 +861,8 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <li><p><strong>potential_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Potential parameters.</p></li>
 <li><p><strong>r</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ distances.</p></li>
 <li><p><strong>gr</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Pair distribution function.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -886,13 +888,15 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.Thermodynamics.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
@@ -909,14 +913,16 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.Thermodynamics.temp_energy_plot">
-<code class="sig-name descname"><span class="pre">temp_energy_plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.temp_energy_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.temp_energy_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">temp_energy_plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publication</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.temp_energy_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.temp_energy_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot Temperature and Energy as a function of time with their cumulative sum and average.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>simulation</strong> (<a class="reference internal" href="sarkas.processes.html#sarkas.processes.PostProcess" title="sarkas.processes.PostProcess"><em>sarkas.processes.PostProcess</em></a>) – Wrapper class.</p></li>
+<li><p><strong>process</strong> (<a class="reference internal" href="sarkas.processes.html#sarkas.processes.PostProcess" title="sarkas.processes.PostProcess"><em>sarkas.processes.PostProcess</em></a>) – Sarkas Process.</p></li>
 <li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to plot. “equilibration” or “production”.</p></li>
 <li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for displaying the figure.</p></li>
+<li><p><strong>publication</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for publication style plotting.</p></li>
+<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name with which to save the plot.</p></li>
 </ul>
 </dd>
 </dl>
@@ -931,20 +937,35 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 <p>Velocity Auto-correlation function.</p>
 <dl class="py method">
 <dt id="sarkas.tools.observables.VelocityAutoCorrelationFunction.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_averaging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it_skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityAutoCorrelationFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityAutoCorrelationFunction.compute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityAutoCorrelationFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityAutoCorrelationFunction.compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the velocity auto-correlation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.VelocityAutoCorrelationFunction.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityAutoCorrelationFunction.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityAutoCorrelationFunction.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print observable parameters for help in choice of simulation parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.VelocityAutoCorrelationFunction.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityAutoCorrelationFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityAutoCorrelationFunction.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps_to_skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityAutoCorrelationFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityAutoCorrelationFunction.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<em>(</em><em>optional</em><em>)</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <code class="docutils literal notranslate"><span class="pre">sarkas.base.Species</span></code>.</p></li>
+<li><p><strong>time_averaging</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for species diffusion flux time averaging. Default = False.</p></li>
+<li><p><strong>timesteps_to_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of timesteps to skip for time_averaging. Default = 100.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
@@ -953,15 +974,15 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 </dd></dl>
 
 <dl class="py class">
-<dt id="sarkas.tools.observables.VelocityMoments">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">VelocityMoments</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityMoments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityMoments" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.VelocityDistribution">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">VelocityDistribution</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Moments of the velocity distributions defined as</p>
 <div class="math notranslate nohighlight">
 \[\langle v^{\alpha} \rangle = \int_{-\infty}^{\infty} d v \, f(v) v^{2 \alpha}.\]</div>
 <dl class="py attribute">
-<dt id="sarkas.tools.observables.VelocityMoments.no_bins">
-<code class="sig-name descname"><span class="pre">no_bins</span></code><a class="headerlink" href="#sarkas.tools.observables.VelocityMoments.no_bins" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.VelocityDistribution.no_bins">
+<code class="sig-name descname"><span class="pre">no_bins</span></code><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.no_bins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of bins used to calculate the velocity distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -971,8 +992,8 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.tools.observables.VelocityMoments.plots_dir">
-<code class="sig-name descname"><span class="pre">plots_dir</span></code><a class="headerlink" href="#sarkas.tools.observables.VelocityMoments.plots_dir" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.VelocityDistribution.plots_dir">
+<code class="sig-name descname"><span class="pre">plots_dir</span></code><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.plots_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Directory in which to store Hermite coefficients plots.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -982,8 +1003,8 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.tools.observables.VelocityMoments.species_plots_dirs">
-<code class="sig-name descname"><span class="pre">species_plots_dirs</span></code><a class="headerlink" href="#sarkas.tools.observables.VelocityMoments.species_plots_dirs" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.VelocityDistribution.species_plots_dirs">
+<code class="sig-name descname"><span class="pre">species_plots_dirs</span></code><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.species_plots_dirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Directory for each species where to save Hermite coefficients plots.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -993,8 +1014,8 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.tools.observables.VelocityMoments.max_no_moment">
-<code class="sig-name descname"><span class="pre">max_no_moment</span></code><a class="headerlink" href="#sarkas.tools.observables.VelocityMoments.max_no_moment" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.VelocityDistribution.max_no_moment">
+<code class="sig-name descname"><span class="pre">max_no_moment</span></code><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.max_no_moment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of moments = <span class="math notranslate nohighlight">\(lpha\)</span>. Default = 3.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1004,77 +1025,97 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.tools.observables.VelocityMoments.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityMoments.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityMoments.compute" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.VelocityDistribution.compute">
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.tools.observables.VelocityMoments.plot_ratios">
-<code class="sig-name descname"><span class="pre">plot_ratios</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityMoments.plot_ratios"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityMoments.plot_ratios" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the moment ratios and save the figure.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for displaying the figure.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.tools.observables.VelocityMoments.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityMoments.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityMoments.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assign attributes from simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute.</p></li>
-<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>hist_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with arguments to pass to <code class="docutils literal notranslate"><span class="pre">numpy.histogram</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt id="sarkas.tools.observables.autocorrelationfunction">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">autocorrelationfunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">At</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.autocorrelationfunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the autocorrelation function of the array input.</p>
-<div class="math notranslate nohighlight">
-\[A(\tau) =  \sum_j^D \sum_i^T A_j(t_i)A_j(t_i + \tau)\]</div>
-<p>where <span class="math notranslate nohighlight">\(D\)</span> is the number of dimensions and <span class="math notranslate nohighlight">\(T\)</span> is the total length
-of the simulation.</p>
+<dl class="py method">
+<dt id="sarkas.tools.observables.VelocityDistribution.compute_hermite_expansion">
+<code class="sig-name descname"><span class="pre">compute_hermite_expansion</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calc_moments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution.compute_hermite_expansion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.compute_hermite_expansion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate and save Hermite coefficients of the Grad expansion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>At</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Observable to autocorrelate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>ACF</strong> – Autocorrelation function of <code class="docutils literal notranslate"><span class="pre">At</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+<dd class="field-odd"><p><strong>calc_moments</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating velocity moments. These are needed for the hermite calculation.
+Default = False.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt id="sarkas.tools.observables.autocorrelationfunction_1D">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">autocorrelationfunction_1D</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">At</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.autocorrelationfunction_1D" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the autocorrelation function of the input.</p>
-<div class="math notranslate nohighlight">
-\[A(\tau) =  \sum_i^T A(t_i)A(t_i + \tau)\]</div>
-<p>where <span class="math notranslate nohighlight">\(T\)</span> is the total length of the simulation.</p>
+<dl class="py method">
+<dt id="sarkas.tools.observables.VelocityDistribution.compute_moments">
+<code class="sig-name descname"><span class="pre">compute_moments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parse_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution.compute_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.compute_moments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate and save moments of the distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>At</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Array to autocorrelate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>ACF</strong> – Autocorrelation function of <code class="docutils literal notranslate"><span class="pre">At</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parse_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading data. Default = False. If False, must pass <code class="docutils literal notranslate"><span class="pre">vel_raw</span></code> and <a href="#id1"><span class="problematic" id="id2">``</span></a>time.
+If True it will parse data from simulations dumps.</p></li>
+<li><p><strong>vel_raw</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Container of particles velocity at each time step.</p></li>
+<li><p><strong>time</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Time array.</p></li>
+</ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.VelocityDistribution.create_distribution">
+<code class="sig-name descname"><span class="pre">create_distribution</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution.create_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.create_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the velocity distribution of each species and save the corresponding dataframes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vel_raw</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Container of particles velocity at each time step.</p></li>
+<li><p><strong>time</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Time array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.VelocityDistribution.grab_sim_data">
+<code class="sig-name descname"><span class="pre">grab_sim_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution.grab_sim_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.grab_sim_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in velocity data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.VelocityDistribution.prepare_histogram_args">
+<code class="sig-name descname"><span class="pre">prepare_histogram_args</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution.prepare_histogram_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.prepare_histogram_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.VelocityDistribution.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print information in a user-friendly way.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.VelocityDistribution.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_no_moment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curve_fit_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign attributes from simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hist_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary of keyword arguments to pass to <code class="docutils literal notranslate"><span class="pre">np.histogram</span></code> for the calculation of the distributions.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
+<li><p><strong>max_no_moment</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Maximum number of moments to calculate. Default = 6.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -1108,6 +1149,8 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Time interval.</p></li>
+<li><p><strong>dump_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Snapshot interval.</p></li>
 <li><p><strong>nkt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.9)"><em>complex</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ density or velocity fluctuations.
 Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_k_list</span></code>)</p></li>
 <li><p><strong>ka_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of <span class="math notranslate nohighlight">\(k\)</span> indices in each direction with corresponding magnitude and index of <code class="docutils literal notranslate"><span class="pre">ka_counts</span></code>.
@@ -1129,22 +1172,22 @@ Shape = (<code class="docutils literal notranslate"><span class="pre">no_skw</sp
 
 <dl class="py function">
 <dt id="sarkas.tools.observables.calc_diff_flux_acf">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_diff_flux_acf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_dens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it_skip</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.calc_diff_flux_acf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_diff_flux_acf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_dens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps_to_skip</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_diff_flux_acf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.calc_diff_flux_acf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the diffusion flux autocorrelation function of each species and in each direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_averaging</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for time averaging.</p></li>
-<li><p><strong>it_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep interval for time averaging.</p></li>
-<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ velocities.</p></li>
+<li><p><strong>timesteps_to_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of timesteps to skip for time_averaging.</p></li>
+<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ velocities. Shape = (<code class="docutils literal notranslate"><span class="pre">dimensions</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">total_num_ptcls</span></code>)</p></li>
 <li><p><strong>sp_num</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 <li><p><strong>sp_dens</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number densities of each species.</p></li>
 <li><p><strong>sp_mass</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particle’s mass of each species.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>jc_acf</strong> – Diffusion flux autocorrelation function. Shape Ns*(Ns +1)/2 x Ndim + 1 x Nt, where Ns = number of species,
-Ndim = Number of cartesian dimensions, Nt = Number of dumps.</p>
+<dd class="field-even"><p><strong>jc_acf</strong> – Diffusion flux autocorrelation function. Shape = ( Ns*(Ns +1)/2, Ndim + 1 , Nt)
+where Ns = number of species, Ndim = Number of cartesian dimensions, Nt = Number of dumps.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
@@ -1175,47 +1218,29 @@ Ndim = Number of cartesian dimensions, Nt = Number of dumps.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.tools.observables.calc_moment_ratios">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_moment_ratios</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_np</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dumps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.calc_moment_ratios" title="Permalink to this definition">¶</a></dt>
-<dd><p>Take the ratio of the velocity moments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>moments</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Velocity moments of each species per direction at each time step.</p></li>
-<li><p><strong>no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of saved timesteps.</p></li>
-<li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>ratios</strong> – Ratios of high order velocity moments with respoect the 2nd moment.
-Shape=(<code class="docutils literal notranslate"><span class="pre">no_species</span></code>,2, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="sarkas.tools.observables.calc_moments">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_moments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_np</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.calc_moments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the even moments of the velocity distributions.</p>
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_moments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_moment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_index_start</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.calc_moments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the moments of the (velocity) distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ velocity at each time step.</p></li>
-<li><p><strong>nbins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of bins to be used for the distribution.</p></li>
-<li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
+<li><p><strong>dist</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Distribution of each time step. Shape = (<code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">dim</span></code>, <code class="docutils literal notranslate"><span class="pre">runs</span> <span class="pre">*</span> <span class="pre">inv_dim</span> <span class="pre">*</span> <span class="pre">total_num_ptlcs</span></code>)</p></li>
+<li><p><strong>max_moment</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Maximum moment to calculate</p></li>
+<li><p><strong>species_index_start</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Array containing the start index of each species. The last value is equivalent to dist.shape[-1]</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>moments</strong> – 2nd, 4th, 8th moment of the velocity distributions.
-Shape=( <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">9</span> <span class="pre">*</span> <span class="pre">len(species_np)</span></code>)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>moments</strong> (<em>numpy.ndarray</em>) – Moments of the distribution.
+Shape=( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">dim</span></code>, <code class="docutils literal notranslate"><span class="pre">max_moment</span></code> )</p></li>
+<li><p><strong>ratios</strong> (<em>numpy.ndarray</em>) – Ratios of each moments with respect to the expected Maxwellian value.
+Shape=( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>,  <code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">max_moment</span> <span class="pre">-</span> <span class="pre">1</span></code>)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>See these <a class="reference external" href="https://en.wikipedia.org/wiki/Normal_distribution#Moments:~:text=distribution.-,Moments">equations</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1254,7 +1279,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of folder containing particles data.</p></li>
 <li><p><strong>slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial, final step number of the slice, total number of slice steps.</p></li>
-<li><p><strong>dump_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep interval saving.</p></li>
+<li><p><strong>dump_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Snapshot interval.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 <li><p><strong>k_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of :math: <cite>k</cite> vectors.</p></li>
 </ul>
@@ -1312,20 +1337,20 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 
 <dl class="py function">
 <dt id="sarkas.tools.observables.calc_vacf">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_vacf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it_skip</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.calc_vacf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_vacf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps_to_skip</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_vacf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.calc_vacf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the velocity autocorrelation function of each species and in each direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_averaging</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for time averaging.</p></li>
-<li><p><strong>it_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep interval for time averaging.</p></li>
-<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ velocities stored in a 3D array with shape D x Np x Nt. D = cartesian dimensions,
-Np = Number of particles, Nt = number of dumps.</p></li>
+<li><p><strong>timesteps_to_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of timesteps to skip for time_averaging.</p></li>
+<li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ velocities stored in a 3D array with shape = (D x Np x Nt).
+D = cartesian dimensions, Np = Number of particles, Nt = number of dumps.</p></li>
 <li><p><strong>sp_num</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>vacf</strong> – Velocity autocorrelation functions.</p>
+<dd class="field-even"><p><strong>vacf</strong> – Velocity autocorrelation functions. Shape= (No_species, D + 1, Nt)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
@@ -1420,35 +1445,13 @@ Shape = ( <code class="docutils literal notranslate"><span class="pre">no_specie
 
 <dl class="py function">
 <dt id="sarkas.tools.observables.correlationfunction">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">correlationfunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">At</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.correlationfunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the correlation function <span class="math notranslate nohighlight">\(\mathbf{A}(t)\)</span> and <span class="math notranslate nohighlight">\(\mathbf{B}(t)\)</span></p>
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">correlationfunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">At</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#correlationfunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.correlationfunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the correlation function <span class="math notranslate nohighlight">\(\mathbf{A}(t)\)</span> and <span class="math notranslate nohighlight">\(\mathbf{B}(t)\)</span> using
+<code class="docutils literal notranslate"><span class="pre">scipy.signal.correlate</span></code></p>
 <div class="math notranslate nohighlight">
 \[C_{AB}(\tau) =  \sum_j^D \sum_i^T A_j(t_i)B_j(t_i + \tau)\]</div>
 <p>where <span class="math notranslate nohighlight">\(D\)</span> (= <code class="docutils literal notranslate"><span class="pre">no_dim</span></code>) is the number of dimensions and <span class="math notranslate nohighlight">\(T\)</span> (= <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>) is the total length
 of the simulation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>At</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Observable to correlate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p></li>
-<li><p><strong>Bt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Observable to correlate. Shape=(<code class="docutils literal notranslate"><span class="pre">no_dim</span></code>, <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>CF</strong> – Correlation function <span class="math notranslate nohighlight">\(C_{AB}(\tau)\)</span></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="sarkas.tools.observables.correlationfunction_1D">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">correlationfunction_1D</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">At</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.correlationfunction_1D" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the correlation function between <span class="math notranslate nohighlight">\(A(t)\)</span> and <span class="math notranslate nohighlight">\(B(t)\)</span></p>
-<div class="math notranslate nohighlight">
-\[C_{AB}(\tau) =  \sum_i^T A(t_i)B(t_i + \tau)\]</div>
-<p>where <span class="math notranslate nohighlight">\(T\)</span> (= <code class="docutils literal notranslate"><span class="pre">no_steps</span></code>) is the total length of the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1466,14 +1469,37 @@ of the simulation.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt id="sarkas.tools.observables.grad_expansion">
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">grad_expansion</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_coeff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#grad_expansion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.grad_expansion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Grad expansion as given by eq.(5.97) in Liboff</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Array of the scaled velocities</p></li>
+<li><p><strong>rms</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – RMS width of the Gaussian.</p></li>
+<li><p><strong>h_coeff</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Hermite coefficients withouth the division by factorial.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>_</strong> – Grad expansion.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="sarkas.tools.observables.kspace_setup">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">kspace_setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">no_ka</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_lengths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#kspace_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.kspace_setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">kspace_setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_averaging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_k_harmonics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_aa_harmonics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#kspace_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.kspace_setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate all allowed <span class="math notranslate nohighlight">\(k\)</span> vectors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>no_ka</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of harmonics in each direction.</p></li>
+<li><p><strong>max_k_harmonics</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of harmonics in each direction.</p></li>
 <li><p><strong>box_lengths</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Length of each box’s side.</p></li>
+<li><p><strong>angle_averaging</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Flag for calculating all the possible <cite>k</cite> vector directions and magnitudes. Default = ‘principal_axis’</p></li>
+<li><p><strong>max_aa_harmonics</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Maximum <cite>k</cite> harmonics in each direction for angle average.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1550,8 +1576,8 @@ of the simulation.</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 11, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.0.<br/>
+      Last updated on Mar 15, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>
 </footer>
