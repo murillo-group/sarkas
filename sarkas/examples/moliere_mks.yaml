@@ -31,16 +31,12 @@ Thermostat:
 Parameters:
     units: mks                    # units
     dt: 3.244415e-17            # sec
-
-Control:
-  load_method: random_no_reject
-  rand_seed: 654984647
-  verbose: True
-  rdf_nbins: 500
+    load_method: random_no_reject
+    rand_seed: 654984647
 
 IO:
     job_dir: Moliere_mks        # dir name to save data. The default is "Checkpoint"
-
+    verbose: True
 
 PostProcessing:
   - RadialDistributionFunction:
@@ -49,23 +45,5 @@ PostProcessing:
   - Thermodynamics:
       phase: production
 
-  - HermiteCoefficients:
-      no_bins: 500
-      hermite_order: 8
-
-  - DynamicStructureFactor:
-      max_k_harmonics: 5
-
   - StaticStructureFactor:
       max_k_harmonics: 5
-
-  - CurrentCorrelationFunction:
-      max_k_harmonics: 5
-
-  - VelocityMoments:
-      no_bins: 500
-
-  - VelocityAutoCorrelationFunction:
-      phase: production
-
-  - ElectricCurrent:

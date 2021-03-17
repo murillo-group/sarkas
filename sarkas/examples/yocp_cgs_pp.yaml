@@ -37,28 +37,8 @@ IO:
     job_dir: yocp_cgs_pp            # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
-  - RadialDistributionFunction:
-      no_bins: 250
-
   - Thermodynamics:
       phase: production
 
-  - HermiteCoefficients:
-      no_bins: 500
-      hermite_order: 8
-
-  - DynamicStructureFactor:
-      max_k_harmonics: 5
-      no_slices: 3
-
-  - CurrentCorrelationFunction:
-      max_k_harmonics: 5
-      no_slices: 3
-
-  - VelocityMoments:
-      no_bins: 500
-
-  - VelocityAutoCorrelationFunction:
-      phase: production
-
-  - ElectricCurrent:
+  - RadialDistributionFunction:
+      no_bins: 250

@@ -45,7 +45,6 @@ Parameters:
     dt: 1.074182e-17            # sec
     load_method: random_no_reject
     boundary_conditions: periodic
-    rdf_nbins: 250
 
 IO:
     verbose: yes
@@ -54,32 +53,11 @@ IO:
     job_id: CO_mks_pppm
 
 PostProcessing:
-  - RadialDistributionFunction:
-      no_bins: 250
-
   - Thermodynamics:
       phase: production
 
-  - HermiteCoefficients:
-      no_bins: 50
-      hermite_order: 8
-
-  - DynamicStructureFactor:
-      max_k_harmonics: 10
-      no_slices: 2
+  - RadialDistributionFunction:
+      no_bins: 250
 
   - StaticStructureFactor:
       max_k_harmonics: 10
-      no_slices: 2
-
-  - CurrentCorrelationFunction:
-      max_k_harmonics: 10
-      no_slices: 2
-
-  - VelocityMoments:
-      no_bins: 50
-
-  - VelocityAutoCorrelationFunction:
-      phase: production
-
-  - ElectricCurrent:

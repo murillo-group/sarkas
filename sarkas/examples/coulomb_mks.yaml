@@ -35,7 +35,6 @@ Parameters:
     load_method: random_no_reject
     rdf_nbins: 500
     boundary_conditions: periodic
-    dt: 1.193536e-17
 
 IO:
     verbose: True

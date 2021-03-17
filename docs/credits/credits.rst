@@ -53,7 +53,7 @@ Team
   </div>
 
   <div class="cr-thumbcontainer">
-    <img src="../_static/team/nopic.png" class="img-rounded">
+    <img src="../_static/team/choi_y.png" class="img-rounded">
 
     <div class="caption">
       <a href="https://murillogroupmsu.com/dr-yongjun-choi/">

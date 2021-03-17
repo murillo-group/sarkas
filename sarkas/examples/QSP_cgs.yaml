@@ -49,29 +49,11 @@ IO:
     job_dir: qsp_cgs        # dir name to save data.
 
 PostProcessing:
-  - RadialDistributionFunction:
-      no_bins: 51
-
   - Thermodynamics:
       phase: production
 
-  - HermiteCoefficients:
-      no_bins: 500
-      hermite_order: 8
-
-  - DynamicStructureFactor:
-      max_k_harmonics: 5
+  - RadialDistributionFunction:
+      no_bins: 51
 
   - StaticStructureFactor:
       max_k_harmonics: 5
-
-  - CurrentCorrelationFunction:
-      max_k_harmonics: 5
-
-  - VelocityMoments:
-      no_bins: 500
-
-  - VelocityAutoCorrelationFunction:
-      phase: production
-
-  - ElectricCurrent:

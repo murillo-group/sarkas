@@ -30,7 +30,7 @@ Thermostat:
     relaxation_timestep: 1
     tau: 5.0
 
-Control:
+Parameters:
     units: cgs                    # units
     load_method: random_no_reject
     rdf_nbins: 500
@@ -48,10 +48,6 @@ PostProcessing:
   - Thermodynamics:
       phase: production
 
-  - HermiteCoefficients:
-      no_bins: 500
-      hermite_order: 8
-
   - DynamicStructureFactor:
       max_k_harmonics: 5
 
@@ -60,11 +56,3 @@ PostProcessing:
 
   - CurrentCorrelationFunction:
       max_k_harmonics: 5
-
-  - VelocityMoments:
-      no_bins: 500
-
-  - VelocityAutoCorrelationFunction:
-      phase: production
-
-  - ElectricCurrent:
