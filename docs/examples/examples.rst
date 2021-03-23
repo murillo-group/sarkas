@@ -42,3 +42,12 @@ Examples
                 </p>
             </div>
     </div>
+
+    <div class="ex-thumbcontainer">
+    <div class="figure align-default">
+        <img src="../_images/examples_UCP_Experiment_Validation_Temperature_n_RMS_Plot.png" alt="">
+        <p class="caption">
+            <span class="text-center"><a href="UCP_Experiment_Validation.html">Ultracold Neutral Plasmas</a></span>
+        </p>
+    </div>
+
