@@ -391,11 +391,8 @@ div.rendered_html tbody tr:hover {
 hundreds of <span class="math notranslate nohighlight">\(\mu\)</span>m to few mm. A portion of the atoms is then ionized by shining a laser, with the correct wavelength, onto the cloud. The energy from the laser is deposited on the electrons which now have enough energy to escape the the atoms, thus, leaving behind positively charged ions.</p>
 <p>UNPs are an optimal experimental setup to study strongly coupled plasmas since the charge number, the number density, and the temperature of the plasma are well defined and controllable. This is in contrast to other experiments in which some parameters are not well known and require simulations and models to be extracted from experimental data.</p>
 <p>UNPs are considered strongly coupled plasmas because of their low kinetic energy. The strong coupling parameter is defined as</p>
-<dl class="simple">
-<dt>:nbsphinx-math:<a href="#id1"><span class="problematic" id="id2">`</span></a>begin{equation}</dt><dd><p>Gamma = frac{(Ze)^2}{4pi varepsilon_0 a_{rm ws}} frac{1}{k_B T}</p>
-</dd>
-</dl>
-<p>end{equation}`</p>
+<div class="math notranslate nohighlight">
+\[\Gamma = \frac{(Ze)^2}{4\pi \varepsilon_0 a_{\rm ws}} \frac{1}{k_B T}\]</div>
 <p>where <span class="math notranslate nohighlight">\(Z\)</span> is the charge number of the ions, <span class="math notranslate nohighlight">\(T\)</span> their temperature, and <span class="math notranslate nohighlight">\(a = (3/ 4\pi n)^{1/3}\)</span> is the Wigner-Seitz radius defined by the number density <span class="math notranslate nohighlight">\(n\)</span>. In UNP experiments <span class="math notranslate nohighlight">\(1 &lt; \Gamma \sim 10\)</span>.</p>
 </div>
 <div class="section" id="Disorder-Induced-Heating">
@@ -409,7 +406,7 @@ Heating (DIH)</strong>.</p>
 <h2>PreProcessing<a class="headerlink" href="#PreProcessing" title="Permalink to this headline">¶</a></h2>
 <p>We start by importing the usual libraries and creating a path to the input file of our simulation.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -731,7 +728,7 @@ Run 4 completed
 <h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
 <p>Once the simulations are done, we can start our Post Processing. In the following we will calculate the average temperature and RMS speed of each species in the mixture. Save them into a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">pandas.DataFrame</a> and plot them.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -783,7 +780,7 @@ Run 4 completed
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -793,7 +790,7 @@ Run 4 completed
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1029,7 +1026,7 @@ Run 4 completed
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1057,7 +1054,7 @@ Run 4 completed
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1185,7 +1182,7 @@ Run 4 completed
 <p>It is now time to plot and compare with experiment. For this tutorial we grabbed experimental data from Fig.~(2) of this <a class="reference external" href="http://dx.doi.org/10.1063/1.4915135">paper</a>. This data was obtained using <a class="reference external" href="https://automeris.io/WebPlotDigitizer/">WebPlotDigitizer</a> and saved into the file <code class="docutils literal notranslate"><span class="pre">paper_data.csv</span></code>.</p>
 <p>We will plot both the temperature and the RMS speed side by side and compare with the experimental data.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1197,14 +1194,20 @@ Run 4 completed
 
 <span class="c1"># Plot Temperature</span>
 <span class="n">Temp_vel_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;Mean Temperature&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">ax_temp</span><span class="p">)</span>
-<span class="n">ax_temp</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Mean Temperature&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Std Temperature&quot;</span><span class="p">],</span>
-               <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Mean Temperature&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Std Temperature&quot;</span><span class="p">],</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="c1"># Plot std error as shaded area</span>
+<span class="n">ax_temp</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+    <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span>
+    <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Mean Temperature&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Std Temperature&quot;</span><span class="p">],</span>
+    <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Mean Temperature&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Std Temperature&quot;</span><span class="p">],</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="c1"># Plot paper data</span>
 <span class="n">ax_temp</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">paper_data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">paper_data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Paper Data&#39;</span><span class="p">)</span>
-
+<span class="c1"># embellish</span>
 <span class="n">ax_temp</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
+<span class="n">ax_temp</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">ax_temp</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$T$ [K]&#39;</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;Time [$\mu$s]&#39;</span><span class="p">)</span>
 
-<span class="c1"># # Plot Gamma</span>
+<span class="c1"># Plot Gamma</span>
 <span class="c1"># Temp_vel_data.plot(x = &#39;Time&#39;, y = &#39;Mean Gamma&#39;, ax = ax_gamma)</span>
 <span class="c1"># ax_gamma.fill_between(</span>
 <span class="c1">#     Temp_vel_data[&#39;Time&#39;],</span>
@@ -1216,11 +1219,13 @@ Run 4 completed
 
 <span class="c1"># Plot RMS Speed</span>
 <span class="n">Temp_vel_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;Mean RMS Speed&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">ax_rms</span><span class="p">)</span>
+<span class="c1"># Plot std error as shaded area</span>
 <span class="n">ax_rms</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
     <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span>
     <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Mean RMS Speed&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Std RMS Speed&quot;</span><span class="p">],</span>
     <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Mean RMS Speed&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s2">&quot;Std RMS Speed&quot;</span><span class="p">],</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
 
+<span class="c1"># embellish</span>
 <span class="n">ax_rms</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
 <span class="n">ax_rms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$v$ [m/s]&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Time [$\mu$s]&#39;</span><span class="p">)</span>
 
@@ -1229,8 +1234,6 @@ Run 4 completed
 <span class="n">figname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">simulations_dir</span><span class="p">,</span><span class="s1">&#39;Temperature_n_RMS_Plot.png&#39;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">figname</span><span class="p">)</span>
 
-
-<span class="c1"># fig.show()</span>
 </pre></div>
 </div>
 </div>
