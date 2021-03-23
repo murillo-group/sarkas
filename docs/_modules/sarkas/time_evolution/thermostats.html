@@ -52,7 +52,7 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="../../../installation/installation.html">Get Started</a></li>
+                <li><a href="../../../installation/get_started.html">Get Started</a></li>
                 <li><a href="../../../examples/examples.html">Examples</a></li>
                 <li><a href="../../../development/code_dev.html">Code Development</a></li>
                 <li><a href="../../../api/api.html">API</a></li>
@@ -70,9 +70,7 @@
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation/get_started.html">Get Started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
@@ -225,8 +223,8 @@
         <span class="sd">&quot;&quot;&quot;Print Thermostat information in a user-friendly way.&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;First thermostating timestep, i.e. relaxation_timestep = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Berendsen parameter tau: </span><span class="si">{:.3f}</span><span class="s2"> [s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Berendsen relaxation rate: </span><span class="si">{:.3f}</span><span class="s2"> [Hz] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Berendsen parameter tau: </span><span class="si">{:.3f}</span><span class="s2"> [timesteps]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Berendsen relaxation rate: </span><span class="si">{:.3f}</span><span class="s2"> [1/timesteps] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eV_temp_flag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_temp_flag</span><span class="p">:</span>
             <span class="c1"># If you forgot to give thermostating temperatures</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
@@ -372,6 +370,7 @@
     <span class="c1"># else:</span>
     <span class="c1">#     fact = np.sqrt(1.0 + (T_desired / T - 1.0) * tau)  # eq.(11)</span>
 
+    <span class="c1"># branchless programming</span>
     <span class="n">fact</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">it</span> <span class="o">&lt;</span> <span class="n">therm_timestep</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">T_desired</span> <span class="o">/</span> <span class="n">T</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">tau</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">it</span> <span class="o">&gt;=</span> <span class="n">therm_timestep</span><span class="p">)</span>
     <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
@@ -394,7 +393,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 17, 2021.<br/>
+      Last updated on Mar 23, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>

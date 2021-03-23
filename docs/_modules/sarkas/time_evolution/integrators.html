@@ -52,7 +52,7 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="../../../installation/installation.html">Get Started</a></li>
+                <li><a href="../../../installation/get_started.html">Get Started</a></li>
                 <li><a href="../../../examples/examples.html">Examples</a></li>
                 <li><a href="../../../development/code_dev.html">Code Development</a></li>
                 <li><a href="../../../api/api.html">API</a></li>
@@ -70,9 +70,7 @@
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation/get_started.html">Get Started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
@@ -845,6 +843,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total number of snapshots = </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">restart</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;equilibration_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_restart&#39;</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">restart_step</span><span class="p">))</span>
@@ -858,6 +857,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total number of snapshots = </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">)))</span>
 
         <span class="k">elif</span> <span class="n">restart</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;magnetization_restart&#39;</span><span class="p">,</span> <span class="s1">&#39;mag_restart&#39;</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restart step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">restart_step</span><span class="p">))</span>
@@ -871,6 +871,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total number of snapshots = </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span><span class="p">)))</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Equilibration</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Equilibration: </span><span class="se">\n</span><span class="s1">No. of equilibration steps = </span><span class="si">{}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -883,6 +885,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total number of snapshots = </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">)))</span>
+            
             <span class="c1"># Magnetization</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Electrostatic Equilibration Type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
@@ -898,6 +902,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total number of snapshots = </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span><span class="p">)))</span>
             <span class="c1"># Production</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Production: </span><span class="se">\n</span><span class="s1">No. of production steps = </span><span class="si">{}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span>
                   <span class="s1">&#39;Total production time = </span><span class="si">{:.4e}</span><span class="s1"> [s] ~ </span><span class="si">{}</span><span class="s1"> w_p T_prod &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -908,7 +913,8 @@
                   <span class="s1">&#39;snapshot interval time = </span><span class="si">{:.4e}</span><span class="s1"> [s] = </span><span class="si">{:.4f}</span><span class="s1"> w_p T_snap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span></div></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total number of snapshots = </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span><span class="p">)))</span></div></div>
 
 
 <span class="nd">@njit</span>
@@ -989,7 +995,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 17, 2021.<br/>
+      Last updated on Mar 23, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>

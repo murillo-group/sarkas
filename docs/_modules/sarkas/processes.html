@@ -52,7 +52,7 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="../../installation/installation.html">Get Started</a></li>
+                <li><a href="../../installation/get_started.html">Get Started</a></li>
                 <li><a href="../../examples/examples.html">Examples</a></li>
                 <li><a href="../../development/code_dev.html">Code Development</a></li>
                 <li><a href="../../api/api.html">API</a></li>
@@ -70,9 +70,7 @@
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/get_started.html">Get Started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
@@ -1171,7 +1169,7 @@
                 <span class="n">it_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">restart_step</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">it_start</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s1">&#39;magnetization&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s1">&#39;magnetization&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">,</span> <span class="n">it_start</span><span class="p">)</span>
 
             <span class="c1"># Start timer, magnetize, and print run time.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -1415,7 +1413,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 17, 2021.<br/>
+      Last updated on Mar 23, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>

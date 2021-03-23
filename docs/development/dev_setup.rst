@@ -7,7 +7,25 @@ In order to make changes to Sarkas you first need to download the source code fr
 It is highly recommended to fork Sarkas repo for any code development. This is to ensure that your code changes
 do not conflict with Sarkas master branch.
 
-If you already have a copy of the repository on your computer you can skip the next session.
+If you already have a copy of the repository on your computer you can update it (as detailed below) or
+jump to the next section.
+
+Updating your repository
+------------------------
+
+The first thing to do is to update your local repository with the GitHub repo.
+Open a terminal (command prompt in Windows) and move to the directory where you stored your repository. Assuming you
+have your ``git`` all set up, run the command
+
+.. code-block:: console
+
+    $ git pull
+
+This updates your repo files with the latest from the trunk.
+
+Alternatively you can download the zip file again and copy the extracted files into your local Sarkas repo.
+However, this might cause problem later on when push committing your changes.
+
 
 Forking and Cloning Sarkas repository
 -------------------------------------
@@ -42,6 +60,7 @@ affecting the original project.
             $ git clone https://github.com/murillo-group/sarkas.git
 
 #. At this point we need to create a virtual environment for you work
+
 
 Create a virtual environment
 ----------------------------
@@ -82,22 +101,6 @@ Below are instructions for creating the ``sarkas`` virtual environment.
     .. code-block:: console
 
         $ conda deactivate
-
-Updating your repository
-------------------------
-
-The first thing to do is to update your local repository with the GitHub repo.
-Open a terminal (command prompt in Windows) and move to the directory where you stored your repository. Assuming you
-have your ``git`` all set up, run the command
-
-.. code-block:: console
-
-    $ git pull
-
-This updates your repo files with the latest from the trunk.
-
-Alternatively you can download the zip file again and copy the extracted files into your local Sarkas repo.
-However, this might cause problem later on when push committing your changes.
 
 
 Install Sarkas in development mode

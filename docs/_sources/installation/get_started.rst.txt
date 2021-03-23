@@ -1,12 +1,18 @@
-.. _install:
+.. _get_started:
 
-************
-Installation
-************
+***********
+Get Started
+***********
 
 .. warning::
     Sarkas is under heavy development and not yet available via package managers like ``pip`` and ``conda``.
     Therefore, please follow the instructions :ref:`here<dev_setup>`  for installation.
+
+- Virtual enviroment
+- Installation, (:ref:`dev install<dev_setup>`)
+- :ref:`Quickstart<quickstart>`
+- :ref:`Tutorial<tutorial>` (long)
+- :ref:`Examples<examples>`
 
 Virtual environment
 ===================
@@ -43,7 +49,10 @@ for creating the ``sarkas`` virtual environment.
 
         $ conda deactivate
 
-#. Once the environment has been activated you can install sarkas system wide via
+Installation
+============
+
+Once the environment has been activated you can install sarkas system wide via
 
     .. code-block:: bash
 

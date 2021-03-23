@@ -52,7 +52,7 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="../../installation/installation.html">Get Started</a></li>
+                <li><a href="../../installation/get_started.html">Get Started</a></li>
                 <li><a href="../../examples/examples.html">Examples</a></li>
                 <li><a href="../../development/code_dev.html">Code Development</a></li>
                 <li><a href="../../api/api.html">API</a></li>
@@ -70,9 +70,7 @@
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/get_started.html">Get Started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
@@ -706,6 +704,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">eta_e</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta_e</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fermi_energy</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MAGNETIC FIELD:&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Magnetic Field = [</span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">] [Gauss]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Magnetic Field Magnitude = </span><span class="si">{:.4e}</span><span class="s1"> [Gauss]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Magnetic Field Unit Vector = [</span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -1578,8 +1577,8 @@
 <span class="sd">            Electrostatic * Thermal constants.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">/</span> <span class="n">z_avg</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">a_ws</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ai_dens</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_density</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">/</span> <span class="n">z_avg</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">a_ws</span> <span class="k">if</span> <span class="n">z_avg</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ai_dens</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coupling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ai</span> <span class="o">*</span> <span class="n">const</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Species.pretty_print"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">potential_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mks&#39;</span><span class="p">):</span>
@@ -1618,7 +1617,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Plasma Frequency = </span><span class="si">{:.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plasma_frequency</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cyclotron_frequency</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Cyclotron Frequency = </span><span class="si">{:.6e}</span><span class="s1"> [Hz]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cyclotron_frequency</span><span class="p">)</span> <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;beta_c = </span><span class="si">{:.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cyclotron_frequency</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">plasma_frequency</span><span class="p">))</span></div></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">beta_c = </span><span class="si">{:.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cyclotron_frequency</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">plasma_frequency</span><span class="p">))</span></div></div>
 
     <span class="c1"># Methods</span>
     <span class="c1"># -------</span>
@@ -1651,7 +1650,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 17, 2021.<br/>
+      Last updated on Mar 23, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>

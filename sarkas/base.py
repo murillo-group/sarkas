@@ -566,6 +566,7 @@ class Parameters:
                 self.eta_e, self.eta_e * self.kB * self.electron_temperature / self.fermi_energy))
 
         if self.magnetized:
+            print('\nMAGNETIC FIELD:')
             print('Magnetic Field = [{:.4e}, {:.4e}, {:.4e}] [Gauss]'.format(*self.magnetic_field))
             print('Magnetic Field Magnitude = {:.4e} [Gauss]'.format(np.linalg.norm(self.magnetic_field)))
             print('Magnetic Field Unit Vector = [{:.4e}, {:.4e}, {:.4e}]'.format(
@@ -1438,8 +1439,8 @@ class Species:
             Electrostatic * Thermal constants.
 
         """
-        self.ai = (self.charge / z_avg) ** (1. / 3.) * a_ws
         self.ai_dens = (3.0 / (4.0 * np.pi * self.number_density)) ** (1. / 3.)
+        self.ai = (self.charge / z_avg) ** (1. / 3.) * a_ws if z_avg > 0 else self.ai_dens
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)
 
     def pretty_print(self, potential_type: str = None, units: str = 'mks'):
@@ -1478,7 +1479,7 @@ class Species:
         print('\tPlasma Frequency = {:.6e} [Hz]'.format(self.plasma_frequency))
         if self.cyclotron_frequency:
             print('\tCyclotron Frequency = {:.6e} [Hz]'.format(self.cyclotron_frequency) )
-            print('beta_c = {:.4f}'.format(self.cyclotron_frequency/self.plasma_frequency))
+            print('\tbeta_c = {:.4f}'.format(self.cyclotron_frequency/self.plasma_frequency))
 
     # Methods
     # -------

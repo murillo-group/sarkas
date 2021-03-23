@@ -85,8 +85,8 @@ class Thermostat:
         """Print Thermostat information in a user-friendly way."""
         print('Type: {}'.format(self.type))
         print('First thermostating timestep, i.e. relaxation_timestep = {}'.format(self.relaxation_timestep))
-        print("Berendsen parameter tau: {:.3f} [s]".format(self.tau))
-        print("Berendsen relaxation rate: {:.3f} [Hz] ".format(self.relaxation_rate))
+        print("Berendsen parameter tau: {:.3f} [timesteps]".format(self.tau))
+        print("Berendsen relaxation rate: {:.3f} [1/timesteps] ".format(self.relaxation_rate))
         if not self.eV_temp_flag and not self.K_temp_flag:
             # If you forgot to give thermostating temperatures
             print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -232,6 +232,7 @@ def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     # else:
     #     fact = np.sqrt(1.0 + (T_desired / T - 1.0) * tau)  # eq.(11)
 
+    # branchless programming
     fact = 1.0 * (it < therm_timestep) + np.sqrt(1.0 + (T_desired / T - 1.0) * tau) * (it >= therm_timestep)
     species_start = 0
     species_end = 0

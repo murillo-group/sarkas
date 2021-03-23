@@ -52,7 +52,7 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="../../../installation/installation.html">Get Started</a></li>
+                <li><a href="../../../installation/get_started.html">Get Started</a></li>
                 <li><a href="../../../examples/examples.html">Examples</a></li>
                 <li><a href="../../../development/code_dev.html">Code Development</a></li>
                 <li><a href="../../../api/api.html">API</a></li>
@@ -70,9 +70,7 @@
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation/get_started.html">Get Started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
@@ -540,7 +538,8 @@
         <span class="sd">&quot;&quot;&quot;Calculate and save Fourier space data.&quot;&quot;&quot;</span>
 
         <span class="c1"># Do some checks</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_averaging</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;angle_averaging not a string. Choose from [&#39;full&#39;, &#39;custom&#39;, &#39;principal_axis&#39;]&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_averaging</span><span class="p">,</span>
+                          <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;angle_averaging not a string. Choose from [&#39;full&#39;, &#39;custom&#39;, &#39;principal_axis&#39;]&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_k_harmonics</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s1">&#39;max_k_harmonics not defined.&#39;</span>
 
         <span class="c1"># Calculate the k arrays</span>
@@ -711,6 +710,7 @@
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plot_dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">plot_dataframe</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">/=</span> <span class="n">plot_dataframe</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;logx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;xlabel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Time difference&#39;</span>
 
         <span class="c1"># if self.__class__.__name__ == &#39;StaticStructureFactor&#39;:</span>
         <span class="c1">#     errorbars = plot_dataframe.copy()</span>
@@ -1256,271 +1256,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div></div>
 
-
-<span class="c1"># class HermiteCoefficients(Observable):</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     Hermite coefficients of the Hermite expansion.</span>
-<span class="c1">#</span>
-<span class="c1">#     Attributes</span>
-<span class="c1">#     ----------</span>
-<span class="c1">#     hermite_order: int</span>
-<span class="c1">#         Order of the Hermite expansion.</span>
-<span class="c1">#</span>
-<span class="c1">#     no_bins: int</span>
-<span class="c1">#         Number of bins used to calculate the velocity distribution.</span>
-<span class="c1">#</span>
-<span class="c1">#     plots_dir: str</span>
-<span class="c1">#         Directory in which to store Hermite coefficients plots.</span>
-<span class="c1">#</span>
-<span class="c1">#     species_plots_dirs : list, str</span>
-<span class="c1">#         Directory for each species where to save Hermite coefficients plots.</span>
-<span class="c1">#</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#</span>
-<span class="c1">#     def setup(self, params, phase: str = None, **kwargs):</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         Assign attributes from simulation&#39;s parameters.</span>
-<span class="c1">#</span>
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         phase : str</span>
-<span class="c1">#             Phase to compute. Default = &#39;production&#39;.</span>
-<span class="c1">#</span>
-<span class="c1">#         params : sarkas.base.Parameters</span>
-<span class="c1">#             Simulation&#39;s parameters.</span>
-<span class="c1">#</span>
-<span class="c1">#         **kwargs :</span>
-<span class="c1">#             These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
-<span class="c1">#             attributes and/or add new ones.</span>
-<span class="c1">#</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         self.__name__ = &#39;hc&#39;</span>
-<span class="c1">#</span>
-<span class="c1">#         self.phase = phase.lower() if phase.lower() != &#39;production&#39; else &#39;production&#39;</span>
-<span class="c1">#</span>
-<span class="c1">#         super().setup_init(params, self.phase)</span>
-<span class="c1">#</span>
-<span class="c1">#         # Create the directory where to store the computed data</span>
-<span class="c1">#         saving_dir = os.path.join(self.postprocessing_dir, &#39;HermiteExpansion&#39;)</span>
-<span class="c1">#         if not os.path.exists(saving_dir):</span>
-<span class="c1">#             os.mkdir(saving_dir)</span>
-<span class="c1">#</span>
-<span class="c1">#         self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())</span>
-<span class="c1">#         if not os.path.exists(self.saving_dir):</span>
-<span class="c1">#             os.mkdir(self.saving_dir)</span>
-<span class="c1">#         self.filename_csv = os.path.join(self.saving_dir, &quot;HermiteCoefficients_&quot; + self.job_id + &#39;.csv&#39;)</span>
-<span class="c1">#</span>
-<span class="c1">#         self.plots_dir = os.path.join(self.saving_dir, &#39;Hermite_Plots&#39;)</span>
-<span class="c1">#         if not os.path.exists(self.plots_dir):</span>
-<span class="c1">#             os.mkdir(self.plots_dir)</span>
-<span class="c1">#</span>
-<span class="c1">#         # Check that the existence of important attributes</span>
-<span class="c1">#         if not hasattr(self, &#39;no_bins&#39;):</span>
-<span class="c1">#             self.no_bins = int(0.05 * params.total_num_ptcls)</span>
-<span class="c1">#</span>
-<span class="c1">#         if not hasattr(self, &#39;hermite_order&#39;):</span>
-<span class="c1">#             self.hermite_order = 7</span>
-<span class="c1">#</span>
-<span class="c1">#         self.species_plots_dirs = None</span>
-<span class="c1">#</span>
-<span class="c1">#         # Update the attribute with the passed arguments</span>
-<span class="c1">#         self.__dict__.update(kwargs.copy())</span>
-<span class="c1">#</span>
-<span class="c1">#     def compute(self, **kwargs):</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         Calculate Hermite coefficients and save the pandas dataframe.</span>
-<span class="c1">#</span>
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         **kwargs :</span>
-<span class="c1">#             These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
-<span class="c1">#             attributes and/or add new ones.</span>
-<span class="c1">#</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#</span>
-<span class="c1">#         self.__dict__.update(kwargs.copy())</span>
-<span class="c1">#</span>
-<span class="c1">#         self.dataframe = pd.DataFrame()</span>
-<span class="c1">#         time = np.zeros(self.no_dumps)</span>
-<span class="c1">#</span>
-<span class="c1">#         # 2nd Dimension of the raw velocity array</span>
-<span class="c1">#         dim = 1 if self.dimensional_average else self.dimensions</span>
-<span class="c1">#         # range(inv_dim) for the loop over dimension</span>
-<span class="c1">#         inv_dim = self.dimensions if self.dimensional_average else 1</span>
-<span class="c1">#         # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]</span>
-<span class="c1">#         species_index_start = np.array([0, *self.species_num], dtype=int) * inv_dim * self.runs</span>
-<span class="c1">#         # Velocity array for storing simulation data</span>
-<span class="c1">#         vel_raw = np.zeros((self.no_dumps, dim, self.runs * inv_dim * self.total_num_ptcls))</span>
-<span class="c1">#</span>
-<span class="c1">#         print(&quot;Collecting data from snapshots ...&quot;)</span>
-<span class="c1">#</span>
-<span class="c1">#         if self.dimensional_average:</span>
-<span class="c1">#             # Loop over the runs</span>
-<span class="c1">#             for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc=&#39;Runs Loop&#39;)):</span>
-<span class="c1">#                 # Loop over the timesteps</span>
-<span class="c1">#                 for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc=&#39;Timestep Loop&#39;):</span>
-<span class="c1">#                     # Read data from file</span>
-<span class="c1">#                     dump = int(it * self.dump_step)</span>
-<span class="c1">#                     datap = load_from_restart(dump_dir_r, dump)</span>
-<span class="c1">#                     # Loop over the particles&#39; species</span>
-<span class="c1">#                     for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):</span>
-<span class="c1">#                         # Calculate the correct start and end index for storage</span>
-<span class="c1">#                         start_indx = species_index_start[sp_indx] + inv_dim * sp_num * r</span>
-<span class="c1">#                         end_indx = species_index_start[sp_indx] + inv_dim * sp_num * (r + 1)</span>
-<span class="c1">#                         # Use a mask to grab only the selected species and flatten along the first axis</span>
-<span class="c1">#                         # data = ( v1_x, v1_y, v1_z,</span>
-<span class="c1">#                         #          v2_x, v2_y, v2_z,</span>
-<span class="c1">#                         #          v3_x, v3_y, v3_z,</span>
-<span class="c1">#                         #          ...)</span>
-<span class="c1">#                         # The flatten array would like this</span>
-<span class="c1">#                         # flattened = ( v1_x, v2_x, v3_x, ..., v1_y, v2_y, v3_y, ..., v1_z, v2_z, v3_z, ...)</span>
-<span class="c1">#                         vel_raw[it, 0, start_indx: end_indx] = datap[&quot;vel&quot;][datap[&quot;names&quot;] == sp_name].flatten(&#39;F&#39;)</span>
-<span class="c1">#</span>
-<span class="c1">#                     time[it] = datap[&quot;time&quot;]</span>
-<span class="c1">#         else:  # Dimensional Average = False</span>
-<span class="c1">#             # Loop over the runs</span>
-<span class="c1">#             for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc=&#39;Runs Loop&#39;)):</span>
-<span class="c1">#                 # Loop over the timesteps</span>
-<span class="c1">#                 for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc=&#39;Timestep Loop&#39;):</span>
-<span class="c1">#                     # Read data from file</span>
-<span class="c1">#                     dump = int(it * self.dump_step)</span>
-<span class="c1">#                     datap = load_from_restart(dump_dir_r, dump)</span>
-<span class="c1">#                     # Loop over the particles&#39; species</span>
-<span class="c1">#                     for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):</span>
-<span class="c1">#                         # Calculate the correct start and end index for storage</span>
-<span class="c1">#                         start_indx = species_index_start[sp_indx] + inv_dim * sp_num * r</span>
-<span class="c1">#                         end_indx = species_index_start[sp_indx] + inv_dim * sp_num * (r + 1)</span>
-<span class="c1">#                         # Use a mask to grab only the selected species and transpose the array to put dimensions first</span>
-<span class="c1">#                         vel_raw[it, :, start_indx: end_indx] = datap[&quot;vel&quot;][datap[&quot;names&quot;] == sp_name].transpose()</span>
-<span class="c1">#</span>
-<span class="c1">#                 time[it] = datap[&quot;time&quot;]</span>
-<span class="c1">#</span>
-<span class="c1">#         self.dataframe[&quot;Time&quot;] = time</span>
-<span class="c1">#</span>
-<span class="c1">#         xcoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))</span>
-<span class="c1">#         ycoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))</span>
-<span class="c1">#         zcoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))</span>
-<span class="c1">#</span>
-<span class="c1">#         time = np.zeros(self.no_dumps)</span>
-<span class="c1">#         print(&quot;Computing Hermite Coefficients ...&quot;)</span>
-<span class="c1">#         for it in range(self.no_dumps):</span>
-<span class="c1">#             time[it] = it * self.dt * self.dump_step</span>
-<span class="c1">#             dump = int(it * self.dump_step)</span>
-<span class="c1">#             datap = load_from_restart(self.dump_dir, dump)</span>
-<span class="c1">#             vel[0, :] = datap[&quot;vel&quot;][:, 0]</span>
-<span class="c1">#             vel[1, :] = datap[&quot;vel&quot;][:, 1]</span>
-<span class="c1">#             vel[2, :] = datap[&quot;vel&quot;][:, 2]</span>
-<span class="c1">#</span>
-<span class="c1">#             sp_start = 0</span>
-<span class="c1">#             sp_end = 0</span>
-<span class="c1">#             for i, sp in enumerate(self.species_num):</span>
-<span class="c1">#                 sp_end += sp</span>
-<span class="c1">#                 x_hist, xbins = np.histogram(vel[0, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)</span>
-<span class="c1">#                 y_hist, ybins = np.histogram(vel[1, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)</span>
-<span class="c1">#                 z_hist, zbins = np.histogram(vel[2, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)</span>
-<span class="c1">#</span>
-<span class="c1">#                 # Center the bins</span>
-<span class="c1">#                 vx = 0.5 * (xbins[:-1] + xbins[1:])</span>
-<span class="c1">#                 vy = 0.5 * (ybins[:-1] + ybins[1:])</span>
-<span class="c1">#                 vz = 0.5 * (zbins[:-1] + zbins[1:])</span>
-<span class="c1">#</span>
-<span class="c1">#                 xcoeff[i, it, :] = calculate_herm_coeff(vx, x_hist, self.hermite_order)</span>
-<span class="c1">#                 ycoeff[i, it, :] = calculate_herm_coeff(vy, y_hist, self.hermite_order)</span>
-<span class="c1">#                 zcoeff[i, it, :] = calculate_herm_coeff(vz, z_hist, self.hermite_order)</span>
-<span class="c1">#</span>
-<span class="c1">#                 sp_start = sp_end</span>
-<span class="c1">#</span>
-<span class="c1">#         data = {&quot;Time&quot;: time}</span>
-<span class="c1">#         self.dataframe = pd.DataFrame(data)</span>
-<span class="c1">#         for i, sp in enumerate(self.species_names):</span>
-<span class="c1">#             for hi in range(self.hermite_order + 1):</span>
-<span class="c1">#                 self.dataframe[&quot;{} Hermite x Coeff a{}&quot;.format(sp, hi)] = xcoeff[i, :, hi]</span>
-<span class="c1">#                 self.dataframe[&quot;{} Hermite y Coeff a{}&quot;.format(sp, hi)] = ycoeff[i, :, hi]</span>
-<span class="c1">#                 self.dataframe[&quot;{} Hermite z Coeff a{}&quot;.format(sp, hi)] = zcoeff[i, :, hi]</span>
-<span class="c1">#</span>
-<span class="c1">#         self.dataframe.to_csv(self.filename_csv, index=False, encoding=&#39;utf-8&#39;)</span>
-<span class="c1">#</span>
-<span class="c1">#     def plot(self, show=False):</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         Plot the Hermite coefficients and save the figure</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         try:</span>
-<span class="c1">#             self.dataframe = pd.read_csv(self.filename_csv, index_col=False)</span>
-<span class="c1">#         except FileNotFoundError:</span>
-<span class="c1">#             self.compute()</span>
-<span class="c1">#</span>
-<span class="c1">#         if not os.path.exists(self.plots_dir):</span>
-<span class="c1">#             os.mkdir(self.plots_dir)</span>
-<span class="c1">#</span>
-<span class="c1">#         # Create a plots directory for each species for the sake of neatness</span>
-<span class="c1">#         if self.num_species &gt; 1:</span>
-<span class="c1">#             self.species_plots_dirs = []</span>
-<span class="c1">#             for i, name in enumerate(self.species_names):</span>
-<span class="c1">#                 new_dir = os.path.join(self.plots_dir, &quot;{}&quot;.format(name))</span>
-<span class="c1">#                 self.species_plots_dirs.append(new_dir)</span>
-<span class="c1">#                 if not os.path.exists(new_dir):</span>
-<span class="c1">#                     os.mkdir(os.path.join(self.plots_dir, &quot;{}&quot;.format(name)))</span>
-<span class="c1">#         else:</span>
-<span class="c1">#             self.species_plots_dirs = [self.plots_dir]</span>
-<span class="c1">#</span>
-<span class="c1">#         for sp, name in enumerate(self.species_names):</span>
-<span class="c1">#             print(&quot;Species: {}&quot;.format(name))</span>
-<span class="c1">#             fig, ax = plt.subplots(1, 2, sharex=True, constrained_layout=True, figsize=(16, 9))</span>
-<span class="c1">#             for indx in range(self.hermite_order):</span>
-<span class="c1">#                 xcolumn = &quot;{} Hermite x Coeff a{}&quot;.format(name, indx)</span>
-<span class="c1">#                 ycolumn = &quot;{} Hermite y Coeff a{}&quot;.format(name, indx)</span>
-<span class="c1">#                 zcolumn = &quot;{} Hermite z Coeff a{}&quot;.format(name, indx)</span>
-<span class="c1">#                 xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe[&quot;Time&quot;], 1.0,</span>
-<span class="c1">#                                                                        &#39;Time&#39;, &#39;none&#39;, self.units)</span>
-<span class="c1">#                 ia = int(indx % 2)</span>
-<span class="c1">#                 ax[ia].plot(self.dataframe[&quot;Time&quot;] * xmul, self.dataframe[xcolumn] + ia * (indx - 1),</span>
-<span class="c1">#                             ls=&#39;-&#39;, label=r&quot;$a_{&quot; + str(indx) + &quot; , x}$&quot;)</span>
-<span class="c1">#                 ax[ia].plot(self.dataframe[&quot;Time&quot;] * xmul, self.dataframe[ycolumn] + ia * (indx - 1),</span>
-<span class="c1">#                             ls=&#39;--&#39;, label=r&quot;$a_{&quot; + str(indx) + &quot; , y}$&quot;)</span>
-<span class="c1">#                 ax[ia].plot(self.dataframe[&quot;Time&quot;] * xmul, self.dataframe[zcolumn] + ia * (indx - 1),</span>
-<span class="c1">#                             ls=&#39;-.&#39;, label=r&quot;$a_{&quot; + str(indx) + &quot; , z}$&quot;)</span>
-<span class="c1">#</span>
-<span class="c1">#             ax[0].set_title(r&#39;Even Coefficients&#39;)</span>
-<span class="c1">#             ax[1].set_title(r&#39;Odd Coefficients&#39;)</span>
-<span class="c1">#</span>
-<span class="c1">#             ax[0].set_xlabel(r&#39;$t$&#39; + xlbl)</span>
-<span class="c1">#             ax[1].set_xlabel(r&#39;$t$&#39; + xlbl)</span>
-<span class="c1">#</span>
-<span class="c1">#             sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp])</span>
-<span class="c1">#             sigma /= (self.a_ws * self.total_plasma_frequency)  # Rescale</span>
-<span class="c1">#</span>
-<span class="c1">#             for i in range(0, self.hermite_order, 2):</span>
-<span class="c1">#                 coeff = np.zeros(i + 1)</span>
-<span class="c1">#                 coeff[-1] = 1.0</span>
-<span class="c1">#                 print(&quot;Equilibrium a{} = {:1.2f} &quot;.format(i, np.polynomial.hermite_e.hermeval(sigma, coeff)))</span>
-<span class="c1">#</span>
-<span class="c1">#             # t_end = self.dataframe[&quot;Time&quot;].iloc[-1] * xmul/2</span>
-<span class="c1">#             # ax[0].text(t_end, 1.1, r&quot;$a_{0,\rm{eq}} = 1 $&quot;, transform=ax[0].transData)</span>
-<span class="c1">#             # # ax[0].axhline(1, ls=&#39;:&#39;, c=&#39;k&#39;, label=r&quot;$a_{0,\rm{eq}}$&quot;)</span>
-<span class="c1">#             #</span>
-<span class="c1">#             # ax[0].text(t_end, a2_eq * 0.97, r&quot;$a_{2,\rm{eq}} = &quot; + &quot;{:1.2f}&quot;.format(a2_eq) +&quot;$&quot;,</span>
-<span class="c1">#             #            transform=ax[0].transData)</span>
-<span class="c1">#             #</span>
-<span class="c1">#             # if self.hermite_order &gt; 3:</span>
-<span class="c1">#             #     ax[0].text(t_end, a4_eq * 1.1, r&quot;$a_{4,\rm{eq}} = &quot; + &quot;{:1.2f}&quot;.format(a4_eq) + &quot;$&quot;,</span>
-<span class="c1">#             #                transform=ax[0].transData)</span>
-<span class="c1">#             #</span>
-<span class="c1">#             # if self.hermite_order &gt; 5:</span>
-<span class="c1">#             #     ax[0].text(t_end, a6_eq * .98, r&quot;$a_{6,\rm{eq}} = &quot; + &quot;{:1.2f}&quot;.format(a6_eq) + &quot;$&quot;,</span>
-<span class="c1">#             #                transform=ax[0].transData)</span>
-<span class="c1">#</span>
-<span class="c1">#             ax[0].legend(loc=&#39;best&#39;, ncol=int(self.hermite_order / 2 + self.hermite_order % 2))</span>
-<span class="c1">#             ax[1].legend(loc=&#39;best&#39;, ncol=int(self.hermite_order / 2))</span>
-<span class="c1">#             yt = np.arange(0, self.hermite_order + self.hermite_order % 2, 2)</span>
-<span class="c1">#             ax[1].set_yticks(yt)</span>
-<span class="c1">#             ax[1].set_yticklabels(np.zeros(len(yt)))</span>
-<span class="c1">#             fig.suptitle(&quot;Hermite Coefficients of {}&quot;.format(name) + &#39;  Phase: &#39; + self.phase.capitalize())</span>
-<span class="c1">#             plot_name = os.path.join(self.species_plots_dirs[sp], &#39;{}_HermCoeffPlot_&#39;.format(name)</span>
-<span class="c1">#                                      + self.job_id + &#39;.png&#39;)</span>
-<span class="c1">#             fig.savefig(plot_name)</span>
-<span class="c1">#             if show:</span>
-<span class="c1">#                 fig.show()</span>
-<span class="c1">#</span>
 
 <div class="viewcode-block" id="RadialDistributionFunction"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction">[docs]</a><span class="k">class</span> <span class="nc">RadialDistributionFunction</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2276,27 +2011,20 @@
 <div class="viewcode-block" id="VelocityAutoCorrelationFunction"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction">[docs]</a><span class="k">class</span> <span class="nc">VelocityAutoCorrelationFunction</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Velocity Auto-correlation function.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="VelocityAutoCorrelationFunction.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span>
-              <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-              <span class="n">time_averaging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-              <span class="n">timesteps_to_skip</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
-              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="VelocityAutoCorrelationFunction.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">no_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign attributes from simulation&#39;s parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        no_slices : int</span>
+<span class="sd">            Number of independent runs inside a long simulation. Default = 1.</span>
+
 <span class="sd">        phase : str</span>
 <span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
 <span class="sd">        params : sarkas.base.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
-
-<span class="sd">        time_averaging: bool</span>
-<span class="sd">            Flag for species diffusion flux time averaging. Default = False.</span>
-
-<span class="sd">        timesteps_to_skip: int</span>
-<span class="sd">            Number of timesteps to skip for time_averaging. Default = 100.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -2309,8 +2037,8 @@
         <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_averaging</span> <span class="o">=</span> <span class="n">time_averaging</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_to_skip</span> <span class="o">=</span> <span class="n">timesteps_to_skip</span>
+        <span class="k">if</span> <span class="n">no_slices</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="n">no_slices</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_init</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span>
 
@@ -2327,6 +2055,7 @@
 
         <span class="c1"># Update the attribute with the passed arguments</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span></div>
+        <span class="c1">#</span>
 
 <div class="viewcode-block" id="VelocityAutoCorrelationFunction.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2349,6 +2078,8 @@
         <span class="n">start_slice</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">end_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">)</span>
+
+        <span class="n">t0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Calculating vacf for slice </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">))</span>
             <span class="c1"># Parse the particles from the dump files</span>
@@ -2356,8 +2087,8 @@
             <span class="c1">#</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Parsing particles&#39; velocities.&quot;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">it</span><span class="p">,</span> <span class="n">dump</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_slice</span><span class="p">,</span> <span class="n">end_slice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)):</span>
-                <span class="n">time</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
                 <span class="n">datap</span> <span class="o">=</span> <span class="n">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span> <span class="n">dump</span><span class="p">)</span>
+                <span class="n">time</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
                 <span class="n">vel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
                 <span class="n">vel</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
                 <span class="n">vel</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
@@ -2365,17 +2096,8 @@
             <span class="k">if</span> <span class="n">isl</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
 
-            <span class="c1"># message = &quot;Calculating velocity acf with time averaging &quot;</span>
-            <span class="c1"># ta = &quot;on&quot; if self.time_averaging else &quot;off&quot;</span>
-            <span class="c1"># print(&#39;Please wait. &#39; + message + ta + &#39; ...&#39;)</span>
-
-            <span class="c1"># t0 = self.timer.current()</span>
-            <span class="c1">#</span>
             <span class="c1"># Return an array of shape( num_species, dim + 1, slice_steps)</span>
-            <span class="n">vacf</span> <span class="o">=</span> <span class="n">calc_vacf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_averaging</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_to_skip</span><span class="p">)</span>
-            <span class="c1"># tend.append = self.timer.current()</span>
-
-            <span class="c1"># self.time_stamp(&quot;VACF Calculation&quot;, self.timer.time_division(tend - t0))</span>
+            <span class="n">vacf</span> <span class="o">=</span> <span class="n">calc_vacf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> X Velocity ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">vacf</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
@@ -2402,30 +2124,30 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Total Velocity ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">tot_col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Total Velocity ACF std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">tot_col_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+        <span class="n">tend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;VACF Calculation&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">tend</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="VelocityAutoCorrelationFunction.pretty_print"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print observable parameters for help in choice of simulation parameters.&quot;&quot;&quot;</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="si">{:=^70}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__long_name__</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data saved in: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data saved in: </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data accessible at: self.dataframe&#39;</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">No. of slices = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. dumps per slice = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">))</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time interval of autocorrelation function = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">))</span></div></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time interval of autocorrelation function = </span><span class="si">{:.4e}</span><span class="s1"> [s] ~ </span><span class="si">{}</span><span class="s1"> w_p T&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">)))</span></div></div>
 
 
 <div class="viewcode-block" id="FluxAutoCorrelationFunction"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction">[docs]</a><span class="k">class</span> <span class="nc">FluxAutoCorrelationFunction</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Species Diffusion Flux Auto-correlation function.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FluxAutoCorrelationFunction.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-              <span class="n">params</span><span class="p">,</span>
-              <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-              <span class="n">time_averaging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-              <span class="n">timesteps_to_skip</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
-              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="FluxAutoCorrelationFunction.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">no_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign attributes from simulation&#39;s parameters.</span>
 
@@ -2437,11 +2159,8 @@
 <span class="sd">        params : sarkas.base.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
-<span class="sd">        time_averaging: bool</span>
-<span class="sd">            Flag for species diffusion flux time averaging. Default = False.</span>
-
-<span class="sd">        timesteps_to_skip: int</span>
-<span class="sd">            Number of timesteps to skip for time_averaging. Default = 100.</span>
+<span class="sd">        no_slices : int</span>
+<span class="sd">            Number of independent runs inside a long simulation. Default = 1.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -2455,8 +2174,8 @@
         <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_averaging</span> <span class="o">=</span> <span class="n">time_averaging</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_to_skip</span> <span class="o">=</span> <span class="n">timesteps_to_skip</span>
+        <span class="k">if</span> <span class="n">no_slices</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="n">no_slices</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_init</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span>
 
@@ -2497,6 +2216,9 @@
         <span class="n">start_slice</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">end_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">)</span>
+
+        <span class="n">t0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+
         <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Calculating diffusion flux acf for slice </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">))</span>
             <span class="c1"># Parse the particles from the dump files</span>
@@ -2504,7 +2226,7 @@
             <span class="c1">#</span>
             <span class="c1"># print(&quot;\nParsing particles&#39; velocities.&quot;)</span>
             <span class="k">for</span> <span class="n">it</span><span class="p">,</span> <span class="n">dump</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_slice</span><span class="p">,</span> <span class="n">end_slice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">),</span>
-                                           <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Read in data&#39;</span><span class="p">,</span>
+                                           <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Read in data&#39;</span><span class="p">,</span>
                                            <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)):</span>
                 <span class="n">datap</span> <span class="o">=</span> <span class="n">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span> <span class="n">dump</span><span class="p">)</span>
                 <span class="n">time</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
@@ -2514,19 +2236,11 @@
             <span class="c1">#</span>
             <span class="k">if</span> <span class="n">isl</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
-            <span class="c1"># message = &quot;Calculating diffusion flux acf with time averaging &quot;</span>
-            <span class="c1"># ta = &quot;on&quot; if self.time_averaging else &quot;off&quot;</span>
-            <span class="c1"># print(&#39;Please wait. &#39; + message + ta + &#39; ...&#39;)</span>
-            <span class="c1"># t0 = self.timer.current()</span>
+
             <span class="n">df_acf</span> <span class="o">=</span> <span class="n">calc_diff_flux_acf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">species_num_dens</span><span class="p">,</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">time_averaging</span><span class="p">,</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_to_skip</span><span class="p">)</span>
-            <span class="c1"># tend = self.timer.current()</span>
-            <span class="c1">#</span>
-            <span class="c1"># self.time_stamp(&quot;Diffusion Flux ACF Calculation&quot;, self.timer.time_division(tend - t0))</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">)</span>
 
             <span class="c1"># Store the data</span>
             <span class="n">v_ij</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2545,26 +2259,37 @@
         <span class="n">v_ij</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">i</span><span class="p">):</span>
-                <span class="n">xcol_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> X Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
-                <span class="n">ycol_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Y Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
-                <span class="n">zcol_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Z Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
-                <span class="n">tot_col_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+                <span class="n">xcol_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> X Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span>
+                            <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+                <span class="n">ycol_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Y Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span>
+                            <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+                <span class="n">zcol_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Z Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span>
+                            <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+                <span class="n">tot_col_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span>
+                               <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> X Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">xcol_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> X Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">xcol_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> X Diffusion Flux ACF std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">xcol_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span>
                     <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Y Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">ycol_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Y Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">ycol_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Y Diffusion Flux ACF std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">ycol_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span>
                     <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Z Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">zcol_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Z Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">zcol_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Z Diffusion Flux ACF std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">zcol_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span>
                     <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">tot_col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF avg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span>
+                    <span class="n">tot_col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Total Diffusion Flux ACF std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span>
                     <span class="n">tot_col_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">v_ij</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+        <span class="n">tend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Diffusion Flux ACF Calculation&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">tend</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="FluxAutoCorrelationFunction.pretty_print"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print observable parameters for help in choice of simulation parameters.&quot;&quot;&quot;</span>
@@ -2575,8 +2300,9 @@
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">No. of slices = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. dumps per slice = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">))</span>
-
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time interval of autocorrelation function = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">))</span></div></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time interval of autocorrelation function = </span><span class="si">{:.4e}</span><span class="s1"> [s] ~ </span><span class="si">{}</span><span class="s1"> w_p T&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">)))</span></div></div>
 
 
 <div class="viewcode-block" id="VelocityDistribution"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityDistribution">[docs]</a><span class="k">class</span> <span class="nc">VelocityDistribution</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
@@ -3051,7 +2777,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">]):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">moments_hdf_dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_Time&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span><span class="n">ds</span><span class="p">)]</span> <span class="o">=</span> <span class="n">time</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moments_hdf_dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_Time&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">ds</span><span class="p">)]</span> <span class="o">=</span> <span class="n">time</span>
                     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_no_moment</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">moments_dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> moment axis </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="p">)]</span> <span class="o">=</span> <span class="n">moments</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="n">d</span><span class="p">,</span> <span class="n">m</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">moments_hdf_dataframe</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2"> moment&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">moments</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">m</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
@@ -3096,7 +2822,7 @@
         <span class="k">if</span> <span class="n">calc_moments</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compute_moments</span><span class="p">(</span><span class="n">parse_data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;hermite_rms_tol&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;hermite_rms_tol&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">hermite_rms_tol</span> <span class="o">=</span> <span class="mf">0.05</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">hermite_dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moments_dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">])</span>
@@ -3215,13 +2941,13 @@
             <span class="n">bin_width</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">dics</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vth</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">*</span> <span class="n">dics</span><span class="p">[</span><span class="s2">&quot;bins&quot;</span><span class="p">])</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bin Width = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bin_width</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;max_no_moment&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;max_no_moment&quot;</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Moments Information:&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;CSV dataframe saved in:</span><span class="se">\n\t</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mom_df_filename_csv</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data accessible at: self.moments_dataframe, self.moments_hdf_dataframe&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Highest moment to calculate: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_no_moment</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;max_hermite_order&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;max_hermite_order&quot;</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Grad Expansion Information:&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;CSV dataframe saved in:</span><span class="se">\n\t</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">herm_df_filename_csv</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data accessible at: self.hermite_dataframe, self.hermite_hdf_dataframe&#39;</span><span class="p">)</span>
@@ -3597,18 +3323,12 @@
 
 
 <span class="c1"># @jit Numba doesn&#39;t like scipy.signal</span>
-<div class="viewcode-block" id="calc_diff_flux_acf"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_diff_flux_acf">[docs]</a><span class="k">def</span> <span class="nf">calc_diff_flux_acf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">sp_num</span><span class="p">,</span> <span class="n">sp_dens</span><span class="p">,</span> <span class="n">sp_mass</span><span class="p">,</span> <span class="n">time_averaging</span><span class="p">,</span> <span class="n">timesteps_to_skip</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_diff_flux_acf"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_diff_flux_acf">[docs]</a><span class="k">def</span> <span class="nf">calc_diff_flux_acf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">sp_num</span><span class="p">,</span> <span class="n">sp_dens</span><span class="p">,</span> <span class="n">sp_mass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the diffusion flux autocorrelation function of each species and in each direction.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    time_averaging: bool</span>
-<span class="sd">        Flag for time averaging.</span>
-
-<span class="sd">    timesteps_to_skip: int</span>
-<span class="sd">        Number of timesteps to skip for time_averaging.</span>
-
 <span class="sd">    vel : numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocities. Shape = (``dimensions``, ``no_dumps``, ``total_num_ptcls``)</span>
 
@@ -3654,7 +3374,7 @@
         <span class="n">sp_start</span> <span class="o">=</span> <span class="n">sp_end</span>
 
     <span class="n">jc_acf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">no_vacf</span><span class="p">,</span> <span class="n">no_dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">))</span>
-    <span class="n">it_skip</span> <span class="o">=</span> <span class="n">timesteps_to_skip</span> <span class="k">if</span> <span class="n">time_averaging</span> <span class="k">else</span> <span class="n">no_dumps</span>
+
     <span class="n">indx</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="c1"># the flux is given by eq.(19) of the above reference</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rho1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mass_densities</span><span class="p">):</span>
@@ -3667,38 +3387,22 @@
             <span class="n">sp2_flux</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">rho2</span> <span class="o">*</span> <span class="p">(</span><span class="n">com_vel</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot_com_vel</span><span class="p">)</span>
             <span class="c1"># Calculate the correlation function in each direction</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_dim</span><span class="p">):</span>
-                <span class="c1"># Counter for time origins</span>
-                <span class="n">norm_counter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">no_dumps</span><span class="p">)</span>
-                <span class="c1"># temporary storage of correlation function</span>
-                <span class="n">temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">no_dumps</span><span class="p">)</span>
-                <span class="c1"># Grab the correct time intervals</span>
-                <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">,</span> <span class="n">it_skip</span><span class="p">):</span>
-                    <span class="c1"># Calculate the correlation function and add it to the array</span>
-                    <span class="n">temp</span><span class="p">[:</span><span class="n">no_dumps</span> <span class="o">-</span> <span class="n">it</span><span class="p">]</span> <span class="o">+=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">sp1_flux</span><span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="n">it</span><span class="p">:],</span> <span class="n">sp2_flux</span><span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="n">it</span><span class="p">:])</span>
-                    <span class="c1"># Note that norm_counter = 1 if time_averaging is false</span>
-                    <span class="n">norm_counter</span><span class="p">[:(</span><span class="n">no_dumps</span> <span class="o">-</span> <span class="n">it</span><span class="p">)]</span> <span class="o">+=</span> <span class="mf">1.0</span>
-                <span class="c1"># Divide by the number time origins</span>
-                <span class="n">jc_acf</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">temp</span> <span class="o">/</span> <span class="n">norm_counter</span>
+                <span class="c1"># Calculate the correlation function and add it to the array</span>
+                <span class="n">jc_acf</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">sp1_flux</span><span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="p">:],</span> <span class="n">sp2_flux</span><span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="p">:])</span>
                 <span class="c1"># Calculate the total correlation function by summing the three directions</span>
-                <span class="n">jc_acf</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">temp</span> <span class="o">/</span> <span class="n">norm_counter</span>
+                <span class="n">jc_acf</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">jc_acf</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="p">:]</span>
             <span class="n">indx</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">jc_acf</span></div>
 
 
 <span class="c1"># @jit Numba doesn&#39;t like Scipy</span>
-<div class="viewcode-block" id="calc_vacf"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vacf">[docs]</a><span class="k">def</span> <span class="nf">calc_vacf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">sp_num</span><span class="p">,</span> <span class="n">time_averaging</span><span class="p">,</span> <span class="n">timesteps_to_skip</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_vacf"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.calc_vacf">[docs]</a><span class="k">def</span> <span class="nf">calc_vacf</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">sp_num</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the velocity autocorrelation function of each species and in each direction.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    time_averaging: bool</span>
-<span class="sd">        Flag for time averaging.</span>
-
-<span class="sd">    timesteps_to_skip: int</span>
-<span class="sd">        Number of timesteps to skip for time_averaging.</span>
-
 <span class="sd">    vel : numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocities stored in a 3D array with shape = (D x Np x Nt).</span>
 <span class="sd">        D = cartesian dimensions, Np = Number of particles, Nt = number of dumps.</span>
@@ -3717,7 +3421,6 @@
 
     <span class="n">vacf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">sp_num</span><span class="p">),</span> <span class="n">no_dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">))</span>
 
-    <span class="n">it_skip</span> <span class="o">=</span> <span class="n">timesteps_to_skip</span> <span class="k">if</span> <span class="n">time_averaging</span> <span class="k">else</span> <span class="n">no_dumps</span>
     <span class="c1"># Calculate the vacf of each species in each dimension</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_dim</span><span class="p">):</span>
         <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
@@ -3728,19 +3431,11 @@
             <span class="n">sp_vacf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">no_dumps</span><span class="p">)</span>
             <span class="c1"># Calculate the vacf for each particle of species sp</span>
             <span class="k">for</span> <span class="n">ptcl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sp_start</span><span class="p">,</span> <span class="n">sp_end</span><span class="p">):</span>
-                <span class="c1"># temporary vacf</span>
-                <span class="n">ptcl_vacf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">no_dumps</span><span class="p">)</span>
-                <span class="c1"># Counter of time origins</span>
-                <span class="n">norm_counter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">no_dumps</span><span class="p">)</span>
-                <span class="c1"># Grab the correct time interval</span>
-                <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">no_dumps</span><span class="p">,</span> <span class="n">it_skip</span><span class="p">):</span>
-                    <span class="c1"># Calculate the correlation function and add it to the array</span>
-                    <span class="n">ptcl_vacf</span><span class="p">[:</span><span class="n">no_dumps</span> <span class="o">-</span> <span class="n">it</span><span class="p">]</span> <span class="o">+=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">vel</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">ptcl</span><span class="p">,</span> <span class="n">it</span><span class="p">:],</span> <span class="n">vel</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">ptcl</span><span class="p">,</span> <span class="n">it</span><span class="p">:])</span>
-                    <span class="c1"># Note that norm_counter = 1 if time_averaging is false</span>
-                    <span class="n">norm_counter</span><span class="p">[:(</span><span class="n">no_dumps</span> <span class="o">-</span> <span class="n">it</span><span class="p">)]</span> <span class="o">+=</span> <span class="mf">1.0</span>
+                <span class="c1"># Calculate the correlation function and add it to the array</span>
+                <span class="n">ptcl_vacf</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">vel</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">ptcl</span><span class="p">,</span> <span class="p">:],</span> <span class="n">vel</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">ptcl</span><span class="p">,</span> <span class="p">:])</span>
 
                 <span class="c1"># Add this particle vacf to the species vacf and normalize by the time origins</span>
-                <span class="n">sp_vacf</span> <span class="o">+=</span> <span class="n">ptcl_vacf</span> <span class="o">/</span> <span class="n">norm_counter</span>
+                <span class="n">sp_vacf</span> <span class="o">+=</span> <span class="n">ptcl_vacf</span>
 
             <span class="c1"># Save the species vacf for dimension i</span>
             <span class="n">vacf</span><span class="p">[</span><span class="n">sp</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">sp_vacf</span> <span class="o">/</span> <span class="n">n_sp</span>
@@ -4554,7 +4249,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 17, 2021.<br/>
+      Last updated on Mar 23, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
     </p>
   </div>

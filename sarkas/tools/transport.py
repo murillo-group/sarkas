@@ -114,8 +114,7 @@ class TransportCoefficient:
     def diffusion(params,
                   phase: str = 'production',
                   no_slices: int = 1,
-                  time_averaging: bool = False,
-                  timesteps_to_skip: int = 100,
+                  plot: bool = True,
                   show: bool = False,
                   figname: str = None,
                   **kwargs):
@@ -124,23 +123,23 @@ class TransportCoefficient:
 
         Parameters
         ----------
-        figname : str
-            Name with which to save the file. It automatically saves it in the correct directory.
-
-        time_averaging: bool
-            Flag for VACF time averaging. Default = False.
-
-        timesteps_to_skip: int
-            Timestep interval for VACF time averaging. Default = 100
-
         params : sarkas.base.Parameters
             Simulation's parameters.
 
         phase : str
             Phase to analyze. Default = 'production'.
 
+        no_slices : int, optional
+            Number of slices of the simulation. Default = 1.
+
+        plot : bool, optional
+            Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.
+
         show : bool
             Flag for prompting plot to screen.
+
+        figname : str
+            Name with which to save the file. It automatically saves it in the correct directory.
 
         **kwargs:
             Arguments to pass :meth:`sarkas.tools.observables.VelocityAutoCorrelationFunction`
@@ -156,108 +155,190 @@ class TransportCoefficient:
         vacf = obs.VelocityAutoCorrelationFunction()
         vacf.setup(params,
                    phase=phase,
-                   time_averaging=time_averaging,
-                   timesteps_to_skip=timesteps_to_skip,
                    no_slices=no_slices,
                    **kwargs)
+        print('Data saved in: \n', os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.csv'))
+
+        print('\nNo. of slices = {}'.format(vacf.no_slices))
+        print('No. dumps per slice = {}'.format(vacf.slice_steps))
+
+        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
+            vacf.dt * vacf.slice_steps * vacf.dump_step,
+            int(vacf.dt * vacf.slice_steps * vacf.dump_step * vacf.total_plasma_frequency)))
+
         vacf.compute()
         time = np.array(vacf.dataframe["Time"])
         coefficient["Time"] = time
 
-        fig, ax1 = plt.subplots(1, 1, figsize=(10, 10))
-        ax2 = ax1.twinx()  # Diffusion axes
-        ax21 = ax2.twiny()  # Index axes
-        # extra space for the second axis at the bottom
-        fig.subplots_adjust(bottom=0.1)
+        const = 1.0 / 3.0
         if not params.magnetized:
-            D = np.zeros((params.num_species, len(time)))
+            # Loop over time slices
+            for isl in range(vacf.no_slices):
+                # Initialize the temporary diffusion container
+                D = np.zeros((params.num_species, vacf.slice_steps))
+                # Iterate over the number of species
+                for i, sp in enumerate(params.species_names):
+                    # Grab vacf data of each slice
+                    integrand = np.array(vacf.dataframe["{} Total Velocity ACF slice {}".format(sp, isl)])
+                    # Integrate each timestep
+                    for it in range(1, len(time)):
+                        D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
 
-            const = 1.0 / 3.0
-            for i, sp in enumerate(params.species_names):
-                integrand = np.array(vacf.dataframe["{} Total Velocity ACF".format(sp)])
-                for it in range(1, len(time)):
-                    D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
+                    coefficient["{} Diffusion slice {}".format(sp, isl)] = D[i, :]
 
-                coefficient["{} Diffusion".format(sp)] = D[i, :]
+            # Average and std of each diffusion coefficient.
+            for isp, sp in enumerate(params.species_names):
+                col_str = ["{} Diffusion slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
 
-                xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D[i, :], "Time", "Diffusion", vacf.units)
-                ax1.semilogx(xmul * time, integrand / integrand[0], label=r'$Z_{' + sp + '}(t)$')
-                ax21.semilogx(ymul * D[i, :], '--')
-                ax2.semilogx(xmul * time, ymul * D[i, :], '--', label=r'$D_{' + sp + '}(t)$')
+                coefficient["{} Diffusion avg".format(sp)] = coefficient[col_str].mean(axis=1)
+                coefficient["{} Diffusion std".format(sp)] = coefficient[col_str].std(axis=1)
+
         else:
-            D = np.zeros((params.num_species, 2, len(time)))
+            # Loop over time slices
+            for isl in range(vacf.no_slices):
+                # Initialize the temporary diffusion container
+                D = np.zeros((params.num_species, 2, len(time)))
+                # Iterate over the number of species
+                for i, sp in enumerate(params.species_names):
+                    integrand_par = np.array(vacf.dataframe["{} Z Velocity ACF slice {}".format(sp, isl)])
+                    integrand_perp = np.array(vacf.dataframe["{} X Velocity ACF slice {}".format(sp, isl)]) + \
+                                     np.array(vacf.dataframe["{} Y Velocity ACF slice {}".format(sp, isl)])
 
-            for i, sp in enumerate(params.species_names):
-                integrand_par = np.array(vacf.dataframe["{} Z Velocity ACF".format(sp)])
-                integrand_perp = np.array(vacf.dataframe["{} X Velocity ACF".format(sp)]) + \
-                                 np.array(vacf.dataframe["{} Y Velocity ACF".format(sp)])
-                for it in range(1, len(time)):
-                    D[i, 0, it] = np.trapz(integrand_par[:it], x=time[:it])
-                    D[i, 1, it] = 0.5 * np.trapz(integrand_perp[:it], x=time[:it])
+                    for it in range(1, len(time)):
+                        D[i, 0, it] = np.trapz(integrand_par[:it], x=time[:it])
+                        D[i, 1, it] = 0.5 * np.trapz(integrand_perp[:it], x=time[:it])
 
-                coefficient["{} Parallel Diffusion".format(sp)] = D[i, 0, :]
-                coefficient["{} Perpendicular Diffusion".format(sp)] = D[i, 1, :]
+                    coefficient["{} Parallel Diffusion slice {}".format(sp, isl)] = D[i, 0, :]
+                    coefficient["{} Perpendicular Diffusion slice {}".format(sp, isl)] = D[i, 1, :]
 
-                xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, D[i, 0, :], "Time", "Diffusion", vacf.units)
-                zpar = ax1.semilogx(xmul * time, integrand_par / integrand_par[0],
-                                    label='{}  '.format(sp) + r'$Z_{\parallel}(t)$')
-                zperp = ax1.semilogx(xmul * time, integrand_perp / integrand_perp[0],
-                                     label='{}  '.format(sp) + r'$Z_{\perp}(t)$')
-                ax21.semilogx(ymul * D[i, 0, :], '--')
-                ax21.semilogx(ymul * D[i, 1, :], '--')
-                ax2.semilogx(xmul * time, ymul * D[i, 0, :], '--', label='{}  '.format(sp) + r'$D_{\parallel}(t)$')
-                ax2.semilogx(xmul * time, ymul * D[i, 1, :], '--', label='{}  '.format(sp) + r'$D_{\perp}(t)$')
+            # Add the average and std of perp and par VACF to its dataframe
+            for isp, sp in enumerate(params.species_names):
+                par_col_str = ["{} Z Velocity ACF slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
 
-        # Complete figure
-        ax1.grid(False)
-        ax1.legend(loc='upper left')
-        ax1.set_ylabel(r'Velocity ACF')
-        ax1.legend(loc='best')
+                vacf.dataframe["{} Parallel Velocity ACF avg".format(sp)] = vacf.dataframe[par_col_str].mean(axis=1)
+                vacf.dataframe["{} Parallel Velocity ACF std".format(sp)] = vacf.dataframe[par_col_str].std(axis=1)
 
-        ax1.set_xlabel(r'Time' + xlbl)
-        ax2.grid(False)
-        ax2.legend(loc='best')
-        ax2.set_ylabel(r'Diffusion' + ylbl)
-        # ax2.set_xlabel(r'Time' + xlbl)
+                x_col_str = ["{} X Velocity ACF slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
+                y_col_str = ["{} Y Velocity ACF slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
 
-        ax21.xaxis.set_ticks_position("bottom")
-        ax21.xaxis.set_label_position("bottom")
-        ax21.set_xscale('log')
-        ax21.grid(False)
-        # Offset the twin axis below the host
-        ax21.spines["bottom"].set_position(("axes", -0.2))
+                perp_vacf = 0.5 * (np.array(vacf.dataframe[x_col_str]) + np.array(vacf.dataframe[y_col_str]))
+                vacf.dataframe["{} Perpendicular Velocity ACF avg".format(sp)] = perp_vacf.mean(axis=1)
+                vacf.dataframe["{} Perpendicular Velocity ACF std".format(sp)] = perp_vacf.std(axis=1)
 
-        # Turn on the frame for the twin axis, but then hide all
-        # but the bottom spine
-        ax21.set_frame_on(True)
-        ax21.patch.set_visible(False)
+                # Average and std of each diffusion coefficient.
+                par_col_str = ["{} Parallel Diffusion slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
+                perp_col_str = ["{} Perpendicular Diffusion slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
 
-        for sp in ax21.spines.values():
-            sp.set_visible(False)
-        ax21.spines["bottom"].set_visible(True)
-        ax2.set_xlabel(r'Time' + xlbl)
-        ax21.set_xlabel(r"Index")
-        # ax21.set_xbound(1, len(time))
+                coefficient["{} Parallel Diffusion avg".format(sp)] = coefficient[par_col_str].mean(axis=1)
+                coefficient["{} Parallel Diffusion std".format(sp)] = coefficient[par_col_str].std(axis=1)
 
-        fig.tight_layout()
-        if figname:
-            fig.savefig(os.path.join(vacf.saving_dir, figname))
-        else:
-            fig.savefig(os.path.join(vacf.saving_dir, 'Plot_Diffusion_' + vacf.job_id + '.png'))
+                coefficient["{} Perpendicular Diffusion avg".format(sp)] = coefficient[perp_col_str].mean(axis=1)
+                coefficient["{} Perpendicular Diffusion std".format(sp)] = coefficient[perp_col_str].std(axis=1)
 
-        if show:
-            fig.show()
-        coefficient.to_csv(os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.csv'),
-                           index=False,
-                           encoding='utf-8')
+            # Save the updated dataframe
+            vacf.dataframe.to_csv(vacf.filename_csv, index=False, encoding='utf-8')
+
+        # Endif magnetized.
+
+        if plot or figname:
+            # Make the plot
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+            # index axes
+            ax3 = ax1.twiny()
+            ax4 = ax2.twiny()
+            # extra space for the second axis at the bottom
+            fig.subplots_adjust(bottom=0.2)
+
+            if not params.magnetized:
+                for isp, sp in enumerate(params.species_names):
+                    acf_avg = vacf.dataframe["{} Total Velocity ACF avg".format(sp)]
+                    acf_std = vacf.dataframe["{} Total Velocity ACF std".format(sp)]
+
+                    d_avg = coefficient["{} Diffusion avg".format(sp)]
+                    d_std = coefficient["{} Diffusion std".format(sp)]
+
+                    # Calculate axis multipliers and labels
+                    xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Diffusion", vacf.units)
+
+                    ax1.plot(xmul * time, acf_avg / acf_avg[0], label=r'$D_{' + sp + '}$')
+                    ax1.fill_between(
+                        xmul * time,
+                        (acf_avg + acf_std) / (acf_avg[0] + acf_std[0]),
+                        (acf_avg - acf_std) / (acf_avg[0] - acf_std[0]), alpha=0.2)
+
+                    ax2.plot(xmul * time, ymul * d_avg, label=r'$D_{' + sp + '}$')
+                    ax2.fill_between(xmul * time, ymul * (d_avg + d_std), ymul * (d_avg - d_std), alpha=0.2)
+            else:
+                for isp, sp in enumerate(params.species_names):
+                    par_acf_avg = vacf.dataframe["{} Parallel Velocity ACF avg".format(sp)]
+                    par_acf_std = vacf.dataframe["{} Parallel Velocity ACF std".format(sp)]
+
+                    par_d_avg = coefficient["{} Parallel Diffusion avg".format(sp)]
+                    par_d_std = coefficient["{} Parallel Diffusion std".format(sp)]
+
+                    perp_acf_avg = vacf.dataframe["{} Perpendicular Velocity ACF avg".format(sp)]
+                    perp_acf_std = vacf.dataframe["{} Perpendicular Velocity ACF std".format(sp)]
+
+                    perp_d_avg = coefficient["{} Perpendicular Diffusion avg".format(sp)]
+                    perp_d_std = coefficient["{} Perpendicular Diffusion std".format(sp)]
+
+                    # Calculate axis multipliers and labels
+                    xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, perp_d_avg, "Time", "Diffusion", vacf.units)
+                    # ACF Parallel plot
+                    ax1.plot(xmul * time, par_acf_avg / par_acf_avg.iloc[0], label=sp + r' $Z_{\parallel}$')
+                    ax1.fill_between(
+                        xmul * time,
+                        (par_acf_avg + par_acf_std) / (par_acf_avg.iloc[0] + par_acf_std.iloc[0]),
+                        (par_acf_avg - par_acf_std) / (par_acf_avg.iloc[0] - par_acf_std.iloc[0]), alpha=0.2)
+                    # Coefficient Parallel plot
+                    ax2.plot(xmul * time, ymul * par_d_avg, label=sp + r' $D_{\parallel}$')
+                    ax2.fill_between(xmul * time, ymul * (par_d_avg + par_d_std), ymul * (par_d_avg - par_d_std),
+                                     alpha=0.2)
+                    # ACF Perpendicular Plot
+                    ax1.plot(xmul * time, perp_acf_avg / perp_acf_avg.iloc[0], label=sp + r' $Z_{\perp}$')
+                    ax1.fill_between(
+                        xmul * time,
+                        (perp_acf_avg + perp_acf_std) / (perp_acf_avg.iloc[0] + perp_acf_std.iloc[0]),
+                        (perp_acf_avg - perp_acf_std) / (perp_acf_avg.iloc[0] - perp_acf_std.iloc[0]), alpha=0.2)
+                    # Coefficient Perpendicular Plot
+                    ax2.plot(xmul * time, ymul * perp_d_avg, label=sp + r' $D_{\perp}$')
+                    ax2.fill_between(xmul * time, ymul * (perp_d_avg + perp_d_std), ymul * (perp_d_avg - perp_d_std),
+                                     alpha=0.2)
+
+            xlims = (xmul * time[1], xmul * time[-1] * 1.5)
+
+            ax1.set(xlim=xlims, xscale='log', ylabel=r'Velocity ACF', xlabel=r"Time difference" + xlbl)
+            ax2.set(xlim=xlims, xscale='log', ylabel=r'Diffusion' + ylbl, xlabel=r"$\tau$" + xlbl)
+
+            ax1.legend(loc='best')
+            ax2.legend(loc='best')
+
+            # Finish the index axes
+            for axi in [ax3, ax4]:
+                axi.grid(alpha=0.1)
+                axi.set(xlim=[1, vacf.slice_steps * 1.5], xscale='log', xlabel='Index')
+
+            fig.tight_layout()
+            if figname:
+                fig.savefig(os.path.join(vacf.saving_dir, figname))
+            else:
+                fig.savefig(os.path.join(vacf.saving_dir, 'Plot_Diffusion_' + vacf.job_id + '.png'))
+
+            if show:
+                fig.show()
+
+        # Save the coefficient's data
+        coefficient.to_csv(
+            os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.csv'),
+            index=False,
+            encoding='utf-8')
+
         return coefficient
 
     @staticmethod
     def interdiffusion(params,
                        phase: str = 'production',
                        no_slices: int = 1,
-                       time_averaging: bool = False,
-                       timesteps_to_skip: int = 100,
                        plot: bool = True,
                        show: bool = False,
                        figname: str = None,
@@ -276,20 +357,14 @@ class TransportCoefficient:
         no_slices : int, optional
             Number of slices of the simulation. Default = 1.
 
-        time_averaging: bool, optional
-            Flag for species diffusion flux time averaging. Default = False.
-
-        timesteps_to_skip: int, optional
-            Timestep interval for species diffusion flux time averaging. Default = 100
-
         plot : bool, optional
             Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.
 
-        figname : str, optional
-            Name with which to save the file. It automatically saves it in the correct directory.
-
         show : bool, optional
             Flag for prompting plot to screen when using IPython kernel. Default = False.
+
+        figname : str, optional
+            Name with which to save the file. It automatically saves it in the correct directory.
 
         **kwargs:
             Arguments to pass :meth:`sarkas.tools.observables.FluxAutoCorrelationFunction`
@@ -304,13 +379,7 @@ class TransportCoefficient:
         coefficient = pd.DataFrame()
         jc_acf = obs.FluxAutoCorrelationFunction()
         # jc_acf.no_slices = no_slices
-        jc_acf.setup(
-            params,
-            phase=phase,
-            time_averaging=time_averaging,
-            timesteps_to_skip=timesteps_to_skip,
-            no_slices=no_slices,
-            **kwargs)
+        jc_acf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
         jc_acf.compute()
         no_int = jc_acf.slice_steps
         no_obs = jc_acf.no_obs
@@ -347,9 +416,10 @@ class TransportCoefficient:
         if plot or figname:
             # Make the plot
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
-
+            ax3 = ax1.twiny()
+            ax4 = ax2.twinx()
             # extra space for the second axis at the bottom
-            fig.subplots_adjust(bottom=0.2)
+            # fig.subplots_adjust(bottom=0.2)
             for i, sp1 in enumerate(params.species_names):
                 for j, sp2 in enumerate(params.species_names[i + 1:], i + 1):
                     acf_avg = jc_acf.dataframe["{}-{} Total Diffusion Flux ACF avg".format(sp1, sp2)]
@@ -361,38 +431,28 @@ class TransportCoefficient:
                     # Calculate axis multipliers and labels
                     xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Diffusion", jc_acf.units)
 
-                    ax1.plot(xmul * time, acf_avg / acf_avg[0], label=r'$J_{' + sp1 + sp2 + '}$')
+                    # ACF
+                    ax1.plot(xmul * time, acf_avg / acf_avg.iloc[0], label=r'$J_{' + sp1 + sp2 + '}$')
                     ax1.fill_between(
                         xmul * time,
-                        (acf_avg + acf_std) / (acf_avg[0] + acf_std[0]),
-                        (acf_avg - acf_std) / (acf_avg[0] - acf_std[0]), alpha=0.2)
+                        (acf_avg + acf_std) / (acf_avg.iloc[0] + acf_std.iloc[0]),
+                        (acf_avg - acf_std) / (acf_avg.iloc[0] - acf_std.iloc[0]), alpha=0.2)
 
-                    # ax21.semilogx(ymul * D_ij[index, :], '--')
-                    ax2.plot(xmul * time, ymul* d_avg, label=r'$D_{' + sp1 + sp2 + '}$')
+                    # Coefficient
+                    ax2.plot(xmul * time, ymul * d_avg, label=r'$D_{' + sp1 + sp2 + '}$')
                     ax2.fill_between(xmul * time, ymul * (d_avg + d_std), ymul*(d_avg - d_std), alpha=0.2)
 
-            ax1.set(xscale='log', ylabel=r'Diffusion Flux ACF', xlabel=r"Time" + xlbl)
-            ax2.set(xscale='log', ylabel=r'Inter Diffusion' + ylbl, xlabel=r"Time" + xlbl)
+            xlims = (xmul* time[1], xmul * time[-1] * 1.5 )
 
-            # ax21.xaxis.set_ticks_position("bottom")
-            # ax21.xaxis.set_label_position("bottom")
+            ax1.set(xlim=xlims, xscale='log', ylabel=r'Diffusion Flux ACF', xlabel=r"Time difference" + xlbl)
+            ax2.set(xlim=xlims, xscale='log', ylabel=r'Inter Diffusion' + ylbl, xlabel=r"$\tau$" + xlbl)
 
             ax1.legend(loc='best')
             ax2.legend(loc='best')
-            # ax21.set_xscale('log')
-            # Offset the twin axis below the host
-            # ax21.spines["bottom"].set_position(("axes", -0.2))
-
-            # Turn on the frame for the twin axis, but then hide all
-            # but the bottom spine
-            # ax21.set_frame_on(True)
-            # ax21.patch.set_visible(False)
-
-            # for sp in ax21.spines.values():
-            #     sp.set_visible(False)
-
-            # ax21.spines["bottom"].set_visible(True)
-            # ax21.set_xlabel(r"Index")
+            # Finish the index axes
+            for axi in [ax3, ax4]:
+                axi.grid(alpha=0.1)
+                axi.set(xlim=[1, jc_acf.slice_steps * 1.5], xscale='log', xlabel='Index')
 
             fig.tight_layout()
             if figname:

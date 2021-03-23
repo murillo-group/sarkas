@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Overview: module code &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Get Started &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -24,6 +24,8 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Theoretical Background" href="../theory/theory.html" />
+    <link rel="prev" title="Why Sarkas" href="../why_sarkas/why_sarkas.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -52,7 +54,7 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="../installation/get_started.html">Get Started</a></li>
+                <li><a href="#">Get Started</a></li>
                 <li><a href="../examples/examples.html">Examples</a></li>
                 <li><a href="../development/code_dev.html">Code Development</a></li>
                 <li><a href="../api/api.html">API</a></li>
@@ -68,9 +70,9 @@
   <ul class="dropdown-menu globaltoc"
       role="menu"
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/get_started.html">Get Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Get Started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theoretical Background:</span></p>
 <ul>
@@ -105,7 +107,14 @@
      href="#">Page <b class="caret"></b></a>
   <ul class="dropdown-menu localtoc"
       role="menu"
-      aria-labelledby="dLabelLocalToc"></ul>
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Get Started</a><ul>
+<li><a class="reference internal" href="#virtual-environment">Virtual environment</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+</ul>
+</li>
+</ul>
+</ul>
 </li>
               
             
@@ -135,23 +144,67 @@
   <div class="row">
     <div class="body col-md-12 content" role="main">
       
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="sarkas/base.html">sarkas.base</a></li>
-<li><a href="sarkas/potentials/base.html">sarkas.potentials.base</a></li>
-<li><a href="sarkas/potentials/coulomb.html">sarkas.potentials.coulomb</a></li>
-<li><a href="sarkas/potentials/egs.html">sarkas.potentials.egs</a></li>
-<li><a href="sarkas/potentials/lennardjones.html">sarkas.potentials.lennardjones</a></li>
-<li><a href="sarkas/potentials/moliere.html">sarkas.potentials.moliere</a></li>
-<li><a href="sarkas/potentials/qsp.html">sarkas.potentials.qsp</a></li>
-<li><a href="sarkas/potentials/yukawa.html">sarkas.potentials.yukawa</a></li>
-<li><a href="sarkas/processes.html">sarkas.processes</a></li>
-<li><a href="sarkas/time_evolution/integrators.html">sarkas.time_evolution.integrators</a></li>
-<li><a href="sarkas/time_evolution/thermostats.html">sarkas.time_evolution.thermostats</a></li>
-<li><a href="sarkas/tools/observables.html">sarkas.tools.observables</a></li>
-<li><a href="sarkas/tools/transport.html">sarkas.tools.transport</a></li>
-<li><a href="sarkas/utilities/io.html">sarkas.utilities.io</a></li>
-<li><a href="sarkas/utilities/timing.html">sarkas.utilities.timing</a></li>
+  <div class="section" id="get-started">
+<span id="id1"></span><h1>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Sarkas is under heavy development and not yet available via package managers like <code class="docutils literal notranslate"><span class="pre">pip</span></code> and <code class="docutils literal notranslate"><span class="pre">conda</span></code>.
+Therefore, please follow the instructions <a class="reference internal" href="../development/dev_setup.html#dev-setup"><span class="std std-ref">here</span></a>  for installation.</p>
+</div>
+<ul class="simple">
+<li><p>Virtual enviroment</p></li>
+<li><p>Installation, (<a class="reference internal" href="../development/dev_setup.html#dev-setup"><span class="std std-ref">dev install</span></a>)</p></li>
+<li><p><a class="reference internal" href="../quickstart/Quickstart.html#Quickstart"><span class="std std-ref">Quickstart</span></a></p></li>
+<li><p><a class="reference internal" href="../tutorial/tutorial.html#id1"><span class="std std-ref">Tutorial</span></a> (long)</p></li>
+<li><p><a class="reference internal" href="../examples/examples.html#examples"><span class="std std-ref">Examples</span></a></p></li>
 </ul>
+<div class="section" id="virtual-environment">
+<h2>Virtual environment<a class="headerlink" href="#virtual-environment" title="Permalink to this headline">¶</a></h2>
+<p>It is good practice to create virtual environment for your each of your programming projects. Below are instructions
+for creating the <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> virtual environment.</p>
+<ol class="arabic">
+<li><p>Check if you have <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ which conda
+</pre></div>
+</div>
+<p>This command will print the path of your <code class="docutils literal notranslate"><span class="pre">conda</span></code> binaries. If nothing is printed then you need to install it. Visit
+Anaconda.org and <a class="reference external" href="https://www.anaconda.com/products/individual">download</a> their Python 3.* installer.</p>
+</div></blockquote>
+</li>
+<li><p>Create your virtual environment via</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda create --name sarkas
+</pre></div>
+</div>
+<p>This command will create the virtual environment <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> in the <code class="docutils literal notranslate"><span class="pre">envs</span></code> directory of your conda directory
+(the one printed above by the command <code class="docutils literal notranslate"><span class="pre">which</span></code>).</p>
+</div></blockquote>
+</li>
+<li><p>Once the enviroment has been created you can activate it by</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda activate sarkas
+</pre></div>
+</div>
+<p>and deactivate it by</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda deactivate
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Once the environment has been activated you can install sarkas system wide via</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install sarkas-md
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+
 
     </div>
       

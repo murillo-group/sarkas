@@ -44,7 +44,7 @@ Team
       <a href="https://murillogroupmsu.com/dr-michael-murillo/">
       <h2 class="text-center">Michael S.<br/> Murillo</h2>
       </a>
-      <div class="text-muted"><p class="text-center">Principal Investrigator</p></div>
+      <div class="text-muted"><p class="text-center">Principal Investigator</p></div>
 
       <p class="text-center">
       <a href="mailto:murillom@msu.edu"><i class="fa fa-envelope" aria-hidden="true"></i></a>

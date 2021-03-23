@@ -400,7 +400,8 @@ class Observable:
         """Calculate and save Fourier space data."""
 
         # Do some checks
-        assert isinstance(self.angle_averaging, str), "angle_averaging not a string. Choose from ['full', 'custom', 'principal_axis']"
+        assert isinstance(self.angle_averaging,
+                          str), "angle_averaging not a string. Choose from ['full', 'custom', 'principal_axis']"
         assert self.max_k_harmonics.all(), 'max_k_harmonics not defined.'
 
         # Calculate the k arrays
@@ -571,6 +572,7 @@ class Observable:
             for i, col in enumerate(plot_dataframe.columns[1:], 1):
                 plot_dataframe[col] /= plot_dataframe[col].iloc[0]
             kwargs['logx'] = True
+            kwargs['xlabel'] = 'Time difference'
 
         # if self.__class__.__name__ == 'StaticStructureFactor':
         #     errorbars = plot_dataframe.copy()
@@ -1116,271 +1118,6 @@ class ElectricCurrent(Observable):
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
-
-# class HermiteCoefficients(Observable):
-#     """
-#     Hermite coefficients of the Hermite expansion.
-#
-#     Attributes
-#     ----------
-#     hermite_order: int
-#         Order of the Hermite expansion.
-#
-#     no_bins: int
-#         Number of bins used to calculate the velocity distribution.
-#
-#     plots_dir: str
-#         Directory in which to store Hermite coefficients plots.
-#
-#     species_plots_dirs : list, str
-#         Directory for each species where to save Hermite coefficients plots.
-#
-#     """
-#
-#     def setup(self, params, phase: str = None, **kwargs):
-#         """
-#         Assign attributes from simulation's parameters.
-#
-#         Parameters
-#         ----------
-#         phase : str
-#             Phase to compute. Default = 'production'.
-#
-#         params : sarkas.base.Parameters
-#             Simulation's parameters.
-#
-#         **kwargs :
-#             These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
-#             attributes and/or add new ones.
-#
-#         """
-#         self.__name__ = 'hc'
-#
-#         self.phase = phase.lower() if phase.lower() != 'production' else 'production'
-#
-#         super().setup_init(params, self.phase)
-#
-#         # Create the directory where to store the computed data
-#         saving_dir = os.path.join(self.postprocessing_dir, 'HermiteExpansion')
-#         if not os.path.exists(saving_dir):
-#             os.mkdir(saving_dir)
-#
-#         self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
-#         if not os.path.exists(self.saving_dir):
-#             os.mkdir(self.saving_dir)
-#         self.filename_csv = os.path.join(self.saving_dir, "HermiteCoefficients_" + self.job_id + '.csv')
-#
-#         self.plots_dir = os.path.join(self.saving_dir, 'Hermite_Plots')
-#         if not os.path.exists(self.plots_dir):
-#             os.mkdir(self.plots_dir)
-#
-#         # Check that the existence of important attributes
-#         if not hasattr(self, 'no_bins'):
-#             self.no_bins = int(0.05 * params.total_num_ptcls)
-#
-#         if not hasattr(self, 'hermite_order'):
-#             self.hermite_order = 7
-#
-#         self.species_plots_dirs = None
-#
-#         # Update the attribute with the passed arguments
-#         self.__dict__.update(kwargs.copy())
-#
-#     def compute(self, **kwargs):
-#         """
-#         Calculate Hermite coefficients and save the pandas dataframe.
-#
-#         Parameters
-#         ----------
-#         **kwargs :
-#             These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
-#             attributes and/or add new ones.
-#
-#         """
-#
-#         self.__dict__.update(kwargs.copy())
-#
-#         self.dataframe = pd.DataFrame()
-#         time = np.zeros(self.no_dumps)
-#
-#         # 2nd Dimension of the raw velocity array
-#         dim = 1 if self.dimensional_average else self.dimensions
-#         # range(inv_dim) for the loop over dimension
-#         inv_dim = self.dimensions if self.dimensional_average else 1
-#         # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]
-#         species_index_start = np.array([0, *self.species_num], dtype=int) * inv_dim * self.runs
-#         # Velocity array for storing simulation data
-#         vel_raw = np.zeros((self.no_dumps, dim, self.runs * inv_dim * self.total_num_ptcls))
-#
-#         print("Collecting data from snapshots ...")
-#
-#         if self.dimensional_average:
-#             # Loop over the runs
-#             for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc='Runs Loop')):
-#                 # Loop over the timesteps
-#                 for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc='Timestep Loop'):
-#                     # Read data from file
-#                     dump = int(it * self.dump_step)
-#                     datap = load_from_restart(dump_dir_r, dump)
-#                     # Loop over the particles' species
-#                     for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
-#                         # Calculate the correct start and end index for storage
-#                         start_indx = species_index_start[sp_indx] + inv_dim * sp_num * r
-#                         end_indx = species_index_start[sp_indx] + inv_dim * sp_num * (r + 1)
-#                         # Use a mask to grab only the selected species and flatten along the first axis
-#                         # data = ( v1_x, v1_y, v1_z,
-#                         #          v2_x, v2_y, v2_z,
-#                         #          v3_x, v3_y, v3_z,
-#                         #          ...)
-#                         # The flatten array would like this
-#                         # flattened = ( v1_x, v2_x, v3_x, ..., v1_y, v2_y, v3_y, ..., v1_z, v2_z, v3_z, ...)
-#                         vel_raw[it, 0, start_indx: end_indx] = datap["vel"][datap["names"] == sp_name].flatten('F')
-#
-#                     time[it] = datap["time"]
-#         else:  # Dimensional Average = False
-#             # Loop over the runs
-#             for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc='Runs Loop')):
-#                 # Loop over the timesteps
-#                 for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc='Timestep Loop'):
-#                     # Read data from file
-#                     dump = int(it * self.dump_step)
-#                     datap = load_from_restart(dump_dir_r, dump)
-#                     # Loop over the particles' species
-#                     for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
-#                         # Calculate the correct start and end index for storage
-#                         start_indx = species_index_start[sp_indx] + inv_dim * sp_num * r
-#                         end_indx = species_index_start[sp_indx] + inv_dim * sp_num * (r + 1)
-#                         # Use a mask to grab only the selected species and transpose the array to put dimensions first
-#                         vel_raw[it, :, start_indx: end_indx] = datap["vel"][datap["names"] == sp_name].transpose()
-#
-#                 time[it] = datap["time"]
-#
-#         self.dataframe["Time"] = time
-#
-#         xcoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))
-#         ycoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))
-#         zcoeff = np.zeros((self.num_species, self.no_dumps, self.hermite_order + 1))
-#
-#         time = np.zeros(self.no_dumps)
-#         print("Computing Hermite Coefficients ...")
-#         for it in range(self.no_dumps):
-#             time[it] = it * self.dt * self.dump_step
-#             dump = int(it * self.dump_step)
-#             datap = load_from_restart(self.dump_dir, dump)
-#             vel[0, :] = datap["vel"][:, 0]
-#             vel[1, :] = datap["vel"][:, 1]
-#             vel[2, :] = datap["vel"][:, 2]
-#
-#             sp_start = 0
-#             sp_end = 0
-#             for i, sp in enumerate(self.species_num):
-#                 sp_end += sp
-#                 x_hist, xbins = np.histogram(vel[0, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
-#                 y_hist, ybins = np.histogram(vel[1, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
-#                 z_hist, zbins = np.histogram(vel[2, sp_start:sp_end] * vscale, bins=self.no_bins, density=True)
-#
-#                 # Center the bins
-#                 vx = 0.5 * (xbins[:-1] + xbins[1:])
-#                 vy = 0.5 * (ybins[:-1] + ybins[1:])
-#                 vz = 0.5 * (zbins[:-1] + zbins[1:])
-#
-#                 xcoeff[i, it, :] = calculate_herm_coeff(vx, x_hist, self.hermite_order)
-#                 ycoeff[i, it, :] = calculate_herm_coeff(vy, y_hist, self.hermite_order)
-#                 zcoeff[i, it, :] = calculate_herm_coeff(vz, z_hist, self.hermite_order)
-#
-#                 sp_start = sp_end
-#
-#         data = {"Time": time}
-#         self.dataframe = pd.DataFrame(data)
-#         for i, sp in enumerate(self.species_names):
-#             for hi in range(self.hermite_order + 1):
-#                 self.dataframe["{} Hermite x Coeff a{}".format(sp, hi)] = xcoeff[i, :, hi]
-#                 self.dataframe["{} Hermite y Coeff a{}".format(sp, hi)] = ycoeff[i, :, hi]
-#                 self.dataframe["{} Hermite z Coeff a{}".format(sp, hi)] = zcoeff[i, :, hi]
-#
-#         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
-#
-#     def plot(self, show=False):
-#         """
-#         Plot the Hermite coefficients and save the figure
-#         """
-#         try:
-#             self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
-#         except FileNotFoundError:
-#             self.compute()
-#
-#         if not os.path.exists(self.plots_dir):
-#             os.mkdir(self.plots_dir)
-#
-#         # Create a plots directory for each species for the sake of neatness
-#         if self.num_species > 1:
-#             self.species_plots_dirs = []
-#             for i, name in enumerate(self.species_names):
-#                 new_dir = os.path.join(self.plots_dir, "{}".format(name))
-#                 self.species_plots_dirs.append(new_dir)
-#                 if not os.path.exists(new_dir):
-#                     os.mkdir(os.path.join(self.plots_dir, "{}".format(name)))
-#         else:
-#             self.species_plots_dirs = [self.plots_dir]
-#
-#         for sp, name in enumerate(self.species_names):
-#             print("Species: {}".format(name))
-#             fig, ax = plt.subplots(1, 2, sharex=True, constrained_layout=True, figsize=(16, 9))
-#             for indx in range(self.hermite_order):
-#                 xcolumn = "{} Hermite x Coeff a{}".format(name, indx)
-#                 ycolumn = "{} Hermite y Coeff a{}".format(name, indx)
-#                 zcolumn = "{} Hermite z Coeff a{}".format(name, indx)
-#                 xmul, ymul, xprefix, yprefix, xlbl, ylbl = plot_labels(self.dataframe["Time"], 1.0,
-#                                                                        'Time', 'none', self.units)
-#                 ia = int(indx % 2)
-#                 ax[ia].plot(self.dataframe["Time"] * xmul, self.dataframe[xcolumn] + ia * (indx - 1),
-#                             ls='-', label=r"$a_{" + str(indx) + " , x}$")
-#                 ax[ia].plot(self.dataframe["Time"] * xmul, self.dataframe[ycolumn] + ia * (indx - 1),
-#                             ls='--', label=r"$a_{" + str(indx) + " , y}$")
-#                 ax[ia].plot(self.dataframe["Time"] * xmul, self.dataframe[zcolumn] + ia * (indx - 1),
-#                             ls='-.', label=r"$a_{" + str(indx) + " , z}$")
-#
-#             ax[0].set_title(r'Even Coefficients')
-#             ax[1].set_title(r'Odd Coefficients')
-#
-#             ax[0].set_xlabel(r'$t$' + xlbl)
-#             ax[1].set_xlabel(r'$t$' + xlbl)
-#
-#             sigma = np.sqrt(self.kB * self.species_temperatures[sp] / self.species_masses[sp])
-#             sigma /= (self.a_ws * self.total_plasma_frequency)  # Rescale
-#
-#             for i in range(0, self.hermite_order, 2):
-#                 coeff = np.zeros(i + 1)
-#                 coeff[-1] = 1.0
-#                 print("Equilibrium a{} = {:1.2f} ".format(i, np.polynomial.hermite_e.hermeval(sigma, coeff)))
-#
-#             # t_end = self.dataframe["Time"].iloc[-1] * xmul/2
-#             # ax[0].text(t_end, 1.1, r"$a_{0,\rm{eq}} = 1 $", transform=ax[0].transData)
-#             # # ax[0].axhline(1, ls=':', c='k', label=r"$a_{0,\rm{eq}}$")
-#             #
-#             # ax[0].text(t_end, a2_eq * 0.97, r"$a_{2,\rm{eq}} = " + "{:1.2f}".format(a2_eq) +"$",
-#             #            transform=ax[0].transData)
-#             #
-#             # if self.hermite_order > 3:
-#             #     ax[0].text(t_end, a4_eq * 1.1, r"$a_{4,\rm{eq}} = " + "{:1.2f}".format(a4_eq) + "$",
-#             #                transform=ax[0].transData)
-#             #
-#             # if self.hermite_order > 5:
-#             #     ax[0].text(t_end, a6_eq * .98, r"$a_{6,\rm{eq}} = " + "{:1.2f}".format(a6_eq) + "$",
-#             #                transform=ax[0].transData)
-#
-#             ax[0].legend(loc='best', ncol=int(self.hermite_order / 2 + self.hermite_order % 2))
-#             ax[1].legend(loc='best', ncol=int(self.hermite_order / 2))
-#             yt = np.arange(0, self.hermite_order + self.hermite_order % 2, 2)
-#             ax[1].set_yticks(yt)
-#             ax[1].set_yticklabels(np.zeros(len(yt)))
-#             fig.suptitle("Hermite Coefficients of {}".format(name) + '  Phase: ' + self.phase.capitalize())
-#             plot_name = os.path.join(self.species_plots_dirs[sp], '{}_HermCoeffPlot_'.format(name)
-#                                      + self.job_id + '.png')
-#             fig.savefig(plot_name)
-#             if show:
-#                 fig.show()
-#
 
 class RadialDistributionFunction(Observable):
     """
@@ -2136,27 +1873,20 @@ class Thermodynamics(Observable):
 class VelocityAutoCorrelationFunction(Observable):
     """Velocity Auto-correlation function."""
 
-    def setup(self, params,
-              phase: str = None,
-              time_averaging: bool = False,
-              timesteps_to_skip: int = 100,
-              **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
         """
         Assign attributes from simulation's parameters.
 
         Parameters
         ----------
+        no_slices : int
+            Number of independent runs inside a long simulation. Default = 1.
+
         phase : str
             Phase to compute. Default = 'production'.
 
         params : sarkas.base.Parameters
             Simulation's parameters.
-
-        time_averaging: bool
-            Flag for species diffusion flux time averaging. Default = False.
-
-        timesteps_to_skip: int
-            Number of timesteps to skip for time_averaging. Default = 100.
 
         **kwargs :
             These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -2169,8 +1899,8 @@ class VelocityAutoCorrelationFunction(Observable):
         if phase:
             self.phase = phase.lower()
 
-        self.time_averaging = time_averaging
-        self.timesteps_to_skip = timesteps_to_skip
+        if no_slices:
+            self.no_slices = no_slices
 
         super().setup_init(params, self.phase)
 
@@ -2187,6 +1917,7 @@ class VelocityAutoCorrelationFunction(Observable):
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
+        #
 
     def compute(self, **kwargs):
         """
@@ -2209,6 +1940,8 @@ class VelocityAutoCorrelationFunction(Observable):
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         time = np.zeros(self.slice_steps)
+
+        t0 = self.timer.current()
         for isl in range(self.no_slices):
             print("\nCalculating vacf for slice {}/{}.".format(isl, self.no_slices))
             # Parse the particles from the dump files
@@ -2216,8 +1949,8 @@ class VelocityAutoCorrelationFunction(Observable):
             #
             print("\nParsing particles' velocities.")
             for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step), disable=not self.verbose)):
-                time[it] = it * self.dt
                 datap = load_from_restart(self.dump_dir, dump)
+                time[it] = datap["time"]
                 vel[0, :, it] = datap["vel"][:, 0]
                 vel[1, :, it] = datap["vel"][:, 1]
                 vel[2, :, it] = datap["vel"][:, 2]
@@ -2225,17 +1958,8 @@ class VelocityAutoCorrelationFunction(Observable):
             if isl == 0:
                 self.dataframe["Time"] = time
 
-            # message = "Calculating velocity acf with time averaging "
-            # ta = "on" if self.time_averaging else "off"
-            # print('Please wait. ' + message + ta + ' ...')
-
-            # t0 = self.timer.current()
-            #
             # Return an array of shape( num_species, dim + 1, slice_steps)
-            vacf = calc_vacf(vel, self.species_num, self.time_averaging, self.timesteps_to_skip)
-            # tend.append = self.timer.current()
-
-            # self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
+            vacf = calc_vacf(vel, self.species_num)
 
             for i, sp1 in enumerate(self.species_names):
                 self.dataframe["{} X Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 0, :]
@@ -2264,28 +1988,28 @@ class VelocityAutoCorrelationFunction(Observable):
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
+        tend = self.timer.current()
+        self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
+
     def pretty_print(self):
         """Print observable parameters for help in choice of simulation parameters."""
 
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: ', self.filename_csv)
+        print('Data saved in: \n', self.filename_csv)
         print('Data accessible at: self.dataframe')
 
         print('\nNo. of slices = {}'.format(self.no_slices))
         print('No. dumps per slice = {}'.format(self.slice_steps))
 
-        print('Time interval of autocorrelation function = {}'.format(self.dt * self.slice_steps * self.dump_step))
+        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
+            self.dt * self.slice_steps * self.dump_step,
+            int(self.dt * self.slice_steps * self.dump_step * self.total_plasma_frequency)))
 
 
 class FluxAutoCorrelationFunction(Observable):
     """Species Diffusion Flux Auto-correlation function."""
 
-    def setup(self,
-              params,
-              phase: str = None,
-              time_averaging: bool = False,
-              timesteps_to_skip: int = 100,
-              **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
         """
         Assign attributes from simulation's parameters.
 
@@ -2297,11 +2021,8 @@ class FluxAutoCorrelationFunction(Observable):
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        time_averaging: bool
-            Flag for species diffusion flux time averaging. Default = False.
-
-        timesteps_to_skip: int
-            Number of timesteps to skip for time_averaging. Default = 100.
+        no_slices : int
+            Number of independent runs inside a long simulation. Default = 1.
 
         **kwargs :
             These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -2315,8 +2036,8 @@ class FluxAutoCorrelationFunction(Observable):
         if phase:
             self.phase = phase.lower()
 
-        self.time_averaging = time_averaging
-        self.timesteps_to_skip = timesteps_to_skip
+        if no_slices:
+            self.no_slices = no_slices
 
         super().setup_init(params, self.phase)
 
@@ -2357,6 +2078,9 @@ class FluxAutoCorrelationFunction(Observable):
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         time = np.zeros(self.slice_steps)
+
+        t0 = self.timer.current()
+
         for isl in range(self.no_slices):
             print("\nCalculating diffusion flux acf for slice {}/{}.".format(isl, self.no_slices))
             # Parse the particles from the dump files
@@ -2364,7 +2088,7 @@ class FluxAutoCorrelationFunction(Observable):
             #
             # print("\nParsing particles' velocities.")
             for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
-                                           desc = 'Read in data',
+                                           desc='Read in data',
                                            disable=not self.verbose)):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
@@ -2374,19 +2098,11 @@ class FluxAutoCorrelationFunction(Observable):
             #
             if isl == 0:
                 self.dataframe["Time"] = time
-            # message = "Calculating diffusion flux acf with time averaging "
-            # ta = "on" if self.time_averaging else "off"
-            # print('Please wait. ' + message + ta + ' ...')
-            # t0 = self.timer.current()
+
             df_acf = calc_diff_flux_acf(vel,
                                         self.species_num,
                                         self.species_num_dens,
-                                        self.species_masses,
-                                        self.time_averaging,
-                                        self.timesteps_to_skip)
-            # tend = self.timer.current()
-            #
-            # self.time_stamp("Diffusion Flux ACF Calculation", self.timer.time_division(tend - t0))
+                                        self.species_masses)
 
             # Store the data
             v_ij = 0
@@ -2405,26 +2121,37 @@ class FluxAutoCorrelationFunction(Observable):
         v_ij = 0
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
-                xcol_str = ["{}-{} X Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
-                ycol_str = ["{}-{} Y Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
-                zcol_str = ["{}-{} Z Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
-                tot_col_str = ["{}-{} Total Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
+                xcol_str = ["{}-{} X Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in
+                            range(self.no_slices)]
+                ycol_str = ["{}-{} Y Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in
+                            range(self.no_slices)]
+                zcol_str = ["{}-{} Z Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in
+                            range(self.no_slices)]
+                tot_col_str = ["{}-{} Total Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in
+                               range(self.no_slices)]
 
-                self.dataframe["{}-{} X Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[xcol_str].mean(axis=1)
+                self.dataframe["{}-{} X Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[xcol_str].mean(
+                    axis=1)
                 self.dataframe["{}-{} X Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[xcol_str].std(
                     axis=1)
-                self.dataframe["{}-{} Y Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[ycol_str].mean(axis=1)
+                self.dataframe["{}-{} Y Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[ycol_str].mean(
+                    axis=1)
                 self.dataframe["{}-{} Y Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[ycol_str].std(
                     axis=1)
-                self.dataframe["{}-{} Z Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[zcol_str].mean(axis=1)
+                self.dataframe["{}-{} Z Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[zcol_str].mean(
+                    axis=1)
                 self.dataframe["{}-{} Z Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[zcol_str].std(
                     axis=1)
-                self.dataframe["{}-{} Total Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[tot_col_str].mean(axis=1)
+                self.dataframe["{}-{} Total Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[
+                    tot_col_str].mean(axis=1)
                 self.dataframe["{}-{} Total Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[
                     tot_col_str].std(axis=1)
                 v_ij += 1
 
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+
+        tend = self.timer.current()
+        self.time_stamp("Diffusion Flux ACF Calculation", self.timer.time_division(tend - t0))
 
     def pretty_print(self):
         """Print observable parameters for help in choice of simulation parameters."""
@@ -2435,8 +2162,9 @@ class FluxAutoCorrelationFunction(Observable):
 
         print('\nNo. of slices = {}'.format(self.no_slices))
         print('No. dumps per slice = {}'.format(self.slice_steps))
-
-        print('Time interval of autocorrelation function = {}'.format(self.dt * self.slice_steps * self.dump_step))
+        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
+            self.dt * self.slice_steps,
+            int(self.dt * self.slice_steps * self.total_plasma_frequency)))
 
 
 class VelocityDistribution(Observable):
@@ -2911,7 +2639,7 @@ class VelocityDistribution(Observable):
         else:
             for i, sp in enumerate(self.species_names):
                 for d, ds in zip(range(self.dim), ["X", "Y", "Z"]):
-                    self.moments_hdf_dataframe["{}_{}_Time".format(sp,ds)] = time
+                    self.moments_hdf_dataframe["{}_{}_Time".format(sp, ds)] = time
                     for m in range(self.max_no_moment):
                         self.moments_dataframe["{} {} moment axis {}".format(sp, m + 1, ds)] = moments[i, :, d, m][:, 0]
                         self.moments_hdf_dataframe["{}_{}_{} moment".format(sp, ds, m + 1)] = moments[i, :, :, m][:, 0]
@@ -2956,7 +2684,7 @@ class VelocityDistribution(Observable):
         if calc_moments:
             self.compute_moments(parse_data=True)
 
-        if not hasattr(self,'hermite_rms_tol'):
+        if not hasattr(self, 'hermite_rms_tol'):
             self.hermite_rms_tol = 0.05
 
         self.hermite_dataframe["Time"] = np.copy(self.moments_dataframe["Time"])
@@ -3075,13 +2803,13 @@ class VelocityDistribution(Observable):
             bin_width = abs(dics["range"][1] - dics["range"][0]) / (self.vth[sp] * dics["bins"])
             print("Bin Width = {:.4f}".format(bin_width))
 
-        if hasattr(self,"max_no_moment"):
+        if hasattr(self, "max_no_moment"):
             print('\nMoments Information:')
             print('CSV dataframe saved in:\n\t ', self.mom_df_filename_csv)
             print('Data accessible at: self.moments_dataframe, self.moments_hdf_dataframe')
             print('Highest moment to calculate: {}'.format(self.max_no_moment))
 
-        if hasattr(self,"max_hermite_order"):
+        if hasattr(self, "max_hermite_order"):
             print('\nGrad Expansion Information:')
             print('CSV dataframe saved in:\n\t ', self.herm_df_filename_csv)
             print('Data accessible at: self.hermite_dataframe, self.hermite_hdf_dataframe')
@@ -3457,18 +3185,12 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
 
 
 # @jit Numba doesn't like scipy.signal
-def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, timesteps_to_skip):
+def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass):
     """
     Calculate the diffusion flux autocorrelation function of each species and in each direction.
 
     Parameters
     ----------
-    time_averaging: bool
-        Flag for time averaging.
-
-    timesteps_to_skip: int
-        Number of timesteps to skip for time_averaging.
-
     vel : numpy.ndarray
         Particles' velocities. Shape = (``dimensions``, ``no_dumps``, ``total_num_ptcls``)
 
@@ -3514,7 +3236,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, timesteps_
         sp_start = sp_end
 
     jc_acf = np.zeros((no_vacf, no_dim + 1, no_dumps))
-    it_skip = timesteps_to_skip if time_averaging else no_dumps
+
     indx = 0
     # the flux is given by eq.(19) of the above reference
     for i, rho1 in enumerate(mass_densities):
@@ -3527,38 +3249,22 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass, time_averaging, timesteps_
             sp2_flux = sign * rho2 * (com_vel[j] - tot_com_vel)
             # Calculate the correlation function in each direction
             for d in range(no_dim):
-                # Counter for time origins
-                norm_counter = np.zeros(no_dumps)
-                # temporary storage of correlation function
-                temp = np.zeros(no_dumps)
-                # Grab the correct time intervals
-                for it in range(0, no_dumps, it_skip):
-                    # Calculate the correlation function and add it to the array
-                    temp[:no_dumps - it] += correlationfunction(sp1_flux[d, it:], sp2_flux[d, it:])
-                    # Note that norm_counter = 1 if time_averaging is false
-                    norm_counter[:(no_dumps - it)] += 1.0
-                # Divide by the number time origins
-                jc_acf[indx, d, :] = temp / norm_counter
+                # Calculate the correlation function and add it to the array
+                jc_acf[indx, d, :] = correlationfunction(sp1_flux[d, :], sp2_flux[d, :])
                 # Calculate the total correlation function by summing the three directions
-                jc_acf[indx, -1, :] += temp / norm_counter
+                jc_acf[indx, -1, :] += jc_acf[indx, d, :]
             indx += 1
 
     return jc_acf
 
 
 # @jit Numba doesn't like Scipy
-def calc_vacf(vel, sp_num, time_averaging, timesteps_to_skip):
+def calc_vacf(vel, sp_num):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
 
     Parameters
     ----------
-    time_averaging: bool
-        Flag for time averaging.
-
-    timesteps_to_skip: int
-        Number of timesteps to skip for time_averaging.
-
     vel : numpy.ndarray
         Particles' velocities stored in a 3D array with shape = (D x Np x Nt).
         D = cartesian dimensions, Np = Number of particles, Nt = number of dumps.
@@ -3577,7 +3283,6 @@ def calc_vacf(vel, sp_num, time_averaging, timesteps_to_skip):
 
     vacf = np.zeros((len(sp_num), no_dim + 1, no_dumps))
 
-    it_skip = timesteps_to_skip if time_averaging else no_dumps
     # Calculate the vacf of each species in each dimension
     for i in range(no_dim):
         sp_start = 0
@@ -3588,19 +3293,11 @@ def calc_vacf(vel, sp_num, time_averaging, timesteps_to_skip):
             sp_vacf = np.zeros(no_dumps)
             # Calculate the vacf for each particle of species sp
             for ptcl in range(sp_start, sp_end):
-                # temporary vacf
-                ptcl_vacf = np.zeros(no_dumps)
-                # Counter of time origins
-                norm_counter = np.zeros(no_dumps)
-                # Grab the correct time interval
-                for it in range(0, no_dumps, it_skip):
-                    # Calculate the correlation function and add it to the array
-                    ptcl_vacf[:no_dumps - it] += correlationfunction(vel[i, ptcl, it:], vel[i, ptcl, it:])
-                    # Note that norm_counter = 1 if time_averaging is false
-                    norm_counter[:(no_dumps - it)] += 1.0
+                # Calculate the correlation function and add it to the array
+                ptcl_vacf = correlationfunction(vel[i, ptcl, :], vel[i, ptcl, :])
 
                 # Add this particle vacf to the species vacf and normalize by the time origins
-                sp_vacf += ptcl_vacf / norm_counter
+                sp_vacf += ptcl_vacf
 
             # Save the species vacf for dimension i
             vacf[sp, i, :] = sp_vacf / n_sp

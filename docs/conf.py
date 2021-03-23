@@ -13,6 +13,7 @@
 import os
 import sys
 import sphinx_bootstrap_theme
+import sarkas
 sys.path.insert(0, os.path.abspath('../sarkas'))
 sys.path.insert(0, os.path.abspath('../sarkas/time_evolution'))
 sys.path.insert(0, os.path.abspath('../sarkas/utilities'))
@@ -151,7 +152,7 @@ html_theme_options = {
 
     
     'navbar_links': [
-        ("Get Started", "installation/installation"),
+        ("Get Started", "installation/get_started"),
         ("Examples","examples/examples"),
         ("Code Development", "development/code_dev"),
         ("API", "api/api"),
@@ -171,8 +172,6 @@ html_css_files = ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css
 html_show_sourcelink = False
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-
-import sarkas
 
 # -- APIDoc configuration -----------------------------------------------------
 

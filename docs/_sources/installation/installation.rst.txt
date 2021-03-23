@@ -26,7 +26,7 @@ for creating the ``sarkas`` virtual environment.
 
     .. code-block:: bash
 
-        $ conda env create sarkas
+        $ conda create --name sarkas
 
     This command will create the virtual environment ``sarkas`` in the ``envs`` directory of your conda directory
     (the one printed above by the command ``which``).

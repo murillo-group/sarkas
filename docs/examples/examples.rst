@@ -27,7 +27,7 @@ Examples
 
     <div class="ex-thumbcontainer">
             <div class="figure align-default">
-                <img src="../_images/examples_Magnetized_Plasma_13_0.png" alt="">
+                <img src="../_images/examples_Magnetized_Plasma_16_1.png" alt="">
                 <p class="caption">
                     <span class="text-center"><a href="Magnetized_Plasma.html">Magnetized Plasma</a></span>
                 </p>

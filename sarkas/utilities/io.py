@@ -314,6 +314,7 @@ class InputOutput:
                 print('Job directory: ', self.job_dir)
                 print('Equilibration dumps directory: ', self.eq_dump_dir)
                 print('Production dumps directory: ', self.prod_dump_dir)
+                print('PostProcessing directory: ', self.postprocessing_dir)
 
             else:
 
@@ -907,17 +908,23 @@ class InputOutput:
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / (np.sqrt(2.0) * simulation.parameters.ai),
                 2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("e-e screening parameter = {:.4f}".format(
-                simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws))
             print("ion de Broglie wavelength  = {:.4f} ai = {:.6e} ".format(
                 2.0 * np.pi / simulation.potential.matrix[1, 1, 1] / (np.sqrt(2.0) * simulation.parameters.ai),
                 2.0 * np.pi / simulation.potential.matrix[1, 1, 1] / np.sqrt(2.0)), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("i-i screening parameter = {:.4f}".format(
-                simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws))
-            print("e-i screening parameter = {:.4f}".format(
-                simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws))
-            print("e-i Coupling Parameter = {:.4f} ".format(simulation.parameters.coupling_constant))
+            print("e-e screening length = {:.4f} a_ws = {:.6e} ".format(
+                simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws,
+                simulation.potential.matrix[1, 0, 0] ), end='')
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+            print("i-i screening length = {:.4f} a_ws = {:.6e} ".format(
+                simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws,
+                simulation.potential.matrix[1, 1, 1]), end='')
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+            print("e-i screening length = {:.4f} a_ws = {:.6e} ".format(
+                simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws,
+                simulation.potential.matrix[1, 0, 1]), end='')
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+            print("e-i coupling constant = {:.4f} ".format(simulation.parameters.coupling_constant))
 
     def setup_checkpoint(self, params, species):
         """

@@ -705,6 +705,7 @@ class Integrator:
                 self.prod_dump_step,
                 self.prod_dump_step * self.dt,
                 self.prod_dump_step * wp_dt))
+            print('Total number of snapshots = {} '.format( int(self.production_steps /self.prod_dump_step) ) )
 
         elif restart in ['equilibration_restart', 'eq_restart']:
             print("Restart step: {}".format(restart_step))
@@ -718,6 +719,7 @@ class Integrator:
                 self.eq_dump_step,
                 self.eq_dump_step * self.dt,
                 self.eq_dump_step * wp_dt))
+            print('Total number of snapshots = {} '.format(int(self.equilibration_steps / self.eq_dump_step)))
 
         elif restart in ['magnetization_restart', 'mag_restart']:
             print("Restart step: {}".format(restart_step))
@@ -731,6 +733,8 @@ class Integrator:
                 self.mag_dump_step,
                 self.mag_dump_step * self.dt,
                 self.mag_dump_step * wp_dt))
+            print('Total number of snapshots = {} '.format(int(self.magnetization_steps / self.mag_dump_step)))
+
         else:
             # Equilibration
             print('\nEquilibration: \nNo. of equilibration steps = {} \n'
@@ -743,6 +747,8 @@ class Integrator:
                 self.eq_dump_step,
                 self.eq_dump_step * self.dt,
                 self.eq_dump_step * wp_dt))
+            print('Total number of snapshots = {} '.format(int(self.equilibration_steps / self.eq_dump_step)))
+            
             # Magnetization
             if self.electrostatic_equilibration:
                 print('Electrostatic Equilibration Type: {}'.format(self.type))
@@ -758,6 +764,7 @@ class Integrator:
                     self.mag_dump_step,
                     self.mag_dump_step * self.dt,
                     self.mag_dump_step * wp_dt))
+                print('Total number of snapshots = {} '.format(int(self.magnetization_steps / self.mag_dump_step)))
             # Production
             print('\nProduction: \nNo. of production steps = {} \n'
                   'Total production time = {:.4e} [s] ~ {} w_p T_prod '.format(
@@ -769,6 +776,7 @@ class Integrator:
                 self.prod_dump_step,
                 self.prod_dump_step * self.dt,
                 self.prod_dump_step * wp_dt))
+            print('Total number of snapshots = {} '.format(int(self.production_steps / self.prod_dump_step)))
 
 
 @njit

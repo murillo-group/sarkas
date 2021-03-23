@@ -1031,7 +1031,7 @@ class Simulation(Process):
                 it_start = self.parameters.restart_step
             else:
                 it_start = 0
-                self.io.dump('magnetization', self.particles, self.integrator.equilibration_steps)
+                self.io.dump('magnetization', self.particles, it_start)
 
             # Start timer, magnetize, and print run time.
             self.timer.start()

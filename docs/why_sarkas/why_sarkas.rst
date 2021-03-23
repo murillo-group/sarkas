@@ -3,21 +3,17 @@
 ==========
 Why Sarkas
 ==========
-The two ways in which we can run a simulation are
+Sarkas was developed by plasma physicists in order to streamline the data production, avoid the two language problem, facilitate the data analysis, by exploiting data science techniques.
 
-- Old school: using a terminal window and ``bash`` scripting
+The original workflow of MD simulations looked something like this
 
-- New school: using a python script/jupyter notebook
+#. Write your own MD code, or use a pre-existing code, in a low-level language such as ``C/C++`` or (even better) ``Fortran`` to exploit their computational speed. 
 
-The original workflow of MD simulation looked something like this
-
-#. Write your own MD code in a low-level language such as ``C/C++`` or (even better) ``Fortran`` to exploit their computational speed.
-
-#. Write input file to be read by the MD code containing all the simulation's parameters.
-
-#. Run multiple simulations with different initial conditions. This requires a different input file for each simulation depending on the MD code.
+#. Run multiple simulations with different initial conditions. 
 
 #. Analyze the output of each simulation. This is usually done in a interpreted, high-level language like Python.
+
+#. Make plots and publish
 
 Old School
 ==========

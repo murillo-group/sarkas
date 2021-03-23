@@ -132,9 +132,7 @@ SARKAS: Python MD code for plasma physics
       :caption: Getting Started:
 
       why_sarkas/why_sarkas
-      installation/installation
-      quickstart/Quickstart
-      tutorial/tutorial
+      installation/get_started
 
    .. toctree::
       :maxdepth: 1
