@@ -1,4 +1,6 @@
-"""Module defining the three basic classes."""
+"""
+Module containing the three basic classes: Parameters, Particles, Species.
+"""
 import numpy as np
 import os.path
 import sys

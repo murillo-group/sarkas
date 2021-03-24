@@ -1,0 +1,48 @@
+Particles:
+    - Species:
+        name: Sr
+        number_density: 4.0e+15       # /m^3
+        atomic_weight: 88
+        num: 20000                    # total number of particles of ion1
+        Z: 1.0                        # degree of ionization
+        temperature: 0.002
+
+Potential:
+    type: Yukawa                 # potential type
+    method: P3M                  # Linked-cell
+    electron_temperature: 430
+    rc: 2.346716e-05    # cut-off radius, meter
+    pppm_mesh: [128, 128, 128]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 6
+    pppm_alpha_ewald: 1.6556e+05   # meters
+
+Integrator:
+    type: Verlet                  # velocity integrator type
+    dt: 3.019042e-10         # sec
+    equilibration_steps: 0
+    eq_dump_step: 5
+    production_steps: 10000
+    prod_dump_step: 5
+
+Thermostat:
+    type: Berendsen               # thermostat type
+    relaxation_timestep: 0
+    tau: 5.0
+
+Parameters:
+    units: mks                    # units
+    rand_seed: 651951
+    load_method: random_no_reject
+    boundary_conditions: periodic
+
+IO:
+  verbose: yes
+  simulations_dir: UCP_DIH_N20k
+
+PostProcessing:
+  - RadialDistributionFunction:
+      no_bins: 500
+
+  - Thermodynamics:
+      phase: production

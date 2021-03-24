@@ -1,0 +1,285 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Integrators &#8212; Sarkas 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
+    <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Potentials" href="potentials.html" />
+    <link rel="prev" title="Electron Properties" href="electron_properties.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation/get_started.html">Get Started</a></li>
+                <li><a href="../examples/examples.html">Examples</a></li>
+                <li><a href="../development/code_dev.html">Code Development</a></li>
+                <li><a href="../api/api.html">API</a></li>
+                <li><a href="../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Integrators</a><ul>
+<li><a class="reference internal" href="#phase-space-distribution">Phase Space Distribution</a></li>
+<li><a class="reference internal" href="#velocity-verlet">Velocity Verlet</a></li>
+<li><a class="reference internal" href="#magnetic-velocity-verlet">Magnetic Velocity Verlet</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="integrators">
+<span id="id1"></span><h1>Integrators<a class="headerlink" href="#integrators" title="Permalink to this headline">¶</a></h1>
+<p>Sarkas aims to support a variety of time integrators both built-in and user defined.
+Currently the available ones are:</p>
+<ul class="simple">
+<li><p>Velocity Verlet</p></li>
+<li><p>Velocity Verlet with Langeving Thermostat</p></li>
+<li><p>Magnetic Velocity Verlet</p></li>
+<li><p>Magnetic Boris</p></li>
+</ul>
+<p>The choice of integrator is provided in the input file and the method <code class="docutils literal notranslate"><span class="pre">sarkas.time_evolution.integrators.Integrator.setup</span></code>
+links the chosen integrator to the <code class="docutils literal notranslate"><span class="pre">sarkas.time_evolution.integrators.Integrator.update</span></code> method which evolves
+particles’ positions, velocities, and accelerations in time.</p>
+<p>The Velocity Verlet algorithm is the most common integrator used in MD plasma codes.
+It is preferred to other more accurate integrator, such as RK45, inasmuch as it conserves the symmetries of the
+Hamiltonian, it is fast, and easy to implement.</p>
+<div class="section" id="phase-space-distribution">
+<h2>Phase Space Distribution<a class="headerlink" href="#phase-space-distribution" title="Permalink to this headline">¶</a></h2>
+<p>The state of the system is defined by the set of phase space coordinates
+<span class="math notranslate nohighlight">\(\{ \mathbf r, \mathbf p \} = \{ \mathbf r_1, \mathbf r_2, \dots, \mathbf r_N , \mathbf p_1, \mathbf p_2, \dots, \mathbf p_N \}\)</span>
+where <span class="math notranslate nohighlight">\(N\)</span> represents the number of particles. The system evolves in time according to the Hamiltonian</p>
+<div class="math notranslate nohighlight">
+\[\mathcal H = \mathcal T + \mathcal U,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal T\)</span> is the kinetic energy and <span class="math notranslate nohighlight">\(\mathcal U\)</span> the interaction potential. The <span class="math notranslate nohighlight">\(N\)</span>-particle
+probability distribution <span class="math notranslate nohighlight">\(f_N(\mathbf r, \mathbf p; t)\)</span> evolves in time according to the Liouville equation</p>
+<div class="math notranslate nohighlight">
+\[i\mathcal L f_N(\mathbf r, \mathbf p;0) = 0,\]</div>
+<p>with</p>
+<div class="math notranslate nohighlight">
+\[\mathcal L = \frac{\partial}{\partial t} + \dot{\mathbf r} \cdot \frac{\partial}{\partial \mathbf r} + \dot{\mathbf p}\cdot \frac{\partial}{\partial \mathbf p},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{\mathbf r} = \frac{\partial \mathcal H}{\partial \mathbf p}, \quad \dot{\mathbf p} = - \frac{\partial \mathcal H}{\partial \mathbf r}.\]</div>
+<p>The solution of the Liouville equation is</p>
+<div class="math notranslate nohighlight">
+\[\mathcal f_N(\mathbf r, \mathbf p;t) =  e^{- i \mathcal L t } f_N(\mathbf r, \mathbf p;0)\]</div>
+</div>
+<div class="section" id="velocity-verlet">
+<h2>Velocity Verlet<a class="headerlink" href="#velocity-verlet" title="Permalink to this headline">¶</a></h2>
+<p>It can be shown that the Velocity Verlet corresponds to a second order splitting of the Liouville operator <span class="math notranslate nohighlight">\(\mathcal L =  K +  V\)</span></p>
+<div class="math notranslate nohighlight">
+\[e^{i \epsilon \mathcal L} \approx e^{\frac{\Delta t}{2} K}e^{\Delta t V}e^{\frac{\Delta t}{2} K}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\epsilon = -i \Delta t\)</span> and the operators</p>
+<div class="math notranslate nohighlight">
+\[K = \mathbf v \cdot \pdv{\mathbf r}, \quad
+V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
+<p>Any dynamical quantities <span class="math notranslate nohighlight">\(W\)</span> evolves in time according to the Liouville operator <span class="math notranslate nohighlight">\(\mathcal L =  K +  V\)</span></p>
+<div class="math notranslate nohighlight">
+\[W(t) = e^{i\epsilon (K +  V)} W(0).\]</div>
+<p>Applying each one of these to the initial set <span class="math notranslate nohighlight">\(\mathbf W = ( \mathbf r_0, \mathbf v_0)\)</span> we find
+<span class="math notranslate nohighlight">\(e^{i\epsilon V} \mathbf r_0 = e^{i\epsilon K} \mathbf v_0 = 0\)</span> and</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}e^{i \epsilon K} \mathbf r_0 &amp; = &amp;  \left ( 1 + \Delta t K - \frac{\Delta t^2 K^2}{2!} + \frac{\Delta t^3 K^3}{3!} + ... \right ) \mathbf r_0 \nonumber \\  &amp; = &amp; \left [ 1 + \Delta t \mathbf v \cdot \frac{\partial}{\partial \mathbf r} - \frac{\Delta t^2}{2} \left ( \mathbf v \cdot \frac{\partial}{\partial \mathbf r} \right )^2 + ... \right ] \mathbf r_0 \nonumber \\
+    &amp; = &amp; \mathbf r_0 + \Delta t \mathbf v\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}e^{i \epsilon V} \mathbf v_0 &amp; = &amp;  \left ( 1 + \Delta t V - \frac{\Delta t^2 V^2}{2!} + \frac{\Delta t^3 V^3}{3!} + ... \right ) \mathbf r_0 \nonumber \\  &amp; = &amp; \left [ 1 + \Delta t \mathbf a \cdot \frac{\partial}{\partial \mathbf v} - \frac{\Delta t^2}{2} \left ( \mathbf a \cdot \frac{\partial}{\partial \mathbf v} \right )^2 + ... \right ] \mathbf v_0 \nonumber \\
+    &amp; = &amp; \mathbf v_0 + \Delta t \mathbf a\end{split}\]</div>
+</div>
+<div class="section" id="magnetic-velocity-verlet">
+<h2>Magnetic Velocity Verlet<a class="headerlink" href="#magnetic-velocity-verlet" title="Permalink to this headline">¶</a></h2>
+<p>A generalization to include constant external magnetic fields leads to the Liouville operator
+<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <a class="bibtex reference internal" href="references.html#chin2008" id="id2">[Chi08]</a></p>
+<div class="math notranslate nohighlight">
+\[L_B = \omega_c \left ( \hat{\mathbf B} \times \mathbf v \right ) \cdot \frac{\partial}{\partial \mathbf v}  = \omega_c \hat{\mathbf B} \cdot \left( \mathbf v \times \frac{\partial}{\partial \mathbf v} \right ) = \omega_c \hat{\mathbf B} \cdot \mathbf J_{\mathbf v}.\]</div>
+<p>Application of this operator leads to <span class="math notranslate nohighlight">\(e^{i \epsilon L_B}\vb{r}_0 = 0\)</span> and</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}e^{ i \epsilon L_B } \mathbf v_0 &amp; = &amp;  \left ( 1 + \Delta t V - \frac{\Delta t^2 V^2}{2!} + \frac{\Delta t^3 V^3}{3!} + ... \right ) \mathbf v_0 \nonumber \\  &amp; = &amp; \left [ 1 + \omega_c \Delta t  \hat{\mathbf B} \cdot \mathbf J_{\mathbf v} - \frac{\omega_c^2 \Delta t^2}{2}  \left ( \hat{\mathbf B} \cdot \mathbf J_{\mathbf v} \right )^2 + ... \right ] \mathbf v_0 \nonumber \\
+&amp; = &amp; \begin{pmatrix}
+\cos(\omega_c\Delta t) &amp; - \sin(\omega_c\Delta t) &amp; 0 \\
+\sin(\omega_c\Delta t) &amp; \cos(\omega_c\Delta t) &amp; 0 \\
+0 &amp; 0 &amp; 1 \\
+\end{pmatrix} \mathbf v_0 \\
+&amp; = &amp;\mathbf v_{0,\parallel} + \cos(\omega_c \Delta t) \mathbf v_{0,\perp} + \sin(\omega_c \Delta t) \hat{\mathbf B} \times \mathbf v_{0, \perp},\end{split}\]</div>
+<p>where in the last passage we have divided the velocity in its parallel and perpendicular component to the
+<span class="math notranslate nohighlight">\(\\mathbf B\)</span> field. In addition, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}e^{i \epsilon (L_B + V) } \mathbf v_0 &amp; = &amp; e^{i \epsilon L_B} \mathbf v_0 + \Delta t \mathbf a + \frac{1 - \cos(\omega_c \Delta t)}{\omega_c} \left ( \hat{\mathbf B} \cross \mathbf a \right ) \nonumber \\
+&amp;&amp; + \Delta t \left ( 1 - \frac{\sin(\omega_c \Delta t)}{\omega_c \Delta t} \right ) \left [ \hat {\mathbf B} \cross \left ( \hat{\mathbf B} \cross \mathbf a \right ) \right ].\end{split}\]</div>
+<p>Time integrators of various order can be found by exponential splitting, that is</p>
+<div class="math notranslate nohighlight">
+\[e^{i \epsilon \mathcal L} \approx \prod_{ j = 1}^{N} e^{i a_j \epsilon K} e^{i b_j \epsilon \left ( L_B + V \right ) }.\]</div>
+<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <a class="bibtex reference internal" href="references.html#chin2008" id="id3">[Chi08]</a></p>
+<div class="math notranslate nohighlight">
+\[e^{i \epsilon \mathcal L} \approx e^{i \epsilon K} e^{i \epsilon V/2}  e^{i \epsilon L_B} e^{i \epsilon V/2}\]</div>
+<p>while a generalization of the Velocity-Verlet <a class="bibtex reference internal" href="references.html#chin2008" id="id4">[Chi08]</a><a class="bibtex reference internal" href="references.html#spreiter1999" id="id5">[SW99]</a></p>
+<div class="math notranslate nohighlight">
+\[e^{i \epsilon \mathcal L} \approx  e^{i \epsilon (L_B + V) /2} e^{i \epsilon K} e^{i \epsilon ( L_B + V)/2}.\]</div>
+<p>Notice that all the above algorithm require one force calculation per time step.</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Mar 23, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>

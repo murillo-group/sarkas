@@ -1,7 +1,5 @@
 """
 Module of various types of time_evolution
-
-
 """
 
 import numpy as np

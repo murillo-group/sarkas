@@ -1,4 +1,6 @@
-
+"""
+Module handling the potential class.
+"""
 import numpy as np
 from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
 from sarkas.potentials import force_pm, force_pp

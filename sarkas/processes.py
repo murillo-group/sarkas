@@ -1,3 +1,6 @@
+"""
+Module handling the MD run stages: PreProcessing, Simulation, PostProcessing.
+"""
 import numpy as np
 import copy as py_copy
 from numba import njit

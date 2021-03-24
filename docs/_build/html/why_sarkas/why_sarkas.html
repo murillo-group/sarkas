@@ -1,0 +1,297 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Why Sarkas &#8212; Sarkas 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
+    <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Get Started" href="../installation/get_started.html" />
+    <link rel="prev" title="SARKAS: Python MD code for plasma physics" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation/get_started.html">Get Started</a></li>
+                <li><a href="../examples/examples.html">Examples</a></li>
+                <li><a href="../development/code_dev.html">Code Development</a></li>
+                <li><a href="../api/api.html">API</a></li>
+                <li><a href="../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Why Sarkas</a><ul>
+<li><a class="reference internal" href="#old-school">Old School</a></li>
+<li><a class="reference internal" href="#new-school">New School</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="why-sarkas">
+<span id="reason"></span><h1>Why Sarkas<a class="headerlink" href="#why-sarkas" title="Permalink to this headline">¶</a></h1>
+<p>Sarkas was developed by plasma physicists in order to streamline the data production, avoid the two language problem, facilitate the data analysis, by exploiting data science techniques.</p>
+<p>The original workflow of MD simulations looked something like this</p>
+<ol class="arabic simple">
+<li><p>Write your own MD code, or use a pre-existing code, in a low-level language such as <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> or (even better) <code class="docutils literal notranslate"><span class="pre">Fortran</span></code> to exploit their computational speed.</p></li>
+<li><p>Run multiple simulations with different initial conditions.</p></li>
+<li><p>Analyze the output of each simulation. This is usually done in a interpreted, high-level language like Python.</p></li>
+<li><p>Make plots and publish</p></li>
+</ol>
+<div class="section" id="old-school">
+<h2>Old School<a class="headerlink" href="#old-school" title="Permalink to this headline">¶</a></h2>
+<p>First and foremost we run the help command in a terminal window</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sarkas_simulate -h
+</pre></div>
+</div>
+<p>This will produce the following output</p>
+<div class="figure align-default">
+<img alt="Figure not found" src="../_images/Help_output.png" />
+</div>
+<p>This output prints out the different options with which you can run Sarkas.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span></code> or <code class="docutils literal notranslate"><span class="pre">--input</span></code> is required and is the path to the YAML input file of our simulation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span></code> or <code class="docutils literal notranslate"><span class="pre">--check_status</span></code> which can be either <code class="docutils literal notranslate"><span class="pre">equilibration</span></code> or <code class="docutils literal notranslate"><span class="pre">production</span></code> and indicates whether we want to check the equilibration or production phase of the run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span></code> or <code class="docutils literal notranslate"><span class="pre">--pre_run_testing</span></code> is a boolean flag indicating whether to run a test of our input parameters and estimate the simulation times.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">--plot_show</span></code> is a boolean flag indicating whether to show plots to screen.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-v</span></code> or <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> boolean for verbose output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span></code> or <code class="docutils literal notranslate"><span class="pre">--sim_dir</span></code> name of the directory storing all the simulations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-j</span></code> or <code class="docutils literal notranslate"><span class="pre">--job_id</span></code> name of the directory of the current run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> or <code class="docutils literal notranslate"><span class="pre">--seed</span></code> sets the random number seed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-e</span></code> or <code class="docutils literal notranslate"><span class="pre">--estimate</span></code> estimate the best P3M parameters of your run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">--restart</span></code> for starting the simulation from a specific point.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">--input</span></code> option is the only required option as it refers to the input file.
+If we wanted to run multiple simulations of the same system but with different initial conditions
+a typical bash script would look like this</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate sarkas
+
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">125125</span> -d run1
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">281756</span> -d run2
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">256158</span> -d run3
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">958762</span> -d run4
+sarkas_simulate -i sarkas/examples/yukawa_mks_p3m.yaml -s <span class="m">912856</span> -d run5
+
+conda deactivate
+</pre></div>
+</div>
+<p>If you are familiar with <code class="docutils literal notranslate"><span class="pre">bash</span></code> scripting you could make the above statements in a loop and make many more simulations.
+Once the simulations are done it’s time to analyze the data. This is usually done by a python script.
+This was the old way of running simulations.</p>
+<p>Here we find the first advantage of Sarkas: removing the need to know multiple languages. Sarkas is not a Python wrapper
+around an existing MD code. It is entirely written in Python to allow the user to modify the codes for their specific needs.
+This choice, however, does not come at the expense of speed. In fact, Sarkas makes heavy use of <code class="docutils literal notranslate"><span class="pre">Numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">Numba</span></code>
+packages so that the code can run as fast, if not faster, than low-level languages like <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> and <code class="docutils literal notranslate"><span class="pre">Fortran</span></code>.</p>
+</div>
+<div class="section" id="new-school">
+<h2>New School<a class="headerlink" href="#new-school" title="Permalink to this headline">¶</a></h2>
+<p>Here we find the first advantage of Sarkas: removing the need to know multiple languages.
+Sarkas is not a Python wrapper around an existing MD code. It is entirely written in Python to allow users
+to modify the codes for their specific needs. This choice, however, does not come at the expense
+of speed. In fact, Sarkas, via the use of <code class="docutils literal notranslate"><span class="pre">Numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">Numba</span></code> packages, can run as fast,
+if not faster, than low-level languages like <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> and <code class="docutils literal notranslate"><span class="pre">Fortran</span></code>.</p>
+<p>Sarkas was created with the idea of incorporating the entire simulation workflow in a single Python
+script. Let’s say we want to run a set of ten simulations of a Yukawa OCP for different
+screening parameters and measure their diffusion coefficient. An example script looks like this</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
+<span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficient</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Path to the input file</span>
+<span class="n">examples_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span> <span class="s1">&#39;examples&#39;</span><span class="p">)</span>
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples_folder</span><span class="p">,</span><span class="s1">&#39;yukawa_mks.yaml&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create arrays of screening parameters</span>
+<span class="n">kappas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="c1"># Run 10 simulations</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kappas</span><span class="p">):</span>
+    <span class="c1"># Note that we don&#39;t want to overwrite each simulation</span>
+    <span class="c1"># So we save each simulation in its own folder by passing</span>
+    <span class="c1"># a dictionary of dictionary with folder&#39;s name</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;IO&quot;</span><span class="p">:</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;yocp_kappa</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">kappa</span><span class="p">),</span>
+                <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;yocp_kappa</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
+            <span class="p">},</span>
+        <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
+            <span class="p">{</span><span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="n">kappa</span><span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1"># Initialize the simulation</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="c1"># Run the simulation</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="n">diffusion</span> <span class="o">=</span> <span class="n">TransportCoefficient</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
+                                           <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;production&#39;</span><span class="p">,</span>
+                                           <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Notice how both the simulation and the postprocessing can be done all in one script.</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Mar 23, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.2.<br/>
+    </p>
+  </div>
+</footer>
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>
