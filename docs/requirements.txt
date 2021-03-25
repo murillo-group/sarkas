@@ -1,0 +1,9 @@
+sphinx>=3.5
+sphinx_bootstrap_theme
+sphinx_panels
+sphinxcontrib-bibtex
+sphinxcontrib-apidoc
+sphinx_rtd_theme
+sphinx-autodoc-typehints
+nbsphinx
+recommonmark

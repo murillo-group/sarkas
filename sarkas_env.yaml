@@ -4,12 +4,12 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3.*
+  - python=3.7
   - pip
   - numpy
   - scipy
   - pandas
-  - numba
+  - numba>=0.50
   - pyfftw
 
   # I/O
@@ -17,7 +17,6 @@ dependencies:
   - tqdm
   - pyfiglet
   - pickle5
-  - h5py
 
   # Analysis
   - jupyter
@@ -27,9 +26,9 @@ dependencies:
   - seaborn
  
   # Documentation
-  - sphinx
+  - sphinx>=3.5
   - sphinx_bootstrap_theme
-  - sphinx_panels
+  - sphinx-panels
   - sphinxcontrib-bibtex
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme
