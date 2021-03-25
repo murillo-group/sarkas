@@ -18,10 +18,11 @@ jobs:
 
     - name: Pip install python dependencies
       run: |
-        pip install numpy
+        pip install numpy # This is a hack so i don't get and error with fdint
         pip install -e .
     - name: Install docs dependencies
       run: |
+        sudo apt-get -y install pandoc
         pip install -r docs/requirements.txt
     - name: Make docs
       run: |
