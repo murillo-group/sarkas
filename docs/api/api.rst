@@ -1,5 +1,3 @@
-.. _api_ref:
-
 .. currentmodule:: sarkas
 
 API reference

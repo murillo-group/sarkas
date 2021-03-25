@@ -63,6 +63,7 @@ extensions = [
     # 'gallery_generator',
 ]
 
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -152,9 +153,9 @@ html_theme_options = {
 
     
     'navbar_links': [
-        ("Get Started", "installation/get_started"),
+        ("Get Started", "documentation/get_started"),
         ("Examples","examples/examples"),
-        ("Code Development", "development/code_dev"),
+        ("Code Development", "code development/code_dev"),
         ("API", "api/api"),
         ("Credits","credits/credits"),
     ],
@@ -164,14 +165,28 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-html_css_files = ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", 
-"https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap",
-"my-style.css"]
+html_css_files = [
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", 
+    "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap",
+    "my-style.css"
+    ]
 # panels_add_fontawesome_latex = True
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = False
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+
+
+html_js_files = [
+    "js/myscript.js",
+]
+
+# Custom sidebar templates, maps document names to template names.
+html_sidebars = {
+    'documentation/*': ['custom_localtoc.html'],
+    'code development/*': ['custom_localtoc.html'],
+    'theory/*': ['custom_localtoc.html'],
+    }
 
 # -- APIDoc configuration -----------------------------------------------------
 

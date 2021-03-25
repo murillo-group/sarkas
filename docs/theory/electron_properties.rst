@@ -1,5 +1,3 @@
-.. _electron_properties:
-
 ===================
 Electron Properties
 ===================

@@ -1,5 +1,8 @@
 .. _examples:
 
+
+.. title:: Examples
+
 ********
 Examples
 ********
@@ -38,7 +41,7 @@ Examples
             <div class="figure align-default">
                 <img src="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_7_1.png" alt="">
                 <p class="caption">
-                    <span class="text-center"><a href="Yukawa vs Exact-Gradient Corrected Potential.html">Yukawa vs EGS</a></span>
+                    <span class="text-center"><a href="Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs EGS</a></span>
                 </p>
             </div>
     </div>
@@ -51,3 +54,13 @@ Examples
         </p>
     </div>
 
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+
+    H-He_Mixture
+    QSP_Tutorial
+    Magnetized_Plasma
+    QSP_Tutorial
+    UCP_Experiment_Validation
+    Yukawa_vs_Exact-Gradient_Corrected_Potential
