@@ -1,0 +1,981 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yukawa vs Egs potential &#8212; Sarkas 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
+    <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../installation/get_started.html">Get Started</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="../development/code_dev.html">Code Development</a></li>
+                <li><a href="../api/api.html">API</a></li>
+                <li><a href="../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Magnetized_Plasma.html">Magnetized Plasma</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Yukawa vs Egs potential</a></li>
+<li><a class="reference internal" href="#PreProcessing">PreProcessing</a><ul>
+<li><a class="reference internal" href="#Simulation">Simulation</a><ul>
+<li><a class="reference internal" href="#Radial-Distribution-Function">Radial Distribution Function</a></li>
+<li><a class="reference internal" href="#Static-Structure-Function">Static Structure Function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Yukawa-vs-Egs-potential">
+<h1>Yukawa vs Egs potential<a class="headerlink" href="#Yukawa-vs-Egs-potential" title="Permalink to this headline">¶</a></h1>
+<p>In this notebook I will show a tutorial on how to run Sarkas to compare EGS and Yukawa potential. I will run one simulation per potential choice and compute the radial distribution function <span class="math notranslate nohighlight">\(g(r)\)</span> and the static structure factor <span class="math notranslate nohighlight">\(S(k)\)</span>.</p>
+<p>The good thing about Sarkas is that I can put all of this into literally few lines.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Import the usual packages.</span>
+<span class="o">%</span><span class="k">pylab</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">PreProcess</span><span class="p">,</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
+
+<span class="c1"># Set the plotting style</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
+
+<span class="c1"># Link to the input file.</span>
+<span class="n">input_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;yukawa_egs_cgs.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using matplotlib backend: Qt5Agg
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="PreProcessing">
+<h1>PreProcessing<a class="headerlink" href="#PreProcessing" title="Permalink to this headline">¶</a></h1>
+<p>The first thing to do is to check our simulation parameters. I use this preprocessing mainly to check if my force error is too large. Other would like to check other parameters, e.g. kappa.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Run the simulation.</span>
+<span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Potential&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s1">&#39;egs&#39;</span><span class="p">},</span>
+    <span class="s2">&quot;IO&quot;</span><span class="p">:</span>   <span class="c1"># Store all simulations&#39; data in simulations_dir,</span>
+            <span class="c1"># but save the dumps in different subfolders (job_dir)</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;simulations_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;SMT&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_pot&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;egs&quot;</span><span class="p">)</span>
+<span class="c1">#                 &quot;verbose&quot;: False # This is so not to print to screen for every run</span>
+        <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">pre</span> <span class="o">=</span> <span class="n">PreProcess</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+<span class="n">pre</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+<span class="n">pre</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">loops</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">postprocessing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span style="color: rgb(24,69,49)">
+
+
+
+
+
+
+     _______.     ___      .______       __  ___      ___           _______.
+    /       |    /   \     |   _  \     |  |/  /     /   \         /       |
+   |   (----`   /  ^  \    |  |_)  |    |  &#39;  /     /  ^  \       |   (----`
+    \   \      /  /_\  \   |      /     |    &lt;     /  /_\  \       \   \
+.----)   |    /  _____  \  |  |\  \----.|  .  \   /  _____  \  .----)   |
+|_______/    /__/     \__\ | _| `._____||__|\__\ /__/     \__\ |_______/
+
+
+</span>
+An open-source pure-python molecular dynamics code for non-ideal plasmas.
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                      Preprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Job ID:  egs_pot
+Job directory:  SMT/egs_pot
+Equilibration dumps directory:  SMT/egs_pot/PreProcessing/Equilibration/dumps
+Production dumps directory:  SMT/egs_pot/PreProcessing/Production/dumps
+Random Seed =  13546565
+
+PARTICLES:
+Total No. of particles =  10000
+No. of species =  1
+Species ID: 0
+        Name: Al
+        No. of particles = 10000
+        Number density = 6.000000e+22 [N/cc]
+        Atomic weight = 26.9815 [a.u.]
+        Mass = 4.512991e-23 [g]
+        Mass density = 2.707795e+00 [g/cc]
+        Charge number/ionization degree = 3.0000
+        Charge = 1.440961e-09 [esu]
+        Temperature = 5.802259e+03 [K] = 5.000000e-01 [eV]
+        Debye Length = 7.153314e-10 [Hz]
+        Plasma Frequency = 1.862519e+14 [Hz]
+
+SIMULATION BOX:
+Units:  cgs
+Wigner-Seitz radius = 1.584601e-08 [cm]
+No. of non-zero box dimensions =  3
+Box side along x axis = 3.472931e+01 a_ws = 5.503212e-07 [cm]
+Box side along y axis = 3.472931e+01 a_ws = 5.503212e-07 [cm]
+Box side along z axis = 3.472931e+01 a_ws = 5.503212e-07 [cm]
+Box Volume = 1.666667e-19 [cm^3]
+Boundary conditions: periodic
+
+ELECTRON PROPERTIES:
+Number density: n_e = 1.800000e+23 [N/cc]
+Wigner-Seitz radius: a_e = 1.098701e-08 [cm]
+Temperature: T_e = 5.802259e+03 [K] = 5.000000e-01 [eV]
+de Broglie wavelength: lambda_deB = 9.785463e-08 [cm]
+Thomas-Fermi length: lambda_TF = 4.881607e-09 [cm]
+Fermi wave number: k_F = 1.746752e+08 [1/cm]
+Fermi Energy: E_F = 1.162479e+01 [eV]
+Relativistic parameter: x_F = 0.006745 --&gt; E_F = 1.162466e+01 [eV]
+Degeneracy parameter: Theta = 0.0430
+Coupling: r_s = 2.076245,  Gamma_e = 26.212121
+Warm Dense Matter Parameter: W = 0.0065
+Chemical potential: mu = 23.214115 k_B T_e = 0.9985 E_F
+
+THERMOSTAT:
+Type: Berendsen
+First thermostating timestep, i.e. relaxation_timestep = 150
+Berendsen parameter tau: 10.000 [s]
+Berendsen relaxation rate: 0.100 [Hz]
+Thermostating temperatures:
+Species ID 0: T_eq = 5.802259e+03 [K] = 5.000000e-01 [eV]
+
+POTENTIAL:  egs
+kappa = 3.2461
+SGA Correction factor: lmbda = 0.1111
+nu = 0.4606
+Exponential decay:
+lambda_p = 1.778757e-09 [cm]
+lambda_m = 4.546000e-09 [cm]
+alpha = 1.3616
+b = 1.0000
+Gamma_eff = 163.57
+
+ALGORITHM:  PP
+rcut = 5.8987 a_ws = 9.347100e-08 [cm]
+No. of PP cells per dimension =  5,  5,  5
+No. of particles in PP loop =   1322
+No. of PP neighbors per particle =    205
+Tot Force Error = 1.066677e-08
+
+INTEGRATOR:
+Type: Verlet
+Time step = 5.000000e-17 [s]
+Total plasma frequency = 1.862519e+14 [Hz]
+w_p dt = 0.0093
+
+Equilibration:
+No. of equilibration steps = 5000
+Total equilibration time = 2.5000e-13 [s] ~ 46 w_p T_eq
+snapshot interval step = 20
+snapshot interval time = 1.0000e-15 [s] = 0.1863 w_p T_snap
+
+Production:
+No. of production steps = 20000
+Total production time = 1.0000e-12 [s] ~ 186 w_p T_prod
+snapshot interval step = 10
+snapshot interval time = 5.0000e-16 [s] = 0.0931 w_p T_snap
+
+
+------------------------ Initialization Times ------------------------
+
+
+Potential Initialization Time: 0 sec 23 msec 35 usec 369 nsec
+
+Particles Initialization Time: 0 sec 1 msec 537 usec 434 nsec
+
+Total Simulation Initialization Time: 0 sec 23 msec 35 usec 369 nsec
+
+
+========================== Times Estimates ===========================
+
+Time of PP acceleration calculation averaged over 50 steps:
+0 min 0 sec 155 msec 6 usec 185 nsec
+
+
+Running 50 equilibration and production steps to estimate simulation times
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1feda660683643fa90c954e6a38ef50e", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Time of a single equilibration step averaged over 50 steps:
+0 min 0 sec 166 msec 738 usec 360 nsec
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "349893aaa5e447b397d8b734dc34a2cc", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Time of a single production step averaged over 50 steps:
+0 min 0 sec 157 msec 298 usec 797 nsec
+
+
+
+----------------------- Total Estimated Times ------------------------
+
+
+Equilibration Time: 0 hrs 13 min 53 sec
+
+Production Time: 0 hrs 52 min 25 sec
+
+Total Run Time: 1 hrs 6 min 19 sec
+
+
+========================= Filesize Estimates =========================
+
+
+Equilibration:
+
+Checkpoint filesize: 0 GB 0 MB 860 KB 822 bytes
+Checkpoint folder size: 0 GB 210 MB 160 KB 700 bytes
+
+Production:
+
+Checkpoint filesize: 0 GB 0 MB 860 KB 822 bytes
+Checkpoint folder size: 1 GB 657 MB 261 KB 480 bytes
+
+Total minimum needed space: 1 GB 867 MB 422 KB 156 bytes
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                      Preprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+==================== Radial Distribution Function ====================
+
+Data saved in:
+         SMT/egs_pot/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_egs_pot.csv
+Data accessible at: self.ra_values, self.dataframe
+
+No. bins = 500
+dr = 0.0118 a_ws = 1.8694e-10 [cm]
+Maximum Distance (i.e. potential.rc)= 5.8987 a_ws = 9.3471e-08 [cm]
+
+
+===================== Static Structure Function ======================
+
+k wavevector information saved in:
+         SMT/egs_pot/PostProcessing/k_space_data/k_arrays.npz
+n(k,t) data saved in:
+         SMT/egs_pot/PostProcessing/k_space_data/nkt
+Data saved in:
+         SMT/egs_pot/PostProcessing/StaticStructureFunction/Production/StaticStructureFunction_egs_pot.csv
+Data accessible at: self.k_list, self.k_counts, self.ka_values, self.dataframe
+
+Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)
+k_min = 0.1809 / a_ws = 1.1417e+07 [1/cm]
+
+Angle averaging choice: full
+        Maximum angle averaged k harmonics = n_x, n_y, n_z = 5, 5, 5
+        Largest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
+        k_max = 1.5668 / a_ws = 9.8877e+07 [1/cm]
+
+Total number of k values to calculate = 215
+No. of unique ka values to calculate = 49
+</pre></div></div>
+</div>
+<div class="section" id="Simulation">
+<h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
+<p>This is the most important part of this whole notebook. Notice how I can run the simulation and calculate observables all in one loop. After the definition of the parameters using the <code class="docutils literal notranslate"><span class="pre">args</span></code> dictionary. All I need to do is run 3 lines of code for simulation and 3 for postprocessing.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Define a random number generator</span>
+<span class="n">rg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PCG64</span><span class="p">(</span><span class="mi">154245</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="c1"># Loop over the number of independent MD runs to perform</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;egs&quot;</span><span class="p">,</span> <span class="s2">&quot;yukawa&quot;</span><span class="p">]):</span>
+    <span class="c1"># Get a new seed</span>
+    <span class="n">seed</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15198</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Parameters&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;rand_seed&quot;</span><span class="p">:</span> <span class="n">seed</span><span class="p">},</span> <span class="c1"># define a new rand_seed for each simulation</span>
+        <span class="s2">&quot;Potential&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">lbl</span><span class="p">},</span>
+        <span class="s2">&quot;IO&quot;</span><span class="p">:</span>   <span class="c1"># Store all simulations&#39; data in simulations_dir,</span>
+                <span class="c1"># but save the dumps in different subfolders (job_dir)</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;simulations_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;SMT&#39;</span><span class="p">,</span>
+                <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_pot&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lbl</span><span class="p">),</span>
+                <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="c1"># This is so not to print to screen for every run</span>
+            <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Run the simulation.</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="c1"># Calculate RDF, SSF, Diffusion the simulation.</span>
+    <span class="n">pop</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+    <span class="n">pop</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">pop</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>     <span class="c1"># This is for printing informations about observables, and make plots.</span>
+    <span class="c1"># FYI. this will be a little crowded</span>
+    <span class="n">pop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Radial Distribution Function Calculation Time: 0 sec 2 msec 51 usec 255 nsec
+
+Calculating n(k,t) for slice 0/1.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4c61d37ac8f3473e9242bee6864cf026", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Calculating S(k) ...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "587757ab0159480c948befc85f2a2b24", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Static Structure Factor Calculation Time: 0 sec 232 msec 461 usec 891 nsec
+
+Radial Distribution Function Calculation Time: 0 sec 1 msec 969 usec 546 nsec
+
+Calculating n(k,t) for slice 0/1.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1ff15634ae2f4f4dae407d68741d9131", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Calculating S(k) ...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "60313b250fe5418dac6a45c30abc6550", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Static Structure Factor Calculation Time: 0 sec 24 msec 969 usec 611 nsec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_5_9.png" src="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_5_9.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_5_10.png" src="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_5_10.png" />
+</div>
+</div>
+<div class="section" id="Radial-Distribution-Function">
+<h3>Radial Distribution Function<a class="headerlink" href="#Radial-Distribution-Function" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Here is where I compare the two methods.</span>
+<span class="n">egs_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;SMT/egs_pot/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_egs_pot.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">yukawa_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;SMT/yukawa_pot/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_yukawa_pot.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Paper data</span>
+<span class="n">smt_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;egs.csv&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span> <span class="p">)</span>
+<span class="n">ysmt_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;yukawa.csv&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span> <span class="p">)</span>
+
+<span class="c1"># make the plot</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">yukawa_data</span><span class="p">[</span><span class="s1">&#39;Distance&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e8</span><span class="p">,</span> <span class="n">yukawa_data</span><span class="p">[</span><span class="s1">&#39;Al-Al RDF&#39;</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Yukawa Sarkas&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ysmt_data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">ysmt_data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Yukawa Paper&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">egs_data</span><span class="p">[</span><span class="s1">&#39;Distance&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e8</span><span class="p">,</span> <span class="n">egs_data</span><span class="p">[</span><span class="s1">&#39;Al-Al RDF&#39;</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;EGS Paper&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">smt_data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">smt_data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;EGS Paper&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r \; [ \AA] $&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Text(0.5, 0, &#39;$r \\; [ \\AA] $&#39;)]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_7_1.png" src="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_7_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Static-Structure-Function">
+<h3>Static Structure Function<a class="headerlink" href="#Static-Structure-Function" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Here is where I compare the two methods.</span>
+<span class="n">egs_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;SMT/egs_pot/PostProcessing/StaticStructureFunction/Production/StaticStructureFunction_egs_pot.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">yukawa_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;SMT/yukawa_pot/PostProcessing/StaticStructureFunction/Production/StaticStructureFunction_yukawa_pot.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Paper data</span>
+<span class="c1"># smt_data = np.loadtxt(&#39;egs.csv&#39;, delimiter=&#39;,&#39; )</span>
+<span class="c1"># ysmt_data = np.loadtxt(&#39;yukawa.csv&#39;, delimiter=&#39;,&#39; )</span>
+
+<span class="c1"># make the plot</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">yukawa_data</span><span class="p">[</span><span class="s1">&#39;ka values&#39;</span><span class="p">]</span> <span class="p">,</span> <span class="n">yukawa_data</span><span class="p">[</span><span class="s1">&#39;Al-Al SSF&#39;</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Yukawa Sarkas&#39;</span><span class="p">)</span>
+<span class="c1"># ax.plot(ysmt_data[:,0], ysmt_data[:,1], &#39;--&#39;, label = &#39;Yukawa Paper&#39;)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">egs_data</span><span class="p">[</span><span class="s1">&#39;ka values&#39;</span><span class="p">]</span> <span class="p">,</span> <span class="n">egs_data</span><span class="p">[</span><span class="s1">&#39;Al-Al SSF&#39;</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;EGS Paper&#39;</span><span class="p">)</span>
+<span class="c1"># ax.plot(smt_data[:,0], smt_data[:,1], &#39;--&#39;, label = &#39;EGS Paper&#39;)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$ka$&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Text(0.5, 0, &#39;$ka$&#39;)]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_9_1.png" src="../_images/examples_Yukawa_vs_Exact-Gradient_Corrected_Potential_9_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Mar 25, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
+    </p>
+  </div>
+</footer>
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>

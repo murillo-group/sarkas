@@ -1,0 +1,420 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sarkas.potentials.qsp &#8212; Sarkas 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/my-style.css" />
+    <link rel="stylesheet" href="../../../_static/my-styles.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../installation/get_started.html">Get Started</a></li>
+                <li><a href="../../../examples/examples.html">Examples</a></li>
+                <li><a href="../../../development/code_dev.html">Code Development</a></li>
+                <li><a href="../../../api/api.html">API</a></li>
+                <li><a href="../../../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/api.html">API reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for sarkas.potentials.qsp</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for handling the Quantum Statistical Potential.</span>
+
+<span class="sd">Note</span>
+<span class="sd">----</span>
+<span class="sd">Notice that in Ref. [Hansen1981]_ the DeBroglie wavelength is defined as</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">   \lambda_{ee} = \dfrac{\hbar}{\sqrt{2 \pi \mu_{ee} k_{B} T} },</span>
+
+<span class="sd">while in statistical physics textbooks and Ref. [Glosli2008]_ is defined as</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">   \lambda_{ee} = \dfrac{h}{\sqrt{2 \pi \mu_{ee} k_{B} T} },</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">.. [Hansen1981] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) &lt;https://doi.org/10.1103/PhysRevA.23.2041&gt;`_</span>
+<span class="sd">.. [Glosli2008] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) &lt;https://doi.org/10.1103/PhysRevE.78.025401&gt;`_</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
+<span class="kn">from</span> <span class="nn">sarkas.potentials.force_pm</span> <span class="kn">import</span> <span class="n">force_optimized_green_function</span> <span class="k">as</span> <span class="n">gf_opt</span>
+
+
+<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.qsp.html#sarkas.potentials.qsp.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create potential dependent simulation&#39;s parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    potential : sarkas.potentials.base.Potential</span>
+<span class="sd">        Class handling potential form.</span>
+
+<span class="sd">    params : object</span>
+<span class="sd">        Simulation&#39;s parameters</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dev Notes</span>
+<span class="sd">    for more info and a description of the potential&#39;s parameters.</span>
+<span class="sd">    QSP_matrix[0,:,:] = qi*qj/4*pi*eps0</span>
+<span class="sd">    QSP_matrix[1,:,:] = 2pi/deBroglie</span>
+<span class="sd">    QSP_matrix[2,:,:] = e-e Pauli term factor</span>
+<span class="sd">    QSP_matrix[3,:,:] = e-e Pauli term exponent term</span>
+<span class="sd">    QSP_matrix[4,:,:] = Ewald parameter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Do a bunch of checks</span>
+    <span class="c1"># P3M algorithm only</span>
+    <span class="k">assert</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">,</span> <span class="s1">&#39;QSP interaction can only be calculated using P3M algorithm.&#39;</span>
+
+    <span class="c1"># Check for neutrality</span>
+    <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Total net charge is not zero.&#39;</span>
+
+    <span class="c1"># Default attributes</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s1">&#39;qsp_type&#39;</span><span class="p">):</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">qsp_type</span> <span class="o">=</span> <span class="s1">&#39;Deutsch&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s1">&#39;qsp_pauli&#39;</span><span class="p">):</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">qsp_pauli</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">two_pi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">four_pi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">two_pi</span>
+    <span class="n">log2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+
+    <span class="c1"># Redefine ion temperatures and ion total number density</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_names</span> <span class="o">!=</span> <span class="s1">&#39;e&#39;</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">total_ion_temperature</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_concentrations</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">species_temperatures</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">ni</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num_dens</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+
+    <span class="c1"># Calculate the total and ion Wigner-Seitz Radius from the total density</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">four_pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ni</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># Ion WS</span>
+
+    <span class="n">deBroglie_const</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
+
+    <span class="n">QSP_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">q1</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">name2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
+            <span class="n">m2</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_masses</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">q2</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+            <span class="n">reduced</span> <span class="o">=</span> <span class="p">(</span><span class="n">m1</span> <span class="o">*</span> <span class="n">m2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">m1</span> <span class="o">+</span> <span class="n">m2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">name1</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span> <span class="ow">or</span> <span class="n">name2</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>
+                <span class="c1"># Use electron temperature in e-e and e-i interactions</span>
+                <span class="n">lambda_deB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">deBroglie_const</span> <span class="o">/</span> <span class="p">(</span><span class="n">reduced</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Use ion temperature in i-i interactions only</span>
+                <span class="n">lambda_deB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">deBroglie_const</span> <span class="o">/</span> <span class="p">(</span><span class="n">reduced</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_ion_temperature</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">name2</span> <span class="o">==</span> <span class="n">name1</span><span class="p">:</span>  <span class="c1"># e-e</span>
+                <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">log2</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span>
+                <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">log2</span> <span class="o">*</span> <span class="n">lambda_deB</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
+            <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">/</span> <span class="n">lambda_deB</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">potential</span><span class="o">.</span><span class="n">qsp_pauli</span><span class="p">:</span>
+        <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">QSP_matrix</span>
+
+    <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">qsp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;deutsch&quot;</span><span class="p">:</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">deutsch_force</span>
+        <span class="c1"># Calculate the PP Force error from the e-e diffraction term only.</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">two_pi</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">potential</span><span class="o">.</span><span class="n">qsp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;kelbg&quot;</span><span class="p">:</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">kelbg_force</span>
+        <span class="c1"># TODO: Calculate the PP Force error from the e-e diffraction term only.</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">two_pi</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span></div>
+
+
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">deutsch_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Calculate Deutsch QSP Force between two particles.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : float</span>
+<span class="sd">        Distance between two particles.</span>
+
+<span class="sd">    pot_matrix : array</span>
+<span class="sd">        It contains potential dependent variables.</span>
+<span class="sd">        pot_matrix[0,:,:] = qi*qj/4*pi*eps0</span>
+<span class="sd">        pot_matrix[1,:,:] = 2pi/deBroglie</span>
+<span class="sd">        pot_matrix[2,:,:] = e-e Pauli term factor</span>
+<span class="sd">        pot_matrix[3,:,:] = e-e Pauli term exponent term</span>
+<span class="sd">        pot_matrix[4,:,:] = Ewald parameter</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    U : float</span>
+<span class="sd">        Potential.</span>
+<span class="sd">                </span>
+<span class="sd">    force : float</span>
+<span class="sd">        Force between two particles.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="n">a2</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span>
+
+    <span class="c1"># Ewald short-range potential and force terms</span>
+    <span class="n">U_ewald</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">f_ewald</span> <span class="o">=</span> <span class="n">U_ewald</span> <span class="o">/</span> <span class="n">r</span>  <span class="c1"># 1/r derivative</span>
+    <span class="n">f_ewald</span> <span class="o">+=</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span><span class="o">/</span><span class="n">r</span>  <span class="c1"># erfc derivative</span>
+
+    <span class="c1"># Diffraction potential and force term</span>
+    <span class="n">U_diff</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">f_diff</span> <span class="o">=</span> <span class="n">U_diff</span> <span class="o">/</span> <span class="n">r</span>  <span class="c1"># 1/r derivative</span>
+    <span class="n">f_diff</span> <span class="o">+=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="n">C</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>  <span class="c1"># exp derivative</span>
+
+    <span class="c1"># Pauli potential and force terms</span>
+    <span class="n">U_pauli</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="n">f_pauli</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">r</span> <span class="o">*</span> <span class="n">D</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U_ewald</span> <span class="o">+</span> <span class="n">U_diff</span> <span class="o">+</span> <span class="n">U_pauli</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">f_ewald</span> <span class="o">+</span> <span class="n">f_diff</span> <span class="o">+</span> <span class="n">f_pauli</span>
+
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span>
+
+
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">kelbg_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Calculates the QSP Force between two particles when the P3M algorithm is chosen.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : float</span>
+<span class="sd">        Distance between two particles.</span>
+
+<span class="sd">    pot_matrix : array</span>
+<span class="sd">        It contains potential dependent parameters.</span>
+<span class="sd">        pot_matrix[0] = qi*qj/4*pi*eps0</span>
+<span class="sd">        pot_matrix[1] = 2pi/deBroglie</span>
+<span class="sd">        pot_matrix[2] = e-e Pauli term factor</span>
+<span class="sd">        pot_matrix[3] = e-e Pauli term exponent term</span>
+<span class="sd">        pot_matrix[4] = Ewald parameter</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    U : float</span>
+<span class="sd">        Potential.</span>
+<span class="sd">                </span>
+<span class="sd">    force : float</span>
+<span class="sd">        Force between two particles.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">C2</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">C</span>
+    <span class="n">a2</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span>
+
+    <span class="c1"># Ewald short-range potential and force terms</span>
+    <span class="n">U_ewald</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">f_ewald</span> <span class="o">=</span> <span class="n">U_ewald</span> <span class="o">/</span> <span class="n">r2</span>  <span class="c1"># 1/r derivative</span>
+    <span class="n">f_ewald</span> <span class="o">+=</span> <span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>  <span class="c1"># erfc derivative</span>
+
+    <span class="c1"># Diffraction potential and force term</span>
+    <span class="n">U_diff</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">U_diff</span> <span class="o">+=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="n">r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+
+    <span class="n">f_diff</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>  <span class="c1"># exp(r)/r derivative</span>
+    <span class="n">f_diff</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">C2</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>  <span class="c1"># erfc derivative</span>
+
+    <span class="c1"># Pauli Term</span>
+    <span class="n">U_pauli</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="n">f_pauli</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">D</span> <span class="o">*</span> <span class="n">F</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">F</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U_ewald</span> <span class="o">+</span> <span class="n">U_diff</span> <span class="o">+</span> <span class="n">U_pauli</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">f_ewald</span> <span class="o">+</span> <span class="n">f_diff</span> <span class="o">+</span> <span class="n">f_pauli</span>
+
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Mar 25, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
+    </p>
+  </div>
+</footer>
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>
