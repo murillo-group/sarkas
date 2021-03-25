@@ -18,6 +18,7 @@ jobs:
 
     - name: Pip install python dependencies
       run: |
+        pip install numpy
         pip install -e .
     - name: Install docs dependencies
       run: |
