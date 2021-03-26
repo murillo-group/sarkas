@@ -116,7 +116,7 @@ SARKAS: Python MD code for plasma physics
    :body: bg-light text-left
    :header: bg-light text-center border-0
 
-   :column: col-sm-4
+   :column: col-sm-6
    .. toctree::
       :maxdepth: 1
       :caption: Documentation:
@@ -131,8 +131,6 @@ SARKAS: Python MD code for plasma physics
 
       theory/theory
 
-   ---
-   :column: col-sm-4
    .. toctree::
       :maxdepth: 1
       :caption: Code Dev:
@@ -147,7 +145,7 @@ SARKAS: Python MD code for plasma physics
       examples/examples
    
    ---
-   :column: col-sm-4
+   :column: col-sm-6
 
    .. toctree::
       :maxdepth: 1
