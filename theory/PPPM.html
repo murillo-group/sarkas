@@ -22,6 +22,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
     <link rel="index" title="Index" href="../genindex.html" />
@@ -56,9 +57,9 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="../installation/get_started.html">Get Started</a></li>
+                <li><a href="../documentation/get_started.html">Get Started</a></li>
                 <li><a href="../examples/examples.html">Examples</a></li>
-                <li><a href="../development/code_dev.html">Code Development</a></li>
+                <li><a href="../code%20development/code_dev.html">Code Development</a></li>
                 <li><a href="../api/api.html">API</a></li>
                 <li><a href="../credits/credits.html">Credits</a></li>
             
@@ -71,24 +72,22 @@
      href="../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/get_started.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<p class="caption"><span class="caption-text">Theory:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples:</span></p>
+<p class="caption"><span class="caption-text">Code Dev:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code%20development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Development:</span></p>
+<p class="caption"><span class="caption-text">Simulations:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../development/code_dev.html">Code Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
@@ -147,10 +146,183 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><!-- <div class="sidenav-header">
+    <div class="h4"> 
+      Sarkas Documentation
+    </div>
+  
+  </div> -->
+  
+  <p class="caption"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/why_sarkas.html">Why Sarkas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Postprocessing">Postprocessing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/input_file.html">Input File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#installation">Installation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theory:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theoretical Background</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="coupling_constant.html">Coupling Constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="electron_properties.html">Electron Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#fermi-integral">Fermi Integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#thermodynamics-electron-gas">Thermodynamics Electron Gas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#electron-parameters">Electron Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="integrators.html">Integrators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="integrators.html#phase-space-distribution">Phase Space Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrators.html#velocity-verlet">Velocity Verlet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrators.html#magnetic-velocity-verlet">Magnetic Velocity Verlet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="potentials.html">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#coulomb-potential">Coulomb Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#yukawa-potential">Yukawa Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="thermostats.html">Thermostats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="thermostats.html#berendsen-thermostat">Berendsen Thermostat</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Particle-Particle Particle-Mesh Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ewald-sum">Ewald Sum</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="force_error.html">Force Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code%20development/code_dev.html">Code Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_setup.html">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#updating-your-repository">Updating your repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#forking-and-cloning-sarkas-repository">Forking and Cloning Sarkas repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#create-a-virtual-environment">Create a virtual environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#install-sarkas-in-development-mode">Install Sarkas in development mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#docker-image">Docker Image</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_report_issues.html">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_docs.html">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_docs.html#writing-documentation">Writing Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_docs.html#building-documentation">Building Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_contributing.html">Contributing to Sarkas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#how-can-i-contribute">How can I contribute?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#reporting-a-bug">Reporting a Bug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#editing-the-documentation">Editing the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#making-a-patch">Making a Patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#spreading-the-word-of-mouth">Spreading the word of mouth</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Simulations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#PostProcessing">PostProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#Transport">Transport</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html">MD for Experiment Validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Ultracold-Neutral-Plasmas">Ultracold Neutral Plasmas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Disorder-Induced-Heating">Disorder Induced Heating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#PostProcessing">PostProcessing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#PreProcessing">PreProcessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#Simulation">Simulation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.base.html">sarkas.base module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.base.html">sarkas.potentials.base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pp.html">sarkas.potentials.force_pp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.lennardjones.html">sarkas.potentials.lennardjones module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#tools">Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.tools.html">sarkas.tools package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#utilities">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.utilities.html">sarkas.utilities package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+</ul>
+</li>
+</ul>
+
+  
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
   <div class="section" id="particle-particle-particle-mesh-algorithm">
-<span id="pppmtheory"></span><h1>Particle-Particle Particle-Mesh Algorithm<a class="headerlink" href="#particle-particle-particle-mesh-algorithm" title="Permalink to this headline">¶</a></h1>
+<h1>Particle-Particle Particle-Mesh Algorithm<a class="headerlink" href="#particle-particle-particle-mesh-algorithm" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="ewald-sum">
 <h2>Ewald Sum<a class="headerlink" href="#ewald-sum" title="Permalink to this headline">¶</a></h2>
 <p>Long range forces are calculated using the Ewald method which consists in dividing the potential into a short
@@ -229,12 +401,18 @@ this is not a problem(?). Finally the long-range potential energy is</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 25, 2021.<br/>
+      Last updated on Mar 26, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
     </p>
   </div>
 </footer>
 
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+      })
+  </script>
+  
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

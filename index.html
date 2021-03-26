@@ -20,11 +20,12 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/myscript.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
   
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Why Sarkas" href="why_sarkas/why_sarkas.html" />
+    <link rel="next" title="Why Sarkas" href="documentation/why_sarkas.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -53,9 +54,9 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="installation/get_started.html">Get Started</a></li>
+                <li><a href="documentation/get_started.html">Get Started</a></li>
                 <li><a href="examples/examples.html">Examples</a></li>
-                <li><a href="development/code_dev.html">Code Development</a></li>
+                <li><a href="code%20development/code_dev.html">Code Development</a></li>
                 <li><a href="api/api.html">API</a></li>
                 <li><a href="credits/credits.html">Credits</a></li>
             
@@ -68,24 +69,22 @@
      href="#">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Getting Started:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation/get_started.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<p class="caption"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples:</span></p>
+<p class="caption"><span class="caption-text">Code Dev:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code%20development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Development:</span></p>
+<p class="caption"><span class="caption-text">Simulations:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="development/code_dev.html">Code Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
@@ -151,17 +150,12 @@
    <h3 style="font-size:50px">Python MD code for plasma physics</h3>
 </div>
 
-<div class="container-fluid">
-   <div class="row row-eq-height">
-      <div class="col-xs-6 col-sm-6 col-md-6 text-center">
-         <!--<br>
-         <br>-->
-         <img src="_static/logo_green_orange_v5.png" alt="logo" width="50%">
-      </div>
-      <div class="col-xs-6 col-sm-6 col-md-6">
-      <br><br>
-      <!--Carousel Wrapper-->
-     <div id="CodeExample" class="carousel slide" data-interval="5000" data-ride="carousel">
+
+<div style="position: relative; justify-content: center; align-items: center; display: grid; grid-template-columns:repeat(auto-fit,535px);">
+   <img src="_static/logo_green_orange_v5.png" alt="logo" width="35%" style="justify-self:center; align-self:center;">
+   <div>
+   <!--Carousel Wrapper-->
+      <div id="CodeExample" class="carousel slide" data-interval="5000" data-ride="carousel">
        <!--Indicators-->
        <ol class="carousel-indicators">
          <li data-target="#CodeExample" data-slide-to="0" class="active"></li>
@@ -190,105 +184,87 @@
        </a>
        <!--/.Controls-->
      </div>
-     <!--/.Carousel Wrapper-->
-
-      </div>
+   <!--/.Carousel Wrapper-->
    </div>
-</div><div class="row">
-   <div class="col-sm-4">
+</div><div class="properties">
+   <div class="prprt">
       <h4 class="text-center"><i class="fa fa-smile-o fa-3x mb-3 text-muted"></i><br>User Friendly</h4>
-      <p>Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.</p>
+      <p>Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines
+         of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.</p>
    </div>
-
-   <div class="col-sm-4">
+   <div class="prprt">
       <h4 class="text-center"><i class="fa fa-rocket fa-3x mb-3 text-muted"></i><br>Fast Pure Python</h4>
-      <p>Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable to that of compiled languages.</p>
+      <p>Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable
+      to that of compiled languages.</p>
+   </div>
+   <div class="prprt">
+      <h4 class="text-center"><i class="fa fa-flask fa-3x mb-3 text-muted"></i><br>Plasma Potentials</h4>
+      <p>Sarkas offers a variety of interaction potentials commonly used in plasma physics. It is the only
+      MD code to support electrons as dynamical particles.</p>
    </div>
 
-   <div class="col-sm-4">
-      <h4 class="text-center"><i class="fa fa-flask fa-3x mb-3 text-muted"></i><br>Plasma Potentials</h4>
-      <p>Sarkas offers a variety of interaction potentials commonly used in plasma physics. It is the only MD code to support electrons as dynamical particles.</p>
-     </div>
-</div>
-
-<div class="row">
-   <div class="col-sm-4">
+   <div class="prprt">
       <h4 class="text-center"><i class="fa fa-database fa-3x mb-3 text-muted"></i><br>Data Science</h4>
       <p>Sarkas has been developed for data science. You can run multiple simulations and store data with a simple for loop.</p>
    </div>
-
-   <div class="col-sm-4">
+   <div class="prprt">
       <h4 class="text-center"><i class="fa fa-area-chart fa-3x mb-3 text-muted"></i><br>Publications</h4>
-      <p>Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get publication-grade results in less time.</p>
+      <p>Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get
+      publication-grade results in less time.</p>
    </div>
-</div>
 
-</div>
-<div class="row">
-     <div class="col-sm-4">
+   <div class="prprt">
+      <h4 class="text-center"><i class="fa fa-cogs fa-3x mb-3 text-muted"></i><br>Highly Customizable</h4>
+      <p>Sarkas is built in a modular fashion to allow easy implementation of additional features.</p>
+   </div>
+   <div class="prprt">
+      <h4 class="text-center"><i class="fa fa-users fa-3x mb-3 text-muted"></i><br>Collaborative Effort</h4>
+      <p>Sarkas wants to be a common platform for the development of new algorithms to study the most challenging
+      open problems in plasma physics.</p>
+   </div>
+   <div class="prprt">
+      <h4 class="text-center"><i class="fa fa-github fa-3x mb-3 text-muted"></i><br>Open Source</h4>
+      <p>Sarkas is released under the MIT License and maintained by the community on GitHub.</p>
+   </div>
 
-         <h4 class="text-center"><i class="fa fa-cogs fa-3x mb-3 text-muted"></i><br>Highly Customizable</h4>
-         <p>Sarkas is built in a modular fashion to allow easy implementation of additional features.</p>
-
-     </div>
-
-     <div class="col-sm-4">
-
-         <h4 class="text-center"><i class="fa fa-users fa-3x mb-3 text-muted"></i><br>Collaborative Effort</h4>
-         <p>Sarkas wants to be a common platform for the development of new algorithms to study the most challenging open problems in plasma physics.</p>
-
-     </div>
-
-     <div class="col-sm-4">
-         <h4 class="text-center"><i class="fa fa-github fa-3x mb-3 text-muted"></i><br>Open Source</h4>
-         <p>Sarkas is released under the MIT License and maintained by the community on GitHub.</p>
-     </div>
-   </div><div class="admonition warning">
+</div><div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Sarkas is under development.</p>
 </div>
 <div class="sphinx-bs container pb-4 docutils">
 <div class="row docutils">
-<div class="d-flex col-sm-4 docutils">
+<div class="d-flex col-sm-6 docutils">
 <div class="card w-100 shadow docutils">
 <div class="card-body bg-light text-left docutils">
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Getting Started:</span></p>
+<p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="why_sarkas/why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation/get_started.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation/get_started.html">Get Started</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Theoretical Background:</span></p>
+<p class="caption"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theoretical Background</a></li>
 </ul>
 </div>
-</div>
-</div>
-</div>
-<div class="d-flex col-sm-4 docutils">
-<div class="card w-100 shadow docutils">
-<div class="card-body bg-light text-left docutils">
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Examples:</span></p>
+<p class="caption"><span class="caption-text">Code Dev:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code%20development/code_dev.html">Code Development</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Code Development:</span></p>
+<p class="caption"><span class="caption-text">Simulations:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="development/code_dev.html">Code Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a></li>
 </ul>
 </div>
 </div>
 </div>
 </div>
-<div class="d-flex col-sm-4 docutils">
+<div class="d-flex col-sm-6 docutils">
 <div class="card w-100 shadow docutils">
 <div class="card-body bg-light text-left docutils">
 <div class="toctree-wrapper compound">
@@ -329,12 +305,18 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 25, 2021.<br/>
+      Last updated on Mar 26, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
     </p>
   </div>
 </footer>
 
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+      })
+  </script>
+  
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

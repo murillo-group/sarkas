@@ -1,8 +1,3 @@
-.. _tutorial:
-
-.. _Input File: input_file.rst
-.. _Pre Simulation Testing: Pre_Simulation_Testing.ipynb
-
 ========
 Tutorial
 ========
@@ -10,8 +5,12 @@ Tutorial
 In the next pages we provide an in-depth step-by-step guide on a typical MD simulation using Sarkas.
 The topics that are listed in this tutorial are as follows
 
-- `Input File`_
-- `Pre Simulation testing`_
+.. toctree::
+    :maxdepth: 1
+
+    input_file
+    Pre_Simulation_Testing
+
 - Running a simulation
 - Post Processing
 

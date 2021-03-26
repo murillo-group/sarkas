@@ -1,5 +1,3 @@
-.. _dev-contributing:
-
 **********************
 Contributing to Sarkas
 **********************

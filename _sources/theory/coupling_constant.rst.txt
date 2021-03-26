@@ -1,5 +1,3 @@
-.. coupling_defintion:
-
 =================
 Coupling Constant
 =================

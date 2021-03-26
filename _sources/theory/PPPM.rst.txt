@@ -1,5 +1,3 @@
-.. _pppmtheory:
-
 ===========================================
 Particle-Particle Particle-Mesh Algorithm
 ===========================================

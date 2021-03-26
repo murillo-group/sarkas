@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thermostats &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Code Development &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -20,15 +20,13 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Particle-Particle Particle-Mesh Algorithm" href="PPPM.html" />
-    <link rel="prev" title="Potentials" href="potentials.html" />
+    <link rel="next" title="Setup" href="dev_setup.html" />
+    <link rel="prev" title="References" href="../theory/references.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -59,7 +57,7 @@
             
                 <li><a href="../documentation/get_started.html">Get Started</a></li>
                 <li><a href="../examples/examples.html">Examples</a></li>
-                <li><a href="../code%20development/code_dev.html">Code Development</a></li>
+                <li><a href="#">Code Development</a></li>
                 <li><a href="../api/api.html">API</a></li>
                 <li><a href="../credits/credits.html">Credits</a></li>
             
@@ -78,12 +76,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theory:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theoretical Background</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Dev:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../code%20development/code_dev.html">Code Development</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Code Development</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Simulations:</span></p>
 <ul>
@@ -109,8 +107,13 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Thermostats</a><ul>
-<li><a class="reference internal" href="#berendsen-thermostat">Berendsen Thermostat</a></li>
+<li><a class="reference internal" href="#">Code Development</a><ul>
+<li><a class="reference internal" href="#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
+<li><a class="reference internal" href="#how-can-i-contribute">How can I contribute?</a></li>
+<li><a class="reference internal" href="#reporting-a-bug">Reporting a Bug</a></li>
+<li><a class="reference internal" href="#editing-the-documentation">Editing the Documentation</a></li>
+<li><a class="reference internal" href="#making-a-patch">Making a Patch</a></li>
+<li><a class="reference internal" href="#spreading-the-word-of-mouth">Spreading the word of mouth</a></li>
 </ul>
 </li>
 </ul>
@@ -174,65 +177,65 @@
 </li>
 </ul>
 <p class="caption"><span class="caption-text">Theory:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theoretical Background</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="coupling_constant.html">Coupling Constant</a></li>
-<li class="toctree-l2"><a class="reference internal" href="electron_properties.html">Electron Properties</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#fermi-integral">Fermi Integral</a></li>
-<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#thermodynamics-electron-gas">Thermodynamics Electron Gas</a></li>
-<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#electron-parameters">Electron Parameters</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../theory/coupling_constant.html">Coupling Constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/electron_properties.html">Electron Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#fermi-integral">Fermi Integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#thermodynamics-electron-gas">Thermodynamics Electron Gas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#electron-parameters">Electron Parameters</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="integrators.html">Integrators</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="integrators.html#phase-space-distribution">Phase Space Distribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="integrators.html#velocity-verlet">Velocity Verlet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="integrators.html#magnetic-velocity-verlet">Magnetic Velocity Verlet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/integrators.html">Integrators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#phase-space-distribution">Phase Space Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#velocity-verlet">Velocity Verlet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#magnetic-velocity-verlet">Magnetic Velocity Verlet</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="potentials.html">Potentials</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="potentials.html#coulomb-potential">Coulomb Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="potentials.html#yukawa-potential">Yukawa Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/potentials.html">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#coulomb-potential">Coulomb Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#yukawa-potential">Yukawa Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Thermostats</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#berendsen-thermostat">Berendsen Thermostat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/thermostats.html#berendsen-thermostat">Berendsen Thermostat</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="PPPM.html#ewald-sum">Ewald Sum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/PPPM.html#ewald-sum">Ewald Sum</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="force_error.html">Force Error</a></li>
-<li class="toctree-l2"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/references.html">References</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption"><span class="caption-text">Code Dev:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../code%20development/code_dev.html">Code Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_setup.html">Setup</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#updating-your-repository">Updating your repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#forking-and-cloning-sarkas-repository">Forking and Cloning Sarkas repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#create-a-virtual-environment">Create a virtual environment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#install-sarkas-in-development-mode">Install Sarkas in development mode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#docker-image">Docker Image</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Code Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dev_setup.html">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dev_setup.html#updating-your-repository">Updating your repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dev_setup.html#forking-and-cloning-sarkas-repository">Forking and Cloning Sarkas repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dev_setup.html#create-a-virtual-environment">Create a virtual environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dev_setup.html#install-sarkas-in-development-mode">Install Sarkas in development mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dev_setup.html#docker-image">Docker Image</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_report_issues.html">Reporting Issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_docs.html">Documentation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_docs.html#writing-documentation">Writing Documentation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_docs.html#building-documentation">Building Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_report_issues.html">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_docs.html">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dev_docs.html#writing-documentation">Writing Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dev_docs.html#building-documentation">Building Documentation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_contributing.html">Contributing to Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#how-can-i-contribute">How can I contribute?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#reporting-a-bug">Reporting a Bug</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#editing-the-documentation">Editing the Documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#making-a-patch">Making a Patch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#spreading-the-word-of-mouth">Spreading the word of mouth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_contributing.html">Contributing to Sarkas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-can-i-contribute">How can I contribute?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-a-bug">Reporting a Bug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#editing-the-documentation">Editing the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-a-patch">Making a Patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spreading-the-word-of-mouth">Spreading the word of mouth</a></li>
 </ul>
 </li>
 </ul>
@@ -317,43 +320,76 @@
       </div>
     <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="thermostats">
-<h1>Thermostats<a class="headerlink" href="#thermostats" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="berendsen-thermostat">
-<h2>Berendsen Thermostat<a class="headerlink" href="#berendsen-thermostat" title="Permalink to this headline">¶</a></h2>
-<p>The Berendsen Thermostat (BT) uses a tapered velocity scaling approach. In a strict velocity scaling approach
-the temperature <span class="math notranslate nohighlight">\(T_e\)</span> is estimated, through a quantity proportional to <span class="math notranslate nohighlight">\(\langle v^2 \rangle\)</span>,
-and the velocities are scaled to values consistent with the desired temperature <span class="math notranslate nohighlight">\(T_d\)</span>,
-as in <span class="math notranslate nohighlight">\(v_i \to \alpha v_i\)</span>. Being completely inconsistent with physical laws,
-it is preferable to use the same simple algorithm but more gently so that the dynamics during the thermostat period is
-more consistent with the underlying equations of motion.
-In the BT we begin with an model for the temperature as we would like to see it evolve over a slower
-timescale <span class="math notranslate nohighlight">\(\tau_{B}\)</span>. One model is</p>
-<div class="math notranslate nohighlight">
-\[\frac{dT}{dt} = \frac{T_d - T}{\tau_{B}},\]</div>
-<p>This equation can be solved analytically to yield</p>
-<div class="math notranslate nohighlight">
-\[T(t) = T(0)e^{-t/\tau_B} + \left(1 - e^{-t/\tau_B}  \right)T_d ,\]</div>
-<p>which can be seen to transition from the initial temperature <span class="math notranslate nohighlight">\(T(0)\)</span> to the desired temperature <span class="math notranslate nohighlight">\(T_d\)</span>
-on a time scale of <span class="math notranslate nohighlight">\(\tau_{B}\)</span>. By choosing <span class="math notranslate nohighlight">\(\tau_{B}\)</span> to be many time steps we can eventually equilibrate
-the system while allowing it to explore configurations closer to the real (not velocity scaled) dynamics.</p>
-<p>To implement BT we discretize the BT model across one time step to obtain</p>
-<div class="math notranslate nohighlight">
-\[T(t + \Delta t) = T(t) + \frac{\Delta t}{\tau_B}\left(T_d - T(t) \right) .\]</div>
-<p>We want to scale the current velocities such that this new temperature <span class="math notranslate nohighlight">\(T(t+\Delta t)\)</span> is achieved,
-because that the temperature prescribed by the BT.
-Finding the ratio then of the target temperature and the current temperature, we get</p>
-<div class="math notranslate nohighlight">
-\[\frac{T(t + \Delta t)}{T(t) } = 1+ \frac{\Delta t}{\tau_{B}}\left(\frac{T_d}{T(t) } - 1 \right)\]</div>
-<p>Taking the square root this yields the scaling factor for the velocities.</p>
-<p>The BT is implemented in Sarkas with several epochs. You can specify the number of epochs and the individual
-strengths <span class="math notranslate nohighlight">\(\tau_{B,j}\)</span> (What is this ?). This allows for a stronger thermostat initially,
-but tapering to a more gentle thermostat toward the end of the equilibration phase.</p>
-<p>Below ww show a plot of the temperature difference</p>
-<div class="math notranslate nohighlight">
-\[\Delta T(t) = T(t) - T_d\]</div>
-<p>for several values of <span class="math notranslate nohighlight">\(\tau_B\)</span>. As you can see the smaller <span class="math notranslate nohighlight">\(\tau_B\)</span> the faster <span class="math notranslate nohighlight">\(T(t)\)</span> reaches the
-desired temperature.</p>
+  <div class="section" id="code-development">
+<h1>Code Development<a class="headerlink" href="#code-development" title="Permalink to this headline">¶</a></h1>
+<p>The following pages present a workflow for editing, adding your own features, and contributing to Sarkas.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dev_setup.html">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_report_issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_contributing.html">Contributing to Sarkas</a></li>
+</ul>
+</div>
+<div class="section" id="imposter-syndrome-disclaimer">
+<h2>Imposter Syndrome Disclaimer<a class="headerlink" href="#imposter-syndrome-disclaimer" title="Permalink to this headline">¶</a></h2>
+<p><strong>We want your help. No really, we do.</strong></p>
+<p>There might be a little voice inside that tells you you are not ready; that you need to do one more tutorial, or learn another framework,
+or write a few more blog posts before you can help me with this project.</p>
+<p>We assure you, that is not the case.</p>
+<p>Sarkas has some clear “Contribution Guidelines” that you can read below in the following sections.</p>
+<p>The contribution guidelines outline the process that you will need to follow to get a patch merged. By making expectations and process explicit,
+we hope it will make it easier for you to contribute.</p>
+<p>And you do not just have to write code. You can help out by writing documentation, tests, or even by giving feedback about this work.
+(And yes, that includes giving feedback about the contribution guidelines.)</p>
+<p>(Thanks to <a class="reference external" href="https://github.com/adriennefriend/imposter-syndrome-disclaimer">Adrienne Lowe</a>  who came up with this disclaimer and yeah,
+made it OPEN for anyone to use!)</p>
+</div>
+<div class="section" id="how-can-i-contribute">
+<h2>How can I contribute?<a class="headerlink" href="#how-can-i-contribute" title="Permalink to this headline">¶</a></h2>
+<p>There are multiple ways in which you can help us:</p>
+<ul class="simple">
+<li><p>Found a bug in Sarkas? Report it to us!</p></li>
+<li><p>Caught a typo in documentation or want to make it better to understand? Edit it!</p></li>
+<li><p>Know how to fix an issue or add a new feature? Make a patch!</p></li>
+<li><p>Love using Sarkas? Share it with others!</p></li>
+<li><p>Anything else we missed?</p></li>
+</ul>
+</div>
+<div class="section" id="reporting-a-bug">
+<h2>Reporting a Bug<a class="headerlink" href="#reporting-a-bug" title="Permalink to this headline">¶</a></h2>
+<p>Sarkas is under constant development. There is no surprise that you may encounter something that does not work for your use case.
+Or maybe you have some suggestions about how can we improve some functionality. Feel free to share any of it with us by
+<a class="reference external" href="https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue">opening an issue</a> <a class="reference external" href="https://github.com/murillo-group/sarkas/issues">here</a>.</p>
+<p>Please make sure that you provide all the necessary information requested by prompts in the issue body - it will not only make our work easier but will also help you to communicate your problem better.</p>
+</div>
+<div class="section" id="editing-the-documentation">
+<h2>Editing the Documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p>There is always a scope of improvement in documentation to add some missing information or to make it easier for reading.
+Here lies an opportunity for you. You can edit the documentation. This is stored in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory of Sarkas.</p>
+<p>After editing the file locally, build the docs as described in <a class="reference external" href="dev_docs">these instructions</a> and then you can submit
+your changes to us by making a patch as described in the next section.</p>
+</div>
+<div class="section" id="making-a-patch">
+<h2>Making a Patch<a class="headerlink" href="#making-a-patch" title="Permalink to this headline">¶</a></h2>
+<p>If you have peeked in our codebase and realized how to fix a problem or if you know how to add a new feature, well done!
+If not, do not worry - just pick an <a class="reference external" href="https://github.com/murillo-group/sarkas/issues">issue</a> and get started to fix it.</p>
+<p>To contribute your code to Sarkas, you will need to make a <a class="reference external" href="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests">pull request</a>
+from your fork of Sarkas repository. This development workflow using Git may look daunting at first, but it is not if
+you follow <a class="reference external" href="dev_contributing">this guide</a> that we have prepared for you.</p>
+<p>When you make a pull request, please provide all the necessary information requested by prompts in the pull request body.
+Also, make sure that the code you are submitting always accounts for the following three:</p>
+<ul class="simple">
+<li><p><strong>Maintaining code quality:</strong> Your code must follow the PEP8 style guide, should cover edge cases, etc.</p></li>
+<li><p><strong>Documenting the code:</strong> You must write docstrings in functions/classes, put a relevant example in Sarkas docs and make sure docs get built correctly.</p></li>
+<li><p><strong>Testing the code:</strong> There should be unit-tests for most of the functions/methods and they must pass our testing framework.</p></li>
+</ul>
+</div>
+<div class="section" id="spreading-the-word-of-mouth">
+<h2>Spreading the word of mouth<a class="headerlink" href="#spreading-the-word-of-mouth" title="Permalink to this headline">¶</a></h2>
+<p>If you find Sarkas helpful, you can share it with your peers, colleagues, and anyone who can benefit from Sarkas.
+If you have used Sarkas in your research, please make sure to cite us.
+By telling other people about how we helped you, you will help us in turn, in extending our impact.</p>
 </div>
 </div>
 

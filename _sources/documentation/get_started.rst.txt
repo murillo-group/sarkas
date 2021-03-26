@@ -1,18 +1,17 @@
-.. _get_started:
-
 ***********
 Get Started
 ***********
 
 .. warning::
     Sarkas is under heavy development and not yet available via package managers like ``pip`` and ``conda``.
-    Therefore, please follow the instructions :ref:`here<dev_setup>`  for installation.
+    Therefore, please follow the instructions `here <dev_setup>`_ for installation.
 
-- Virtual enviroment
-- Installation, (:ref:`dev install<dev_setup>`)
-- :ref:`Quickstart<quickstart>`
-- :ref:`Tutorial<tutorial>` (long)
-- :ref:`Examples<examples>`
+.. toctree::
+    :maxdepth: 1
+
+    Quickstart
+    tutorial
+
 
 Virtual environment
 ===================

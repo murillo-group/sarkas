@@ -1,5 +1,3 @@
-.. _dev_index:
-
 ****************
 Code Development
 ****************
@@ -61,7 +59,7 @@ Editing the Documentation
 There is always a scope of improvement in documentation to add some missing information or to make it easier for reading. 
 Here lies an opportunity for you. You can edit the documentation. This is stored in the ``docs`` directory of Sarkas.
 
-After editing the file locally, build the docs as described in :ref:`these instructions <dev_docs>` and then you can submit 
+After editing the file locally, build the docs as described in `these instructions <dev_docs>`_ and then you can submit 
 your changes to us by making a patch as described in the next section.
 
 Making a Patch
@@ -72,7 +70,7 @@ If not, do not worry - just pick an `issue <https://github.com/murillo-group/sar
 
 To contribute your code to Sarkas, you will need to make a `pull request <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests>`_
 from your fork of Sarkas repository. This development workflow using Git may look daunting at first, but it is not if 
-you follow :ref:`this guide <dev-contributing>` that we have prepared for you.
+you follow `this guide <dev_contributing>`_ that we have prepared for you.
 
 When you make a pull request, please provide all the necessary information requested by prompts in the pull request body. 
 Also, make sure that the code you are submitting always accounts for the following three:
