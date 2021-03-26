@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 """
-                                SARKAS: 1.0
+                                SARKAS:
 
 An open-source pure-python molecular dynamics code for non-ideal plasmas.
 
 Developed by the research group of:
 Professor Michael S. Murillo
-murillom@msu.edu
+sarkasdev@gmail.com
 Dept. of Computational Mathematics, Science, and Engineering,
 Michigan State University
 """
