@@ -651,7 +651,7 @@ class Integrator:
         wp_dt = frequency * self.dt
         print('Time step = {:.6e} [s]'.format(self.dt))
         print('Total plasma frequency = {:.6e} [Hz]'.format(frequency))
-        print('w_p dt = {:.4f}'.format(wp_dt))
+        print('w_p dt = {:.4f} ~ 1/{}'.format(wp_dt, int(1.0/wp_dt) ))
         # if potential_type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
         #     # if simulation.parameters.magnetized:
         #     #     if simulation.parameters.num_species > 1:

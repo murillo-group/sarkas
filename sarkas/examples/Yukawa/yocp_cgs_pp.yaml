@@ -6,7 +6,7 @@ Particles:
         mass: 2.0089e-23                    # g
         num: 1000                            # total number of particles
         Z: 1.976599                         # degree of ionization
-        temperature: 5.45388e+03            # K = 0.5 eV
+        temperature: 5.e+03                 # T = 0.5 eV
 
 Potential: 
     type: Yukawa                            # potential type
@@ -15,16 +15,16 @@ Potential:
 
 Integrator:
     type: Verlet
-    dt: 1.0e-16                             # sec
-    equilibration_steps: 5000              # number of timesteps for the equilibrium
-    production_steps: 30000                # number of timesteps after the equilibrium
+    dt: 5.0e-17                             # sec
+    equilibration_steps: 10000              # number of timesteps for the equilibrium
+    production_steps: 20000                # number of timesteps after the equilibrium
     eq_dump_step: 10
     prod_dump_step: 10
 
 Thermostat:
     type: Berendsen                         # thermostat type
-    relaxation_timestep: 0
-    tau: 5.0
+    relaxation_timestep: 300
+    tau: 2.0
 
 Parameters:
     units: cgs                              # units
@@ -42,3 +42,4 @@ PostProcessing:
 
   - RadialDistributionFunction:
       no_bins: 250
+

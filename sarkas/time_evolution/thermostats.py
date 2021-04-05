@@ -32,7 +32,7 @@ class Thermostat:
     type: str
         Thermostat type
 
-    tau: float
+    berendsen_tau: float
         Berendsen parameter.
 
     """
@@ -46,7 +46,7 @@ class Thermostat:
         self.kB = None
         self.species_num = None
         self.species_masses = None
-        self.tau = None
+        self.berendsen_tau = None
         self.eV_temp_flag = False
         self.K_temp_flag = False
 
@@ -85,13 +85,13 @@ class Thermostat:
         """Print Thermostat information in a user-friendly way."""
         print('Type: {}'.format(self.type))
         print('First thermostating timestep, i.e. relaxation_timestep = {}'.format(self.relaxation_timestep))
-        print("Berendsen parameter tau: {:.3f} [timesteps]".format(self.tau))
+        print("Berendsen parameter tau: {:.3f} [timesteps]".format(self.berendsen_tau))
         print("Berendsen relaxation rate: {:.3f} [1/timesteps] ".format(self.relaxation_rate))
         if not self.eV_temp_flag and not self.K_temp_flag:
             # If you forgot to give thermostating temperatures
             print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("Equilibration temperatures not defined. I will use the species's temperatures.")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+            print("Equilibration temperatures not defined. I will use the species's temperatures")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
         print("Thermostating temperatures: ")
         for i, (t, t_ev) in enumerate(zip(self.temperatures, self.temperatures_eV)):
             print("Species ID {}: T_eq = {:.6e} [K] = {:.6e} [eV]".format(i, t, t_ev))
@@ -117,8 +117,10 @@ class Thermostat:
             self.temperatures = np.copy(params.species_temperatures)
             self.temperatures_eV = np.copy(self.temperatures) / params.eV2K
 
-        if self.tau:
-            self.relaxation_rate = 1.0 / self.tau
+        if self.berendsen_tau:
+            self.relaxation_rate = 1.0 / self.berendsen_tau
+        else:
+            self.berendsen_tau = 1.0 / self.relaxation_rate
 
         if not self.temperatures.all():
             self.temperatures = np.copy(params.species_temperatures)

@@ -230,6 +230,12 @@ class Process:
 
             # Print parameters to log file
             self.io.simulation_summary(self)
+
+            # Initialize the observable classes
+            # for obs in self.observables_list:
+            #     if obs in self.__dict__.keys():
+            #         self.__dict__[obs].setup(self.parameters)
+
         else:
             # initialize the directories and filenames
             self.io.setup()
@@ -388,7 +394,7 @@ class PreProcess(Process):
         self.__name__ = 'preprocessing'
         self.loops = 10
         self.estimate = False
-        self.pm_meshes = np.array([8, 16, 24, 32, 40, 48, 56, 64, 80, 112, 128], dtype=int)
+        self.pm_meshes = np.array([16, 32, 56, 64, 80, 128], dtype=int)
         self.pp_cells = np.arange(3, 16, dtype=int)
         self.kappa = None
         super().__init__(input_file)
@@ -404,9 +410,9 @@ class PreProcess(Process):
     def run(self,
             loops: int = None,
             timing: bool = True,
-            pppm_plots: bool = False,
-            postprocessing:bool = False,
-            remove: bool = True,
+            pppm_estimate: bool = False,
+            postprocessing: bool = False,
+            remove: bool = False,
             estimate: bool = False):
         """
         Estimate the time of the simulation and best parameters if wanted.
@@ -414,9 +420,9 @@ class PreProcess(Process):
         Parameters
         ----------
         remove : bool
-            Flag for removing energy files and dumps created during times estimation. Default = True.
+            Flag for removing energy files and dumps created during times estimation. Default = False.
 
-        pppm_plots : bool
+        pppm_estimate : bool
             Flag for showing the force error plots in case of pppm algorithm.
 
         postprocessing : bool
@@ -436,6 +442,9 @@ class PreProcess(Process):
         """
 
         plt.close('all')
+        self.pppm_plots_dir = os.path.join(self.io.preprocessing_dir, 'PPPM_Plots')
+        if not os.path.exists(self.pppm_plots_dir):
+            os.mkdir(self.pppm_plots_dir)
 
         # Set the screening parameter
         self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
@@ -495,7 +504,7 @@ class PreProcess(Process):
                     for npz in os.listdir(self.io.mag_dump_dir):
                         os.remove(os.path.join(self.io.mag_dump_dir, npz))
 
-        if pppm_plots:
+        if pppm_estimate:
             self.pppm_approximation()
 
         if estimate:
@@ -529,11 +538,13 @@ class PreProcess(Process):
     def estimate_best_parameters(self):
         """Estimate the best number of mesh points and cutoff radius."""
 
+        from scipy.optimize import curve_fit
+
         print('\n\n----------------- Timing Study -----------------------')
 
         max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
-        if max_cells != len(self.pp_cells):
-            self.pp_cells = np.arange(3, max_cells, dtype=int)
+        # if max_cells != self.pp_cells[-1]:
+        #     self.pp_cells = np.arange(3, max_cells, dtype=int)
 
         pm_times = np.zeros(len(self.pm_meshes))
         pm_errs = np.zeros(len(self.pm_meshes))
@@ -550,25 +561,29 @@ class PreProcess(Process):
         for i, m in enumerate(self.pm_meshes):
 
             self.potential.pppm_mesh = m * np.ones(3, dtype=int)
-            self.potential.pppm_alpha_ewald = 0.25 * m / self.parameters.box_lengths.min()
+            self.potential.pppm_alpha_ewald = 0.3 * m / self.parameters.box_lengths.min()
             green_time = self.green_function_timer()
             pm_errs[i] = self.parameters.pppm_pm_err
             print('\n\nMesh = {} x {} x {} : '.format(*self.potential.pppm_mesh))
-            print('alpha = {:1.4e} / a_ws = {:1.4e} '.format(self.potential.pppm_alpha_ewald * self.parameters.a_ws,
-                                                             self.potential.pppm_alpha_ewald))
-            print('PM Err = {:1.4e}  '.format(self.parameters.pppm_pm_err), end='')
+            print('alpha = {:.4f} / a_ws = {:.4e} '.format(self.potential.pppm_alpha_ewald * self.parameters.a_ws,
+                                                           self.potential.pppm_alpha_ewald))
+            print('PM Err = {:.6e}'.format(self.parameters.pppm_pm_err))
 
             self.io.preprocess_timing("GF", self.timer.time_division(green_time), 0)
             pm_xlabels.append("{}x{}x{}".format(*self.potential.pppm_mesh))
+
+            # Calculate the PM acceleration timing 3x and average
             for it in range(3):
                 self.timer.start()
                 self.potential.update_pm(self.particles)
                 pm_times[i] += self.timer.stop() / 3.0
 
+            # For each number of PP cells, calculate the PM acceleration timing 3x and average
             for j, c in enumerate(self.pp_cells):
                 self.potential.rc = self.parameters.box_lengths.min() / c
                 kappa_over_alpha = - 0.25 * (self.kappa / self.potential.pppm_alpha_ewald) ** 2
                 alpha_times_rcut = - (self.potential.pppm_alpha_ewald * self.potential.rc) ** 2
+                # Update the Force error
                 self.potential.pppm_pp_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(
                     self.potential.rc)
                 self.potential.pppm_pp_err *= np.sqrt(self.parameters.total_num_ptcls) * self.parameters.a_ws ** 2 \
@@ -579,42 +594,81 @@ class PreProcess(Process):
                                                      + self.parameters.pppm_pm_err ** 2)
 
                 if j == 0:
-                    pp_xlabels.append("{:1.2f}".format(self.potential.rc / self.parameters.a_ws))
+                    pp_xlabels.append("{:.2f}".format(self.potential.rc / self.parameters.a_ws))
 
                 for it in range(3):
                     self.timer.start()
                     self.potential.update_linked_list(self.particles)
                     pp_times[i, j] += self.timer.stop() / 3.0
 
-        self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))
-        for i in range(len(self.pm_meshes)):
-            for j in range(len(self.pp_cells)):
-                self.lagrangian[i, j] = abs(pp_errs[i, j] * pp_times[i, j] - pm_errs[i] * pm_times[i])
+                # self.pppm_approximation()
 
-        best = np.unravel_index(self.lagrangian.argmin(), self.lagrangian.shape)
-        self.best_mesh = self.pm_meshes[best[0]]
-        self.best_cells = self.pp_cells[best[1]]
+        # TODO: The rest is in development
+        #  Approximate the times
+        # pm_popt, _ = curve_fit(
+        #     lambda x, a, b, c: a * x + 15 * b * x ** 3 * np.log2(x) + c,
+        #     self.pm_meshes,
+        #     pm_times)
+        # print('\n PM Time ~ {:.4e} M^3 + 15 {:.4e} M^3 log(M) '.format(*pm_popt))
+        #
+        # fig, ax = plt.subplots(1, 1)
+        # ax.plot(self.pm_meshes, pm_times, 'o')
+        # ax.plot(
+        #     self.pm_meshes,
+        #     pm_popt[2] + pm_popt[0] * self.pm_meshes + 15 * pm_popt[1] * self.pm_meshes**3 * np.log2(self.pm_meshes),
+        #     ls='--', label='Fit')
+        # ax.set(yscale='log', ylabel='Time [ns]', xlabel='Mesh size')
+        # fig.tight_layout()
+        #
+        # fig, ax = plt.subplots(1, 1)
+        #
+        # for j, mesh_points in enumerate(self.pm_meshes):
+        #     pp_popt, _ = curve_fit(
+        #         lambda x, a, b: a + b / x ** 3,
+        #         self.pp_cells,
+        #         pp_times[j, :],
+        #         p0 = [1e3, self.parameters.total_num_ptcls]
+        #     )
+        #     print('\n Mesh = {}, PP Time ~ {:.4e} / LCL**3 '.format(mesh_points, *pp_popt))
+        #
+        #     ax.plot(self.pp_cells, pp_times[j], 'o')
+        #     ax.plot(self.pp_cells, pp_popt[0] + pp_popt[1] / self.pp_cells**3,
+        #             ls='--', label='Fit Mesh {}'.format(mesh_points))
+        # ax.set(yscale='log', ylabel='Time [ns]', xlabel='Cells')
+        # fig.tight_layout()
+        #
+        # self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))
+        # self.tot_times = np.empty((len(self.pm_meshes), len(self.pp_cells)))
+        # self.pp_times = np.copy(pp_times)
+        # self.pm_times = np.copy(pm_times)
+        # for i in range(len(self.pm_meshes)):
+        #     self.tot_times[i, :] = pp_times[i] + pm_times[i]
+        #     self.lagrangian[i, :] = self.force_error_map[i, :]
+        #
+        # best = np.unravel_index(self.lagrangian.argmin(), self.lagrangian.shape)
+        # self.best_mesh = self.pm_meshes[best[0]]
+        # self.best_cells = self.pp_cells[best[1]]
 
-        self.make_lagrangian_plot()
-
-        # set the best parameter
-        self.potential.pppm_mesh = self.best_mesh * np.ones(3, dtype=int)
-        self.potential.rc = self.parameters.box_lengths.min() / self.best_cells
-        self.potential.pppm_alpha_ewald = 0.25 * self.best_mesh / self.parameters.box_lengths.min()
-        self.potential.pppm_setup(self.parameters)
-
-        # print report
-        self.io.timing_study(self)
-        # time prediction
-        self.predicted_times = pp_times[best] + pm_times[best[0]]
-        # Print estimate of run times
-        self.io.time_stamp('Equilibration',
-                           self.timer.time_division(self.predicted_times * self.integrator.equilibration_steps))
-        self.io.time_stamp('Production',
-                           self.timer.time_division(self.predicted_times * self.integrator.production_steps))
-        self.io.time_stamp('Total Run',
-                           self.timer.time_division(self.predicted_times * (self.integrator.equilibration_steps
-                                                                            + self.integrator.production_steps)))
+        # self.make_lagrangian_plot()
+        #
+        # # set the best parameter
+        # self.potential.pppm_mesh = self.best_mesh * np.ones(3, dtype=int)
+        # self.potential.rc = self.parameters.box_lengths.min() / self.best_cells
+        # self.potential.pppm_alpha_ewald = 0.3 * self.best_mesh / self.parameters.box_lengths.min()
+        # self.potential.pppm_setup(self.parameters)
+        #
+        # # print report
+        # self.io.timing_study(self)
+        # # time prediction
+        # self.predicted_times = pp_times[best] + pm_times[best[0]]
+        # # Print estimate of run times
+        # self.io.time_stamp('Equilibration',
+        #                    self.timer.time_division(self.predicted_times * self.integrator.equilibration_steps))
+        # self.io.time_stamp('Production',
+        #                    self.timer.time_division(self.predicted_times * self.integrator.production_steps))
+        # self.io.time_stamp('Total Run',
+        #                    self.timer.time_division(self.predicted_times * (self.integrator.equilibration_steps
+        #                                                                     + self.integrator.production_steps)))
 
     def make_lagrangian_plot(self):
 
@@ -748,6 +802,17 @@ class PreProcess(Process):
         chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.a_ws
         chosen_rcut = self.potential.rc / self.parameters.a_ws
 
+        mesh_dir = os.path.join(self.pppm_plots_dir, 'Mesh_{}'.format(self.potential.pppm_mesh[0]))
+        if not os.path.exists(mesh_dir):
+            os.mkdir(mesh_dir)
+
+        cell_num = int(self.parameters.box_lengths.min()/self.potential.rc)
+        cell_dir = os.path.join(mesh_dir,'Cells_{}'.format(cell_num) )
+        if not os.path.exists(cell_dir):
+            os.mkdir(cell_dir)
+
+        self.pppm_plots_dir = cell_dir
+
         # Color Map
         self.make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error)
 
@@ -777,7 +842,7 @@ class PreProcess(Process):
 
         """
         # Plot the results
-        fig_path = self.io.preprocessing_dir
+        fig_path = self.pppm_plots_dir
 
         fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
         ax[0].plot(rcuts, total_force_error[30, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
@@ -812,7 +877,7 @@ class PreProcess(Process):
                 self.potential.pppm_mesh[0],
                 self.potential.pppm_cao,
                 self.kappa * self.parameters.a_ws))
-        fig.savefig(os.path.join(fig_path, 'ForceError_LinePlot_' + self.io.job_id + '.png'))
+        fig.savefig(os.path.join(fig_path, 'LinePlot_ForceError_' + self.io.job_id + '.png'))
 
     def make_color_map(self, rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error):
         """
@@ -836,7 +901,7 @@ class PreProcess(Process):
             Force error matrix.
         """
         # Plot the results
-        fig_path = self.io.preprocessing_dir
+        fig_path = self.pppm_plots_dir
 
         r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
@@ -863,7 +928,7 @@ class PreProcess(Process):
                 self.kappa * self.parameters.a_ws))
         fig.colorbar(CS)
         fig.tight_layout()
-        fig.savefig(os.path.join(fig_path, 'ForceError_ClrMap_' + self.io.job_id + '.png'))
+        fig.savefig(os.path.join(fig_path, 'ClrMap_ForceError_' + self.io.job_id + '.png'))
 
     def analytical_approx_pp(self):
         """Calculate PP force error."""
@@ -959,9 +1024,9 @@ class PreProcess(Process):
         """
         fig, ax = plt.subplots(1, 2, figsize=(12, 7))
         ax[0].plot(pm_xdata, pm_times.mean(axis=-1), 'o', label='Measured times')
-        ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), '--r', label="Fit $f(x) = a + b x + c x^2$")
+        # ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), '--r', label="Fit $f(x) = a + b x + c x^2$")
         ax[1].plot(pp_xdata, pp_times.mean(axis=-1), 'o', label='Measured times')
-        ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), '--r', label="Fit $f(x) = a x$")
+        # ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), '--r', label="Fit $f(x) = a x$")
 
         ax[0].set_xscale('log')
         ax[0].set_yscale('log')
@@ -1106,64 +1171,64 @@ class Simulation(Process):
         time_tot = self.timer.current()
         self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
 
-    def setup(self, read_yaml: bool = False, other_inputs=None):
-        """Setup simulations' parameters and io subclasses.
-
-        Parameters
-        ----------
-        read_yaml: bool
-            Flag for reading YAML input file. Default = False.
-
-        other_inputs: dict (optional)
-            Dictionary with additional simulations options.
-
-        """
-        if read_yaml:
-            self.common_parser()
-
-        if other_inputs:
-            if not isinstance(other_inputs, dict):
-                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
-
-            for class_name, class_attr in other_inputs.items():
-                if not class_name == 'Particles':
-                    self.__dict__[class_name.lower()].from_dict(class_attr)
-                else:
-                    for sp, species in enumerate(other_inputs["Particles"]):
-                        spec = Species(species["Species"])
-                        self.species[sp].__dict__.update(spec.__dict__)
-        # initialize the directories and filenames
-        self.io.setup()
-        # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
-
-        # Update parameters' dictionary with filenames and directories
-        self.parameters.from_dict(self.io.__dict__)
-        # save some general info
-        self.parameters.potential_type = self.potential.type
-        self.parameters.cutoff_radius = self.potential.rc
-
-        # Copy some integrator parameters if not already defined
-        if not hasattr(self.parameters, 'dt'):
-            self.parameters.dt = self.integrator.dt
-        if not hasattr(self.parameters, 'equilibration_steps'):
-            self.parameters.equilibration_steps = self.integrator.equilibration_steps
-        if not hasattr(self.parameters, 'eq_dump_step'):
-            self.parameters.eq_dump_step = self.integrator.eq_dump_step
-        if not hasattr(self.parameters, 'production_steps'):
-            self.parameters.production_steps = self.integrator.production_steps
-        if not hasattr(self.parameters, 'prod_dump_step'):
-            self.parameters.prod_dump_step = self.integrator.prod_dump_step
-
-        if self.integrator.electrostatic_equilibration:
-            self.parameters.electrostatic_equilibration = True
-            if not hasattr(self.parameters, 'mag_dump_step'):
-                self.parameters.mag_dump_step = self.integrator.mag_dump_step
-            if not hasattr(self.parameters, 'magnetization_steps'):
-                self.parameters.magnetization_steps = self.integrator.magnetization_steps
-
-        self.parameters.setup(self.species)
-
-        self.io.setup_checkpoint(self.parameters, self.species)
+    # def setup(self, read_yaml: bool = False, other_inputs=None):
+    #     """Setup simulations' parameters and io subclasses.
+    #
+    #     Parameters
+    #     ----------
+    #     read_yaml: bool
+    #         Flag for reading YAML input file. Default = False.
+    #
+    #     other_inputs: dict (optional)
+    #         Dictionary with additional simulations options.
+    #
+    #     """
+    #     if read_yaml:
+    #         self.common_parser()
+    #
+    #     if other_inputs:
+    #         if not isinstance(other_inputs, dict):
+    #             raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
+    #
+    #         for class_name, class_attr in other_inputs.items():
+    #             if not class_name == 'Particles':
+    #                 self.__dict__[class_name.lower()].from_dict(class_attr)
+    #             else:
+    #                 for sp, species in enumerate(other_inputs["Particles"]):
+    #                     spec = Species(species["Species"])
+    #                     self.species[sp].__dict__.update(spec.__dict__)
+    #     # initialize the directories and filenames
+    #     self.io.setup()
+    #     # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+    #
+    #     # Update parameters' dictionary with filenames and directories
+    #     self.parameters.from_dict(self.io.__dict__)
+    #     # save some general info
+    #     self.parameters.potential_type = self.potential.type
+    #     self.parameters.cutoff_radius = self.potential.rc
+    #
+    #     # Copy some integrator parameters if not already defined
+    #     if not hasattr(self.parameters, 'dt'):
+    #         self.parameters.dt = self.integrator.dt
+    #     if not hasattr(self.parameters, 'equilibration_steps'):
+    #         self.parameters.equilibration_steps = self.integrator.equilibration_steps
+    #     if not hasattr(self.parameters, 'eq_dump_step'):
+    #         self.parameters.eq_dump_step = self.integrator.eq_dump_step
+    #     if not hasattr(self.parameters, 'production_steps'):
+    #         self.parameters.production_steps = self.integrator.production_steps
+    #     if not hasattr(self.parameters, 'prod_dump_step'):
+    #         self.parameters.prod_dump_step = self.integrator.prod_dump_step
+    #
+    #     if self.integrator.electrostatic_equilibration:
+    #         self.parameters.electrostatic_equilibration = True
+    #         if not hasattr(self.parameters, 'mag_dump_step'):
+    #             self.parameters.mag_dump_step = self.integrator.mag_dump_step
+    #         if not hasattr(self.parameters, 'magnetization_steps'):
+    #             self.parameters.magnetization_steps = self.integrator.magnetization_steps
+    #
+    #     self.parameters.setup(self.species)
+    #
+    #     self.io.setup_checkpoint(self.parameters, self.species)
 
 
 @njit
@@ -1221,7 +1286,7 @@ def analytical_approx_pppm_single(kappa, rc, p, h, alpha):
     return Tot_DeltaF, pp_force_error, pm_force_error
 
 
-def quadratic(x, a, b, c):
+def pm_time_model(x, a, b):
     """
     Quadratic function for fitting.
 
@@ -1243,24 +1308,4 @@ def quadratic(x, a, b, c):
     -------
     quadratic formula
     """
-    return a + b * x + c * x * x
-
-
-def linear(x, a):
-    """
-    Linear function for fitting.
-
-    Parameters
-    ----------
-    x : np.ndarray
-        Values at which to calculate the function.
-
-    a: float
-        Coefficient of linear term.
-
-    Returns
-    -------
-    _ : np.ndarray
-        linear formula
-    """
-    return a * x
+    return a * x + b * x * np.log(x)

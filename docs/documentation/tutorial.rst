@@ -10,9 +10,8 @@ The topics that are listed in this tutorial are as follows
 
     input_file
     Pre_Simulation_Testing
-
-- Running a simulation
-- Post Processing
+    Simulation_Docs
+    Post_Processing_Docs
 
 We will illustrate these steps using the example file ``yukawa_mks_p3m.yaml`` in the ``examples`` folder.
 This file contains parameters for a :math:`NVE` simulation of a One component strongly coupled plasma comprised

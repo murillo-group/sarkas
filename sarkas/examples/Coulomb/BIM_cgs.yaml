@@ -35,7 +35,7 @@ Integrator:
 Thermostat:
     type: Berendsen                      # thermostat type
     relaxation_timestep: 1
-    tau: 5.0
+    berendsen_tau: 5.0
 
 Parameters:
     units: cgs                           # units
@@ -57,9 +57,9 @@ PostProcessing:
       phase: production
 
   - StaticStructureFactor:
-      no_ka_harmonics: 40
+      max_k_harmonics: 40
       no_slices: 1
-      angle_averaging: False
+      angle_averaging: principal_axis
 
   - FluxAutoCorrelationFunction:
       no_slices: 3

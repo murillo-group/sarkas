@@ -265,7 +265,7 @@ class InputOutput:
             with open(self.log_file, "w+") as f_log:
                 figlet_obj = Figlet(font='starwars')
                 print(figlet_obj.renderText('Sarkas'), file=f_log)
-                print("An open-source pure-Python molecular dynamics code for non-ideal plasmas.", file=f_log)
+                print("An open-source pure-Python molecular dynamics suite for non-ideal plasmas.", file=f_log)
 
         # Print figlet to screen if verbose
         if self.verbose:
@@ -312,9 +312,13 @@ class InputOutput:
 
                 print('\nJob ID: ', self.job_id)
                 print('Job directory: ', self.job_dir)
-                print('Equilibration dumps directory: ', self.eq_dump_dir)
-                print('Production dumps directory: ', self.prod_dump_dir)
-                print('PostProcessing directory: ', self.postprocessing_dir)
+                print('PostProcessing directory: \n', self.postprocessing_dir)
+
+                print('\nEquilibration dumps directory: ', self.eq_dump_dir)
+                print('Production dumps directory: \n', self.prod_dump_dir)
+
+                print('\nEquilibration Thermodynamics file: \n', self.eq_energy_filename)
+                print('Production Thermodynamics file: \n', self.prod_energy_filename)
 
             else:
 
@@ -327,8 +331,11 @@ class InputOutput:
 
                 print('\nJob ID: ', self.job_id)
                 print('Job directory: ', self.job_dir)
-                print('Equilibration dumps directory: ', self.eq_dump_dir)
-                print('Production dumps directory: ', self.prod_dump_dir)
+                print('\nEquilibration dumps directory: \n', self.eq_dump_dir)
+                print('Production dumps directory: \n', self.prod_dump_dir)
+
+                print('\nEquilibration Thermodynamics file: \n', self.eq_energy_filename)
+                print('Production Thermodynamics file: \n', self.prod_energy_filename)
 
                 if hasattr(simulation.parameters, 'rand_seed'):
                     print('Random Seed = ', simulation.parameters.rand_seed)
@@ -342,14 +349,14 @@ class InputOutput:
 
                 simulation.parameters.pretty_print()
 
-                print("\nTHERMOSTAT: ")
-                simulation.thermostat.pretty_print()
-
                 print('\nPOTENTIAL: ', simulation.potential.type)
                 self.potential_info(simulation)
 
                 print("\nALGORITHM: ", simulation.potential.method)
                 self.algorithm_info(simulation)
+
+                print("\nTHERMOSTAT: ")
+                simulation.thermostat.pretty_print()
 
                 print("\nINTEGRATOR: ")
                 simulation.integrator.pretty_print(simulation.parameters.total_plasma_frequency,
@@ -645,7 +652,7 @@ class InputOutput:
         fnt = FONTS[np.random.randint(0, len(FONTS))]
         print_figlet('\nSarkas\n', font=fnt, colors=clr)
 
-        print("\nAn open-source pure-python molecular dynamics code for non-ideal plasmas.")
+        print("\nAn open-source pure-python molecular dynamics suite for non-ideal plasmas.")
 
     @staticmethod
     def time_info(simulation):

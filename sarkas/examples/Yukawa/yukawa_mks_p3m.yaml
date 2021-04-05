@@ -6,12 +6,12 @@ Particles:
         mass: 1.673e-27                # kg, ptcl mass of ion1
         num: 10000                    # total number of particles of ion1 
         Z: 1.0                        # degree of ionization
-        temperature_eV: 1.0
+        temperature_eV: 1.25
 
 Potential:
     type: Yukawa
     method: P3M                   # Particle-Particle Particle-Mesh
-    # electron_temperature_eV: 0.026
+    electron_temperature_eV: 1.25e+3
     rc: 6.2702e-11            # [m]
     pppm_mesh: [64, 64, 64]
     pppm_aliases: [3,3,3]
@@ -20,20 +20,19 @@ Potential:
 
 Integrator:
     type: Verlet                  # velocity integrator type
-    equilibration_steps: 1000                  # number of timesteps for the equilibrium
+    equilibration_steps: 5000                  # number of timesteps for the equilibrium
     production_steps: 5000               # number of timesteps after the equilibrium
-    eq_dump_step: 5
-    prod_dump_step: 2
+    eq_dump_step: 10
+    prod_dump_step: 10
 
 Thermostat:
     type: Berendsen               # thermostat type
-    relaxation_timestep: 1
-    tau: 5.0
-    # temperatures_eV: 0.
+    relaxation_timestep: 50
+    berendsen_tau: 1.0
 
 Parameters:
     units: mks                  # units
-    dt: 6.0870e-18            # sec
+    dt: 2.000e-18            # sec
     load_method: random_no_reject
     boundary_conditions: periodic
 
@@ -51,10 +50,11 @@ PostProcessing:
       phase: production
 
   - DynamicStructureFactor:
-      max_k_harmonics: 10
+      no_slices: 1
+      max_ka_value: 8
 
   - StaticStructureFactor:
-      max_k_harmonics: 10
+      max_ka_value: 8
 
   - CurrentCorrelationFunction:
-      max_k_harmonics: 10
+      max_ka_value: 8

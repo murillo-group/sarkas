@@ -126,7 +126,7 @@ class Observable:
     k_file : str
         Path to the npz file storing the :math:`k` vector values.
 
-    nkt_file : str
+    nkt_hdf_file : str
         Path to the npy file containing the Fourier transform of density fluctuations. :math:`n(\mathbf k, t)`.
 
     vkt_file : str
@@ -159,12 +159,7 @@ class Observable:
 
     def __init__(self):
         self.dataframe = pd.DataFrame()
-        self.dataframe_longitudinal = pd.DataFrame()
-        self.dataframe_transverse = pd.DataFrame()
         self.saving_dir = None
-        self.filename_csv = None
-        self.filename_csv_longitudinal = None
-        self.filename_csv_transverse = None
         self.phase = 'production'
         self.multi_run_average = False
         self.dimensional_average = False
@@ -278,8 +273,8 @@ class Observable:
             else:
                 # Executive decision
                 self.max_k_harmonics = np.array([5, 5, 5])
-                self.max_aa_harmonics = np.array([5, 5, 5])
-                self.angle_averaging = 'full'
+                self.max_aa_harmonics = np.array([0, 0, 0])
+                self.angle_averaging = 'principal_axis'
 
             # Calculate the maximum ka value based on user's choice of angle_averaging
             # Dev notes: Make sure max_ka_value, max_aa_ka_value are defined when this if is done
@@ -299,8 +294,8 @@ class Observable:
             # Create paths for files
             self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
             self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
-            self.nkt_file = os.path.join(self.k_space_dir, "nkt")
-            self.vkt_file = os.path.join(self.k_space_dir, "vkt")
+            self.nkt_hdf_file = os.path.join(self.k_space_dir, "nkt.h5")
+            self.vkt_hdf_file = os.path.join(self.k_space_dir, "vkt.h5")
 
         # Get the number of independent observables if multi-species
         self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
@@ -335,7 +330,9 @@ class Observable:
         if not hasattr(self, 'no_slices'):
             self.no_slices = 1
 
-        self.slice_steps = int(self.no_dumps / self.no_slices)
+        self.slice_steps = int(
+            self.production_steps / self.prod_dump_step / self.no_slices) if self.no_dumps == 0 else int(
+            self.no_dumps / self.no_slices)
 
         # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]
         self.species_index_start = np.array([0, *np.cumsum(self.species_num)], dtype=int)
@@ -352,18 +349,17 @@ class Observable:
         """
         Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
         """
-        if self.__class__.__name__ == 'CurrentCorrelationFunction':
+        if self.__name__ == 'dsf' or self.__name__ == 'ccf':
             try:
-                self.dataframe_longitudinal = pd.read_csv(self.filename_csv_longitudinal, index_col=False)
-                self.dataframe_transverse = pd.read_csv(self.filename_csv_transverse, index_col=False)
+                self.dataframe = pd.read_hdf(self.filename_hdf, index_col=False)
+
                 k_data = np.load(self.k_file)
                 self.k_list = k_data["k_list"]
                 self.k_counts = k_data["k_counts"]
                 self.ka_values = k_data["ka_values"]
 
             except FileNotFoundError:
-                print("\nFile {} not found!".format(self.filename_csv_longitudinal))
-                print("\nFile {} not found!".format(self.filename_csv_transverse))
+                print("\nFile {} not found!".format(self.filename_hdf))
                 print("\nComputing Observable now ...")
                 self.compute()
         else:
@@ -385,7 +381,9 @@ class Observable:
                 comp = self.max_k_harmonics == k_data["max_k_harmonics"]
                 if comp.all():
                     self.k_list = k_data["k_list"]
+                    self.k_harmonics = k_data["k_harmonics"]
                     self.k_counts = k_data["k_counts"]
+                    self.k_values = k_data["k_values"]
                     self.ka_values = k_data["ka_values"]
                     self.no_ka_values = len(self.ka_values)
                 else:
@@ -405,12 +403,13 @@ class Observable:
         assert self.max_k_harmonics.all(), 'max_k_harmonics not defined.'
 
         # Calculate the k arrays
-        self.k_list, self.k_counts, k_unique = kspace_setup(self.box_lengths,
-                                                            self.angle_averaging,
-                                                            self.max_k_harmonics,
-                                                            self.max_aa_harmonics)
+        self.k_list, self.k_counts, k_unique, self.k_harmonics = kspace_setup(self.box_lengths,
+                                                                              self.angle_averaging,
+                                                                              self.max_k_harmonics,
+                                                                              self.max_aa_harmonics)
         # Save the ka values
         self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
+        self.k_values = 2.0 * np.pi * k_unique
         self.no_ka_values = len(self.ka_values)
 
         # Check if the writing folder exist
@@ -420,7 +419,9 @@ class Observable:
         # Write the npz file
         np.savez(self.k_file,
                  k_list=self.k_list,
+                 k_harmonics=self.k_harmonics,
                  k_counts=self.k_counts,
+                 k_values=self.k_values,
                  ka_values=self.ka_values,
                  angle_averaging=self.angle_averaging,
                  max_k_harmonics=self.max_k_harmonics,
@@ -440,32 +441,55 @@ class Observable:
         """
         if nkt_flag:
             try:
-                nkt_data = np.load(self.nkt_file + '_slice_' + str(self.no_slices - 1) + '.npz')
-                # Check for the correct number of k values
-                if self.angle_averaging == nkt_data["angle_averaging"]:
-                    # Check for the correct max harmonics
-                    comp = self.max_k_harmonics == nkt_data["max_harmonics"]
-                    if not comp.all():
+                # Check that what was already calculated is correct
+                with pd.HDFStore(self.nkt_hdf_file, mode='r') as nkt_hfile:
+                    metadata = nkt_hfile.get_storer('nkt').attrs.metadata
+
+                if metadata['no_slices'] == self.no_slices:
+                    # Check for the correct number of k values
+                    if metadata["angle_averaging"] == self.angle_averaging:
+                        # Check for the correct max harmonics
+                        comp = self.max_k_harmonics == metadata["max_k_harmonics"]
+                        if not comp.all():
+                            self.calc_kt_data(nkt_flag=True)
+                    else:
                         self.calc_kt_data(nkt_flag=True)
                 else:
                     self.calc_kt_data(nkt_flag=True)
 
-            except FileNotFoundError:
+                # elif metadata['max_k_harmonics']
+                #
+                # if self.angle_averaging == nkt_data["angle_averaging"]:
+                #
+                #     comp = self.max_k_harmonics == nkt_data["max_harmonics"]
+                #     if not comp.all():
+                #         self.calc_kt_data(nkt_flag=True)
+                # else:
+                #     self.calc_kt_data(nkt_flag=True)
+
+            except OSError:
                 self.calc_kt_data(nkt_flag=True)
 
         if vkt_flag:
+
             try:
-                vkt_data = np.load(self.vkt_file + '_slice_' + str(self.no_slices - 1) + '.npz')
-                # Check for the correct number of k values
-                if self.angle_averaging == vkt_data["angle_averaging"]:
-                    # Check for the correct max harmonics
-                    comp = self.max_k_harmonics == vkt_data["max_harmonics"]
-                    if not comp.all():
+                # Check that what was already calculated is correct
+                with pd.HDFStore(self.vkt_hdf_file, mode='r') as vkt_hfile:
+                    metadata = vkt_hfile.get_storer('vkt').attrs.metadata
+
+                if metadata['no_slices'] == self.no_slices:
+                    # Check for the correct number of k values
+                    if metadata["angle_averaging"] == self.angle_averaging:
+                        # Check for the correct max harmonics
+                        comp = self.max_k_harmonics == metadata["max_k_harmonics"]
+                        if not comp.all():
+                            self.calc_kt_data(vkt_flag=True)
+                    else:
                         self.calc_kt_data(vkt_flag=True)
                 else:
                     self.calc_kt_data(vkt_flag=True)
 
-            except FileNotFoundError:
+            except OSError:
                 self.calc_kt_data(vkt_flag=True)
 
     def calc_kt_data(self, nkt_flag=False, vkt_flag=False):
@@ -483,8 +507,10 @@ class Observable:
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         if nkt_flag:
+            nkt_dataframe = pd.DataFrame()
+            tinit = self.timer.current()
             for isl in range(self.no_slices):
-                print("\nCalculating n(k,t) for slice {}/{}.".format(isl, self.no_slices))
+                print("\nCalculating n(k,t) for slice {}/{}.".format(isl + 1, self.no_slices))
                 nkt = calc_nkt(self.dump_dir,
                                (start_slice, end_slice, self.slice_steps),
                                self.dump_step,
@@ -493,15 +519,51 @@ class Observable:
                                self.verbose)
                 start_slice += self.slice_steps * self.dump_step
                 end_slice += self.slice_steps * self.dump_step
+                # n(k,t).shape = [no_species, time, k vectors]
 
-                np.savez(self.nkt_file + '_slice_' + str(isl) + '.npz',
-                         nkt=nkt,
-                         max_harmonics=self.max_k_harmonics,
-                         angle_averaging=self.angle_averaging)
+                slc_column = "slice {}".format(isl + 1)
+                for isp, sp_name in enumerate(self.species_names):
+
+                    df_columns = [
+                        slc_column + '_{}_k = [{}, {}, {}]'.format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))]
+                    # df_columns = [time_column, *k_columns]
+                    nkt_dataframe = pd.concat([nkt_dataframe, pd.DataFrame(nkt[isp, :, :], columns=df_columns)],
+                                              axis=1)
+
+            tuples = [tuple(c.split("_")) for c in nkt_dataframe.columns]
+            nkt_dataframe.columns = pd.MultiIndex.from_tuples(tuples, names=['slices', 'species', 'harmonics'])
+
+            # Sample nkt_dataframe
+            # slices slice 1
+            # species H
+            # harmonics k = [0, 0, 1] | k = [0, 1, 0] | ...
+
+            # Save the data and append metadata
+            if os.path.exists(self.nkt_hdf_file):
+                os.remove(self.nkt_hdf_file)
+
+            hfile = pd.HDFStore(self.nkt_hdf_file, mode='w')
+            hfile.put('nkt', nkt_dataframe)
+            # This metadata is needed to check if I need to recalculate
+            metadata = {
+                'no_slices': self.no_slices,
+                'max_k_harmonics': self.max_k_harmonics,
+                'angle_averaging': self.angle_averaging
+            }
+
+            hfile.get_storer('nkt').attrs.metadata = metadata
+            hfile.close()
+
+            tend = self.timer.current()
+            self.time_stamp("n(k,t) Calculation", self.timer.time_division(tend - tinit))
+
         if vkt_flag:
+            vkt_dataframe = pd.DataFrame()
+            tinit = self.timer.current()
             for isl in range(self.no_slices):
                 print("\nCalculating longitudinal and transverse "
-                      "velocity fluctuations v(k,t) for slice {}/{}.".format(isl, self.no_slices))
+                      "velocity fluctuations v(k,t) for slice {}/{}.".format(isl + 1, self.no_slices))
                 vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir,
                                                     (start_slice, end_slice, self.slice_steps),
                                                     self.dump_step,
@@ -511,31 +573,90 @@ class Observable:
                 start_slice += self.slice_steps * self.dump_step
                 end_slice += self.slice_steps * self.dump_step
 
-                np.savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
-                         longitudinal=vkt,
-                         transverse_i=vkt_i,
-                         transverse_j=vkt_j,
-                         transverse_k=vkt_k,
-                         max_harmonics=self.max_k_harmonics,
-                         angle_averaging=self.angle_averaging)
+                slc_column = "slice {}".format(isl + 1)
+                for isp, sp_name in enumerate(self.species_names):
+                    df_columns = [
+                        slc_column + '_Longitudinal_{}_k = [{}, {}, {}]'.format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))]
+                    # df_columns = [time_column, *k_columns]
+                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt[isp, :, :], columns=df_columns)],
+                                              axis=1)
+                    df_columns = [
+                        slc_column + '_Transverse i_{}_k = [{}, {}, {}]'.format(sp_name,
+                                                                                *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))]
+                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_i[isp, :, :], columns=df_columns)],
+                                              axis=1)
+                    df_columns = [
+                        slc_column + '_Transverse j_{}_k = [{}, {}, {}]'.format(sp_name,
+                                                                                *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))]
+                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_j[isp, :, :], columns=df_columns)],
+                                              axis=1)
 
-    def plot(self, scaling=None, figname=None, show=False, acf=False, longitudinal=True, **kwargs):
+                    df_columns = [
+                        slc_column + '_Transverse k_{}_k = [{}, {}, {}]'.format(sp_name,
+                                                                                *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))]
+                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_k[isp, :, :], columns=df_columns)],
+                                              axis=1)
+
+            # Full string: slice 1_Longitudinal_He_k = [1, 0, 0]
+            tuples = [tuple(c.split("_")) for c in vkt_dataframe.columns]
+            vkt_dataframe.columns = pd.MultiIndex.from_tuples(
+                tuples,
+                names=['slices', 'species', 'direction',  'harmonics'])
+
+            # Sample nkt_dataframe
+            # slices slice 1
+            # species H
+            # direction Longitudinal/Transverse
+            # harmonics k = [0, 0, 1] | k = [0, 1, 0] | ...
+
+            if os.path.exists(self.vkt_hdf_file):
+                os.remove(self.vkt_hdf_file)
+            # Save the data and append metadata
+            hfile = pd.HDFStore(self.vkt_hdf_file, mode='w')
+            hfile.put('vkt', vkt_dataframe)
+            # This metadata is needed to check if I need to recalculate
+            metadata = {
+                'no_slices': self.no_slices,
+                'max_k_harmonics': self.max_k_harmonics,
+                'angle_averaging': self.angle_averaging
+            }
+
+            hfile.get_storer('vkt').attrs.metadata = metadata
+            hfile.close()
+
+            tend = self.timer.current()
+            self.time_stamp("v(k,t) Calculation", self.timer.time_division(tend - tinit))
+
+                # np.savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
+                #          longitudinal=vkt,
+                #          transverse_i=vkt_i,
+                #          transverse_j=vkt_j,
+                #          transverse_k=vkt_k,
+                #          max_harmonics=self.max_k_harmonics,
+                #          angle_averaging=self.angle_averaging)
+
+    def plot(self, scaling=None, acf=False, figname=None, show=False, **kwargs):
         """
         Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
 
         Parameters
         ----------
-        longitudinal : bool
-            Flag for longitudinal plot in case of CurrenCurrelationFunction
+        hdf_column
+        scaling : float, tuple
+            Factor by which to rescale the x and y axis.
 
         acf : bool
             Flag for renormalizing the autocorrelation functions. Default= False
 
+        longitudinal : bool
+            Flag for longitudinal plot in case of CurrenCurrelationFunction. Default = True
+
         figname : str
             Name with which to save the file. It automatically saves it in the correct directory.
-
-        scaling: float, tuple
-            Factor by which to rescale the x and y quantities.
 
         show : bool
             Flag for prompting the plot to screen. Default=False
@@ -553,12 +674,8 @@ class Observable:
         # Grab the data
         # self.parse()
         # Make a copy of the dataframe for plotting
-        if self.__class__.__name__ != 'CurrentCorrelationFunction':
-            plot_dataframe = self.dataframe.copy()
-        elif longitudinal:
-            plot_dataframe = self.dataframe_longitudinal.copy()
-        else:
-            plot_dataframe = self.dataframe_transverse.copy()
+
+        plot_dataframe = self.dataframe.copy()
 
         if scaling:
             if isinstance(scaling, tuple):
@@ -583,7 +700,9 @@ class Observable:
         #             plot_dataframe.drop(col, axis=1, inplace=True)
         #     kwargs['yerr'] = errorbars
         #
+
         axes_handle = plot_dataframe.plot(x=plot_dataframe.columns[0], **kwargs)
+        
         fig = axes_handle.figure
         fig.tight_layout()
 
@@ -591,7 +710,7 @@ class Observable:
         if figname:
             fig.savefig(os.path.join(self.saving_dir, figname + '_' + self.job_id + '.png'))
         else:
-            fig.savefig(os.path.join(self.saving_dir, 'Plot_' + self.__class__.__name__ + '_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, 'Plot_' + self.__name__ + '_' + self.job_id + '.png'))
 
         if show:
             fig.show()
@@ -654,13 +773,16 @@ class CurrentCorrelationFunction(Observable):
             attributes and/or add new ones.
 
         """
-        self.__name__ = 'ccf'
-        self.__long_name__ = 'Current Correlation Function'
+
+        self.k_observable = True
 
         if phase:
             self.phase = phase.lower()
 
         super().setup_init(params, self.phase)
+
+        self.__name__ = 'ccf'
+        self.__long_name__ = 'Current Correlation Function'
 
         saving_dir = os.path.join(self.postprocessing_dir, 'CurrentCorrelationFunction')
         if not os.path.exists(saving_dir):
@@ -681,10 +803,14 @@ class CurrentCorrelationFunction(Observable):
 
         self.parse_k_data()
 
-        self.filename_csv_longitudinal = os.path.join(self.saving_dir,
-                                                      "LongitudinalCurrentCorrelationFunction_" + self.job_id + '.csv')
-        self.filename_csv_transverse = os.path.join(self.saving_dir,
-                                                    "TransverseCurrentCorrelationFunction_" + self.job_id + '.csv')
+        # self.filename_csv_longitudinal = os.path.join(self.saving_dir,
+        #                                               "Longitudinal_CurrentCorrelationFunction_" + self.job_id + '.csv')
+        # self.filename_csv_transverse = os.path.join(self.saving_dir,
+        #                                             "Transverse_CurrentCorrelationFunction_" + self.job_id + '.csv')
+
+        self.filename_hdf = os.path.join(
+            self.saving_dir,
+            "CurrentCorrelationFunction_" + self.job_id + '.h5')
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
@@ -708,85 +834,148 @@ class CurrentCorrelationFunction(Observable):
         self.parse_kt_data(nkt_flag=False, vkt_flag=True)
         # Initialize dataframes and add frequencies to it.
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
-        self.dataframe = pd.DataFrame()
+
         self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-        self.dataframe_longitudinal["Frequencies"] = np.fft.fftshift(self.frequencies)
-        self.dataframe_transverse["Frequencies"] = np.fft.fftshift(self.frequencies)
+        self.frequencies = np.fft.fftshift(self.frequencies)
 
-        temp_dataframe_longitudinal = pd.DataFrame()
-        temp_dataframe_longitudinal["Frequencies"] = np.fft.fftshift(self.frequencies)
+        # self.dataframe_longitudinal["Frequencies"] = np.fft.fftshift(self.frequencies)
+        # self.dataframe_transverse["Frequencies"] = np.fft.fftshift(self.frequencies)
 
-        temp_dataframe_transverse = pd.DataFrame()
-        temp_dataframe_transverse["Frequencies"] = np.fft.fftshift(self.frequencies)
+        # temp_dataframe_longitudinal = pd.DataFrame()
+        temp_dataframe = pd.DataFrame()
+        tinit = self.timer.current()
 
-        Lkw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
-        Tkw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
+        vkt_df = pd.read_hdf(self.vkt_hdf_file, mode='r', key='vkt')
+        # Containers
+        vkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
+        vkt_i = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
+        vkt_j = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
+        vkt_k = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
 
         for isl in range(self.no_slices):
-            data = np.load(self.vkt_file + '_slice_' + str(isl) + '.npz')
-            vkt = data["longitudinal"]
-            vkt_i = data["transverse_i"]
-            vkt_j = data["transverse_j"]
-            vkt_k = data["transverse_k"]
+
+            # Put data in the container to pass
+            for sp, sp_name in enumerate(self.species_names):
+                vkt[sp] = np.array(vkt_df["slice {}".format(isl + 1)]["Longitudinal"][sp_name])
+                vkt_i[sp] = np.array(vkt_df["slice {}".format(isl + 1)]["Transverse i"][sp_name])
+                vkt_j[sp] = np.array(vkt_df["slice {}".format(isl + 1)]["Transverse j"][sp_name])
+                vkt_k[sp] = np.array(vkt_df["slice {}".format(isl + 1)]["Transverse k"][sp_name])
 
             # Calculate Lkw and Tkw
-            Lkw = calc_Skw(vkt, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt, self.dump_step)
-            Tkw_i = calc_Skw(vkt_i, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
-                             self.dump_step)
-            Tkw_j = calc_Skw(vkt_j, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
-                             self.dump_step)
-            Tkw_k = calc_Skw(vkt_k, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
-                             self.dump_step)
+            Lkw = calc_Skw(vkt, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
+            Tkw_i = calc_Skw(vkt_i, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
+            Tkw_j = calc_Skw(vkt_j, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
+            Tkw_k = calc_Skw(vkt_k, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
 
             Tkw = (Tkw_i + Tkw_j + Tkw_k) / 3.0
 
-            Lkw_tot += Lkw / self.no_slices
-            Tkw_tot += Tkw / self.no_slices
+            # Lkw_tot += Lkw / self.no_slices
+            # Tkw_tot += Tkw / self.no_slices
+            # Create the dataframe's column names
+            slc_column = 'slice {}'.format(isl + 1)
+            ka_columns = ["ka = {:.6f}".format(ka) for ik, ka in enumerate(self.ka_values)]
 
+            # Save the full Skw into a Dataframe
             sp_indx = 0
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:]):
-                    for ik in range(len(self.k_counts)):
-                        if ik == 0:
-                            column = "{}-{} CCF ka_min".format(sp1, sp2)
-                        else:
-                            column = "{}-{} CCF {} ka_min".format(sp1, sp2, ik + 1)
+                    columns = [
+                        "Longitudinal_{}-{}_".format(sp1, sp2) + slc_column +
+                        "_{}_k = [{}, {}, {}]".format(
+                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int))
+                        # Final string : Longitudinal_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
+                        for ik in range(len(self.k_harmonics))]
+                    temp_dataframe = pd.concat(
+                        [temp_dataframe, pd.DataFrame(Lkw[sp_indx, :, :].T, columns=columns)],
+                        axis=1)
 
-                        temp_dataframe_longitudinal[column] = np.fft.fftshift(Lkw[sp_indx, ik, :])
-                        temp_dataframe_transverse[column] = np.fft.fftshift(Tkw[sp_indx, ik, :])
+                    columns = [
+                        "Transverse_{}-{}_".format(sp1, sp2) + slc_column +
+                        "_{}_k = [{}, {}, {}]".format(
+                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int))
+                        # Final string : Transverse_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
+                        for ik in range(len(self.k_harmonics))]
+                    temp_dataframe = pd.concat(
+                        [temp_dataframe, pd.DataFrame(Tkw[sp_indx, :, :].T, columns=columns)],
+                        axis=1)
+
                     sp_indx += 1
 
-            temp_dataframe_longitudinal.to_csv(self.filename_csv_longitudinal[:-4] + '_slice_' + str(isl) + '.csv',
-                                               index=False, encoding='utf-8')
-            temp_dataframe_transverse.to_csv(self.filename_csv_transverse[:-4] + '_slice_' + str(isl) + '.csv',
-                                             index=False, encoding='utf-8')
+        # Create the MultiIndex
+        tuples = [tuple(c.split("_")) for c in temp_dataframe.columns]
+        temp_dataframe.columns = pd.MultiIndex.from_tuples(tuples,
+                                                           names=['direction', 'species', 'slices', 'ka_value',
+                                                                  'k_harmonics'])
 
-        # Repeat the saving procedure for the total Lkw and Tkw
-        sp_indx = 0
-        for i, sp1 in enumerate(self.species_names):
-            for j, sp2 in enumerate(self.species_names[i:]):
-                for ik in range(len(self.k_counts)):
-                    if ik == 0:
-                        column = "{}-{} CCF ka_min".format(sp1, sp2)
-                    else:
-                        column = "{}-{} CCF {} ka_min".format(sp1, sp2, ik + 1)
+        if os.path.exists(self.filename_hdf[:-3] + '_Full.h5'):
+            os.remove(self.filename_hdf[:-3] + '_Full.h5')
 
-                    self.dataframe_longitudinal[column] = np.fft.fftshift(Lkw[sp_indx, ik, :])
-                    self.dataframe_transverse[column] = np.fft.fftshift(Tkw[sp_indx, ik, :])
-                sp_indx += 1
+        temp_dataframe.to_hdf(self.filename_hdf[:-3] + '_Full.h5', mode='w', key=self.__name__)
 
-        self.dataframe_longitudinal.to_csv(self.filename_csv_longitudinal, index=False, encoding='utf-8')
-        self.dataframe_transverse.to_csv(self.filename_csv_transverse, index=False, encoding='utf-8')
+        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
+        self.dataframe = pd.DataFrame()
+        self.dataframe[' _ _ _ _Frequencies'] = self.frequencies
+        # Take the mean and std and store them into the dataframe to return
+        for sp1, sp1_name in enumerate(self.species_names):
+            for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
+                comp_name = '{}-{}'.format(sp1_name, sp2_name)
+                ### LONGITUDINAL
+                # Rename the columns with values of ka
+                ka_columns = ['Longitudinal_' + comp_name + "_Mean_ka = {:.6f}".format(ka)
+                              for ik, ka in enumerate(self.ka_values)]
+
+                # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
+                df_mean = temp_dataframe['Longitudinal'][comp_name].mean(level=1, axis='columns')
+                df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
+                # Std
+                ka_columns = ['Longitudinal_' + comp_name + "_Std_ka = {:.6f}".format(ka)
+                              for ik, ka in enumerate(self.ka_values)]
+                df_std = temp_dataframe['Longitudinal'][comp_name].std(level=1, axis='columns')
+                df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
+
+                self.dataframe = pd.concat([self.dataframe, df_mean, df_std], axis=1)
+
+                ### Transverse
+                # Rename the columns with values of ka
+                ka_columns = ['Transverse_' + comp_name + "_Mean_ka = {:.6f}".format(ka)
+                              for ik, ka in enumerate(self.ka_values)]
+
+                # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
+                tdf_mean = temp_dataframe['Transverse'][comp_name].mean(level=1, axis='columns')
+                tdf_mean = tdf_mean.rename(col_mapper(tdf_mean.columns, ka_columns), axis=1)
+                # Std
+                ka_columns = ['Transverse_' + comp_name + "_Std_ka = {:.6f}".format(ka)
+                              for ik, ka in enumerate(self.ka_values)]
+                tdf_std = temp_dataframe['Transverse'][comp_name].std(level=1, axis='columns')
+                tdf_std = tdf_std.rename(col_mapper(tdf_std.columns, ka_columns), axis=1)
+
+                self.dataframe = pd.concat([self.dataframe, tdf_mean, tdf_std], axis=1)
+
+        # Create the MultiIndex columns:
+        # Longitudinal_H-He_Mean_Frequencies | ka = 0.123456
+        # Longitudinal_H-He_Std_ka = 0.123456
+
+        tuples = [tuple(c.split("_")) for c in self.dataframe.columns]
+        self.dataframe.columns = pd.MultiIndex.from_tuples(tuples)
+
+        tend = self.timer.current()
+        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
+
+        # HDF will get huge if we don't remove
+        if os.path.exists(self.filename_hdf):
+            os.remove(self.filename_hdf)
+
+        self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
 
     def pretty_print(self):
         """Print current correlation function calculation parameters for help in choice of simulation parameters."""
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('k wavevector information saved in: ', self.k_file)
-        print('v(k,t) data saved in: ', self.vkt_file)
-        print('Data saved in: \n\t{} \n\t{}'.format(self.filename_csv_longitudinal, self.filename_csv_transverse))
+        print('k wavevector information saved in: \n', self.k_file)
+        print('v(k,t) data saved in: \n', self.vkt_hdf_file)
+        print('Data saved in: \n{}'.format(self.filename_hdf))
         print('Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies,'
-              ' \n\t self.dataframe_longitudinal, self.dataframe_transverse')
-        print('Frequency Space Parameters:')
+              ' \n\t self.dataframe')
+        print('\nFrequency Space Parameters:')
         print('\tNo. of slices = {}'.format(self.no_slices))
         print('\tNo. dumps per slice = {}'.format(self.slice_steps))
         print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
@@ -852,14 +1041,15 @@ class DynamicStructureFactor(Observable):
 
         """
 
-        self.__name__ = 'dsf'
-        self.__long_name__ = 'Dynamic Structure Factor'
         self.k_observable = True
 
         if phase:
             self.phase = phase.lower()
 
         super().setup_init(params, self.phase)
+
+        self.__name__ = 'dsf'
+        self.__long_name__ = 'Dynamic Structure Factor'
 
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'DynamicStructureFactor')
@@ -873,7 +1063,6 @@ class DynamicStructureFactor(Observable):
 
         # These calculation are needed for the io.postprocess_info().
         # This is a hack and we need to find a faster way to do it
-
         dt_r = self.dt * self.dump_step
 
         self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
@@ -884,6 +1073,7 @@ class DynamicStructureFactor(Observable):
         self.parse_k_data()
 
         self.filename_csv = os.path.join(self.saving_dir, "DynamicStructureFactor_" + self.job_id + '.csv')
+        self.filename_hdf = os.path.join(self.saving_dir, "DynamicStructureFactor_" + self.job_id + '.h5')
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
@@ -907,64 +1097,93 @@ class DynamicStructureFactor(Observable):
         # Parse nkt otherwise calculate it
         self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=True)
-        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
-        self.dataframe = pd.DataFrame()
 
         self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-        self.dataframe["Frequencies"] = np.fft.fftshift(self.frequencies)
+        self.frequencies = np.fft.fftshift(self.frequencies)
 
+        # Save the raw Skw data into a temporary dataframe.
+        # The final Skw will be calculated using mean and std on this dataframe
         temp_dataframe = pd.DataFrame()
-        temp_dataframe["Frequencies"] = np.fft.fftshift(self.frequencies)
-
-        Skw_tot = np.zeros((self.no_obs, len(self.k_counts), self.slice_steps))
-
+        tinit = self.timer.current()
+        nkt_df = pd.read_hdf(self.nkt_hdf_file, mode='r', key='nkt')
         for isl in range(0, self.no_slices):
-            nkt_data = np.load(self.nkt_file + '_slice_' + str(isl) + '.npz')
-            nkt = nkt_data["nkt"]
+            # Initialize container
+            nkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
+            for sp, sp_name in enumerate(self.species_names):
+                nkt[sp] = np.array(nkt_df["slice {}".format(isl + 1)][sp_name])
+
             # Calculate Skw
-            Skw = calc_Skw(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps, self.dt,
-                           self.dump_step)
+            Skw_all = calc_Skw(nkt, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
 
-            Skw_tot += Skw / self.no_slices
-
-            # Save Skw
+            # Create the dataframe's column names
+            slc_column = 'slice {}'.format(isl + 1)
+            ka_columns = ["ka = {:.8f}".format(ka) for ik, ka in enumerate(self.ka_values)]
+            # Save the full Skw into a Dataframe
             sp_indx = 0
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:]):
-                    for ik in range(len(self.k_counts)):
-                        if ik == 0:
-                            column = "{}-{} DSF ka_min".format(sp1, sp2)
-                        else:
-                            column = "{}-{} DSF {} ka_min".format(sp1, sp2, ik + 1)
-                        temp_dataframe[column] = np.fft.fftshift(Skw[sp_indx, ik, :])
+                    columns = [
+                        "{}-{}_".format(sp1, sp2) + slc_column +
+                        "_{}_k = [{}, {}, {}]".format(
+                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))]
+                    temp_dataframe = pd.concat(
+                        [temp_dataframe, pd.DataFrame(Skw_all[sp_indx, :, :].T, columns=columns)],
+                        axis=1)
                     sp_indx += 1
 
-            temp_dataframe.to_csv(self.filename_csv[:-4] + '_slice_' + str(isl) + '.csv', index=False, encoding='utf-8')
+        # Create the MultiIndex
+        tuples = [tuple(c.split("_")) for c in temp_dataframe.columns]
+        temp_dataframe.columns = pd.MultiIndex.from_tuples(tuples,
+                                                           names=['species', 'slices', 'k_index', 'k_harmonics'])
 
-        # Repeat the saving procedure for the total Skw
-        sp_indx = 0
-        for i, sp1 in enumerate(self.species_names):
-            for j, sp2 in enumerate(self.species_names[i:]):
-                for ik in range(len(self.k_counts)):
-                    if ik == 0:
-                        column = "{}-{} DSF ka_min".format(sp1, sp2)
-                    else:
-                        column = "{}-{} DSF {} ka_min".format(sp1, sp2, ik + 1)
-                    self.dataframe[column] = np.fft.fftshift(Skw_tot[sp_indx, ik, :])
-                sp_indx += 1
+        if os.path.exists(self.filename_hdf[:-3] + '_Full.h5'):
+            os.remove(self.filename_hdf[:-3] + '_Full.h5')
+        temp_dataframe.to_hdf(self.filename_hdf[:-3] + '_Full.h5', mode='w', key=self.__name__)
 
-        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
+        self.dataframe = pd.DataFrame()
+        self.dataframe[" _ _Frequencies"] = self.frequencies
+
+        # Take the mean and std and store them into the dataframe to return
+        for sp1, sp1_name in enumerate(self.species_names):
+            for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
+                skw_name = '{}-{}'.format(sp1_name, sp2_name)
+                # Rename the columns with values of ka
+                ka_columns = [skw_name + "_Mean_ka = {:.6f}".format(ka) for ik, ka in enumerate(self.ka_values)]
+                # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
+                df_mean = temp_dataframe[skw_name].mean(level=1, axis='columns')
+                df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
+                # Std
+                ka_columns = [skw_name + "_Std_ka = {:.6f}".format(ka) for ik, ka in enumerate(self.ka_values)]
+                df_std = temp_dataframe[skw_name].std(level=1, axis='columns')
+                df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
+
+                self.dataframe = pd.concat([self.dataframe, df_mean, df_std], axis=1)
+
+        # Create the MultiIndex columns
+        tuples = [tuple(c.split("_")) for c in self.dataframe.columns]
+        self.dataframe.columns = pd.MultiIndex.from_tuples(tuples)
+
+        tend = self.timer.current()
+        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
+
+        # HDF will get huge if we don't remove
+        if os.path.exists(self.filename_hdf):
+            os.remove(self.filename_hdf)
+
+        self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
 
     def pretty_print(self):
         """Print dynamic structure factor calculation parameters for help in choice of simulation parameters."""
 
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('k wavevector information saved in: ', self.k_file)
-        print('n(k,t) data saved in: ', self.nkt_file)
-        print('Data saved in: ', self.filename_csv)
+        print('k wavevector information saved in: \n', self.k_file)
+        print('n(k,t) data saved in: \n', self.nkt_hdf_file)
+        print('Data saved in: \n', self.filename_hdf)
         print('Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies, self.dataframe')
 
-        print('Frequency Space Parameters:')
+        print('\nFrequency Space Parameters:')
         print('\tNo. of slices = {}'.format(self.no_slices))
         print('\tNo. dumps per slice = {}'.format(self.slice_steps))
         print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
@@ -1151,12 +1370,12 @@ class RadialDistributionFunction(Observable):
 
         """
 
-        self.__name__ = 'rdf'
-        self.__long_name__ = 'Radial Distribution Function'
         if phase:
             self.phase = phase.lower()
 
         super().setup_init(params, self.phase)
+        self.__name__ = 'rdf'
+        self.__long_name__ = 'Radial Distribution Function'
 
         saving_dir = os.path.join(self.postprocessing_dir, 'RadialDistributionFunction')
         if not os.path.exists(saving_dir):
@@ -1250,7 +1469,7 @@ class RadialDistributionFunction(Observable):
         """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
 
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: \n\t', self.filename_csv)
+        print('Data saved in: \n', self.filename_csv)
         print('Data accessible at: self.ra_values, self.dataframe')
         print('\nNo. bins = {}'.format(self.no_bins))
         print('dr = {:1.4f} a_ws = {:1.4e} '.format(self.dr_rdf / self.a_ws, self.dr_rdf), end='')
@@ -1297,13 +1516,15 @@ class StaticStructureFactor(Observable):
             attributes and/or add new ones.
 
         """
-        self.__name__ = 'ssf'
-        self.__long_name__ = 'Static Structure Function'
+
         if phase:
             self.phase = phase.lower()
 
         self.k_observable = True
         super().setup_init(params, self.phase)
+
+        self.__name__ = 'ssf'
+        self.__long_name__ = 'Static Structure Function'
 
         saving_dir = os.path.join(self.postprocessing_dir, 'StaticStructureFunction')
         if not os.path.exists(saving_dir):
@@ -1320,7 +1541,7 @@ class StaticStructureFactor(Observable):
 
         self.parse_k_data()
 
-        self.filename_csv = os.path.join(self.saving_dir, "StaticStructureFunction_" + self.job_id + ".csv")
+        self.filename_hdf = os.path.join(self.saving_dir, "StaticStructureFunction_" + self.job_id + ".h5")
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
@@ -1345,46 +1566,58 @@ class StaticStructureFactor(Observable):
         self.parse_kt_data(nkt_flag=True)
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
         self.dataframe = pd.DataFrame()
-        self.dataframe["ka values"] = self.ka_values
 
         no_dumps_calculated = self.slice_steps * self.no_slices
-        Sk_all = np.zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
-
-        print("Calculating S(k) ...")
+        Sk_avg = np.zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
+        print("\nCalculating S(k) ...")
 
         tinit = self.timer.current()
+        nkt_df = pd.read_hdf(self.nkt_hdf_file, mode='r', key='nkt')
         for isl in tqdm(range(self.no_slices)):
-            nkt_data = np.load(self.nkt_file + '_slice_' + str(isl) + '.npz')
-            nkt = nkt_data["nkt"]
+            # Initialize container
+            nkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
+            for sp, sp_name in enumerate(self.species_names):
+                nkt[sp] = np.array(nkt_df["slice {}".format(isl + 1)][sp_name])
+
             init = isl * self.slice_steps
             fin = (isl + 1) * self.slice_steps
-            Sk_all[:, :, init:fin] = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps)
+            Sk_avg[:, :, init:fin] = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps)
 
-        Sk = np.mean(Sk_all, axis=-1)
-        Sk_err = np.std(Sk_all, axis=-1)
-        tend = self.timer.current()
-
-        self.time_stamp("Static Structure Factor Calculation", self.timer.time_division(tend - tinit))
-
+        Sk = np.mean(Sk_avg, axis=-1)
+        Sk_err = np.std(Sk_avg, axis=-1)
+        k_column = " _k values"
+        self.dataframe[k_column] = self.k_values
         sp_indx = 0
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:]):
-                column = "{}-{} SSF".format(sp1, sp2)
-                err_column = "{}-{} SSF Errorbar".format(sp1, sp2)
+                column = "{}-{}_Mean".format(sp1, sp2)
+                err_column = "{}-{}_Std".format(sp1, sp2)
+
                 self.dataframe[column] = Sk[sp_indx, :]
                 self.dataframe[err_column] = Sk_err[sp_indx, :]
 
                 sp_indx += 1
 
-        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+        # Create the MultiIndex columns
+        tuples = [tuple(c.split("_")) for c in self.dataframe.columns]
+        self.dataframe.columns = pd.MultiIndex.from_tuples(tuples)
+
+        tend = self.timer.current()
+        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
+
+        # HDF will get huge if we don't remove
+        if os.path.exists(self.filename_hdf):
+            os.remove(self.filename_hdf)
+
+        self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
 
     def pretty_print(self):
         """Print static structure factor calculation parameters for help in choice of simulation parameters."""
 
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('k wavevector information saved in: \n\t', self.k_file)
-        print('n(k,t) data saved in: \n\t', self.nkt_file)
-        print('Data saved in: \n\t', self.filename_csv)
+        print('k wavevector information saved in: \n', self.k_file)
+        print('n(k,t) Data saved in: \n', self.nkt_hdf_file)
+        print('Data saved in: \n', self.filename_hdf)
         print('Data accessible at: self.k_list, self.k_counts, self.ka_values, self.dataframe')
         print('\nSmallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
         print('k_min = {:.4f} / a_ws = {:.4e} '.format(self.ka_values[0], self.ka_values[0] / self.a_ws), end='')
@@ -1443,12 +1676,13 @@ class Thermodynamics(Observable):
 
         """
 
-        self.__name__ = 'therm'
-
         if phase:
             self.phase = phase.lower()
 
         super().setup_init(params, self.phase)
+        self.__name__ = 'therm'
+        self.__long_name__ = 'Thermodynamics'
+
         self.dataframe = pd.DataFrame()
 
         if params.load_method == "restart":
@@ -1836,9 +2070,9 @@ class Thermodynamics(Observable):
             y_coord -= 0.25
             Info_plot.text(0., y_coord, "Total $N$ = {}".format(process.parameters.total_num_ptcls))
             Info_plot.text(0., y_coord - 0.5, "Thermostat: {}".format(process.thermostat.type))
-            Info_plot.text(0., y_coord - 1., "Berendsen rate = {:1.2f}".format(process.thermostat.relaxation_rate))
+            Info_plot.text(0., y_coord - 1., "Berendsen rate = {:.2f}".format(process.thermostat.relaxation_rate))
             Info_plot.text(0., y_coord - 1.5, "Potential: {}".format(process.potential.type))
-            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:1.2e}".format(process.parameters.force_error))
+            Info_plot.text(0., y_coord - 2., "Tot Force Error = {:.2e}".format(process.parameters.force_error))
             delta_t = dt_mul * process.integrator.dt
             Info_plot.text(0., y_coord - 2.5, "$\Delta t$ = {:.2f} {}".format(delta_t, dt_lbl))
             Info_plot.text(0., y_coord - 3., "Step interval = {}".format(self.dump_step))
@@ -1894,8 +2128,6 @@ class VelocityAutoCorrelationFunction(Observable):
 
         """
 
-        self.__name__ = 'vacf'
-        self.__long_name__ = 'Velocity AutoCorrelation Function'
         if phase:
             self.phase = phase.lower()
 
@@ -1903,6 +2135,8 @@ class VelocityAutoCorrelationFunction(Observable):
             self.no_slices = no_slices
 
         super().setup_init(params, self.phase)
+        self.__name__ = 'vacf'
+        self.__long_name__ = 'Velocity AutoCorrelation Function'
 
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'VelocityAutoCorrelationFunction')
@@ -2030,9 +2264,6 @@ class FluxAutoCorrelationFunction(Observable):
 
         """
 
-        self.__name__ = 'facf'
-        self.__long_name__ = 'Flux AutoCorrelation Function'
-
         if phase:
             self.phase = phase.lower()
 
@@ -2040,6 +2271,9 @@ class FluxAutoCorrelationFunction(Observable):
             self.no_slices = no_slices
 
         super().setup_init(params, self.phase)
+
+        self.__name__ = 'facf'
+        self.__long_name__ = 'Flux AutoCorrelation Function'
 
         if not hasattr(self, 'species_mass_densities'):
             self.species_mass_densities = self.species_num_dens * self.species_masses
@@ -2157,7 +2391,7 @@ class FluxAutoCorrelationFunction(Observable):
         """Print observable parameters for help in choice of simulation parameters."""
 
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: ', self.filename_csv)
+        print('Data saved in: \n', self.filename_csv)
         print('Data accessible at: self.dataframe')
 
         print('\nNo. of slices = {}'.format(self.no_slices))
@@ -2203,6 +2437,7 @@ class VelocityDistribution(Observable):
 
         Parameters
         ----------
+        curve_fit_kwargs
         hist_kwargs : dict, optional
             Dictionary of keyword arguments to pass to ``np.histogram`` for the calculation of the distributions.
 
@@ -2221,8 +2456,6 @@ class VelocityDistribution(Observable):
 
         """
 
-        self.__name__ = 'vd'
-        self.__long_name__ = 'Velocity Distribution'
         if curve_fit_kwargs:
             self.curve_fit_kwargs = curve_fit_kwargs
 
@@ -2230,6 +2463,9 @@ class VelocityDistribution(Observable):
             self.phase = phase.lower()
 
         super().setup_init(params, self.phase)
+        self.__name__ = 'vd'
+        self.__long_name__ = 'Velocity Distribution'
+
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
         # Check on hist_kwargs
@@ -2818,7 +3054,7 @@ class VelocityDistribution(Observable):
 
 
 @njit
-def calc_Sk(nkt, ka_list, ka_counts, species_np, no_dumps):
+def calc_Sk(nkt, k_list, k_counts, species_np, no_dumps):
     """
     Calculate :math:`S_{ij}(k)` at each saved timestep.
 
@@ -2827,11 +3063,11 @@ def calc_Sk(nkt, ka_list, ka_counts, species_np, no_dumps):
     nkt : numpy.ndarray, complex
         Density fluctuations of all species. Shape = ( ``no_species``, ``no_dumps``, ``no_ka_values``)
 
-    ka_list :
-        List of :math:`k` indices in each direction with corresponding magnitude and index of ``ka_counts``.
+    k_list :
+        List of :math:`k` indices in each direction with corresponding magnitude and index of ``k_counts``.
         Shape=(``no_ka_values``, 5)
 
-    ka_counts : numpy.ndarray
+    k_counts : numpy.ndarray
         Number of times each :math:`k` magnitude appears.
 
     species_np : numpy.ndarray
@@ -2849,24 +3085,24 @@ def calc_Sk(nkt, ka_list, ka_counts, species_np, no_dumps):
     """
 
     no_sk = int(len(species_np) * (len(species_np) + 1) / 2)
-    Sk_all = np.zeros((no_sk, len(ka_counts), no_dumps))
-
+    Sk_raw = np.zeros((no_sk, len(k_counts), no_dumps))
     pair_indx = 0
     for ip, si in enumerate(species_np):
         for jp in range(ip, len(species_np)):
             sj = species_np[jp]
+            dens_const = 1.0 / np.sqrt(si * sj)
             for it in range(no_dumps):
-                for ik, ka in enumerate(ka_list):
+                for ik, ka in enumerate(k_list):
                     indx = int(ka[-1])
                     nk_i = nkt[ip, it, ik]
                     nk_j = nkt[jp, it, ik]
-                    Sk_all[pair_indx, indx, it] += np.real(np.conj(nk_i) * nk_j) / (ka_counts[indx] * np.sqrt(si * sj))
+                    Sk_raw[pair_indx, indx, it] += np.real(np.conj(nk_i) * nk_j) * dens_const / k_counts[indx]
             pair_indx += 1
 
-    return Sk_all
+    return Sk_raw
 
 
-def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
+def calc_Skw(nkt, ka_list, species_np, no_dumps, dt, dump_step):
     """
     Calculate the Fourier transform of the correlation function of ``nkt``.
 
@@ -2906,19 +3142,22 @@ def calc_Skw(nkt, ka_list, ka_counts, species_np, no_dumps, dt, dump_step):
     # number of independent observables
     no_skw = int(len(species_np) * (len(species_np) + 1) / 2)
     # DSF
-    Skw = np.zeros((no_skw, len(ka_counts), no_dumps))
-
+    # Skw = np.zeros((no_skw, len(ka_counts), no_dumps))
+    Skw_all = np.zeros((no_skw, len(ka_list), no_dumps))
     pair_indx = 0
     for ip, si in enumerate(species_np):
         for jp in range(ip, len(species_np)):
             sj = species_np[jp]
+            dens_const = 1.0 / np.sqrt(si * sj)
             for ik, ka in enumerate(ka_list):
-                indx = int(ka[-1])
+                # indx = int(ka[-1])
                 nkw_i = np.fft.fft(nkt[ip, :, ik]) * norm
                 nkw_j = np.fft.fft(nkt[jp, :, ik]) * norm
-                Skw[pair_indx, indx, :] += np.real(np.conj(nkw_i) * nkw_j) / (ka_counts[indx] * np.sqrt(si * sj))
+                Skw_all[pair_indx, ik, :] = np.fft.fftshift(np.real(np.conj(nkw_i) * nkw_j) * dens_const)
+                # Skw[pair_indx, indx, :] += Skw_all[pair_indx, ik, :] / ka_counts[indx]
             pair_indx += 1
-    return Skw
+
+    return Skw_all
 
 
 @njit
@@ -3528,13 +3767,13 @@ def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics
     Returns
     -------
     k_arr : list
-        List of all possible :math:`k` vectors with their corresponding magnitudes and indexes.
+        List of all possible combination of :math:`(n_x, n_y, n_z)` with their corresponding magnitudes and indexes.
 
     k_counts : numpy.ndarray
-        Number of occurrences of each :math:`k` magnitude.
+        Number of occurrences of each triplet :math:`(n_x, n_y, n_z)` magnitude.
 
     k_unique : numpy.ndarray
-        Magnitude of each allowed :math:`k` vector.
+        Magnitude of the unique allowed triplet :math:`(n_x, n_y, n_z)`.
     """
     if angle_averaging == 'full':
         # The first value of k_arr = [0, 0, 0]
@@ -3544,49 +3783,87 @@ def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics
                  for i in range(max_k_harmonics[0] + 1)
                  for j in range(max_k_harmonics[1] + 1)
                  for k in range(max_k_harmonics[2] + 1)]
+        harmonics = [np.array([i, j, k], dtype=np.int)
+                     for i in range(max_k_harmonics[0] + 1)
+                     for j in range(max_k_harmonics[1] + 1)
+                     for k in range(max_k_harmonics[2] + 1)]
     elif angle_averaging == 'principal_axis':
         # The first value of k_arr = [1, 0, 0]
         first_non_zero = 0
         # Calculate the k vectors along the principal axis only
         k_arr = [np.array([i / box_lengths[0], 0, 0]) for i in range(1, max_k_harmonics[0] + 1)]
+        harmonics = [np.array([i, 0, 0], dtype=np.int) for i in range(1, max_k_harmonics[0] + 1)]
         k_arr = np.append(k_arr,
                           [np.array([0, i / box_lengths[1], 0]) for i in range(1, max_k_harmonics[1] + 1)],
                           axis=0)
+        harmonics = np.append(harmonics,
+                              [np.array([0, i, 0], dtype=np.int) for i in range(1, max_k_harmonics[1] + 1)],
+                              axis=0)
+
         k_arr = np.append(k_arr,
                           [np.array([0, 0, i / box_lengths[2]]) for i in range(1, max_k_harmonics[2] + 1)],
                           axis=0)
+        harmonics = np.append(harmonics,
+                              [np.array([0, 0, i], dtype=np.int) for i in range(1, max_k_harmonics[2] + 1)],
+                              axis=0)
+
     elif angle_averaging == 'custom':
         # The first value of k_arr = [0, 0, 0]
         first_non_zero = 1
         # Obtain all possible permutations of the wave number arrays up to max_aa_harmonics included
-        k_arr = [np.array([i / box_lengths[0],
-                           j / box_lengths[1],
-                           k / box_lengths[2]]) for i in range(max_aa_harmonics[0] + 1)
+        k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
+                 for i in range(max_aa_harmonics[0] + 1)
                  for j in range(max_aa_harmonics[1] + 1)
                  for k in range(max_aa_harmonics[2] + 1)]
+
+        harmonics = [np.array([i, j, k], dtype=np.int)
+                     for i in range(max_aa_harmonics[0] + 1)
+                     for j in range(max_aa_harmonics[1] + 1)
+                     for k in range(max_aa_harmonics[2] + 1)]
         # Append the rest of k values calculated from principal axis
         k_arr = np.append(
             k_arr,
             [np.array([i / box_lengths[0], 0, 0]) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
             axis=0)
+        harmonics = np.append(
+            harmonics,
+            [np.array([i, 0, 0], dtype=np.int) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
+            axis =0)
+
         k_arr = np.append(
             k_arr,
             [np.array([0, i / box_lengths[1], 0]) for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
             axis=0)
+        harmonics = np.append(harmonics,
+                              [np.array([0, i, 0], dtype=np.int)
+                               for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
+                              axis=0)
+
         k_arr = np.append(
             k_arr,
             [np.array([0, 0, i / box_lengths[2]]) for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
             axis=0)
-
+        harmonics = np.append(harmonics,
+                              [np.array([0, 0, i], dtype=np.int)
+                               for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
+                              axis=0)
     # Compute wave number magnitude - don't use |k| (skipping first entry in k_arr)
+    # The round off is needed to avoid ka value different beyond a certain significant digit. It will break other parts
+    # of the code otherwise.
     k_mag = np.sqrt(np.sum(np.array(k_arr) ** 2, axis=1)[..., None])
-
+    harm_mag = np.sqrt(np.sum(np.array(harmonics) ** 2, axis=1)[..., None])
+    for i, k in enumerate(k_mag[:-1]):
+        if abs(k - k_mag[i + 1]) < 2.0e-5:
+            k_mag[i + 1] = k
     # Add magnitude to wave number array
     k_arr = np.concatenate((k_arr, k_mag), 1)
+    # Add magnitude to wave number array
+    harmonics = np.concatenate((harmonics, harm_mag), 1)
 
     # Sort from lowest to highest magnitude
     ind = np.argsort(k_arr[:, -1])
     k_arr = k_arr[ind]
+    harmonics = harmonics[ind]
 
     # Count how many times a |k| value appears
     k_unique, k_counts = np.unique(k_arr[first_non_zero:, -1], return_counts=True)
@@ -3596,7 +3873,9 @@ def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics
 
     # Add index to k_array
     k_arr = np.concatenate((k_arr[int(first_non_zero):, :], k_index), 1)
-    return k_arr, k_counts, k_unique
+    harmonics = np.concatenate((harmonics[int(first_non_zero):, :], k_index), 1)
+
+    return k_arr, k_counts, k_unique, harmonics
 
 
 def load_from_restart(fldr, it):
@@ -3782,6 +4061,10 @@ def correlationfunction(At, Bt):
     mid = full_corr.size // 2
     # I want only the second half of the array, i.e. the positive lags only
     return full_corr[mid:] / norm_corr
+
+
+def col_mapper(keys, vals):
+    return dict(zip(keys, vals))
 
 # These are old functions that should not be trusted.
 # @njit

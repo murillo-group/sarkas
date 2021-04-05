@@ -58,6 +58,19 @@ Once the environment has been activated you can install sarkas system wide via
         $ pip install sarkas-md
 
 
+External packages
+-----------------
+
+Sarkas uses two external packages: `FFTW <http://www.fftw.org/>`_ and `FMM3D <https://fmm3d.readthedocs.io/en/latest/>`_ . 
+The first is used to perform fast Fourier transforms and the second to simulate systems with open boundary conditions.
+
+FFTW3 is a very commong library in scientific computation, however, it may happen that you don't have it already installed on your computer.
+In this case, follow their instructions `here <http://www.fftw.org/#documentation>`_ to install it.
+
+FMM3D is package written in Fortran to compute the potential field using the Multipole expansion. The documentation for installing it is `here <https://fmm3d.readthedocs.io/en/latest/install.html>`_.
+You can find their Python wrapper `here <https://fmm3d.readthedocs.io/en/latest/install.html#building-python-wrappers>`_.
+
+
 .. _Anaconda: https://www.anaconda.org
 .. _repository: https://github.com/murillo-group/sarkas-repo
 .. _fork: https://docs.github.com/en/github/getting-started-with-github/fork-a-repo
