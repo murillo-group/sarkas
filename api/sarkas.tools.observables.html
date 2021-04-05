@@ -7,8 +7,8 @@
     <title>sarkas.tools.observables module &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -359,7 +359,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the computed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1166.g7c71498a52)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1240.gce34c1cee7)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -370,7 +370,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the longitudinal part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1166.g7c71498a52)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1240.gce34c1cee7)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -381,7 +381,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the transverse part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1166.g7c71498a52)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1240.gce34c1cee7)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -488,8 +488,8 @@ It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) /
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.tools.observables.Observable.nkt_file">
-<code class="sig-name descname"><span class="pre">nkt_file</span></code><a class="headerlink" href="#sarkas.tools.observables.Observable.nkt_file" title="Permalink to this definition">¶</a></dt>
+<dt id="sarkas.tools.observables.Observable.nkt_hdf_file">
+<code class="sig-name descname"><span class="pre">nkt_hdf_file</span></code><a class="headerlink" href="#sarkas.tools.observables.Observable.nkt_hdf_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to the npy file containing the Fourier transform of density fluctuations. <span class="math notranslate nohighlight">\(n(\mathbf k, t)\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -647,15 +647,16 @@ be averaged over.</p>
 
 <dl class="py method">
 <dt id="sarkas.tools.observables.Observable.plot">
-<code class="sig-name descname"><span class="pre">plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">longitudinal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>longitudinal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for longitudinal plot in case of CurrenCurrelationFunction</p></li>
+<li><p><strong>hdf_column</strong> – </p></li>
+<li><p><strong>scaling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – Factor by which to rescale the x and y axis.</p></li>
 <li><p><strong>acf</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for renormalizing the autocorrelation functions. Default= False</p></li>
+<li><p><strong>longitudinal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for longitudinal plot in case of CurrenCurrelationFunction. Default = True</p></li>
 <li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name with which to save the file. It automatically saves it in the correct directory.</p></li>
-<li><p><strong>scaling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – Factor by which to rescale the x and y quantities.</p></li>
 <li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for prompting the plot to screen. Default=False</p></li>
 <li><p><strong>**kwargs</strong> – Options to pass to matplotlib plotting method.</p></li>
 </ul>
@@ -664,7 +665,7 @@ be averaged over.</p>
 <dd class="field-even"><p><strong>axes_handle</strong> – Axes. See <cite>pandas</cite> documentation for more info</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://matplotlib.org/api/axes_api.html#matplotlib.axes.Axes" title="(in Matplotlib v3.3.4)">matplotlib.axes.Axes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://matplotlib.org/api/axes_api.html#matplotlib.axes.Axes" title="(in Matplotlib v3.4.1)">matplotlib.axes.Axes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1100,6 +1101,7 @@ If True it will parse data from simulations dumps.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>curve_fit_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]) – </p></li>
 <li><p><strong>hist_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary of keyword arguments to pass to <code class="docutils literal notranslate"><span class="pre">np.histogram</span></code> for the calculation of the distributions.</p></li>
 <li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>max_no_moment</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Maximum number of moments to calculate. Default = 6.</p></li>
@@ -1115,15 +1117,15 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py function">
 <dt id="sarkas.tools.observables.calc_Sk">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_Sk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nkt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ka_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ka_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_np</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dumps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.calc_Sk" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_Sk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nkt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_np</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dumps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.calc_Sk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate <span class="math notranslate nohighlight">\(S_{ij}(k)\)</span> at each saved timestep.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nkt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.9)"><em>complex</em></a>) – Density fluctuations of all species. Shape = ( <code class="docutils literal notranslate"><span class="pre">no_species</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>)</p></li>
-<li><p><strong>ka_list</strong> – List of <span class="math notranslate nohighlight">\(k\)</span> indices in each direction with corresponding magnitude and index of <code class="docutils literal notranslate"><span class="pre">ka_counts</span></code>.
+<li><p><strong>k_list</strong> – List of <span class="math notranslate nohighlight">\(k\)</span> indices in each direction with corresponding magnitude and index of <code class="docutils literal notranslate"><span class="pre">k_counts</span></code>.
 Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values</span></code>, 5)</p></li>
-<li><p><strong>ka_counts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of times each <span class="math notranslate nohighlight">\(k\)</span> magnitude appears.</p></li>
+<li><p><strong>k_counts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of times each <span class="math notranslate nohighlight">\(k\)</span> magnitude appears.</p></li>
 <li><p><strong>species_np</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Array with number of particles of each species.</p></li>
 <li><p><strong>no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of dumps.</p></li>
 </ul>
@@ -1139,7 +1141,7 @@ Shape=(<code class="docutils literal notranslate"><span class="pre">no_ka_values
 
 <dl class="py function">
 <dt id="sarkas.tools.observables.calc_Skw">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_Skw</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nkt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ka_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ka_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_np</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dumps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_Skw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.calc_Skw" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_Skw</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nkt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ka_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_np</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_dumps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_Skw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.calc_Skw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Fourier transform of the correlation function of <code class="docutils literal notranslate"><span class="pre">nkt</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1435,6 +1437,11 @@ Shape = ( <code class="docutils literal notranslate"><span class="pre">no_specie
 </dd></dl>
 
 <dl class="py function">
+<dt id="sarkas.tools.observables.col_mapper">
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">col_mapper</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#col_mapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.col_mapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt id="sarkas.tools.observables.correlationfunction">
 <code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">correlationfunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">At</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#correlationfunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.correlationfunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the correlation function <span class="math notranslate nohighlight">\(\mathbf{A}(t)\)</span> and <span class="math notranslate nohighlight">\(\mathbf{B}(t)\)</span> using
@@ -1495,9 +1502,9 @@ of the simulation.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>k_arr</strong> (<em>list</em>) – List of all possible <span class="math notranslate nohighlight">\(k\)</span> vectors with their corresponding magnitudes and indexes.</p></li>
-<li><p><strong>k_counts</strong> (<em>numpy.ndarray</em>) – Number of occurrences of each <span class="math notranslate nohighlight">\(k\)</span> magnitude.</p></li>
-<li><p><strong>k_unique</strong> (<em>numpy.ndarray</em>) – Magnitude of each allowed <span class="math notranslate nohighlight">\(k\)</span> vector.</p></li>
+<li><p><strong>k_arr</strong> (<em>list</em>) – List of all possible combination of <span class="math notranslate nohighlight">\((n_x, n_y, n_z)\)</span> with their corresponding magnitudes and indexes.</p></li>
+<li><p><strong>k_counts</strong> (<em>numpy.ndarray</em>) – Number of occurrences of each triplet <span class="math notranslate nohighlight">\((n_x, n_y, n_z)\)</span> magnitude.</p></li>
+<li><p><strong>k_unique</strong> (<em>numpy.ndarray</em>) – Magnitude of the unique allowed triplet <span class="math notranslate nohighlight">\((n_x, n_y, n_z)\)</span>.</p></li>
 </ul>
 </p>
 </dd>
@@ -1567,7 +1574,7 @@ of the simulation.</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 26, 2021.<br/>
+      Last updated on Apr 05, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
     </p>
   </div>

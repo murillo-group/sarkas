@@ -1,0 +1,1468 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Analysis &#8212; Sarkas 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
+    <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <script src="../_static/js/myscript.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Theoretical Background" href="../theory/theory.html" />
+    <link rel="prev" title="Running a Simulation" href="Simulation_Docs.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="get_started.html">Get Started</a></li>
+                <li><a href="../examples/examples.html">Examples</a></li>
+                <li><a href="../code%20development/code_dev.html">Code Development</a></li>
+                <li><a href="../api/api.html">API</a></li>
+                <li><a href="../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="get_started.html">Get Started</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theory:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code%20development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Simulations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Data Analysis</a><ul>
+<li><a class="reference internal" href="#Thermodynamics">Thermodynamics</a></li>
+<li><a class="reference internal" href="#Radial-Distribution-Function">Radial Distribution Function</a></li>
+<li><a class="reference internal" href="#Static-Structure-Factor">Static Structure Factor</a></li>
+<li><a class="reference internal" href="#Dynamic-Structure-Factor">Dynamic Structure Factor</a></li>
+<li><a class="reference internal" href="#Current-Correlation-Functions">Current Correlation Functions</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><!-- <div class="sidenav-header">
+    <div class="h4"> 
+      Sarkas Documentation
+    </div>
+  
+  </div> -->
+  
+  <p class="caption"><span class="caption-text">Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="why_sarkas.html">Why Sarkas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#new-school">New School</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="get_started.html">Get Started</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Quickstart.html">Quickstart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Postprocessing">Postprocessing</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="input_file.html">Input File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Simulation_Docs.html">Running a Simulation</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Data Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Theory:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../theory/coupling_constant.html">Coupling Constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/electron_properties.html">Electron Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#fermi-integral">Fermi Integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#thermodynamics-electron-gas">Thermodynamics Electron Gas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#electron-parameters">Electron Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/integrators.html">Integrators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#phase-space-distribution">Phase Space Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#velocity-verlet">Velocity Verlet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#magnetic-velocity-verlet">Magnetic Velocity Verlet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/potentials.html">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#coulomb-potential">Coulomb Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#yukawa-potential">Yukawa Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/thermostats.html#berendsen-thermostat">Berendsen Thermostat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/PPPM.html#ewald-sum">Ewald Sum</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/references.html">References</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code%20development/code_dev.html">Code Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_setup.html">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#updating-your-repository">Updating your repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#forking-and-cloning-sarkas-repository">Forking and Cloning Sarkas repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#create-a-virtual-environment">Create a virtual environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#install-sarkas-in-development-mode">Install Sarkas in development mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_setup.html#docker-image">Docker Image</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_report_issues.html">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_docs.html">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_docs.html#writing-documentation">Writing Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../code%20development/dev_docs.html#building-documentation">Building Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/dev_contributing.html">Contributing to Sarkas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#how-can-i-contribute">How can I contribute?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#reporting-a-bug">Reporting a Bug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#editing-the-documentation">Editing the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#making-a-patch">Making a Patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../code%20development/code_dev.html#spreading-the-word-of-mouth">Spreading the word of mouth</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Simulations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#PostProcessing">PostProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#Transport">Transport</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html">MD for Experiment Validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Ultracold-Neutral-Plasmas">Ultracold Neutral Plasmas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Disorder-Induced-Heating">Disorder Induced Heating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#PostProcessing">PostProcessing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#PreProcessing">PreProcessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#Simulation">Simulation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.base.html">sarkas.base module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.base.html">sarkas.potentials.base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pp.html">sarkas.potentials.force_pp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.lennardjones.html">sarkas.potentials.lennardjones module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#tools">Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.tools.html">sarkas.tools package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#utilities">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.utilities.html">sarkas.utilities package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+</ul>
+</li>
+</ul>
+
+  
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Data-Analysis">
+<h1>Data Analysis<a class="headerlink" href="#Data-Analysis" title="Permalink to this headline">¶</a></h1>
+<p>Once the simulation is complete we enter the <strong>Post Processing</strong> stage where we <em>measure</em> physical quantities and calculate transport coefficients.</p>
+<p>Sarkas was developed to make this process as simple and straightforward as possible.</p>
+<p>Let’s import the needed packages.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Import the usual libraries</span>
+<span class="o">%</span><span class="k">pylab</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
+
+<span class="c1"># Import sarkas</span>
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">PostProcess</span>
+<span class="c1"># Create the file path to the YAML input file</span>
+<span class="n">example_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span>
+                                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span>
+                                              <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span><span class="s1">&#39;Yukawa&#39;</span><span class="p">)))</span>
+
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_directory</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using matplotlib backend: TkAgg
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+<p>Similar to the <strong>Pre Processing</strong> and <strong>Simulation</strong> stages three lines are enough. The <code class="docutils literal notranslate"><span class="pre">run</span></code> method will calculate everything that was included in the input YAML file. This was shown in the <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/Quickstart.html">Quickstart notebook</a> where we calculated the Radial Distribution Function. In this notebook we want to calculate the Radial Distribution Function, the Static Structure Function, the Dynamic Structure Function, and the Current
+Correlation Functions. Instead of executing <code class="docutils literal notranslate"><span class="pre">run</span></code> we will show how to compute observables and transport coefficient directly.</p>
+<p>Each observable is identified by a class which is stored as an attribute of the <code class="docutils literal notranslate"><span class="pre">PostProcess</span></code>. The class names are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">rdf</span></code> = Radial Distribution Function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ssf</span></code> = Static Structure Function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dsf</span></code> = Dynamic Structure Function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ccf</span></code> = Current Correlation Function</p></li>
+</ul>
+<p>In addition, we have the <code class="docutils literal notranslate"><span class="pre">Thermodynamics</span></code> class (name <code class="docutils literal notranslate"><span class="pre">therm</span></code>) which is used to store and calculate all the thermodynamic functions. The energy and temperature are read from the CSV file saved during the simulation stage.</p>
+<p>Other class names that we are not calculating here are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ec</span></code> = Electric Current</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vd</span></code> = Velocity Distribution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vacf</span></code> = Velocity AutoCorrelation Function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">facf</span></code> = Flux AutoCorrelation Function ( mixtures only)</p></li>
+</ul>
+<p>See our <a class="reference external" href="https://murillo-group.github.io/sarkas/examples/examples.html">Examples page</a> for more info on how to calculate these.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Let&#39;s initialize the class</span>
+<span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                 Postprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Job ID:  yocp
+Job directory:  Simulations/yocp_pppm
+PostProcessing directory:
+ Simulations/yocp_pppm/PostProcessing
+
+Equilibration dumps directory:  Simulations/yocp_pppm/Simulation/Equilibration/dumps
+Production dumps directory:
+ Simulations/yocp_pppm/Simulation/Production/dumps
+
+Equilibration Thermodynamics file:
+ Simulations/yocp_pppm/Simulation/Equilibration/EquilibrationEnergy_yocp.csv
+Production Thermodynamics file:
+ Simulations/yocp_pppm/Simulation/Production/ProductionEnergy_yocp.csv
+</pre></div></div>
+</div>
+<p>The output tells us again where we can find the snapshots of our simulation and where the data computed in the Post Processing stage will be stored i.e. <code class="docutils literal notranslate"><span class="pre">PostProcessing</span> <span class="pre">Directory</span></code>.</p>
+<div class="section" id="Thermodynamics">
+<h2>Thermodynamics<a class="headerlink" href="#Thermodynamics" title="Permalink to this headline">¶</a></h2>
+<p>Let’s first look at the temperature and energy evolution during the equilibration phase. This can be done by running the following cell.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">temp_energy_plot</span><span class="p">(</span>
+    <span class="n">postproc</span><span class="p">,</span> <span class="c1"># Pass the Process class with simulation info</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="s1">&#39;equilibration&#39;</span> <span class="c1"># Choose the simulation phase</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/documentation_Post_Processing_Docs_5_0.png" src="../_images/documentation_Post_Processing_Docs_5_0.png" />
+</div>
+</div>
+<p>On the left most part of the figure above we reproduce some useful info. The main plots show the Temperature (left) and Total Energy (right) as a function of time. The temperature plot shows the thermostating temperature as a red dashed line. In the energy plot, instead, the red dashed line represents the average value. The yellow-orange line shows the moving average.</p>
+<p>The plots above the main plots indicate the percentage deviation from the desired temperature (left) and the percentage deviation of the total energy from its initial value. Also in these plots, the yellow-orange line shows the moving average of the percentage deviation.</p>
+<p>The bar plots to the right of the main plots instead are histograms of the Temperature and Total Energy, respectively.</p>
+<p>The most important thing to pay attention to is the temperature plot. We want to see that the Moving Average has approached the desired temperature.</p>
+<p>Let’s now do the same for the production phase.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">temp_energy_plot</span><span class="p">(</span>
+    <span class="n">postproc</span><span class="p">,</span> <span class="c1"># Pass the Process class with simulation info</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="s1">&#39;production&#39;</span> <span class="c1"># Choose the simulation phase</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/documentation_Post_Processing_Docs_7_0.png" src="../_images/documentation_Post_Processing_Docs_7_0.png" />
+</div>
+</div>
+<p>We find a figure similar as before. In here though we notice that the Temperature oscillates around its desired value and has only <span class="math notranslate nohighlight">\(\sim \pm 2\)</span>% deviation from it. Similarly the Total Energy oscillates around its average value and stays within a <span class="math notranslate nohighlight">\(\sim -0.5\)</span> % deviation.</p>
+<p>The bar plots are the next most important thing to notice. We want these to look like Maxwellian distributions. The orange lines in these plots are exactly this.</p>
+</div>
+<div class="section" id="Radial-Distribution-Function">
+<h2>Radial Distribution Function<a class="headerlink" href="#Radial-Distribution-Function" title="Permalink to this headline">¶</a></h2>
+<p>Let’s calculate the Radial Distribution Function.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Let&#39;s print some info first</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span>
+
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+==================== Radial Distribution Function ====================
+
+Data saved in:
+ Simulations/yocp_pppm/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_yocp.csv
+Data accessible at: self.ra_values, self.dataframe
+
+No. bins = 500
+dr = 0.0110 a_ws = 1.2540e-13 [m]
+Maximum Distance (i.e. potential.rc)= 5.5100 a_ws = 6.2702e-11 [m]
+
+Radial Distribution Function Calculation Time: 0 sec 1 msec 433 usec 602 nsec
+</pre></div></div>
+</div>
+<p>As mentioned in the output the data is stored in a <code class="docutils literal notranslate"><span class="pre">`pandas.DataFrame()</span></code> &lt;<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html</a>&gt;`__ and we can access it by</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">dataframe</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Distance</th>
+      <th>H-H RDF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.881060e-13</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3.135100e-13</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4.389140e-13</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5.643180e-13</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>495</th>
+      <td>6.213768e-11</td>
+      <td>0.962960</td>
+    </tr>
+    <tr>
+      <th>496</th>
+      <td>6.226309e-11</td>
+      <td>0.963315</td>
+    </tr>
+    <tr>
+      <th>497</th>
+      <td>6.238849e-11</td>
+      <td>0.962773</td>
+    </tr>
+    <tr>
+      <th>498</th>
+      <td>6.251389e-11</td>
+      <td>0.962993</td>
+    </tr>
+    <tr>
+      <th>499</th>
+      <td>6.263930e-11</td>
+      <td>0.962681</td>
+    </tr>
+  </tbody>
+</table>
+<p>500 rows × 2 columns</p>
+</div></div>
+</div>
+<p>Let’s plot it!. This can be done by calling the <code class="docutils literal notranslate"><span class="pre">plot()</span></code> (<a class="reference external" href="https://murillo-group.github.io/sarkas/api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.plot:~:text=False.-,plot">docs link</a> ) method of the <code class="docutils literal notranslate"><span class="pre">Observable</span></code> class. We reproduce here the docs for convenience</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>def plot(self, scaling=None, acf=False, longitudinal=True, figname=None, show=False, **kwargs):
+    &quot;&quot;&quot;
+    Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
+
+    Parameters
+    ----------
+    scaling : float, tuple
+        Factor by which to rescale the x and y axis.
+
+    acf : bool
+        Flag for renormalizing the autocorrelation functions. Default= False
+
+    longitudinal : bool
+        Flag for longitudinal plot in case of CurrenCurrelationFunction. Default = True
+
+    figname : str
+        Name with which to save the file. It automatically saves it in the correct directory.
+
+    show : bool
+        Flag for prompting the plot to screen. Default=False
+
+    **kwargs :
+        Options to pass to matplotlib plotting method.
+
+    Returns
+    -------
+    axes_handle : matplotlib.axes.Axes
+        Axes. See `pandas` documentation for more info
+
+    &quot;&quot;&quot;
+</pre></div>
+</div>
+<p>This method takes the first column of the dataframe as the <span class="math notranslate nohighlight">\(x\)</span> axis and all the other columns as <span class="math notranslate nohighlight">\(y\)</span> axis. As you can see this method is a wrapper for the <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame.plot()</span></code> method, as such you can pass the same parameters. We have added other parameters specific for our plots. In particular the parameter <code class="docutils literal notranslate"><span class="pre">scaling</span></code> is used for rescaling the <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> axis.</p>
+<p>In the following we want to plot the RDF as a function of <span class="math notranslate nohighlight">\(r/a_{ws}\)</span> and relabel the x-axis.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Plot</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span><span class="o">=</span><span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
+    <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_</span><span class="si">{ws}</span><span class="s1">$&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:xlabel=&#39;$r/a_{ws}$&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/documentation_Post_Processing_Docs_13_1.png" src="../_images/documentation_Post_Processing_Docs_13_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Static-Structure-Factor">
+<h2>Static Structure Factor<a class="headerlink" href="#Static-Structure-Factor" title="Permalink to this headline">¶</a></h2>
+<p>The next observable we want to measure is the Static Structure Factor. <a class="reference external" href="https://en.wikipedia.org/wiki/Structure_factor">Here</a> you can find a long Wikipedia article about it. In short it is the correlation function of the density fluctuations and Sarkas calculates it by</p>
+<div class="math notranslate nohighlight">
+\[S(\mathbf k) = \langle n(-\mathbf k) n(\mathbf k) \rangle\]</div>
+<p>.</p>
+<p>For each timestep Sarkas calculates</p>
+<div class="math notranslate nohighlight">
+\[n(\mathbf k, t) = \sum_j^N e^{- i \mathbf k \cdot \mathbf r_i(t)}\]</div>
+<p>then takes the product <span class="math notranslate nohighlight">\(n(-\mathbf k,t) n(\mathbf k,t)\)</span> and averages over the entire simulation time</p>
+<div class="math notranslate nohighlight">
+\[\langle n(-\mathbf k) n(\mathbf k) \rangle  = \frac{1}{M} \sum_{m}^M n(-\mathbf k, m \Delta t) n(\mathbf k, m \Delta t)\]</div>
+<p>where <span class="math notranslate nohighlight">\(M\)</span> is the total number of saved production timesteps and <span class="math notranslate nohighlight">\(\Delta t\)</span> is our snapshot timestep.</p>
+<p>Notice that <span class="math notranslate nohighlight">\(\mathbf k\)</span> is a vector, as such there are multiple directions we need to consider. The first important thing to understand is that even though we are using periodic boundary conditions to simulate an infinite system, the number of wavelengths that can fit into the simulation box are finite and given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf k (n_x, n_y , n_z) = 2\pi \left ( \frac{n_x}{L_x} , \frac{n_y}{L_y} ,  \frac{n_z}{L_z} \right ), \quad n_x, n_y, n_z = 0, 1, 2, \dots\]</div>
+<p>where <span class="math notranslate nohighlight">\(n_{x,y,z}\)</span> can take only integer values. This means that the minimum value is</p>
+<div class="math notranslate nohighlight">
+\[k_{\rm min} = \frac{2\pi}{L},\]</div>
+<p>with $ L = L_x = L_y = L_z$. The calculation of <span class="math notranslate nohighlight">\(S(\mathbf k)\)</span> for every combination of the triple <span class="math notranslate nohighlight">\(9n_x, n_y, n_z\)</span> can be very slow. Therefore, it is often the case that researchers calculate only multiple integers of <span class="math notranslate nohighlight">\(k_{\rm min}\)</span> along the three principal axis, that is</p>
+<div class="math notranslate nohighlight">
+\[\mathbf k(n_x,0,0), \quad \mathbf k(0, n_y, 0), \quad \mathbf k (0, 0, n_z).\]</div>
+<p>This is the default way in Sarkas and it corresponds to the choice <code class="docutils literal notranslate"><span class="pre">angle_averaging</span> <span class="pre">=</span> <span class="pre">'principal_axis'</span></code>. If we wanted to calculate every possible combination of the triplet then we would choose <code class="docutils literal notranslate"><span class="pre">angle_averaging</span> <span class="pre">=</span> <span class="pre">'full'</span></code>.</p>
+<p>In the following, we show code for calculating <span class="math notranslate nohighlight">\(S(\mathbf k)\)</span> in a third way, <code class="docutils literal notranslate"><span class="pre">angle_averaging</span> <span class="pre">=</span> <span class="pre">'custom'</span></code>. The code below will calculate <span class="math notranslate nohighlight">\(S(\mathbf k)\)</span> up to <span class="math notranslate nohighlight">\(ka = 12\)</span>, where <span class="math notranslate nohighlight">\(a = a_{\rm ws}\)</span> for brevity. It will calculate every possible combination of the triplet up to <code class="docutils literal notranslate"><span class="pre">max_aa_ka_value</span> <span class="pre">=</span> <span class="pre">4.1</span></code> and then use multiple of the principal axis for the rest.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">angle_averaging</span> <span class="o">=</span> <span class="s1">&#39;custom&#39;</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">max_ka_value</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">max_aa_ka_value</span> <span class="o">=</span> <span class="mf">4.1</span>
+<span class="c1"># Initialize the class with the new parameters.</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="c1"># Check</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+===================== Static Structure Function ======================
+
+k wavevector information saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/k_arrays.npz
+n(k,t) Data saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/nkt.h5
+Data saved in:
+ Simulations/yocp_pppm/PostProcessing/StaticStructureFunction/Production/StaticStructureFunction_yocp.h5
+Data accessible at: self.k_list, self.k_counts, self.ka_values, self.dataframe
+
+Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)
+k_min = 0.1809 / a_ws = 1.5898e+10 [1/m]
+
+Angle averaging choice: custom
+        Maximum angle averaged k harmonics = n_x, n_y, n_z = 13, 13, 13
+        Largest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
+        AA k_max = 4.0737 / a_ws = 3.5798e+11 [1/m]
+        Maximum k harmonics = n_x, n_y, n_z = 66, 66, 66
+        Largest wavector k_max = k_min * n_x
+        k_max = 11.9406 / a_ws = 1.0493e+12 [1/m]
+
+Total number of k values to calculate = 2902
+No. of unique ka values to calculate = 379
+</pre></div></div>
+</div>
+<p>As you can see Sarkas will calculate 2902 different combinations which correspond to 427 unique values of <span class="math notranslate nohighlight">\(ka\)</span>. This means that our <span class="math notranslate nohighlight">\(S(k)\)</span> will be an array with 427 elements.</p>
+<p>Let’s compute it! Again a progress bar will show up in your notebook, but does not display on the webpage.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Calculating n(k,t) for slice 1/1.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ecaed584221e4db8a9b31f1433272a3b", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+n(k,t) Calculation Time: 0 hrs 10 min 36 sec
+
+Calculating S(k) ...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "531cbc4505e64154ac5f1c1014e71fc2", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Static Structure Function Calculation Time: 0 sec 314 msec 224 usec 580 nsec
+</pre></div></div>
+</div>
+<p>As you can see Sarkas calculates <span class="math notranslate nohighlight">\(n(\mathbf k, t)\)</span> first for each slice, only one in this case. This is the slow part of the calculation. Then computes <span class="math notranslate nohighlight">\(S(k)\)</span> by averaging over all the configurations.</p>
+<p>Let’s take a look at the dataframe</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th colspan="2" halign="left">H-H</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>k values</th>
+      <th>Mean</th>
+      <th>Std</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.589833e+10</td>
+      <td>0.031615</td>
+      <td>0.022808</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2.248364e+10</td>
+      <td>0.015469</td>
+      <td>0.010955</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.753672e+10</td>
+      <td>0.014363</td>
+      <td>0.010481</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.179666e+10</td>
+      <td>0.003230</td>
+      <td>0.001917</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3.554975e+10</td>
+      <td>0.004844</td>
+      <td>0.002577</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>374</th>
+      <td>9.856965e+11</td>
+      <td>1.051946</td>
+      <td>0.554365</td>
+    </tr>
+    <tr>
+      <th>375</th>
+      <td>1.001595e+12</td>
+      <td>1.132036</td>
+      <td>0.644052</td>
+    </tr>
+    <tr>
+      <th>376</th>
+      <td>1.017493e+12</td>
+      <td>0.961063</td>
+      <td>0.550745</td>
+    </tr>
+    <tr>
+      <th>377</th>
+      <td>1.033392e+12</td>
+      <td>0.991937</td>
+      <td>0.601141</td>
+    </tr>
+    <tr>
+      <th>378</th>
+      <td>1.049290e+12</td>
+      <td>1.046963</td>
+      <td>0.555723</td>
+    </tr>
+  </tbody>
+</table>
+<p>379 rows × 3 columns</p>
+</div></div>
+</div>
+<p>In this case we have three columns. As mentioned above <span class="math notranslate nohighlight">\(S(\mathbf k)\)</span> is obtained by averaging over different configuration. The second column is the mean and the third column is the standard deviation.</p>
+<p>This is a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> with <code class="docutils literal notranslate"><span class="pre">MultiIndex</span></code>. There are two rows of columns this means that if want to select the second column I need to pass a tuple.</p>
+<p>Let’s print the names of the <code class="docutils literal notranslate"><span class="pre">columns</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MultiIndex([(  &#39; &#39;, &#39;k values&#39;),
+            (&#39;H-H&#39;,     &#39;Mean&#39;),
+            (&#39;H-H&#39;,      &#39;Std&#39;)],
+           )
+</pre></div></div>
+</div>
+<p>Notice that the first line has a tuple with a space as its first element. This needs to be passed.</p>
+<p>Let’s plot it!</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Get the axes handle for the errorbar plot</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span> <span class="c1"># Need to divide because a_ws multiplies k</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;H-H&#39;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">),</span> <span class="c1"># I want only the second column. Otherwise it will plot all the columns</span>
+    <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$ka$&#39;</span>
+<span class="p">)</span>
+<span class="c1"># Errorbar plot</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+    <span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;k values&#39;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
+    <span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;H-H&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span> <span class="o">-</span> <span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;H-H&quot;</span><span class="p">,</span> <span class="s2">&quot;Std&quot;</span><span class="p">)],</span>
+    <span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;H-H&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;H-H&quot;</span><span class="p">,</span> <span class="s2">&quot;Std&quot;</span><span class="p">)],</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.collections.PolyCollection at 0x7f58307994d0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/documentation_Post_Processing_Docs_23_1.png" src="../_images/documentation_Post_Processing_Docs_23_1.png" />
+</div>
+</div>
+<p>As you can see the errorbars are fairly large for <span class="math notranslate nohighlight">\(ka &gt; 4\)</span>. This is because for each <span class="math notranslate nohighlight">\(k\)</span> value there are only <span class="math notranslate nohighlight">\(3 \times 500\)</span> configuration on which to average. The number <span class="math notranslate nohighlight">\(500\)</span> is the number of snapshots. The number <span class="math notranslate nohighlight">\(3\)</span> comes from the three principal direction of <span class="math notranslate nohighlight">\(k\)</span>. For example <span class="math notranslate nohighlight">\(ka = 6.15\)</span> corresponds to the three directions</p>
+<div class="math notranslate nohighlight">
+\[ka = \frac{2 \pi}{L} |(34, 0, 0)| = \frac{2 \pi}{L}  |(0,34,0)| = \frac{2 \pi}{L}  |(0, 0, 34)|\]</div>
+<p>To reduce the errorbar we could choose among increasing the number of snapshots, use the <code class="docutils literal notranslate"><span class="pre">angle_averaging</span> <span class="pre">=</span> <span class="pre">'full'</span></code>, or increasing the number of particles. All these options are rather slow. More importantly we don’t know which is the most effective.</p>
+<p>Probably, <code class="docutils literal notranslate"><span class="pre">angle_averaging</span> <span class="pre">=</span> <span class="pre">'full'</span></code> will be more effective for the large <span class="math notranslate nohighlight">\(ka\)</span> value, but it definitely wont’ reduce the errorbars at low <span class="math notranslate nohighlight">\(ka\)</span> values. However, assuming we don’t want to restart the simulation we choose the second option</p>
+<p>The following code computes</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">angle_averaging</span> <span class="o">=</span> <span class="s1">&#39;full&#39;</span>
+<span class="c1"># Re-Initialize the class with the new parameters.</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="c1"># Check</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+===================== Static Structure Function ======================
+
+k wavevector information saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/k_arrays.npz
+n(k,t) Data saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/nkt.h5
+Data saved in:
+ Simulations/yocp_pppm/PostProcessing/StaticStructureFunction/Production/StaticStructureFunction_yocp.h5
+Data accessible at: self.k_list, self.k_counts, self.ka_values, self.dataframe
+
+Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)
+k_min = 0.1809 / a_ws = 1.5898e+10 [1/m]
+
+Angle averaging choice: full
+        Maximum angle averaged k harmonics = n_x, n_y, n_z = 66, 66, 66
+        Largest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
+        k_max = 20.6818 / a_ws = 1.8174e+12 [1/m]
+
+Total number of k values to calculate = 300762
+No. of unique ka values to calculate = 13310
+</pre></div></div>
+</div>
+<p>Notice that we now have 300 762 combinations of <span class="math notranslate nohighlight">\((n_x, n_y, n_z)\)</span> to calculate. This will be rather slow.</p>
+</div>
+<div class="section" id="Dynamic-Structure-Factor">
+<h2>Dynamic Structure Factor<a class="headerlink" href="#Dynamic-Structure-Factor" title="Permalink to this headline">¶</a></h2>
+<p>To be written soon</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">angle_averaging</span> <span class="o">=</span> <span class="s1">&#39;custom&#39;</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">max_ka_value</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">max_aa_ka_value</span> <span class="o">=</span> <span class="mf">4.1</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+====================== Dynamic Structure Factor ======================
+
+k wavevector information saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/k_arrays.npz
+n(k,t) data saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/nkt.h5
+Data saved in:
+ Simulations/yocp_pppm/PostProcessing/DynamicStructureFactor/Production/DynamicStructureFactor_yocp.h5
+Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies, self.dataframe
+
+Frequency Space Parameters:
+        No. of slices = 2
+        No. dumps per slice = 250
+        Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
+        dw = 0.0750 w_p = 1.2566e+15 [Hz]
+        Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
+        w_max = 9.3751 w_p = 1.5708e+17 [Hz]
+
+
+Wavevector parameters:
+Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)
+k_min = 0.1809 / a_ws = 1.5898e+10 [1/m]
+
+Angle averaging choice: custom
+        Maximum angle averaged k harmonics = n_x, n_y, n_z = 13, 13, 13
+        Largest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
+        AA k_max = 4.0737 / a_ws = 3.5798e+11 [1/m]
+        Maximum k harmonics = n_x, n_y, n_z = 66, 66, 66
+        Largest wavector k_max = k_min * n_x
+        k_max = 11.9406 / a_ws = 1.0493e+12 [1/m]
+
+Total number of k values to calculate = 2902
+No. of unique ka values to calculate = 427
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># postproc.dsf.compute()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;H-H&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.180919&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;H-H&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.313361&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;H-H&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.404547&#39;</span><span class="p">)],</span>
+    <span class="n">logy</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;He-He&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.180919&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;He-He&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.313361&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;He-He&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.404547&#39;</span><span class="p">)],</span>
+    <span class="n">logy</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Current-Correlation-Functions">
+<h2>Current Correlation Functions<a class="headerlink" href="#Current-Correlation-Functions" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">angle_averaging</span> <span class="o">=</span> <span class="s1">&#39;custom&#39;</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">max_ka_value</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">max_aa_ka_value</span> <span class="o">=</span> <span class="mf">4.1</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;H-H&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.180919&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;H-H&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.313361&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;H-H&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.404547&#39;</span><span class="p">)],</span>
+    <span class="n">logy</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;He-He&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.180919&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;He-He&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.313361&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;He-He&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">,</span> <span class="s1">&#39;ka = 0.404547&#39;</span><span class="p">)],</span>
+    <span class="n">logy</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Apr 05, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
+    </p>
+  </div>
+</footer>
+
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+      })
+  </script>
+  
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>

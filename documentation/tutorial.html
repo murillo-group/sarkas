@@ -7,8 +7,8 @@
     <title>Tutorial &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -163,10 +163,15 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="input_file.html">Input File</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Simulation_Docs.html">Running a Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Post_Processing_Docs.html">Data Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -322,12 +327,10 @@ The topics that are listed in this tutorial are as follows</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="input_file.html">Input File</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation_Docs.html">Running a Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Post_Processing_Docs.html">Data Analysis</a></li>
 </ul>
 </div>
-<ul class="simple">
-<li><p>Running a simulation</p></li>
-<li><p>Post Processing</p></li>
-</ul>
 <p>We will illustrate these steps using the example file <code class="docutils literal notranslate"><span class="pre">yukawa_mks_p3m.yaml</span></code> in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> folder.
 This file contains parameters for a <span class="math notranslate nohighlight">\(NVE\)</span> simulation of a One component strongly coupled plasma comprised
 of <span class="math notranslate nohighlight">\(N = 10\, 000\)</span> hydrogen ions with a number density of <span class="math notranslate nohighlight">\(n = 1.62 \times 10^{32} N/m^3\)</span>
@@ -347,7 +350,7 @@ at a temperature <span class="math notranslate nohighlight">\(0.5 eV\)</span> in
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 26, 2021.<br/>
+      Last updated on Apr 05, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
     </p>
   </div>

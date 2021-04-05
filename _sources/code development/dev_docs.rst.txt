@@ -56,26 +56,7 @@ The second command updates the documentation with your changes and creates html 
 Fix any Error and/or Warning messages. You might need to run the command few times.
 You can ignore warnings about duplicate citations.
 
-Check the changes in the Documentation by opening the any of the new/updated ``.html`` files using a browser. Note you need to look at the files in ``_build/html`` as these are the new/updated ones.
-
-Now you need to copy all the content of the ``_build/html`` folder into ``docs``. On Unix system run the command
-
-    .. code-block:: console
-
-        $ cp -rf _build/html/* .
-
-The option ``-rf`` is needed for copying folders and avoid any confirmation.
-
-On Windows run
-
-    .. code-block:: powershell
-
-        $ Xcopy /E /I _build\html\* .
-
-The option ``/E`` makes sure that empty subfolders are copied to the destination. 
-The option  ``/I`` avoids prompting if the destination is a folder or file.
-
-Finally, type ``make clean`` again to remove the files from the ``_build`` folder. 
+Check the changes in the Documentation by opening any of the new/updated ``.html`` files using a browser. Note you need to look at the files in ``_build/html`` as these are the new/updated ones.
 
 Congratulations! The Documentation is up to date.
 

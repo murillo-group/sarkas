@@ -7,8 +7,8 @@
     <title>sarkas.processes &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -367,6 +367,12 @@
 
             <span class="c1"># Print parameters to log file</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">simulation_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+            <span class="c1"># Initialize the observable classes</span>
+            <span class="c1"># for obs in self.observables_list:</span>
+            <span class="c1">#     if obs in self.__dict__.keys():</span>
+            <span class="c1">#         self.__dict__[obs].setup(self.parameters)</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># initialize the directories and filenames</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
@@ -525,7 +531,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="s1">&#39;preprocessing&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loops</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">estimate</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pp_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
@@ -541,9 +547,9 @@
 <div class="viewcode-block" id="PreProcess.run"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">loops</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">timing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">pppm_plots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">postprocessing</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">remove</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">pppm_estimate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">postprocessing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">remove</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
             <span class="n">estimate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate the time of the simulation and best parameters if wanted.</span>
@@ -551,9 +557,9 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        remove : bool</span>
-<span class="sd">            Flag for removing energy files and dumps created during times estimation. Default = True.</span>
+<span class="sd">            Flag for removing energy files and dumps created during times estimation. Default = False.</span>
 
-<span class="sd">        pppm_plots : bool</span>
+<span class="sd">        pppm_estimate : bool</span>
 <span class="sd">            Flag for showing the force error plots in case of pppm algorithm.</span>
 
 <span class="sd">        postprocessing : bool</span>
@@ -573,6 +579,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pppm_plots_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;PPPM_Plots&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pppm_plots_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pppm_plots_dir</span><span class="p">)</span>
 
         <span class="c1"># Set the screening parameter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span> <span class="k">else</span> <span class="mf">0.0</span>
@@ -632,7 +641,7 @@
                     <span class="k">for</span> <span class="n">npz</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">mag_dump_dir</span><span class="p">):</span>
                         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">mag_dump_dir</span><span class="p">,</span> <span class="n">npz</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">pppm_plots</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pppm_estimate</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pppm_approximation</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">estimate</span><span class="p">:</span>
@@ -666,11 +675,13 @@
 <div class="viewcode-block" id="PreProcess.estimate_best_parameters"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.estimate_best_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_best_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Estimate the best number of mesh points and cutoff radius.&quot;&quot;&quot;</span>
 
+        <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">----------------- Timing Study -----------------------&#39;</span><span class="p">)</span>
 
         <span class="n">max_cells</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">max_cells</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pp_cells</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pp_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_cells</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="c1"># if max_cells != self.pp_cells[-1]:</span>
+        <span class="c1">#     self.pp_cells = np.arange(3, max_cells, dtype=int)</span>
 
         <span class="n">pm_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span><span class="p">))</span>
         <span class="n">pm_errs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span><span class="p">))</span>
@@ -687,25 +698,29 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span><span class="p">):</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">m</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">m</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
             <span class="n">green_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">green_function_timer</span><span class="p">()</span>
             <span class="n">pm_errs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">pppm_pm_err</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">Mesh = </span><span class="si">{}</span><span class="s1"> x </span><span class="si">{}</span><span class="s1"> x </span><span class="si">{}</span><span class="s1"> : &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;alpha = </span><span class="si">{:1.4e}</span><span class="s1"> / a_ws = </span><span class="si">{:1.4e}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
-                                                             <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PM Err = </span><span class="si">{:1.4e}</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">pppm_pm_err</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;alpha = </span><span class="si">{:.4f}</span><span class="s1"> / a_ws = </span><span class="si">{:.4e}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PM Err = </span><span class="si">{:.6e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">pppm_pm_err</span><span class="p">))</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocess_timing</span><span class="p">(</span><span class="s2">&quot;GF&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">green_time</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">pm_xlabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">x</span><span class="si">{}</span><span class="s2">x</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">))</span>
+
+            <span class="c1"># Calculate the PM acceleration timing 3x and average</span>
             <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">update_pm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)</span>
                 <span class="n">pm_times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span> <span class="o">/</span> <span class="mf">3.0</span>
 
+            <span class="c1"># For each number of PP cells, calculate the PM acceleration timing 3x and average</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pp_cells</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="n">c</span>
                 <span class="n">kappa_over_alpha</span> <span class="o">=</span> <span class="o">-</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
                 <span class="n">alpha_times_rcut</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="c1"># Update the Force error</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa_over_alpha</span> <span class="o">+</span> <span class="n">alpha_times_rcut</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> \
@@ -716,42 +731,81 @@
                                                      <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">pppm_pm_err</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">pp_xlabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:1.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
+                    <span class="n">pp_xlabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
 
                 <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">update_linked_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)</span>
-                    <span class="n">pp_times</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span> <span class="o">/</span> <span class="mf">3.0</span>
+                    <span class="n">pp_times</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span> <span class="o">/</span> <span class="mf">3.0</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">lagrangian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pp_cells</span><span class="p">)))</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span><span class="p">)):</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pp_cells</span><span class="p">)):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">lagrangian</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pp_errs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">pp_times</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">pm_errs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">pm_times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="c1"># self.pppm_approximation()</span>
 
-        <span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lagrangian</span><span class="o">.</span><span class="n">argmin</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">lagrangian</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">best_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pm_meshes</span><span class="p">[</span><span class="n">best</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">best_cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pp_cells</span><span class="p">[</span><span class="n">best</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="c1"># TODO: The rest is in development</span>
+        <span class="c1">#  Approximate the times</span>
+        <span class="c1"># pm_popt, _ = curve_fit(</span>
+        <span class="c1">#     lambda x, a, b, c: a * x + 15 * b * x ** 3 * np.log2(x) + c,</span>
+        <span class="c1">#     self.pm_meshes,</span>
+        <span class="c1">#     pm_times)</span>
+        <span class="c1"># print(&#39;\n PM Time ~ {:.4e} M^3 + 15 {:.4e} M^3 log(M) &#39;.format(*pm_popt))</span>
+        <span class="c1">#</span>
+        <span class="c1"># fig, ax = plt.subplots(1, 1)</span>
+        <span class="c1"># ax.plot(self.pm_meshes, pm_times, &#39;o&#39;)</span>
+        <span class="c1"># ax.plot(</span>
+        <span class="c1">#     self.pm_meshes,</span>
+        <span class="c1">#     pm_popt[2] + pm_popt[0] * self.pm_meshes + 15 * pm_popt[1] * self.pm_meshes**3 * np.log2(self.pm_meshes),</span>
+        <span class="c1">#     ls=&#39;--&#39;, label=&#39;Fit&#39;)</span>
+        <span class="c1"># ax.set(yscale=&#39;log&#39;, ylabel=&#39;Time [ns]&#39;, xlabel=&#39;Mesh size&#39;)</span>
+        <span class="c1"># fig.tight_layout()</span>
+        <span class="c1">#</span>
+        <span class="c1"># fig, ax = plt.subplots(1, 1)</span>
+        <span class="c1">#</span>
+        <span class="c1"># for j, mesh_points in enumerate(self.pm_meshes):</span>
+        <span class="c1">#     pp_popt, _ = curve_fit(</span>
+        <span class="c1">#         lambda x, a, b: a + b / x ** 3,</span>
+        <span class="c1">#         self.pp_cells,</span>
+        <span class="c1">#         pp_times[j, :],</span>
+        <span class="c1">#         p0 = [1e3, self.parameters.total_num_ptcls]</span>
+        <span class="c1">#     )</span>
+        <span class="c1">#     print(&#39;\n Mesh = {}, PP Time ~ {:.4e} / LCL**3 &#39;.format(mesh_points, *pp_popt))</span>
+        <span class="c1">#</span>
+        <span class="c1">#     ax.plot(self.pp_cells, pp_times[j], &#39;o&#39;)</span>
+        <span class="c1">#     ax.plot(self.pp_cells, pp_popt[0] + pp_popt[1] / self.pp_cells**3,</span>
+        <span class="c1">#             ls=&#39;--&#39;, label=&#39;Fit Mesh {}&#39;.format(mesh_points))</span>
+        <span class="c1"># ax.set(yscale=&#39;log&#39;, ylabel=&#39;Time [ns]&#39;, xlabel=&#39;Cells&#39;)</span>
+        <span class="c1"># fig.tight_layout()</span>
+        <span class="c1">#</span>
+        <span class="c1"># self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))</span>
+        <span class="c1"># self.tot_times = np.empty((len(self.pm_meshes), len(self.pp_cells)))</span>
+        <span class="c1"># self.pp_times = np.copy(pp_times)</span>
+        <span class="c1"># self.pm_times = np.copy(pm_times)</span>
+        <span class="c1"># for i in range(len(self.pm_meshes)):</span>
+        <span class="c1">#     self.tot_times[i, :] = pp_times[i] + pm_times[i]</span>
+        <span class="c1">#     self.lagrangian[i, :] = self.force_error_map[i, :]</span>
+        <span class="c1">#</span>
+        <span class="c1"># best = np.unravel_index(self.lagrangian.argmin(), self.lagrangian.shape)</span>
+        <span class="c1"># self.best_mesh = self.pm_meshes[best[0]]</span>
+        <span class="c1"># self.best_cells = self.pp_cells[best[1]]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">make_lagrangian_plot</span><span class="p">()</span>
-
-        <span class="c1"># set the best parameter</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_mesh</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_cells</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_mesh</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-
-        <span class="c1"># print report</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">timing_study</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="c1"># time prediction</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">predicted_times</span> <span class="o">=</span> <span class="n">pp_times</span><span class="p">[</span><span class="n">best</span><span class="p">]</span> <span class="o">+</span> <span class="n">pm_times</span><span class="p">[</span><span class="n">best</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-        <span class="c1"># Print estimate of run times</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s1">&#39;Equilibration&#39;</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predicted_times</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s1">&#39;Production&#39;</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predicted_times</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s1">&#39;Total Run&#39;</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predicted_times</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span>
-                                                                            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span><span class="p">)))</span></div>
+        <span class="c1"># self.make_lagrangian_plot()</span>
+        <span class="c1">#</span>
+        <span class="c1"># # set the best parameter</span>
+        <span class="c1"># self.potential.pppm_mesh = self.best_mesh * np.ones(3, dtype=int)</span>
+        <span class="c1"># self.potential.rc = self.parameters.box_lengths.min() / self.best_cells</span>
+        <span class="c1"># self.potential.pppm_alpha_ewald = 0.3 * self.best_mesh / self.parameters.box_lengths.min()</span>
+        <span class="c1"># self.potential.pppm_setup(self.parameters)</span>
+        <span class="c1">#</span>
+        <span class="c1"># # print report</span>
+        <span class="c1"># self.io.timing_study(self)</span>
+        <span class="c1"># # time prediction</span>
+        <span class="c1"># self.predicted_times = pp_times[best] + pm_times[best[0]]</span>
+        <span class="c1"># # Print estimate of run times</span>
+        <span class="c1"># self.io.time_stamp(&#39;Equilibration&#39;,</span>
+        <span class="c1">#                    self.timer.time_division(self.predicted_times * self.integrator.equilibration_steps))</span>
+        <span class="c1"># self.io.time_stamp(&#39;Production&#39;,</span>
+        <span class="c1">#                    self.timer.time_division(self.predicted_times * self.integrator.production_steps))</span>
+        <span class="c1"># self.io.time_stamp(&#39;Total Run&#39;,</span>
+        <span class="c1">#                    self.timer.time_division(self.predicted_times * (self.integrator.equilibration_steps</span>
+        <span class="c1">#                                                                     + self.integrator.production_steps)))</span>
 
 <div class="viewcode-block" id="PreProcess.make_lagrangian_plot"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.make_lagrangian_plot">[docs]</a>    <span class="k">def</span> <span class="nf">make_lagrangian_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -885,6 +939,17 @@
         <span class="n">chosen_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span>
         <span class="n">chosen_rcut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span>
 
+        <span class="n">mesh_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pppm_plots_dir</span><span class="p">,</span> <span class="s1">&#39;Mesh_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">mesh_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">mesh_dir</span><span class="p">)</span>
+
+        <span class="n">cell_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">)</span>
+        <span class="n">cell_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_dir</span><span class="p">,</span><span class="s1">&#39;Cells_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cell_num</span><span class="p">)</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cell_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">cell_dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pppm_plots_dir</span> <span class="o">=</span> <span class="n">cell_dir</span>
+
         <span class="c1"># Color Map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">make_color_map</span><span class="p">(</span><span class="n">rcuts</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">chosen_alpha</span><span class="p">,</span> <span class="n">chosen_rcut</span><span class="p">,</span> <span class="n">total_force_error</span><span class="p">)</span>
 
@@ -914,7 +979,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Plot the results</span>
-        <span class="n">fig_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocessing_dir</span>
+        <span class="n">fig_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_plots_dir</span>
 
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
         <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcuts</span><span class="p">,</span> <span class="n">total_force_error</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\alpha a_</span><span class="si">{ws}</span><span class="s1"> = &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">{:2.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">alphas</span><span class="p">[</span><span class="mi">30</span><span class="p">]))</span>
@@ -949,7 +1014,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_cao</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceError_LinePlot_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;LinePlot_ForceError_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PreProcess.make_color_map"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.make_color_map">[docs]</a>    <span class="k">def</span> <span class="nf">make_color_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcuts</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">chosen_alpha</span><span class="p">,</span> <span class="n">chosen_rcut</span><span class="p">,</span> <span class="n">total_force_error</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -973,7 +1038,7 @@
 <span class="sd">            Force error matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Plot the results</span>
-        <span class="n">fig_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preprocessing_dir</span>
+        <span class="n">fig_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pppm_plots_dir</span>
 
         <span class="n">r_mesh</span><span class="p">,</span> <span class="n">a_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">rcuts</span><span class="p">,</span> <span class="n">alphas</span><span class="p">)</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
@@ -1000,7 +1065,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">))</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">CS</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceError_ClrMap_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ClrMap_ForceError_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PreProcess.analytical_approx_pp"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess.analytical_approx_pp">[docs]</a>    <span class="k">def</span> <span class="nf">analytical_approx_pp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate PP force error.&quot;&quot;&quot;</span>
@@ -1096,9 +1161,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
         <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pm_xdata</span><span class="p">,</span> <span class="n">pm_times</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Measured times&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pm_xdata</span><span class="p">,</span> <span class="n">quadratic</span><span class="p">(</span><span class="n">pm_xdata</span><span class="p">,</span> <span class="o">*</span><span class="n">pm_opt</span><span class="p">),</span> <span class="s1">&#39;--r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Fit $f(x) = a + b x + c x^2$&quot;</span><span class="p">)</span>
+        <span class="c1"># ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), &#39;--r&#39;, label=&quot;Fit $f(x) = a + b x + c x^2$&quot;)</span>
         <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pp_xdata</span><span class="p">,</span> <span class="n">pp_times</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Measured times&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pp_xdata</span><span class="p">,</span> <span class="n">linear</span><span class="p">(</span><span class="n">pp_xdata</span><span class="p">,</span> <span class="o">*</span><span class="n">pp_opt</span><span class="p">),</span> <span class="s1">&#39;--r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Fit $f(x) = a x$&quot;</span><span class="p">)</span>
+        <span class="c1"># ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), &#39;--r&#39;, label=&quot;Fit $f(x) = a x$&quot;)</span>
 
         <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
@@ -1241,66 +1306,66 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">evolve</span><span class="p">()</span>
         <span class="n">time_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_tot</span> <span class="o">-</span> <span class="n">time0</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">time_tot</span> <span class="o">-</span> <span class="n">time0</span><span class="p">))</span></div></div>
 
-<div class="viewcode-block" id="Simulation.setup"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Simulation.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_yaml</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Setup simulations&#39; parameters and io subclasses.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        read_yaml: bool</span>
-<span class="sd">            Flag for reading YAML input file. Default = False.</span>
-
-<span class="sd">        other_inputs: dict (optional)</span>
-<span class="sd">            Dictionary with additional simulations options.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">read_yaml</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">common_parser</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">other_inputs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other_inputs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Wrong input type. other_inputs should be a nested dictionary&quot;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">class_attr</span> <span class="ow">in</span> <span class="n">other_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;Particles&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">class_attr</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">species</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">other_inputs</span><span class="p">[</span><span class="s2">&quot;Particles&quot;</span><span class="p">]):</span>
-                        <span class="n">spec</span> <span class="o">=</span> <span class="n">Species</span><span class="p">(</span><span class="n">species</span><span class="p">[</span><span class="s2">&quot;Species&quot;</span><span class="p">])</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
-        <span class="c1"># initialize the directories and filenames</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
-        <span class="c1"># Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.</span>
-
-        <span class="c1"># Update parameters&#39; dictionary with filenames and directories</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
-        <span class="c1"># save some general info</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">potential_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span>
-
-        <span class="c1"># Copy some integrator parameters if not already defined</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;dt&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">dt</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;equilibration_steps&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">equilibration_steps</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;eq_dump_step&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">eq_dump_step</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;production_steps&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">production_steps</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;prod_dump_step&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">prod_dump_step</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">electrostatic_equilibration</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;mag_dump_step&#39;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">mag_dump_step</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s1">&#39;magnetization_steps&#39;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">magnetization_steps</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">setup_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span></div></div>
+    <span class="c1"># def setup(self, read_yaml: bool = False, other_inputs=None):</span>
+    <span class="c1">#     &quot;&quot;&quot;Setup simulations&#39; parameters and io subclasses.</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     read_yaml: bool</span>
+    <span class="c1">#         Flag for reading YAML input file. Default = False.</span>
+    <span class="c1">#</span>
+    <span class="c1">#     other_inputs: dict (optional)</span>
+    <span class="c1">#         Dictionary with additional simulations options.</span>
+    <span class="c1">#</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     if read_yaml:</span>
+    <span class="c1">#         self.common_parser()</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if other_inputs:</span>
+    <span class="c1">#         if not isinstance(other_inputs, dict):</span>
+    <span class="c1">#             raise TypeError(&quot;Wrong input type. other_inputs should be a nested dictionary&quot;)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         for class_name, class_attr in other_inputs.items():</span>
+    <span class="c1">#             if not class_name == &#39;Particles&#39;:</span>
+    <span class="c1">#                 self.__dict__[class_name.lower()].from_dict(class_attr)</span>
+    <span class="c1">#             else:</span>
+    <span class="c1">#                 for sp, species in enumerate(other_inputs[&quot;Particles&quot;]):</span>
+    <span class="c1">#                     spec = Species(species[&quot;Species&quot;])</span>
+    <span class="c1">#                     self.species[sp].__dict__.update(spec.__dict__)</span>
+    <span class="c1">#     # initialize the directories and filenames</span>
+    <span class="c1">#     self.io.setup()</span>
+    <span class="c1">#     # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.</span>
+    <span class="c1">#</span>
+    <span class="c1">#     # Update parameters&#39; dictionary with filenames and directories</span>
+    <span class="c1">#     self.parameters.from_dict(self.io.__dict__)</span>
+    <span class="c1">#     # save some general info</span>
+    <span class="c1">#     self.parameters.potential_type = self.potential.type</span>
+    <span class="c1">#     self.parameters.cutoff_radius = self.potential.rc</span>
+    <span class="c1">#</span>
+    <span class="c1">#     # Copy some integrator parameters if not already defined</span>
+    <span class="c1">#     if not hasattr(self.parameters, &#39;dt&#39;):</span>
+    <span class="c1">#         self.parameters.dt = self.integrator.dt</span>
+    <span class="c1">#     if not hasattr(self.parameters, &#39;equilibration_steps&#39;):</span>
+    <span class="c1">#         self.parameters.equilibration_steps = self.integrator.equilibration_steps</span>
+    <span class="c1">#     if not hasattr(self.parameters, &#39;eq_dump_step&#39;):</span>
+    <span class="c1">#         self.parameters.eq_dump_step = self.integrator.eq_dump_step</span>
+    <span class="c1">#     if not hasattr(self.parameters, &#39;production_steps&#39;):</span>
+    <span class="c1">#         self.parameters.production_steps = self.integrator.production_steps</span>
+    <span class="c1">#     if not hasattr(self.parameters, &#39;prod_dump_step&#39;):</span>
+    <span class="c1">#         self.parameters.prod_dump_step = self.integrator.prod_dump_step</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if self.integrator.electrostatic_equilibration:</span>
+    <span class="c1">#         self.parameters.electrostatic_equilibration = True</span>
+    <span class="c1">#         if not hasattr(self.parameters, &#39;mag_dump_step&#39;):</span>
+    <span class="c1">#             self.parameters.mag_dump_step = self.integrator.mag_dump_step</span>
+    <span class="c1">#         if not hasattr(self.parameters, &#39;magnetization_steps&#39;):</span>
+    <span class="c1">#             self.parameters.magnetization_steps = self.integrator.magnetization_steps</span>
+    <span class="c1">#</span>
+    <span class="c1">#     self.parameters.setup(self.species)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     self.io.setup_checkpoint(self.parameters, self.species)</span>
 
 
 <span class="nd">@njit</span>
@@ -1358,7 +1423,7 @@
     <span class="k">return</span> <span class="n">Tot_DeltaF</span><span class="p">,</span> <span class="n">pp_force_error</span><span class="p">,</span> <span class="n">pm_force_error</span>
 
 
-<div class="viewcode-block" id="quadratic"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.quadratic">[docs]</a><span class="k">def</span> <span class="nf">quadratic</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+<div class="viewcode-block" id="pm_time_model"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.pm_time_model">[docs]</a><span class="k">def</span> <span class="nf">pm_time_model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Quadratic function for fitting.</span>
 
@@ -1380,27 +1445,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    quadratic formula</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span></div>
-
-
-<div class="viewcode-block" id="linear"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.linear">[docs]</a><span class="k">def</span> <span class="nf">linear</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Linear function for fitting.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    x : np.ndarray</span>
-<span class="sd">        Values at which to calculate the function.</span>
-
-<span class="sd">    a: float</span>
-<span class="sd">        Coefficient of linear term.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    _ : np.ndarray</span>
-<span class="sd">        linear formula</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x</span></div>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 </pre></div>
 
     </div>
@@ -1415,7 +1460,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 26, 2021.<br/>
+      Last updated on Apr 05, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
     </p>
   </div>

@@ -7,8 +7,8 @@
     <title>Quickstart &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -170,10 +170,15 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="input_file.html">Input File</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Simulation_Docs.html">Running a Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Post_Processing_Docs.html">Data Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -586,12 +591,15 @@ div.rendered_html tbody tr:hover {
 <span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span> <span class="nn">os</span>
 
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
+
 <span class="c1"># Import sarkas</span>
 <span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
 
 <span class="c1"># Create the file path to the YAML input file</span>
 <span class="n">example_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span>
-                                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span><span class="s1">&#39;examples&#39;</span><span class="p">))</span>
+                                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span>
+                                              <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span><span class="s1">&#39;Yukawa&#39;</span><span class="p">)))</span>
 
 <span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_directory</span><span class="p">,</span> <span class="s1">&#39;yocp_cgs_pp.yaml&#39;</span><span class="p">)</span>
 </pre></div>
@@ -602,7 +610,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Using matplotlib backend: Qt5Agg
+Using matplotlib backend: TkAgg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
@@ -628,90 +636,125 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span style="color: rgb(83,80,84)">
+<span style="color: rgb(0,129,131)">
 
 
 
 
+ _______              __
+|     __|.---.-.----.|  |--.---.-.-----.
+|__     ||  _  |   _||    &lt;|  _  |__ --|
+|_______||___._|__|  |__|__|___._|_____|
 
-  _________             __
- /   _____/____ _______|  | _______    ______
- \_____  \\__  \\_  __ \  |/ /\__  \  /  ___/
- /        \/ __ \|  | \/    &lt;  / __ \_\___ \
-/_______  (____  /__|  |__|_ \(____  /____  &gt;
-        \/     \/           \/     \/     \/
 
 </span>
 An open-source pure-python molecular dynamics code for non-ideal plasmas.
 
-WARNING: Equilibration temperatures not defined. I will use the species&#39;s temperatures.
 
 
-======================= Simulation ==========================
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                   Simulation
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Job ID:  yocp_cgs_pp
 Job directory:  Simulations/yocp_cgs_pp
-Equilibration dumps directory:  Simulations/yocp_cgs_pp/Equilibration/dumps
-Production dumps directory:  Simulations/yocp_cgs_pp/Production/dumps
+Equilibration dumps directory:  Simulations/yocp_cgs_pp/Simulation/Equilibration/dumps
+Production dumps directory:  Simulations/yocp_cgs_pp/Simulation/Production/dumps
 
-Units:  cgs
+PARTICLES:
 Total No. of particles =  1000
-
-Particle Species:
 No. of species =  1
-Species 1 : C
-        Species ID: 0
+Species ID: 0
+        Name: C
         No. of particles = 1000
         Number density = 1.136669e+23 [N/cc]
+        Atomic weight = 12.0105 [a.u.]
         Mass = 2.008900e-23 [g]
+        Mass density = 2.283455e+00 [g/cc]
+        Charge number/ionization degree = 1.9766
         Charge = 9.494010e-10 [esu]
-        Temperature = 5.453880e+03 [K]
+        Temperature = 5.000000e+03 [K] = 4.308667e-01 [eV]
+        Debye Length = 7.322426e-10 [Hz]
+        Plasma Frequency = 2.531585e+14 [Hz]
 
-Lengths scales:
+SIMULATION BOX:
+Units:  cgs
 Wigner-Seitz radius = 1.280636e-08 [cm]
 No. of non-zero box dimensions =  3
-Box length along x axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
-Box length along y axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
-Box length along z axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
-The remaining lengths scales are given in [cm]
-
+Box side along x axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Box side along y axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Box side along z axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Box Volume = 8.797633e-21 [cm^3]
 Boundary conditions: periodic
 
-Thermostat:  Berendsen
-Berendsen Relaxation rate: 0.200
-Thermostating Temperatures:  [5453.88]
+ELECTRON PROPERTIES:
+Number density: n_e = 2.246739e+23 [N/cc]
+Wigner-Seitz radius: a_e = 1.020437e-08 [cm]
+Temperature: T_e = 5.000000e+03 [K] = 4.308667e-01 [eV]
+de Broglie wavelength: lambda_deB = 1.054132e-07 [cm]
+Thomas-Fermi length: lambda_TF = 4.702909e-09 [cm]
+Fermi wave number: k_F = 1.880722e+08 [1/cm]
+Fermi Energy: E_F = 1.347634e+01 [eV]
+Relativistic parameter: x_F = 0.007263 --&gt; E_F = 1.347617e+01 [eV]
+Degeneracy parameter: Theta = 0.0320
+Coupling: r_s = 1.928347,  Gamma_e = 32.750858
+Warm Dense Matter Parameter: W = 0.0039
+Chemical potential: mu = 31.250959 k_B T_e = 0.9992 E_F
 
-Potential:  Yukawa
-kappa = 2.7229e+00
-lambda_TF = 4.7033e-09 [cm]
-Gamma_eff = 93.47
+THERMOSTAT:
+Type: Berendsen
+First thermostating timestep, i.e. relaxation_timestep = 300
+Berendsen parameter tau: 2.000 [timesteps]
+Berendsen relaxation rate: 0.500 [1/timesteps]
 
-Algorithm:  PP
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Equilibration temperatures not defined. I will use the species&#39;s temperatures.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Thermostating temperatures:
+Species ID 0: T_eq = 5.000000e+03 [K] = 4.308667e-01 [eV]
+
+POTENTIAL:  Yukawa
+electron temperature = 5.0000e+03 [K] = 4.3087e-01 [eV]
+kappa = 2.7231
+Gamma_eff = 101.96
+
+ALGORITHM:  PP
 rcut = 4.6852 a_ws = 6.000000e-08 [cm]
 No. of PP cells per dimension =  3,  3,  3
 No. of particles in PP loop =    662
 No. of PP neighbors per particle =    102
-Tot Force Error = 5.824357e-06
+Tot Force Error = 5.818612e-06
 
-Integrator:  Verlet
-
-Time scales:
-Time step = 1.000000e-16 [s]
+INTEGRATOR:
+Type: Verlet
+Time step = 5.000000e-17 [s]
 Total plasma frequency = 2.531585e+14 [Hz]
-w_p dt = 0.0253
-No. of equilibration steps = 5000 ~ 126 w_p T_eq
-snapshot interval = 10 = 0.253 w_p T_snap
-No. of post-equilibration steps = 30000 ~ 759 w_p T_prod
-snapshot interval = 10 = 0.253 w_p T_snap
+w_p dt = 0.0127
+
+Equilibration:
+No. of equilibration steps = 10000
+Total equilibration time = 5.0000e-13 [s] ~ 126 w_p T_eq
+snapshot interval step = 10
+snapshot interval time = 5.0000e-16 [s] = 0.1266 w_p T_snap
+Total number of snapshots = 1000
+
+Production:
+No. of production steps = 20000
+Total production time = 1.0000e-12 [s] ~ 253 w_p T_prod
+snapshot interval step = 10
+snapshot interval time = 5.0000e-16 [s] = 0.1266 w_p T_snap
+Total number of snapshots = 2000
 
 
------------------ Initialization Times -----------------------
+------------------------ Initialization Times ------------------------
 
-Potential Initialization Time: 0 sec 14 msec 775 usec 414 nsec
 
-Particles Initialization Time: 0 sec 0 msec 456 usec 243 nsec
+Potential Initialization Time: 0 sec 44 msec 892 usec 511 nsec
 
-Total Simulation Initialization Time: 0 sec 14 msec 775 usec 414 nsec
+Particles Initialization Time: 0 sec 0 msec 516 usec 315 nsec
+
+Total Simulation Initialization Time: 0 sec 44 msec 892 usec 511 nsec
 
 ------------- Equilibration -------------
 </pre></div></div>
@@ -720,7 +763,7 @@ Total Simulation Initialization Time: 0 sec 14 msec 775 usec 414 nsec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "71e4d84199694cb1b9ef4f0501555c03", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "9d8f8db8387b4f108a71aac7c487ddcc", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -728,8 +771,7 @@ Total Simulation Initialization Time: 0 sec 14 msec 775 usec 414 nsec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-
-Equilibration Time: 0 hrs 0 min 28 sec
+Equilibration Time: 0 hrs 0 min 57 sec
 
 ------------- Production -------------
 </pre></div></div>
@@ -738,7 +780,7 @@ Equilibration Time: 0 hrs 0 min 28 sec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "afa084826c2446479f75021a0822d304", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "122daea74a934aa9a32fb4cce3c3405e", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -746,83 +788,86 @@ Equilibration Time: 0 hrs 0 min 28 sec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
+Production Time: 0 hrs 2 min 7 sec
 
-Production Time: 0 hrs 3 min 0 sec
-
-Total Time: 0 hrs 3 min 28 sec
+Total Time: 0 hrs 3 min 5 sec
 </pre></div></div>
 </div>
 </div>
 <div class="section" id="Postprocessing">
 <h2>Postprocessing<a class="headerlink" href="#Postprocessing" title="Permalink to this headline">¶</a></h2>
-<p>Now that our simulation is complete we need to check if the simulation was physically sound. The first thing to do is to inizialize the <code class="docutils literal notranslate"><span class="pre">PostProcess</span></code> class with the input file name.</p>
-<div class="nbinput nblast docutils container">
+<p>Now that our simulation is complete we need to check if the simulation was physically sound. Run the following three lines will initialize the <code class="docutils literal notranslate"><span class="pre">PostProcess</span></code> class and calculate the observables defined in the input file.</p>
+<p>It will also produce a plot of the Temperature and Total Energy of the Production phase.</p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Initialize the Postprocessing class</span>
 <span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="c1"># Read the simulation&#39;s parameters and assign attributes</span>
 <span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Calculate observables</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
-<p>Next we want to check that the system equilibrated correctly. We do this by calling the <code class="docutils literal notranslate"><span class="pre">Thermodynamics</span></code> class and plot the temperature and energy as a function of time. You should get a plot like this</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">temp_energy_plot</span><span class="p">(</span><span class="n">postproc</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;equilibration&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                 Postprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Job ID:  yocp_cgs_pp
+Job directory:  Simulations/yocp_cgs_pp
+Equilibration dumps directory:  Simulations/yocp_cgs_pp/Simulation/Equilibration/dumps
+Production dumps directory:  Simulations/yocp_cgs_pp/Simulation/Production/dumps
+PostProcessing directory:  Simulations/yocp_cgs_pp/PostProcessing
+
+
+==================== Radial Distribution Function ====================
+
+Data saved in:
+         Simulations/yocp_cgs_pp/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_yocp_cgs_pp.csv
+Data accessible at: self.ra_values, self.dataframe
+
+No. bins = 250
+dr = 0.0187 a_ws = 2.4000e-10 [cm]
+Maximum Distance (i.e. potential.rc)= 4.6852 a_ws = 6.0000e-08 [cm]
+
+Radial Distribution Function Calculation Time: 0 sec 0 msec 990 usec 120 nsec
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/documentation_Quickstart_7_0.png" src="../_images/documentation_Quickstart_7_0.png" />
-</div>
-</div>
-<p>The important thing to check is that the temperature has relaxed to the desired value, <em>i.e.</em> the red dashed line.</p>
-<p>Next we look at the energy and temperature of the production phase. This is done by the same command as above but changing the <code class="docutils literal notranslate"><span class="pre">phase</span></code> option to <code class="docutils literal notranslate"><span class="pre">production</span></code>. You should get a plot like this</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">temp_energy_plot</span><span class="p">(</span><span class="n">postproc</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;production&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/documentation_Quickstart_9_0.png" src="../_images/documentation_Quickstart_9_0.png" />
+<img alt="../_images/documentation_Quickstart_5_1.png" src="../_images/documentation_Quickstart_5_1.png" />
 </div>
 </div>
 <p>You will notice that both the energy and temperature oscillates wildly. This is fine as long as the percentage deviations, in the top plots, are small. You should have a temperature deviations between -2% to ~ 4-5% while energy deviations between -2% and 1%.</p>
 <hr class="docutils" />
 <div class="section" id="Observables">
 <h3>Observables<a class="headerlink" href="#Observables" title="Permalink to this headline">¶</a></h3>
-<p>Let’s calculate some physical quantities. The most common observable is the radial distribution function. This is calculated by calling the <code class="docutils literal notranslate"><span class="pre">RadialDistributionFunction</span></code> class within the postprocess. The radial distribution function is partially calculated during the production phase, hence, after initializing the class we will call the <code class="docutils literal notranslate"><span class="pre">save</span></code> function to complete the calculation. Finally we plot it and you should obtain a similar plot</p>
+<p>The most common observable is the radial distribution function. This was calculated by <code class="docutils literal notranslate"><span class="pre">postproc.run()</span></code>, here we plot it by rescaling the x axis by the Wigner-Seitz radius <span class="math notranslate nohighlight">\(a_{\rm ws}\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Initialize the Pair Distribution Function class</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">normalization</span><span class="o">=</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_{\rm ws}$&#39;</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scaling</span><span class="o">=</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_{\rm ws}$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -834,13 +879,13 @@ Total Time: 0 hrs 3 min 28 sec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/documentation_Quickstart_11_1.png" src="../_images/documentation_Quickstart_11_1.png" />
+<img alt="../_images/documentation_Quickstart_7_1.png" src="../_images/documentation_Quickstart_7_1.png" />
 </div>
 </div>
 <p>Things to check in here are:</p>
 <ul class="simple">
 <li><p>Does <span class="math notranslate nohighlight">\(g(r)\)</span> go to 1 for large <span class="math notranslate nohighlight">\(r\)</span> values ?</p></li>
-<li><p>Is there a peak at <span class="math notranslate nohighlight">\(r = ~1.5 a\)</span> ?</p></li>
+<li><p>Is there a peak at <span class="math notranslate nohighlight">\(r \sim ~1.5 a\)</span> ?</p></li>
 <li><p>Is the height of this peak about ~ 1.4?</p></li>
 </ul>
 <p>If the answer to all these question is yes than the simulation was successfull.</p>
@@ -861,7 +906,7 @@ Total Time: 0 hrs 3 min 28 sec
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 26, 2021.<br/>
+      Last updated on Apr 05, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
     </p>
   </div>

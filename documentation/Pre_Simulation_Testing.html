@@ -7,8 +7,8 @@
     <title>Pre Simulation Testing &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -27,7 +27,7 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Theoretical Background" href="../theory/theory.html" />
+    <link rel="next" title="Running a Simulation" href="Simulation_Docs.html" />
     <link rel="prev" title="Input File" href="input_file.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -112,12 +112,18 @@
 <li><a class="reference internal" href="#">Pre Simulation Testing</a><ul>
 <li><a class="reference internal" href="#Simulation-Parameters">Simulation Parameters</a><ul>
 <li><a class="reference internal" href="#Sarkas-Figlet">Sarkas Figlet</a></li>
-<li><a class="reference internal" href="#Warnings">Warnings</a></li>
-<li><a class="reference internal" href="#Simulation">Simulation</a></li>
+<li><a class="reference internal" href="#Storage">Storage</a></li>
+<li><a class="reference internal" href="#PARTICLES">PARTICLES</a></li>
+<li><a class="reference internal" href="#SIMULATION-BOX">SIMULATION BOX</a></li>
+<li><a class="reference internal" href="#ELECTRON-PROPERTIES">ELECTRON PROPERTIES</a></li>
+<li><a class="reference internal" href="#POTENTIAL">POTENTIAL</a></li>
+<li><a class="reference internal" href="#ALGORITHM">ALGORITHM</a></li>
+<li><a class="reference internal" href="#THERMOSTAT">THERMOSTAT</a></li>
+<li><a class="reference internal" href="#INTEGRATOR">INTEGRATOR</a></li>
 <li><a class="reference internal" href="#Initialization-Times">Initialization Times</a></li>
+<li><a class="reference internal" href="#Time-Estimates">Time Estimates</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#Time-Estimates">Time Estimates</a></li>
 <li><a class="reference internal" href="#Force-Error">Force Error</a></li>
 <li><a class="reference internal" href="#Post-Processing">Post Processing</a><ul>
 <li><a class="reference internal" href="#Radial-Distribution-Function">Radial Distribution Function</a></li>
@@ -180,10 +186,15 @@
 <li class="toctree-l2 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="input_file.html">Input File</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Pre Simulation Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Simulation_Docs.html">Running a Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Post_Processing_Docs.html">Data Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -598,7 +609,11 @@ div.rendered_html tbody tr:hover {
 <span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
 
 <span class="c1"># Create the file path to the YAML input file</span>
-<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;tutorial_yaml_files&#39;</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span>
+<span class="n">example_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span>
+                                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span>
+                                              <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span><span class="s1">&#39;Yukawa&#39;</span><span class="p">)))</span>
+
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_directory</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -607,7 +622,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Using matplotlib backend: Qt5Agg
+Using matplotlib backend: TkAgg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
@@ -629,100 +644,139 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span style="color: rgb(24,69,49)">
+<span style="color: rgb(110,0,95)">
 
 
 
 
-
-
-
-
- _______  _______  _______  _        _______  _______
-(  ____ \(  ___  )(  ____ )| \    /\(  ___  )(  ____ \
-| (    \/| (   ) || (    )||  \  / /| (   ) || (    \/
-| (_____ | (___) || (____)||  (_/ / | (___) || (_____
-(_____  )|  ___  ||     __)|   _ (  |  ___  |(_____  )
-      ) || (   ) || (\ (   |  ( \ \ | (   ) |      ) |
-/\____) || )   ( || ) \ \__|  /  \ \| )   ( |/\____) |
-\_______)|/     \||/   \__/|_/    \/|/     \|\_______)
+ _______              __
+|     __|.---.-.----.|  |--.---.-.-----.
+|__     ||  _  |   _||    &lt;|  _  |__ --|
+|_______||___._|__|  |__|__|___._|_____|
 
 
 </span>
-An open-source pure-python molecular dynamics code for non-ideal plasmas.
-
-WARNING: Equilibration temperatures not defined. I will use the species&#39;s temperatures.
+An open-source pure-python molecular dynamics suite for non-ideal plasmas.
 
 
-======================= Simulation ==========================
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                 Preprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Job ID:  yocp
 Job directory:  Simulations/yocp_pppm
-Equilibration dumps directory:  Simulations/yocp_pppm/Equilibration/dumps
-Production dumps directory:  Simulations/yocp_pppm/Production/dumps
 
-Units:  mks
+Equilibration dumps directory:
+ Simulations/yocp_pppm/PreProcessing/Equilibration/dumps
+Production dumps directory:
+ Simulations/yocp_pppm/PreProcessing/Production/dumps
+
+Equilibration Thermodynamics file:
+ Simulations/yocp_pppm/PreProcessing/Equilibration/EquilibrationEnergy_yocp.csv
+Production Thermodynamics file:
+ Simulations/yocp_pppm/PreProcessing/Production/ProductionEnergy_yocp.csv
+
+PARTICLES:
 Total No. of particles =  10000
-
-Particle Species:
 No. of species =  1
-Species 1 : H
-        Species ID: 0
+Species ID: 0
+        Name: H
         No. of particles = 10000
         Number density = 1.620000e+32 [N/m^3]
+        Atomic weight = 1.0002 [a.u.]
         Mass = 1.673000e-27 [kg]
+        Mass density = 2.710260e+05 [kg/m^3]
+        Charge number/ionization degree = 1.0000
         Charge = 1.602177e-19 [C]
-        Temperature = 1.160452e+04 [K]
+        Temperature = 1.450565e+04 [K] = 1.250000e+00 [eV]
+        Debye Length = 6.530052e-13 [Hz]
+        Plasma Frequency = 1.675504e+16 [Hz]
 
-Lengths scales:
+SIMULATION BOX:
+Units:  mks
 Wigner-Seitz radius = 1.137973e-11 [m]
 No. of non-zero box dimensions =  3
-Box length along x axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-Box length along y axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-Box length along z axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-The remaining lengths scales are given in [m]
-
+Box side along x axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
+Box side along y axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
+Box side along z axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
+Box Volume = 6.172840e-29 [m^3]
 Boundary conditions: periodic
 
-Thermostat:  Berendsen
-Berendsen Relaxation rate: 0.200
-Thermostating Temperatures:  [11604.51812]
+ELECTRON PROPERTIES:
+Number density: n_e = 1.620000e+32 [N/m^3]
+Wigner-Seitz radius: a_e = 1.137973e-11 [m]
+Temperature: T_e = 1.450565e+07 [K] = 1.250000e+03 [eV]
+de Broglie wavelength: lambda_deB = 1.957093e-11 [m]
+Thomas-Fermi length: lambda_TF = 2.272532e-11 [m]
+Fermi wave number: k_F = 1.686470e+11 [1/m]
+Fermi Energy: E_F = 1.083628e+03 [eV]
+Relativistic parameter: x_F = 0.065125 --&gt; E_F = 1.082482e+03 [eV]
+Degeneracy parameter: Theta = 1.1535
+Coupling: r_s = 0.215046,  Gamma_e = 0.101230
+Warm Dense Matter Parameter: W = 0.1984
+Chemical potential: mu = -0.286047 k_B T_e = -0.3300 E_F
 
-Potential:  Yukawa
-kappa = 7.2490e-01
-lambda_TF = 1.5698e-11 [m]
-Gamma_eff = 126.54
+POTENTIAL:  Yukawa
+electron temperature = 1.4506e+07 [K] = 1.2500e+03 [eV]
+kappa = 0.5008
+Gamma_eff = 101.23
 
-Algorithm:  P3M
+ALGORITHM:  P3M
+Mesh = 64 x 64 x 64
 Ewald parameter alpha = 0.6220 / a_ws = 5.465900e+10 [1/m]
+Mesh width = 0.5426, 0.5426, 0.5426 a_ws
+           = 6.1752e-12, 6.1752e-12, 6.1752e-12 [m]
 Mesh size * Ewald_parameter (h * alpha) = 0.3375, 0.3375, 0.3375
                                         ~ 1/2, 1/2, 1/2
 rcut = 5.5100 a_ws = 6.270200e-11 [m]
-Mesh = 64 x 64 x 64
 No. of PP cells per dimension =  6,  6,  6
 No. of particles in PP loop =   1078
 No. of PP neighbors per particle =    167
-PM Force Error = 4.634770e-06
-PP Force Error = 2.348380e-06
-Tot Force Error = 5.195766e-06
+PM Force Error = 5.800215e-06
+PP Force Error = 2.804557e-06
+Tot Force Error = 6.442673e-06
 
-Integrator:  Verlet
+THERMOSTAT:
+Type: Berendsen
+First thermostating timestep, i.e. relaxation_timestep = 50
+Berendsen parameter tau: 1.000 [timesteps]
+Berendsen relaxation rate: 1.000 [1/timesteps]
 
-Time scales:
-Time step = 6.087000e-18 [s]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Equilibration temperatures not defined. I will use the species&#39;s temperatures
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Thermostating temperatures:
+Species ID 0: T_eq = 1.450565e+04 [K] = 1.250000e+00 [eV]
+
+INTEGRATOR:
+Type: Verlet
+Time step = 2.000000e-18 [s]
 Total plasma frequency = 1.675504e+16 [Hz]
-w_p dt = 0.1020
-No. of equilibration steps = 1000 ~ 101 w_p T_eq
-snapshot interval = 5 = 0.510 w_p T_snap
-No. of post-equilibration steps = 5000 ~ 509 w_p T_prod
-snapshot interval = 2 = 0.204 w_p T_snap
+w_p dt = 0.0335 ~ 1/29
+
+Equilibration:
+No. of equilibration steps = 5000
+Total equilibration time = 1.0000e-14 [s] ~ 167 w_p T_eq
+snapshot interval step = 10
+snapshot interval time = 2.0000e-17 [s] = 0.3351 w_p T_snap
+Total number of snapshots = 500
+
+Production:
+No. of production steps = 5000
+Total production time = 1.0000e-14 [s] ~ 167 w_p T_prod
+snapshot interval step = 10
+snapshot interval time = 2.0000e-17 [s] = 0.3351 w_p T_snap
+Total number of snapshots = 500
 
 
------------------ Initialization Times -----------------------
+------------------------ Initialization Times ------------------------
+
 
 Potential Initialization Time: 0 hrs 0 min 5 sec
 
-Particles Initialization Time: 0 sec 1 msec 237 usec 386 nsec
+Particles Initialization Time: 0 sec 1 msec 287 usec 47 nsec
 
 Total Simulation Initialization Time: 0 hrs 0 min 5 sec
 </pre></div></div>
@@ -730,16 +784,45 @@ Total Simulation Initialization Time: 0 hrs 0 min 5 sec
 <p>As you can see the output is rather verbose, so let’s unpack it.</p>
 <div class="section" id="Sarkas-Figlet">
 <h3>Sarkas Figlet<a class="headerlink" href="#Sarkas-Figlet" title="Permalink to this headline">¶</a></h3>
-<p>The first screen output is the Sarkas Figlet. This is printed at the beginning of every <code class="docutils literal notranslate"><span class="pre">sarkas.processes</span></code> by the static method <code class="docutils literal notranslate"><span class="pre">screen_figlet()</span></code> of the <code class="docutils literal notranslate"><span class="pre">InputOutput</span></code> class. The Figlet font and colors are chosen randomly from a predefined set in <code class="docutils literal notranslate"><span class="pre">sarkas.utilities.io</span></code>. This function assumes a white background if you are running a Jupyter notebook, while a dark background in the case of an IPython/Python kernel.</p>
+<p>The first screen output is the Sarkas Figlet. This is printed at the beginning of every <code class="docutils literal notranslate"><span class="pre">sarkas.processes.Process</span></code> by the static method <code class="docutils literal notranslate"><span class="pre">screen_figlet()</span></code> of the <code class="docutils literal notranslate"><span class="pre">InputOutput</span></code> class. The Figlet font and colors are chosen randomly from a predefined set in <code class="docutils literal notranslate"><span class="pre">sarkas.utilities.io</span></code>. This function assumes a white background if you are running a Jupyter notebook, while a dark background in the case of an IPython/Python kernel.</p>
 </div>
-<div class="section" id="Warnings">
-<h3>Warnings<a class="headerlink" href="#Warnings" title="Permalink to this headline">¶</a></h3>
-<p>Right after the Sarkas Figlet warnings regarding inputs from the YAML file will be printed. In this case we did not define the equilibration temperatures in the <code class="docutils literal notranslate"><span class="pre">Thermostat</span></code> section of the YAML file. Another possible warnings is too large of a cut-off radius for the potential.</p>
+<div class="section" id="Storage">
+<h3>Storage<a class="headerlink" href="#Storage" title="Permalink to this headline">¶</a></h3>
+<p>Next Sarkas prints the path where the snapshots (<code class="docutils literal notranslate"><span class="pre">dumps</span></code>) and the thermodynamics information of the simulation will be stored. Notice that these are in a directory called <code class="docutils literal notranslate"><span class="pre">Simulations/yocp_ppm/PreProcessing</span></code>. The actual simulation’s dumps and energy files will be in a different directory, see next page. Furthermore, if you want to save space and remove the dumps and energy files of the Pre processing stage you can choose the option <code class="docutils literal notranslate"><span class="pre">.run(remove</span> <span class="pre">=</span> <span class="pre">True)</span></code> to remove them once they are not
+needed anymore.</p>
 </div>
-<div class="section" id="Simulation">
-<h3>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h3>
-<p>Next we have the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> section where all simulation parameters are printed. These include inputs from the YAML file and calculated constants. For example, we find the value of the Wigner-Seitz radius, <code class="docutils literal notranslate"><span class="pre">a_ws</span></code>, the number of non zero dimensions, and the length of the simulation box sides in terms of <code class="docutils literal notranslate"><span class="pre">a_ws</span></code> and its numerical value in the chosen units.</p>
-<p>Few lines below we find Potential info. Note that this section depends on the type of potential and as such it varies. Next we find the Algorithm section. This is particularly verbose in the case of the PPPM algorithm since we have parameters for the PP and PM part of the algorithm. We will come back to this number later in the discussion</p>
+<div class="section" id="PARTICLES">
+<h3>PARTICLES<a class="headerlink" href="#PARTICLES" title="Permalink to this headline">¶</a></h3>
+<p>In this section we can find info about the particles we are simulating. Importantly we find the physical constants like the plasma frequency and Debye length.</p>
+</div>
+<div class="section" id="SIMULATION-BOX">
+<h3>SIMULATION BOX<a class="headerlink" href="#SIMULATION-BOX" title="Permalink to this headline">¶</a></h3>
+<p>Next we have the SIMULATION BOX section. Important lengths parameters are printed here. These include inputs the value of the Wigner-Seitz radius, <code class="docutils literal notranslate"><span class="pre">a_ws</span></code>, the number of non zero dimensions, and the length of the simulation box sides in terms of <code class="docutils literal notranslate"><span class="pre">a_ws</span></code> and its numerical value in the chosen units.</p>
+</div>
+<div class="section" id="ELECTRON-PROPERTIES">
+<h3>ELECTRON PROPERTIES<a class="headerlink" href="#ELECTRON-PROPERTIES" title="Permalink to this headline">¶</a></h3>
+<p>This section prints thermodynamics quantities as well as dimensionless parameters of the surrounding electron liquid. Here we find the Thomas-Fermi length which is used for the screening parameter <span class="math notranslate nohighlight">\(\kappa\)</span> of our Yukawa potential. Formulas for the calculation of each of these quantities can be found in the Electron Properties <a class="reference external" href="https://murillo-group.github.io/sarkas/theory/electron_properties.html#">page</a> in the Theoretical Background section.</p>
+</div>
+<div class="section" id="POTENTIAL">
+<h3>POTENTIAL<a class="headerlink" href="#POTENTIAL" title="Permalink to this headline">¶</a></h3>
+<p>This section prints the potential specific parameters. In the case of Yukawa we find the electron temperature used for the calculation of <span class="math notranslate nohighlight">\(\lambda_{\rm TF}\)</span> and <span class="math notranslate nohighlight">\(\kappa = a_{ws}/\lambda_{\rm TF}\)</span>. The last line prints the coupling parameter as defined <a class="reference external" href="https://murillo-group.github.io/sarkas/theory/coupling_constant.html">here</a></p>
+</div>
+<div class="section" id="ALGORITHM">
+<h3>ALGORITHM<a class="headerlink" href="#ALGORITHM" title="Permalink to this headline">¶</a></h3>
+<p>This section prints information about the choice of our algorithm. The most important number to look at is <code class="docutils literal notranslate"><span class="pre">Tot</span> <span class="pre">Force</span> <span class="pre">Error</span></code>. We return to this number later on in the discussion.</p>
+</div>
+<div class="section" id="THERMOSTAT">
+<h3>THERMOSTAT<a class="headerlink" href="#THERMOSTAT" title="Permalink to this headline">¶</a></h3>
+<p>Next we find information about the thermostat used. At the moment Sarkas supports the Berendsen thermostat only. You can learn more about it on this <a class="reference external" href="https://murillo-group.github.io/sarkas/theory/thermostats.html#berendsen-thermostat">page</a>. The parameter <code class="docutils literal notranslate"><span class="pre">relaxation_timestep</span></code> tells us the timestep number at which the thermostat will be turned on. Before then the system will evolve as in a <span class="math notranslate nohighlight">\(NVE\)</span> ensemble. A good number for this is the timestep equivalent to 1 or 2 plasma periods as
+this allows the system to convert most of its potential energy into kinetic energy and thus reaching its maximum value. Turning on the thermostat once the kinetic energy is maximal is most efficient.</p>
+<p>Note that there is a Warning message. This is because we did not define the equilibration <code class="docutils literal notranslate"><span class="pre">temperatures</span></code> (or <code class="docutils literal notranslate"><span class="pre">temperatures_eV</span></code>) in the <code class="docutils literal notranslate"><span class="pre">Thermostat</span></code> section of the YAML file. As the warning says, this is not a problem as Sarkas will use the temperatures defined in the <code class="docutils literal notranslate"><span class="pre">Particles</span></code> section.</p>
+</div>
+<div class="section" id="INTEGRATOR">
+<h3>INTEGRATOR<a class="headerlink" href="#INTEGRATOR" title="Permalink to this headline">¶</a></h3>
+<p>The last section prints out info about our choice of Integrator and about the timing of the phases of our simulation. The most important parameters here are the <code class="docutils literal notranslate"><span class="pre">Total</span> <span class="pre">plasma</span> <span class="pre">frequency</span></code> and <code class="docutils literal notranslate"><span class="pre">w_p</span> <span class="pre">dt</span></code>. The total plasma frequency is calculated from</p>
+<div class="math notranslate nohighlight">
+\[\omega_{\rm tot} = \left [ \sum_i \omega_i^2 \right ]^{1/2}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\omega_i\)</span> is the plasma frequency of species <span class="math notranslate nohighlight">\(i\)</span>. In the case of a one component plasma, as in this case, the total plasma frequency is the same as the plasma frequency printed in the <code class="docutils literal notranslate"><span class="pre">PARTICLES</span></code> section above. The number <code class="docutils literal notranslate"><span class="pre">w_p</span> <span class="pre">dt</span></code> tells us the fraction of plasma periods that corresponds to our choice of <code class="docutils literal notranslate"><span class="pre">dt</span></code>. A non-written rule among researchers says that we should choose a <code class="docutils literal notranslate"><span class="pre">dt</span></code> such that <span class="math notranslate nohighlight">\(\omega_p dt &lt; 1/ 25\)</span>.</p>
 </div>
 <div class="section" id="Initialization-Times">
 <h3>Initialization Times<a class="headerlink" href="#Initialization-Times" title="Permalink to this headline">¶</a></h3>
@@ -749,9 +832,8 @@ Total Simulation Initialization Time: 0 hrs 0 min 5 sec
 <li><p><code class="docutils literal notranslate"><span class="pre">Particles</span> <span class="pre">Initialization</span></code> where the particles positions and velocities are initialized. This includes the case where a specific particles distribution is chosen.</p></li>
 </ul>
 </div>
-</div>
 <div class="section" id="Time-Estimates">
-<h2>Time Estimates<a class="headerlink" href="#Time-Estimates" title="Permalink to this headline">¶</a></h2>
+<h3>Time Estimates<a class="headerlink" href="#Time-Estimates" title="Permalink to this headline">¶</a></h3>
 <p>The above output is intended to be a check on the choice of parameters. The <code class="docutils literal notranslate"><span class="pre">PreProcess</span></code> class provides also an estimate of the various phases of a simulation. The times are estimated by running several step of the simulation and average over them. This is done by the method <code class="docutils literal notranslate"><span class="pre">run()</span></code> of the <code class="docutils literal notranslate"><span class="pre">PreProcess</span></code> class.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -760,7 +842,8 @@ Total Simulation Initialization Time: 0 hrs 0 min 5 sec
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">preproc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
     <span class="n">timing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># time estimation, default is True</span>
-    <span class="n">loops</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>   <span class="c1"># the number of timesteps to average, Default is 10</span>
+    <span class="n">loops</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>   <span class="c1"># the number of timesteps to average, Default is 10</span>
+    <span class="n">remove</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># Save some space.</span>
            <span class="p">)</span>
 <span class="c1"># Note that the argument `loops` should be chosen to be larger than `production_dump_step`</span>
 <span class="c1"># in order to get a more accurate estimate.</span>
@@ -774,19 +857,19 @@ Total Simulation Initialization Time: 0 hrs 0 min 5 sec
 <div class="highlight"><pre>
 
 
-====================== Times Estimates ===========================
+========================== Times Estimates ===========================
 
 Optimal Green&#39;s Function Time:
-0 min 0 sec 4 msec 18 usec 2 nsec
+0 min 4 sec 25 msec 698 usec 652 nsec
 
-Time of PP acceleration calculation averaged over 10 steps:
-0 min 0 sec 190 msec 545 usec 232 nsec
+Time of PP acceleration calculation averaged over 20 steps:
+0 min 0 sec 163 msec 601 usec 963 nsec
 
-Time of PM acceleration calculation averaged over 10 steps:
-0 min 0 sec 269 msec 534 usec 64 nsec
+Time of PM acceleration calculation averaged over 20 steps:
+0 min 0 sec 150 msec 114 usec 386 nsec
 
 
-Running 10 equilibration and production steps to estimate simulation times
+Running 20 equilibration and production steps to estimate simulation times
 
 </pre></div></div>
 </div>
@@ -794,16 +877,15 @@ Running 10 equilibration and production steps to estimate simulation times
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "c4734b2ef7c242d5a1a5cc01969edc65", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "15c068f8047f4b409779dfb74bc904ad", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-
-Time of a single equilibration step averaged over 10 steps:
-0 min 0 sec 295 msec 394 usec 48 nsec
+Time of a single equilibration step averaged over 20 steps:
+0 min 0 sec 270 msec 78 usec 305 nsec
 
 </pre></div></div>
 </div>
@@ -811,36 +893,55 @@ Time of a single equilibration step averaged over 10 steps:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "7a6e4136e3e5428a96eb6dff58705c40", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b0d592060fea4bf59d4e22a9f11ad0e9", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-
-Time of a single production step averaged over 10 steps:
-0 min 0 sec 249 msec 424 usec 853 nsec
-
+Time of a single production step averaged over 20 steps:
+0 min 0 sec 229 msec 657 usec 944 nsec
 
 
------------------ Total Estimated Times -----------------------
 
-Equilibration Time: 0 hrs 4 min 55 sec
+----------------------- Total Estimated Times ------------------------
 
-Production Time: 0 hrs 20 min 47 sec
 
-Total Run Time: 0 hrs 25 min 42 sec
+Equilibration Time: 0 hrs 22 min 30 sec
+
+Production Time: 0 hrs 19 min 8 sec
+
+Total Run Time: 0 hrs 41 min 38 sec
+
+
+========================= Filesize Estimates =========================
+
+
+Equilibration:
+
+Checkpoint filesize: 0 GB 0 MB 821 KB 758 bytes
+Checkpoint folder size: 0 GB 401 MB 246 KB 120 bytes
+
+Production:
+
+Checkpoint filesize: 0 GB 0 MB 821 KB 758 bytes
+Checkpoint folder size: 0 GB 401 MB 246 KB 120 bytes
+
+Total minimum needed space: 0 GB 802 MB 492 KB 240 bytes
 </pre></div></div>
 </div>
 <p>The first part of the output shows the times needed for the force calculation and the averaged time for an equilibration and production time step.</p>
 <p>As you can see the calculation of the optimal Green’s function takes a relatively long time. Fortunately this needs be calculated once at the beginning of the simulation. We note also that the PM part takes ~1.5x the time it takes for the PP part. This is specific to this hardware and the opposite case could be true on other machines.</p>
-<p>Next Sarkas will run <code class="docutils literal notranslate"><span class="pre">loops</span></code> timesteps for each phase to estimate the time of each. These are indicated by the green bars, a nice feature from the <code class="docutils literal notranslate"><span class="pre">tqdm</span></code> package. Below the green bars we find the average time of each phase. Note that the equilibration phase takes longer than the production phase. This is due to the presence of athermostat.</p>
+<p>Next Sarkas will run <code class="docutils literal notranslate"><span class="pre">loops</span></code> timesteps for each phase to estimate the time of each. These are indicated by the green bars, a nice feature from the <code class="docutils literal notranslate"><span class="pre">tqdm</span></code> package. Note that this does not show up on the webpage, but it will in your notebook. Below the green bars we find the average time of each phase. Note that the equilibration phase takes longer than the production phase. This is due to the presence of athermostat.</p>
 <p>At the end all the estimates are put together to calculate the equilibration, production, and total run times.</p>
 <p>The Equilibration and Production times are then calculated by multiplying the above times by <code class="docutils literal notranslate"><span class="pre">equilibration_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">production_steps</span></code>, respectively.</p>
 <blockquote>
 <div><p><strong>NOTE:</strong> These times will vary depending on the computer hardware. For this tutorial we used a 2019 Dell XPS 8930 with Intel Core i7-8700K &#64; 3.70Ghz and 48GB of RAM running Ubuntu 18.04.</p>
 </div></blockquote>
+<p>Next Sarkas will estimate the size of the simulation. It calculates the size of an equilibration and a production dump file and multiplies it by the total number of dumps.</p>
+<p>This simulation should take about ~800 MB of space.</p>
+</div>
 </div>
 <div class="section" id="Force-Error">
 <h2>Force Error<a class="headerlink" href="#Force-Error" title="Permalink to this headline">¶</a></h2>
@@ -848,7 +949,7 @@ Total Run Time: 0 hrs 25 min 42 sec
 <p>The two important parameters in this section are: the Ewald parameter <span class="math notranslate nohighlight">\(\alpha\)</span> and the cutoff radius, <span class="math notranslate nohighlight">\(r_c\)</span>. Below the line <code class="docutils literal notranslate"><span class="pre">Mesh</span> <span class="pre">=</span> <span class="pre">[64</span> <span class="pre">64</span> <span class="pre">64]</span></code> the number of cells per dimension for the Linked Cell algorithm and the number of particles inside a spheres of radius <span class="math notranslate nohighlight">\(r_c\)</span>. Next we find the most important information: the error in the force calculation. This is the error incurred when we cut the potential interaction after a certain distance. For more details on the way this is
 calculated see the page <a class="reference external" href="../theory/force_error.html">Force Error</a>. This number is dimensionless since all the variable have been rescaled. There is no <em>good</em> value for the Force error and it is up to the user to decide. In Non-Ideal plasmas it is usually chosen to be less than <code class="docutils literal notranslate"><span class="pre">1e-5</span></code>. In this case we have <code class="docutils literal notranslate"><span class="pre">Tot</span> <span class="pre">Force</span> <span class="pre">Error</span> <span class="pre">=</span> <span class="pre">5.195766e-06</span></code>.</p>
 <p>The method <code class="docutils literal notranslate"><span class="pre">pppm_approximation()</span></code> of the <code class="docutils literal notranslate"><span class="pre">PreProcess</span></code> class calculates estimates of <code class="docutils literal notranslate"><span class="pre">Tot</span> <span class="pre">Force</span> <span class="pre">Error</span></code> for several <span class="math notranslate nohighlight">\(r_c\)</span> and <span class="math notranslate nohighlight">\(\alpha\)</span> parameters. This time the output will be two figures. These two figures are meant to help the user find the optimal PPPM parameters.</p>
-<p>Note that the same plots can be obtained by choosing <code class="docutils literal notranslate"><span class="pre">pppm_plots=True</span></code> as an argument in <code class="docutils literal notranslate"><span class="pre">run()</span></code>.</p>
+<p>Note that the same plots can be obtained by choosing <code class="docutils literal notranslate"><span class="pre">pppm_estimate=True</span></code> as an argument in <code class="docutils literal notranslate"><span class="pre">run()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -877,10 +978,10 @@ calculated see the page <a class="reference external" href="../theory/force_erro
 \[\Delta F_{\textrm{tot}}^{(\textrm{approx})}( r_c, \alpha) = \sqrt{ \Delta F_{\rm PP}^2 +
            ( \Delta F_{\rm PM}^{(\textrm{approx})} ) ^2 }\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta F_{\rm PP}\)</span> is the <code class="docutils literal notranslate"><span class="pre">PP</span> <span class="pre">Force</span> <span class="pre">Error</span></code>. <span class="math notranslate nohighlight">\(\Delta F_{\rm PM}^{(\textrm{approx})}\)</span> is calculated from an approximation of the PM force error, hence the superscript <span class="math notranslate nohighlight">\(\rm approx\)</span>, and its functional form is different than the one calculated in <code class="docutils literal notranslate"><span class="pre">PM</span> <span class="pre">Force</span> <span class="pre">Error</span></code>. See <a class="reference internal" href="../theory/force_error.html"><span class="doc">Force Error</span></a> for more detail. The numbers on the white contours indicate the value of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{apprx})}\)</span> along those lines and the black dot
-indicates our choice of parameters. Notice that our parameter choice falls in the region in between <code class="docutils literal notranslate"><span class="pre">1e-5</span></code> and <code class="docutils literal notranslate"><span class="pre">1e-6</span></code> as expected, recall <code class="docutils literal notranslate"><span class="pre">Tot</span> <span class="pre">Force</span> <span class="pre">Error</span> <span class="pre">=</span> <span class="pre">5.195766e-06</span></code>. Furthermore, this plot tells us that if we want a force error of the order 1e-6 we need to choose values that fall into the small purple triangle at the top.</p>
+indicates our choice of parameters. Notice that our parameter choice falls in the region in between <code class="docutils literal notranslate"><span class="pre">1e-5</span></code> and <code class="docutils literal notranslate"><span class="pre">1e-6</span></code> as expected, recall <code class="docutils literal notranslate"><span class="pre">Tot</span> <span class="pre">Force</span> <span class="pre">Error</span> <span class="pre">=</span> <span class="pre">6.442673e-06</span></code>. Furthermore, this plot tells us that if we want a force error of the order 1e-6 we need to choose values that fall into the small purple triangle at the top.</p>
 <p>However, our choice of parameters while being good, it might not be optimal. In order to find the best choice we look at the second figure.</p>
 <p>The left panel is a plot of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{approx})}\)</span> vs <span class="math notranslate nohighlight">\(r_c/a_{\rm ws}\)</span> at five different values of <span class="math notranslate nohighlight">\(\alpha a_{\rm ws}\)</span> while the right panel is a plot of <span class="math notranslate nohighlight">\(\Delta F_{\textrm{tot}}^{(\textrm{approx})}\)</span> vs <span class="math notranslate nohighlight">\(\alpha a_{\rm ws}\)</span> at five different values of <span class="math notranslate nohighlight">\(r_c/a_{\rm ws}\)</span>. The vertical black dashed lines indicate our choice of <span class="math notranslate nohighlight">\(\alpha a_{\rm ws}\)</span> and <span class="math notranslate nohighlight">\(r_c/a_{\rm ws}\)</span>. The horizontal black dashed lines, instead, indicate the value
-<code class="docutils literal notranslate"><span class="pre">Tot</span> <span class="pre">Force</span> <span class="pre">Error</span> <span class="pre">=</span> <span class="pre">5.195766e-06</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">Tot</span> <span class="pre">Force</span> <span class="pre">Error</span> <span class="pre">=</span> <span class="pre">6.442673e-06</span></code>.</p>
 <p>These plots show that our analytical approximation is a very good approximation and that our choice of parameters is optimal as the intersection of the dashed lines falls exactly in the minimum of the curves. From the left panel we find that larger values for <span class="math notranslate nohighlight">\(r_c = 5.51\)</span> lead to an inefficient code since we will be calculating the interaction for many more particles without actually reducing the force error. Similarly, the right panel shows that our choice of <span class="math notranslate nohighlight">\(r_c\)</span> is close to
 optimal given <span class="math notranslate nohighlight">\(\alpha a_{ws} = 0.614\)</span>.</p>
 <p>Some good rules of thumb to keep in mind while choosing the parameters are</p>
@@ -916,54 +1017,108 @@ optimal given <span class="math notranslate nohighlight">\(\alpha a_{ws} = 0.614
 <div class="highlight"><pre>
 
 
-===================== Post Processing ============================
 
-Radial Distribution Function:
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                 Preprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+==================== Radial Distribution Function ====================
+
+Data saved in:
+ Simulations/yocp_pppm/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_yocp.csv
+Data accessible at: self.ra_values, self.dataframe
+
 No. bins = 500
 dr = 0.0110 a_ws = 1.2540e-13 [m]
 Maximum Distance (i.e. potential.rc)= 5.5100 a_ws = 6.2702e-11 [m]
 
-Static Structure Factor:
-No. of ka harmonics = n_x, n_y, n_z = 10, 10, 10
-No. of ka values to calculate = 1330
-Smallest wavevector k_min = 3.9 / N^(1/3)
-k_min = 0.1809 / a_ws = 2.5303e+09 [1/m]
-Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
-k_max = 3.1336 / a_ws = 4.3826e+10 [1/m]
 
-Dynamic Structure Factor:
-Frequency Constants
-        No. of slices = 1
-        No. steps per slice = 2500
-        No. dumps per slice = 1250
-        Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
-        dw = 0.0246 w_p = 4.1289e+14 [Hz]
-        Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
-        w_max = 15.4018 w_p = 2.5806e+17 [Hz]
-Wavevector Constants
-        No. of ka harmonics = n_x, n_y, n_z = 10, 10, 10
-        No. of ka values to calculate = 1330
-        Smallest wavevector k_min = 3.9 / N^(1/3)
-        k_min = 0.1809 / a_ws = 2.5303e+09 [1/m]
-        Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
-        k_max = 3.1336 / a_ws = 4.3826e+10 [1/m]
+===================== Static Structure Function ======================
 
-Current Correlation Function:
-Frequency Constants
+k wavevector information saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/k_arrays.npz
+n(k,t) Data saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/nkt.h5
+Data saved in:
+ Simulations/yocp_pppm/PostProcessing/StaticStructureFunction/Production/StaticStructureFunction_yocp.h5
+Data accessible at: self.k_list, self.k_counts, self.ka_values, self.dataframe
+
+Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)
+k_min = 0.1809 / a_ws = 1.5898e+10 [1/m]
+
+Angle averaging choice: principal_axis
+        Maximum k harmonics = n_x, n_y, n_z = 44, 44, 44
+        Largest wavector k_max = k_min * n_x
+        k_max = 7.9604 / a_ws = 6.9953e+11 [1/m]
+
+Total number of k values to calculate = 132
+No. of unique ka values to calculate = 44
+
+
+====================== Dynamic Structure Factor ======================
+
+k wavevector information saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/k_arrays.npz
+n(k,t) data saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/nkt.h5
+Data saved in:
+ Simulations/yocp_pppm/PostProcessing/DynamicStructureFactor/Production/DynamicStructureFactor_yocp.h5
+Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies, self.dataframe
+
+Frequency Space Parameters:
         No. of slices = 1
-        No. steps per slice = 2500
-        No. dumps per slice = 1250
+        No. dumps per slice = 500
         Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
-        dw = 0.0246 w_p = 4.1289e+14 [Hz]
+        dw = 0.0375 w_p = 6.2832e+14 [Hz]
         Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
-        w_max = 15.4018 w_p = 2.5806e+17 [Hz]
-Wavevector Constants
-        No. of ka harmonics = n_x, n_y, n_z = 10, 10, 10
-        No. of ka values to calculate = 1330
-        Smallest wavevector k_min = 3.9 / N^(1/3)
-        k_min = 0.1809 / a_ws = 2.5303e+09 [1/m]
-        Largest wavevector k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)
-        k_max = 3.1336 / a_ws = 4.3826e+10 [1/m]
+        w_max = 9.3751 w_p = 1.5708e+17 [Hz]
+
+
+Wavevector parameters:
+Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)
+k_min = 0.1809 / a_ws = 1.5898e+10 [1/m]
+
+Angle averaging choice: principal_axis
+        Maximum k harmonics = n_x, n_y, n_z = 44, 44, 44
+        Largest wavector k_max = k_min * n_x
+        k_max = 7.9604 / a_ws = 6.9953e+11 [1/m]
+
+Total number of k values to calculate = 132
+No. of unique ka values to calculate = 44
+
+
+==================== Current Correlation Function ====================
+
+k wavevector information saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/k_arrays.npz
+v(k,t) data saved in:
+ Simulations/yocp_pppm/PostProcessing/k_space_data/vkt.h5
+Data saved in:
+Simulations/yocp_pppm/PostProcessing/CurrentCorrelationFunction/Production/CurrentCorrelationFunction_yocp.h5
+Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies,
+         self.dataframe
+
+Frequency Space Parameters:
+        No. of slices = 1
+        No. dumps per slice = 500
+        Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
+        dw = 0.0375 w_p = 6.2832e+14 [Hz]
+        Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
+        w_max = 9.3751 w_p = 1.5708e+17 [Hz]
+
+
+Wavevector parameters:
+Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)
+k_min = 0.1809 / a_ws = 1.5898e+10 [1/m]
+
+Angle averaging choice: principal_axis
+        Maximum k harmonics = n_x, n_y, n_z = 44, 44, 44
+        Largest wavector k_max = k_min * n_x
+        k_max = 7.9604 / a_ws = 6.9953e+11 [1/m]
+
+Total number of k values to calculate = 132
+No. of unique ka values to calculate = 44
 </pre></div></div>
 </div>
 <div class="section" id="Radial-Distribution-Function">
@@ -978,7 +1133,10 @@ Wavevector Constants
 <div class="math notranslate nohighlight">
 \[k_{\rm min} = \frac{2\pi}{L} \approx \frac{3.9}{N^{1/3}}\]</div>
 <p>In this case, $k_{<span class="math">\rm min</span>} a_{<span class="math">\rm ws</span>} = 0.1809 $, if we need to investigate smaller wavevectors we need to increase the number of particles. The above equation can be used to find the value of <span class="math notranslate nohighlight">\(N\)</span> for the desired <span class="math notranslate nohighlight">\(k_{\rm min}\)</span> value.</p>
-<p>The largest wavevector, instead, is defined by our choice of the harmonics.</p>
+<p>The largest wavevector, instead, is defined by our choice of <code class="docutils literal notranslate"><span class="pre">angle_averaging</span></code>. This parameter can take three values <code class="docutils literal notranslate"><span class="pre">principal_axis</span></code>, <code class="docutils literal notranslate"><span class="pre">custom</span></code>, <code class="docutils literal notranslate"><span class="pre">full</span></code>. The default value for this parameter is <code class="docutils literal notranslate"><span class="pre">principal_axis</span></code>. More about this parameter will be explained in the <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/Post_Processing_docs.html">Post Processing notebook</a>. For the moment we mention that in the case of <code class="docutils literal notranslate"><span class="pre">angle_averaging</span> <span class="pre">=</span> <span class="pre">principal_axis</span></code> the maximum value is calculated as</p>
+<div class="math notranslate nohighlight">
+\[k_{\rm max} = \frac{2 \pi}{L} \sqrt{3} n_x,\]</div>
+<p>while in the case <code class="docutils literal notranslate"><span class="pre">angle_averaging</span> <span class="pre">=</span> <span class="pre">full</span></code> as</p>
 <div class="math notranslate nohighlight">
 \[k_{\rm max} = \frac{2 \pi}{L} \sqrt{n_x^2 + n_y^2 + n_z^2}.\]</div>
 </div>
@@ -1011,7 +1169,7 @@ given by</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 26, 2021.<br/>
+      Last updated on Apr 05, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
     </p>
   </div>

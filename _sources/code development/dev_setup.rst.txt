@@ -125,7 +125,7 @@ To uninstall Sarkas you can run
 
     .. code-block:: console
 
-        $ pip uninstall sarkas-md
+        $ pip uninstall sarkas
 
 
 Docker Image
@@ -149,9 +149,6 @@ Once you install Sarkas using Docker, you can go inside the Docker container by 
 
 .. _Docker: https://www.docker.com/products/docker-desktop
 
-
-Setup your Git
-==============
 
 .. _Anaconda: https://www.anaconda.org
 .. _repository: https://github.com/murillo-group/sarkas-repo

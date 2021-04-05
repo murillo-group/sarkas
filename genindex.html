@@ -7,8 +7,8 @@
     <title>Index &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -201,12 +201,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.berendsen">berendsen() (in module sarkas.time_evolution.thermostats)</a>
 </li>
-      <li><a href="api/sarkas.processes.html#sarkas.processes.betamp">betamp() (in module sarkas.processes)</a>
+      <li><a href="api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.berendsen_tau">berendsen_tau (sarkas.time_evolution.thermostats.Thermostat attribute)</a>
 </li>
-      <li><a href="api/sarkas.base.html#sarkas.base.Parameters.boundary_conditions">boundary_conditions (sarkas.base.Parameters attribute)</a>
+      <li><a href="api/sarkas.processes.html#sarkas.processes.betamp">betamp() (in module sarkas.processes)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/sarkas.base.html#sarkas.base.Parameters.boundary_conditions">boundary_conditions (sarkas.base.Parameters attribute)</a>
+</li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.box_lengths">box_lengths (sarkas.base.Particles attribute)</a>
 
       <ul>
@@ -282,6 +284,8 @@
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.charges">charges (sarkas.base.Particles attribute)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.check_units">check_units() (sarkas.base.Parameters method)</a>
+</li>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.col_mapper">col_mapper() (in module sarkas.tools.observables)</a>
 </li>
       <li><a href="api/sarkas.processes.html#sarkas.processes.Process.common_parser">common_parser() (sarkas.processes.Process method)</a>
 </li>
@@ -619,8 +623,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.lattice">lattice() (sarkas.base.Particles method)</a>
 </li>
-      <li><a href="api/sarkas.processes.html#sarkas.processes.linear">linear() (in module sarkas.processes)</a>
-</li>
       <li><a href="api/sarkas.potentials.lennardjones.html#sarkas.potentials.lennardjones.LJ_force_PP">LJ_force_PP() (in module sarkas.potentials.lennardjones)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.load">load() (sarkas.base.Particles method)</a>
@@ -772,7 +774,7 @@
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.names">names (sarkas.base.Particles attribute)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.nkt_file">nkt_file (sarkas.tools.observables.Observable attribute)</a>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.nkt_hdf_file">nkt_hdf_file (sarkas.tools.observables.Observable attribute)</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.no_bins">no_bins (sarkas.tools.observables.RadialDistributionFunction attribute)</a>
 
@@ -859,6 +861,8 @@
       <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.PM_err">PM_err (sarkas.potentials.base.Potential attribute)</a>
 </li>
       <li><a href="api/sarkas.processes.html#sarkas.processes.PreProcess.pm_meshes">pm_meshes (sarkas.processes.PreProcess attribute)</a>
+</li>
+      <li><a href="api/sarkas.processes.html#sarkas.processes.pm_time_model">pm_time_model() (in module sarkas.processes)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Particles.pos">pos (sarkas.base.Particles attribute)</a>
 </li>
@@ -957,8 +961,6 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.QFactor">QFactor (sarkas.base.Parameters attribute)</a>
-</li>
-      <li><a href="api/sarkas.processes.html#sarkas.processes.quadratic">quadratic() (in module sarkas.processes)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1166,10 +1168,10 @@
         <li><a href="api/sarkas.utilities.timing.html#module-sarkas.utilities.timing">module</a>
 </li>
       </ul></li>
-      <li><a href="api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer">SarkasTimer (class in sarkas.utilities.timing)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer">SarkasTimer (class in sarkas.utilities.timing)</a>
+</li>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.save_pickle">save_pickle() (sarkas.utilities.io.InputOutput method)</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.saving_dir">saving_dir (sarkas.tools.observables.Observable attribute)</a>
@@ -1184,8 +1186,6 @@
         <li><a href="api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.setup">(sarkas.potentials.base.Potential method)</a>
 </li>
         <li><a href="api/sarkas.processes.html#sarkas.processes.Process.setup">(sarkas.processes.Process method)</a>
-</li>
-        <li><a href="api/sarkas.processes.html#sarkas.processes.Simulation.setup">(sarkas.processes.Simulation method)</a>
 </li>
         <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.setup">(sarkas.time_evolution.integrators.Integrator method)</a>
 </li>
@@ -1274,8 +1274,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.T_desired">T_desired (sarkas.base.Parameters attribute)</a>
 </li>
-      <li><a href="api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.tau">tau (sarkas.time_evolution.thermostats.Thermostat attribute)</a>
-</li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.temp_energy_plot">temp_energy_plot() (sarkas.tools.observables.Thermodynamics method)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Species.temperature">temperature (sarkas.base.Species attribute)</a>
@@ -1298,14 +1296,14 @@
 </li>
       <li><a href="api/sarkas.processes.html#sarkas.processes.PreProcess.time_integrator_loop">time_integrator_loop() (sarkas.processes.PreProcess method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.time_stamp">time_stamp() (sarkas.tools.observables.Observable method)</a>
 
       <ul>
         <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.time_stamp">(sarkas.utilities.io.InputOutput method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.processes.html#sarkas.processes.Process.timer">timer (sarkas.processes.Process attribute)</a>
 </li>
       <li><a href="api/sarkas.utilities.timing.html#sarkas.utilities.timing.TimerError">TimerError</a>
@@ -1447,7 +1445,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Mar 26, 2021.<br/>
+      Last updated on Apr 05, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.3.<br/>
     </p>
   </div>
