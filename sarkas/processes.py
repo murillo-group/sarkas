@@ -147,11 +147,11 @@ class Process:
                     self.ec = sk_obs.ElectricCurrent()
                     if sub_dict:
                         self.ec.from_dict(sub_dict)
-                if key == 'FluxAutoCorrelationFunction':
-                    self.observables_list.append('facf')
-                    self.facf = sk_obs.FluxAutoCorrelationFunction()
+                if key == 'DiffusionFlux':
+                    self.observables_list.append('diff_flux')
+                    self.diff_flux = sk_obs.DiffusionFlux()
                     if sub_dict:
-                        self.facf.from_dict(sub_dict)
+                        self.diff_flux.from_dict(sub_dict)
 
         if 'Transport' in dics.keys():
             self.transport_dict = dics["Transport"].copy()
@@ -711,24 +711,24 @@ class PreProcess(Process):
 
     def time_acceleration(self):
 
-        pp_acc_time = np.zeros(self.loops)
+        self.pp_acc_time = np.zeros(self.loops)
         for i in range(self.loops):
             self.timer.start()
             self.potential.update_linked_list(self.particles)
-            pp_acc_time[i] = self.timer.stop()
+            self.pp_acc_time[i] = self.timer.stop()
 
-        self.pp_acc_time = np.copy(pp_acc_time)
         # Calculate the mean excluding the first value because that time include numba compilation time
-        pp_mean_time = self.timer.time_division(np.mean(pp_acc_time[1:]))
+        pp_mean_time = self.timer.time_division(np.mean(self.pp_acc_time[1:]))
 
         self.io.preprocess_timing("PP", pp_mean_time, self.loops)
 
         # PM acceleration
         if self.potential.pppm_on:
             self.pm_acc_time = np.zeros(self.loops)
-            self.timer.start()
-            self.potential.update_pm(self.particles)
-            self.pm_acc_time[i] = self.timer.stop()
+            for i in range(self.loops):
+                self.timer.start()
+                self.potential.update_pm(self.particles)
+                self.pm_acc_time[i] = self.timer.stop()
             pm_mean_time = self.timer.time_division(np.mean(self.pm_acc_time[1:]))
             self.io.preprocess_timing("PM", pm_mean_time, self.loops)
 

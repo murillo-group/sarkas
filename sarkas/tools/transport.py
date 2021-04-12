@@ -113,6 +113,7 @@ class TransportCoefficient:
     @staticmethod
     def diffusion(params,
                   phase: str = 'production',
+                  compute_acf: bool = True,
                   no_slices: int = 1,
                   plot: bool = True,
                   show: bool = False,
@@ -126,8 +127,12 @@ class TransportCoefficient:
         params : sarkas.base.Parameters
             Simulation's parameters.
 
-        phase : str
+        phase : str, optional
             Phase to analyze. Default = 'production'.
+
+        compute_acf : bool, optional
+            Flag for recalculating the ACF. Default = True.
+            If False it will read in the data from the dataframe.
 
         no_slices : int, optional
             Number of slices of the simulation. Default = 1.
@@ -135,10 +140,10 @@ class TransportCoefficient:
         plot : bool, optional
             Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.
 
-        show : bool
+        show : bool, optional
             Flag for prompting plot to screen.
 
-        figname : str
+        figname : str, optional
             Name with which to save the file. It automatically saves it in the correct directory.
 
         **kwargs:
@@ -152,12 +157,17 @@ class TransportCoefficient:
         """
         print('\n\n{:=^70} \n'.format(' Diffusion Coefficient '))
         coefficient = pd.DataFrame()
-        vacf = obs.VelocityAutoCorrelationFunction()
-        vacf.setup(params,
-                   phase=phase,
-                   no_slices=no_slices,
-                   **kwargs)
-        print('Data saved in: \n', os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.csv'))
+        if compute_acf:
+            vacf = obs.VelocityAutoCorrelationFunction()
+            vacf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
+            vacf.compute()
+
+        else:
+            vacf = obs.VelocityAutoCorrelationFunction()
+            vacf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
+            vacf.parse()
+
+        print('Data saved in: \n', os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.h5'))
 
         print('\nNo. of slices = {}'.format(vacf.no_slices))
         print('No. dumps per slice = {}'.format(vacf.slice_steps))
@@ -167,9 +177,9 @@ class TransportCoefficient:
             int(vacf.dt * vacf.slice_steps * vacf.dump_step * vacf.total_plasma_frequency)))
 
         vacf.compute()
-        time = np.array(vacf.dataframe["Time"])
+        time = vacf.dataframe["Time"].to_numpy()[:,0]
         coefficient["Time"] = time
-
+        vacf_str = 'VACF'
         const = 1.0 / 3.0
         if not params.magnetized:
             # Loop over time slices
@@ -178,20 +188,21 @@ class TransportCoefficient:
                 D = np.zeros((params.num_species, vacf.slice_steps))
                 # Iterate over the number of species
                 for i, sp in enumerate(params.species_names):
+                    sp_vacf_str = "{} ".format(sp) + vacf_str
                     # Grab vacf data of each slice
-                    integrand = np.array(vacf.dataframe["{} Total Velocity ACF slice {}".format(sp, isl)])
+                    integrand = np.array(vacf.dataframe[(sp_vacf_str, "Total","slice {}".format(isl) )])
                     # Integrate each timestep
                     for it in range(1, len(time)):
                         D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
 
-                    coefficient["{} Diffusion slice {}".format(sp, isl)] = D[i, :]
+                    coefficient["{} Diffusion_slice {}".format(sp, isl)] = D[i, :]
 
             # Average and std of each diffusion coefficient.
             for isp, sp in enumerate(params.species_names):
-                col_str = ["{} Diffusion slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
+                col_str = ["{} Diffusion_slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
 
-                coefficient["{} Diffusion avg".format(sp)] = coefficient[col_str].mean(axis=1)
-                coefficient["{} Diffusion std".format(sp)] = coefficient[col_str].std(axis=1)
+                coefficient["{} Diffusion_Mean".format(sp)] = coefficient[col_str].mean(axis=1)
+                coefficient["{} Diffusion_Std".format(sp)] = coefficient[col_str].std(axis=1)
 
         else:
             # Loop over time slices
@@ -200,16 +211,17 @@ class TransportCoefficient:
                 D = np.zeros((params.num_species, 2, len(time)))
                 # Iterate over the number of species
                 for i, sp in enumerate(params.species_names):
-                    integrand_par = np.array(vacf.dataframe["{} Z Velocity ACF slice {}".format(sp, isl)])
-                    integrand_perp = np.array(vacf.dataframe["{} X Velocity ACF slice {}".format(sp, isl)]) + \
-                                     np.array(vacf.dataframe["{} Y Velocity ACF slice {}".format(sp, isl)])
+                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    integrand_par = np.array(vacf.dataframe[(sp_vacf_str, 'Z', "slice {}".format(isl))])
+                    integrand_perp = np.array(vacf.dataframe[(sp_vacf_str, 'X', "slice {}".format(isl))]) + \
+                                     np.array(vacf.dataframe[(sp_vacf_str, 'Y', "slice {}".format(isl))])
 
                     for it in range(1, len(time)):
                         D[i, 0, it] = np.trapz(integrand_par[:it], x=time[:it])
                         D[i, 1, it] = 0.5 * np.trapz(integrand_perp[:it], x=time[:it])
 
-                    coefficient["{} Parallel Diffusion slice {}".format(sp, isl)] = D[i, 0, :]
-                    coefficient["{} Perpendicular Diffusion slice {}".format(sp, isl)] = D[i, 1, :]
+                    coefficient["{} Parallel Diffusion_slice {}".format(sp, isl)] = D[i, 0, :]
+                    coefficient["{} Perpendicular Diffusion_slice {}".format(sp, isl)] = D[i, 1, :]
 
             # Add the average and std of perp and par VACF to its dataframe
             for isp, sp in enumerate(params.species_names):
@@ -239,6 +251,12 @@ class TransportCoefficient:
             vacf.dataframe.to_csv(vacf.filename_csv, index=False, encoding='utf-8')
 
         # Endif magnetized.
+        coefficient.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in coefficient.columns])
+        # Save the coefficient's data
+        coefficient.to_hdf(
+            os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.h5'),
+            mode='w',
+            key='diffusion')
 
         if plot or figname:
             # Make the plot
@@ -251,11 +269,12 @@ class TransportCoefficient:
 
             if not params.magnetized:
                 for isp, sp in enumerate(params.species_names):
-                    acf_avg = vacf.dataframe["{} Total Velocity ACF avg".format(sp)]
-                    acf_std = vacf.dataframe["{} Total Velocity ACF std".format(sp)]
+                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    acf_avg = vacf.dataframe[(sp_vacf_str, "Total", "Mean")]
+                    acf_std = vacf.dataframe[(sp_vacf_str, "Total", "Std")]
 
-                    d_avg = coefficient["{} Diffusion avg".format(sp)]
-                    d_std = coefficient["{} Diffusion std".format(sp)]
+                    d_avg = coefficient[("{} Diffusion".format(sp),"Mean")]
+                    d_std = coefficient[("{} Diffusion".format(sp),"Std")]
 
                     # Calculate axis multipliers and labels
                     xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Diffusion", vacf.units)
@@ -327,17 +346,12 @@ class TransportCoefficient:
             if show:
                 fig.show()
 
-        # Save the coefficient's data
-        coefficient.to_csv(
-            os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.csv'),
-            index=False,
-            encoding='utf-8')
-
         return coefficient
 
     @staticmethod
     def interdiffusion(params,
                        phase: str = 'production',
+                       compute_acf: bool = True,
                        no_slices: int = 1,
                        plot: bool = True,
                        show: bool = False,
@@ -354,6 +368,10 @@ class TransportCoefficient:
         phase : str, optional
             Phase to compute. Default = 'production'.
 
+        compute_acf : bool
+            Flag for recalculating the ACF. Default = True.
+            If False it will read in the data from the dataframe.
+
         no_slices : int, optional
             Number of slices of the simulation. Default = 1.
 
@@ -367,7 +385,7 @@ class TransportCoefficient:
             Name with which to save the file. It automatically saves it in the correct directory.
 
         **kwargs:
-            Arguments to pass :meth:`sarkas.tools.observables.FluxAutoCorrelationFunction`
+            Arguments to pass :meth:`sarkas.tools.observables.DiffusionFlux`
 
         Returns
         -------
@@ -377,72 +395,89 @@ class TransportCoefficient:
         """
         print('\n\n{:=^70} \n'.format(' Interdiffusion Coefficient '))
         coefficient = pd.DataFrame()
-        jc_acf = obs.FluxAutoCorrelationFunction()
-        # jc_acf.no_slices = no_slices
-        jc_acf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
-        jc_acf.compute()
+        if compute_acf:
+            jc_acf = obs.DiffusionFlux()
+            jc_acf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
+            jc_acf.compute()
+
+        else:
+            jc_acf = obs.DiffusionFlux()
+            jc_acf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
+            jc_acf.parse()
+
+        # Print some info
+        print('Data saved in: \n', os.path.join(jc_acf.saving_dir, 'InterDiffusion_' + jc_acf.job_id + '.h5'))
+
+        print('\nNo. of slices = {}'.format(jc_acf.no_slices))
+        print('No. dumps per slice = {}'.format(jc_acf.slice_steps))
+
+        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
+            jc_acf.dt * jc_acf.slice_steps * jc_acf.dump_step,
+            int(jc_acf.dt * jc_acf.slice_steps * jc_acf.dump_step * jc_acf.total_plasma_frequency)))
+
         no_int = jc_acf.slice_steps
-        no_obs = jc_acf.no_obs
+        no_fluxes_acf = jc_acf.no_fluxes_acf
+        # Normalization constant
+        const = 1. / (3.0 * jc_acf.total_num_ptcls * jc_acf.species_concentrations.prod())
 
-        const = 1. / (3.0 * jc_acf.total_num_ptcls)
+        # to_numpy creates a 2d-array, hence the [:,0]
+        time = jc_acf.dataframe[("Time")].to_numpy()[:, 0]
 
-        time = np.array(jc_acf.dataframe["Time"])
         coefficient["Time"] = time
-
+        df_str = "Diffusion Flux ACF"
+        id_str = "Inter Diffusion Flux"
         for isl in range(jc_acf.no_slices):
-            D_ij = np.zeros((no_obs, jc_acf.slice_steps))
-            index = 0
-            for i, sp1 in enumerate(params.species_names):
-                conc1 = jc_acf.species_concentrations[i] * jc_acf.species_mass_densities[i]
-                for j, sp2 in enumerate(params.species_names[i:], i):
-                    conc2 = jc_acf.species_concentrations[j] * jc_acf.species_mass_densities[j]
+            D_ij = np.zeros((no_fluxes_acf, jc_acf.slice_steps))
 
-                    integrand = np.array(
-                        jc_acf.dataframe["{}-{} Total Diffusion Flux ACF slice {}".format(sp1, sp2, isl)])
+            for ij in range(no_fluxes_acf):
+                integrand = np.array(jc_acf.dataframe[(df_str + " {}".format(ij), "Total", "slice {}".format(isl))])
 
-                    for it in range(1, no_int):
-                        D_ij[index, it] = const / (conc1 * conc2) * np.trapz(integrand[:it], x=time[:it])
+                for it in range(1, no_int):
+                    D_ij[ij, it] = const * np.trapz(integrand[:it], x=time[:it])
 
-                    coefficient["{}-{} Inter Diffusion slice {}".format(sp1, sp2, isl)] = D_ij[index, :]
+                coefficient[id_str + " {}_slice {}".format(ij, isl)] = D_ij[ij, :]
 
-                    index += 1
+        for ij in range(no_fluxes_acf):
+            col_str = [id_str + " {}_slice {}".format(ij, isl) for isl in range(jc_acf.no_slices)]
+            coefficient[id_str + " {}_Mean".format(ij)] = coefficient[col_str].mean(axis=1)
+            coefficient[id_str + " {}_Std".format(ij)] = coefficient[col_str].std(axis=1)
 
-        for i, sp1 in enumerate(params.species_names):
-            for j, sp2 in enumerate(params.species_names[i:], i):
-                col_str = ["{}-{} Inter Diffusion slice {}".format(sp1, sp2, isl) for isl in range(jc_acf.no_slices)]
-                coefficient["{}-{} Inter Diffusion avg".format(sp1, sp2)] = coefficient[col_str].mean(axis=1)
-                coefficient["{}-{} Inter Diffusion std".format(sp1, sp2)] = coefficient[col_str].std(axis=1)
+        coefficient.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in coefficient.columns])
+        coefficient.to_hdf(
+            os.path.join(jc_acf.saving_dir, 'InterDiffusion_' + jc_acf.job_id + '.h5'),
+            mode='w',
+            key='interdiffusion',
+            index=False)
 
         if plot or figname:
             # Make the plot
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
             ax3 = ax1.twiny()
-            ax4 = ax2.twinx()
+            ax4 = ax2.twiny()
             # extra space for the second axis at the bottom
             # fig.subplots_adjust(bottom=0.2)
-            for i, sp1 in enumerate(params.species_names):
-                for j, sp2 in enumerate(params.species_names[i + 1:], i + 1):
-                    acf_avg = jc_acf.dataframe["{}-{} Total Diffusion Flux ACF avg".format(sp1, sp2)]
-                    acf_std = jc_acf.dataframe["{}-{} Total Diffusion Flux ACF std".format(sp1, sp2)]
+            for flux in range(jc_acf.no_fluxes):
+                acf_avg = jc_acf.dataframe[(df_str + " {}".format(flux), "Total", "Mean")]
+                acf_std = jc_acf.dataframe[(df_str + " {}".format(flux), "Total", "Std")]
 
-                    d_avg = coefficient["{}-{} Inter Diffusion avg".format(sp1, sp2)]
-                    d_std = coefficient["{}-{} Inter Diffusion std".format(sp1, sp2)]
+                d_avg = coefficient[(id_str + " {}".format(flux), "Mean")]
+                d_std = coefficient[(id_str + " {}".format(flux), "Std")]
 
-                    # Calculate axis multipliers and labels
-                    xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Diffusion", jc_acf.units)
+                # Calculate axis multipliers and labels
+                xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Diffusion", jc_acf.units)
 
-                    # ACF
-                    ax1.plot(xmul * time, acf_avg / acf_avg.iloc[0], label=r'$J_{' + sp1 + sp2 + '}$')
-                    ax1.fill_between(
-                        xmul * time,
-                        (acf_avg + acf_std) / (acf_avg.iloc[0] + acf_std.iloc[0]),
-                        (acf_avg - acf_std) / (acf_avg.iloc[0] - acf_std.iloc[0]), alpha=0.2)
+                # ACF
+                ax1.plot(xmul * time, acf_avg / acf_avg.iloc[0], label=r'Flux $J_{}$'.format(flux))
+                ax1.fill_between(
+                    xmul * time,
+                    (acf_avg + acf_std) / (acf_avg.iloc[0] + acf_std.iloc[0]),
+                    (acf_avg - acf_std) / (acf_avg.iloc[0] - acf_std.iloc[0]), alpha=0.2)
 
-                    # Coefficient
-                    ax2.plot(xmul * time, ymul * d_avg, label=r'$D_{' + sp1 + sp2 + '}$')
-                    ax2.fill_between(xmul * time, ymul * (d_avg + d_std), ymul*(d_avg - d_std), alpha=0.2)
+                # Coefficient
+                ax2.plot(xmul * time, ymul * d_avg, label=r'IDF $D_{}$'.format(flux))
+                ax2.fill_between(xmul * time, ymul * (d_avg + d_std), ymul * (d_avg - d_std), alpha=0.2)
 
-            xlims = (xmul* time[1], xmul * time[-1] * 1.5 )
+            xlims = (xmul * time[1], xmul * time[-1] * 1.5)
 
             ax1.set(xlim=xlims, xscale='log', ylabel=r'Diffusion Flux ACF', xlabel=r"Time difference" + xlbl)
             ax2.set(xlim=xlims, xscale='log', ylabel=r'Inter Diffusion' + ylbl, xlabel=r"$\tau$" + xlbl)
@@ -452,7 +487,7 @@ class TransportCoefficient:
             # Finish the index axes
             for axi in [ax3, ax4]:
                 axi.grid(alpha=0.1)
-                axi.set(xlim=[1, jc_acf.slice_steps * 1.5], xscale='log', xlabel='Index')
+                axi.set(xlim=(1, jc_acf.slice_steps * 1.5), xscale='log', xlabel='Index')
 
             fig.tight_layout()
             if figname:
@@ -464,9 +499,7 @@ class TransportCoefficient:
                 fig.show()
 
         # Save to dataframe
-        coefficient.to_csv(os.path.join(jc_acf.saving_dir, 'InterDiffusion_' + jc_acf.job_id + '.csv'),
-                           index=False,
-                           encoding='utf-8')
+
         return coefficient
 
     @staticmethod

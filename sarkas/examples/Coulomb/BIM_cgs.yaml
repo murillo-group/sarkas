@@ -61,5 +61,5 @@ PostProcessing:
       no_slices: 1
       angle_averaging: principal_axis
 
-  - FluxAutoCorrelationFunction:
+  - DiffusionFlux:
       no_slices: 3
