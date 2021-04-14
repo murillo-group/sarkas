@@ -34,7 +34,8 @@ Parameters:
 
 IO:
     verbose: yes
-    job_dir: yocp_cgs_pp_therm            # dir name to save data. The default is "Checkpoint"
+    simulations_dir: Berendsen_runs            # dir name to save data. The default is "Checkpoint"
+    job_dir: tau_2
 
 PostProcessing:
   - Thermodynamics:
