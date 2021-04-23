@@ -207,8 +207,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../theory/Berendsen_Thermostat.html">Thermostats</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../theory/Berendsen_Thermostat.html#Berendsen-Thermostat">Berendsen Thermostat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/thermostats.html">Thermostats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory/thermostats.html#berendsen-thermostat">Berendsen Thermostat</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a><ul>
@@ -421,7 +421,7 @@ of the thermalization phase are defined in the <code class="docutils literal not
 <p>The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen and Langevin type,
 but other thermostats like Nose-Hoover, etc are, you guessed it!, in development.
 The <code class="docutils literal notranslate"><span class="pre">relaxation_timestep</span></code> instance indicates the timestep number at which the Berendsen thermostat will be turned on.
-The instance <code class="docutils literal notranslate"><span class="pre">tau</span></code> indicates the relaxation rate of the Berendsen thermostat, see <a class="reference internal" href="../theory/Berendsen_Thermostat.html#Thermostats"><span class="std std-ref">Thermostats</span></a> for more details.</p>
+The instance <code class="docutils literal notranslate"><span class="pre">tau</span></code> indicates the relaxation rate of the Berendsen thermostat, see <a class="reference internal" href="../theory/thermostats.html#thermostats"><span class="std std-ref">Thermostats</span></a> for more details.</p>
 <p>The last instance defines the temperature (be careful with units!) at which the system is to be thermalized.
 Notice that this takes a single value in the case of a single species, while it takes is a list in the case of
 multicomponent plasmas. Note that these temperatures need not be the same as those defined in the <code class="docutils literal notranslate"><span class="pre">Particles</span></code> block as
