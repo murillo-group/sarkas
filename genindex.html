@@ -7,8 +7,8 @@
     <title>Index &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -292,11 +292,11 @@
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.compute">compute() (sarkas.tools.observables.CurrentCorrelationFunction method)</a>
 
       <ul>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux.compute">(sarkas.tools.observables.DiffusionFlux method)</a>
+</li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.compute">(sarkas.tools.observables.DynamicStructureFactor method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.compute">(sarkas.tools.observables.ElectricCurrent method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction.compute">(sarkas.tools.observables.FluxAutoCorrelationFunction method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.compute">(sarkas.tools.observables.RadialDistributionFunction method)</a>
 </li>
@@ -355,16 +355,18 @@
 </li>
       <li><a href="api/sarkas.tools.transport.html#sarkas.tools.transport.TransportCoefficient.diffusion">diffusion() (sarkas.tools.transport.TransportCoefficient static method)</a>
 </li>
+      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux">DiffusionFlux (class in sarkas.tools.observables)</a>
+</li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.dimensional_average">dimensional_average (sarkas.tools.observables.Observable attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.dimensions">dimensions (sarkas.base.Parameters attribute)</a>
 
       <ul>
         <li><a href="api/sarkas.base.html#sarkas.base.Particles.dimensions">(sarkas.base.Particles attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.dr_rdf">dr_rdf (sarkas.tools.observables.RadialDistributionFunction attribute)</a>
 </li>
       <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.dt">dt (sarkas.time_evolution.integrators.Integrator attribute)</a>
@@ -445,14 +447,10 @@
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.filename_csv_transverse">filename_csv_transverse (sarkas.tools.observables.Observable attribute)</a>
 </li>
-      <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction">FluxAutoCorrelationFunction (class in sarkas.tools.observables)</a>
-</li>
       <li><a href="api/sarkas.potentials.force_pm.html#sarkas.potentials.force_pm.force_optimized_green_function">force_optimized_green_function() (in module sarkas.potentials.force_pm)</a>
 </li>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.fourpie0">fourpie0 (sarkas.base.Parameters attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.base.html#sarkas.base.Parameters.from_dict">from_dict() (sarkas.base.Parameters method)</a>
 
       <ul>
@@ -469,6 +467,8 @@
         <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.from_dict">(sarkas.utilities.io.InputOutput method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.from_yaml">from_yaml() (sarkas.utilities.io.InputOutput method)</a>
 </li>
   </ul></td>
@@ -919,9 +919,9 @@
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.pretty_print">(sarkas.tools.observables.CurrentCorrelationFunction method)</a>
 </li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.pretty_print">(sarkas.tools.observables.DynamicStructureFactor method)</a>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux.pretty_print">(sarkas.tools.observables.DiffusionFlux method)</a>
 </li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction.pretty_print">(sarkas.tools.observables.FluxAutoCorrelationFunction method)</a>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.pretty_print">(sarkas.tools.observables.DynamicStructureFactor method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.pretty_print">(sarkas.tools.observables.RadialDistributionFunction method)</a>
 </li>
@@ -1193,11 +1193,11 @@
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction.setup">(sarkas.tools.observables.CurrentCorrelationFunction method)</a>
 </li>
+        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux.setup">(sarkas.tools.observables.DiffusionFlux method)</a>
+</li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.setup">(sarkas.tools.observables.DynamicStructureFactor method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent.setup">(sarkas.tools.observables.ElectricCurrent method)</a>
-</li>
-        <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.FluxAutoCorrelationFunction.setup">(sarkas.tools.observables.FluxAutoCorrelationFunction method)</a>
 </li>
         <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction.setup">(sarkas.tools.observables.RadialDistributionFunction method)</a>
 </li>
@@ -1445,7 +1445,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Apr 14, 2021.<br/>
+      Last updated on Apr 23, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

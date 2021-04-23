@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Running a Simulation &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Thermostats &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -20,13 +20,15 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Data Analysis" href="Post_Processing_Docs.html" />
-    <link rel="prev" title="Pre Simulation Testing" href="Pre_Simulation_Testing.html" />
+    <link rel="next" title="Particle-Particle Particle-Mesh Algorithm" href="PPPM.html" />
+    <link rel="prev" title="Potentials" href="potentials.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -55,7 +57,7 @@
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
             
-                <li><a href="get_started.html">Get Started</a></li>
+                <li><a href="../documentation/get_started.html">Get Started</a></li>
                 <li><a href="../examples/examples.html">Examples</a></li>
                 <li><a href="../code%20development/code_dev.html">Code Development</a></li>
                 <li><a href="../api/api.html">API</a></li>
@@ -71,13 +73,13 @@
   <ul class="dropdown-menu globaltoc"
       role="menu"
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="why_sarkas.html">Why Sarkas</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="get_started.html">Get Started</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Theory:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theoretical Background</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Dev:</span></p>
 <ul>
@@ -107,8 +109,8 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Running a Simulation</a><ul>
-<li><a class="reference internal" href="#Dumps">Dumps</a></li>
+<li><a class="reference internal" href="#">Thermostats</a><ul>
+<li><a class="reference internal" href="#Berendsen-Thermostat">Berendsen Thermostat</a></li>
 </ul>
 </li>
 </ul>
@@ -149,66 +151,66 @@
   </div> -->
   
   <p class="caption"><span class="caption-text">Documentation:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="why_sarkas.html">Why Sarkas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#new-school">New School</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/why_sarkas.html">Why Sarkas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="get_started.html">Get Started</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Quickstart.html">Quickstart</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Postprocessing">Postprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Postprocessing">Postprocessing</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="input_file.html">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Running a Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Post_Processing_Docs.html">Data Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/input_file.html">Input File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Simulation_Docs.html">Running a Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Post_Processing_Docs.html">Data Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="get_started.html#external-packages">External packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 <p class="caption"><span class="caption-text">Theory:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theoretical Background</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../theory/coupling_constant.html">Coupling Constant</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../theory/electron_properties.html">Electron Properties</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#fermi-integral">Fermi Integral</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#thermodynamics-electron-gas">Thermodynamics Electron Gas</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../theory/electron_properties.html#electron-parameters">Electron Parameters</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theoretical Background</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="coupling_constant.html">Coupling Constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="electron_properties.html">Electron Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#fermi-integral">Fermi Integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#thermodynamics-electron-gas">Thermodynamics Electron Gas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electron_properties.html#electron-parameters">Electron Parameters</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../theory/integrators.html">Integrators</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#phase-space-distribution">Phase Space Distribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#velocity-verlet">Velocity Verlet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../theory/integrators.html#magnetic-velocity-verlet">Magnetic Velocity Verlet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrators.html">Integrators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="integrators.html#phase-space-distribution">Phase Space Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrators.html#velocity-verlet">Velocity Verlet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrators.html#magnetic-velocity-verlet">Magnetic Velocity Verlet</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../theory/potentials.html">Potentials</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#coulomb-potential">Coulomb Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#yukawa-potential">Yukawa Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../theory/potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="potentials.html">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#coulomb-potential">Coulomb Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#yukawa-potential">Yukawa Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../theory/Berendsen_Thermostat.html">Thermostats</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../theory/Berendsen_Thermostat.html#Berendsen-Thermostat">Berendsen Thermostat</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Thermostats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Berendsen-Thermostat">Berendsen Thermostat</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../theory/PPPM.html#ewald-sum">Ewald Sum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PPPM.html#ewald-sum">Ewald Sum</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../theory/force_error.html">Force Error</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../theory/references.html">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="force_error.html">Force Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 </li>
 </ul>
@@ -568,9 +570,28 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Running-a-Simulation">
-<h1>Running a Simulation<a class="headerlink" href="#Running-a-Simulation" title="Permalink to this headline">¶</a></h1>
-<p>Now that we have tuned the simulation’s parameter it is time to run it. Because this is another notebook we copy the first cell of the <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/Pre_Simulation_Testing.html">Pre Simulation Testing notebook</a> and then run the simulation with only three lines of code.</p>
+<div class="section" id="Thermostats">
+<h1>Thermostats<a class="headerlink" href="#Thermostats" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Berendsen-Thermostat">
+<h2>Berendsen Thermostat<a class="headerlink" href="#Berendsen-Thermostat" title="Permalink to this headline">¶</a></h2>
+<p>The Berendsen Thermostat (BT) uses a tapered velocity scaling approach. In a strict velocity scaling approach the temperature <span class="math notranslate nohighlight">\(T_e\)</span> is estimated, through a quantity proportional to <span class="math notranslate nohighlight">\(\langle v^2 \rangle\)</span>, and the velocities are scaled to values consistent with the desired temperature <span class="math notranslate nohighlight">\(T_d\)</span>, as in <span class="math notranslate nohighlight">\(v_i \mapsto \alpha v_i\)</span>. Being completely consistent with physical laws, it is preferable to use the same simple algorithm but more gently so that the dynamics during the
+thermostat period is more consistent with the underlying equations of motion. In the BT we begin with an model for the temperature as we would like to see it evolve over a slower timescale <span class="math notranslate nohighlight">\(\tau_{B}\)</span>. One model is</p>
+<div class="math notranslate nohighlight">
+\[\frac{dT}{dt} = \frac{T_d - T}{\tau_{B}},\]</div>
+<p>This equation can be solved analytically to yield</p>
+<div class="math notranslate nohighlight">
+\[T(t) = T(0)e^{-t/\tau_B} + \left(1 - e^{-t/\tau_B}  \right)T_d ,\]</div>
+<p>which can be seen to transition from the initial temperature <span class="math notranslate nohighlight">\(T(0)\)</span> to the desired temperature <span class="math notranslate nohighlight">\(T_d\)</span> on a time scale of <span class="math notranslate nohighlight">\(\tau_{B}\)</span>. By choosing <span class="math notranslate nohighlight">\(\tau_{B}\)</span> to be many timesteps we can eventually equilibrate the system while allowing it to explore configurations closer to the real (not velocity scaled) dynamics.</p>
+<p>To implement BT we discretize the BT model across one time step to obtain</p>
+<div class="math notranslate nohighlight">
+\[T(t + \Delta t) = T(t) + \frac{\Delta t}{\tau_B}\left(T_d - T(t) \right).\]</div>
+<p>We want to scale the current velocities such that this new temperature <span class="math notranslate nohighlight">\(T(t+\Delta t)\)</span> is achieved, because that the temperature prescribed by the BT. Finding the ratio then of the target temperature and the current temperature, we get</p>
+<div class="math notranslate nohighlight">
+\[\frac{T(t + \Delta t)}{T(t) } = 1+ \frac{\Delta t}{\tau_{B}}\left(\frac{T_d}{T(t) } - 1 \right).\]</div>
+<p>Taking the square root of this yields the scaling factor for the velocities:</p>
+<div class="math notranslate nohighlight">
+\[\alpha = \sqrt{ 1+ \frac{\Delta t}{\tau_{B}}\left(\frac{T_d}{T(t) } - 1 \right) }.\]</div>
+<p>Below we show an example notebook that runs Sarkas for different <span class="math notranslate nohighlight">\(\tau_B\)</span> values.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -580,18 +601,18 @@ div.rendered_html tbody tr:hover {
 <span class="o">%</span><span class="k">pylab</span>
 <span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span> <span class="nn">os</span>
-
 <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
-
 <span class="c1"># Import sarkas</span>
-<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span>
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
 
 <span class="c1"># Create the file path to the YAML input file</span>
 <span class="n">example_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span>
                                  <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sarkas&#39;</span><span class="p">,</span>
-                                              <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span><span class="s1">&#39;Yukawa&#39;</span><span class="p">)))</span>
+                                              <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span> <span class="s1">&#39;Berendsen&#39;</span><span class="p">)))</span>
 
-<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_directory</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span>
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_directory</span><span class="p">,</span> <span class="s1">&#39;yocp_cgs_pp_therm.yaml&#39;</span> <span class="p">)</span>
+
+
 </pre></div>
 </div>
 </div>
@@ -600,19 +621,18 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Using matplotlib backend: TkAgg
+Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-<p>Then we run our simulation with only three lines of code</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span></span><span class="n">preproc</span> <span class="o">=</span> <span class="n">PreProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">preproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span> <span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">preproc</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -621,7 +641,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span style="color: rgb(0,129,131)">
+<span style="color: rgb(110,0,95)">
 
 
 
@@ -646,326 +666,291 @@ An open-source pure-python molecular dynamics suite for non-ideal plasmas.
 
 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-                                   Simulation
+                                 Preprocessing
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Job ID:  yocp
-Job directory:  Simulations/yocp_pppm
+Job ID:  tau_2
+Job directory:  Berendsen_runs/tau_2
 
 Equilibration dumps directory:
- Simulations/yocp_pppm/Simulation/Equilibration/dumps
+ Berendsen_runs/tau_2/PreProcessing/Equilibration/dumps
 Production dumps directory:
- Simulations/yocp_pppm/Simulation/Production/dumps
+ Berendsen_runs/tau_2/PreProcessing/Production/dumps
 
 Equilibration Thermodynamics file:
- Simulations/yocp_pppm/Simulation/Equilibration/EquilibrationEnergy_yocp.csv
+ Berendsen_runs/tau_2/PreProcessing/Equilibration/EquilibrationEnergy_tau_2.csv
 Production Thermodynamics file:
- Simulations/yocp_pppm/Simulation/Production/ProductionEnergy_yocp.csv
+ Berendsen_runs/tau_2/PreProcessing/Production/ProductionEnergy_tau_2.csv
 
 PARTICLES:
-Total No. of particles =  10000
+Total No. of particles =  1000
 No. of species =  1
 Species ID: 0
-        Name: H
-        No. of particles = 10000
-        Number density = 1.620000e+32 [N/m^3]
-        Atomic weight = 1.0002 [a.u.]
-        Mass = 1.673000e-27 [kg]
-        Mass density = 2.710260e+05 [kg/m^3]
-        Charge number/ionization degree = 1.0000
-        Charge = 1.602177e-19 [C]
-        Temperature = 1.450565e+04 [K] = 1.250000e+00 [eV]
-        Debye Length = 6.530052e-13 [Hz]
-        Plasma Frequency = 1.675504e+16 [Hz]
+        Name: C
+        No. of particles = 1000
+        Number density = 1.136669e+23 [N/cc]
+        Atomic weight = 12.0105 [a.u.]
+        Mass = 2.008900e-23 [g]
+        Mass density = 2.283455e+00 [g/cc]
+        Charge number/ionization degree = 1.9766
+        Charge = 9.494010e-10 [esu]
+        Temperature = 5.000000e+03 [K] = 4.308667e-01 [eV]
+        Debye Length = 7.322426e-10 [Hz]
+        Plasma Frequency = 2.531585e+14 [Hz]
 
 SIMULATION BOX:
-Units:  mks
-Wigner-Seitz radius = 1.137973e-11 [m]
+Units:  cgs
+Wigner-Seitz radius = 1.280636e-08 [cm]
 No. of non-zero box dimensions =  3
-Box side along x axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-Box side along y axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-Box side along z axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-Box Volume = 6.172840e-29 [m^3]
+Box side along x axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Box side along y axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Box side along z axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Box Volume = 8.797633e-21 [cm^3]
 Boundary conditions: periodic
 
 ELECTRON PROPERTIES:
-Number density: n_e = 1.620000e+32 [N/m^3]
-Wigner-Seitz radius: a_e = 1.137973e-11 [m]
-Temperature: T_e = 1.450565e+07 [K] = 1.250000e+03 [eV]
-de Broglie wavelength: lambda_deB = 1.957093e-11 [m]
-Thomas-Fermi length: lambda_TF = 2.272532e-11 [m]
-Fermi wave number: k_F = 1.686470e+11 [1/m]
-Fermi Energy: E_F = 1.083628e+03 [eV]
-Relativistic parameter: x_F = 0.065125 --&gt; E_F = 1.082482e+03 [eV]
-Degeneracy parameter: Theta = 1.1535
-Coupling: r_s = 0.215046,  Gamma_e = 0.101230
-Warm Dense Matter Parameter: W = 0.1984
-Chemical potential: mu = -0.286047 k_B T_e = -0.3300 E_F
+Number density: n_e = 2.246739e+23 [N/cc]
+Wigner-Seitz radius: a_e = 1.020437e-08 [cm]
+Temperature: T_e = 5.000000e+03 [K] = 4.308667e-01 [eV]
+de Broglie wavelength: lambda_deB = 1.054132e-07 [cm]
+Thomas-Fermi length: lambda_TF = 4.702909e-09 [cm]
+Fermi wave number: k_F = 1.880722e+08 [1/cm]
+Fermi Energy: E_F = 1.347634e+01 [eV]
+Relativistic parameter: x_F = 0.007263 --&gt; E_F = 1.347617e+01 [eV]
+Degeneracy parameter: Theta = 0.0320
+Coupling: r_s = 1.928347,  Gamma_e = 32.750858
+Warm Dense Matter Parameter: W = 0.0039
+Chemical potential: mu = 31.250959 k_B T_e = 0.9992 E_F
 
 POTENTIAL:  Yukawa
-electron temperature = 1.4506e+07 [K] = 1.2500e+03 [eV]
-kappa = 0.5008
-Gamma_eff = 101.23
+electron temperature = 5.0000e+03 [K] = 4.3087e-01 [eV]
+kappa = 2.7231
+Gamma_eff = 101.96
 
-ALGORITHM:  P3M
-Mesh = 64 x 64 x 64
-Ewald parameter alpha = 0.6220 / a_ws = 5.465900e+10 [1/m]
-Mesh width = 0.5426, 0.5426, 0.5426 a_ws
-           = 6.1752e-12, 6.1752e-12, 6.1752e-12 [m]
-Mesh size * Ewald_parameter (h * alpha) = 0.3375, 0.3375, 0.3375
-                                        ~ 1/2, 1/2, 1/2
-rcut = 5.5100 a_ws = 6.270200e-11 [m]
-No. of PP cells per dimension =  6,  6,  6
-No. of particles in PP loop =   1078
-No. of PP neighbors per particle =    167
-PM Force Error = 5.800215e-06
-PP Force Error = 2.804557e-06
-Tot Force Error = 6.442673e-06
+ALGORITHM:  PP
+rcut = 4.6852 a_ws = 6.000000e-08 [cm]
+No. of PP cells per dimension =  3,  3,  3
+No. of particles in PP loop =    662
+No. of PP neighbors per particle =    102
+Tot Force Error = 5.818612e-06
 
 THERMOSTAT:
 Type: Berendsen
-First thermostating timestep, i.e. relaxation_timestep = 50
-Berendsen parameter tau: 1.000 [timesteps]
-Berendsen relaxation rate: 1.000 [1/timesteps]
+First thermostating timestep, i.e. relaxation_timestep = 100
+Berendsen parameter tau: 2.000 [timesteps]
+Berendsen relaxation rate: 0.500 [1/timesteps]
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Equilibration temperatures not defined. I will use the species&#39;s temperatures
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Thermostating temperatures:
-Species ID 0: T_eq = 1.450565e+04 [K] = 1.250000e+00 [eV]
+Species ID 0: T_eq = 5.000000e+03 [K] = 4.308667e-01 [eV]
 
 INTEGRATOR:
 Type: Verlet
-Time step = 2.000000e-18 [s]
-Total plasma frequency = 1.675504e+16 [Hz]
-w_p dt = 0.0335 ~ 1/29
+Time step = 5.000000e-17 [s]
+Total plasma frequency = 2.531585e+14 [Hz]
+w_p dt = 0.0127 ~ 1/79
 
 Equilibration:
 No. of equilibration steps = 5000
-Total equilibration time = 1.0000e-14 [s] ~ 167 w_p T_eq
-snapshot interval step = 10
-snapshot interval time = 2.0000e-17 [s] = 0.3351 w_p T_snap
-Total number of snapshots = 500
+Total equilibration time = 2.5000e-13 [s] ~ 63 w_p T_eq
+snapshot interval step = 2
+snapshot interval time = 1.0000e-16 [s] = 0.0253 w_p T_snap
+Total number of snapshots = 2500
 
 Production:
-No. of production steps = 5000
-Total production time = 1.0000e-14 [s] ~ 167 w_p T_prod
+No. of production steps = 0
+Total production time = 0.0000e+00 [s] ~ 0 w_p T_prod
 snapshot interval step = 10
-snapshot interval time = 2.0000e-17 [s] = 0.3351 w_p T_snap
-Total number of snapshots = 500
+snapshot interval time = 5.0000e-16 [s] = 0.1266 w_p T_snap
+Total number of snapshots = 0
 
 
 ------------------------ Initialization Times ------------------------
 
 
-Potential Initialization Time: 0 hrs 0 min 5 sec
+Potential Initialization Time: 0 sec 58 msec 414 usec 246 nsec
 
-Particles Initialization Time: 0 sec 1 msec 253 usec 56 nsec
+Particles Initialization Time: 0 sec 1 msec 508 usec 479 nsec
 
-Total Simulation Initialization Time: 0 hrs 0 min 5 sec
-
-
-
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-                                   Simulation
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-Job ID:  yocp
-Job directory:  Simulations/yocp_pppm
-
-Equilibration dumps directory:
- Simulations/yocp_pppm/Simulation/Equilibration/dumps
-Production dumps directory:
- Simulations/yocp_pppm/Simulation/Production/dumps
-
-Equilibration Thermodynamics file:
- Simulations/yocp_pppm/Simulation/Equilibration/EquilibrationEnergy_yocp.csv
-Production Thermodynamics file:
- Simulations/yocp_pppm/Simulation/Production/ProductionEnergy_yocp.csv
-
-PARTICLES:
-Total No. of particles =  10000
-No. of species =  1
-Species ID: 0
-        Name: H
-        No. of particles = 10000
-        Number density = 1.620000e+32 [N/m^3]
-        Atomic weight = 1.0002 [a.u.]
-        Mass = 1.673000e-27 [kg]
-        Mass density = 2.710260e+05 [kg/m^3]
-        Charge number/ionization degree = 1.0000
-        Charge = 1.602177e-19 [C]
-        Temperature = 1.450565e+04 [K] = 1.250000e+00 [eV]
-        Debye Length = 6.530052e-13 [Hz]
-        Plasma Frequency = 1.675504e+16 [Hz]
-
-SIMULATION BOX:
-Units:  mks
-Wigner-Seitz radius = 1.137973e-11 [m]
-No. of non-zero box dimensions =  3
-Box side along x axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-Box side along y axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-Box side along z axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
-Box Volume = 6.172840e-29 [m^3]
-Boundary conditions: periodic
-
-ELECTRON PROPERTIES:
-Number density: n_e = 1.620000e+32 [N/m^3]
-Wigner-Seitz radius: a_e = 1.137973e-11 [m]
-Temperature: T_e = 1.450565e+07 [K] = 1.250000e+03 [eV]
-de Broglie wavelength: lambda_deB = 1.957093e-11 [m]
-Thomas-Fermi length: lambda_TF = 2.272532e-11 [m]
-Fermi wave number: k_F = 1.686470e+11 [1/m]
-Fermi Energy: E_F = 1.083628e+03 [eV]
-Relativistic parameter: x_F = 0.065125 --&gt; E_F = 1.082482e+03 [eV]
-Degeneracy parameter: Theta = 1.1535
-Coupling: r_s = 0.215046,  Gamma_e = 0.101230
-Warm Dense Matter Parameter: W = 0.1984
-Chemical potential: mu = -0.286047 k_B T_e = -0.3300 E_F
-
-POTENTIAL:  Yukawa
-electron temperature = 1.4506e+07 [K] = 1.2500e+03 [eV]
-kappa = 0.5008
-Gamma_eff = 101.23
-
-ALGORITHM:  P3M
-Mesh = 64 x 64 x 64
-Ewald parameter alpha = 0.6220 / a_ws = 5.465900e+10 [1/m]
-Mesh width = 0.5426, 0.5426, 0.5426 a_ws
-           = 6.1752e-12, 6.1752e-12, 6.1752e-12 [m]
-Mesh size * Ewald_parameter (h * alpha) = 0.3375, 0.3375, 0.3375
-                                        ~ 1/2, 1/2, 1/2
-rcut = 5.5100 a_ws = 6.270200e-11 [m]
-No. of PP cells per dimension =  6,  6,  6
-No. of particles in PP loop =   1078
-No. of PP neighbors per particle =    167
-PM Force Error = 5.800215e-06
-PP Force Error = 2.804557e-06
-Tot Force Error = 6.442673e-06
-
-THERMOSTAT:
-Type: Berendsen
-First thermostating timestep, i.e. relaxation_timestep = 50
-Berendsen parameter tau: 1.000 [timesteps]
-Berendsen relaxation rate: 1.000 [1/timesteps]
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Equilibration temperatures not defined. I will use the species&#39;s temperatures
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-Thermostating temperatures:
-Species ID 0: T_eq = 1.450565e+04 [K] = 1.250000e+00 [eV]
-
-INTEGRATOR:
-Type: Verlet
-Time step = 2.000000e-18 [s]
-Total plasma frequency = 1.675504e+16 [Hz]
-w_p dt = 0.0335 ~ 1/29
-
-Equilibration:
-No. of equilibration steps = 5000
-Total equilibration time = 1.0000e-14 [s] ~ 167 w_p T_eq
-snapshot interval step = 10
-snapshot interval time = 2.0000e-17 [s] = 0.3351 w_p T_snap
-Total number of snapshots = 500
-
-Production:
-No. of production steps = 5000
-Total production time = 1.0000e-14 [s] ~ 167 w_p T_prod
-snapshot interval step = 10
-snapshot interval time = 2.0000e-17 [s] = 0.3351 w_p T_snap
-Total number of snapshots = 500
+Total Simulation Initialization Time: 0 sec 58 msec 414 usec 246 nsec
 
 
------------------------- Initialization Times ------------------------
+========================== Times Estimates ===========================
+
+Time of PP acceleration calculation averaged over 10 steps:
+0 min 0 sec 11 msec 898 usec 750 nsec
 
 
-Potential Initialization Time: 0 hrs 0 min 4 sec
+Running 10 equilibration and production steps to estimate simulation times
 
-Particles Initialization Time: 0 sec 1 msec 585 usec 167 nsec
-
-Total Simulation Initialization Time: 0 hrs 0 min 4 sec
-
-------------- Equilibration -------------
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3f50a51cd6d446c0a5fccb1d0bb9eb21", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0e165d75b4b241ec82619c64c2bfce22", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+Time of a single equilibration step averaged over 10 steps:
+0 min 0 sec 141 msec 222 usec 741 nsec
 
-Equilibration Time: 0 hrs 19 min 8 sec
-
-------------- Production -------------
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b56f724766d64408b5f5be43cece31a7", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "2e7a6bd4879445e08c48b3bae5b84ed4", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+Time of a single production step averaged over 10 steps:
+0 min 0 sec 21 msec 70 usec 587 nsec
 
-Production Time: 0 hrs 21 min 23 sec
 
-Total Time: 0 hrs 40 min 36 sec
-</pre></div></div>
-</div>
-<p>The verbose output of the simulation gives the same information as <code class="docutils literal notranslate"><span class="pre">PreProcess</span></code>. The first few lines tell us where the simulations’ dumps and the thermodynamics files are be stored. Notice that these are diffrent than what was printed by <code class="docutils literal notranslate"><span class="pre">PreProcessing</span></code>.</p>
-<blockquote>
-<div><p><strong>NOTE:</strong> This simulation was run on a 2019 Dell XPS 8930 with Intel Core i7-8700K &#64; 3.70Ghz and 48GB of RAM running Ubuntu 18.04. Actual run times will be different on your computer.</p>
-</div></blockquote>
-<div class="section" id="Dumps">
-<h2>Dumps<a class="headerlink" href="#Dumps" title="Permalink to this headline">¶</a></h2>
-<p>Each dump is a <code class="docutils literal notranslate"><span class="pre">`.npz</span></code> &lt;<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.savez.html">https://numpy.org/doc/stable/reference/generated/numpy.savez.html</a>&gt;`__ file containing the following information for each of phase:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Equilibration:
- id = particles id&#39;s numbers,
- names = species name of each particle,
- pos = Particles positions N x 3 array,
- vel = Particles velocities N x 3 array,
- acc = Particles acceleration N x 3 array,
- time = Time in seconds
+
+----------------------- Total Estimated Times ------------------------
+
+
+Equilibration Time: 0 hrs 11 min 46 sec
+
+Production Time: 0 sec 0 msec 0 usec 0 nsec
+
+Total Run Time: 0 hrs 11 min 46 sec
+
+
+========================= Filesize Estimates =========================
+
+
+Equilibration:
+
+Checkpoint filesize: 0 GB 0 MB 83 KB 470 bytes
+Checkpoint folder size: 0 GB 203 MB 775 KB 472 bytes
 
 Production:
- id = particles id&#39;s numbers,
- names = species name of each particle,
- pos = Particles positions N x 3 array,
- vel = Particles velocities N x 3 array,
- acc = Particles acceleration N x 3 array,
- cntr = Number of times each particle has been folded back into the simulation box, N x 3 array,
- rdf_hist = Instantaneous Histogram of the Radial Distribution Function,
- time = Time in seconds
-</pre></div>
+
+Checkpoint filesize: 0 GB 0 MB 83 KB 470 bytes
+Checkpoint folder size: 0 GB 0 MB 0 KB 0 bytes
+
+Total minimum needed space: 0 GB 203 MB 775 KB 472 bytes
+</pre></div></div>
 </div>
-<p>This information is saved by the <code class="docutils literal notranslate"><span class="pre">`.dump()</span></code> &lt;<a class="reference external" href="https://murillo-group.github.io/sarkas/api/sarkas.utilities.io.html">https://murillo-group.github.io/sarkas/api/sarkas.utilities.io.html</a>&gt;`__ method found in <code class="docutils literal notranslate"><span class="pre">`sarkas.utilities.io</span></code> &lt;<a class="reference external" href="https://murillo-group.github.io/sarkas/api/sarkas.utilities.io.html">https://murillo-group.github.io/sarkas/api/sarkas.utilities.io.html</a>&gt;`__.</p>
-<p>The same method saves Energy and Temperature information in the Thermodynamics files also. This can be accessed by <code class="docutils literal notranslate"><span class="pre">sim.io.eq_energy_filename</span></code> and <code class="docutils literal notranslate"><span class="pre">sim.io.prod_energy_filename</span></code>. The information saved is the following:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Time, Total Energy, Total Kinetic Energy, Potential Energy, Total Temperature
-</pre></div>
-</div>
-<p>In addition, in the case of multispecies plasmas, the kinetic energy and the temperature of each species will be saved.</p>
-<p>Once the simulation is complete it is time to analyze the data. Follow this <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/Post_Processing_Docs.html">link</a>.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<p>We select six different values of <span class="math notranslate nohighlight">\(\tau_B\)</span> and for each of them run a simulation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<span></span><span class="n">taus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mf">50.</span><span class="p">,</span> <span class="mf">100.</span> <span class="p">])</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tau</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">taus</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;Thermostat&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;relaxation_timestep&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                       <span class="s1">&#39;berendsen_tau&#39;</span><span class="p">:</span> <span class="n">tau</span><span class="p">},</span> <span class="c1"># Change tau for each simulation</span>
+
+            <span class="s2">&quot;IO&quot;</span><span class="p">:</span>   <span class="c1"># Store all simulations&#39; data in simulations_dir,</span>
+                <span class="c1"># but save the dumps in different subfolders (job_dir)</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;simulations_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;Berendsen_runs&#39;</span><span class="p">,</span>
+                <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;tau_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span> <span class="p">),</span>
+                <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="c1"># This is so not to print to screen for every run</span>
+            <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="c1"># Run the simulation.</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Tau = </span><span class="si">{}</span><span class="s1"> Done&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tau</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Tau = 1.0 Done
+Tau = 2.0 Done
+Tau = 5.0 Done
+Tau = 10.0 Done
+Tau = 50.0 Done
+Tau = 100.0 Done
+</pre></div></div>
+</div>
+<p>Now we plot the temperature evolution to show the effect of changing <span class="math notranslate nohighlight">\(\tau_B\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axt</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tau</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">taus</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;Thermostat&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;relaxation_timestep&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                       <span class="s1">&#39;berendsen_tau&#39;</span><span class="p">:</span> <span class="n">tau</span><span class="p">},</span> <span class="c1"># Change tau for each simulation</span>
+
+            <span class="s2">&quot;IO&quot;</span><span class="p">:</span>   <span class="c1"># Store all simulations&#39; data in simulations_dir,</span>
+                <span class="c1"># but save the dumps in different subfolders (job_dir)</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;simulations_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;Berendsen_runs&#39;</span><span class="p">,</span>
+                <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;tau_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span> <span class="p">),</span>
+                <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="c1"># This is so not to print to screen for every run</span>
+            <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+    <span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span> <span class="o">=</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">phase</span> <span class="o">=</span> <span class="s1">&#39;equilibration&#39;</span><span class="p">)</span>
+    <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+    <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">scaling</span> <span class="o">=</span> <span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">eV2K</span><span class="p">),</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;Temperature&#39;</span><span class="p">,</span>
+        <span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;Temperature [eV]&#39;</span><span class="p">,</span>
+        <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;Number of timesteps&#39;</span><span class="p">,</span> <span class="n">logx</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axt</span><span class="p">)</span>
+
+<span class="n">axt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">axt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span>
+    <span class="sa">r</span><span class="s1">&#39;$\tau_B = 1.0$&#39;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">&#39;$\tau_B = 2.0$&#39;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">&#39;$\tau_B = 5.0$&#39;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">&#39;$\tau_B = 10.0$&#39;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">&#39;$\tau_B = 50.0$&#39;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">&#39;$\tau_B = 100.0$&#39;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">&#39;$T_d$&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fd6d41af450&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/theory_Berendsen_Thermostat_6_1.png" src="../_images/theory_Berendsen_Thermostat_6_1.png" />
+</div>
+</div>
+<p>As you can see, the temperature increase for the first hundred time steps. The reason being that we selected the option <code class="docutils literal notranslate"><span class="pre">relaxation_timestep:</span> <span class="pre">100</span></code>. We do this to allow the system to transform all of its initial potential energy into kinetic energy.</p>
 </div>
 </div>
 

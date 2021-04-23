@@ -7,8 +7,8 @@
     <title>sarkas.tools.observables module &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -230,6 +230,48 @@ attributes and/or add new ones.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt id="sarkas.tools.observables.DiffusionFlux">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">DiffusionFlux</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DiffusionFlux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DiffusionFlux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
+<p>Diffusion Fluxes and their Auto-correlation functions.</p>
+<dl class="py method">
+<dt id="sarkas.tools.observables.DiffusionFlux.compute">
+<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DiffusionFlux.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DiffusionFlux.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the velocity auto-correlation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.DiffusionFlux.pretty_print">
+<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DiffusionFlux.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DiffusionFlux.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print observable parameters for help in choice of simulation parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.tools.observables.DiffusionFlux.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DiffusionFlux.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DiffusionFlux.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign attributes from simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of independent runs inside a long simulation. Default = 1.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="sarkas.tools.observables.DynamicStructureFactor">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">DynamicStructureFactor</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
@@ -307,48 +349,6 @@ attributes and/or add new ones.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt id="sarkas.tools.observables.FluxAutoCorrelationFunction">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">FluxAutoCorrelationFunction</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
-<p>Species Diffusion Flux Auto-correlation function.</p>
-<dl class="py method">
-<dt id="sarkas.tools.observables.FluxAutoCorrelationFunction.compute">
-<code class="sig-name descname"><span class="pre">compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the velocity auto-correlation functions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
-attributes and/or add new ones.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.tools.observables.FluxAutoCorrelationFunction.pretty_print">
-<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.pretty_print" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print observable parameters for help in choice of simulation parameters.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.tools.observables.FluxAutoCorrelationFunction.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#FluxAutoCorrelationFunction.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.FluxAutoCorrelationFunction.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assign attributes from simulation’s parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
-<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters"><em>sarkas.base.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of independent runs inside a long simulation. Default = 1.</p></li>
-<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.base.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
-attributes and/or add new ones.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt id="sarkas.tools.observables.Observable">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">Observable</span></code><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
@@ -359,7 +359,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the computed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1322.g380904d856)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1409.g5ed44cb8bf)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -370,7 +370,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the longitudinal part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1322.g380904d856)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1409.g5ed44cb8bf)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -381,7 +381,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the transverse part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1322.g380904d856)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1409.g5ed44cb8bf)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -652,10 +652,8 @@ be averaged over.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hdf_column</strong> – </p></li>
 <li><p><strong>scaling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – Factor by which to rescale the x and y axis.</p></li>
 <li><p><strong>acf</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for renormalizing the autocorrelation functions. Default= False</p></li>
-<li><p><strong>longitudinal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for longitudinal plot in case of CurrenCurrelationFunction. Default = True</p></li>
 <li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name with which to save the file. It automatically saves it in the correct directory.</p></li>
 <li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for prompting the plot to screen. Default=False</p></li>
 <li><p><strong>**kwargs</strong> – Options to pass to matplotlib plotting method.</p></li>
@@ -1169,23 +1167,25 @@ Shape = (<code class="docutils literal notranslate"><span class="pre">no_skw</sp
 
 <dl class="py function">
 <dt id="sarkas.tools.observables.calc_diff_flux_acf">
-<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_diff_flux_acf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_dens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_mass</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_diff_flux_acf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.calc_diff_flux_acf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the diffusion flux autocorrelation function of each species and in each direction.</p>
+<code class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></code><code class="sig-name descname"><span class="pre">calc_diff_flux_acf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_conc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_mass</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#calc_diff_flux_acf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.calc_diff_flux_acf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the diffusion fluxes and their autocorrelations functions in each direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vel</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ velocities. Shape = (<code class="docutils literal notranslate"><span class="pre">dimensions</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>, <code class="docutils literal notranslate"><span class="pre">total_num_ptcls</span></code>)</p></li>
 <li><p><strong>sp_num</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number of particles of each species.</p></li>
-<li><p><strong>sp_dens</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Number densities of each species.</p></li>
+<li><p><strong>sp_conc</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Concentration of each species.</p></li>
 <li><p><strong>sp_mass</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particle’s mass of each species.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>jc_acf</strong> – Diffusion flux autocorrelation function. Shape = ( Ns*(Ns +1)/2, Ndim + 1 , Nt)
-where Ns = number of species, Ndim = Number of cartesian dimensions, Nt = Number of dumps.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>J_flux</strong> (<em>numpy.ndarray</em>) – Diffusion fluxes.
+Shape = ( (<code class="docutils literal notranslate"><span class="pre">num_species</span> <span class="pre">-</span> <span class="pre">1</span></code>), <code class="docutils literal notranslate"><span class="pre">dimensions</span></code> , <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p></li>
+<li><p><strong>jr_acf</strong> (<em>numpy.ndarray</em>) – Relative Diffusion flux autocorrelation function.
+Shape = ( (<code class="docutils literal notranslate"><span class="pre">num_species</span> <span class="pre">-</span> <span class="pre">1</span></code>) x (<code class="docutils literal notranslate"><span class="pre">num_species</span> <span class="pre">-</span> <span class="pre">1</span></code>), <code class="docutils literal notranslate"><span class="pre">no_dim</span> <span class="pre">+</span> <span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">no_dumps</span></code>)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1574,7 +1574,7 @@ of the simulation.</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Apr 14, 2021.<br/>
+      Last updated on Apr 23, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>
