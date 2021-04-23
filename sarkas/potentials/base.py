@@ -262,6 +262,7 @@ class Potential:
         params.kF = (3.0 * np.pi ** 2 * params.ne) ** (1. / 3.)
         # Fermi energy
         params.fermi_energy = params.hbar2 * params.kF ** 2 / (2.0 * params.me)
+
         # Other electron parameters
         params.electron_degeneracy_parameter = params.kB * params.electron_temperature / params.fermi_energy
         params.relativistic_parameter = params.hbar * params.kF / (params.me * params.c0)
@@ -273,6 +274,27 @@ class Potential:
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
         params.wdm_parameter = 2.0/(params.electron_degeneracy_parameter + 1.0/params.electron_degeneracy_parameter)
         params.wdm_parameter *= 2.0/(params.electron_coupling + 1.0/params.electron_coupling)
+
+        if params.magnetized:
+            if params.units == 'cgs':
+                params.electron_cyclotron_frequency = params.qe * np.linalg.norm(params.magnetic_field)/params.c0/params.me
+            else:
+                params.electron_cyclotron_frequency = params.qe * np.linalg.norm(params.magnetic_field) / params.me
+            params.electron_plasma_frequency = np.sqrt(4.0* np.pi * params.qe**2 * params.ne /(params.fourpie0 * params.me) )
+            tan_arg = 0.5 * params.hbar * params.electron_cyclotron_frequency * beta_e
+
+            # Perpendicular correction
+            params.horing_perp_correction = (params.electron_plasma_frequency/params.electron_cyclotron_frequency)**2
+            params.horing_perp_correction *= (1.0 - tan_arg/np.tanh(tan_arg))
+            params.horing_perp_correction += 1
+
+            # Parallel correction
+            params.horing_par_correction = 1 - (params.hbar * beta_e * params.electron_plasma_frequency)**2 / 12.
+
+            # Quantum Anisotropy Parameter
+            params.horing_delta = (params.horing_perp_correction - 1)
+            params.horing_delta += (params.hbar* beta_e * params.electron_cyclotron_frequency)**2/12
+            params.horing_delta /= params.horing_par_correction
 
     def update_linked_list(self, ptcls):
         """

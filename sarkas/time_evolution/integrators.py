@@ -643,7 +643,7 @@ class Integrator:
     def pretty_print(self, frequency, restart, restart_step):
         """Print integrator attributes in a user friendly way."""
 
-        if self.magnetized:
+        if self.magnetized and self.electrostatic_equilibration:
             print("Type: {}".format(self.magnetic_integrator.__name__))
         else:
             print("Type: {}".format(self.type))
