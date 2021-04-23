@@ -556,21 +556,23 @@ class Parameters:
 
             print('Fermi Energy: E_F = {:.6e} [eV]'.format(self.fermi_energy / self.kB / self.eV2K))
 
-            print("Relativistic parameter: x_F = {:.6f}".format(self.relativistic_parameter), end='')
+            print("Relativistic parameter: x_F = {:.6e}".format(self.relativistic_parameter), end='')
             kf_xf = self.me * self.c0 ** 2 * (np.sqrt(1.0 + self.relativistic_parameter ** 2) - 1.0)
             print(" --> E_F = {:.6e} [eV]".format(kf_xf / self.kB / self.eV2K))
 
-            print('Degeneracy parameter: Theta = {:.4f} '.format(self.electron_degeneracy_parameter))
+            print('Degeneracy parameter: Theta = {:.6e} '.format(self.electron_degeneracy_parameter))
             print('Coupling: r_s = {:.6f},  Gamma_e = {:.6f}'.format(self.rs, self.electron_coupling) )
-            print('Warm Dense Matter Parameter: W = {:.4f}'.format(self.wdm_parameter))
+            print('Warm Dense Matter Parameter: W = {:.4e}'.format(self.wdm_parameter))
 
-            print("Chemical potential: mu = {:.6f} k_B T_e = {:.4f} E_F".format(
+            print("Chemical potential: mu = {:.4e} k_B T_e = {:.4e} E_F".format(
                 self.eta_e, self.eta_e * self.kB * self.electron_temperature / self.fermi_energy))
 
         if self.magnetized:
             print('\nMAGNETIC FIELD:')
-            print('Magnetic Field = [{:.4e}, {:.4e}, {:.4e}] [Gauss]'.format(*self.magnetic_field))
-            print('Magnetic Field Magnitude = {:.4e} [Gauss]'.format(np.linalg.norm(self.magnetic_field)))
+            print('Magnetic Field = [{:.4e}, {:.4e}, {:.4e}] '.format(*self.magnetic_field), end='')
+            print("[Tesla]" if self.units == "mks" else "[Gauss]")
+            print('Magnetic Field Magnitude = {:.4e} '.format(np.linalg.norm(self.magnetic_field)), end='')
+            print("[Tesla]" if self.units == "mks" else "[Gauss]")
             print('Magnetic Field Unit Vector = [{:.4e}, {:.4e}, {:.4e}]'.format(
                 *self.magnetic_field/np.linalg.norm(self.magnetic_field) ) )
 

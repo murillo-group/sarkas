@@ -903,7 +903,7 @@ class InputOutput:
 
         elif simulation.potential.type.lower() == 'coulomb':
             print('Effective Coupling constant: Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
-            simulation.parameters.pretty_print()
+            # simulation.parameters.pretty_print()
 
         elif simulation.potential.type.lower() == 'lj':
             print('epsilon = {:.6e}'.format(simulation.potential.matrix[0, 0, 0]))
