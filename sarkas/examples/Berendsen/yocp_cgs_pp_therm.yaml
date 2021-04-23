@@ -8,7 +8,7 @@ Particles:
         Z: 1.976599                         # degree of ionization
         temperature: 5.e+03                 # T = 0.5 eV
 
-Potential: 
+Potential:
     type: Yukawa                            # potential type
     method: PP
     rc: 6.0e-8                              # cm, cut-off radius
@@ -16,14 +16,14 @@ Potential:
 Integrator:
     type: Verlet
     dt: 5.0e-17                             # sec
-    equilibration_steps: 10000              # number of timesteps for the equilibrium
-    production_steps: 20000                # number of timesteps after the equilibrium
-    eq_dump_step: 10
+    equilibration_steps: 5000              # number of timesteps for the equilibrium
+    production_steps: 0                # number of timesteps after the equilibrium
+    eq_dump_step: 2
     prod_dump_step: 10
 
 Thermostat:
     type: Berendsen                         # thermostat type
-    relaxation_timestep: 300
+    relaxation_timestep: 100
     berendsen_tau: 2.0
 
 Parameters:
@@ -34,7 +34,8 @@ Parameters:
 
 IO:
     verbose: yes
-    job_dir: yocp_cgs_pp            # dir name to save data. The default is "Checkpoint"
+    simulations_dir: Berendsen_runs            # dir name to save data. The default is "Checkpoint"
+    job_dir: tau_2
 
 PostProcessing:
   - Thermodynamics:
