@@ -349,9 +349,9 @@ class Observable:
         """
         Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
         """
-        if self.__name__ == 'dsf' or self.__name__ == 'ccf':
+        if self.k_observable:
             try:
-                self.dataframe = pd.read_hdf(self.filename_hdf, index_col=False)
+                self.dataframe = pd.read_hdf(self.filename_hdf, mode='r', index_col=False)
 
                 k_data = np.load(self.k_file)
                 self.k_list = k_data["k_list"]
@@ -364,9 +364,17 @@ class Observable:
                 self.compute()
         else:
             try:
-                self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+                if hasattr(self, 'filename_csv'):
+                    self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+                else:
+                    self.dataframe = pd.read_hdf(self.filename_hdf, mode='r', index_col=False)
+
             except FileNotFoundError:
-                print("\nFile {} not found!".format(self.filename_csv))
+                if hasattr(self, 'filename_csv'):
+                    data_file = self.filename_csv
+                else:
+                    data_file = self.filename_hdf
+                print("\nData file not found! \n {}".format(data_file))
                 print("\nComputing Observable now ...")
                 self.compute()
 
@@ -523,7 +531,6 @@ class Observable:
 
                 slc_column = "slice {}".format(isl + 1)
                 for isp, sp_name in enumerate(self.species_names):
-
                     df_columns = [
                         slc_column + '_{}_k = [{}, {}, {}]'.format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
                         for ik in range(len(self.k_harmonics))]
@@ -576,7 +583,8 @@ class Observable:
                 slc_column = "slice {}".format(isl + 1)
                 for isp, sp_name in enumerate(self.species_names):
                     df_columns = [
-                        slc_column + '_Longitudinal_{}_k = [{}, {}, {}]'.format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                        slc_column + '_Longitudinal_{}_k = [{}, {}, {}]'.format(sp_name,
+                                                                                *self.k_harmonics[ik, :-2].astype(int))
                         for ik in range(len(self.k_harmonics))]
                     # df_columns = [time_column, *k_columns]
                     vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt[isp, :, :], columns=df_columns)],
@@ -605,7 +613,7 @@ class Observable:
             tuples = [tuple(c.split("_")) for c in vkt_dataframe.columns]
             vkt_dataframe.columns = pd.MultiIndex.from_tuples(
                 tuples,
-                names=['slices', 'species', 'direction',  'harmonics'])
+                names=['slices', 'species', 'direction', 'harmonics'])
 
             # Sample nkt_dataframe
             # slices slice 1
@@ -631,13 +639,13 @@ class Observable:
             tend = self.timer.current()
             self.time_stamp("v(k,t) Calculation", self.timer.time_division(tend - tinit))
 
-                # np.savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
-                #          longitudinal=vkt,
-                #          transverse_i=vkt_i,
-                #          transverse_j=vkt_j,
-                #          transverse_k=vkt_k,
-                #          max_harmonics=self.max_k_harmonics,
-                #          angle_averaging=self.angle_averaging)
+            # np.savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
+            #          longitudinal=vkt,
+            #          transverse_i=vkt_i,
+            #          transverse_j=vkt_j,
+            #          transverse_k=vkt_k,
+            #          max_harmonics=self.max_k_harmonics,
+            #          angle_averaging=self.angle_averaging)
 
     def plot(self, scaling=None, acf=False, figname=None, show=False, **kwargs):
         """
@@ -645,15 +653,11 @@ class Observable:
 
         Parameters
         ----------
-        hdf_column
         scaling : float, tuple
             Factor by which to rescale the x and y axis.
 
         acf : bool
             Flag for renormalizing the autocorrelation functions. Default= False
-
-        longitudinal : bool
-            Flag for longitudinal plot in case of CurrenCurrelationFunction. Default = True
 
         figname : str
             Name with which to save the file. It automatically saves it in the correct directory.
@@ -689,7 +693,7 @@ class Observable:
             for i, col in enumerate(plot_dataframe.columns[1:], 1):
                 plot_dataframe[col] /= plot_dataframe[col].iloc[0]
             kwargs['logx'] = True
-            kwargs['xlabel'] = 'Time difference'
+            # kwargs['xlabel'] = 'Time difference'
 
         # if self.__class__.__name__ == 'StaticStructureFactor':
         #     errorbars = plot_dataframe.copy()
@@ -702,7 +706,7 @@ class Observable:
         #
 
         axes_handle = plot_dataframe.plot(x=plot_dataframe.columns[0], **kwargs)
-        
+
         fig = axes_handle.figure
         fig.tight_layout()
 
@@ -1448,6 +1452,7 @@ class RadialDistributionFunction(Observable):
             bin_vol[ir] = sphere_shell_const * (r2 ** 3 - r1 ** 3)
             r_values[ir] = (ir + 0.5) * self.dr_rdf
 
+        # Save the ra values for simplicity
         self.ra_values = r_values / self.a_ws
 
         self.dataframe["Distance"] = r_values
@@ -1585,7 +1590,7 @@ class StaticStructureFactor(Observable):
 
         Sk = np.mean(Sk_avg, axis=-1)
         Sk_err = np.std(Sk_avg, axis=-1)
-        k_column = " _k values"
+        k_column = "Inverse Wavelength"
         self.dataframe[k_column] = self.k_values
         sp_indx = 0
         for i, sp1 in enumerate(self.species_names):
@@ -2147,7 +2152,7 @@ class VelocityAutoCorrelationFunction(Observable):
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
-        self.filename_csv = os.path.join(self.saving_dir, "VelocityACF_" + self.job_id + '.csv')
+        self.filename_hdf = os.path.join(self.saving_dir, "VelocityACF_" + self.job_id + '.h5')
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
@@ -2167,7 +2172,7 @@ class VelocityAutoCorrelationFunction(Observable):
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
-
+        self.dataframe = pd.DataFrame()
         # Recalculate the slicing parameters if no_slices has been passed
         self.slice_steps = int(self.no_dumps / self.no_slices)
 
@@ -2175,14 +2180,16 @@ class VelocityAutoCorrelationFunction(Observable):
         end_slice = self.slice_steps * self.dump_step
         time = np.zeros(self.slice_steps)
 
+        vacf_str = 'VACF'
         t0 = self.timer.current()
         for isl in range(self.no_slices):
-            print("\nCalculating vacf for slice {}/{}.".format(isl, self.no_slices))
+            print("\nCalculating vacf for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
             vel = np.zeros((self.dimensions, self.total_num_ptcls, self.slice_steps))
             #
-            print("\nParsing particles' velocities.")
-            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step), disable=not self.verbose)):
+            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
+                                           desc='Read in data',
+                                           disable=not self.verbose)):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
                 vel[0, :, it] = datap["vel"][:, 0]
@@ -2196,31 +2203,34 @@ class VelocityAutoCorrelationFunction(Observable):
             vacf = calc_vacf(vel, self.species_num)
 
             for i, sp1 in enumerate(self.species_names):
-                self.dataframe["{} X Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 0, :]
-                self.dataframe["{} Y Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 1, :]
-                self.dataframe["{} Z Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 2, :]
-                self.dataframe["{} Total Velocity ACF slice {}".format(sp1, isl)] = vacf[i, 3, :]
+                sp_vacf_str = "{} ".format(sp1) + vacf_str
+                self.dataframe[sp_vacf_str + "_X_slice {}".format(isl)] = vacf[i, 0, :]
+                self.dataframe[sp_vacf_str + "_Y_slice {}".format(isl)] = vacf[i, 1, :]
+                self.dataframe[sp_vacf_str + "_Z_slice {}".format(isl)] = vacf[i, 2, :]
+                self.dataframe[sp_vacf_str + "_Total_slice {}".format(isl)] = vacf[i, 3, :]
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
         # Average the stuff
         for i, sp1 in enumerate(self.species_names):
-            xcol_str = ["{} X Velocity ACF slice {}".format(sp1, isl) for isl in range(self.no_slices)]
-            ycol_str = ["{} Y Velocity ACF slice {}".format(sp1, isl) for isl in range(self.no_slices)]
-            zcol_str = ["{} Z Velocity ACF slice {}".format(sp1, isl) for isl in range(self.no_slices)]
-            tot_col_str = ["{} Total Velocity ACF slice {}".format(sp1, isl) for isl in range(self.no_slices)]
+            sp_vacf_str = "{} ".format(sp1) + vacf_str
+            xcol_str = [sp_vacf_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
+            ycol_str = [sp_vacf_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
+            zcol_str = [sp_vacf_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
+            tot_col_str = [sp_vacf_str + "_Total_slice {}".format(isl) for isl in range(self.no_slices)]
 
-            self.dataframe["{} X Velocity ACF avg".format(sp1)] = self.dataframe[xcol_str].mean(axis=1)
-            self.dataframe["{} X Velocity ACF std".format(sp1)] = self.dataframe[xcol_str].std(axis=1)
-            self.dataframe["{} Y Velocity ACF avg".format(sp1)] = self.dataframe[ycol_str].mean(axis=1)
-            self.dataframe["{} Y Velocity ACF std".format(sp1)] = self.dataframe[ycol_str].std(axis=1)
-            self.dataframe["{} Z Velocity ACF avg".format(sp1)] = self.dataframe[zcol_str].mean(axis=1)
-            self.dataframe["{} Z Velocity ACF std".format(sp1)] = self.dataframe[zcol_str].std(axis=1)
-            self.dataframe["{} Total Velocity ACF avg".format(sp1)] = self.dataframe[tot_col_str].mean(axis=1)
-            self.dataframe["{} Total Velocity ACF std".format(sp1)] = self.dataframe[tot_col_str].std(axis=1)
+            self.dataframe[sp_vacf_str + "_X_Mean"] = self.dataframe[xcol_str].mean(axis=1)
+            self.dataframe[sp_vacf_str + "_X_Std"] = self.dataframe[xcol_str].std(axis=1)
+            self.dataframe[sp_vacf_str + "_Y_Mean"] = self.dataframe[ycol_str].mean(axis=1)
+            self.dataframe[sp_vacf_str + "_Y_Std"] = self.dataframe[ycol_str].std(axis=1)
+            self.dataframe[sp_vacf_str + "_Z_Mean"] = self.dataframe[zcol_str].mean(axis=1)
+            self.dataframe[sp_vacf_str + "_Z_Std"] = self.dataframe[zcol_str].std(axis=1)
+            self.dataframe[sp_vacf_str + "_Total_Mean"] = self.dataframe[tot_col_str].mean(axis=1)
+            self.dataframe[sp_vacf_str + "_Total_Std"] = self.dataframe[tot_col_str].std(axis=1)
 
-        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+        self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
+        self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
 
         tend = self.timer.current()
         self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
@@ -2240,8 +2250,8 @@ class VelocityAutoCorrelationFunction(Observable):
             int(self.dt * self.slice_steps * self.dump_step * self.total_plasma_frequency)))
 
 
-class FluxAutoCorrelationFunction(Observable):
-    """Species Diffusion Flux Auto-correlation function."""
+class DiffusionFlux(Observable):
+    """Diffusion Fluxes and their Auto-correlation functions."""
 
     def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
         """
@@ -2272,14 +2282,14 @@ class FluxAutoCorrelationFunction(Observable):
 
         super().setup_init(params, self.phase)
 
-        self.__name__ = 'facf'
-        self.__long_name__ = 'Flux AutoCorrelation Function'
+        self.__name__ = 'diff_flux'
+        self.__long_name__ = 'Diffusion Flux'
 
-        if not hasattr(self, 'species_mass_densities'):
-            self.species_mass_densities = self.species_num_dens * self.species_masses
+        # if not hasattr(self, 'species_mass_densities'):
+        #     self.species_mass_densities = self.species_num_dens * self.species_masses
 
         # Create the directory where to store the computed data
-        saving_dir = os.path.join(self.postprocessing_dir, 'DiffusionFluxAutoCorrelationFunction')
+        saving_dir = os.path.join(self.postprocessing_dir, 'DiffusionFlux')
         if not os.path.exists(saving_dir):
             os.mkdir(saving_dir)
 
@@ -2287,7 +2297,10 @@ class FluxAutoCorrelationFunction(Observable):
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
-        self.filename_csv = os.path.join(self.saving_dir, "DiffusionFluxACF_" + self.job_id + '.csv')
+        self.filename_hdf = os.path.join(self.saving_dir, "DiffusionFlux_" + self.job_id + '.h5')
+
+        self.no_fluxes = self.num_species - 1
+        self.no_fluxes_acf = int(self.no_fluxes * self.no_fluxes)
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
@@ -2312,11 +2325,14 @@ class FluxAutoCorrelationFunction(Observable):
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         time = np.zeros(self.slice_steps)
-
+        # Initialize timer
         t0 = self.timer.current()
 
+        df_str = "Diffusion Flux"
+        df_acf_str = "Diffusion Flux ACF"
+
         for isl in range(self.no_slices):
-            print("\nCalculating diffusion flux acf for slice {}/{}.".format(isl, self.no_slices))
+            print("\nCalculating diffusion flux and its acf for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
             vel = np.zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
             #
@@ -2333,65 +2349,70 @@ class FluxAutoCorrelationFunction(Observable):
             if isl == 0:
                 self.dataframe["Time"] = time
 
-            df_acf = calc_diff_flux_acf(vel,
-                                        self.species_num,
-                                        self.species_num_dens,
-                                        self.species_masses)
+            # This returns two arrays
+            # diff_fluxes = array of shape (no_fluxes, no_dim, no_dumps_per_slice)
+            # df_acf = array of shape (no_fluxes_acf, no_dim + 1, no_dumps_per_slice)
+            diff_fluxes, df_acf = calc_diff_flux_acf(vel,
+                                                     self.species_num,
+                                                     self.species_concentrations,
+                                                     self.species_masses)
 
-            # Store the data
-            v_ij = 0
-            for i, sp1 in enumerate(self.species_names):
-                for j, sp2 in enumerate(self.species_names[i:], i):
-                    self.dataframe["{}-{} X Diffusion Flux ACF slice {}".format(sp1, sp2, isl)] = df_acf[v_ij, 0, :]
-                    self.dataframe["{}-{} Y Diffusion Flux ACF slice {}".format(sp1, sp2, isl)] = df_acf[v_ij, 1, :]
-                    self.dataframe["{}-{} Z Diffusion Flux ACF slice {}".format(sp1, sp2, isl)] = df_acf[v_ij, 2, :]
-                    self.dataframe["{}-{} Total Diffusion Flux ACF slice {}".format(sp1, sp2, isl)] = df_acf[v_ij, 3, :]
-                    v_ij += 1
+            # # Store the data
+            for i, flux in enumerate(diff_fluxes):
+                self.dataframe[df_str + " {}_X_slice {}".format(i, isl)] = flux[0, :]
+                self.dataframe[df_str + " {}_Y_slice {}".format(i, isl)] = flux[1, :]
+                self.dataframe[df_str + " {}_Z_slice {}".format(i, isl)] = flux[2, :]
+
+            for i, flux_acf in enumerate(df_acf):
+                self.dataframe[df_acf_str + " {}_X_slice {}".format(i, isl)] = flux_acf[0, :]
+                self.dataframe[df_acf_str + " {}_Y_slice {}".format(i, isl)] = flux_acf[1, :]
+                self.dataframe[df_acf_str + " {}_Z_slice {}".format(i, isl)] = flux_acf[2, :]
+                self.dataframe[df_acf_str + " {}_Total_slice {}".format(i, isl)] = flux_acf[3, :]
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
-        # Average
-        v_ij = 0
-        for i, sp1 in enumerate(self.species_names):
-            for j, sp2 in enumerate(self.species_names[i:], i):
-                xcol_str = ["{}-{} X Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in
-                            range(self.no_slices)]
-                ycol_str = ["{}-{} Y Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in
-                            range(self.no_slices)]
-                zcol_str = ["{}-{} Z Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in
-                            range(self.no_slices)]
-                tot_col_str = ["{}-{} Total Diffusion Flux ACF slice {}".format(sp1, sp2, isl) for isl in
-                               range(self.no_slices)]
+        # Average and std over the slices
+        for i in range(self.no_fluxes):
+            xcol_str = [df_str + " {}_X_slice {}".format(i, isl) for isl in range(self.no_slices)]
+            ycol_str = [df_str + " {}_Y_slice {}".format(i, isl) for isl in range(self.no_slices)]
+            zcol_str = [df_str + " {}_Z_slice {}".format(i, isl) for isl in range(self.no_slices)]
 
-                self.dataframe["{}-{} X Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[xcol_str].mean(
-                    axis=1)
-                self.dataframe["{}-{} X Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[xcol_str].std(
-                    axis=1)
-                self.dataframe["{}-{} Y Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[ycol_str].mean(
-                    axis=1)
-                self.dataframe["{}-{} Y Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[ycol_str].std(
-                    axis=1)
-                self.dataframe["{}-{} Z Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[zcol_str].mean(
-                    axis=1)
-                self.dataframe["{}-{} Z Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[zcol_str].std(
-                    axis=1)
-                self.dataframe["{}-{} Total Diffusion Flux ACF avg".format(sp1, sp2)] = self.dataframe[
-                    tot_col_str].mean(axis=1)
-                self.dataframe["{}-{} Total Diffusion Flux ACF std".format(sp1, sp2)] = self.dataframe[
-                    tot_col_str].std(axis=1)
-                v_ij += 1
+            self.dataframe[df_str + " {}_X_Mean".format(i)] = self.dataframe[xcol_str].mean(axis=1)
+            self.dataframe[df_str + " {}_X_Std".format(i)] = self.dataframe[xcol_str].std(axis=1)
+            self.dataframe[df_str + " {}_Y_Mean".format(i)] = self.dataframe[ycol_str].mean(axis=1)
+            self.dataframe[df_str + " {}_Y_Std".format(i)] = self.dataframe[ycol_str].std(axis=1)
+            self.dataframe[df_str + " {}_Z_Mean".format(i)] = self.dataframe[zcol_str].mean(axis=1)
+            self.dataframe[df_str + " {}_Z_Std".format(i)] = self.dataframe[zcol_str].std(axis=1)
 
-        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+        # Average and std over the slices
+        for i in range(self.no_fluxes_acf):
+            xcol_str = [df_acf_str + " {}_X_slice {}".format(i, isl) for isl in range(self.no_slices)]
+            ycol_str = [df_acf_str + " {}_Y_slice {}".format(i, isl) for isl in range(self.no_slices)]
+            zcol_str = [df_acf_str + " {}_Z_slice {}".format(i, isl) for isl in range(self.no_slices)]
+            tot_col_str = [df_acf_str + " {}_Total_slice {}".format(i, isl) for isl in range(self.no_slices)]
+
+            self.dataframe[df_acf_str + " {}_X_Mean".format(i)] = self.dataframe[xcol_str].mean(axis=1)
+            self.dataframe[df_acf_str + " {}_X_Std".format(i)] = self.dataframe[xcol_str].std(axis=1)
+            self.dataframe[df_acf_str + " {}_Y_Mean".format(i)] = self.dataframe[ycol_str].mean(axis=1)
+            self.dataframe[df_acf_str + " {}_Y_Std".format(i)] = self.dataframe[ycol_str].std(axis=1)
+            self.dataframe[df_acf_str + " {}_Z_Mean".format(i)] = self.dataframe[zcol_str].mean(axis=1)
+            self.dataframe[df_acf_str + " {}_Z_Std".format(i)] = self.dataframe[zcol_str].std(axis=1)
+            self.dataframe[df_acf_str + " {}_Total_Mean".format(i)] = self.dataframe[tot_col_str].mean(axis=1)
+            self.dataframe[df_acf_str + " {}_Total_Std".format(i)] = self.dataframe[tot_col_str].std(axis=1)
+
+        # Create the columns for the HDF df
+        self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
+        self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
 
         tend = self.timer.current()
-        self.time_stamp("Diffusion Flux ACF Calculation", self.timer.time_division(tend - t0))
+        self.time_stamp("Diffusion Flux and its ACF Calculation", self.timer.time_division(tend - t0))
 
     def pretty_print(self):
         """Print observable parameters for help in choice of simulation parameters."""
 
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: \n', self.filename_csv)
+        print('Data saved in: \n', self.filename_hdf)
         print('Data accessible at: self.dataframe')
 
         print('\nNo. of slices = {}'.format(self.no_slices))
@@ -2827,7 +2848,7 @@ class VelocityDistribution(Observable):
         self.hierarchical_dataframe = self.dataframe.copy()
         self.hierarchical_dataframe.columns = pd.MultiIndex.from_tuples(
             [tuple(c.split("_")) for c in self.hierarchical_dataframe.columns])
-        self.hierarchical_dataframe.to_hdf(self.filename_hdf, key='velocity_distribution', encoding='utf-8')
+        self.hierarchical_dataframe.to_hdf(self.filename_hdf, key=self.__name__, encoding='utf-8')
 
         tend = self.timer.current()
         self.time_stamp("Velocity distribution calculation", self.timer.time_division(tend - tinit))
@@ -3424,9 +3445,9 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
 
 
 # @jit Numba doesn't like scipy.signal
-def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass):
+def calc_diff_flux_acf(vel, sp_num, sp_conc, sp_mass):
     """
-    Calculate the diffusion flux autocorrelation function of each species and in each direction.
+    Calculate the diffusion fluxes and their autocorrelations functions in each direction.
 
     Parameters
     ----------
@@ -3436,33 +3457,33 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass):
     sp_num: numpy.ndarray
         Number of particles of each species.
 
-    sp_dens: numpy.ndarray
-        Number densities of each species.
+    sp_conc: numpy.ndarray
+        Concentration of each species.
 
     sp_mass: numpy.ndarray
         Particle's mass of each species.
 
     Returns
     -------
-    jc_acf: numpy.ndarray
-        Diffusion flux autocorrelation function. Shape = ( Ns*(Ns +1)/2, Ndim + 1 , Nt)
-        where Ns = number of species, Ndim = Number of cartesian dimensions, Nt = Number of dumps.
+    J_flux: numpy.ndarray
+        Diffusion fluxes.
+        Shape = ( (``num_species - 1``), ``dimensions`` , ``no_dumps``)
+
+    jr_acf: numpy.ndarray
+        Relative Diffusion flux autocorrelation function.
+        Shape = ( (``num_species - 1``) x (``num_species - 1``), ``no_dim + 1``, ``no_dumps``)
+
     """
 
     no_dim = vel.shape[0]
     no_dumps = vel.shape[1]
     no_species = len(sp_num)
-    no_vacf = int(no_species * (no_species + 1) / 2.)
+    # number of independent fluxes = no_species - 1,
+    # number of acf of ind fluxes = no_species - 1 ^2
+    no_jc_acf = int((no_species - 1) * (no_species - 1))
 
-    mass_densities = sp_dens * sp_mass
-    tot_mass_dens = np.sum(mass_densities)
-    # Center of mass velocity field of each species in each direction and at each timestep
-    com_vel = np.zeros((no_species, no_dim, no_dumps))
-    # Total center of mass velocity field, see eq.(18) in
-    # Haxhimali T. et al., Diffusivity of Mixtures in Warm Dense Matter Regime.In: Graziani F., et al. (eds)
-    # Frontiers and Challenges in Warm Dense Matter. Lecture Notes in Computational Science and Engineering, vol 96.
-    # Springer (2014)
-    tot_com_vel = np.zeros((no_dim, no_dumps))
+    # Current of each species in each direction and at each timestep
+    tot_vel = np.zeros((no_species, no_dim, no_dumps))
 
     sp_start = 0
     sp_end = 0
@@ -3470,31 +3491,43 @@ def calc_diff_flux_acf(vel, sp_num, sp_dens, sp_mass):
     # and the center of mass velocity of each species (com_vel)
     for i, ns in enumerate(sp_num):
         sp_end += ns
-        com_vel[i, :, :] = np.sum(vel[:, :, sp_start: sp_end], axis=-1)
-        tot_com_vel += mass_densities[i] * com_vel[i, :, :] / tot_mass_dens
-        sp_start = sp_end
+        tot_vel[i, :, :] = np.sum(vel[:, :, sp_start: sp_end], axis=-1)
+        # tot_com_vel += mass_densities[i] * com_vel[i, :, :] / tot_mass_dens
+        sp_start += ns
 
-    jc_acf = np.zeros((no_vacf, no_dim + 1, no_dumps))
+    # Diffusion Fluxes
+    J_flux = np.zeros((no_species - 1, no_dim, no_dumps))
+
+    # Relative Diffusion fluxes for ACF and Transport calc
+    jr_flux = np.zeros((no_species - 1, no_dim, no_dumps))
+
+    # Relative diff flux acf
+    jr_acf = np.zeros((no_jc_acf, no_dim + 1, no_dumps))
+
+    m_bar = sp_mass @ sp_conc
+    # the diffusion fluxes from eq.(3.5) in Zhou J Phs Chem
+    for i, m_alpha in enumerate(sp_mass[:-1]):
+        # Flux
+        for j, m_beta in enumerate(sp_mass):
+            delta_ab = 1 * (m_beta == m_alpha)
+            J_flux[i, :, :] += (m_bar * delta_ab - sp_conc[i] * m_beta) * tot_vel[j, :, :]
+            jr_flux[i, :, :] += (delta_ab - sp_conc[i]) * tot_vel[j, :, :]
+        J_flux[i, :, :] *= m_alpha / m_bar
 
     indx = 0
-    # the flux is given by eq.(19) of the above reference
-    for i, rho1 in enumerate(mass_densities):
-        # Flux of species i
-        sp1_flux = rho1 * (com_vel[i] - tot_com_vel)
-        for j, rho2 in enumerate(mass_densities[i:], i):
-            # this sign seems to be an issue in the calculation of the flux
-            sign = (1 - 2 * (i != j))
-            # Flux of species j
-            sp2_flux = sign * rho2 * (com_vel[j] - tot_com_vel)
-            # Calculate the correlation function in each direction
+    # Remember to change this for 3+ species
+    # binary_const = ( m_bar/sp_mass.prod() )**2
+    # Calculate the correlation function in each direction
+    for i, sp1_flux in enumerate(jr_flux):
+        for j, sp2_flux in enumerate(jr_flux):
             for d in range(no_dim):
                 # Calculate the correlation function and add it to the array
-                jc_acf[indx, d, :] = correlationfunction(sp1_flux[d, :], sp2_flux[d, :])
+                jr_acf[indx, d, :] = correlationfunction(sp1_flux[d, :], sp2_flux[d, :])
                 # Calculate the total correlation function by summing the three directions
-                jc_acf[indx, -1, :] += jc_acf[indx, d, :]
-            indx += 1
+                jr_acf[indx, -1, :] += jr_acf[indx, d, :]
+        indx += 1
 
-    return jc_acf
+    return J_flux, jr_acf
 
 
 # @jit Numba doesn't like Scipy
@@ -3828,7 +3861,7 @@ def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics
         harmonics = np.append(
             harmonics,
             [np.array([i, 0, 0], dtype=np.int) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
-            axis =0)
+            axis=0)
 
         k_arr = np.append(
             k_arr,
