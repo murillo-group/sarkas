@@ -257,12 +257,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.processes.PreProcess.estimate_best_parameters">
-<code class="sig-name descname"><span class="pre">estimate_best_parameters</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.estimate_best_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.estimate_best_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Estimate the best number of mesh points and cutoff radius.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt id="sarkas.processes.PreProcess.green_function_timer">
 <code class="sig-name descname"><span class="pre">green_function_timer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.green_function_timer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.green_function_timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Time Potential setup.</p>
@@ -319,6 +313,17 @@
 </dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.processes.PreProcess.make_time_map_plot">
+<code class="sig-name descname"><span class="pre">make_time_map_plot</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.make_time_map_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.make_time_map_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="sarkas.processes.PreProcess.make_timing_plots">
+<code class="sig-name descname"><span class="pre">make_timing_plots</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.make_timing_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.make_timing_plots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the best number of mesh points and cutoff radius.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.processes.PreProcess.pppm_approximation">
 <code class="sig-name descname"><span class="pre">pppm_approximation</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.pppm_approximation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.pppm_approximation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Force error for a PPPM simulation using analytical approximations.
@@ -327,19 +332,19 @@ Plot the force error in the parameter space.</p>
 
 <dl class="py method">
 <dt id="sarkas.processes.PreProcess.run">
-<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pppm_estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing_study</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pppm_estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate the time of the simulation and best parameters if wanted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>remove</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for removing energy files and dumps created during times estimation. Default = False.</p></li>
-<li><p><strong>pppm_estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for showing the force error plots in case of pppm algorithm.</p></li>
-<li><p><strong>postprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating Post processing parameters.</p></li>
-<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating simulation times. Default =True.</p></li>
 <li><p><strong>loops</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of loops over which to average the acceleration calculation.
 Note that the number of timestep over which to averages is three times this value.
 Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.</p></li>
-<li><p><strong>estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating best PPPM parameters.</p></li>
+<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating simulation times. Default =True.</p></li>
+<li><p><strong>timing_study</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating time for simulation parameters.</p></li>
+<li><p><strong>pppm_estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for showing the force error plots in case of pppm algorithm.</p></li>
+<li><p><strong>postprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating Post processing parameters.</p></li>
+<li><p><strong>remove</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for removing energy files and dumps created during times estimation. Default = False.</p></li>
 </ul>
 </dd>
 </dl>
@@ -602,7 +607,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Apr 23, 2021.<br/>
+      Last updated on May 08, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

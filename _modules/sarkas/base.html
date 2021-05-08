@@ -704,6 +704,15 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Chemical potential: mu = </span><span class="si">{:.4e}</span><span class="s2"> k_B T_e = </span><span class="si">{:.4e}</span><span class="s2"> E_F&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eta_e</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta_e</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fermi_energy</span><span class="p">))</span>
 
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Electron cyclotron frequency: w_c = </span><span class="si">{:.6e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">electron_cyclotron_frequency</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lowest Landau energy level: h w_c/2 = </span><span class="si">{:.6e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">electron_magnetic_energy</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Electron magnetic energy gap: h w_c = </span><span class="si">{:.6e}</span><span class="s2"> = </span><span class="si">{:.4e}</span><span class="s2"> E_F = </span><span class="si">{:.4e}</span><span class="s2"> k_B T_e&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">electron_magnetic_energy</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">electron_magnetic_energy</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">fermi_energy</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">electron_magnetic_energy</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">electron_temperature</span><span class="p">),</span>
+                <span class="p">))</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MAGNETIC FIELD:&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Magnetic Field = [</span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">, </span><span class="si">{:.4e}</span><span class="s1">] &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -1653,7 +1662,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Apr 23, 2021.<br/>
+      Last updated on May 08, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>
