@@ -1235,7 +1235,7 @@ class DynamicStructureFactor(Observable):
 class ElectricCurrent(Observable):
     """Electric Current Auto-correlation function."""
 
-    def setup(self, params, phase: str = None, **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -1252,12 +1252,16 @@ class ElectricCurrent(Observable):
             attributes and/or add new ones.
 
         """
-        self.__name__ = 'ec'
-
         if phase:
             self.phase = phase.lower()
 
+        if no_slices:
+            self.no_slices = no_slices
+
         super().setup_init(params, self.phase)
+
+        self.__name__ = 'ec'
+        self.__long_name__ = 'Electric Current'
 
         # Create the directory where to store the computed data
         saving_dir = os.path.join(self.postprocessing_dir, 'ElectricCurrent')
@@ -1268,7 +1272,7 @@ class ElectricCurrent(Observable):
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
-        self.filename_csv = os.path.join(self.saving_dir, "ElectricCurrent_" + self.job_id + '.csv')
+        self.filename_hdf = os.path.join(self.saving_dir, "ElectricCurrent_" + self.job_id + '.h5')
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
@@ -1285,61 +1289,135 @@ class ElectricCurrent(Observable):
 
         """
 
-        # Update the attribute with the passed arguments
+        # Update the attribute with the passed arguments. e.g time_averaging and timesteps_to_skip
         self.__dict__.update(kwargs.copy())
 
-        # Parse the particles from the dump files
-        vel = np.zeros((self.no_dumps, 3, self.total_num_ptcls))
-        #
-        print("Parsing particles' velocities.")
-        time = np.zeros(self.no_dumps)
-        for it in tqdm(range(self.no_dumps), disable=(not self.verbose)):
-            dump = int(it * self.dump_step)
-            time[it] = dump * self.dt
-            datap = load_from_restart(self.dump_dir, dump)
-            vel[it, 0, :] = datap["vel"][:, 0]
-            vel[it, 1, :] = datap["vel"][:, 1]
-            vel[it, 2, :] = datap["vel"][:, 2]
-        #
-        print("Calculating Electric current quantities.")
-        species_current, total_current = calc_elec_current(vel, self.species_charges, self.species_num)
+        # Recalculate the slicing parameters if no_slices has been passed
+        self.slice_steps = int(self.no_dumps / self.no_slices)
 
-        self.dataframe["Time"] = time
+        start_slice = 0
+        end_slice = self.slice_steps * self.dump_step
+        time = np.zeros(self.slice_steps)
+        # Initialize timer
+        t0 = self.timer.current()
 
-        self.dataframe["Total Current X"] = total_current[0, :]
-        self.dataframe["Total Current Y"] = total_current[1, :]
-        self.dataframe["Total Current Z"] = total_current[2, :]
+        ec_str = "Electric Current"
+        ec_acf_str = "Electric Current ACF"
 
-        # Calculate the ACF in each direction
-        cur_acf_xx = correlationfunction(total_current[0, :], total_current[0, :])
-        cur_acf_yy = correlationfunction(total_current[1, :], total_current[1, :])
-        cur_acf_zz = correlationfunction(total_current[2, :], total_current[2, :])
-        # Total Current ACF
-        tot_cur_acf = cur_acf_xx + cur_acf_yy + cur_acf_zz
+        for isl in range(self.no_slices):
+            print("\nCalculating electric current and its acf for slice {}/{}.".format(isl + 1, self.no_slices))
+            # Parse the particles from the dump files
+            vel = np.zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
+            #
+            # print("\nParsing particles' velocities.")
+            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
+                                           desc='Read in data',
+                                           disable=not self.verbose)):
+                datap = load_from_restart(self.dump_dir, dump)
+                time[it] = datap["time"]
+                vel[0, it, :] = datap["vel"][:, 0]
+                vel[1, it, :] = datap["vel"][:, 1]
+                vel[2, it, :] = datap["vel"][:, 2]
+            #
+            if isl == 0:
+                self.dataframe["Time"] = time
 
-        # Save
-        self.dataframe["X Current ACF"] = cur_acf_xx
-        self.dataframe["Y Current ACF"] = cur_acf_yy
-        self.dataframe["Z Current ACF"] = cur_acf_zz
-        self.dataframe["Total Current ACF"] = tot_cur_acf
-        for i, sp in enumerate(self.species_names):
-            acf_xx = correlationfunction(species_current[i, 0, :], species_current[i, 0, :])
-            acf_yy = correlationfunction(species_current[i, 1, :], species_current[i, 1, :])
-            acf_zz = correlationfunction(species_current[i, 2, :], species_current[i, 2, :])
-            tot_acf = acf_xx + acf_yy + acf_zz
+            species_current, total_current = calc_elec_current(vel, self.species_charges, self.species_num)
 
-            self.dataframe["{} Total Current".format(sp)] = np.sqrt(
-                species_current[i, 0, :] ** 2 + species_current[i, 1, :] ** 2 + species_current[i, 2, :] ** 2)
-            self.dataframe["{} X Current".format(sp)] = species_current[i, 0, :]
-            self.dataframe["{} Y Current".format(sp)] = species_current[i, 1, :]
-            self.dataframe["{} Z Current".format(sp)] = species_current[i, 2, :]
+            # # Store the data
+            for i, sp_name in enumerate(self.species_names):
+                col_str = "{} ".format(sp_name) + ec_str
+                self.dataframe[col_str + "_X_slice {}".format(isl)] = species_current[i, 0, :]
+                self.dataframe[col_str + "_Y_slice {}".format(isl)] = species_current[i, 1, :]
+                self.dataframe[col_str + "_Z_slice {}".format(isl)] = species_current[i, 2, :]
+                # Calculate ACF
+                sp_acf_xx = correlationfunction(species_current[i, 0, :], species_current[i, 0, :])
+                sp_acf_yy = correlationfunction(species_current[i, 1, :], species_current[i, 1, :])
+                sp_acf_zz = correlationfunction(species_current[i, 2, :], species_current[i, 2, :])
+                tot_acf = sp_acf_xx + sp_acf_yy + sp_acf_zz
+                col_str = "{} ".format(sp_name) + ec_acf_str
+                # Store ACF
+                self.dataframe[col_str + "_X_slice {}".format(isl)] = sp_acf_xx
+                self.dataframe[col_str + "_Y_slice {}".format(isl)] = sp_acf_yy
+                self.dataframe[col_str + "_Z_slice {}".format(isl)] = sp_acf_zz
+                self.dataframe[col_str + "_Total_slice {}".format(isl)] = tot_acf
 
-            self.dataframe["{} Total Current ACF".format(sp)] = tot_acf
-            self.dataframe["{} X Current ACF".format(sp)] = acf_xx
-            self.dataframe["{} Y Current ACF".format(sp)] = acf_yy
-            self.dataframe["{} Z Current ACF".format(sp)] = acf_zz
+            # Total current and its ACF
+            self.dataframe[ec_str + "_X_slice {}".format(isl)] = total_current[ 0, :]
+            self.dataframe[ec_str + "_Y_slice {}".format(isl)] = total_current[ 1, :]
+            self.dataframe[ec_str + "_Z_slice {}".format(isl)] = total_current[ 2, :]
 
-        self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+            sp_acf_xx = correlationfunction(total_current[0, :], total_current[0, :])
+            sp_acf_yy = correlationfunction(total_current[1, :], total_current[1, :])
+            sp_acf_zz = correlationfunction(total_current[2, :], total_current[2, :])
+            tot_acf = sp_acf_xx + sp_acf_yy + sp_acf_zz
+
+            self.dataframe[ec_acf_str + "_X_slice {}".format(isl)] = sp_acf_xx
+            self.dataframe[ec_acf_str + "_Y_slice {}".format(isl)] = sp_acf_yy
+            self.dataframe[ec_acf_str + "_Z_slice {}".format(isl)] = sp_acf_zz
+            self.dataframe[ec_acf_str + "_Total_slice {}".format(isl)] = tot_acf
+
+            start_slice += self.slice_steps * self.dump_step
+            end_slice += self.slice_steps * self.dump_step
+
+        # Average and std over the slices
+        for i, sp_name in enumerate(self.species_names):
+            col_str = "{} ".format(sp_name) + ec_str
+            xcol_str = [col_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
+            ycol_str = [col_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
+            zcol_str = [col_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
+
+            self.dataframe[col_str + "_X_Mean"] = self.dataframe[xcol_str].mean(axis=1)
+            self.dataframe[col_str + "_X_Std"] = self.dataframe[xcol_str].std(axis=1)
+            self.dataframe[col_str + "_Y_Mean"] = self.dataframe[ycol_str].mean(axis=1)
+            self.dataframe[col_str + "_Y_Std"] = self.dataframe[ycol_str].std(axis=1)
+            self.dataframe[col_str + "_Z_Mean"] = self.dataframe[zcol_str].mean(axis=1)
+            self.dataframe[col_str + "_Z_Std"] = self.dataframe[zcol_str].std(axis=1)
+            # ACF averages
+            col_str = "{} ".format(sp_name) + ec_acf_str
+            xcol_str = [col_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
+            ycol_str = [col_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
+            zcol_str = [col_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
+            tot_col_str = [col_str + "_Total_slice {}".format(isl) for isl in range(self.no_slices)]
+
+            self.dataframe[col_str + "_X_Mean"] = self.dataframe[xcol_str].mean(axis=1)
+            self.dataframe[col_str + "_X_Std"] = self.dataframe[xcol_str].std(axis=1)
+            self.dataframe[col_str + "_Y_Mean"] = self.dataframe[ycol_str].mean(axis=1)
+            self.dataframe[col_str + "_Y_Std"] = self.dataframe[ycol_str].std(axis=1)
+            self.dataframe[col_str + "_Z_Mean"] = self.dataframe[zcol_str].mean(axis=1)
+            self.dataframe[col_str + "_Z_Std"] = self.dataframe[zcol_str].std(axis=1)
+            self.dataframe[col_str + "_Total_Mean"] = self.dataframe[tot_col_str].mean(axis=1)
+            self.dataframe[col_str + "_Total_Std"] = self.dataframe[tot_col_str].std(axis=1)
+
+        # Total
+        xcol_str = [ec_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
+        ycol_str = [ec_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
+        zcol_str = [ec_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
+
+        self.dataframe[ec_str + "_X_Mean"] = self.dataframe[xcol_str].mean(axis=1)
+        self.dataframe[ec_str + "_X_Std"] = self.dataframe[xcol_str].std(axis=1)
+        self.dataframe[ec_str + "_Y_Mean"] = self.dataframe[ycol_str].mean(axis=1)
+        self.dataframe[ec_str + "_Y_Std"] = self.dataframe[ycol_str].std(axis=1)
+        self.dataframe[ec_str + "_Z_Mean"] = self.dataframe[zcol_str].mean(axis=1)
+        self.dataframe[ec_str + "_Z_Std"] = self.dataframe[zcol_str].std(axis=1)
+        # Total ACF
+        xcol_str = [ec_acf_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
+        ycol_str = [ec_acf_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
+        zcol_str = [ec_acf_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
+        tot_col_str = [ec_acf_str + "_Total_slice {}".format(isl) for isl in range(self.no_slices)]
+
+        self.dataframe[ec_acf_str + "_X_Mean"] = self.dataframe[xcol_str].mean(axis=1)
+        self.dataframe[ec_acf_str + "_X_Std"] = self.dataframe[xcol_str].std(axis=1)
+        self.dataframe[ec_acf_str + "_Y_Mean"] = self.dataframe[ycol_str].mean(axis=1)
+        self.dataframe[ec_acf_str + "_Y_Std"] = self.dataframe[ycol_str].std(axis=1)
+        self.dataframe[ec_acf_str + "_Z_Mean"] = self.dataframe[zcol_str].mean(axis=1)
+        self.dataframe[ec_acf_str + "_Z_Std"] = self.dataframe[zcol_str].std(axis=1)
+        self.dataframe[ec_acf_str + "_Total_Mean"] = self.dataframe[tot_col_str].mean(axis=1)
+        self.dataframe[ec_acf_str + "_Total_Std"] = self.dataframe[tot_col_str].std(axis=1)
+
+        # Create the columns for the HDF df
+        self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
+        self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
 
 
 class RadialDistributionFunction(Observable):
@@ -2243,11 +2321,11 @@ class VelocityAutoCorrelationFunction(Observable):
         print('Data accessible at: self.dataframe')
 
         print('\nNo. of slices = {}'.format(self.no_slices))
-        print('No. dumps per slice = {}'.format(self.slice_steps))
+        print('No. dumps per slice = {}'.format( int(self.slice_steps/self.dump_step)) )
 
         print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            self.dt * self.slice_steps * self.dump_step,
-            int(self.dt * self.slice_steps * self.dump_step * self.total_plasma_frequency)))
+            self.dt * self.slice_steps,
+            int(self.dt * self.slice_steps * self.total_plasma_frequency)))
 
 
 class DiffusionFlux(Observable):
@@ -2416,7 +2494,7 @@ class DiffusionFlux(Observable):
         print('Data accessible at: self.dataframe')
 
         print('\nNo. of slices = {}'.format(self.no_slices))
-        print('No. dumps per slice = {}'.format(self.slice_steps))
+        print('No. dumps per slice = {}'.format( int(self.slice_steps/self.dump_step)) )
         print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
             self.dt * self.slice_steps,
             int(self.dt * self.slice_steps * self.total_plasma_frequency)))
@@ -3205,24 +3283,24 @@ def calc_elec_current(vel, sp_charge, sp_num):
     Jtot : numpy.ndarray
         Total electric current. Shape = (``no_dim``, ``no_dumps``)
     """
-    num_species = len(sp_num)
-    no_dumps = vel.shape[0]
 
-    Js = np.zeros((num_species, 3, no_dumps))
-    Jtot = np.zeros((3, no_dumps))
+    no_dumps = vel.shape[1]
+    no_dim = vel.shape[0]
 
-    for it in range(no_dumps):
-        sp_start = 0
-        sp_end = 0
-        for s, q_sp, n_sp in zip(range(len(num_species)), sp_charge, num_species):
-            # Find the index of the last particle of species s
-            sp_end += n_sp
-            # Calculate the current of each species
-            Js[s, :, it] = q_sp * np.sum(vel[it, :, sp_start:sp_end], axis=1)
-            # Add to the total current
-            Jtot[:, it] += Js[s, :, it]
+    Js = np.zeros((sp_num.shape[0], no_dim, no_dumps))
+    Jtot = np.zeros((no_dim, no_dumps))
 
-            sp_start += sp_end
+    sp_start = 0
+    sp_end = 0
+    for s, (q_sp, n_sp) in enumerate(zip(sp_charge, sp_num)):
+        # Find the index of the last particle of species s
+        sp_end += n_sp
+        # Calculate the current of each species
+        Js[s, :, :] = q_sp * np.sum(vel[:, :, sp_start:sp_end], axis=-1)
+        # Add to the total current
+        Jtot[:, :] += Js[s, :, :]
+
+        sp_start += n_sp
 
     return Js, Jtot
 

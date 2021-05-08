@@ -567,6 +567,15 @@ class Parameters:
             print("Chemical potential: mu = {:.4e} k_B T_e = {:.4e} E_F".format(
                 self.eta_e, self.eta_e * self.kB * self.electron_temperature / self.fermi_energy))
 
+            if self.magnetized:
+                print("Electron cyclotron frequency: w_c = {:.6e}".format(self.electron_cyclotron_frequency))
+                print("Lowest Landau energy level: h w_c/2 = {:.6e}".format(self.electron_magnetic_energy/2))
+                print("Electron magnetic energy gap: h w_c = {:.6e} = {:.4e} E_F = {:.4e} k_B T_e".format(
+                    self.electron_magnetic_energy,
+                    self.electron_magnetic_energy/self.fermi_energy,
+                    self.electron_magnetic_energy / (self.kB * self.electron_temperature),
+                ))
+
         if self.magnetized:
             print('\nMAGNETIC FIELD:')
             print('Magnetic Field = [{:.4e}, {:.4e}, {:.4e}] '.format(*self.magnetic_field), end='')

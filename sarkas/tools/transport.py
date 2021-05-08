@@ -24,7 +24,14 @@ class TransportCoefficient:
         return disp
 
     @staticmethod
-    def electrical_conductivity(params, phase=None, show=False):
+    def electrical_conductivity(params,
+                  phase: str = 'production',
+                  compute_acf: bool = True,
+                  no_slices: int = 1,
+                  plot: bool = True,
+                  show: bool = False,
+                  figname: str = None,
+                  **kwargs):
         """
         Calculate electrical conductivity from current auto-correlation function.
 
@@ -45,68 +52,107 @@ class TransportCoefficient:
             Pandas dataframe containing the value of the transport coefficient as a function of integration time.
 
         """
+
+        print('\n\n{:=^70} \n'.format(' Electrical Conductivity '))
         coefficient = pd.DataFrame()
-        energies = obs.Thermodynamics()
-        energies.setup(params, phase)
-        energies.parse('production')
-        j_current = obs.ElectricCurrent()
-        j_current.setup(params, phase)
-        j_current.parse()
-        sigma = np.zeros(j_current.prod_no_dumps)
-        integrand = np.array(
-            j_current.dataframe["Total Current ACF"] / j_current.dataframe["Total Current ACF"].iloc[0])
-        time = np.array(j_current.dataframe["Time"])
-        const = params.total_plasma_frequency ** 2
-        for it in range(1, j_current.prod_no_dumps):
-            sigma[it] = np.trapz(integrand[:it], x=time[:it])
+
+        if compute_acf:
+            jc_acf = obs.ElectricCurrent()
+            jc_acf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
+            jc_acf.compute()
+
+        else:
+            jc_acf = obs.ElectricCurrent()
+            jc_acf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
+            jc_acf.parse()
+
+        # Print some info
+        print('Data saved in: \n', os.path.join(jc_acf.saving_dir, 'ElectricalConductivity_' + jc_acf.job_id + '.h5'))
+
+        print('\nNo. of slices = {}'.format(jc_acf.no_slices))
+        print('No. dumps per slice = {}'.format( int(jc_acf.slice_steps/jc_acf.dump_step) ))
+
+        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
+            jc_acf.dt * jc_acf.slice_steps,
+            int(jc_acf.dt * jc_acf.slice_steps * jc_acf.total_plasma_frequency)))
+
+        no_int = jc_acf.slice_steps
+
+        # to_numpy creates a 2d-array, hence the [:,0]
+        time = jc_acf.dataframe[("Time")].to_numpy()[:, 0]
+
         coefficient["Time"] = time
-        coefficient["Electrical Conductivity"] = const * sigma
-        # Plot the transport coefficient at different integration times
-        xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(j_current.dataframe["Time"], sigma, "Time", "Conductivity",
-                                                       j_current.units)
-        fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True, figsize=(10, 9))
-        ax21 = ax2.twiny()
-        # extra space for the second axis at the bottom
-        fig.subplots_adjust(bottom=0.2)
+        jc_str = "Electric Current ACF"
+        sigma_str = "Electrical Conductivity"
+        for isl in range(jc_acf.no_slices):
+            sigma_ij = np.zeros(jc_acf.slice_steps)
 
-        ax1.semilogx(xmul * time, integrand, label=r'$j(t)$')
-        ax21.semilogx(ymul * sigma)
-        ax2.semilogx(xmul * time, ymul * sigma, label=r'$\sigma (t)$')
+            integrand = np.array(jc_acf.dataframe[(jc_str, "Total", "slice {}".format(isl))])
 
-        ax1.grid(True, alpha=0.3)
-        ax1.legend(loc='best')
-        ax1.set_ylabel(r'Total Current ACF $j(t)$')
+            for it in range(1, no_int):
+                sigma_ij[it] = np.trapz(integrand[:it]/integrand[0], x=time[:it])
 
-        ax2.grid(True, alpha=0.3)
-        ax2.legend(loc='best')
-        ax2.set_ylabel(r'Conductivity' + ylbl)
-        ax2.set_xlabel(r'Time' + xlbl)
+                coefficient[sigma_str + "_slice {}".format(isl)] = sigma_ij[:]
 
-        ax21.xaxis.set_ticks_position("bottom")
-        ax21.xaxis.set_label_position("bottom")
-        ax21.set_xscale('log')
-        ax21.grid(False)
-        # Offset the twin axis below the host
-        ax21.spines["bottom"].set_position(("axes", -0.3))
+        col_str = [sigma_str + "_slice {}".format(isl) for isl in range(jc_acf.no_slices)]
+        coefficient[sigma_str + "_Mean"] = coefficient[col_str].mean(axis=1)
+        coefficient[sigma_str + "_Std"] = coefficient[col_str].std(axis=1)
 
-        # Turn on the frame for the twin axis, but then hide all
-        # but the bottom spine
-        ax21.set_frame_on(True)
-        ax21.patch.set_visible(False)
+        coefficient.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in coefficient.columns])
+        coefficient.to_hdf(
+            os.path.join(jc_acf.saving_dir, 'ElectricalConductivity_' + jc_acf.job_id + '.h5'),
+            mode='w',
+            key='conductivity',
+            index=False)
 
-        for sp in ax21.spines.values():
-            sp.set_visible(False)
+        if plot or figname:
+            # Make the plot
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+            ax3 = ax1.twiny()
+            ax4 = ax2.twiny()
+            # extra space for the second axis at the bottom
+            # fig.subplots_adjust(bottom=0.2)
 
-        ax21.spines["bottom"].set_visible(True)
-        ax21.set_xlabel(r"Index")
+            acf_avg = jc_acf.dataframe[(jc_str, "Total", "Mean")]
+            acf_std = jc_acf.dataframe[(jc_str, "Total", "Std")]
 
-        # fig.tight_layout()
-        fig.savefig(os.path.join(j_current.saving_dir, 'ConductivityPlot_' + j_current.job_id + '.png'))
-        if show:
-            fig.show()
+            d_avg = coefficient[(sigma_str, "Mean")]
+            d_std = coefficient[(sigma_str, "Std")]
 
-        coefficient.to_csv(os.path.join(j_current.saving_dir, 'Conductivity_' + j_current.job_id + '.png'),
-                           index=False, encoding='utf-8')
+            # Calculate axis multipliers and labels
+            xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Conductivity", jc_acf.units)
+
+            # ACF
+            ax1.plot(xmul * time, acf_avg / acf_avg.iloc[0], label=r'Current $J$')
+            ax1.fill_between(
+                xmul * time,
+                (acf_avg + acf_std) / (acf_avg.iloc[0] + acf_std.iloc[0]),
+                (acf_avg - acf_std) / (acf_avg.iloc[0] - acf_std.iloc[0]), alpha=0.2)
+
+            # Coefficient
+            ax2.plot(xmul * time, ymul * d_avg, label=r'$\sigma$')
+            ax2.fill_between(xmul * time, ymul * (d_avg + d_std), ymul * (d_avg - d_std), alpha=0.2)
+
+            xlims = (xmul * time[1], xmul * time[-1] * 1.5)
+
+            ax1.set(xlim=xlims, xscale='log', ylabel=r'Electric Current ACF', xlabel=r"Time difference" + xlbl)
+            ax2.set(xlim=xlims, xscale='log', ylabel=r'Conductivity' + ylbl, xlabel=r"$\tau$" + xlbl)
+
+            ax1.legend(loc='best')
+            ax2.legend(loc='best')
+            # Finish the index axes
+            for axi in [ax3, ax4]:
+                axi.grid(alpha=0.1)
+                axi.set(xlim=(1, jc_acf.slice_steps * 1.5), xscale='log', xlabel='Index')
+
+            fig.tight_layout()
+            if figname:
+                fig.savefig(os.path.join(jc_acf.saving_dir, figname))
+            else:
+                fig.savefig(os.path.join(jc_acf.saving_dir, 'Plot_ElectricConductivity_' + jc_acf.job_id + '.png'))
+
+            if show:
+                fig.show()
 
         return coefficient
 
@@ -170,11 +216,11 @@ class TransportCoefficient:
         print('Data saved in: \n', os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.h5'))
 
         print('\nNo. of slices = {}'.format(vacf.no_slices))
-        print('No. dumps per slice = {}'.format(vacf.slice_steps))
+        print('No. dumps per slice = {}'.format(int(vacf.slice_steps/vacf.dump_step)))
 
         print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            vacf.dt * vacf.slice_steps * vacf.dump_step,
-            int(vacf.dt * vacf.slice_steps * vacf.dump_step * vacf.total_plasma_frequency)))
+            vacf.dt * vacf.slice_steps,
+            int(vacf.dt * vacf.slice_steps * vacf.total_plasma_frequency)))
 
         vacf.compute()
         time = vacf.dataframe["Time"].to_numpy()[:,0]
@@ -409,7 +455,7 @@ class TransportCoefficient:
         print('Data saved in: \n', os.path.join(jc_acf.saving_dir, 'InterDiffusion_' + jc_acf.job_id + '.h5'))
 
         print('\nNo. of slices = {}'.format(jc_acf.no_slices))
-        print('No. dumps per slice = {}'.format(jc_acf.slice_steps))
+        print('No. dumps per slice = {}'.format(int(jc_acf.slice_steps/jc_acf.dump_step) ))
 
         print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
             jc_acf.dt * jc_acf.slice_steps * jc_acf.dump_step,

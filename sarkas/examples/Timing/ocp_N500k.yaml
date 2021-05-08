@@ -12,7 +12,7 @@ Potential:
     type: Coulomb                  # potential type
     method: P3M                   # Linked-cell
     rc: 3.29946255e-08             # cut-off radius, meter
-    pppm_mesh: [256, 256, 256]
+    pppm_mesh: [32, 32, 32]
     pppm_aliases: [3,3,3]
     pppm_cao: 6
     pppm_alpha_ewald: 1.0602e+8
@@ -39,7 +39,7 @@ Parameters:
 
 IO:
     verbose: False
-    job_dir: ocp_n500k        # dir name to save data. The default is "Checkpoint"
+    job_dir: ocp_n500k_slow       # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
   - RadialDistributionFunction:

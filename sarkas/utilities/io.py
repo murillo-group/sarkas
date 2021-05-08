@@ -828,10 +828,11 @@ class InputOutput:
                 int(simulation.parameters.box_lengths[1] / simulation.potential.rc),
                 int(simulation.parameters.box_lengths[2] / simulation.potential.rc)))
             print('No. of particles in PP loop = {:6}'.format(
-                int(simulation.parameters.total_num_density * (3 * simulation.potential.rc) ** 3)))
+                int(simulation.parameters.total_num_ptcls/simulation.parameters.box_volume
+                    * (3 * simulation.potential.rc) ** 3)))
             print('No. of PP neighbors per particle = {:6}'.format(
-                int(simulation.parameters.total_num_ptcls * 4.0 / 3.0 * np.pi * (
-                        simulation.potential.rc / simulation.parameters.box_lengths.min()) ** 3.0)))
+                int(simulation.parameters.total_num_ptcls /simulation.parameters.box_volume * 4.0 / 3.0 * np.pi * (
+                        simulation.potential.rc) ** 3.0)))
             print('PM Force Error = {:.6e}'.format(simulation.parameters.pppm_pm_err))
             print('PP Force Error = {:.6e}'.format(simulation.parameters.pppm_pp_err))
 
@@ -846,7 +847,8 @@ class InputOutput:
                 int(simulation.parameters.box_lengths[1] / simulation.potential.rc),
                 int(simulation.parameters.box_lengths[2] / simulation.potential.rc)))
             print('No. of particles in PP loop = {:6}'.format(
-                int(simulation.parameters.total_num_density * (3 * simulation.potential.rc) ** 3)))
+                int(simulation.parameters.total_num_ptcls/simulation.parameters.box_volume
+                    * (3 * simulation.potential.rc) ** 3)))
             print('No. of PP neighbors per particle = {:6}'.format(
                 int(simulation.parameters.total_num_ptcls * 4.0 / 3.0 * np.pi * (
                         simulation.potential.rc / simulation.parameters.box_lengths.min()) ** 3.0)))
@@ -911,25 +913,27 @@ class InputOutput:
             print('Gamma_eff = {:.2f}'.format(simulation.parameters.coupling_constant))
 
         elif simulation.potential.type.lower() == "qsp":
-            print("e de Broglie wavelength = {:.4f} ai = {:.6e} ".format(
-                2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / (np.sqrt(2.0) * simulation.parameters.ai),
-                2.0 * np.pi / simulation.potential.matrix[1, 0, 0] / np.sqrt(2.0)), end='')
+            print("QSP type: {}".format(simulation.potential.qsp_type))
+            print("Pauli term: {}".format(simulation.potential.qsp_pauli))
+            print("e de Broglie wavelength = {:.4f} a_ws = {:.6e} ".format(
+                np.sqrt(2.0) * np.pi / (simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws ),
+                np.sqrt(2.0) * np.pi / simulation.potential.matrix[1, 0, 0]), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("ion de Broglie wavelength  = {:.4f} ai = {:.6e} ".format(
-                2.0 * np.pi / simulation.potential.matrix[1, 1, 1] / (np.sqrt(2.0) * simulation.parameters.ai),
-                2.0 * np.pi / simulation.potential.matrix[1, 1, 1] / np.sqrt(2.0)), end='')
+            print("ion de Broglie wavelength  = {:.4f} a_ws = {:.6e} ".format(
+                np.sqrt(2.0) * np.pi / ( simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws),
+                np.sqrt(2.0) * np.pi / simulation.potential.matrix[1, 1, 1] ), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("e-e screening length = {:.4f} a_ws = {:.6e} ".format(
-                simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws,
-                simulation.potential.matrix[1, 0, 0] ), end='')
+                1.0/ (simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws),
+                1.0 / simulation.potential.matrix[1, 0, 0] ), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("i-i screening length = {:.4f} a_ws = {:.6e} ".format(
-                simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws,
-                simulation.potential.matrix[1, 1, 1]), end='')
+                1.0/ ( simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws),
+                1.0 / simulation.potential.matrix[1, 1, 1]), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("e-i screening length = {:.4f} a_ws = {:.6e} ".format(
-                simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws,
-                simulation.potential.matrix[1, 0, 1]), end='')
+                1.0 /(simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws),
+                1.0/simulation.potential.matrix[1, 0, 1]), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("e-i coupling constant = {:.4f} ".format(simulation.parameters.coupling_constant))
 

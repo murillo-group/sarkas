@@ -239,6 +239,10 @@ class Potential:
         # Inverse temperature for convenience
         beta_e = 1. / (params.kB * params.electron_temperature)
 
+        # Plasma frequency
+        params.electron_plasma_frequency = np.sqrt(
+            4.0 * np.pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me))
+
         # de Broglie wavelength
         params.lambda_deB = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
         lambda3 = params.lambda_deB ** 3
@@ -260,6 +264,7 @@ class Potential:
         params.rs = params.ae_ws / params.a0
         # Fermi wave number
         params.kF = (3.0 * np.pi ** 2 * params.ne) ** (1. / 3.)
+
         # Fermi energy
         params.fermi_energy = params.hbar2 * params.kF ** 2 / (2.0 * params.me)
 
@@ -280,7 +285,8 @@ class Potential:
                 params.electron_cyclotron_frequency = params.qe * np.linalg.norm(params.magnetic_field)/params.c0/params.me
             else:
                 params.electron_cyclotron_frequency = params.qe * np.linalg.norm(params.magnetic_field) / params.me
-            params.electron_plasma_frequency = np.sqrt(4.0* np.pi * params.qe**2 * params.ne /(params.fourpie0 * params.me) )
+
+            params.electron_magnetic_energy = params.hbar * params.electron_cyclotron_frequency
             tan_arg = 0.5 * params.hbar * params.electron_cyclotron_frequency * beta_e
 
             # Perpendicular correction

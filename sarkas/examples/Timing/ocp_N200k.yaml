@@ -4,7 +4,7 @@ Particles:
         name: H
         number_density: 1.62e+24       # /cm^3
         mass: 1.673e-24                # g, ptcl mass of ion1
-        num: 10000                    # total number of particles of ion1
+        num: 200000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
         temperature: 3.2636325e+03
 
@@ -12,7 +12,7 @@ Potential:
     type: Coulomb                  # potential type
     method: P3M                   # Linked-cell
     rc: 3.29946255e-08             # cut-off radius, meter
-    pppm_mesh: [32,32,32]
+    pppm_mesh: [32, 32, 32]
     pppm_aliases: [3,3,3]
     pppm_cao: 6
     pppm_alpha_ewald: 1.0602e+8
@@ -39,7 +39,7 @@ Parameters:
 
 IO:
     verbose: False
-    job_dir: ocp_n10k_slow        # dir name to save data. The default is "Checkpoint"
+    job_dir: ocp_n200k_slow        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
   - RadialDistributionFunction:

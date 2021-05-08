@@ -4,7 +4,7 @@ Particles:
         name: H
         number_density: 1.62e+24       # /cm^3
         mass: 1.673e-24                # g, ptcl mass of ion1
-        num: 10000                    # total number of particles of ion1
+        num: 20000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
         temperature: 3.2636325e+03
 
@@ -39,7 +39,7 @@ Parameters:
 
 IO:
     verbose: False
-    job_dir: ocp_n10k_slow        # dir name to save data. The default is "Checkpoint"
+    job_dir: ocp_n20k_slow        # dir name to save data. The default is "Checkpoint"
 
 PostProcessing:
   - RadialDistributionFunction:

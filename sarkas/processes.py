@@ -394,7 +394,7 @@ class PreProcess(Process):
         self.__name__ = 'preprocessing'
         self.loops = 10
         self.estimate = False
-        self.pm_meshes = np.array([16, 32, 56, 64, 80, 128], dtype=int)
+        self.pm_meshes = np.array([16, 24, 32, 40, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
         self.pp_cells = np.arange(3, 16, dtype=int)
         self.kappa = None
         super().__init__(input_file)
@@ -410,17 +410,25 @@ class PreProcess(Process):
     def run(self,
             loops: int = None,
             timing: bool = True,
+            timing_study: bool = False,
             pppm_estimate: bool = False,
             postprocessing: bool = False,
-            remove: bool = False,
-            estimate: bool = False):
+            remove: bool = False):
         """
         Estimate the time of the simulation and best parameters if wanted.
 
         Parameters
         ----------
-        remove : bool
-            Flag for removing energy files and dumps created during times estimation. Default = False.
+        loops : int
+            Number of loops over which to average the acceleration calculation.
+            Note that the number of timestep over which to averages is three times this value.
+            Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.
+
+        timing : bool
+            Flag for estimating simulation times. Default =True.
+
+        timing_study : bool
+            Flag for estimating time for simulation parameters.
 
         pppm_estimate : bool
             Flag for showing the force error plots in case of pppm algorithm.
@@ -428,16 +436,8 @@ class PreProcess(Process):
         postprocessing : bool
             Flag for calculating Post processing parameters.
 
-        timing : bool
-            Flag for estimating simulation times. Default =True.
-
-        loops : int
-            Number of loops over which to average the acceleration calculation.
-            Note that the number of timestep over which to averages is three times this value.
-            Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.
-
-        estimate : bool
-            Flag for estimating best PPPM parameters.
+        remove : bool
+            Flag for removing energy files and dumps created during times estimation. Default = False.
 
         """
 
@@ -450,7 +450,7 @@ class PreProcess(Process):
         self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
 
         if loops:
-            self.loops = loops
+            self.loops = loops + 1
 
         if timing:
             self.io.preprocess_timing("header", [0, 0, 0, 0, 0, 0], 0)
@@ -505,11 +505,22 @@ class PreProcess(Process):
                         os.remove(os.path.join(self.io.mag_dump_dir, npz))
 
         if pppm_estimate:
-            self.pppm_approximation()
+            if timing_study:
+                input_rc = self.potential.rc
+                input_mesh = np.copy(self.potential.pppm_mesh)
+                input_alpha = self.potential.pppm_alpha_ewald
 
-        if estimate:
-            self.estimate = estimate
-            self.estimate_best_parameters()
+                self.timing_study = timing_study
+                self.make_timing_plots()
+
+                # Reset the original values.
+                self.potential.rc = input_rc
+                self.potential.pppm_mesh = np.copy(input_mesh)
+                self.potential.pppm_alpha_ewald = input_alpha
+                self.potential.setup(self.parameters)
+
+            self.pppm_approximation()
+            print('\nFigures can be found in {}'.format(self.pppm_plots_dir))
 
         if postprocessing:
             # POST- PROCESSING
@@ -535,14 +546,14 @@ class PreProcess(Process):
                 self.ccf.setup(self.parameters)
                 self.io.postprocess_info(self, write_to_file=True, observable='vm')
 
-    def estimate_best_parameters(self):
+    def make_timing_plots(self):
         """Estimate the best number of mesh points and cutoff radius."""
 
         from scipy.optimize import curve_fit
 
         print('\n\n----------------- Timing Study -----------------------')
 
-        max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
+        # max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
         # if max_cells != self.pp_cells[-1]:
         #     self.pp_cells = np.arange(3, max_cells, dtype=int)
 
@@ -601,42 +612,48 @@ class PreProcess(Process):
                     self.potential.update_linked_list(self.particles)
                     pp_times[i, j] += self.timer.stop() / 3.0
 
-                # self.pppm_approximation()
-
+        # Get the time in seconds
+        pp_times *= 1e-9
+        pm_times *= 1e-9
         # TODO: The rest is in development
-        #  Approximate the times
-        # pm_popt, _ = curve_fit(
-        #     lambda x, a, b, c: a * x + 15 * b * x ** 3 * np.log2(x) + c,
-        #     self.pm_meshes,
-        #     pm_times)
-        # print('\n PM Time ~ {:.4e} M^3 + 15 {:.4e} M^3 log(M) '.format(*pm_popt))
-        #
-        # fig, ax = plt.subplots(1, 1)
-        # ax.plot(self.pm_meshes, pm_times, 'o')
-        # ax.plot(
-        #     self.pm_meshes,
-        #     pm_popt[2] + pm_popt[0] * self.pm_meshes + 15 * pm_popt[1] * self.pm_meshes**3 * np.log2(self.pm_meshes),
-        #     ls='--', label='Fit')
-        # ax.set(yscale='log', ylabel='Time [ns]', xlabel='Mesh size')
+        # Approximate the times
+        pm_popt, _ = curve_fit(
+            lambda x, a, b: a + 15 * b * x ** 3 * np.log2(x),
+            self.pm_meshes,
+            pm_times)
+        print('\n PM Time ~ a + 15 b M^3 log(M)  [s]\n a = {:.4e}, b = {:.4e} '.format(*pm_popt))
+
+        fig, (ax_pp, ax_pm) = plt.subplots(1, 2, sharey=True, figsize=(12, 7))
+        ax_pm.plot(self.pm_meshes, pm_times, 'o', label='Measured')
+        ax_pm.plot(
+            self.pm_meshes,
+            pm_popt[0] + 15 * pm_popt[1] * self.pm_meshes ** 3 * np.log2(self.pm_meshes),
+            ls='--', label='Fit')
+        ax_pm.set(title='PM calculation time and estimate', yscale='log', xlabel='Mesh size')
+        ax_pm.legend()
         # fig.tight_layout()
-        #
-        # fig, ax = plt.subplots(1, 1)
-        #
-        # for j, mesh_points in enumerate(self.pm_meshes):
-        #     pp_popt, _ = curve_fit(
-        #         lambda x, a, b: a + b / x ** 3,
-        #         self.pp_cells,
-        #         pp_times[j, :],
-        #         p0 = [1e3, self.parameters.total_num_ptcls]
-        #     )
-        #     print('\n Mesh = {}, PP Time ~ {:.4e} / LCL**3 '.format(mesh_points, *pp_popt))
-        #
-        #     ax.plot(self.pp_cells, pp_times[j], 'o')
-        #     ax.plot(self.pp_cells, pp_popt[0] + pp_popt[1] / self.pp_cells**3,
-        #             ls='--', label='Fit Mesh {}'.format(mesh_points))
-        # ax.set(yscale='log', ylabel='Time [ns]', xlabel='Cells')
-        # fig.tight_layout()
-        #
+
+        self.tot_time_map = np.zeros(pp_times.shape)
+        for j, mesh_points in enumerate(self.pm_meshes):
+            self.tot_time_map[j, :] = pm_times[j] + pp_times[j, :]
+            ax_pp.plot(self.pp_cells, pp_times[j], 'o', label='@ Mesh {}^3'.format(mesh_points))
+
+        pp_popt, _ = curve_fit(
+            lambda x, b: b / x ** 3,
+            self.pp_cells,
+            np.mean( pp_times, axis = 0),
+            p0=[self.parameters.total_num_ptcls]
+        )
+        print('\n PP Time ~ a / Cells**3  [s] \n a = {:.4e}'.format(*pp_popt))
+        ax_pp.plot(self.pp_cells, pp_popt[0] / self.pp_cells ** 3, ls='--', label='Fit')
+        ax_pp.legend()
+        ax_pp.set(title='PP calculation time and estimate', yscale='log', ylabel='CPU Times [s]', xlabel='Cells')
+        fig.tight_layout()
+        fig.savefig(os.path.join(self.pppm_plots_dir, 'Times_' + self.io.job_id + '.png'))
+
+        self.make_force_error_map_plot()
+        self.make_time_map_plot()
+
         # self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))
         # self.tot_times = np.empty((len(self.pm_meshes), len(self.pp_cells)))
         # self.pp_times = np.copy(pp_times)
@@ -689,25 +706,58 @@ class PreProcess(Process):
         ax.set_title('2D Lagrangian')
         fig.savefig(os.path.join(self.io.preprocessing_dir, '2D_Lagrangian.png'))
 
+    def make_time_map_plot(self):
+        # Plot the results
+        fig_path = self.pppm_plots_dir
+        c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
+
+        maxt = self.tot_time_map.max()
+        mint = self.tot_time_map.min()
+        lvls = np.logspace(np.log10(mint), np.log10(maxt), 15)
+
+        fig, ax = plt.subplots(1, 1, figsize=(11, 7))
+        CS = ax.contourf(m_mesh,
+                         c_mesh,
+                         self.tot_time_map,
+                         levels=lvls)
+        CS2 = ax.contour(CS, colors='w', levels=lvls)
+        # for i in range(self.pp_cells.shape[0]):
+        #     ax.scatter(self.pp_cells[i] * np.ones( len(self.pm_meshes)), self.pm_meshes, s=100, c='k')
+        ax.clabel(CS2, fmt='%.2e', colors='w')
+        fig.colorbar(CS)
+        ax.set_xlabel('Mesh size')
+        ax.set_ylabel(r'No. Cells = $L/r_c$')
+        ax.set_title('CPU Times in seconds')
+        fig.tight_layout()
+        fig.savefig(os.path.join(fig_path, 'TimingMap_' + self.io.job_id + '.png'))
+
     def make_force_error_map_plot(self):
+        # Plot the results
+        fig_path = self.pppm_plots_dir
+
         c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
         fig, ax = plt.subplots(1, 1, figsize=(11, 7))
         if self.force_error_map.min() == 0.0:
             minv = 1e-120
         else:
             minv = self.force_error_map.min()
+
+        maxt = self.force_error_map.max()
+        # mint = self.tot_time_map.min()
+        lvls = np.logspace(np.log10(minv), np.log10(maxt), 10)
+
         CS = ax.contourf(m_mesh,
                          c_mesh,
                          self.force_error_map,
-                         norm=LogNorm(vmin=minv, vmax=self.force_error_map.max()))
-        CS2 = ax.contour(CS, colors='w')
-        ax.scatter(self.best_mesh, self.best_cells, s=200, c='k')
+                         levels=lvls,
+                         norm=LogNorm(vmin=minv, vmax=maxt))
+        CS2 = ax.contour(CS, colors='w', levels=lvls)
         ax.clabel(CS2, fmt='%1.0e', colors='w')
-        fig.colorbar(CS)
+        fig.colorbar(CS, ticks=[])
         ax.set_xlabel('Mesh size')
-        ax.set_ylabel(r'No. Cells = $1/r_c$')
-        ax.set_title('Force Error')
-        fig.savefig(os.path.join(self.io.preprocessing_dir, 'ForceMap.png'))
+        ax.set_ylabel(r'No. Cells = $L/r_c$')
+        ax.set_title('Force Error Map')
+        fig.savefig(os.path.join(fig_path, 'ForceErrorMap_' + self.io.job_id + '.png'))
 
     def time_acceleration(self):
 
@@ -755,38 +805,38 @@ class PreProcess(Process):
         # Run few equilibration steps to estimate the equilibration time
         self.timer.start()
         self.integrator.equilibrate(0, self.particles, self.io)
-        eq_time = self.timer.stop() / self.loops
+        self.eq_mean_time = self.timer.stop() / self.loops
         # Print the average equilibration & production times
-        self.io.preprocess_timing("Equilibration", self.timer.time_division(eq_time), self.loops)
+        self.io.preprocess_timing("Equilibration", self.timer.time_division(self.eq_mean_time), self.loops)
 
         if self.integrator.electrostatic_equilibration:
             self.timer.start()
             self.integrator.magnetize(0, self.particles, self.io)
-            mag_time = self.timer.stop() / self.loops
+            self.mag_mean_time = self.timer.stop() / self.loops
             # Print the average equilibration & production times
-            self.io.preprocess_timing("Magnetization", self.timer.time_division(mag_time), self.loops)
+            self.io.preprocess_timing("Magnetization", self.timer.time_division(self.mag_mean_time), self.loops)
 
         # Run few production steps to estimate the equilibration time
         self.timer.start()
         self.integrator.produce(0, self.particles, self.io)
-        prod_time = self.timer.stop() / self.loops
-        self.io.preprocess_timing("Production", self.timer.time_division(prod_time), self.loops)
+        self.prod_mean_time = self.timer.stop() / self.loops
+        self.io.preprocess_timing("Production", self.timer.time_division(self.prod_mean_time), self.loops)
 
         # Restore the original number of timesteps and print an estimate of run times
         self.integrator.equilibration_steps = steps[0]
         self.integrator.production_steps = steps[1]
 
         # Print the estimate for the full run
-        eq_prediction = eq_time * steps[0]
+        eq_prediction = self.eq_mean_time * steps[0]
         self.io.time_stamp('Equilibration', self.timer.time_division(eq_prediction))
 
         if self.integrator.electrostatic_equilibration:
             self.integrator.magnetization_steps = steps[2]
-            mag_prediction = mag_time * steps[2]
+            mag_prediction = self.mag_mean_time * steps[2]
             self.io.time_stamp('Magnetization', self.timer.time_division(mag_prediction))
             eq_prediction += mag_prediction
 
-        prod_prediction = prod_time * steps[1]
+        prod_prediction = self.prod_mean_time * steps[1]
         self.io.time_stamp('Production', self.timer.time_division(prod_prediction))
 
         tot_time = eq_prediction + prod_prediction
@@ -806,8 +856,8 @@ class PreProcess(Process):
         if not os.path.exists(mesh_dir):
             os.mkdir(mesh_dir)
 
-        cell_num = int(self.parameters.box_lengths.min()/self.potential.rc)
-        cell_dir = os.path.join(mesh_dir,'Cells_{}'.format(cell_num) )
+        cell_num = int(self.parameters.box_lengths.min() / self.potential.rc)
+        cell_dir = os.path.join(mesh_dir, 'Cells_{}'.format(cell_num))
         if not os.path.exists(cell_dir):
             os.mkdir(cell_dir)
 
