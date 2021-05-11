@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contributing to Sarkas &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Code Development &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -25,8 +25,8 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Examples" href="../examples/examples.html" />
-    <link rel="prev" title="Documentation" href="dev_docs.html" />
+    <link rel="next" title="Setup" href="dev_setup.html" />
+    <link rel="prev" title="References" href="../theory/references.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -57,7 +57,7 @@
             
                 <li><a href="../documentation/get_started.html">Get Started</a></li>
                 <li><a href="../examples/examples.html">Examples</a></li>
-                <li><a href="code_dev.html">Code Development</a></li>
+                <li><a href="#">Code Development</a></li>
                 <li><a href="../api/api.html">API</a></li>
                 <li><a href="../credits/credits.html">Credits</a></li>
             
@@ -81,7 +81,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Code Dev:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="code_dev.html">Code Development</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Code Development</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Simulations:</span></p>
 <ul>
@@ -107,7 +107,15 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Contributing to Sarkas</a></li>
+<li><a class="reference internal" href="#">Code Development</a><ul>
+<li><a class="reference internal" href="#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
+<li><a class="reference internal" href="#how-can-i-contribute">How can I contribute?</a></li>
+<li><a class="reference internal" href="#reporting-a-bug">Reporting a Bug</a></li>
+<li><a class="reference internal" href="#editing-the-documentation">Editing the Documentation</a></li>
+<li><a class="reference internal" href="#making-a-patch">Making a Patch</a></li>
+<li><a class="reference internal" href="#spreading-the-word-of-mouth">Spreading the word of mouth</a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -211,7 +219,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Code Dev:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="code_dev.html">Code Development</a><ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Code Development</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dev_setup.html">Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="dev_setup.html#updating-your-repository">Updating your repository</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dev_setup.html#forking-and-cloning-sarkas-repository">Forking and Cloning Sarkas repository</a></li>
@@ -226,13 +234,13 @@
 <li class="toctree-l3"><a class="reference internal" href="dev_docs.html#building-documentation">Building Documentation</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Contributing to Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code_dev.html#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code_dev.html#how-can-i-contribute">How can I contribute?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code_dev.html#reporting-a-bug">Reporting a Bug</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code_dev.html#editing-the-documentation">Editing the Documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code_dev.html#making-a-patch">Making a Patch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code_dev.html#spreading-the-word-of-mouth">Spreading the word of mouth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_contributing.html">Contributing to Sarkas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-can-i-contribute">How can I contribute?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-a-bug">Reporting a Bug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#editing-the-documentation">Editing the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-a-patch">Making a Patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spreading-the-word-of-mouth">Spreading the word of mouth</a></li>
 </ul>
 </li>
 </ul>
@@ -317,81 +325,77 @@
       </div>
     <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="contributing-to-sarkas">
-<h1>Contributing to Sarkas<a class="headerlink" href="#contributing-to-sarkas" title="Permalink to this headline">¶</a></h1>
-<p>The first thing to do is to make sure your distribution is up to date. Type</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git status
-</pre></div>
+  <div class="section" id="code-development">
+<h1>Code Development<a class="headerlink" href="#code-development" title="Permalink to this headline">¶</a></h1>
+<p>The following pages present a workflow for editing, adding your own features, and contributing to Sarkas.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dev_setup.html">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_report_issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_contributing.html">Contributing to Sarkas</a></li>
+</ul>
 </div>
-<p>This shows the state of your local repository. Assuming no changes have been made you will receive the following</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Your branch is up to date with &#39;origin/master&#39;.</span>
-</pre></div>
+<div class="section" id="imposter-syndrome-disclaimer">
+<h2>Imposter Syndrome Disclaimer<a class="headerlink" href="#imposter-syndrome-disclaimer" title="Permalink to this headline">¶</a></h2>
+<p><strong>We want your help. No really, we do.</strong></p>
+<p>There might be a little voice inside that tells you you are not ready; that you need to do one more tutorial, or learn another framework,
+or write a few more blog posts before you can help me with this project.</p>
+<p>We assure you, that is not the case.</p>
+<p>Sarkas has some clear “Contribution Guidelines” that you can read below in the following sections.</p>
+<p>The contribution guidelines outline the process that you will need to follow to get a patch merged. By making expectations and process explicit,
+we hope it will make it easier for you to contribute.</p>
+<p>And you do not just have to write code. You can help out by writing documentation, tests, or even by giving feedback about this work.
+(And yes, that includes giving feedback about the contribution guidelines.)</p>
+<p>(Thanks to <a class="reference external" href="https://github.com/adriennefriend/imposter-syndrome-disclaimer">Adrienne Lowe</a>  who came up with this disclaimer and yeah,
+made it OPEN for anyone to use!)</p>
 </div>
-<p>It is good practice to create a new branch for each modification to the code. For example, let us say you want to create a new branch called <code class="docutils literal notranslate"><span class="pre">plot_style</span></code>.
-This can be done by</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git checkout -b plot_style
-<span class="go">Switched to a new branch &#39;plot_style&#39;</span>
-</pre></div>
+<div class="section" id="how-can-i-contribute">
+<h2>How can I contribute?<a class="headerlink" href="#how-can-i-contribute" title="Permalink to this headline">¶</a></h2>
+<p>There are multiple ways in which you can help us:</p>
+<ul class="simple">
+<li><p>Found a bug in Sarkas? Report it to us!</p></li>
+<li><p>Caught a typo in documentation or want to make it better to understand? Edit it!</p></li>
+<li><p>Know how to fix an issue or add a new feature? Make a patch!</p></li>
+<li><p>Love using Sarkas? Share it with others!</p></li>
+<li><p>Anything else we missed?</p></li>
+</ul>
 </div>
-<p>Now you are ready to modify the code or add files, always according to our coding guidelines. For this example, say you want to add four logo files.
-Once you are done, review the changes by</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git status
-<span class="go">On branch plot_style</span>
-<span class="go">Untracked files:</span>
-<span class="go">  (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)</span>
-<span class="go">        docs/graphics/logo/logo_green_orange_v3.png</span>
-<span class="go">        docs/graphics/logo/logo_green_orange_v3.svg</span>
-<span class="go">        docs/graphics/logo/logo_orange_gray_v3.png</span>
-<span class="go">        docs/graphics/logo/logo_orange_gray_v3.svg</span>
-
-<span class="go">nothing added to commit but untracked files present (use &quot;git add&quot; to track)</span>
-</pre></div>
+<div class="section" id="reporting-a-bug">
+<h2>Reporting a Bug<a class="headerlink" href="#reporting-a-bug" title="Permalink to this headline">¶</a></h2>
+<p>Sarkas is under constant development. There is no surprise that you may encounter something that does not work for your use case.
+Or maybe you have some suggestions about how can we improve some functionality. Feel free to share any of it with us by
+<a class="reference external" href="https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue">opening an issue</a> <a class="reference external" href="https://github.com/murillo-group/sarkas/issues">here</a>.</p>
+<p>Please make sure that you provide all the necessary information requested by prompts in the issue body - it will not only make our work easier but will also help you to communicate your problem better.</p>
 </div>
-<p>Make sure you are in the correct branch: you can see this on the first line right after <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">status</span></code>.</p>
-<p>Add and commit your changes by</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git add -A
-<span class="gp">$ </span>git commit -m  <span class="s1">&#39;Added logo files.&#39;</span>
-<span class="go">[plot_style 33654b2] Added logo files.</span>
-<span class="go">4 files changed, 844 insertions(+)</span>
-<span class="go">create mode 100644 docs/graphics/logo/logo_green_orange_v3.png</span>
-<span class="go">create mode 100644 docs/graphics/logo/logo_green_orange_v3.svg</span>
-<span class="go">create mode 100644 docs/graphics/logo/logo_orange_gray_v3.png</span>
-<span class="go">create mode 100644 docs/graphics/logo/logo_orange_gray_v3.svg</span>
-</pre></div>
+<div class="section" id="editing-the-documentation">
+<h2>Editing the Documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p>There is always a scope of improvement in documentation to add some missing information or to make it easier for reading.
+Here lies an opportunity for you. You can edit the documentation. This is stored in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory of Sarkas.</p>
+<p>After editing the file locally, build the docs as described in <a class="reference external" href="dev_docs">these instructions</a> and then you can submit
+your changes to us by making a patch as described in the next section.</p>
 </div>
-<p>The option <code class="docutils literal notranslate"><span class="pre">-A</span></code> indicates all files. The option <code class="docutils literal notranslate"><span class="pre">-m</span></code> is required and refers to the message of the commit, in this case <code class="docutils literal notranslate"><span class="pre">Added</span> <span class="pre">logo</span> <span class="pre">files.</span></code>.
-Note that this should be a short message describing what you have done.</p>
-<p>Your changes are now only on your local repository. You can push them to GitHub via</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git push
-<span class="go">fatal: The current branch plot_style has no upstream branch.</span>
-<span class="go">To push the current branch and set the remote as upstream, use</span>
-
-<span class="go">    git push --set-upstream origin plot_style</span>
-</pre></div>
+<div class="section" id="making-a-patch">
+<h2>Making a Patch<a class="headerlink" href="#making-a-patch" title="Permalink to this headline">¶</a></h2>
+<p>If you have peeked in our codebase and realized how to fix a problem or if you know how to add a new feature, well done!
+If not, do not worry - just pick an <a class="reference external" href="https://github.com/murillo-group/sarkas/issues">issue</a> and get started to fix it.</p>
+<p>To contribute your code to Sarkas, you will need to make a <a class="reference external" href="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests">pull request</a>
+from your fork of Sarkas repository. This development workflow using Git may look daunting at first, but it is not if
+you follow <a class="reference external" href="dev_contributing">this guide</a> that we have prepared for you.</p>
+<p>When you make a pull request, please provide all the necessary information requested by prompts in the pull request body.
+Also, make sure that the code you are submitting always accounts for the following three:</p>
+<ul class="simple">
+<li><p><strong>Maintaining code quality:</strong> Your code must follow the PEP8 style guide, should cover edge cases, etc.</p></li>
+<li><p><strong>Documenting the code:</strong> You must write docstrings in functions/classes, put a relevant example in Sarkas docs and make sure docs get built correctly.</p></li>
+<li><p><strong>Testing the code:</strong> There should be unit-tests for most of the functions/methods and they must pass our testing framework.</p></li>
+</ul>
 </div>
-<p>In this case, there is no <code class="docutils literal notranslate"><span class="pre">plot_style</span></code> branch in your GitHub repository (<code class="docutils literal notranslate"><span class="pre">upstream</span></code>) and you need to create it. To do so, follow the given instructions.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git push --set-upstream origin plot_style
-<span class="go">Username for &#39;https://github.com&#39;: username</span>
-<span class="go">Password for &#39;https://username@github.com&#39;:</span>
-<span class="go">Enumerating objects: 1891, done.</span>
-<span class="go">Counting objects: 100% (1864/1864), done.</span>
-<span class="go">Delta compression using up to 4 threads</span>
-<span class="go">Compressing objects: 100% (457/457), done.</span>
-<span class="go">Writing objects: 100% (1616/1616), 18.07 MiB | 1.54 MiB/s, done.</span>
-<span class="go">Total 1616 (delta 1159), reused 1550 (delta 1112)</span>
-<span class="go">remote: Resolving deltas: 100% (1159/1159), completed with 134 local objects.</span>
-<span class="go">remote:</span>
-<span class="go">remote: Create a pull request for &#39;plot_style&#39; on GitHub by visiting:</span>
-<span class="go">remote:      https://github.com/murillo-group/sarkas/pull/new/plot_style</span>
-<span class="go">remote:</span>
-<span class="go">To https://github.com/murillo-group/sarkas</span>
-<span class="go"> * [new branch]      plot_style -&gt; plot_style</span>
-<span class="go">Branch &#39;plot_style&#39; set up to track remote branch &#39;plot_style&#39; from &#39;origin&#39;.</span>
-</pre></div>
+<div class="section" id="spreading-the-word-of-mouth">
+<h2>Spreading the word of mouth<a class="headerlink" href="#spreading-the-word-of-mouth" title="Permalink to this headline">¶</a></h2>
+<p>If you find Sarkas helpful, you can share it with your peers, colleagues, and anyone who can benefit from Sarkas.
+If you have used Sarkas in your research, please make sure to cite us.
+By telling other people about how we helped you, you will help us in turn, in extending our impact.</p>
 </div>
-<p>The output of the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code> command will be different depending on your changes.</p>
-<p>Finally, you need to make a Pull Request (PR) for your changes to be included in the SARKAS main repository.
-You can do this by following the instructions on this <a class="reference external" href="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request">link</a>.</p>
 </div>
 
 
@@ -407,7 +411,7 @@ You can do this by following the instructions on this <a class="reference extern
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 08, 2021.<br/>
+      Last updated on May 11, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

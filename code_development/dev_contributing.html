@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reporting Issues &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Contributing to Sarkas &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -25,8 +25,8 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Documentation" href="dev_docs.html" />
-    <link rel="prev" title="Setup" href="dev_setup.html" />
+    <link rel="next" title="Examples" href="../examples/examples.html" />
+    <link rel="prev" title="Documentation" href="dev_docs.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -107,7 +107,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Reporting Issues</a></li>
+<li><a class="reference internal" href="#">Contributing to Sarkas</a></li>
 </ul>
 </ul>
 </li>
@@ -220,13 +220,13 @@
 <li class="toctree-l3"><a class="reference internal" href="dev_setup.html#docker-image">Docker Image</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_report_issues.html">Reporting Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dev_docs.html">Documentation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="dev_docs.html#writing-documentation">Writing Documentation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dev_docs.html#building-documentation">Building Documentation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="dev_contributing.html">Contributing to Sarkas</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Contributing to Sarkas</a></li>
 <li class="toctree-l2"><a class="reference internal" href="code_dev.html#imposter-syndrome-disclaimer">Imposter Syndrome Disclaimer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="code_dev.html#how-can-i-contribute">How can I contribute?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="code_dev.html#reporting-a-bug">Reporting a Bug</a></li>
@@ -317,14 +317,81 @@
       </div>
     <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="reporting-issues">
-<h1>Reporting Issues<a class="headerlink" href="#reporting-issues" title="Permalink to this headline">¶</a></h1>
-<p>SARKAS is under constant development. Thus, chances are that something
-might not work properly. If any bugs, inconsistencies or missing
-functionalities are found, please file an issue on our official <a class="reference external" href="https://github.com/murillo-group/sarkas">GitHub</a> page.</p>
-<p>We encourage any interested user to actively contribute to the development of
-SARKAS. Please follow the guidelines outlined on our <a class="reference external" href="dev_contributing">Contributing
-to Sarkas</a> and get started.</p>
+  <div class="section" id="contributing-to-sarkas">
+<h1>Contributing to Sarkas<a class="headerlink" href="#contributing-to-sarkas" title="Permalink to this headline">¶</a></h1>
+<p>The first thing to do is to make sure your distribution is up to date. Type</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git status
+</pre></div>
+</div>
+<p>This shows the state of your local repository. Assuming no changes have been made you will receive the following</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Your branch is up to date with &#39;origin/master&#39;.</span>
+</pre></div>
+</div>
+<p>It is good practice to create a new branch for each modification to the code. For example, let us say you want to create a new branch called <code class="docutils literal notranslate"><span class="pre">plot_style</span></code>.
+This can be done by</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git checkout -b plot_style
+<span class="go">Switched to a new branch &#39;plot_style&#39;</span>
+</pre></div>
+</div>
+<p>Now you are ready to modify the code or add files, always according to our coding guidelines. For this example, say you want to add four logo files.
+Once you are done, review the changes by</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git status
+<span class="go">On branch plot_style</span>
+<span class="go">Untracked files:</span>
+<span class="go">  (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)</span>
+<span class="go">        docs/graphics/logo/logo_green_orange_v3.png</span>
+<span class="go">        docs/graphics/logo/logo_green_orange_v3.svg</span>
+<span class="go">        docs/graphics/logo/logo_orange_gray_v3.png</span>
+<span class="go">        docs/graphics/logo/logo_orange_gray_v3.svg</span>
+
+<span class="go">nothing added to commit but untracked files present (use &quot;git add&quot; to track)</span>
+</pre></div>
+</div>
+<p>Make sure you are in the correct branch: you can see this on the first line right after <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">status</span></code>.</p>
+<p>Add and commit your changes by</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git add -A
+<span class="gp">$ </span>git commit -m  <span class="s1">&#39;Added logo files.&#39;</span>
+<span class="go">[plot_style 33654b2] Added logo files.</span>
+<span class="go">4 files changed, 844 insertions(+)</span>
+<span class="go">create mode 100644 docs/graphics/logo/logo_green_orange_v3.png</span>
+<span class="go">create mode 100644 docs/graphics/logo/logo_green_orange_v3.svg</span>
+<span class="go">create mode 100644 docs/graphics/logo/logo_orange_gray_v3.png</span>
+<span class="go">create mode 100644 docs/graphics/logo/logo_orange_gray_v3.svg</span>
+</pre></div>
+</div>
+<p>The option <code class="docutils literal notranslate"><span class="pre">-A</span></code> indicates all files. The option <code class="docutils literal notranslate"><span class="pre">-m</span></code> is required and refers to the message of the commit, in this case <code class="docutils literal notranslate"><span class="pre">Added</span> <span class="pre">logo</span> <span class="pre">files.</span></code>.
+Note that this should be a short message describing what you have done.</p>
+<p>Your changes are now only on your local repository. You can push them to GitHub via</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git push
+<span class="go">fatal: The current branch plot_style has no upstream branch.</span>
+<span class="go">To push the current branch and set the remote as upstream, use</span>
+
+<span class="go">    git push --set-upstream origin plot_style</span>
+</pre></div>
+</div>
+<p>In this case, there is no <code class="docutils literal notranslate"><span class="pre">plot_style</span></code> branch in your GitHub repository (<code class="docutils literal notranslate"><span class="pre">upstream</span></code>) and you need to create it. To do so, follow the given instructions.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git push --set-upstream origin plot_style
+<span class="go">Username for &#39;https://github.com&#39;: username</span>
+<span class="go">Password for &#39;https://username@github.com&#39;:</span>
+<span class="go">Enumerating objects: 1891, done.</span>
+<span class="go">Counting objects: 100% (1864/1864), done.</span>
+<span class="go">Delta compression using up to 4 threads</span>
+<span class="go">Compressing objects: 100% (457/457), done.</span>
+<span class="go">Writing objects: 100% (1616/1616), 18.07 MiB | 1.54 MiB/s, done.</span>
+<span class="go">Total 1616 (delta 1159), reused 1550 (delta 1112)</span>
+<span class="go">remote: Resolving deltas: 100% (1159/1159), completed with 134 local objects.</span>
+<span class="go">remote:</span>
+<span class="go">remote: Create a pull request for &#39;plot_style&#39; on GitHub by visiting:</span>
+<span class="go">remote:      https://github.com/murillo-group/sarkas/pull/new/plot_style</span>
+<span class="go">remote:</span>
+<span class="go">To https://github.com/murillo-group/sarkas</span>
+<span class="go"> * [new branch]      plot_style -&gt; plot_style</span>
+<span class="go">Branch &#39;plot_style&#39; set up to track remote branch &#39;plot_style&#39; from &#39;origin&#39;.</span>
+</pre></div>
+</div>
+<p>The output of the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code> command will be different depending on your changes.</p>
+<p>Finally, you need to make a Pull Request (PR) for your changes to be included in the SARKAS main repository.
+You can do this by following the instructions on this <a class="reference external" href="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request">link</a>.</p>
 </div>
 
 
@@ -340,7 +407,7 @@ to Sarkas</a> and get started.</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 08, 2021.<br/>
+      Last updated on May 11, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

@@ -4,7 +4,7 @@ Get Started
 
 .. warning::
     Sarkas is under heavy development and not yet available via package managers like ``pip`` and ``conda``.
-    Therefore, please follow the instructions `here <dev_setup>`_ for installation.
+    Therefore, please follow the instructions `here <https://murillo-group.github.io/sarkas/code_development/dev_setup#>`_ for installation.
 
 .. toctree::
     :maxdepth: 1
@@ -55,7 +55,7 @@ Once the environment has been activated you can install sarkas system wide via
 
     .. code-block:: bash
 
-        $ pip install sarkas-md
+        $ pip install sarkas
 
 
 External packages
