@@ -156,7 +156,7 @@ html_theme_options = {
     'navbar_links': [
         ("Get Started", "documentation/get_started"),
         ("Examples","examples/examples"),
-        ("Code Development", "code development/code_dev"),
+        ("Code Development", "code_development/code_dev"),
         ("API", "api/api"),
         ("Credits","credits/credits"),
     ],
@@ -185,7 +185,7 @@ html_js_files = [
 # Custom sidebar templates, maps document names to template names.
 html_sidebars = {
     'documentation/*': ['custom_localtoc.html'],
-    'code development/*': ['custom_localtoc.html'],
+    'code_development/*': ['custom_localtoc.html'],
     'theory/*': ['custom_localtoc.html'],
     }
 

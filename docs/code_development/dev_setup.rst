@@ -117,8 +117,8 @@ In more detail, ``pip`` will create a symlink to Sarkas' files in this folder, i
 in your python directory.
 
 For example: If you are using Anaconda the path to the directory will look something like this
-``path_to_directory/anaconda3/envs/sarkas/lib/python3.7/site-packages/``. In here you will find ``sarkas-md.egg-link``
-if in development mode or ``sarkas_md-0.1.0-py3.7.egg`` if default installation. Note that the ``0-1-0-py3.7``
+``path_to_directory/anaconda3/envs/sarkas/lib/python3.7/site-packages/``. In here you will find ``sarkas.egg-link``
+if in development mode or ``sarkas-0.1.0-py3.7.egg`` if default installation. Note that the ``0-1-0-py3.7``
 refers to Sarkas version and python version.
 
 To uninstall Sarkas you can run

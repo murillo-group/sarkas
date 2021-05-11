@@ -4,8 +4,10 @@ Module handling the MD run stages: PreProcessing, Simulation, PostProcessing.
 import numpy as np
 import copy as py_copy
 from numba import njit
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+
 import os
 
 # Sarkas modules
@@ -394,7 +396,7 @@ class PreProcess(Process):
         self.__name__ = 'preprocessing'
         self.loops = 10
         self.estimate = False
-        self.pm_meshes = np.array([16, 24, 32, 40, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
+        self.pm_meshes = np.array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
         self.pp_cells = np.arange(3, 16, dtype=int)
         self.kappa = None
         super().__init__(input_file)
@@ -553,9 +555,9 @@ class PreProcess(Process):
 
         print('\n\n----------------- Timing Study -----------------------')
 
-        # max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
-        # if max_cells != self.pp_cells[-1]:
-        #     self.pp_cells = np.arange(3, max_cells, dtype=int)
+        max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
+        if max_cells != self.pp_cells[-1]:
+            self.pp_cells = np.arange(3, max_cells, dtype=int)
 
         pm_times = np.zeros(len(self.pm_meshes))
         pm_errs = np.zeros(len(self.pm_meshes))
@@ -621,7 +623,8 @@ class PreProcess(Process):
             lambda x, a, b: a + 15 * b * x ** 3 * np.log2(x),
             self.pm_meshes,
             pm_times)
-        print('\n PM Time ~ a + 15 b M^3 log(M)  [s]\n a = {:.4e}, b = {:.4e} '.format(*pm_popt))
+        fit_str = 'Fit = a + 15 b M^3 log(M)  [s]\n a = {:.4e}, b = {:.4e} '.format(*pm_popt)
+        print('\nPM Time ' + fit_str)
 
         fig, (ax_pp, ax_pm) = plt.subplots(1, 2, sharey=True, figsize=(12, 7))
         ax_pm.plot(self.pm_meshes, pm_times, 'o', label='Measured')
@@ -630,13 +633,20 @@ class PreProcess(Process):
             pm_popt[0] + 15 * pm_popt[1] * self.pm_meshes ** 3 * np.log2(self.pm_meshes),
             ls='--', label='Fit')
         ax_pm.set(title='PM calculation time and estimate', yscale='log', xlabel='Mesh size')
-        ax_pm.legend()
+        ax_pm.legend(ncol=2)
+        ax_pm.annotate(
+            text = fit_str,
+            xy = (self.pm_meshes[-1], pm_times[-1]),
+            xytext = (self.pm_meshes[0], pm_times[-1]),
+            bbox=dict(boxstyle="round4", fc="white", ec="k", lw=2)
+            )
+        # ax_pm.text('PM Time ~ a + 15 b M^3 log(M)  [s]\n a = {:.4e}, b = {:.4e} '.format(*pm_popt))
         # fig.tight_layout()
 
         self.tot_time_map = np.zeros(pp_times.shape)
         for j, mesh_points in enumerate(self.pm_meshes):
             self.tot_time_map[j, :] = pm_times[j] + pp_times[j, :]
-            ax_pp.plot(self.pp_cells, pp_times[j], 'o', label='@ Mesh {}^3'.format(mesh_points))
+            ax_pp.plot(self.pp_cells, pp_times[j], 'o', label=r'@ Mesh {}$^3$'.format(mesh_points))
 
         pp_popt, _ = curve_fit(
             lambda x, b: b / x ** 3,
@@ -644,16 +654,21 @@ class PreProcess(Process):
             np.mean( pp_times, axis = 0),
             p0=[self.parameters.total_num_ptcls]
         )
-        print('\n PP Time ~ a / Cells**3  [s] \n a = {:.4e}'.format(*pp_popt))
+        fit_pp_str = 'Fit = a / Cells**3  [s] \n a = {:.4e}'.format(*pp_popt)
+        print('\nPP Time ' + fit_pp_str)
         ax_pp.plot(self.pp_cells, pp_popt[0] / self.pp_cells ** 3, ls='--', label='Fit')
-        ax_pp.legend()
+        ax_pp.legend(ncol = 2)
+        ax_pp.annotate(
+            text=fit_pp_str,
+            xy=(self.pp_cells[0], pp_times[0,0]),
+            xytext=(self.pp_cells[0], pp_times[-1, -1]),
+            bbox=dict(boxstyle="round4", fc="white", ec="k", lw=2)
+        )
         ax_pp.set(title='PP calculation time and estimate', yscale='log', ylabel='CPU Times [s]', xlabel='Cells')
         fig.tight_layout()
         fig.savefig(os.path.join(self.pppm_plots_dir, 'Times_' + self.io.job_id + '.png'))
 
-        self.make_force_error_map_plot()
-        self.make_time_map_plot()
-
+        self.make_force_v_timing_plot()
         # self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))
         # self.tot_times = np.empty((len(self.pm_meshes), len(self.pp_cells)))
         # self.pp_times = np.copy(pp_times)
@@ -706,58 +721,62 @@ class PreProcess(Process):
         ax.set_title('2D Lagrangian')
         fig.savefig(os.path.join(self.io.preprocessing_dir, '2D_Lagrangian.png'))
 
-    def make_time_map_plot(self):
+    def make_force_v_timing_plot(self):
+
         # Plot the results
         fig_path = self.pppm_plots_dir
         c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
 
-        maxt = self.tot_time_map.max()
-        mint = self.tot_time_map.min()
-        lvls = np.logspace(np.log10(mint), np.log10(maxt), 15)
-
-        fig, ax = plt.subplots(1, 1, figsize=(11, 7))
-        CS = ax.contourf(m_mesh,
-                         c_mesh,
-                         self.tot_time_map,
-                         levels=lvls)
-        CS2 = ax.contour(CS, colors='w', levels=lvls)
-        # for i in range(self.pp_cells.shape[0]):
-        #     ax.scatter(self.pp_cells[i] * np.ones( len(self.pm_meshes)), self.pm_meshes, s=100, c='k')
-        ax.clabel(CS2, fmt='%.2e', colors='w')
-        fig.colorbar(CS)
-        ax.set_xlabel('Mesh size')
-        ax.set_ylabel(r'No. Cells = $L/r_c$')
-        ax.set_title('CPU Times in seconds')
-        fig.tight_layout()
-        fig.savefig(os.path.join(fig_path, 'TimingMap_' + self.io.job_id + '.png'))
-
-    def make_force_error_map_plot(self):
-        # Plot the results
-        fig_path = self.pppm_plots_dir
-
-        c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
-        fig, ax = plt.subplots(1, 1, figsize=(11, 7))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 9))
         if self.force_error_map.min() == 0.0:
             minv = 1e-120
         else:
             minv = self.force_error_map.min()
 
         maxt = self.force_error_map.max()
-        # mint = self.tot_time_map.min()
-        lvls = np.logspace(np.log10(minv), np.log10(maxt), 10)
+        nlvl = 12
+        lvls = np.logspace(np.log10(minv), np.log10(maxt), nlvl)
 
-        CS = ax.contourf(m_mesh,
-                         c_mesh,
-                         self.force_error_map,
-                         levels=lvls,
-                         norm=LogNorm(vmin=minv, vmax=maxt))
-        CS2 = ax.contour(CS, colors='w', levels=lvls)
-        ax.clabel(CS2, fmt='%1.0e', colors='w')
-        fig.colorbar(CS, ticks=[])
-        ax.set_xlabel('Mesh size')
-        ax.set_ylabel(r'No. Cells = $L/r_c$')
-        ax.set_title('Force Error Map')
-        fig.savefig(os.path.join(fig_path, 'ForceErrorMap_' + self.io.job_id + '.png'))
+        luxmap = mpl.cm.get_cmap('viridis', nlvl)
+        luxnorm = mpl.colors.LogNorm(vmin=minv, vmax=maxt)
+        CS = ax1.contourf(m_mesh,
+                          c_mesh,
+                          self.force_error_map,
+                          levels=lvls,
+                          cmap=luxmap,
+                          norm=luxnorm)
+        clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax1)
+        clb.set_label(r'Force Error  [$Q^2/ a_{\rm ws}^2$]', rotation=270, va='bottom')
+        CS2 = ax1.contour(CS, colors='w')
+        ax1.clabel(CS2, fmt='%1.0e', colors='w')
+        ax1.set_xlabel('Mesh size')
+        ax1.set_ylabel(r'No. Cells = $L/r_c$')
+        ax1.set_title('Force Error Map')
+
+        # Timing Plot
+        maxt = self.tot_time_map.max()
+        mint = self.tot_time_map.min()
+        # nlvl = 13
+        lvls = np.logspace(np.log10(mint), np.log10(maxt), nlvl)
+        luxmap = mpl.cm.get_cmap('viridis', nlvl)
+        luxnorm = mpl.colors.LogNorm(vmin=minv, vmax=maxt)
+
+        CS = ax2.contourf(m_mesh,
+                          c_mesh,
+                          self.tot_time_map,
+                          levels=lvls, cmap=luxmap)
+        CS2 = ax2.contour(CS, colors='w', levels=lvls)
+        ax2.clabel(CS2, fmt='%.2e', colors='w')
+
+        # fig.colorbar(, ax = ax2)
+        clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap),
+                           ax=ax2)
+        clb.set_label('CPU Time [s]', rotation=270, va='bottom')
+
+        ax2.set_xlabel('Mesh size')
+        # ax2.set_ylabel(r'No. Cells = $L/r_c$')
+        ax2.set_title('Timing Map')
+        fig.savefig(os.path.join(fig_path, 'ForceErrorMap_v_Timing_' + self.io.job_id + '.png'))
 
     def time_acceleration(self):
 
@@ -922,7 +941,7 @@ class PreProcess(Process):
         ax[1].grid(True, alpha=0.3)
         ax[1].legend(loc='best')
         fig.suptitle(
-            r'Approximate Total Force error  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
+            r'Parameters  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
                 self.parameters.total_num_ptcls,
                 self.potential.pppm_mesh[0],
                 self.potential.pppm_cao,
@@ -969,14 +988,13 @@ class PreProcess(Process):
         # ax.tick_parameters(labelsize=fsz)
         ax.set_xlabel(r'$\alpha \;a_{ws}$')
         ax.set_ylabel(r'$r_c/a_{ws}$')
-        ax.set_title(
-            r'$\Delta F^{approx}_{tot}(r_c,\alpha)$'
-            + r'  for $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
+        ax.set_title(r'Parameters  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
                 self.parameters.total_num_ptcls,
                 self.potential.pppm_mesh[0],
                 self.potential.pppm_cao,
                 self.kappa * self.parameters.a_ws))
-        fig.colorbar(CS)
+        clb = fig.colorbar(CS)
+        clb.set_label(r'$\Delta F^{approx}_{tot}(r_c,\alpha)$', va='bottom', rotation = 270)
         fig.tight_layout()
         fig.savefig(os.path.join(fig_path, 'ClrMap_ForceError_' + self.io.job_id + '.png'))
 
