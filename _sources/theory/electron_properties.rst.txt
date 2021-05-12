@@ -107,18 +107,14 @@ The entropy is
 
     S = \frac{g}{\Lambda^3} \int d^3r \left (\frac 52 \mathcal F_{3/2}[\eta] - \eta \mathcal F_{1/2}[\eta] \right ) = \frac{2 g}{\sqrt{\pi} \Lambda^3 } \int d^3r \left ( \frac 53 \mathcal I_{3/2}[\eta] - \eta \mathcal I_{1/2}[\eta] \right ).
 
-Electron Parameters
--------------------
+Dimensionless Parameters
+------------------------
 
 Coupling parameters
 ^^^^^^^^^^^^^^^^^^^
 .. math::
 
-    \Gamma_e = \frac{\bar{e}^2\beta}{a_e},
-
-.. math::
-
-    r_s = a_e/a_0
+    \Gamma_e = \frac{\bar{e}^2\beta}{a_e}, \qquad  r_s = a_e/a_0
 
 where :math:`a_e` is the Wigner-Seitz radius of the electron gas and :math:`a_0 = \hbar^2/m_e \bar{e}^2` is the Bohr radius.
 

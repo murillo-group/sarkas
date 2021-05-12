@@ -69,7 +69,7 @@
           docHeight: null,
           isRunning: !1,
           enable: function (n) {
-            console.log("enable");
+            // console.log("enable");
             var t = this;
             void 0 === n && (n = !0),
               t.isRunning ||
@@ -98,13 +98,13 @@
                 }));
           },
           enableSticky: function () {
-              console.log("sticky");
+              console.log("enable sticky");
             this.enable(!0);
           },
           init: function (n) {
-            console.log("init");
+            // console.log("init");
   
-            console.log("Fix bugin scroll");
+            // console.log("Fix bugin scroll");
             window.scrollTo(0,0);
   
             n(document);
@@ -148,7 +148,7 @@
                 });
           },
           reset: function () {
-            console.log("reset");
+            // console.log("reset");
             var n = encodeURI(window.location.hash) || "#";
             try {
               var e = $(".bs-sidenav"),
@@ -165,16 +165,14 @@
                 t.addClass("current"),
                 t.closest("li.toctree-l1").addClass("current"),
                 t.closest("li.toctree-l1").parent().addClass("current"),
-                t.closest("li.toctree-l1").addClass("current"),
+                t.closest("li.toctree-l1").children().addClass("current"),
                 t.closest("li.toctree-l2").addClass("current"),
                 t.closest("li.toctree-l3").addClass("current"),
-                t.closest("li.toctree-l4").addClass("current"),
-                t.closest("li.toctree-l5").addClass("current"),
                 t[0].scrollIntoView());
             } catch (n) {
               console.log("Error expanding nav for anchor", n);
             }
-            console.log("Fix bugin scroll");
+            // console.log("Fix bugin scroll");
             whash = window.location.hash;
             console.log(whash);
             if (whash) {
@@ -183,7 +181,7 @@
             }
           },
           onScroll: function () {
-            console.log("onscroll");
+            // console.log("onscroll");
             this.winScroll = !1;
             var n = this.win.scrollTop(),
               e = n + this.winHeight,
@@ -217,7 +215,7 @@
               StickyNav: n.exports.ThemeNav,
             }),
           (function () {
-            console.log("here")
+            // console.log("here")
             for (
               var n = 0, e = ["ms", "moz", "webkit", "o"], t = 0;
               t < e.length && !window.requestAnimationFrame;
