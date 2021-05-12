@@ -122,7 +122,11 @@ div.body {
   /*******************************/
   
 
-/*******************/
+/*********
+side navigation slightly modified from 
+https://github.com/netket/netket/blob/master/docs/_static/css/rtd_theme.css
+**********/
+
 
 .bs-sidenav {
   position: static;
@@ -133,6 +137,121 @@ div.body {
   padding: 10px;
 }
 
+.bs-sidenav p.caption {
+  color: var(--clr-nav_primary);
+  height: 2rem;
+  line-height: 2rem;
+  padding: 0 1.618em;
+  margin: 1em 0 0;
+  display: block;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 90%;
+  white-space: nowrap;
+
+  filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, .3));
+}
+.bs-sidenav ul {
+  margin-bottom: 0;
+}
+.bs-sidenav li.divide-top {
+  border-top: 1px solid #404040;
+}
+.bs-sidenav li.divide-bottom {
+  border-bottom: 1px solid #404040;
+}
+.bs-sidenav li.current {
+  background: #e3e3e3;
+}
+.bs-sidenav li.current a {
+  color: grey;
+  border-right: 1px solid #c9c9c9;
+  padding: 0.4045em 2.427em;
+}
+.bs-sidenav li.current a:hover {
+  background: #d6d6d6;
+}
+.bs-sidenav li span.toctree-expand {
+  display: block;
+  float: left;
+  margin-left: -1.2em;
+  font-size: 0.8em;
+  line-height: 1.6em;
+  color: #4d4d4d;
+}
+.bs-sidenav li.current > a,
+.bs-sidenav li.on a {
+  color: #404040;
+  font-weight: 700;
+  position: relative;
+  background: #fcfcfc;
+  border: none;
+  padding: 0.4045em 1.618em;
+}
+.bs-sidenav li.current > a:hover,
+.bs-sidenav li.on a:hover {
+  background: #fcfcfc;
+}
+.bs-sidenav li.current > a:hover span.toctree-expand,
+.bs-sidenav li.on a:hover span.toctree-expand {
+  color: grey;
+}
+.bs-sidenav li.current > a span.toctree-expand,
+.bs-sidenav li.on a span.toctree-expand {
+  display: block;
+  font-size: 0.8em;
+  line-height: 1.6em;
+  color: #333;
+}
+.bs-sidenav li.toctree-l1.current > a {
+  border-bottom: 1px solid #c9c9c9;
+  border-top: 1px solid #c9c9c9;
+}
+.bs-sidenav .toctree-l1.current .toctree-l2 > ul,
+.bs-sidenav .toctree-l2.current .toctree-l3 > ul, 
+.bs-sidenav .toctree-l3.current .toctree-l4 > ul{
+  display: none;
+}
+.bs-sidenav .toctree-l1.current .current.toctree-l2 > ul,
+.bs-sidenav .toctree-l2.current .current.toctree-l3 > ul,
+.bs-sidenav .toctree-l3.current .current.toctree-l4 > ul {
+  display: block;
+}
+.bs-sidenav li.toctree-l3{
+  font-size: 0.9em;
+}
+.bs-sidenav li.toctree-l2 a,
+.bs-sidenav li.toctree-l3 a {
+  color: #404040;
+}
+.bs-sidenav li.toctree-l2 a:hover span.toctree-expand,
+.bs-sidenav li.toctree-l3 a:hover span.toctree-expand{
+  color: grey;
+}
+.bs-sidenav li.toctree-l2.current li.toctree-l3 > a {
+  display: block;
+}
+.bs-sidenav li.toctree-l2.current > a {
+  padding: 0.4045em 2.427em;
+}
+.bs-sidenav li.toctree-l2.current li.toctree-l3 > a,
+.bs-sidenav li.toctree-l3.current > a {
+  padding: 0.4045em 4.045em;
+}
+.bs-sidenav li.toctree-l2.current > a,
+.bs-sidenav li.toctree-l2.current li.toctree-l3 > a {
+  background: #c9c9c9;
+}
+.bs-sidenav li.toctree-l2 span.toctree-expand {
+  color: #a3a3a3;
+}
+.bs-sidenav li.toctree-l3.current > a,
+.bs-sidenav li.toctree-l3.current li.toctree-l4 > a {
+  background: #bdbdbd;
+}
+.bs-sidenav li.toctree-l3 span.toctree-expand {
+  color: #969696;
+}
 .bs-sidenav li.current ul {
   display: block;
 }
@@ -140,17 +259,29 @@ div.body {
   margin-bottom: 0;
   display: none;
 }
+.bs-sidenav li ul li a {
+  margin-bottom: 0;
+  color: #d9d9d9;
+  font-weight: 400;
+}
+.bs-sidenav a {
+  line-height: 18px;
+  padding: 0.4045em 1.618em;
+  display: block;
+  position: relative;
+  font-size: 90%;
+  color: #d9d9d9;
+}
+.bs-sidenav a:hover {
+  background-color: #4e4a4a;
+  cursor: pointer;
+}
 
 /* Show and affix the side nav when space allows it */
 @media screen and (min-width: 768px) {
   .bs-sidenav .nav > .active > ul {
     display: block;
     position: fixed;
-  }
-  /* Widen the fixed sidenav */
-  .bs-sidenav.affix,
-  .bs-sidenav.affix-top,
-  .bs-sidenav.affix-bottom {
   }
   .bs-sidenav.affix {
     position: fixed; /* Undo the static from mobile first approach */
@@ -182,12 +313,14 @@ div.body {
   padding-left: 5px;
 }
 
-.bs-sidenav.affix-top {
+.bs-sidenav.affix,
+.bs-sidenav.affix-top,
+.bs-sidenav.affix-bottom  {
   background-color: #fff;
 }
 
 .reference.internal.nav-header::before {
-  content: "";
+  content:"\f105"; /*angle right symbol*/  /*"\f067";plus sign*/
   font-family: "FontAwesome";
   display: inline-block;
   font-style: normal;
@@ -198,11 +331,10 @@ div.body {
   left: -5px;
 }
 .current.reference.internal.nav-header::before {
-  content: ""; 
+  content: "\f107";/*angle down symbol*/ /*"\f068"; minus sign*/
   visibility: visible;
 }
 .current.reference.internal.nav-header{
-  /* background-color: var(--clr-nav_accent); */
   color: var(--clr-nav_secondary);
   font-weight: 800;
 }
