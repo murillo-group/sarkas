@@ -194,7 +194,7 @@ class Observable:
 
         Parameters
         ----------
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's Parameters.
 
         phase : str
@@ -769,7 +769,7 @@ class CurrentCorrelationFunction(Observable):
         phase : str
             Phase to compute. Default = 'production'.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :
@@ -1036,7 +1036,7 @@ class DynamicStructureFactor(Observable):
         phase : str
             Phase to compute. Default = 'production'.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :
@@ -1244,7 +1244,7 @@ class ElectricCurrent(Observable):
         phase : str
             Phase to compute. Default = 'production'.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :
@@ -1443,7 +1443,7 @@ class RadialDistributionFunction(Observable):
         phase : str
             Phase to compute. Default = 'production'.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :
@@ -1591,7 +1591,7 @@ class StaticStructureFactor(Observable):
         phase : str
             Phase to compute. Default = 'production'.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :
@@ -1750,7 +1750,7 @@ class Thermodynamics(Observable):
         phase : str
             Phase to compute. Default = 'production'.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :
@@ -2202,7 +2202,7 @@ class VelocityAutoCorrelationFunction(Observable):
         phase : str
             Phase to compute. Default = 'production'.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :
@@ -2340,7 +2340,7 @@ class DiffusionFlux(Observable):
         phase : str
             Phase to compute. Default = 'production'.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         no_slices : int
@@ -2546,7 +2546,7 @@ class VelocityDistribution(Observable):
         max_no_moment : int
             Maximum number of moments to calculate. Default = 6.
 
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :

@@ -699,7 +699,7 @@ class Particles:
 
         Parameters
         ----------
-        params: sarkas.base.Parameters
+        params: sarkas.core.Parameters
             Simulation's parameters.
 
         species : list
@@ -759,7 +759,7 @@ class Particles:
 
         Parameters
         ----------
-        params: sarkas.base.Parameters
+        params: sarkas.core.Parameters
             Simulation's parameters.
 
         """

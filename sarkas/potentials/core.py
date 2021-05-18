@@ -131,7 +131,7 @@ class Potential:
 
         Parameters
         ----------
-        params: sarkas.base.Parameters
+        params: sarkas.core.Parameters
             Simulation's parameters.
 
         """
@@ -224,7 +224,7 @@ class Potential:
 
         Parameters
         ----------
-        params: sarkas.base.Parameters
+        params: sarkas.core.Parameters
             Simulation's parameters.
 
         """
@@ -308,7 +308,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
         """
@@ -328,7 +328,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
         """
@@ -346,7 +346,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls : sarkas.base.Particles
+        ptcls : sarkas.core.Particles
             Particles' data
 
         """
@@ -369,7 +369,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls : sarkas.base.Particles
+        ptcls : sarkas.core.Particles
             Particles' data
 
         """
@@ -381,7 +381,7 @@ class Potential:
 
         Parameters
         ----------
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters
 
         """

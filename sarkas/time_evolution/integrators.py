@@ -114,7 +114,7 @@ class Integrator:
         thermostat: sarkas.time_evolution.thermostat
             Thermostat class
 
-        potential: sarkas.potentials.base.Potential
+        potential: sarkas.potentials.core.Potential
             Potential class.
 
         """
@@ -254,7 +254,7 @@ class Integrator:
         it_start: int
             Initial step of equilibration.
 
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles' class.
 
         checkpoint: sarkas.utilities.InputOutput
@@ -288,7 +288,7 @@ class Integrator:
         it_start: int
             Initial step of production phase.
 
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles' class.
 
         checkpoint: sarkas.utilities.InputOutput
@@ -309,7 +309,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
 
@@ -348,7 +348,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
         """
@@ -391,7 +391,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
         Returns
@@ -464,7 +464,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
         Returns
@@ -528,7 +528,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
         Returns
@@ -598,7 +598,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
         Returns

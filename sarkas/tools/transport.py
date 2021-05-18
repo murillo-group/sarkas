@@ -37,7 +37,7 @@ class TransportCoefficient:
 
         Parameters
         ----------
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         phase : str
@@ -170,7 +170,7 @@ class TransportCoefficient:
 
         Parameters
         ----------
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         phase : str, optional
@@ -408,7 +408,7 @@ class TransportCoefficient:
 
         Parameters
         ----------
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         phase : str, optional
@@ -555,7 +555,7 @@ class TransportCoefficient:
 
         Parameters
         ----------
-        params : sarkas.base.Parameters
+        params : sarkas.core.Parameters
             Simulation's parameters.
 
         phase : str

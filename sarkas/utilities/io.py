@@ -521,7 +521,7 @@ class InputOutput:
 
             elif str_id == "PP":
                 print('Time of PP acceleration calculation averaged over {} steps: \n'
-                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops - 1,
                                                                         int(t_min),
                                                                         int(t_sec),
                                                                         int(t_msec),
@@ -530,7 +530,7 @@ class InputOutput:
 
             elif str_id == "PM":
                 print('Time of PM acceleration calculation averaged over {} steps: \n'
-                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops - 1,
                                                                         int(t_min),
                                                                         int(t_sec),
                                                                         int(t_msec),
@@ -539,7 +539,7 @@ class InputOutput:
 
             elif str_id == "Equilibration":
                 print('Time of a single equilibration step averaged over {} steps: \n'
-                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops - 1,
                                                                         int(t_min),
                                                                         int(t_sec),
                                                                         int(t_msec),
@@ -547,7 +547,7 @@ class InputOutput:
                                                                         int(t_nsec)))
             elif str_id == "Magnetization":
                 print('Time of a single magnetization step averaged over {} steps: \n'
-                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops - 1,
                                                                         int(t_min),
                                                                         int(t_sec),
                                                                         int(t_msec),
@@ -555,7 +555,7 @@ class InputOutput:
                                                                         int(t_nsec)))
             elif str_id == "Production":
                 print('Time of a single production step averaged over {} steps: \n'
-                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops,
+                      '{} min {} sec {} msec {} usec {} nsec \n'.format(loops - 1,
                                                                         int(t_min),
                                                                         int(t_sec),
                                                                         int(t_msec),
@@ -943,10 +943,10 @@ class InputOutput:
 
         Parameters
         ----------
-        params: sarkas.base.Parameters
+        params: sarkas.core.Parameters
             General simulation parameters.
 
-        species: sarkas.base.Species
+        species: sarkas.core.Species
             List of Species classes.
 
         """
@@ -1082,7 +1082,7 @@ class InputOutput:
         phase: str
             Simulation phase.
 
-        ptcls: sarkas.base.Particles
+        ptcls: sarkas.core.Particles
             Particles data.
 
         it : int

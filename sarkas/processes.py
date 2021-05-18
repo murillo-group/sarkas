@@ -13,10 +13,10 @@ import os
 # Sarkas modules
 from sarkas.utilities.io import InputOutput
 from sarkas.utilities.timing import SarkasTimer
-from sarkas.potentials.base import Potential
+from sarkas.potentials.core import Potential
 from sarkas.time_evolution.integrators import Integrator
 from sarkas.time_evolution.thermostats import Thermostat
-from sarkas.base import Particles, Parameters, Species
+from sarkas.core import Particles, Parameters, Species
 import sarkas.tools.observables as sk_obs
 
 
@@ -39,10 +39,10 @@ class Process:
     thermostat: sarkas.time_evolution.thermostats.Thermostat
         Class handling the equilibration thermostat.
 
-    particles: sarkas.base.Particles
+    particles: sarkas.core.Particles
         Class handling particles properties.
 
-    parameters: sarkas.base.Parameters
+    parameters: sarkas.core.Parameters
         Class handling simulation's parameters.
 
     species: list
@@ -158,6 +158,66 @@ class Process:
         if 'Transport' in dics.keys():
             self.transport_dict = dics["Transport"].copy()
 
+    def initialization(self):
+        """Initialize all classes."""
+
+        # initialize the directories and filenames
+        self.io.setup()
+
+        # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+
+        # Update parameters' dictionary with filenames and directories
+        self.parameters.from_dict(self.io.__dict__)
+        # save some general info
+        self.parameters.potential_type = self.potential.type
+        self.parameters.cutoff_radius = self.potential.rc
+        self.parameters.integrator = self.integrator.type
+        self.parameters.thermostat = self.thermostat.type
+
+        # Copy some integrator parameters if not already defined
+        if not hasattr(self.parameters, 'dt'):
+            self.parameters.dt = self.integrator.dt
+        if not hasattr(self.parameters, 'equilibration_steps'):
+            self.parameters.equilibration_steps = self.integrator.equilibration_steps
+        if not hasattr(self.parameters, 'eq_dump_step'):
+            self.parameters.eq_dump_step = self.integrator.eq_dump_step
+        if not hasattr(self.parameters, 'production_steps'):
+            self.parameters.production_steps = self.integrator.production_steps
+        if not hasattr(self.parameters, 'prod_dump_step'):
+            self.parameters.prod_dump_step = self.integrator.prod_dump_step
+
+        # Check for magnetization phase
+        if self.integrator.electrostatic_equilibration:
+            self.parameters.electrostatic_equilibration = True
+            if not hasattr(self.parameters, 'mag_dump_step'):
+                self.parameters.mag_dump_step = self.integrator.mag_dump_step
+            if not hasattr(self.parameters, 'magnetization_steps'):
+                self.parameters.magnetization_steps = self.integrator.magnetization_steps
+
+        self.parameters.setup(self.species)
+
+        t0 = self.timer.current()
+        self.potential.setup(self.parameters)
+        time_pot = self.timer.current()
+
+        self.thermostat.setup(self.parameters)
+        self.integrator.setup(self.parameters, self.thermostat, self.potential)
+        self.particles.setup(self.parameters, self.species)
+        time_ptcls = self.timer.current()
+
+        # For restart and backups.
+        self.io.setup_checkpoint(self.parameters, self.species)
+        self.io.save_pickle(self)
+
+        # Print Process summary to file and screen
+        self.io.simulation_summary(self)
+        time_end = self.timer.current()
+
+        # Print timing
+        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
+        self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
+        self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
+
     def setup(self, read_yaml=False, other_inputs=None):
         """Setup simulations' parameters and io subclasses.
 
@@ -239,62 +299,7 @@ class Process:
             #         self.__dict__[obs].setup(self.parameters)
 
         else:
-            # initialize the directories and filenames
-            self.io.setup()
-
-            # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
-
-            # Update parameters' dictionary with filenames and directories
-            self.parameters.from_dict(self.io.__dict__)
-            # save some general info
-            self.parameters.potential_type = self.potential.type
-            self.parameters.cutoff_radius = self.potential.rc
-            self.parameters.integrator = self.integrator.type
-            self.parameters.thermostat = self.thermostat.type
-
-            # Copy some integrator parameters if not already defined
-            if not hasattr(self.parameters, 'dt'):
-                self.parameters.dt = self.integrator.dt
-            if not hasattr(self.parameters, 'equilibration_steps'):
-                self.parameters.equilibration_steps = self.integrator.equilibration_steps
-            if not hasattr(self.parameters, 'eq_dump_step'):
-                self.parameters.eq_dump_step = self.integrator.eq_dump_step
-            if not hasattr(self.parameters, 'production_steps'):
-                self.parameters.production_steps = self.integrator.production_steps
-            if not hasattr(self.parameters, 'prod_dump_step'):
-                self.parameters.prod_dump_step = self.integrator.prod_dump_step
-
-            # Check for magnetization phase
-            if self.integrator.electrostatic_equilibration:
-                self.parameters.electrostatic_equilibration = True
-                if not hasattr(self.parameters, 'mag_dump_step'):
-                    self.parameters.mag_dump_step = self.integrator.mag_dump_step
-                if not hasattr(self.parameters, 'magnetization_steps'):
-                    self.parameters.magnetization_steps = self.integrator.magnetization_steps
-
-            self.parameters.setup(self.species)
-
-            t0 = self.timer.current()
-            self.potential.setup(self.parameters)
-            time_pot = self.timer.current()
-
-            self.thermostat.setup(self.parameters)
-            self.integrator.setup(self.parameters, self.thermostat, self.potential)
-            self.particles.setup(self.parameters, self.species)
-            time_ptcls = self.timer.current()
-
-            # For restart and backups.
-            self.io.setup_checkpoint(self.parameters, self.species)
-            self.io.save_pickle(self)
-
-            # Print Process summary to file and screen
-            self.io.simulation_summary(self)
-            time_end = self.timer.current()
-
-            # Print timing
-            self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
-            self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
-            self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
+            self.initialization()
 
         if self.parameters.plot_style:
             plt.style.use(self.parameters.plot_style)
@@ -1201,36 +1206,9 @@ class Simulation(Process):
         time_end = self.timer.stop()
         self.io.time_stamp("Production", self.timer.time_division(time_end))
 
-    def initialization(self) -> None:
-        """
-        Initialize all the sub classes of the simulation and save simulation details to log file.
-        """
-
-        # Start timer and initialize Potential class.
-        t0 = self.timer.current()
-        self.potential.setup(self.parameters)
-        time_pot = self.timer.current()
-
-        # Initialize the other classes.
-        self.thermostat.setup(self.parameters)
-        self.integrator.setup(self.parameters, self.thermostat, self.potential)
-        self.particles.setup(self.parameters, self.species)
-        time_ptcls = self.timer.current()
-
-        # For restart and backups.
-        self.io.save_pickle(self)
-        self.io.simulation_summary(self)
-        time_end = self.timer.current()
-
-        # Print Timing.
-        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
-        self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
-        self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
-
     def run(self) -> None:
         """Run the simulation."""
         time0 = self.timer.current()
-        self.initialization()
 
         if not self.parameters.load_method in ['prod_restart', 'production_restart']:
             self.equilibrate()

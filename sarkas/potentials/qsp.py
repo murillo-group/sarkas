@@ -31,7 +31,7 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potentials.base.Potential
+    potential : sarkas.potentials.core.Potential
         Class handling potential form.
 
     params : object

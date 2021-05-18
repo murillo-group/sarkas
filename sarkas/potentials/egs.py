@@ -12,10 +12,10 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potentials.base.Potential
+    potential : sarkas.potentials.core.Potential
         Class handling potential form.
 
-    params: sarkas.base.Parameters
+    params: sarkas.core.Parameters
         Simulation's parameters.
 
     """
