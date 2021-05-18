@@ -18,7 +18,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   sarkas.base
+   sarkas.core
    sarkas.processes
 
 Module contents

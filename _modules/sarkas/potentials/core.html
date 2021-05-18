@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sarkas.potentials.base &#8212; Sarkas 0.1.0 documentation</title>
+    <title>sarkas.potentials.core &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -134,7 +134,7 @@
   <div class="row">
     <div class="body col-md-12 content" role="main">
       
-  <h1>Source code for sarkas.potentials.base</h1><div class="highlight"><pre>
+  <h1>Source code for sarkas.potentials.core</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module handling the potential class.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -144,7 +144,7 @@
 <span class="kn">import</span> <span class="nn">fdint</span>
 
 
-<div class="viewcode-block" id="Potential"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential">[docs]</a><span class="k">class</span> <span class="nc">Potential</span><span class="p">:</span>
+<div class="viewcode-block" id="Potential"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential">[docs]</a><span class="k">class</span> <span class="nc">Potential</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parameters specific to potential choice.</span>
 
@@ -250,7 +250,7 @@
         <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
         <span class="k">return</span> <span class="n">disp</span>
 
-<div class="viewcode-block" id="Potential.from_dict"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Potential.from_dict"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update attributes from input dictionary.</span>
 
@@ -263,12 +263,12 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Potential.setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Potential.setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Setup the potential class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        params: sarkas.base.Parameters</span>
+<span class="sd">        params: sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -355,13 +355,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_net_charge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">measure</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">measure</span></div>
 
-<div class="viewcode-block" id="Potential.calc_electron_properties"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.calc_electron_properties">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Potential.calc_electron_properties"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential.calc_electron_properties">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">calc_electron_properties</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate electronic parameters. See DFT notes on website.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        params: sarkas.base.Parameters</span>
+<span class="sd">        params: sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -439,13 +439,13 @@
             <span class="n">params</span><span class="o">.</span><span class="n">horing_delta</span> <span class="o">+=</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">hbar</span><span class="o">*</span> <span class="n">beta_e</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_cyclotron_frequency</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="mi">12</span>
             <span class="n">params</span><span class="o">.</span><span class="n">horing_delta</span> <span class="o">/=</span> <span class="n">params</span><span class="o">.</span><span class="n">horing_par_correction</span></div>
 
-<div class="viewcode-block" id="Potential.update_linked_list"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.update_linked_list">[docs]</a>    <span class="k">def</span> <span class="nf">update_linked_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.update_linked_list"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential.update_linked_list">[docs]</a>    <span class="k">def</span> <span class="nf">update_linked_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the pp part of the acceleration.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls: sarkas.base.Particles</span>
+<span class="sd">        ptcls: sarkas.core.Particles</span>
 <span class="sd">            Particles data.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -459,13 +459,13 @@
             <span class="n">dipole</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">charges</span> <span class="o">@</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span>
             <span class="n">ptcls</span><span class="o">.</span><span class="n">potential_energy</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dipole</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Potential.update_brute"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.update_brute">[docs]</a>    <span class="k">def</span> <span class="nf">update_brute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.update_brute"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential.update_brute">[docs]</a>    <span class="k">def</span> <span class="nf">update_brute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate particles&#39; acceleration and potential brutally.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls: sarkas.base.Particles</span>
+<span class="sd">        ptcls: sarkas.core.Particles</span>
 <span class="sd">            Particles data.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -478,12 +478,12 @@
             <span class="n">dipole</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">charges</span> <span class="o">@</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span>
             <span class="n">ptcls</span><span class="o">.</span><span class="n">potential_energy</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dipole</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Potential.update_pm"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.update_pm">[docs]</a>    <span class="k">def</span> <span class="nf">update_pm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.update_pm"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential.update_pm">[docs]</a>    <span class="k">def</span> <span class="nf">update_pm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the pm part of the potential and acceleration.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls : sarkas.base.Particles</span>
+<span class="sd">        ptcls : sarkas.core.Particles</span>
 <span class="sd">            Particles&#39; data</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -501,24 +501,24 @@
 
         <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">+=</span> <span class="n">acc_l_r</span></div>
 
-<div class="viewcode-block" id="Potential.update_pppm"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.update_pppm">[docs]</a>    <span class="k">def</span> <span class="nf">update_pppm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.update_pppm"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential.update_pppm">[docs]</a>    <span class="k">def</span> <span class="nf">update_pppm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate particles&#39; potential and accelerations using pppm method.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls : sarkas.base.Particles</span>
+<span class="sd">        ptcls : sarkas.core.Particles</span>
 <span class="sd">            Particles&#39; data</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_linked_list</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_pm</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Potential.pppm_setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.base.html#sarkas.potentials.base.Potential.pppm_setup">[docs]</a>    <span class="k">def</span> <span class="nf">pppm_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Potential.pppm_setup"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential.pppm_setup">[docs]</a>    <span class="k">def</span> <span class="nf">pppm_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the P3M parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        params : sarkas.base.Parameters</span>
+<span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -591,7 +591,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 12, 2021.<br/>
+      Last updated on May 18, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

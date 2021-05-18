@@ -236,7 +236,7 @@
 <dl class="py attribute">
 <dt id="sarkas.processes.PreProcess.kappa">
 <code class="sig-name descname"><span class="pre">kappa</span></code><a class="headerlink" href="#sarkas.processes.PreProcess.kappa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Screening parameter. Calculated from <a class="reference internal" href="sarkas.potentials.base.html#sarkas.potentials.base.Potential.matrix" title="sarkas.potentials.base.Potential.matrix"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.potentials.base.Potential.matrix()</span></code></a>.</p>
+<dd><p>Screening parameter. Calculated from <code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.potentials.base.Potential.matrix()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
@@ -407,7 +407,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Class handling particles properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles">sarkas.base.Particles</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles">sarkas.core.Particles</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -418,7 +418,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Class handling simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="sarkas.base.html#sarkas.base.Parameters" title="sarkas.base.Parameters">sarkas.base.Parameters</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters">sarkas.core.Parameters</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -426,7 +426,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dl class="py attribute">
 <dt id="sarkas.processes.Process.species">
 <code class="sig-name descname"><span class="pre">species</span></code><a class="headerlink" href="#sarkas.processes.Process.species" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of <a class="reference internal" href="sarkas.base.html#sarkas.base.Species" title="sarkas.base.Species"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.base.Species()</span></code></a> classes.</p>
+<dd><p>List of <code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.base.Species()</span></code> classes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
@@ -482,6 +482,12 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 </dd></dl>
 
 <dl class="py method">
+<dt id="sarkas.processes.Process.initialization">
+<code class="sig-name descname"><span class="pre">initialization</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Process.initialization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Process.initialization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all classes.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sarkas.processes.Process.setup">
 <code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Process.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Process.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup simulations’ parameters and io subclasses.</p>
@@ -522,17 +528,6 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dt id="sarkas.processes.Simulation.evolve">
 <code class="sig-name descname"><span class="pre">evolve</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.evolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Simulation.evolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the time integrator to evolve the system for the duration of the production phase.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="sarkas.processes.Simulation.initialization">
-<code class="sig-name descname"><span class="pre">initialization</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation.initialization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Simulation.initialization" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize all the sub classes of the simulation and save simulation details to log file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
@@ -602,7 +597,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 12, 2021.<br/>
+      Last updated on May 18, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

@@ -658,7 +658,7 @@
 
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of PP acceleration calculation averaged over </span><span class="si">{}</span><span class="s1"> steps: </span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
+                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
@@ -667,7 +667,7 @@
 
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;PM&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of PM acceleration calculation averaged over </span><span class="si">{}</span><span class="s1"> steps: </span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
+                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
@@ -676,7 +676,7 @@
 
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;Equilibration&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of a single equilibration step averaged over </span><span class="si">{}</span><span class="s1"> steps: </span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
+                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
@@ -684,7 +684,7 @@
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;Magnetization&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of a single magnetization step averaged over </span><span class="si">{}</span><span class="s1"> steps: </span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
+                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
@@ -692,7 +692,7 @@
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_nsec</span><span class="p">)))</span>
             <span class="k">elif</span> <span class="n">str_id</span> <span class="o">==</span> <span class="s2">&quot;Production&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of a single production step averaged over </span><span class="si">{}</span><span class="s1"> steps: </span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span><span class="p">,</span>
+                      <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> min </span><span class="si">{}</span><span class="s1"> sec </span><span class="si">{}</span><span class="s1"> msec </span><span class="si">{}</span><span class="s1"> usec </span><span class="si">{}</span><span class="s1"> nsec </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loops</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_min</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_sec</span><span class="p">),</span>
                                                                         <span class="nb">int</span><span class="p">(</span><span class="n">t_msec</span><span class="p">),</span>
@@ -1080,10 +1080,10 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        params: sarkas.base.Parameters</span>
+<span class="sd">        params: sarkas.core.Parameters</span>
 <span class="sd">            General simulation parameters.</span>
 
-<span class="sd">        species: sarkas.base.Species</span>
+<span class="sd">        species: sarkas.core.Species</span>
 <span class="sd">            List of Species classes.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1219,7 +1219,7 @@
 <span class="sd">        phase: str</span>
 <span class="sd">            Simulation phase.</span>
 
-<span class="sd">        ptcls: sarkas.base.Particles</span>
+<span class="sd">        ptcls: sarkas.core.Particles</span>
 <span class="sd">            Particles data.</span>
 
 <span class="sd">        it : int</span>
@@ -1446,7 +1446,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 12, 2021.<br/>
+      Last updated on May 18, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

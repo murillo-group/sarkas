@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sarkas.base &#8212; Sarkas 0.1.0 documentation</title>
+    <title>sarkas.core &#8212; Sarkas 0.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -134,7 +134,7 @@
   <div class="row">
     <div class="body col-md-12 content" role="main">
       
-  <h1>Source code for sarkas.base</h1><div class="highlight"><pre>
+  <h1>Source code for sarkas.core</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module containing the three basic classes: Parameters, Particles, Species.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -144,7 +144,7 @@
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 
 
-<div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters">[docs]</a><span class="k">class</span> <span class="nc">Parameters</span><span class="p">:</span>
+<div class="viewcode-block" id="Parameters"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Parameters">[docs]</a><span class="k">class</span> <span class="nc">Parameters</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class containing all the constants and physical constants of the simulation.</span>
 
@@ -397,7 +397,7 @@
         <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
         <span class="k">return</span> <span class="n">disp</span>
 
-<div class="viewcode-block" id="Parameters.from_dict"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameters.from_dict"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Parameters.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update attributes from input dictionary.</span>
 
@@ -409,7 +409,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Parameters.setup"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameters.setup"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Parameters.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup simulations&#39; parameters.</span>
 
@@ -423,7 +423,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">calc_parameters</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calc_coupling_constant</span><span class="p">(</span><span class="n">species</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Parameters.check_units"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.check_units">[docs]</a>    <span class="k">def</span> <span class="nf">check_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Parameters.check_units"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Parameters.check_units">[docs]</a>    <span class="k">def</span> <span class="nf">check_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Adjust default physical constants for cgs unit system and check for LJ potential.&quot;&quot;&quot;</span>
         <span class="c1"># Physical constants</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
@@ -444,7 +444,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">=</span> <span class="mf">1.0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_lj_sigmas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Parameters.calc_parameters"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.calc_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">calc_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameters.calc_parameters"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Parameters.calc_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">calc_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign the parsed parameters.</span>
 
@@ -618,7 +618,7 @@
         <span class="c1"># Redundancy!!!</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_ion_temperature</span></div>
 
-<div class="viewcode-block" id="Parameters.calc_coupling_constant"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.calc_coupling_constant">[docs]</a>    <span class="k">def</span> <span class="nf">calc_coupling_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameters.calc_coupling_constant"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Parameters.calc_coupling_constant">[docs]</a>    <span class="k">def</span> <span class="nf">calc_coupling_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the coupling constant of each species and the total coupling constant. For more information see</span>
 <span class="sd">        the theory pages.</span>
@@ -637,7 +637,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">species_couplings</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">coupling</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">coupling_constant</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">concentration</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">coupling</span></div>
 
-<div class="viewcode-block" id="Parameters.pretty_print"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Parameters.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electron_properties</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameters.pretty_print"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Parameters.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electron_properties</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print simulation parameters in a user-friendly way.</span>
 
@@ -723,7 +723,7 @@
                 <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Particles"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles">[docs]</a><span class="k">class</span> <span class="nc">Particles</span><span class="p">:</span>
+<div class="viewcode-block" id="Particles"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles">[docs]</a><span class="k">class</span> <span class="nc">Particles</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class handling particles&#39; properties.</span>
 
@@ -830,13 +830,13 @@
         <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
         <span class="k">return</span> <span class="n">disp</span>
 
-<div class="viewcode-block" id="Particles.setup"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.setup"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize class&#39; attributes</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        params: sarkas.base.Parameters</span>
+<span class="sd">        params: sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
 <span class="sd">        species : list</span>
@@ -888,7 +888,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize particles&#39; positions and velocities.</span>
 <span class="sd">        Positions are initialized based on the load method while velocities are chosen</span>
@@ -896,7 +896,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        params: sarkas.base.Parameters</span>
+<span class="sd">        params: sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -938,7 +938,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Incorrect particle placement scheme specified.&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.gaussian"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.gaussian">[docs]</a>    <span class="k">def</span> <span class="nf">gaussian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">num_ptcls</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.gaussian"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.gaussian">[docs]</a>    <span class="k">def</span> <span class="nf">gaussian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">num_ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize particles&#39; velocities according to a normalized Maxwell-Boltzmann (Normal) distribution.</span>
 <span class="sd">        It calls ``numpy.random.Generator.normal``</span>
@@ -962,7 +962,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd_gen</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="p">(</span><span class="n">num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Particles.update_attributes"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.update_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">update_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.update_attributes"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.update_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">update_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign particles attributes.</span>
 
@@ -1001,7 +1001,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">initial_velocity</span><span class="p">,</span>
                                                                        <span class="bp">self</span><span class="o">.</span><span class="n">species_thermal_velocity</span><span class="p">[</span><span class="n">ic</span><span class="p">],</span> <span class="n">sp</span><span class="o">.</span><span class="n">num</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Particles.load_from_restart"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.load_from_restart">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load_from_restart"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.load_from_restart">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load particles&#39; data from a checkpoint of a previous run</span>
 
@@ -1045,7 +1045,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">pbc_cntr</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;cntr&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rdf_hist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rdf_hist&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.load_from_file"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.load_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load particles&#39; data from a specific file.</span>
 
@@ -1068,7 +1068,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_data</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Particles.uniform_no_reject"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.uniform_no_reject">[docs]</a>    <span class="k">def</span> <span class="nf">uniform_no_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mins</span><span class="p">,</span> <span class="n">maxs</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.uniform_no_reject"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.uniform_no_reject">[docs]</a>    <span class="k">def</span> <span class="nf">uniform_no_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mins</span><span class="p">,</span> <span class="n">maxs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Randomly distribute particles along each direction.</span>
 
@@ -1089,7 +1089,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd_gen</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="n">maxs</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">perturb</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.lattice"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.lattice">[docs]</a>    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">perturb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Place particles in a simple cubic lattice with a slight perturbation ranging</span>
 <span class="sd">        from 0 to 0.5 times the lattice spacing.</span>
@@ -1146,7 +1146,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.random_reject"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.random_reject">[docs]</a>    <span class="k">def</span> <span class="nf">random_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Place particles by sampling a uniform distribution from 0 to L (the box length)</span>
 <span class="sd">        and uses a rejection radius to avoid placing particles to close to each other.</span>
@@ -1244,7 +1244,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span></div>
 
-<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.halton_reject"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.halton_reject">[docs]</a>    <span class="k">def</span> <span class="nf">halton_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">r_reject</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Place particles according to a Halton sequence from 0 to L (the box length)</span>
 <span class="sd">        and uses a rejection radius to avoid placing particles to close to each other.</span>
@@ -1364,7 +1364,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span></div>
 
-<div class="viewcode-block" id="Particles.kinetic_temperature"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.kinetic_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">kinetic_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.kinetic_temperature"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.kinetic_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">kinetic_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the kinetic energy and temperature of each species.</span>
 
@@ -1392,7 +1392,7 @@
 
         <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">T</span></div>
 
-<div class="viewcode-block" id="Particles.remove_drift"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Particles.remove_drift">[docs]</a>    <span class="k">def</span> <span class="nf">remove_drift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Particles.remove_drift"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Particles.remove_drift">[docs]</a>    <span class="k">def</span> <span class="nf">remove_drift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enforce conservation of total linear momentum. Updates particles velocities</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1406,7 +1406,7 @@
             <span class="n">species_start</span> <span class="o">=</span> <span class="n">species_end</span></div></div>
 
 
-<div class="viewcode-block" id="Species"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species">[docs]</a><span class="k">class</span> <span class="nc">Species</span><span class="p">:</span>
+<div class="viewcode-block" id="Species"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Species">[docs]</a><span class="k">class</span> <span class="nc">Species</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to store all the information of a single species.</span>
 
@@ -1516,7 +1516,7 @@
         <span class="n">disp</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
         <span class="k">return</span> <span class="n">disp</span>
 
-<div class="viewcode-block" id="Species.from_dict"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Species.from_dict"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Species.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update attributes from input dictionary using the ``__dict__.update()`` method.</span>
 
@@ -1530,7 +1530,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Species.calc_plasma_frequency"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.calc_plasma_frequency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_plasma_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<div class="viewcode-block" id="Species.calc_plasma_frequency"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Species.calc_plasma_frequency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_plasma_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the plasma frequency.</span>
 
@@ -1543,7 +1543,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plasma_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_density</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">constant</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Species.calc_debye_length"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.calc_debye_length">[docs]</a>    <span class="k">def</span> <span class="nf">calc_debye_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kB</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<div class="viewcode-block" id="Species.calc_debye_length"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Species.calc_debye_length">[docs]</a>    <span class="k">def</span> <span class="nf">calc_debye_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kB</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">constant</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the Debye Length.</span>
 
@@ -1560,7 +1560,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">debye_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">*</span> <span class="n">kB</span> <span class="o">*</span> <span class="n">constant</span><span class="p">)</span>
                                     <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_density</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Species.calc_cyclotron_frequency"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.calc_cyclotron_frequency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_cyclotron_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magnetic_field_strength</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<div class="viewcode-block" id="Species.calc_cyclotron_frequency"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Species.calc_cyclotron_frequency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_cyclotron_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magnetic_field_strength</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the cyclotron frequency. See `Wikipedia link &lt;https://en.wikipedia.org/wiki/Lorentz_force&gt;`_.</span>
 
@@ -1573,7 +1573,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cyclotron_frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">*</span> <span class="n">magnetic_field_strength</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span></div>
 
-<div class="viewcode-block" id="Species.calc_coupling"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.calc_coupling">[docs]</a>    <span class="k">def</span> <span class="nf">calc_coupling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_ws</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z_avg</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<div class="viewcode-block" id="Species.calc_coupling"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Species.calc_coupling">[docs]</a>    <span class="k">def</span> <span class="nf">calc_coupling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_ws</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z_avg</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the coupling constant between particles.</span>
 
@@ -1593,7 +1593,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">/</span> <span class="n">z_avg</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">a_ws</span> <span class="k">if</span> <span class="n">z_avg</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ai_dens</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coupling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ai</span> <span class="o">*</span> <span class="n">const</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Species.pretty_print"><a class="viewcode-back" href="../../api/sarkas.base.html#sarkas.base.Species.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">potential_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mks&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Species.pretty_print"><a class="viewcode-back" href="../../api/sarkas.core.html#sarkas.core.Species.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">potential_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mks&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print Species information in a user-friendly way.</span>
 
 <span class="sd">        Parameters</span>
@@ -1662,7 +1662,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 12, 2021.<br/>
+      Last updated on May 18, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

@@ -311,7 +311,7 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial step of equilibration.</p></li>
-<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles’ class.</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles’ class.</p></li>
 <li><p><strong>checkpoint</strong> (<em>sarkas.utilities.InputOutput</em>) – IO class for saving dumps.</p></li>
 </ul>
 </dd>
@@ -336,7 +336,7 @@
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id1">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy.</p>
@@ -354,7 +354,7 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id2">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy.</p>
@@ -385,7 +385,7 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 constant magnetic field. For more info see eq. (78) of Ref. <span id="id3">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy.</p>
@@ -414,7 +414,7 @@ an arbitrary direction, methods in <cite>sarkas.tool.observables</cite> work onl
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <span id="id5">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>potential_energy</strong> – Total potential energy.</p>
@@ -447,7 +447,7 @@ This is the preferred choice in this case.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>it_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Initial step of production phase.</p></li>
-<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles’ class.</p></li>
+<li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles’ class.</p></li>
 <li><p><strong>checkpoint</strong> (<em>sarkas.utilities.InputOutput</em>) – IO class for saving dumps.</p></li>
 </ul>
 </dd>
@@ -463,7 +463,7 @@ This is the preferred choice in this case.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<em>sarkas.base.parameters</em>) – Parameters class.</p></li>
 <li><p><strong>thermostat</strong> (<em>sarkas.time_evolution.thermostat</em>) – Thermostat class</p></li>
-<li><p><strong>potential</strong> (<a class="reference internal" href="sarkas.potentials.base.html#sarkas.potentials.base.Potential" title="sarkas.potentials.base.Potential"><em>sarkas.potentials.base.Potential</em></a>) – Potential class.</p></li>
+<li><p><strong>potential</strong> (<a class="reference internal" href="sarkas.potentials.core.html#sarkas.potentials.core.Potential" title="sarkas.potentials.core.Potential"><em>sarkas.potentials.core.Potential</em></a>) – Potential class.</p></li>
 </ul>
 </dd>
 </dl>
@@ -477,7 +477,7 @@ More information can be found here: <a class="reference external" href="https://
 or on the Sarkas website.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -488,7 +488,7 @@ or on the Sarkas website.</p>
 <dd><p>Update particles class using the velocity verlet algorithm and Langevin damping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.base.html#sarkas.base.Particles" title="sarkas.base.Particles"><em>sarkas.base.Particles</em></a>) – Particles data.</p>
+<dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -540,7 +540,7 @@ or on the Sarkas website.</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 12, 2021.<br/>
+      Last updated on May 18, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>
