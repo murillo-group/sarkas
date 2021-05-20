@@ -170,12 +170,15 @@ class Potential:
                 # if the electron temperature is not defined. The total ion temperature will be used for it.
                 # print("\nWARNING: electron temperature not defined. I will use the total ion temperature.")
                 params.electron_temperature = params.total_ion_temperature
+                self.electron_temperature = params.electron_temperature
 
         self.calc_electron_properties(params)
 
         if hasattr(self, "kappa"):
             if self.electron_temperature != params.total_ion_temperature :
-                print("WARNING: You have defined both kappa and the electron_temperature. kappa's value will be used.")
+                print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print("You have defined both kappa and the electron_temperature. kappa's value will be used.")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
             # Thomas-Fermi Length
             params.lambda_TF = params.a_ws / self.kappa
 
