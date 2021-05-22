@@ -73,10 +73,21 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
     ny_mid = mesh_sizes[1]/2 if np.mod(mesh_sizes[1], 2) == 0 else (mesh_sizes[1] - 1)/2
     nx_mid = mesh_sizes[0]/2 if np.mod(mesh_sizes[0], 2) == 0 else (mesh_sizes[0] - 1)/2
 
-    nx_v = np.arange(mesh_sizes[0]).reshape((1, mesh_sizes[0]))
-    ny_v = np.arange(mesh_sizes[1]).reshape((mesh_sizes[1], 1))
-    nz_v = np.arange(mesh_sizes[2]).reshape((mesh_sizes[2], 1, 1))
+    # nx_v = np.arange(mesh_sizes[0]).reshape((1, mesh_sizes[0]))
+    # ny_v = np.arange(mesh_sizes[1]).reshape((mesh_sizes[1], 1))
+    # nz_v = np.arange(mesh_sizes[2]).reshape((mesh_sizes[2], 1, 1))
+    # Dev Note:
+    # The above three lines where giving a problem with Numba in Windows only.
+    # I replaced them with the ones below. I don't know why it was giving a problem.
+    nx_v = np.zeros((1,mesh_sizes[0]), dtype=np.int64)
+    nx_v[0,:] = np.arange(mesh_sizes[0])
 
+    ny_v = np.zeros((mesh_sizes[1], 1), dtype=np.int64)
+    ny_v[:,0] = np.arange(mesh_sizes[1])
+    
+    nz_v = np.zeros((mesh_sizes[2], 1, 1), dtype=np.int64)
+    nz_v[:,0, 0] = np.arange(mesh_sizes[2])
+    
     kx_v = 2.0 * np.pi * (nx_v - nx_mid) / box_lengths[0]
     ky_v = 2.0 * np.pi * (ny_v - ny_mid) / box_lengths[1]
     kz_v = 2.0 * np.pi * (nz_v - nz_mid) / box_lengths[2]
