@@ -401,7 +401,8 @@ class PreProcess(Process):
         self.__name__ = 'preprocessing'
         self.loops = 10
         self.estimate = False
-        self.pm_meshes = np.array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
+        self.pm_meshes = np.logspace(3, 7, 12, base =2, dtype=int )
+        # np.array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
         self.pp_cells = np.arange(3, 16, dtype=int)
         self.kappa = None
         super().__init__(input_file)
@@ -622,54 +623,60 @@ class PreProcess(Process):
         # Get the time in seconds
         pp_times *= 1e-9
         pm_times *= 1e-9
-        # TODO: The rest is in development
-        # Approximate the times
+        # Fit the PM times
         pm_popt, _ = curve_fit(
-            lambda x, a, b: a + 15 * b * x ** 3 * np.log2(x),
+            lambda x, a, b: a + 5 * b * x ** 3 * np.log2(x**3),
             self.pm_meshes,
             pm_times)
-        fit_str = 'Fit = a + 15 b M^3 log(M)  [s]\n a = {:.4e}, b = {:.4e} '.format(*pm_popt)
+        fit_str = r'Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]' + '\n' + r'$a_2 = ${:.4e}, $a_3 = ${:.4e} '.format(
+            *pm_popt)
         print('\nPM Time ' + fit_str)
 
+        # Fit the PP Times
+        pp_popt, _ = curve_fit(
+            lambda x, a, b: a + b / x ** 3,
+            self.pp_cells,
+            np.mean(pp_times, axis=0),
+            p0=[np.mean(pp_times, axis =0)[0], self.parameters.total_num_ptcls],
+            bounds = (0, [np.mean(pp_times, axis =0)[0], 1e9])
+        )
+        fit_pp_str = r'Fit = $a_0 + a_1 / N_c^3$  [s]' + '\n' + '$a_0 = ${:.4e},  $a_1 = ${:.4e}'.format(*pp_popt)
+        print('\nPP Time ' + fit_pp_str)
+
+        # Start the plot
         fig, (ax_pp, ax_pm) = plt.subplots(1, 2, sharey=True, figsize=(12, 7))
         ax_pm.plot(self.pm_meshes, pm_times, 'o', label='Measured')
         ax_pm.plot(
             self.pm_meshes,
-            pm_popt[0] + 15 * pm_popt[1] * self.pm_meshes ** 3 * np.log2(self.pm_meshes),
+            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes ** 3 * np.log2(self.pm_meshes**3),
             ls='--', label='Fit')
-        ax_pm.set(title='PM calculation time and estimate', yscale='log', xlabel='Mesh size')
+        ax_pm.set(title='PM calculation time and estimate', yscale = 'log', xlabel='Mesh size')
+        ax_pm.set_xscale('log', base =2)
         ax_pm.legend(ncol=2)
         ax_pm.annotate(
-            text = fit_str,
-            xy = (self.pm_meshes[-1], pm_times[-1]),
-            xytext = (self.pm_meshes[0], pm_times[-1]),
+            text=fit_str,
+            xy=(self.pm_meshes[-1], pm_times[-1]),
+            xytext=(self.pm_meshes[0], pm_times[-1]),
             bbox=dict(boxstyle="round4", fc="white", ec="k", lw=2)
-            )
-        # ax_pm.text('PM Time ~ a + 15 b M^3 log(M)  [s]\n a = {:.4e}, b = {:.4e} '.format(*pm_popt))
-        # fig.tight_layout()
+        )
 
+        # Scatter Plot the PP Times
         self.tot_time_map = np.zeros(pp_times.shape)
         for j, mesh_points in enumerate(self.pm_meshes):
             self.tot_time_map[j, :] = pm_times[j] + pp_times[j, :]
             ax_pp.plot(self.pp_cells, pp_times[j], 'o', label=r'@ Mesh {}$^3$'.format(mesh_points))
 
-        pp_popt, _ = curve_fit(
-            lambda x, b: b / x ** 3,
-            self.pp_cells,
-            np.mean( pp_times, axis = 0),
-            p0=[self.parameters.total_num_ptcls]
-        )
-        fit_pp_str = 'Fit = a / Cells**3  [s] \n a = {:.4e}'.format(*pp_popt)
-        print('\nPP Time ' + fit_pp_str)
-        ax_pp.plot(self.pp_cells, pp_popt[0] / self.pp_cells ** 3, ls='--', label='Fit')
-        ax_pp.legend(ncol = 2)
+        # Plot the Fit PP times
+        ax_pp.plot(self.pp_cells, pp_popt[0] + pp_popt[1]/ self.pp_cells ** 3, ls='--', label='Fit')
+        ax_pp.legend(ncol=2)
         ax_pp.annotate(
             text=fit_pp_str,
-            xy=(self.pp_cells[0], pp_times[0,0]),
+            xy=(self.pp_cells[0], pp_times[0, 0]),
             xytext=(self.pp_cells[0], pp_times[-1, -1]),
             bbox=dict(boxstyle="round4", fc="white", ec="k", lw=2)
         )
-        ax_pp.set(title='PP calculation time and estimate', yscale='log', ylabel='CPU Times [s]', xlabel='Cells')
+        ax_pp.set(title='PP calculation time and estimate', yscale='log', ylabel='CPU Times [s]',
+                  xlabel=r'$N_c $ = Cells')
         fig.tight_layout()
         fig.savefig(os.path.join(self.pppm_plots_dir, 'Times_' + self.io.job_id + '.png'))
 
@@ -772,14 +779,12 @@ class PreProcess(Process):
                           levels=lvls, cmap=luxmap)
         CS2 = ax2.contour(CS, colors='w', levels=lvls)
         ax2.clabel(CS2, fmt='%.2e', colors='w')
-
         # fig.colorbar(, ax = ax2)
         clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap),
                            ax=ax2)
         clb.set_label('CPU Time [s]', rotation=270, va='bottom')
 
         ax2.set_xlabel('Mesh size')
-        # ax2.set_ylabel(r'No. Cells = $L/r_c$')
         ax2.set_title('Timing Map')
         fig.savefig(os.path.join(fig_path, 'ForceErrorMap_v_Timing_' + self.io.job_id + '.png'))
 
@@ -876,16 +881,16 @@ class PreProcess(Process):
         chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.a_ws
         chosen_rcut = self.potential.rc / self.parameters.a_ws
 
-        mesh_dir = os.path.join(self.pppm_plots_dir, 'Mesh_{}'.format(self.potential.pppm_mesh[0]))
-        if not os.path.exists(mesh_dir):
-            os.mkdir(mesh_dir)
-
-        cell_num = int(self.parameters.box_lengths.min() / self.potential.rc)
-        cell_dir = os.path.join(mesh_dir, 'Cells_{}'.format(cell_num))
-        if not os.path.exists(cell_dir):
-            os.mkdir(cell_dir)
-
-        self.pppm_plots_dir = cell_dir
+        # mesh_dir = os.path.join(self.pppm_plots_dir, 'Mesh_{}'.format(self.potential.pppm_mesh[0]))
+        # if not os.path.exists(mesh_dir):
+        #     os.mkdir(mesh_dir)
+        #
+        # cell_num = int(self.parameters.box_lengths.min() / self.potential.rc)
+        # cell_dir = os.path.join(mesh_dir, 'Cells_{}'.format(cell_num))
+        # if not os.path.exists(cell_dir):
+        #     os.mkdir(cell_dir)
+        #
+        # self.pppm_plots_dir = cell_dir
 
         # Color Map
         self.make_color_map(rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error)
@@ -919,11 +924,11 @@ class PreProcess(Process):
         fig_path = self.pppm_plots_dir
 
         fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
-        ax[0].plot(rcuts, total_force_error[30, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
-        ax[0].plot(rcuts, total_force_error[40, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[40]))
-        ax[0].plot(rcuts, total_force_error[50, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[50]))
-        ax[0].plot(rcuts, total_force_error[60, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[60]))
-        ax[0].plot(rcuts, total_force_error[70, :], label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[70]))
+        ax[0].plot(rcuts, total_force_error[30, :], ls= (0, (5, 10)), label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
+        ax[0].plot(rcuts, total_force_error[40, :], ls= 'dashed', label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[40]))
+        ax[0].plot(rcuts, total_force_error[50, :], ls = 'solid', label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[50]))
+        ax[0].plot(rcuts, total_force_error[60, :], ls = 'dashdot',label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[60]))
+        ax[0].plot(rcuts, total_force_error[70, :], ls = (0, (3, 10, 1, 10)),label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[70]))
         ax[0].set_ylabel(r'$\Delta F^{approx}_{tot}$')
         ax[0].set_xlabel(r'$r_c/a_{ws}$')
         ax[0].set_yscale('log')
@@ -934,11 +939,11 @@ class PreProcess(Process):
         ax[0].grid(True, alpha=0.3)
         ax[0].legend(loc='best')
 
-        ax[1].plot(alphas, total_force_error[:, 30], label=r'$r_c = {:2.2f}'.format(rcuts[30]) + ' a_{ws}$')
-        ax[1].plot(alphas, total_force_error[:, 40], label=r'$r_c = {:2.2f}'.format(rcuts[40]) + ' a_{ws}$')
-        ax[1].plot(alphas, total_force_error[:, 50], label=r'$r_c = {:2.2f}'.format(rcuts[50]) + ' a_{ws}$')
-        ax[1].plot(alphas, total_force_error[:, 60], label=r'$r_c = {:2.2f}'.format(rcuts[60]) + ' a_{ws}$')
-        ax[1].plot(alphas, total_force_error[:, 70], label=r'$r_c = {:2.2f}'.format(rcuts[70]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 30], ls = (0, (5, 10)),label=r'$r_c = {:2.2f}'.format(rcuts[30]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 40], ls = 'dashed',label=r'$r_c = {:2.2f}'.format(rcuts[40]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 50], ls = 'solid',label=r'$r_c = {:2.2f}'.format(rcuts[50]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 60], ls = 'dashdot',label=r'$r_c = {:2.2f}'.format(rcuts[60]) + ' a_{ws}$')
+        ax[1].plot(alphas, total_force_error[:, 70], ls = (0, (3, 10, 1, 10)), label=r'$r_c = {:2.2f}'.format(rcuts[70]) + ' a_{ws}$')
         ax[1].set_xlabel(r'$\alpha \; a_{ws}$')
         ax[1].set_yscale('log')
         ax[1].axhline(self.parameters.force_error, ls='--', c='k')
@@ -994,12 +999,12 @@ class PreProcess(Process):
         ax.set_xlabel(r'$\alpha \;a_{ws}$')
         ax.set_ylabel(r'$r_c/a_{ws}$')
         ax.set_title(r'Parameters  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
-                self.parameters.total_num_ptcls,
-                self.potential.pppm_mesh[0],
-                self.potential.pppm_cao,
-                self.kappa * self.parameters.a_ws))
+            self.parameters.total_num_ptcls,
+            self.potential.pppm_mesh[0],
+            self.potential.pppm_cao,
+            self.kappa * self.parameters.a_ws))
         clb = fig.colorbar(CS)
-        clb.set_label(r'$\Delta F^{approx}_{tot}(r_c,\alpha)$', va='bottom', rotation = 270)
+        clb.set_label(r'$\Delta F^{approx}_{tot}(r_c,\alpha)$', va='bottom', rotation=270)
         fig.tight_layout()
         fig.savefig(os.path.join(fig_path, 'ClrMap_ForceError_' + self.io.job_id + '.png'))
 

@@ -31,7 +31,7 @@ Integrator:
 Thermostat:
     type: Berendsen               # thermostat type
     relaxation_timestep: 100
-    tau: 10.0
+    berendsen_tau: 10.0
 
 Parameters:
     units: mks                    # units

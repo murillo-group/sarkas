@@ -33,7 +33,7 @@ Integrator:
 
 Thermostat:
     type: Berendsen               # thermostat type
-    tau: 10.0
+    berendsen_tau: 10.0
     relaxation_timestep: 0
 
 Parameters:

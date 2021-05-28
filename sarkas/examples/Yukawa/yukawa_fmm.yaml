@@ -27,7 +27,7 @@ Integrator:
 Thermostat:
     - type: Berendsen               # thermostat type
     - timestep: 2000
-    - tau: 5.0
+    - berendsen_tau: 5.0
 
 Control:
     - units: mks                    # units

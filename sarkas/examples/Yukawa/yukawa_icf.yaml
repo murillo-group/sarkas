@@ -36,7 +36,7 @@ Potential:
 
 Thermostat:
     type: Berendsen               # thermostat type
-    tau: 5.0
+    berendsen_tau: 5.0
     relaxation_timestep: 200
     temperatures_eV: [200.0, 200.0, 200.0]
 
