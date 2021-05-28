@@ -38,7 +38,7 @@ Integrator:
 
 Thermostat:
     - type: Berendsen
-    - tau: 10.
+    - berendsen_tau: 10.
     - timestep: 2000
 
 Control:

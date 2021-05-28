@@ -28,7 +28,7 @@ Integrator:
 Thermostat:
     type: Berendsen               # thermostat type
     relaxation_timestep: 1
-    tau: 5.0
+    berendsen_tau: 5.0
 
 Parameters:
     units: cgs                    # units
