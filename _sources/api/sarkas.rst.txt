@@ -19,6 +19,7 @@ Submodules
    :maxdepth: 4
 
    sarkas.core
+   sarkas.create_dataset
    sarkas.processes
 
 Module contents
