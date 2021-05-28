@@ -32,7 +32,6 @@ op.add_option("-j", "--job_dir", action='store', dest='job_dir', help="Job Direc
 op.add_option("-s", "--seed", action='store', dest='rand_seed', type=int, help="Random Number Seed")
 op.add_option("-i", "--input", action='store', dest='input_file', help="YAML Input file")
 op.add_option("-r", "--restart", type=str, action='store', dest='restart', help="Restart simulation")
-op.add_option("-e", "--estimate", action='store_true', dest='estimate', help="Estimate optimal parameters")
 
 options, _ = op.parse_args()
 
@@ -43,8 +42,6 @@ assert options.input_file, 'Input file not defined.'
 if options.test:
     from sarkas.processes import PreProcess
     sim = PreProcess(options.input_file)
-    if options.estimate:
-        sim.estimate = True
 else:
     sim = Simulation(options.input_file)
 
@@ -55,7 +52,7 @@ if any([options.check_status, options.sim_dir, options.job_dir, options.verbose]
     if options.check_status:
         args["IO"]["check_status"] = True
 
-    if options.job_id:
+    if options.sim_dir:
         args["IO"]["simulations_dir"] = options.sim_dir
 
     if options.job_dir:
