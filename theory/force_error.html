@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Force Error &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Force Error &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -150,26 +150,23 @@
   <p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/why_sarkas.html">Why Sarkas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#solution">Solution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Postprocessing">Postprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/input_file.html">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Simulation_Docs.html">Running a Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Post_Processing_Docs.html">Data Analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#run-the-code">Run the code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a></li>
 </ul>
 </li>
 </ul>
@@ -270,8 +267,10 @@
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
@@ -280,10 +279,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
@@ -304,8 +299,12 @@
 <p class="caption"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../credits/pub_research.html">Publications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../credits/team.html">Dev Team</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#funding">Funding</a></li>
 </ul>
 </li>
 </ul>
@@ -318,7 +317,7 @@
   <div class="section" id="force-error">
 <h1>Force Error<a class="headerlink" href="#force-error" title="Permalink to this headline">¶</a></h1>
 <p>The Force error is the error incurred when we cut the potential interaction after a certain distance. Following the works
-of <span id="id1">[<a class="reference internal" href="references.html#id8">DSGM17</a>, <a class="reference internal" href="references.html#id2">KP92</a>, <a class="reference internal" href="references.html#id10">SC08</a>]</span> we define the total force error for our P3M algorithm as</p>
+of <span id="id1">[<a class="reference internal" href="references.html#id8" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>, <a class="reference internal" href="references.html#id2" title="Jiri Kolafa and John W. Perram. Cutoff errors in the ewald summation formulae for point charge systems. Molecular Simulation, 9(5):351-368, 1992. doi:10.1080/08927029208049126.">Kolafa and Perram, 1992</a>, <a class="reference internal" href="references.html#id10" title="Harry A. Stern and Keith G. Calkins. On mesh-based ewald methods: optimal parameters for two differentiation schemes. The Journal of Chemical Physics, 128(21):214106, 2008. doi:10.1063/1.2932253.">Stern and Calkins, 2008</a>]</span> we define the total force error for our P3M algorithm as</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\textrm{tot}} = \sqrt{ \Delta F_{\mathcal R}^2 + \Delta F_{\mathcal F}^2 }\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta F_{\mathcal R}\)</span> is the error obtained in the PP part of the force calculation and
@@ -372,7 +371,7 @@ the equation for <span class="math notranslate nohighlight">\(\Delta F_{\mathcal
 see in the second part of the output the time it takes to calculate <span class="math notranslate nohighlight">\(G_{\mathbf k}\)</span> is in the order of seconds,
 thus, a loop over several <span class="math notranslate nohighlight">\(\alpha\)</span> values would be very time consuming. Fortunately researchers
 have calculated an analytical approximation allowing for the exploration of the whole <span class="math notranslate nohighlight">\(r_c,\; \alpha\)</span> parameter
-space <span id="id2">[<a class="reference internal" href="references.html#id8">DSGM17</a>]</span>. The equations of this approximation are</p>
+space <span id="id2">[<a class="reference internal" href="references.html#id8" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>]</span>. The equations of this approximation are</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\mathcal F}^{(\textrm{approx})} \simeq Q^2 \sqrt{\frac{N}{V}} A_{\mathcal F}^{1/2},\]</div>
 <div class="math notranslate nohighlight">
@@ -380,7 +379,7 @@ space <span id="id2">[<a class="reference internal" href="references.html#id8">D
                         \frac{2}{1 + 2(p + m)} \beta(p,m),\]</div>
 <div class="math notranslate nohighlight">
 \[\beta(p,m) = \int_0^{\infty} dk \; G_k^2 k^{2(p + m + 2)},\]</div>
-<p>where <span class="math notranslate nohighlight">\(h = L_x/M_x\)</span> and the coefficients <span class="math notranslate nohighlight">\(C_m^{(p)}\)</span> are listed in Table I of <span id="id3">[<a class="reference internal" href="references.html#id5">DH98</a>]</span>.</p>
+<p>where <span class="math notranslate nohighlight">\(h = L_x/M_x\)</span> and the coefficients <span class="math notranslate nohighlight">\(C_m^{(p)}\)</span> are listed in Table I of <span id="id3">[<a class="reference internal" href="references.html#id5" title="Markus Deserno and Christian Holm. How to mesh up ewald sums. ii. an accurate error estimate for the particle–particle–particle-mesh algorithm. The Journal of Chemical Physics, 109(18):7694-7701, 1998. doi:10.1063/1.477415.">Deserno and Holm, 1998</a>]</span>.</p>
 <p>Finally, by calculating</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\textrm{tot}}^{(\textrm{apprx})}( r_c, \alpha) = \sqrt{ \Delta F_{\mathcal R}^2 +
@@ -401,7 +400,7 @@ space <span id="id2">[<a class="reference internal" href="references.html#id8">D
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

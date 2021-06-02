@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Get Started &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Get Started &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -108,11 +108,12 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">Get Started</a><ul>
-<li><a class="reference internal" href="#virtual-environment">Virtual environment</a></li>
+<li><a class="reference internal" href="#virtual-environment">Virtual Environment</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#external-packages">External packages</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#run-the-code">Run the code</a></li>
 </ul>
 </li>
 </ul>
@@ -155,26 +156,23 @@
   <p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="why_sarkas.html">Why Sarkas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#new-school">New School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#solution">Solution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l3"><a class="reference internal" href="why_sarkas.html#new-school">New School</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Get Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Quickstart.html">Quickstart</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Postprocessing">Postprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="input_file.html">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Simulation_Docs.html">Running a Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Post_Processing_Docs.html">Data Analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#virtual-environment">Virtual Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-code">Run the code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 </li>
 </ul>
@@ -275,8 +273,10 @@
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
@@ -285,10 +285,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
@@ -309,8 +305,12 @@
 <p class="caption"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../credits/pub_research.html">Publications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../credits/team.html">Dev Team</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#funding">Funding</a></li>
 </ul>
 </li>
 </ul>
@@ -322,69 +322,56 @@
       
   <div class="section" id="get-started">
 <h1>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Sarkas is under heavy development and not yet available via package managers like <code class="docutils literal notranslate"><span class="pre">pip</span></code> and <code class="docutils literal notranslate"><span class="pre">conda</span></code>.
-Therefore, please follow the instructions <a class="reference external" href="https://murillo-group.github.io/sarkas/code_development/dev_setup#">here</a> for installation.</p>
-</div>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
-</ul>
-</div>
-<div class="section" id="virtual-environment">
-<h2>Virtual environment<a class="headerlink" href="#virtual-environment" title="Permalink to this headline">¶</a></h2>
 <p>It is good practice to create virtual environment for your each of your programming projects. Below are instructions
-for creating the <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> virtual environment.</p>
-<ol class="arabic">
-<li><p>Check if you have <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ which conda
+for creating the <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> virtual environment. Otherwise you can jump to the next section and <a class="reference internal" href="#sec-installation"><span class="std std-ref">install</span></a> Sarkas</p>
+<div class="section" id="virtual-environment">
+<h2>Virtual Environment<a class="headerlink" href="#virtual-environment" title="Permalink to this headline">¶</a></h2>
+<p>Start by checking if you have <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ which conda
 </pre></div>
 </div>
-<p>This command will print the path of your <code class="docutils literal notranslate"><span class="pre">conda</span></code> binaries. If nothing is printed then you need to install it. Visit
-Anaconda.org and <a class="reference external" href="https://www.anaconda.com/products/individual">download</a> their Python 3.* installer.</p>
-</div></blockquote>
-</li>
-<li><p>Create your virtual environment via</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda create --name sarkas
+<p>This command will print the path of your <code class="docutils literal notranslate"><span class="pre">conda</span></code> binaries. If nothing is printed then you need to install it.
+Visit <a class="reference external" href="https://www.anaconda.org">Anaconda</a> and download their Python 3.* installer.</p>
+<p>You can create a virtual environment via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda create --name sarkas <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.7 pip
 </pre></div>
 </div>
-<p>This command will create the virtual environment <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> in the <code class="docutils literal notranslate"><span class="pre">envs</span></code> directory of your conda directory
-(the one printed above by the command <code class="docutils literal notranslate"><span class="pre">which</span></code>).</p>
-</div></blockquote>
-</li>
-<li><p>Once the enviroment has been created you can activate it by</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda activate sarkas
+<p>This command will create the virtual environment <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> with python 3.7 and <code class="docutils literal notranslate"><span class="pre">pip</span></code> installed.
+The environment can be found in the <code class="docutils literal notranslate"><span class="pre">envs</span></code> directory of your conda directory (the one printed above by the command <code class="docutils literal notranslate"><span class="pre">which</span></code>).</p>
+<p>Once the enviroment has been created you can activate it by</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda activate sarkas
 </pre></div>
 </div>
 <p>and deactivate it by</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda deactivate
 </pre></div>
 </div>
-</div></blockquote>
-</li>
-</ol>
 </div>
 <div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<span id="sec-installation"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>Once the environment has been activated you can install sarkas system wide via</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install sarkas
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install sarkas
 </pre></div>
 </div>
-</div></blockquote>
 <div class="section" id="external-packages">
 <h3>External packages<a class="headerlink" href="#external-packages" title="Permalink to this headline">¶</a></h3>
 <p>Sarkas uses two external packages: <a class="reference external" href="http://www.fftw.org/">FFTW</a> and <a class="reference external" href="https://fmm3d.readthedocs.io/en/latest/">FMM3D</a> .
 The first is used to perform fast Fourier transforms and the second to simulate systems with open boundary conditions.</p>
 <p>FFTW3 is a very commong library in scientific computation, however, it may happen that you don’t have it already installed on your computer.
-In this case, follow their instructions <a class="reference external" href="http://www.fftw.org/#documentation">here</a> to install it.</p>
+In this case, follow their <a class="reference external" href="http://www.fftw.org/#documentation">instructions</a> to install it.</p>
 <p>FMM3D is package written in Fortran to compute the potential field using the Multipole expansion. The documentation for installing it is <a class="reference external" href="https://fmm3d.readthedocs.io/en/latest/install.html">here</a>.
-You can find their Python wrapper <a class="reference external" href="https://fmm3d.readthedocs.io/en/latest/install.html#building-python-wrappers">here</a>.</p>
+You can find their <a class="reference external" href="https://fmm3d.readthedocs.io/en/latest/install.html#building-python-wrappers">section</a> on a Python wrapper.</p>
+</div>
+</div>
+<div class="section" id="run-the-code">
+<h2>Run the code<a class="headerlink" href="#run-the-code" title="Permalink to this headline">¶</a></h2>
+<p>In the following pages you will find a quickstart notebook to check that Sarkas runs correctly and a long tutorial on how to
+setup and run simulations.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
 </div>
 </div>
 </div>
@@ -402,7 +389,7 @@ You can find their Python wrapper <a class="reference external" href="https://fm
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

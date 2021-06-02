@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Input File &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Input File &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -116,7 +116,11 @@
 <li><a class="reference internal" href="#thermostat">Thermostat</a></li>
 <li><a class="reference internal" href="#parameters">Parameters</a></li>
 <li><a class="reference internal" href="#input-output">Input/Output</a></li>
-<li><a class="reference internal" href="#post-processing">Post Processing</a></li>
+<li><a class="reference internal" href="#post-processing">Post Processing</a><ul>
+<li><a class="reference internal" href="#observables">Observables</a></li>
+<li><a class="reference internal" href="#transport-coefficients">Transport Coefficients</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -159,26 +163,23 @@
   <p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="why_sarkas.html">Why Sarkas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#new-school">New School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="why_sarkas.html#solution">Solution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l3"><a class="reference internal" href="why_sarkas.html#new-school">New School</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="get_started.html">Get Started</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Quickstart.html">Quickstart</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Postprocessing">Postprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Simulation_Docs.html">Running a Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Post_Processing_Docs.html">Data Analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="get_started.html#run-the-code">Run the code</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 </li>
 </ul>
@@ -279,8 +280,10 @@
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
@@ -289,10 +292,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
@@ -313,8 +312,12 @@
 <p class="caption"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../credits/pub_research.html">Publications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../credits/team.html">Dev Team</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#funding">Funding</a></li>
 </ul>
 </li>
 </ul>
@@ -409,15 +412,14 @@ so that the initial configuration relaxes to the desired thermal equilibrium. Th
 of the thermalization phase are defined in the <code class="docutils literal notranslate"><span class="pre">Thermostat</span></code> section of the input file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Thermostat</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Berendsen</span>               <span class="c1"># thermostat type</span>
-    <span class="nt">relaxation_timestep</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20</span>
-    <span class="nt">tau</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0</span>
-    <span class="nt">temperatures_eV</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+    <span class="nt">relaxation_timestep</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50</span>
+    <span class="nt">berendsen_tau</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0</span>
 </pre></div>
 </div>
 <p>The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen and Langevin type,
 but other thermostats like Nose-Hoover, etc are, you guessed it!, in development.
 The <code class="docutils literal notranslate"><span class="pre">relaxation_timestep</span></code> instance indicates the timestep number at which the Berendsen thermostat will be turned on.
-The instance <code class="docutils literal notranslate"><span class="pre">tau</span></code> indicates the relaxation rate of the Berendsen thermostat, see <a class="reference internal" href="../theory/Berendsen_Thermostat.html#Thermostats"><span class="std std-ref">Thermostats</span></a> for more details.</p>
+The instance <code class="docutils literal notranslate"><span class="pre">berendsen_tau</span></code> indicates the relaxation rate of the Berendsen thermostat, see <a class="reference internal" href="../theory/Berendsen_Thermostat.html#Thermostats"><span class="std std-ref">Thermostats</span></a> for more details.</p>
 <p>The last instance defines the temperature (be careful with units!) at which the system is to be thermalized.
 Notice that this takes a single value in the case of a single species, while it takes is a list in the case of
 multicomponent plasmas. Note that these temperatures need not be the same as those defined in the <code class="docutils literal notranslate"><span class="pre">Particles</span></code> block as
@@ -427,10 +429,9 @@ it might be the case that you want to study temperature relaxation in plasma mix
 <h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
 <p>The next section defines some general parameters</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Parameters</span><span class="p">:</span>
-    <span class="nt">units</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mks</span>                  <span class="c1"># units</span>
-    <span class="nt">dt</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.193536e-17</span>            <span class="c1"># sec</span>
+    <span class="nt">units</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mks</span>                    <span class="c1"># units</span>
+    <span class="nt">dt</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.000e-18</span>                 <span class="c1"># sec</span>
     <span class="nt">load_method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">random_no_reject</span>
-    <span class="nt">rdf_nbins</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500</span>
     <span class="nt">boundary_conditions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">periodic</span>
 </pre></div>
 </div>
@@ -442,11 +443,9 @@ parameters defined in previous sections. The second instance is the value of the
 <li><p><code class="docutils literal notranslate"><span class="pre">random_reject</span></code> for a uniform spatial distribution but with a minimum distance between particles</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">halton</span></code></p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">rdf_nbins</span></code> indicates the number of bins for the pair distribution histogram which in this case is 500. The default
-value is 5% of the total number of particles.
-Next we define the <code class="docutils literal notranslate"><span class="pre">boundary_conditions</span></code> of our simulation. At the moment Sarkas supports only <code class="docutils literal notranslate"><span class="pre">periodic</span></code> boundary
-conditions and <code class="docutils literal notranslate"><span class="pre">open</span></code> boundary conditions which requires the <code class="docutils literal notranslate"><span class="pre">FMM</span></code> algorithm in all directions at once.
-Future implementations of Sarkas accepting mixed boundary conditions are under way, but not fully supported.
+<p>Next we define the <code class="docutils literal notranslate"><span class="pre">boundary_conditions</span></code> of our simulation. At the moment Sarkas supports only <code class="docutils literal notranslate"><span class="pre">periodic</span></code> boundary
+conditions.
+Future implementations of Sarkas accepting open and mixed boundary conditions will be available in the future.
 We accept pull request :) !</p>
 </div>
 <div class="section" id="input-output">
@@ -460,18 +459,53 @@ We accept pull request :) !</p>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">verbose</span></code> is flag for printing progress to screen. This is useful in the initialization phase of an MD
-simulation. The next instances are not needed, however, they are useful for organizing your work. <code class="docutils literal notranslate"><span class="pre">simulations_dir</span></code>
+simulation. The next instances are not necessary, as there are default values for them, however, they are useful for organizing your work. <code class="docutils literal notranslate"><span class="pre">simulations_dir</span></code>
 is the directory where all the simulations will be stored. The default value is <code class="docutils literal notranslate"><span class="pre">Simulations</span></code> and this will be
 created in your current working directory. Next, <code class="docutils literal notranslate"><span class="pre">job_dir</span></code> is the name of the directory of this specific simulation
 which we chose to call <code class="docutils literal notranslate"><span class="pre">yocp_pppm</span></code>. This directory will contain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> files storing all your simulations
 parameters and physical constants, a log file of your simulation, the <code class="docutils literal notranslate"><span class="pre">Equilibration</span></code> and <code class="docutils literal notranslate"><span class="pre">Production</span></code>
-directories containing simulations dumps, and <code class="docutils literal notranslate"><span class="pre">PreProcessing</span></code> and <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> directories. Explanation of the
-directory structure can be found in … . Finally <code class="docutils literal notranslate"><span class="pre">job_id</span></code> is an appendix for all the file names identifing
+directories containing simulations dumps, and <code class="docutils literal notranslate"><span class="pre">PreProcessing</span></code> and <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> directories. Finally <code class="docutils literal notranslate"><span class="pre">job_id</span></code> is an appendix for all the file names identifing
 this specific run. This is useful when you have many runs that differ only in the choice of <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>.</p>
 </div>
 <div class="section" id="post-processing">
 <h2>Post Processing<a class="headerlink" href="#post-processing" title="Permalink to this headline">¶</a></h2>
-<p>The last block is <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> and it will be explained somewhere else.</p>
+<p>The last two blocks are <code class="docutils literal notranslate"><span class="pre">Observables</span></code> and <code class="docutils literal notranslate"><span class="pre">TransportCoefficients</span></code>. They indicate the quantities
+we want to calculate and their parameters.</p>
+<div class="section" id="observables">
+<h3>Observables<a class="headerlink" href="#observables" title="Permalink to this headline">¶</a></h3>
+<p>The observables we want to calculate are</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Observables</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">RadialDistributionFunction</span><span class="p">:</span>
+        <span class="nt">no_bins</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500</span>
+
+    <span class="p p-Indicator">-</span> <span class="nt">Thermodynamics</span><span class="p">:</span>
+        <span class="nt">phase</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">production</span>
+
+    <span class="p p-Indicator">-</span> <span class="nt">DynamicStructureFactor</span><span class="p">:</span>
+        <span class="nt">no_slices</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+        <span class="nt">max_ka_value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
+
+    <span class="p p-Indicator">-</span> <span class="nt">StaticStructureFactor</span><span class="p">:</span>
+        <span class="nt">max_ka_value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
+
+    <span class="p p-Indicator">-</span> <span class="nt">CurrentCorrelationFunction</span><span class="p">:</span>
+        <span class="nt">max_ka_value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">Observables</span></code> is again a list of dictionaries. This is because each observable is returned as
+an object in the simulation. The lines below the observables’ names are the parameters needed for the calculation.
+The parameters are differents depending on the observable. We will discuss them in the next pages of this tutorial.</p>
+</div>
+<div class="section" id="transport-coefficients">
+<h3>Transport Coefficients<a class="headerlink" href="#transport-coefficients" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">TransportCoefficients</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">Diffusion</span><span class="p">:</span>
+        <span class="nt">time_averaging</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+</pre></div>
+</div>
+<p>The available transport coefficients at this moment are: <code class="docutils literal notranslate"><span class="pre">Diffusion</span></code>, <code class="docutils literal notranslate"><span class="pre">Interdiffusion</span></code>, <code class="docutils literal notranslate"><span class="pre">ElectricalConductivity</span></code>, <code class="docutils literal notranslate"><span class="pre">Viscosity</span></code>. Note
+that <code class="docutils literal notranslate"><span class="pre">Interdiffusion</span></code> is supported only in the case of binary mixtures. Soon we will have support for any mixture.</p>
+</div>
 </div>
 </div>
 
@@ -488,7 +522,7 @@ this specific run. This is useful when you have many runs that differ only in th
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

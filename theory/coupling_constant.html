@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coupling Constant &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Coupling Constant &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -150,26 +150,23 @@
   <p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/why_sarkas.html">Why Sarkas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#solution">Solution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Postprocessing">Postprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/input_file.html">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Simulation_Docs.html">Running a Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Post_Processing_Docs.html">Data Analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#run-the-code">Run the code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a></li>
 </ul>
 </li>
 </ul>
@@ -270,8 +267,10 @@
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
@@ -280,10 +279,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
@@ -304,8 +299,12 @@
 <p class="caption"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../credits/pub_research.html">Publications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../credits/team.html">Dev Team</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#funding">Funding</a></li>
 </ul>
 </li>
 </ul>
@@ -320,7 +319,7 @@
 <p>The coupling constant is denoted by <span class="math notranslate nohighlight">\(\Gamma\)</span> and it corresponds to</p>
 <div class="math notranslate nohighlight">
 \[\Gamma = \frac{(Ze)^2}{4\pi \varepsilon_0 k_B T a_{\textrm{ws}}},\]</div>
-<p>In the case of mixtures the <code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.base.Parameters.calc_coupling_constant()</span></code> method calculates the effective <span class="math notranslate nohighlight">\(\Gamma\)</span> as</p>
+<p>In the case of mixtures the <a class="reference internal" href="../api/sarkas.core.html#sarkas.core.Parameters.calc_coupling_constant" title="sarkas.core.Parameters.calc_coupling_constant"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.core.Parameters.calc_coupling_constant()</span></code></a> method calculates the effective <span class="math notranslate nohighlight">\(\Gamma\)</span> as</p>
 <div class="math notranslate nohighlight">
 \[\Gamma_{\textrm{eff}} = \sum_{\alpha} c_{\alpha} \Gamma_{\alpha}, \quad
             \Gamma_{\alpha} = \frac{(Z_{\alpha}e)^2}{4 \pi \varepsilon_0} \frac{1}{ k_B T a_{\alpha}},\]</div>
@@ -346,7 +345,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

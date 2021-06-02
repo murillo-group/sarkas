@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sarkas.time_evolution.integrators module &#8212; Sarkas 0.1.0 documentation</title>
+    <title>sarkas.time_evolution.integrators module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -333,7 +333,7 @@
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_boris">
 <code class="sig-name descname"><span class="pre">magnetic_boris</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class using the Boris algorithm in the case of a
-constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id1">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span></p>
+constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id1">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
@@ -351,7 +351,7 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_boris_zdir">
 <code class="sig-name descname"><span class="pre">magnetic_boris_zdir</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris_zdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris_zdir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class using the Boris algorithm in the case of a
-constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id2">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span></p>
+constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id2">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
@@ -382,7 +382,7 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet">
 <code class="sig-name descname"><span class="pre">magnetic_verlet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class based on velocity verlet method in the case of an arbitrary direction of the
-constant magnetic field. For more info see eq. (78) of Ref. <span id="id3">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span></p>
+constant magnetic field. For more info see eq. (78) of Ref. <span id="id3">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
@@ -395,7 +395,7 @@ constant magnetic field. For more info see eq. (78) of Ref. <span id="id3">[<a c
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p><span id="id4">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span> equations are written for a negative charge. This allows him to write
+<p><span id="id4">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span> equations are written for a negative charge. This allows him to write
 <span class="math notranslate nohighlight">\(\dot{\mathbf v} = \omega_c \hat{B} \times \mathbf v\)</span>. In the case of positive charges we will have
 <span class="math notranslate nohighlight">\(\dot{\mathbf v} = - \omega_c \hat{B} \times \mathbf v\)</span>. Hence the reason of the different signs in the
 formulas below compared to Chin’s.</p>
@@ -411,7 +411,7 @@ an arbitrary direction, methods in <cite>sarkas.tool.observables</cite> work onl
 <dt id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet_zdir">
 <code class="sig-name descname"><span class="pre">magnetic_verlet_zdir</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet_zdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet_zdir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class based on velocity verlet method in the case of a
-constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <span id="id5">[<a class="reference internal" href="../theory/references.html#id11">Chi08</a>]</span></p>
+constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <span id="id5">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p>
@@ -461,7 +461,7 @@ This is the preferred choice in this case.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<em>sarkas.base.parameters</em>) – Parameters class.</p></li>
+<li><p><strong>params</strong> (<em>sarkas.core.parameters</em>) – Parameters class.</p></li>
 <li><p><strong>thermostat</strong> (<em>sarkas.time_evolution.thermostat</em>) – Thermostat class</p></li>
 <li><p><strong>potential</strong> (<a class="reference internal" href="sarkas.potentials.core.html#sarkas.potentials.core.Potential" title="sarkas.potentials.core.Potential"><em>sarkas.potentials.core.Potential</em></a>) – Potential class.</p></li>
 </ul>
@@ -540,7 +540,7 @@ or on the Sarkas website.</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

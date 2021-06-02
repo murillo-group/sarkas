@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Why Sarkas &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Why Sarkas &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -108,8 +108,12 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">Why Sarkas</a><ul>
+<li><a class="reference internal" href="#problem">Problem</a></li>
+<li><a class="reference internal" href="#solution">Solution</a><ul>
 <li><a class="reference internal" href="#old-school">Old School</a></li>
 <li><a class="reference internal" href="#new-school">New School</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -152,26 +156,23 @@
   <p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Why Sarkas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#new-school">New School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#solution">Solution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#old-school">Old School</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-school">New School</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="get_started.html">Get Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Quickstart.html">Quickstart</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Quickstart.html#Postprocessing">Postprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="input_file.html">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Simulation_Docs.html">Running a Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Post_Processing_Docs.html">Data Analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#virtual-environment">Virtual Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="get_started.html#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="get_started.html#run-the-code">Run the code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 </ul>
 </li>
 </ul>
@@ -272,8 +273,10 @@
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
@@ -282,10 +285,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
@@ -306,8 +305,12 @@
 <p class="caption"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../credits/pub_research.html">Publications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../credits/team.html">Dev Team</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#funding">Funding</a></li>
 </ul>
 </li>
 </ul>
@@ -319,16 +322,34 @@
       
   <div class="section" id="why-sarkas">
 <h1>Why Sarkas<a class="headerlink" href="#why-sarkas" title="Permalink to this headline">¶</a></h1>
-<p>Sarkas was developed by plasma physicists in order to streamline the data production, avoid the two language problem, facilitate the data analysis, by exploiting data science techniques.</p>
-<p>The original workflow of MD simulations looked something like this</p>
+<div class="section" id="problem">
+<h2>Problem<a class="headerlink" href="#problem" title="Permalink to this headline">¶</a></h2>
+<p>The typical workflow of MD simulations in plasma physics looks something like this</p>
 <ol class="arabic simple">
-<li><p>Write your own MD code, or use a pre-existing code, in a low-level language such as <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> or (even better) <code class="docutils literal notranslate"><span class="pre">Fortran</span></code> to exploit their computational speed.</p></li>
+<li><p>Write your own MD code, or use a pre-existing code, in a low-level language such as C/C++ or (even better) Fortran to exploit their computational speed.</p></li>
 <li><p>Run multiple simulations with different initial conditions.</p></li>
 <li><p>Analyze the output of each simulation. This is usually done in a interpreted, high-level language like Python.</p></li>
 <li><p>Make plots and publish</p></li>
 </ol>
+<p>There are two main issues with the above workflow as it requires <cite>i)</cite> a high-level of computing knowledge to write/understand and run
+an MD code, <cite>ii)</cite> a graduate level of plasma physics for calculating physical observables and transport coefficients.</p>
+</div>
+<div class="section" id="solution">
+<h2>Solution<a class="headerlink" href="#solution" title="Permalink to this headline">¶</a></h2>
+<p>Sarkas: a fast pure-Python molecular dynamics suite for non-ideal plasmas.</p>
+<p>Sarkas aims at lowering the entry barrier for computational plasma physics by providing a comprehensive MD suite complete
+with pre- and post-processing tools commonly found in plasma physics.</p>
+<p>Sarkas is entirely written in Python without calls to C hence avoiding a two-language problem. It relies on the most
+common Python scientific packages, <em>e.g.</em> <a class="reference external" href="https://numpy.org/">NumPy</a>, <a class="reference external" href="http://numba.pydata.org/">Numba</a>,
+<a class="reference external" href="https://www.scipy.org/">SciPy</a>, and <a class="reference external" href="https://pandas.pydata.org/">Pandas</a>, which provide a solid foundation built,
+optimized, and well documented by one of the largest community of developers.
+Furthermore, Sarkas is developed using an object-oriented approach allowing users to add new features
+in a straight-forward way.</p>
+<p>Sarkas targets a broad user base: from experimentalists to computational physicists, from students approaching plasma
+physics for the first time to seasoned researchers. Therefore Sarkas’ design revolves around two primary requirements:
+ease-of-use and extensibility.</p>
 <div class="section" id="old-school">
-<h2>Old School<a class="headerlink" href="#old-school" title="Permalink to this headline">¶</a></h2>
+<h3>Old School<a class="headerlink" href="#old-school" title="Permalink to this headline">¶</a></h3>
 <p>First and foremost we run the help command in a terminal window</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sarkas_simulate -h
 </pre></div>
@@ -347,7 +368,6 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">-d</span></code> or <code class="docutils literal notranslate"><span class="pre">--sim_dir</span></code> name of the directory storing all the simulations.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-j</span></code> or <code class="docutils literal notranslate"><span class="pre">--job_id</span></code> name of the directory of the current run.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> or <code class="docutils literal notranslate"><span class="pre">--seed</span></code> sets the random number seed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-e</span></code> or <code class="docutils literal notranslate"><span class="pre">--estimate</span></code> estimate the best P3M parameters of your run.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-r</span></code> or <code class="docutils literal notranslate"><span class="pre">--restart</span></code> for starting the simulation from a specific point.</p></li>
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">--input</span></code> option is the only required option as it refers to the input file.
@@ -373,12 +393,12 @@ This choice, however, does not come at the expense of speed. In fact, Sarkas mak
 packages so that the code can run as fast, if not faster, than low-level languages like <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> and <code class="docutils literal notranslate"><span class="pre">Fortran</span></code>.</p>
 </div>
 <div class="section" id="new-school">
-<h2>New School<a class="headerlink" href="#new-school" title="Permalink to this headline">¶</a></h2>
+<h3>New School<a class="headerlink" href="#new-school" title="Permalink to this headline">¶</a></h3>
 <p>Here we find the first advantage of Sarkas: removing the need to know multiple languages.
 Sarkas is not a Python wrapper around an existing MD code. It is entirely written in Python to allow users
 to modify the codes for their specific needs. This choice, however, does not come at the expense
-of speed. In fact, Sarkas, via the use of <code class="docutils literal notranslate"><span class="pre">Numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">Numba</span></code> packages, can run as fast,
-if not faster, than low-level languages like <code class="docutils literal notranslate"><span class="pre">C/C++</span></code> and <code class="docutils literal notranslate"><span class="pre">Fortran</span></code>.</p>
+of speed. In fact, Sarkas, via the use of Numpy and Numba packages, can run as fast,
+if not faster, than low-level languages like C/C++ and Fortran.</p>
 <p>Sarkas was created with the idea of incorporating the entire simulation workflow in a single Python
 script. Let’s say we want to run a set of ten simulations of a Yukawa OCP for different
 screening parameters and measure their diffusion coefficient. An example script looks like this</p>
@@ -401,7 +421,6 @@ screening parameters and measure their diffusion coefficient. An example script 
     <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;IO&quot;</span><span class="p">:</span>
             <span class="p">{</span>
-                <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;yocp_kappa</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">kappa</span><span class="p">),</span>
                 <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;yocp_kappa</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
             <span class="p">},</span>
         <span class="s2">&quot;Potential&quot;</span><span class="p">:</span>
@@ -421,6 +440,7 @@ screening parameters and measure their diffusion coefficient. An example script 
 <p>Notice how both the simulation and the postprocessing can be done all in one script.</p>
 </div>
 </div>
+</div>
 
 
     </div>
@@ -435,7 +455,7 @@ screening parameters and measure their diffusion coefficient. An example script 
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

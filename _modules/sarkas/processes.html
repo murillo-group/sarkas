@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sarkas.processes &#8212; Sarkas 0.1.0 documentation</title>
+    <title>sarkas.processes &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -136,7 +136,7 @@
       
   <h1>Source code for sarkas.processes</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module handling the MD run stages: PreProcessing, Simulation, PostProcessing.</span>
+<span class="sd">Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">py_copy</span>
@@ -183,7 +183,7 @@
 <span class="sd">        Class handling simulation&#39;s parameters.</span>
 
 <span class="sd">    species: list</span>
-<span class="sd">        List of :meth:`sarkas.base.Species` classes.</span>
+<span class="sd">        List of :meth:`sarkas.core.Species` classes.</span>
 
 <span class="sd">    input_file: str</span>
 <span class="sd">        Path to YAML input file.</span>
@@ -242,7 +242,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># This is not needed in the case of process = simulation</span>
-        <span class="k">for</span> <span class="n">observable</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;PostProcessing&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">observable</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;Observables&#39;</span><span class="p">]:</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">observable</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;rdf&#39;</span><span class="p">)</span>
@@ -292,7 +292,7 @@
                     <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s1">&#39;Transport&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;TransportCoefficients&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">transport_dict</span> <span class="o">=</span> <span class="n">dics</span><span class="p">[</span><span class="s2">&quot;Transport&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Process.initialization"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Process.initialization">[docs]</a>    <span class="k">def</span> <span class="nf">initialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -374,14 +374,14 @@
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other_inputs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;Wrong input type. other_inputs should be a nested dictionary&quot;</span>
 
             <span class="k">for</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">class_attr</span> <span class="ow">in</span> <span class="n">other_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">class_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Particles&#39;</span><span class="p">,</span> <span class="s1">&#39;PostProcessing&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">class_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Particles&#39;</span><span class="p">,</span> <span class="s1">&#39;Obervables&#39;</span><span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">class_attr</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">species</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">other_inputs</span><span class="p">[</span><span class="s2">&quot;Particles&quot;</span><span class="p">]):</span>
                         <span class="n">spec</span> <span class="o">=</span> <span class="n">Species</span><span class="p">(</span><span class="n">species</span><span class="p">[</span><span class="s2">&quot;Species&quot;</span><span class="p">])</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;PostProcessing&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;Observables&#39;</span><span class="p">:</span>
 
                     <span class="k">for</span> <span class="n">observable</span> <span class="ow">in</span> <span class="n">class_attr</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">observable</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -463,7 +463,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        simulation: sarkas.base.processes.Simulation</span>
+<span class="sd">        simulation: sarkas.core.processes.Simulation</span>
 <span class="sd">            Simulation object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -493,16 +493,16 @@
 
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">coeff_kwargs</span> <span class="ow">in</span> <span class="n">coeff</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Diffusion&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;diffusion&#39;</span><span class="p">:</span>
                         <span class="n">TC</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="o">**</span><span class="n">coeff_kwargs</span><span class="p">)</span>
 
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Interdiffusion&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;interdiffusion&#39;</span><span class="p">:</span>
                         <span class="n">TC</span><span class="o">.</span><span class="n">interdiffusion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="o">**</span><span class="n">coeff_kwargs</span><span class="p">)</span>
 
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;viscosity&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;viscosity&#39;</span><span class="p">:</span>
                         <span class="n">TC</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="o">**</span><span class="n">coeff_kwargs</span><span class="p">)</span>
 
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;electrical_conductivity&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;electricalconductivity&#39;</span><span class="p">:</span>
                         <span class="n">TC</span><span class="o">.</span><span class="n">electrical_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="o">**</span><span class="n">coeff_kwargs</span><span class="p">)</span></div></div>
 
 
@@ -530,7 +530,7 @@
 <span class="sd">        Array of simulations box cells used in the PPPM parameters estimation.</span>
 
 <span class="sd">    kappa: float</span>
-<span class="sd">        Screening parameter. Calculated from :meth:`sarkas.potentials.base.Potential.matrix`.</span>
+<span class="sd">        Screening parameter. Calculated from :meth:`sarkas.potentials.core.Potential.matrix`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1511,7 +1511,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

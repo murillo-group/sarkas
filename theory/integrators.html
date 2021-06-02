@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Integrators &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Integrators &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -155,26 +155,23 @@
   <p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/why_sarkas.html">Why Sarkas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#solution">Solution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Postprocessing">Postprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/input_file.html">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Simulation_Docs.html">Running a Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Post_Processing_Docs.html">Data Analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#run-the-code">Run the code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a></li>
 </ul>
 </li>
 </ul>
@@ -275,8 +272,10 @@
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
@@ -285,10 +284,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
@@ -309,8 +304,12 @@
 <p class="caption"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../credits/pub_research.html">Publications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../credits/team.html">Dev Team</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#funding">Funding</a></li>
 </ul>
 </li>
 </ul>
@@ -380,7 +379,7 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
 <div class="section" id="magnetic-velocity-verlet">
 <h2>Magnetic Velocity Verlet<a class="headerlink" href="#magnetic-velocity-verlet" title="Permalink to this headline">¶</a></h2>
 <p>A generalization to include constant external magnetic fields leads to the Liouville operator
-<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <span id="id2">[<a class="reference internal" href="references.html#id11">Chi08</a>]</span></p>
+<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <span id="id2">[<a class="reference internal" href="references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <div class="math notranslate nohighlight">
 \[L_B = \omega_c \left ( \hat{\mathbf B} \times \mathbf v \right ) \cdot \frac{\partial}{\partial \mathbf v}  = \omega_c \hat{\mathbf B} \cdot \left( \mathbf v \times \frac{\partial}{\partial \mathbf v} \right ) = \omega_c \hat{\mathbf B} \cdot \mathbf J_{\mathbf v}.\]</div>
 <p>Application of this operator leads to <span class="math notranslate nohighlight">\(e^{i \epsilon L_B}\vb{r}_0 = 0\)</span> and</p>
@@ -400,10 +399,10 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
 <p>Time integrators of various order can be found by exponential splitting, that is</p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx \prod_{ j = 1}^{N} e^{i a_j \epsilon K} e^{i b_j \epsilon \left ( L_B + V \right ) }.\]</div>
-<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <span id="id3">[<a class="reference internal" href="references.html#id11">Chi08</a>]</span></p>
+<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <span id="id3">[<a class="reference internal" href="references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx e^{i \epsilon K} e^{i \epsilon V/2}  e^{i \epsilon L_B} e^{i \epsilon V/2}\]</div>
-<p>while a generalization of the Velocity-Verlet <span id="id4">[<a class="reference internal" href="references.html#id11">Chi08</a>, <a class="reference internal" href="references.html#id9">SW99</a>]</span></p>
+<p>while a generalization of the Velocity-Verlet <span id="id4">[<a class="reference internal" href="references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>, <a class="reference internal" href="references.html#id9" title="Q Spreiter and M Walter. Classical molecular dynamics simulation with the velocity verlet algorithm at strong external magnetic fields. Journal of Computational Physics, 152(1):102–119, 1999. doi:10.1006/jcph.1999.6237.">Spreiter and Walter, 1999</a>]</span></p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx  e^{i \epsilon (L_B + V) /2} e^{i \epsilon K} e^{i \epsilon ( L_B + V)/2}.\]</div>
 <p>Notice that all the above algorithm require one force calculation per time step.</p>
@@ -423,7 +422,7 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

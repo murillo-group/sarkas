@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Potentials &#8212; Sarkas 0.1.0 documentation</title>
+    <title>Potentials &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -156,26 +156,23 @@
   <p class="caption"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/why_sarkas.html">Why Sarkas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/why_sarkas.html#solution">Solution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/why_sarkas.html#old-school">Old School</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/why_sarkas.html#new-school">New School</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html#Postprocessing">Postprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/input_file.html">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Simulation_Docs.html">Running a Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Post_Processing_Docs.html">Data Analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#run-the-code">Run the code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a></li>
 </ul>
 </li>
 </ul>
@@ -276,8 +273,10 @@
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#base">Base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
@@ -286,10 +285,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#processes">Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
@@ -310,8 +305,12 @@
 <p class="caption"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../credits/credits.html">Credits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#team">Team</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#citing-sarkas">Citing Sarkas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../credits/pub_research.html">Publications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../credits/team.html">Dev Team</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../credits/credits.html#funding">Funding</a></li>
 </ul>
 </li>
 </ul>
@@ -338,7 +337,7 @@ All the equations will be given in cgs units, however, for easy conversion, we d
 <div class="math notranslate nohighlight">
 \[\bar{e}^2 = \frac{e^2}{4\pi \varepsilon_0},\]</div>
 <p>which when substituted in gives the equivalent mks formula.</p>
-<p>Electron parameters and thermodynamic formulas are given in <a class="reference external" href="electron_properties">here</a>.</p>
+<p>Electron parameters and thermodynamic formulas are given in <a class="reference internal" href="electron_properties.html#electron-properties"><span class="std std-ref">here</span></a>.</p>
 <div class="section" id="coulomb-potential">
 <h2>Coulomb Potential<a class="headerlink" href="#coulomb-potential" title="Permalink to this headline">¶</a></h2>
 <p>Two charged particle with charge numbers <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> interact with each other via the Coulomb potential
@@ -363,7 +362,7 @@ In Sarkas <span class="math notranslate nohighlight">\(\kappa\)</span> can be gi
 <h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas.
 Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects.
-Stanton and Murillo <span id="id1">[<a class="reference internal" href="references.html#id13">SM15</a>]</span>, using a DFT formalism, derived an exact-gradient corrected ion pair potential
+Stanton and Murillo <span id="id1">[<a class="reference internal" href="references.html#id13" title="L. G. Stanton and M. S. Murillo. Unified description of linear screening in dense plasmas. Phys. Rev. E, 91:033104, Mar 2015. URL: https://link.aps.org/doi/10.1103/PhysRevE.91.033104, doi:10.1103/PhysRevE.91.033104.">Stanton and Murillo, 2015</a>]</span>, using a DFT formalism, derived an exact-gradient corrected ion pair potential
 across a wide range of densities and temperatures.</p>
 <p>The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs.
 Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
@@ -400,14 +399,14 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 <div class="section" id="quantum-statistical-potential">
 <h2>Quantum Statistical Potential<a class="headerlink" href="#quantum-statistical-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Quantum Statistical Potential between two charged particles <span class="math notranslate nohighlight">\(a,b\)</span> used in Sarkas is given by eq.(5)
-in <span id="id2">[<a class="reference internal" href="references.html#id14">GGM+08</a>]</span></p>
+in <span id="id2">[<a class="reference internal" href="references.html#id14" title="J. N. Glosli, F. R. Graziani, R. M. More, M. S. Murillo, F. H. Streitz, M. P. Surh, L. X. Benedict, S. Hau-Riege, A. B. Langdon, and R. A. London. Molecular dynamics simulations of temperature equilibration in dense hydrogen. Physical Review E - Statistical, Nonlinear, and Soft Matter Physics, aug 2008. doi:10.1103/PhysRevE.78.025401.">Glosli <em>et al.</em>, 2008</a>]</span></p>
 <div class="math notranslate nohighlight">
 \[\phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left ( 1 - e^{ - 2\pi r/\Lambda_{ab}}\right ) + \delta_{ae} \delta_{be} k_BT \ln(2) \exp \left \{ - \frac{4 \pi r^2}{\Lambda_{ab}^2 \ln (2)} \right \}\]</div>
 <p>where the screening length <span class="math notranslate nohighlight">\(\Lambda_{ab}\)</span> is the thermal de Broglie wavelength between the two charges defined as</p>
 <div class="math notranslate nohighlight">
 \[\Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}}, \quad  \mu_{ab} = \frac{m_a m_b}{m_a + m_b}\]</div>
 <p>The last term, present only in the interaction between two electrons, accounts for spin-averaged effects.</p>
-<p>Note that the de Broglie wavelength is defined differently in <span id="id3">[<a class="reference internal" href="references.html#id15">HM81</a>]</span> hence the factor of <span class="math notranslate nohighlight">\(2\pi\)</span> in
+<p>Note that the de Broglie wavelength is defined differently in <span id="id3">[<a class="reference internal" href="references.html#id15" title="J. P. Hansen and I. R. McDonald. Microscopic simulation of a strongly coupled hydrogen plasma. Physical Review A, 23(4):2041–2059, 1981. doi:10.1103/PhysRevA.23.2041.">Hansen and McDonald, 1981</a>]</span> hence the factor of <span class="math notranslate nohighlight">\(2\pi\)</span> in
 the exponential. The long range part of the potential is computed using the PPPM algorithm where only the
 <span class="math notranslate nohighlight">\(1/r\)</span> term is split into a short range and long range part.</p>
 <p>The choice of this potential is due to its widespread use in the High Energy Density Physics community.</p>
@@ -427,7 +426,7 @@ the exponential. The long range part of the potential is computed using the PPPM
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

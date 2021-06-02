@@ -1,17 +1,40 @@
 ==========
 Why Sarkas
 ==========
-Sarkas was developed by plasma physicists in order to streamline the data production, avoid the two language problem, facilitate the data analysis, by exploiting data science techniques.
 
-The original workflow of MD simulations looked something like this
+Problem
+-------
+The typical workflow of MD simulations in plasma physics looks something like this
 
-#. Write your own MD code, or use a pre-existing code, in a low-level language such as ``C/C++`` or (even better) ``Fortran`` to exploit their computational speed. 
+#. Write your own MD code, or use a pre-existing code, in a low-level language such as C/C++ or (even better) Fortran to exploit their computational speed.
 
-#. Run multiple simulations with different initial conditions. 
+#. Run multiple simulations with different initial conditions.
 
 #. Analyze the output of each simulation. This is usually done in a interpreted, high-level language like Python.
 
 #. Make plots and publish
+
+There are two main issues with the above workflow as it requires `i)` a high-level of computing knowledge to write/understand and run
+an MD code, `ii)` a graduate level of plasma physics for calculating physical observables and transport coefficients.
+
+Solution
+--------
+Sarkas: a fast pure-Python molecular dynamics suite for non-ideal plasmas.
+
+Sarkas aims at lowering the entry barrier for computational plasma physics by providing a comprehensive MD suite complete
+with pre- and post-processing tools commonly found in plasma physics.
+
+Sarkas is entirely written in Python without calls to C hence avoiding a two-language problem. It relies on the most
+common Python scientific packages, *e.g.* `NumPy <https://numpy.org/>`_, `Numba <http://numba.pydata.org/>`_,
+`SciPy <https://www.scipy.org/>`_, and `Pandas <https://pandas.pydata.org/>`_, which provide a solid foundation built,
+optimized, and well documented by one of the largest community of developers.
+Furthermore, Sarkas is developed using an object-oriented approach allowing users to add new features
+in a straight-forward way.
+
+Sarkas targets a broad user base: from experimentalists to computational physicists, from students approaching plasma
+physics for the first time to seasoned researchers. Therefore Sarkas' design revolves around two primary requirements:
+ease-of-use and extensibility.
+
 
 Old School
 ==========
@@ -36,7 +59,6 @@ This output prints out the different options with which you can run Sarkas.
 - ``-d`` or ``--sim_dir`` name of the directory storing all the simulations.
 - ``-j`` or ``--job_id`` name of the directory of the current run.
 - ``-s`` or ``--seed`` sets the random number seed.
-- ``-e`` or ``--estimate`` estimate the best P3M parameters of your run.
 - ``-r`` or ``--restart`` for starting the simulation from a specific point.
 
 The ``--input`` option is the only required option as it refers to the input file.
@@ -69,8 +91,8 @@ New School
 Here we find the first advantage of Sarkas: removing the need to know multiple languages.
 Sarkas is not a Python wrapper around an existing MD code. It is entirely written in Python to allow users
 to modify the codes for their specific needs. This choice, however, does not come at the expense
-of speed. In fact, Sarkas, via the use of ``Numpy`` and ``Numba`` packages, can run as fast,
-if not faster, than low-level languages like ``C/C++`` and ``Fortran``.
+of speed. In fact, Sarkas, via the use of Numpy and Numba packages, can run as fast,
+if not faster, than low-level languages like C/C++ and Fortran.
 
 Sarkas was created with the idea of incorporating the entire simulation workflow in a single Python
 script. Let's say we want to run a set of ten simulations of a Yukawa OCP for different
@@ -97,7 +119,6 @@ screening parameters and measure their diffusion coefficient. An example script 
         args = {
             "IO":
                 {
-                    "job_id": "yocp_kappa{}".format( kappa),
                     "job_dir": "yocp_kappa{}".format(kappa)
                 },
             "Potential":

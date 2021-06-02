@@ -1,18 +1,17 @@
 .. currentmodule:: sarkas
 
+=============
 API reference
 =============
 
-.. _base_api:
-
-Base
-----
+.. _core_api:
 
 .. autosummary::
     :toctree: 
     :nosignatures:
 
-    base
+    core
+    processes
 
 
 .. _potentials_api:
@@ -24,7 +23,7 @@ Potentials
     :toctree: 
     :nosignatures:
 
-    potentials.base
+    potentials.core
     potentials.coulomb
     potentials.egs
     potentials.force_pm
@@ -33,21 +32,6 @@ Potentials
     potentials.moliere
     potentials.qsp
     potentials.yukawa
-
-
-
-.. _processes_api:
-
-Processes
----------
-
-.. autosummary::
-    :toctree: 
-    :nosignatures:
-
-    processes
-
-
 
 
 .. _timeEvo_api:

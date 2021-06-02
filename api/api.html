@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API reference &#8212; Sarkas 0.1.0 documentation</title>
+    <title>API reference &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -25,7 +25,7 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sarkas.potentials.coulomb module" href="sarkas.potentials.coulomb.html" />
+    <link rel="next" title="sarkas.core module" href="sarkas.core.html" />
     <link rel="prev" title="Yukawa vs Egs potential" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -108,9 +108,7 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">API reference</a><ul>
-<li><a class="reference internal" href="#base">Base</a></li>
 <li><a class="reference internal" href="#potentials">Potentials</a></li>
-<li><a class="reference internal" href="#processes">Processes</a></li>
 <li><a class="reference internal" href="#time-evolution">Time Evolution</a></li>
 <li><a class="reference internal" href="#tools">Tools</a></li>
 <li><a class="reference internal" href="#utilities">Utilities</a></li>
@@ -149,17 +147,20 @@
       
   <div class="section" id="api-reference">
 <h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="base">
-<span id="base-api"></span><h2>Base<a class="headerlink" href="#base" title="Permalink to this headline">¶</a></h2>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.core.html#module-sarkas.core" title="sarkas.core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core</span></code></a></p></td>
+<td><p>Module containing the three basic classes: Parameters, Particles, Species.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.processes.html#module-sarkas.processes" title="sarkas.processes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">processes</span></code></a></p></td>
+<td><p>Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.</p></td>
+</tr>
 </tbody>
 </table>
-</div>
 <div class="section" id="potentials">
 <span id="potentials-api"></span><h2>Potentials<a class="headerlink" href="#potentials" title="Permalink to this headline">¶</a></h2>
 <table class="longtable docutils align-default">
@@ -168,43 +169,32 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.coulomb.html#module-sarkas.potentials.coulomb" title="sarkas.potentials.coulomb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.coulomb</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.core.html#module-sarkas.potentials.core" title="sarkas.potentials.core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.core</span></code></a></p></td>
+<td><p>Module handling the potential class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.coulomb.html#module-sarkas.potentials.coulomb" title="sarkas.potentials.coulomb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.coulomb</span></code></a></p></td>
 <td><p>Module for handling Coulomb interaction</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.egs.html#module-sarkas.potentials.egs" title="sarkas.potentials.egs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.egs</span></code></a></p></td>
-<td><p>Module for handling EGS Potential as described in Ref.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.egs.html#module-sarkas.potentials.egs" title="sarkas.potentials.egs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.egs</span></code></a></p></td>
+<td><p>Module for handling Exact Gradient corrected Screened (EGS) Potential</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.force_pm.html#module-sarkas.potentials.force_pm" title="sarkas.potentials.force_pm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.force_pm</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.force_pm.html#module-sarkas.potentials.force_pm" title="sarkas.potentials.force_pm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.force_pm</span></code></a></p></td>
 <td><p>Module for handling the Particle-Mesh part of the force and potential calculation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.force_pp.html#module-sarkas.potentials.force_pp" title="sarkas.potentials.force_pp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.force_pp</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.force_pp.html#module-sarkas.potentials.force_pp" title="sarkas.potentials.force_pp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.force_pp</span></code></a></p></td>
 <td><p>Module for handling Particle-Particle interaction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.lennardjones.html#module-sarkas.potentials.lennardjones" title="sarkas.potentials.lennardjones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.lennardjones</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.lennardjones.html#module-sarkas.potentials.lennardjones" title="sarkas.potentials.lennardjones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.lennardjones</span></code></a></p></td>
 <td><p>Module for handling Lennard-Jones interaction</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.moliere.html#module-sarkas.potentials.moliere" title="sarkas.potentials.moliere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.moliere</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.moliere.html#module-sarkas.potentials.moliere" title="sarkas.potentials.moliere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.moliere</span></code></a></p></td>
 <td><p>Module for handling Moliere Potential</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.qsp.html#module-sarkas.potentials.qsp" title="sarkas.potentials.qsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.qsp</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.qsp.html#module-sarkas.potentials.qsp" title="sarkas.potentials.qsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.qsp</span></code></a></p></td>
 <td><p>Module for handling the Quantum Statistical Potential.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.yukawa.html#module-sarkas.potentials.yukawa" title="sarkas.potentials.yukawa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.yukawa</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.yukawa.html#module-sarkas.potentials.yukawa" title="sarkas.potentials.yukawa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.yukawa</span></code></a></p></td>
 <td><p>Module for handling Yukawa interaction</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="processes">
-<span id="processes-api"></span><h2>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h2>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.processes.html#module-sarkas.processes" title="sarkas.processes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">processes</span></code></a></p></td>
-<td><p>Module handling the MD run stages: PreProcessing, Simulation, PostProcessing.</p></td>
 </tr>
 </tbody>
 </table>
@@ -266,7 +256,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>

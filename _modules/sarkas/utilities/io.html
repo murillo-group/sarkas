@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sarkas.utilities.io &#8212; Sarkas 0.1.0 documentation</title>
+    <title>sarkas.utilities.io &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
@@ -285,8 +285,8 @@
 
         <span class="c1"># rdf_nbins can be defined in either Parameters or Postprocessing. However, Postprocessing will always</span>
         <span class="c1"># supersede Parameters choice.</span>
-        <span class="k">if</span> <span class="s1">&#39;PostProcessing&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;PostProcessing&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s1">&#39;Observables&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;Observables&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;Parameters&#39;</span><span class="p">][</span><span class="s1">&#39;rdf_nbins&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;RadialDistributionFunction&#39;</span><span class="p">][</span><span class="s1">&#39;no_bins&#39;</span><span class="p">]</span>
 
@@ -547,7 +547,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        simulation: sarkas.base.Simulation</span>
+<span class="sd">        simulation: sarkas.core.Simulation</span>
 <span class="sd">            Simulation&#39;s parameters</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -798,7 +798,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        simulation: sarkas.base.Simulation</span>
+<span class="sd">        simulation: sarkas.core.Simulation</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -927,7 +927,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        simulation: sarkas.base.Simulation</span>
+<span class="sd">        simulation: sarkas.core.Simulation</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
 
@@ -999,7 +999,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        simulation: sarkas.base.Simulation</span>
+<span class="sd">        simulation: sarkas.core.Simulation</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1163,7 +1163,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        process: cls</span>
 <span class="sd">            Simulation&#39;s parameters. It can be one of three (sarkas.tools.PreProcess,</span>
-<span class="sd">            sarkas.base.Simulation, sarkas.tools.PostProcess)</span>
+<span class="sd">            sarkas.core.Simulation, sarkas.tools.PostProcess)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">py_copy</span>
         <span class="n">file_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="s1">&#39;integrator&#39;</span><span class="p">,</span> <span class="s1">&#39;thermostat&#39;</span><span class="p">,</span> <span class="s1">&#39;potential&#39;</span><span class="p">,</span> <span class="s1">&#39;species&#39;</span><span class="p">]</span>
@@ -1446,7 +1446,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on May 28, 2021.<br/>
+      Last updated on Jun 02, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
     </p>
   </div>
