@@ -117,7 +117,7 @@ class Observable:
 
     dump_step : int
         Correct step interval.
-        It is either ``sarkas.base.Parameters.prod_dump_step`` or ``sarkas.base.Parameters.eq_dump_step``.
+        It is either ``sarkas.core.Parameters.prod_dump_step`` or ``sarkas.core.Parameters.eq_dump_step``.
 
     no_obs : int
         Number of independent binary observable quantities.
@@ -773,7 +773,7 @@ class CurrentCorrelationFunction(Observable):
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -826,7 +826,7 @@ class CurrentCorrelationFunction(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1040,7 +1040,7 @@ class DynamicStructureFactor(Observable):
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1090,7 +1090,7 @@ class DynamicStructureFactor(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1248,7 +1248,7 @@ class ElectricCurrent(Observable):
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1284,7 +1284,7 @@ class ElectricCurrent(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1447,7 +1447,7 @@ class RadialDistributionFunction(Observable):
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1486,7 +1486,7 @@ class RadialDistributionFunction(Observable):
             Histogram of the radial distribution function.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1595,7 +1595,7 @@ class StaticStructureFactor(Observable):
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1636,7 +1636,7 @@ class StaticStructureFactor(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1754,7 +1754,7 @@ class Thermodynamics(Observable):
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1853,7 +1853,7 @@ class Thermodynamics(Observable):
             Pair distribution function.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         Returns
@@ -2206,7 +2206,7 @@ class VelocityAutoCorrelationFunction(Observable):
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -2243,7 +2243,7 @@ class VelocityAutoCorrelationFunction(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -2347,7 +2347,7 @@ class DiffusionFlux(Observable):
             Number of independent runs inside a long simulation. Default = 1.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -2390,7 +2390,7 @@ class DiffusionFlux(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -2550,7 +2550,7 @@ class VelocityDistribution(Observable):
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -2716,7 +2716,7 @@ class VelocityDistribution(Observable):
             Dictionary with arguments to pass to ``numpy.histogram``.
 
         **kwargs :
-            These are will overwrite any ``sarkas.base.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """

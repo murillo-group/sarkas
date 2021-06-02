@@ -7,7 +7,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   sarkas.potentials.base
+   sarkas.potentials.core
    sarkas.potentials.coulomb
    sarkas.potentials.egs
    sarkas.potentials.force_pm

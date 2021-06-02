@@ -1,7 +1,7 @@
-sarkas.base module
+sarkas.core module
 ==================
 
-.. automodule:: sarkas.base
+.. automodule:: sarkas.core
    :members:
    :undoc-members:
    :show-inheritance:

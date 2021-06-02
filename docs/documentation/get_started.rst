@@ -2,60 +2,52 @@
 Get Started
 ***********
 
-.. warning::
-    Sarkas is under heavy development and not yet available via package managers like ``pip`` and ``conda``.
-    Therefore, please follow the instructions `here <https://murillo-group.github.io/sarkas/code_development/dev_setup#>`_ for installation.
-
-.. toctree::
-    :maxdepth: 1
-
-    Quickstart
-    tutorial
-
-
-Virtual environment
-===================
 It is good practice to create virtual environment for your each of your programming projects. Below are instructions
-for creating the ``sarkas`` virtual environment.
+for creating the ``sarkas`` virtual environment. Otherwise you can jump to the next section and :ref:`install <sec_installation>` Sarkas
 
-#. Check if you have ``conda`` installed
+Virtual Environment
+===================
 
-    .. code-block:: bash
+Start by checking if you have ``conda`` installed
 
-        $ which conda
+.. code-block:: bash
 
-    This command will print the path of your ``conda`` binaries. If nothing is printed then you need to install it. Visit
-    Anaconda.org and download_ their Python 3.* installer.
+    $ which conda
 
-#. Create your virtual environment via
+This command will print the path of your ``conda`` binaries. If nothing is printed then you need to install it. 
+Visit `Anaconda`_ and download their Python 3.* installer.
 
-    .. code-block:: bash
+You can create a virtual environment via
 
-        $ conda create --name sarkas
+.. code-block:: bash
 
-    This command will create the virtual environment ``sarkas`` in the ``envs`` directory of your conda directory
-    (the one printed above by the command ``which``).
+    $ conda create --name sarkas python=3.7 pip
 
-#. Once the enviroment has been created you can activate it by
+This command will create the virtual environment ``sarkas`` with python 3.7 and ``pip`` installed. 
+The environment can be found in the ``envs`` directory of your conda directory (the one printed above by the command ``which``). 
 
-    .. code-block:: bash
+Once the enviroment has been created you can activate it by
 
-        $ conda activate sarkas
+.. code-block:: bash
 
-    and deactivate it by
+    $ conda activate sarkas
 
-    .. code-block:: bash
+and deactivate it by
 
-        $ conda deactivate
+.. code-block:: bash
+
+    $ conda deactivate
+
+
+.. _sec_installation:
 
 Installation
 ============
-
 Once the environment has been activated you can install sarkas system wide via
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        $ pip install sarkas
+    $ pip install sarkas
 
 
 External packages
@@ -65,11 +57,22 @@ Sarkas uses two external packages: `FFTW <http://www.fftw.org/>`_ and `FMM3D <ht
 The first is used to perform fast Fourier transforms and the second to simulate systems with open boundary conditions.
 
 FFTW3 is a very commong library in scientific computation, however, it may happen that you don't have it already installed on your computer.
-In this case, follow their instructions `here <http://www.fftw.org/#documentation>`_ to install it.
+In this case, follow their `instructions <http://www.fftw.org/#documentation>`_ to install it.
 
 FMM3D is package written in Fortran to compute the potential field using the Multipole expansion. The documentation for installing it is `here <https://fmm3d.readthedocs.io/en/latest/install.html>`_.
-You can find their Python wrapper `here <https://fmm3d.readthedocs.io/en/latest/install.html#building-python-wrappers>`_.
+You can find their `section <https://fmm3d.readthedocs.io/en/latest/install.html#building-python-wrappers>`_ on a Python wrapper.
 
+
+Run the code
+============
+In the following pages you will find a quickstart notebook to check that Sarkas runs correctly and a long tutorial on how to 
+setup and run simulations.
+
+.. toctree::
+    :maxdepth: 1
+
+    Quickstart
+    tutorial
 
 .. _Anaconda: https://www.anaconda.org
 .. _repository: https://github.com/murillo-group/sarkas-repo

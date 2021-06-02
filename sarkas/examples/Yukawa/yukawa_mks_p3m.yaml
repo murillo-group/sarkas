@@ -42,7 +42,7 @@ IO:
     job_dir: yocp_pppm  # dir name to save data.
     job_id: yocp
 
-PostProcessing:
+Observables:
   - RadialDistributionFunction:
       no_bins: 500
 
@@ -58,3 +58,7 @@ PostProcessing:
 
   - CurrentCorrelationFunction:
       max_ka_value: 8
+
+TransportCoefficients:
+    - Diffusion:
+        time_averaging: False

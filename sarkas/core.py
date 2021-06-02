@@ -279,7 +279,7 @@ class Parameters:
         Parameters
         ----------
         species : list
-            List of ``sarkas.base.Species`` objects.
+            List of ``sarkas.core.Species`` objects.
 
         """
         self.check_units()
@@ -314,7 +314,7 @@ class Parameters:
         Parameters
         ----------
         species : list
-            List of ``sarkas.base.Species`` objects.
+            List of ``sarkas.core.Species`` objects.
 
         """
 
@@ -489,7 +489,7 @@ class Parameters:
         Parameters
         ----------
         species: list
-            List of ``sarkas.base.Species`` objects.
+            List of ``sarkas.core.Species`` objects.
 
         """
         z_avg = np.transpose(self.species_charges) @ self.species_concentrations
@@ -703,7 +703,7 @@ class Particles:
             Simulation's parameters.
 
         species : list
-            List of :meth:`sarkas.base.Species` objects.
+            List of :meth:`sarkas.core.Species` objects.
 
         """
 
@@ -832,7 +832,7 @@ class Particles:
         Parameters
         ----------
         species : list
-            List of ``sarkas.base.Species`` objects.
+            List of ``sarkas.core.Species`` objects.
 
         """
         species_end = 0

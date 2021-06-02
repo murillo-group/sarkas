@@ -14,6 +14,7 @@ import os
 import sys
 import sphinx_bootstrap_theme
 import sarkas
+
 sys.path.insert(0, os.path.abspath('../sarkas'))
 sys.path.insert(0, os.path.abspath('../sarkas/time_evolution'))
 sys.path.insert(0, os.path.abspath('../sarkas/utilities'))
@@ -35,7 +36,7 @@ author = 'MurilloGroup'
 copyright = '2019-2021, ' + author
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -96,8 +97,8 @@ mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 latex_engine = 'xelatex'
 latex_elements = {'preamble': r'\usepackage{physics}',}
 # latex_additional_files = ["physics.sty"]
-bibtex_bibfiles = ['references.bib']
-
+bibtex_bibfiles = ['references.bib','credits/publications.bib']
+bibtex_reference_style = 'author_year'
 
 autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
                         'pyfftw', 'pyfiglet', 'tqdm', 'fmm3dpy']
@@ -134,7 +135,7 @@ html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 html_theme_options = {
     # Navigation bar title. (Default: ``project`` value)
     'navbar_title': "ARKAS",
-
+    
     # Bootswatch (http://bootswatch.com/) theme.
     #
     # Options are nothing with "" (default) or the name of a valid theme such

@@ -148,8 +148,8 @@ class InputOutput:
 
         # rdf_nbins can be defined in either Parameters or Postprocessing. However, Postprocessing will always
         # supersede Parameters choice.
-        if 'PostProcessing' in dics.keys():
-            for i in dics['PostProcessing']:
+        if 'Observables' in dics.keys():
+            for i in dics['Observables']:
                 if 'RadialDistributionFunction' in i.keys():
                     dics['Parameters']['rdf_nbins'] = i['RadialDistributionFunction']['no_bins']
 
@@ -410,7 +410,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: sarkas.base.Simulation
+        simulation: sarkas.core.Simulation
             Simulation's parameters
 
         """
@@ -661,7 +661,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: sarkas.base.Simulation
+        simulation: sarkas.core.Simulation
             Simulation's parameters.
 
         """
@@ -790,7 +790,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: sarkas.base.Simulation
+        simulation: sarkas.core.Simulation
             Simulation's parameters.
 
 
@@ -862,7 +862,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: sarkas.base.Simulation
+        simulation: sarkas.core.Simulation
             Simulation's parameters.
 
         """
@@ -1026,7 +1026,7 @@ class InputOutput:
         ----------
         process: cls
             Simulation's parameters. It can be one of three (sarkas.tools.PreProcess,
-            sarkas.base.Simulation, sarkas.tools.PostProcess)
+            sarkas.core.Simulation, sarkas.tools.PostProcess)
         """
         import copy as py_copy
         file_list = ['parameters', 'integrator', 'thermostat', 'potential', 'species']

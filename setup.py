@@ -71,15 +71,16 @@ conf = ConfigParser()
 conf.read(['setup.cfg'])
 metadata = dict(conf.items('metadata'))
 
-PACKAGENAME = metadata.get('package_name', 'sarkas')
-DESCRIPTION = metadata.get('description', 'Sarkas')
-DESCRIPTION_FILE = metadata.get('description-file', 'README.md')
-VERSION = metadata.get('version','')
-AUTHOR = metadata.get('author', 'author')
-AUTHOR_EMAIL = metadata.get('author_email', '')
-LICENSE = metadata.get('license', 'unknown')
-URL = metadata.get('url', 'https://murillo-group.github.io/sarkas')
-__minimum_python_version__ = metadata.get("minimum_python_version", "3.7")
+PACKAGENAME = metadata.get('package_name')
+DESCRIPTION = metadata.get('description')
+DESCRIPTION_FILE = metadata.get('description-file')
+PACKAGEDIR = metadata.get('package_dir')
+VERSION = metadata.get('version')
+AUTHOR = metadata.get('author')
+AUTHOR_EMAIL = metadata.get('author_email')
+LICENSE = metadata.get('license')
+URL = metadata.get('url')
+__minimum_python_version__ = metadata.get("minimum_python_version")
 
 # Enforce Python version check - this is the same check as in __init__.py but
 # this one has to happen before importing ah_bootstrap.
@@ -107,6 +108,7 @@ setuptools.setup(
     scripts=scripts,
     packages=setuptools.find_packages(),
     install_requires= BASE_DEPENDENCIES,
+    dependency_links = ['https://pypi.org/'],
     classifiers=[
         # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
         'Development Status :: 4 - Beta',

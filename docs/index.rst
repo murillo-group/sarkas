@@ -110,8 +110,6 @@ SARKAS: Python MD code for plasma physics
 
    </div>
 
-.. warning:: Sarkas is under development.
-
 .. panels:: 
    :body: bg-light text-left
    :header: bg-light text-center border-0

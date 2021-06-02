@@ -1,5 +1,5 @@
 """
-Module handling the MD run stages: PreProcessing, Simulation, PostProcessing.
+Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
 import numpy as np
 import copy as py_copy
@@ -46,7 +46,7 @@ class Process:
         Class handling simulation's parameters.
 
     species: list
-        List of :meth:`sarkas.base.Species` classes.
+        List of :meth:`sarkas.core.Species` classes.
 
     input_file: str
         Path to YAML input file.
@@ -105,7 +105,7 @@ class Process:
 
         self.observables_list = []
         # This is not needed in the case of process = simulation
-        for observable in dics['PostProcessing']:
+        for observable in dics['Observables']:
             for key, sub_dict in observable.items():
                 if key == 'RadialDistributionFunction':
                     self.observables_list.append('rdf')
@@ -155,7 +155,7 @@ class Process:
                     if sub_dict:
                         self.diff_flux.from_dict(sub_dict)
 
-        if 'Transport' in dics.keys():
+        if 'TransportCoefficients' in dics.keys():
             self.transport_dict = dics["Transport"].copy()
 
     def initialization(self):
@@ -237,14 +237,14 @@ class Process:
             assert isinstance(other_inputs, dict), "Wrong input type. other_inputs should be a nested dictionary"
 
             for class_name, class_attr in other_inputs.items():
-                if class_name not in ['Particles', 'PostProcessing']:
+                if class_name not in ['Particles', 'Obervables']:
                     self.__dict__[class_name.lower()].__dict__.update(class_attr)
                 else:
                     for sp, species in enumerate(other_inputs["Particles"]):
                         spec = Species(species["Species"])
                         self.species[sp].__dict__.update(spec.__dict__)
 
-                if class_name == 'PostProcessing':
+                if class_name == 'Observables':
 
                     for observable in class_attr:
                         for key, sub_dict in observable.items():
@@ -326,7 +326,7 @@ class PostProcess(Process):
 
         Parameters
         ----------
-        simulation: sarkas.base.processes.Simulation
+        simulation: sarkas.core.processes.Simulation
             Simulation object
 
         """
@@ -356,16 +356,16 @@ class PostProcess(Process):
 
                 for key, coeff_kwargs in coeff.items():
 
-                    if key == 'Diffusion':
+                    if key.lower() == 'diffusion':
                         TC.diffusion(self.parameters, **coeff_kwargs)
 
-                    if key == 'Interdiffusion':
+                    if key.lower() == 'interdiffusion':
                         TC.interdiffusion(self.parameters, **coeff_kwargs)
 
-                    if key == 'viscosity':
+                    if key.lower() == 'viscosity':
                         TC.viscosity(self.parameters, **coeff_kwargs)
 
-                    if key == 'electrical_conductivity':
+                    if key.lower() == 'electricalconductivity':
                         TC.electrical_conductivity(self.parameters, **coeff_kwargs)
 
 
@@ -393,7 +393,7 @@ class PreProcess(Process):
         Array of simulations box cells used in the PPPM parameters estimation.
 
     kappa: float
-        Screening parameter. Calculated from :meth:`sarkas.potentials.base.Potential.matrix`.
+        Screening parameter. Calculated from :meth:`sarkas.potentials.core.Potential.matrix`.
 
     """
 

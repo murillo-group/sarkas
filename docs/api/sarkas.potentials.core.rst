@@ -1,7 +1,7 @@
-sarkas.potentials.base module
+sarkas.potentials.core module
 =============================
 
-.. automodule:: sarkas.potentials.base
+.. automodule:: sarkas.potentials.core
    :members:
    :undoc-members:
    :show-inheritance:

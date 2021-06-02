@@ -1,5 +1,5 @@
 """
-Module for handling EGS Potential as described in Ref. [Stanton2015]
+Module for handling Exact Gradient corrected Screened (EGS) Potential
 """
 import numpy as np
 from numba import njit

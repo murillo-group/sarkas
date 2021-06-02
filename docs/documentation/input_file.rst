@@ -98,14 +98,13 @@ of the thermalization phase are defined in the ``Thermostat`` section of the inp
 
     Thermostat:
         type: Berendsen               # thermostat type
-        relaxation_timestep: 20
-        tau: 5.0
-        temperatures_eV: 0.5
-
+        relaxation_timestep: 50
+        berendsen_tau: 1.0
+        
 The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen and Langevin type,
 but other thermostats like Nose-Hoover, etc are, you guessed it!, in development.
 The ``relaxation_timestep`` instance indicates the timestep number at which the Berendsen thermostat will be turned on.
-The instance ``tau`` indicates the relaxation rate of the Berendsen thermostat, see :ref:`thermostats` for more details.
+The instance ``berendsen_tau`` indicates the relaxation rate of the Berendsen thermostat, see :ref:`thermostats` for more details.
 
 The last instance defines the temperature (be careful with units!) at which the system is to be thermalized.
 Notice that this takes a single value in the case of a single species, while it takes is a list in the case of
@@ -120,12 +119,11 @@ The next section defines some general parameters
 .. code-block:: yaml
 
     Parameters:
-        units: mks                  # units
-        dt: 1.193536e-17            # sec
+        units: mks                    # units
+        dt: 2.000e-18                 # sec
         load_method: random_no_reject
-        rdf_nbins: 500
         boundary_conditions: periodic
-
+        
 The first instance defines the choice of units (mks or cgs) which must be consistent with all the other dimensional
 parameters defined in previous sections. The second instance is the value of the timestep in seconds.
 ``load_method`` defines the way particles positions are to be initialized. The options are
@@ -134,11 +132,9 @@ parameters defined in previous sections. The second instance is the value of the
 - ``random_reject`` for a uniform spatial distribution but with a minimum distance between particles
 - ``halton``
 
-``rdf_nbins`` indicates the number of bins for the pair distribution histogram which in this case is 500. The default
-value is 5% of the total number of particles.
 Next we define the ``boundary_conditions`` of our simulation. At the moment Sarkas supports only ``periodic`` boundary
-conditions and ``open`` boundary conditions which requires the ``FMM`` algorithm in all directions at once.
-Future implementations of Sarkas accepting mixed boundary conditions are under way, but not fully supported.
+conditions. 
+Future implementations of Sarkas accepting open and mixed boundary conditions will be available in the future.
 We accept pull request :) !
 
 Input/Output
@@ -154,16 +150,56 @@ The next section defines some IO parameters
         job_id: yocp
 
 ``verbose`` is flag for printing progress to screen. This is useful in the initialization phase of an MD
-simulation. The next instances are not needed, however, they are useful for organizing your work. ``simulations_dir``
+simulation. The next instances are not necessary, as there are default values for them, however, they are useful for organizing your work. ``simulations_dir``
 is the directory where all the simulations will be stored. The default value is ``Simulations`` and this will be
 created in your current working directory. Next, ``job_dir`` is the name of the directory of this specific simulation
 which we chose to call ``yocp_pppm``. This directory will contain ``pickle`` files storing all your simulations
 parameters and physical constants, a log file of your simulation, the ``Equilibration`` and ``Production``
-directories containing simulations dumps, and ``PreProcessing`` and ``PostProcessing`` directories. Explanation of the
-directory structure can be found in ... . Finally ``job_id`` is an appendix for all the file names identifing
+directories containing simulations dumps, and ``PreProcessing`` and ``PostProcessing`` directories. Finally ``job_id`` is an appendix for all the file names identifing
 this specific run. This is useful when you have many runs that differ only in the choice of ``random_seed``.
 
 Post Processing
 ---------------
 
-The last block is ``PostProcessing`` and it will be explained somewhere else.
+The last two blocks are ``Observables`` and ``TransportCoefficients``. They indicate the quantities 
+we want to calculate and their parameters. 
+
+Observables
+***********
+The observables we want to calculate are 
+
+.. code-block:: yaml
+
+    Observables:
+        - RadialDistributionFunction:
+            no_bins: 500
+
+        - Thermodynamics:
+            phase: production
+                
+        - DynamicStructureFactor:
+            no_slices: 1
+            max_ka_value: 8
+
+        - StaticStructureFactor:
+            max_ka_value: 8
+
+        - CurrentCorrelationFunction:
+            max_ka_value: 8
+
+Note that ``Observables`` is again a list of dictionaries. This is because each observable is returned as 
+an object in the simulation. The lines below the observables' names are the parameters needed for the calculation. 
+The parameters are differents depending on the observable. We will discuss them in the next pages of this tutorial.
+
+
+Transport Coefficients
+**********************
+
+.. code-block:: yaml
+
+    TransportCoefficients:
+        - Diffusion:
+            time_averaging: False
+
+The available transport coefficients at this moment are: ``Diffusion``, ``Interdiffusion``, ``ElectricalConductivity``, ``Viscosity``. Note 
+that ``Interdiffusion`` is supported only in the case of binary mixtures. Soon we will have support for any mixture.

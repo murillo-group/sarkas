@@ -108,7 +108,7 @@ class Integrator:
 
         Parameters
         ----------
-        params: sarkas.base.parameters
+        params: sarkas.core.parameters
             Parameters class.
 
         thermostat: sarkas.time_evolution.thermostat

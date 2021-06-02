@@ -8,7 +8,7 @@ The coupling constant is denoted by :math:`\Gamma` and it corresponds to
 
     \Gamma = \frac{(Ze)^2}{4\pi \varepsilon_0 k_B T a_{\textrm{ws}}},
 
-In the case of mixtures the :meth:`sarkas.base.Parameters.calc_coupling_constant` method calculates the effective :math:`\Gamma` as
+In the case of mixtures the :meth:`sarkas.core.Parameters.calc_coupling_constant` method calculates the effective :math:`\Gamma` as
 
 .. math::
 
