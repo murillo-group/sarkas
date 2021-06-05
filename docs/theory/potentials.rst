@@ -124,3 +124,18 @@ the exponential. The long range part of the potential is computed using the PPPM
 
 
 The choice of this potential is due to its widespread use in the High Energy Density Physics community.
+
+Moliere Potential
+-----------------
+
+Moliere-type potentials have the form
+
+.. math::
+    \phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left [ \sum_{j}^{3} C_j e^{-b_j r} \right]
+
+with the contraint
+
+.. math::
+    \sum_{j}^{3} C_j  = 1
+
+more info can be found in :cite:`Wilson1977`

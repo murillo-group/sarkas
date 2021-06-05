@@ -796,7 +796,9 @@ class InputOutput:
 
         """
         if simulation.potential.method == 'P3M':
-            print('Mesh = {} x {} x {}'.format(*simulation.potential.pppm_mesh))
+            print('Charge assignment order: {}'.format(simulation.potential.pppm_cao))
+            print('FFT aliases: [{}, {}, {}]'.format(*simulation.potential.pppm_aliases))
+            print('Mesh: {} x {} x {}'.format(*simulation.potential.pppm_mesh))
             print('Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} '.format(
                 simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
                 simulation.potential.pppm_alpha_ewald), end='')

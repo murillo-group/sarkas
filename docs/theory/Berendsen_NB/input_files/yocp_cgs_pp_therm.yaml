@@ -1,0 +1,46 @@
+# keywords: YOCP, Yukawa, PP, mks, random_no_reject
+Particles:
+    - Species:
+        name: C
+        number_density: 1.13666931822e+23   # N/cc
+        mass: 2.0089e-23                    # g
+        num: 1000                            # total number of particles
+        Z: 1.976599                         # degree of ionization
+        temperature: 5.e+03                 # T = 0.5 eV
+
+Potential:
+    type: Yukawa                            # potential type
+    method: PP
+    rc: 6.0e-8                              # cm, cut-off radius
+
+Integrator:
+    type: Verlet
+    dt: 5.0e-17                             # sec
+    equilibration_steps: 5000              # number of timesteps for the equilibrium
+    production_steps: 0                # number of timesteps after the equilibrium
+    eq_dump_step: 2
+    prod_dump_step: 10
+
+Thermostat:
+    type: Berendsen                         # thermostat type
+    relaxation_timestep: 100
+    berendsen_tau: 2.0
+
+Parameters:
+    units: cgs                              # units
+    load_method: random_no_reject
+    rdf_nbins: 250
+    boundary_conditions: periodic
+
+IO:
+    verbose: yes
+    simulations_dir: Berendsen_runs            # dir name to save data. The default is "Checkpoint"
+    job_dir: tau_2
+
+Observables:
+  - Thermodynamics:
+      phase: production
+
+  - RadialDistributionFunction:
+      no_bins: 250
+

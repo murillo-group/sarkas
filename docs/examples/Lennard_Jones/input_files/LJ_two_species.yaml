@@ -1,0 +1,56 @@
+# keywords: two species, LJ, random_reject, cgs
+# Lima et al.
+# Physica A 391 (2012) 4281
+# for alpah = 0.3
+#####
+
+Particles:
+    - Species:
+        name: sp1                    # species name
+        temperature: 120.
+        number_density: 1.03e22      # number/centimeter^3
+        mass: 6.6904e-23             # gram
+        num: 386                     # total number of ion1 
+
+    - Species:
+        name: ptcl2                  # species name
+        temperature: 120.
+        number_density: 1.03e22      # number/centimeter^3
+        mass: 6.6904e-23             # gram
+        num: 386                    # total number of ion1 
+
+    - load:
+        method: random_reject
+        r_reject: 3e-8             # centimeter
+        rand_seed: 123
+
+Potential: 
+    - type: LJ
+    - rc: 1.65e-07
+    - epsilon: [1.656e-14, 0.4968e-14, 0.4968e-14, 1.656e-14]     # e11, e12, e21 = e12, e22
+    - sigma: [3.4e-8, 3.4e-8, 3.4e-8, 3.4e-8]                     # s11, s12, s21 = s12, s22
+
+BoundaryConditions:
+    - periodic: ["x", "y", "z"]
+
+Integrator:
+    - type: Verlet
+
+Thermostat:
+    - type: Berendsen
+    - berendsen_tau: 10.
+    - timestep: 2000
+
+Control:
+    - dt: 5.4e-15                  # timestep, sec   
+    - Neq: 10000
+    - Nsteps: 10000
+    - dump_step: 100
+    - units: cgs
+    - writexyz: no
+    - verbose: yes
+    - output_dir: LJ_03         # dir name to save data. Default is "Checkpoint"
+    - fname_app: LJ_03
+
+Observables:
+    - rdf_nbins: 100

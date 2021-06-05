@@ -42,7 +42,7 @@ def update_params(potential, params):
             sigma2 += params.species_lj_sigmas[i]
             epsilon_tot += q1 * q2
 
-    potential.force = LJ_force_PP
+    potential.force = lj_force
 
     # Calculate the force error
     deriv_exp = (potential.powers[0] + 1)
@@ -52,7 +52,7 @@ def update_params(potential, params):
 
 
 @nb.njit
-def LJ_force_PP(r, pot_matrix_ij):
+def lj_force(r, pot_matrix_ij):
     """
     Calculates the PP force between particles using Lennard-Jones Potential.
     

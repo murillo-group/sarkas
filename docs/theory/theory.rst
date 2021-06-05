@@ -13,7 +13,7 @@ Theoretical Background
       electron_properties
       integrators
       potentials
-      Berendsen_Thermostat
+      Berendsen_NB/Berendsen_Thermostat
       PPPM
       force_error
       references

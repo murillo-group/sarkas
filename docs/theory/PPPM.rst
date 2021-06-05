@@ -17,7 +17,7 @@ The total charge density at point :math:`\mathbf r` is then
     \rho(\mathbf r) = \sum_{i}^N  \left \{ \left ( q_i\delta( \mathbf r - \mathbf r_i) - \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r - \mathbf r_i \right )^2 } \right ) + \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 } \right \},
 
 where the first term is the charge density due to the real particles and the last two terms are a negative
-and positive screening cloud. The first two term are in parenthesis to emphasizes the splitting into
+and positive screening cloud. The first two terms are in parenthesis to emphasizes the splitting into
 
 .. math::
 
@@ -99,7 +99,7 @@ can be easily calculated and then removed from :math:`U_{\mathcal F}`
     \frac{\mathcal Q^2}{2V} \sum_{\mathbf k} \frac{4\pi}{k^2} e^{-k^2/(4\alpha^2)} \rightarrow \frac{\mathcal Q^2}{2V} \left ( \frac{L}{2\pi} \right )^3 \int dk (4\pi)^2 e^{-k^2/(4\alpha^2) }  = \mathcal Q^2 \frac{(4\pi)^2}{2V} \left ( \frac{L}{2\pi} \right )^3 \sqrt{\pi } \alpha = \mathcal Q^2 \frac{\alpha}{\sqrt{\pi} }
 
 where :math:`\mathcal Q^2 = \sum_i^N q_i^2`, note that in the integral we have re-included :math:`\mathbf k = 0`, but
-this is not a problem(?). Finally the long-range potential energy is
+this is not a problem. Finally the long-range potential energy is
 
 .. math::
 

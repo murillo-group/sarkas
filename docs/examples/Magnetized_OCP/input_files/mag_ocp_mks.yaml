@@ -1,0 +1,58 @@
+# keywords: OCP, P3M, mks, random_no_reject
+Particles:
+    - Species:
+        name: H
+        number_density: 1.62e+30       # /m^3
+        mass: 1.673e-27                # kg, ptcl mass of ion1
+        num: 250                    # total number of particles of ion1
+        Z: 1.0                        # degree of ionization
+        temperature_eV: 0.286965
+
+Potential:
+    type: Coulomb                  # potential type
+    method: P3M                   # Linked-cell
+    rc: 2.00e-10             # cut-off radius, meter
+    pppm_mesh: [64,64,64]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 6
+    pppm_alpha_ewald: 2.025746e+10
+
+Integrator:
+    dt: 1.10e-17            # sec
+    type: magnetic_verlet                  # velocity integrator type
+    electrostatic_equilibration: True
+    equilibration_steps: 2200
+    magnetization_steps: 2200
+    production_steps: 66190
+    eq_dump_step: 10
+    prod_dump_step: 10
+    mag_dump_step: 10
+
+Thermostat:
+    type: Berendsen               # thermostat type
+    relaxation_timestep: 100
+    berendsen_tau: 10.0
+
+Parameters:
+    units: mks                    # units
+    load_method: random_no_reject
+    boundary_conditions: periodic
+    rdf_nbins: 500
+    magnetized: True
+    magnetic_field: [0.0, 0.0, 17.0e+6]  # Gauss
+
+IO:
+    verbose: True
+    magnetized: True
+    job_dir: ocp_mag        # dir name to save data. The default is "Checkpoint"
+
+Observables:
+  - RadialDistributionFunction:
+      no_bins: 500
+
+  - Thermodynamics:
+      phase: production
+
+  - VelocityAutoCorrelationFunction:
+      phase: production
+      no_slices: 4

@@ -156,7 +156,7 @@ class Process:
                         self.diff_flux.from_dict(sub_dict)
 
         if 'TransportCoefficients' in dics.keys():
-            self.transport_dict = dics["Transport"].copy()
+            self.transport_dict = dics["TransportCoefficients"].copy()
 
     def initialization(self):
         """Initialize all classes."""
@@ -465,9 +465,6 @@ class PreProcess(Process):
             if self.potential.pppm_on:
                 green_time = self.timer.time_division(self.green_function_timer())
                 self.io.preprocess_timing("GF", green_time, 0)
-            else:
-                # TODO: Complete the case of PP-only force calculation
-                total_force_error, rcuts = self.analytical_approx_pp()
 
             self.time_acceleration()
             self.time_integrator_loop()
@@ -559,7 +556,7 @@ class PreProcess(Process):
 
         from scipy.optimize import curve_fit
 
-        print('\n\n----------------- Timing Study -----------------------')
+        print('\n\n{:=^70} \n'.format(' Timing Study '))
 
         max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
         if max_cells != self.pp_cells[-1]:
@@ -729,7 +726,7 @@ class PreProcess(Process):
         fig.colorbar(CS)
         ax.scatter(self.best_mesh, self.best_cells, s=200, c='k')
         ax.set_xlabel('Mesh size')
-        ax.set_ylabel(r'No. Cells = $1/r_c$')
+        ax.set_ylabel(r'Cells = $L/r_c$')
         ax.set_title('2D Lagrangian')
         fig.savefig(os.path.join(self.io.preprocessing_dir, '2D_Lagrangian.png'))
 
@@ -762,7 +759,7 @@ class PreProcess(Process):
         CS2 = ax1.contour(CS, colors='w')
         ax1.clabel(CS2, fmt='%1.0e', colors='w')
         ax1.set_xlabel('Mesh size')
-        ax1.set_ylabel(r'No. Cells = $L/r_c$')
+        ax1.set_ylabel(r'N_c = Cells')
         ax1.set_title('Force Error Map')
 
         # Timing Plot

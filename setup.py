@@ -57,7 +57,7 @@ BASE_DEPENDENCIES = [
     'fdint',
     'pyyaml',
     'tqdm',
-    'pyfiglet',
+    'pyfiglet==0.8.post1',
     'pickle5',
     'jupyter',
     'jupyterlab',
@@ -108,10 +108,10 @@ setuptools.setup(
     scripts=scripts,
     packages=setuptools.find_packages(),
     install_requires= BASE_DEPENDENCIES,
-    dependency_links = ['https://pypi.org/'],
+    # dependency_links = ['https://pypi.org/'],
     classifiers=[
         # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5',
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

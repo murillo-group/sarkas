@@ -1,0 +1,47 @@
+# Vorberger HEDP 9 178 (2013) Fig. 8 parameters
+Particles:
+    - Species:
+        name: Be
+        mass_density: 1.848e+06       # /m^3
+        atomic_weight: 9.012182           # kg, ptcl mass of ion1
+        num: 10000                   # total number of particles of ion1
+        Z: 4.0                        # degree of ionization
+        temperature_eV: 12.0
+
+Potential: 
+    type: Moliere                  # potential type
+    method: PP                    # Linked-cell
+    rc: 6.629755e-10           # cut-off radius, meter
+    screening_charges: [0.5, -0.5, 1.0]
+    screening_lengths: [1.6667e+10, 6.7690e+10, 6.7690e+10]
+
+Integrator:
+    type: Verlet                  # velocity integrator type
+    equilibration_steps: 500
+    production_steps: 5000
+    eq_dump_step: 10
+    prod_dump_step : 10
+
+Thermostat:
+    type: Berendsen               # thermostat type
+    berendsen_tau: 5.
+    relaxation_timestep: 50
+    temperatures_eV: 12.0
+
+Parameters:
+    units: mks                    # units
+    dt: 3.244415e-17            # sec
+    load_method: random_no_reject
+    rand_seed: 654984647
+
+IO:
+    job_dir: Moliere_mks        # dir name to save data. The default is "Checkpoint"
+    verbose: yes
+
+Observables:
+  - RadialDistributionFunction:
+      no_bins: 500
+
+  - Thermodynamics:
+      phase: production
+

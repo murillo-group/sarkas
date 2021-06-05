@@ -20,9 +20,7 @@ References
 """
 import numpy as np
 from numba import njit
-import yaml
 import math as mt
-from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
 
 
 def update_params(potential, params):

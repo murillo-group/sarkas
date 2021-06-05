@@ -3,8 +3,6 @@ Module for handling Moliere Potential
 """
 import numpy as np
 import numba as nb
-import sys
-import yaml
 
 
 def update_params(potential, params):
@@ -24,20 +22,17 @@ def update_params(potential, params):
     potential.screening_charges = np.array(potential.screening_charges)
     params_len = len(potential.screening_lengths)
 
-    Moliere_matrix = np.zeros((2 * params_len + 1, params.num_species, params.num_species))
+    moliere_matrix = np.zeros((2 * params_len + 1, params.num_species, params.num_species))
 
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
 
-            Moliere_matrix[0, i, j] = q1 * q2 / params.fourpie0
-            Moliere_matrix[1:params_len + 1, i, j] = potential.screening_charges
-            Moliere_matrix[params_len + 1:, i, j] = potential.screening_lengths
+            moliere_matrix[0, i, j] = q1 * q2 / params.fourpie0
+            moliere_matrix[1:params_len + 1, i, j] = potential.screening_charges
+            moliere_matrix[params_len + 1:, i, j] = potential.screening_lengths
 
-    # Effective Coupling Parameter in case of multi-species
-    # see eq.(3) in Haxhimali et al. Phys Rev E 90 023104 (2014)
-    potential.matrix = Moliere_matrix
-
-    potential.force = Moliere_force_PP
+    potential.matrix = moliere_matrix
+    potential.force = moliere_force
 
     # Force error calculated from eq.(43) in Ref.[1]_
     params.force_error = np.sqrt(2.0 * np.pi / potential.screening_lengths.min()) \
@@ -47,7 +42,7 @@ def update_params(potential, params):
 
 
 @nb.njit
-def Moliere_force_PP(r, pot_matrix):
+def moliere_force(r, pot_matrix):
     """ 
     Calculates the PP force between particles using the Moliere Potential.
     
@@ -90,7 +85,7 @@ def Moliere_force_PP(r, pot_matrix):
         U += factor2 * np.exp(-factor1)
         force += np.exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i + 1])
 
-    force = force * pot_matrix[0]
-    U = U * pot_matrix[0]
+    force *= pot_matrix[0]
+    U *= pot_matrix[0]
 
     return U, force

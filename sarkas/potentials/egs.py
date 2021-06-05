@@ -92,14 +92,14 @@ def update_params(potential, params):
 
     assert potential.method == "PP", "P3M Algorithm not implemented yet. Good Bye!"
 
-    potential.force = EGS_force_PP
+    potential.force = egs_force
     params.force_error = np.sqrt(twopi / params.lambda_TF) * np.exp(-potential.rc / params.lambda_TF)
     # Renormalize
     params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
 
 
 @njit
-def EGS_force_PP(r, pot_matrix):
+def egs_force(r, pot_matrix):
     """ 
     Calculates Potential and force between particles using the EGS Potential.
     

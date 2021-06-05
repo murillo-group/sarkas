@@ -5,6 +5,7 @@ Get Started
 It is good practice to create virtual environment for your each of your programming projects. Below are instructions
 for creating the ``sarkas`` virtual environment. Otherwise you can jump to the next section and :ref:`install <sec_installation>` Sarkas
 
+
 Virtual Environment
 ===================
 
@@ -71,7 +72,7 @@ setup and run simulations.
 .. toctree::
     :maxdepth: 1
 
-    Quickstart
+    Tutorial_NB/Quickstart
     tutorial
 
 .. _Anaconda: https://www.anaconda.org

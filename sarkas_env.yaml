@@ -15,7 +15,7 @@ dependencies:
   # I/O
   - pyyaml
   - tqdm
-  - pyfiglet
+  - pyfiglet==0.8.post1
   - pickle5
 
   # Analysis
