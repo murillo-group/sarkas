@@ -1,0 +1,1357 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Magnetized Plasma &#8212; Sarkas 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
+    <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <script src="../../_static/js/myscript.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="MD for Experiment Validation" href="../UNP/UCP_Experiment_Validation.html" />
+    <link rel="prev" title="Quantum Statistical Potential Simulation" href="../QSP/QSP_Tutorial.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><span><img src="../../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../documentation/get_started.html">Get Started</a></li>
+                <li><a href="../examples.html">Examples</a></li>
+                <li><a href="../../code_development/code_dev.html">Code Development</a></li>
+                <li><a href="../../api/api.html">API</a></li>
+                <li><a href="../../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Theory:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Simulations:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Magnetized Plasma</a><ul>
+<li><a class="reference internal" href="#PreProcessing">PreProcessing</a></li>
+<li><a class="reference internal" href="#Simulation">Simulation</a></li>
+<li><a class="reference internal" href="#PostProcessing">PostProcessing</a></li>
+<li><a class="reference internal" href="#Transport">Transport</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Magnetized-Plasma">
+<h1>Magnetized Plasma<a class="headerlink" href="#Magnetized-Plasma" title="Permalink to this headline">¶</a></h1>
+<p>This codes tests the magnetic integrator by reproducing results of Bernu Journal de Physique, <strong>42</strong> L253 (1981). This notebook can be found in the <code class="docutils literal notranslate"><span class="pre">sarkas/notebook</span></code> folder of the Github repo.</p>
+<p>We simulate a One Component Plasma composed of <span class="math notranslate nohighlight">\(N = 1000\)</span> Hydrogen atoms at a density of <span class="math notranslate nohighlight">\(n = 1.62 \times 10^{30}\)</span> <span class="math notranslate nohighlight">\(N/m^3\)</span>, and temperature <span class="math notranslate nohighlight">\(T = 0.3\)</span> <span class="math notranslate nohighlight">\(eV\)</span>, which leads to <span class="math notranslate nohighlight">\(\Gamma = 100\)</span>. The system is in a constant magnetic field <span class="math notranslate nohighlight">\(B = B_0 \hat{\mathbf z}\)</span> with <span class="math notranslate nohighlight">\(B_0 = 17 \times 10^6\)</span> Gauss. The ratio of the cyclotron frequency to the plasma frequency is <span class="math notranslate nohighlight">\(\beta \sim 1.0\)</span>.</p>
+<p>This simulation was run on a Dell XPS 8930 with an Intel i7-8700K and 48 Gb of RAM running Ubuntu 18.04 LTS.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Import the usual libraries</span>
+<span class="o">%</span><span class="k">pylab</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
+<span class="c1"># Import sarkas</span>
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
+
+<span class="c1"># Create the file path to the YAML input file</span>
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input_files&#39;</span><span class="p">,</span>  <span class="s1">&#39;mag_ocp_mks.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using matplotlib backend: Qt5Agg
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+<div class="section" id="PreProcessing">
+<h2>PreProcessing<a class="headerlink" href="#PreProcessing" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">preproc</span> <span class="o">=</span> <span class="n">PreProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">preproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">preproc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">timing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">loops</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">pppm_estimate</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span style="color: rgb(83,80,84)">
+
+
+
+
+
+
+     _______.     ___      .______       __  ___      ___           _______.
+    /       |    /   \     |   _  \     |  |/  /     /   \         /       |
+   |   (----`   /  ^  \    |  |_)  |    |  &#39;  /     /  ^  \       |   (----`
+    \   \      /  /_\  \   |      /     |    &lt;     /  /_\  \       \   \
+.----)   |    /  _____  \  |  |\  \----.|  .  \   /  _____  \  .----)   |
+|_______/    /__/     \__\ | _| `._____||__|\__\ /__/     \__\ |_______/
+
+
+</span>
+An open-source pure-python molecular dynamics code for non-ideal plasmas.
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                 Preprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Job ID:  ocp_mag
+Job directory:  Simulations/ocp_mag
+Equilibration dumps directory:  Simulations/ocp_mag/PreProcessing/Equilibration/dumps
+Production dumps directory:  Simulations/ocp_mag/PreProcessing/Production/dumps
+
+PARTICLES:
+Total No. of particles =  250
+No. of species =  1
+Species ID: 0
+        Name: H
+        No. of particles = 250
+        Number density = 1.620000e+30 [N/m^3]
+        Atomic weight = 1.0002 [a.u.]
+        Mass = 1.673000e-27 [kg]
+        Mass density = 2.710260e+03 [kg/m^3]
+        Charge number/ionization degree = 1.0000
+        Charge = 1.602177e-19 [C]
+        Temperature = 3.330091e+03 [K] = 2.869650e-01 [eV]
+        Debye Length = 3.128788e-12 [Hz]
+        Plasma Frequency = 1.675504e+15 [Hz]
+        Cyclotron Frequency = 1.628034e+15 [Hz]
+        beta_c = 0.9717
+
+SIMULATION BOX:
+Units:  mks
+Wigner-Seitz radius = 5.282005e-11 [m]
+No. of non-zero box dimensions =  3
+Box side along x axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box side along y axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box side along z axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box Volume = 1.543210e-28 [m^3]
+Boundary conditions: periodic
+
+ELECTRON PROPERTIES:
+Number density: n_e = 1.620000e+30 [N/m^3]
+Wigner-Seitz radius: a_e = 5.282005e-11 [m]
+Temperature: T_e = 3.330091e+03 [K] = 2.869650e-01 [eV]
+de Broglie wavelength: lambda_deB = 1.291671e-09 [m]
+Thomas-Fermi length: lambda_TF = 3.382169e-11 [m]
+Fermi wave number: k_F = 3.633390e+10 [1/m]
+Fermi Energy: E_F = 5.029756e+01 [eV]
+Relativistic parameter: x_F = 0.014031 --&gt; E_F = 5.029509e+01 [eV]
+Degeneracy parameter: Theta = 0.0057
+Coupling: r_s = 0.998154,  Gamma_e = 95.000103
+Warm Dense Matter Parameter: W = 0.0002
+Chemical potential: mu = 175.269516 k_B T_e = 1.0000 E_F
+
+MAGNETIC FIELD:
+Magnetic Field = [0.0000e+00, 0.0000e+00, 1.7000e+07] [Gauss]
+Magnetic Field Magnitude = 1.7000e+07 [Gauss]
+Magnetic Field Unit Vector = [0.0000e+00, 0.0000e+00, 1.0000e+00]
+
+THERMOSTAT:
+Type: Berendsen
+First thermostating timestep, i.e. relaxation_timestep = 100
+Berendsen parameter tau: 10.000 [timesteps]
+Berendsen relaxation rate: 0.100 [1/timesteps]
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Equilibration temperatures not defined. I will use the species&#39;s temperatures.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Thermostating temperatures:
+Species ID 0: T_eq = 3.330091e+03 [K] = 2.869650e-01 [eV]
+
+POTENTIAL:  Coulomb
+Effective Coupling constant: Gamma_eff = 95.00
+
+SIMULATION BOX:
+Units:  mks
+Wigner-Seitz radius = 5.282005e-11 [m]
+No. of non-zero box dimensions =  3
+Box side along x axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box side along y axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box side along z axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box Volume = 1.543210e-28 [m^3]
+Boundary conditions: periodic
+
+ELECTRON PROPERTIES:
+Number density: n_e = 1.620000e+30 [N/m^3]
+Wigner-Seitz radius: a_e = 5.282005e-11 [m]
+Temperature: T_e = 3.330091e+03 [K] = 2.869650e-01 [eV]
+de Broglie wavelength: lambda_deB = 1.291671e-09 [m]
+Thomas-Fermi length: lambda_TF = 3.382169e-11 [m]
+Fermi wave number: k_F = 3.633390e+10 [1/m]
+Fermi Energy: E_F = 5.029756e+01 [eV]
+Relativistic parameter: x_F = 0.014031 --&gt; E_F = 5.029509e+01 [eV]
+Degeneracy parameter: Theta = 0.0057
+Coupling: r_s = 0.998154,  Gamma_e = 95.000103
+Warm Dense Matter Parameter: W = 0.0002
+Chemical potential: mu = 175.269516 k_B T_e = 1.0000 E_F
+
+MAGNETIC FIELD:
+Magnetic Field = [0.0000e+00, 0.0000e+00, 1.7000e+07] [Gauss]
+Magnetic Field Magnitude = 1.7000e+07 [Gauss]
+Magnetic Field Unit Vector = [0.0000e+00, 0.0000e+00, 1.0000e+00]
+
+ALGORITHM:  P3M
+Mesh = 64 x 64 x 64
+Ewald parameter alpha = 1.0700 / a_ws = 2.025746e+10 [1/m]
+Mesh width = 0.1587, 0.1587, 0.1587 a_ws
+           = 8.3810e-12, 8.3810e-12, 8.3810e-12 [m]
+Mesh size * Ewald_parameter (h * alpha) = 0.1698, 0.1698, 0.1698
+                                        ~ 1/5, 1/5, 1/5
+rcut = 3.7864 a_ws = 2.000000e-10 [m]
+No. of PP cells per dimension =  2,  2,  2
+No. of particles in PP loop =    349
+No. of PP neighbors per particle =     54
+PM Force Error = 8.214907e-08
+PP Force Error = 3.733407e-08
+Tot Force Error = 9.023470e-08
+
+INTEGRATOR:
+Type: magnetic_verlet_zdir
+Time step = 1.100000e-17 [s]
+Total plasma frequency = 1.675504e+15 [Hz]
+w_p dt = 0.0184
+
+Equilibration:
+No. of equilibration steps = 2200
+Total equilibration time = 2.4200e-14 [s] ~ 40 w_p T_eq
+snapshot interval step = 10
+snapshot interval time = 1.1000e-16 [s] = 0.1843 w_p T_snap
+Total number of snapshots = 220
+Electrostatic Equilibration Type: magnetic_verlet
+
+Magnetization:
+No. of magnetization steps = 2200
+Total magnetization time = 2.4200e-14 [s] ~ 40 w_p T_mag
+snapshot interval step = 10
+snapshot interval time = 1.1000e-16 [s] = 0.1843 w_p T_snap
+Total number of snapshots = 220
+
+Production:
+No. of production steps = 66190
+Total production time = 7.2809e-13 [s] ~ 1219 w_p T_prod
+snapshot interval step = 10
+snapshot interval time = 1.1000e-16 [s] = 0.1843 w_p T_snap
+Total number of snapshots = 6619
+
+
+------------------------ Initialization Times ------------------------
+
+
+Potential Initialization Time: 0 hrs 0 min 4 sec
+
+Particles Initialization Time: 0 sec 0 msec 337 usec 553 nsec
+
+Total Simulation Initialization Time: 0 hrs 0 min 4 sec
+
+
+========================== Times Estimates ===========================
+
+Optimal Green&#39;s Function Time:
+0 min 3 sec 335 msec 312 usec 771 nsec
+
+Time of PP acceleration calculation averaged over 100 steps:
+0 min 0 sec 1 msec 238 usec 111 nsec
+
+Time of PM acceleration calculation averaged over 100 steps:
+0 min 0 sec 24 msec 81 usec 494 nsec
+
+
+Running 100 equilibration and production steps to estimate simulation times
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "42f3002f9ee44ebe95fd16830ab176ec", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Time of a single equilibration step averaged over 100 steps:
+0 min 0 sec 33 msec 314 usec 946 nsec
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b42bf66daf994aedbc788fd8db121b42", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Time of a single magnetization step averaged over 100 steps:
+0 min 0 sec 30 msec 354 usec 788 nsec
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "841af9576b434851b2e32fcf5e018288", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Time of a single production step averaged over 100 steps:
+0 min 0 sec 30 msec 449 usec 913 nsec
+
+
+
+----------------------- Total Estimated Times ------------------------
+
+
+Equilibration Time: 0 hrs 1 min 13 sec
+
+Magnetization Time: 0 hrs 1 min 6 sec
+
+Production Time: 0 hrs 33 min 35 sec
+
+Total Run Time: 0 hrs 35 min 55 sec
+
+
+========================= Filesize Estimates =========================
+
+
+Equilibration:
+
+Checkpoint filesize: 0 GB 0 MB 21 KB 958 bytes
+Checkpoint folder size: 0 GB 4 MB 729 KB 840 bytes
+
+Magnetization:
+
+Checkpoint filesize: 0 GB 0 MB 21 KB 958 bytes
+Checkpoint folder size: 0 GB 4 MB 729 KB 840 bytes
+
+Production:
+
+Checkpoint filesize: 0 GB 0 MB 21 KB 958 bytes
+Checkpoint folder size: 0 GB 141 MB 807 KB 394 bytes
+
+Total minimum needed space: 0 GB 151 MB 219 KB 26 bytes
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_3_7.png" src="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_3_7.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_3_8.png" src="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_3_8.png" />
+</div>
+</div>
+<p>PreProcessing shows that we have chosen good parameters for the pppm algorithm. The black dot in the first plot shows our choice of parameters. This leads to a Total Force Error <span class="math notranslate nohighlight">\(\sim 9 \times 10^8\)</span>. The horizontal and vertical lines in the above plots represent the value <span class="math notranslate nohighlight">\(r = L/2 a_{\rm ws}\)</span>.</p>
+<p>A common technique used in magnetized MD is to equilibrate the system in two steps. First without the presence of the magnetic field and then with the magnetic field turned on. This is because, the magnetic field can greatly delay the relaxation to equilibrium see <a class="reference external" href="https://journals.aps.org/pre/abstract/10.1103/PhysRevE.95.013209">Ott et al PRE 2017</a>. Hence the magnetization phase before the production phase.</p>
+<p>We confirm that our choice of parameters leads to the same physical system as the one simulated by Bernu. <span class="math notranslate nohighlight">\(\Gamma =95\)</span>, <span class="math notranslate nohighlight">\(\beta = 1.0\)</span>. Contrarily to Bernu we choose to run our simulation for a much longer time.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Production:
+No. of production steps = 66190
+Total production time = 7.2809e-13 [s] ~ 1219 w_p T_prod
+snapshot interval step = 10
+snapshot interval time = 1.1000e-16 [s] = 0.1843 w_p T_snap
+Total number of snapshots = 6619
+</pre></div>
+</div>
+<p>Bernu ran a simulation for 244 plasma periods. We decided to run for a time 5 times longer. This is because we want to show the time slicing option in the Postprocessing phase.</p>
+<p>The estimated times, on this machine, are</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>----------------------- Total Estimated Times ------------------------
+
+
+Equilibration Time: 0 hrs 1 min 13 sec
+
+Magnetization Time: 0 hrs 1 min 6 sec
+
+Production Time: 0 hrs 33 min 35 sec
+
+Total Run Time: 0 hrs 35 min 55 sec
+</pre></div>
+</div>
+<p>and the entire run requires a minimum of 132 MB of space on the hard drive.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Total minimum needed space: 0 GB 151 MB 219 KB 26 bytes
+</pre></div>
+</div>
+<p>We are ready to start the simulation.</p>
+</div>
+<div class="section" id="Simulation">
+<h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span style="color: rgb(24,69,49)">
+
+
+
+
+
+
+     _______.     ___      .______       __  ___      ___           _______.
+    /       |    /   \     |   _  \     |  |/  /     /   \         /       |
+   |   (----`   /  ^  \    |  |_)  |    |  &#39;  /     /  ^  \       |   (----`
+    \   \      /  /_\  \   |      /     |    &lt;     /  /_\  \       \   \
+.----)   |    /  _____  \  |  |\  \----.|  .  \   /  _____  \  .----)   |
+|_______/    /__/     \__\ | _| `._____||__|\__\ /__/     \__\ |_______/
+
+
+</span>
+An open-source pure-python molecular dynamics code for non-ideal plasmas.
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                   Simulation
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Job ID:  ocp_mag
+Job directory:  Simulations/ocp_mag
+Equilibration dumps directory:  Simulations/ocp_mag/Simulation/Equilibration/dumps
+Production dumps directory:  Simulations/ocp_mag/Simulation/Production/dumps
+
+PARTICLES:
+Total No. of particles =  250
+No. of species =  1
+Species ID: 0
+        Name: H
+        No. of particles = 250
+        Number density = 1.620000e+30 [N/m^3]
+        Atomic weight = 1.0002 [a.u.]
+        Mass = 1.673000e-27 [kg]
+        Mass density = 2.710260e+03 [kg/m^3]
+        Charge number/ionization degree = 1.0000
+        Charge = 1.602177e-19 [C]
+        Temperature = 3.330091e+03 [K] = 2.869650e-01 [eV]
+        Debye Length = 3.128788e-12 [Hz]
+        Plasma Frequency = 1.675504e+15 [Hz]
+        Cyclotron Frequency = 1.628034e+15 [Hz]
+        beta_c = 0.9717
+
+SIMULATION BOX:
+Units:  mks
+Wigner-Seitz radius = 5.282005e-11 [m]
+No. of non-zero box dimensions =  3
+Box side along x axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box side along y axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box side along z axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box Volume = 1.543210e-28 [m^3]
+Boundary conditions: periodic
+
+ELECTRON PROPERTIES:
+Number density: n_e = 1.620000e+30 [N/m^3]
+Wigner-Seitz radius: a_e = 5.282005e-11 [m]
+Temperature: T_e = 3.330091e+03 [K] = 2.869650e-01 [eV]
+de Broglie wavelength: lambda_deB = 1.291671e-09 [m]
+Thomas-Fermi length: lambda_TF = 3.382169e-11 [m]
+Fermi wave number: k_F = 3.633390e+10 [1/m]
+Fermi Energy: E_F = 5.029756e+01 [eV]
+Relativistic parameter: x_F = 0.014031 --&gt; E_F = 5.029509e+01 [eV]
+Degeneracy parameter: Theta = 0.0057
+Coupling: r_s = 0.998154,  Gamma_e = 95.000103
+Warm Dense Matter Parameter: W = 0.0002
+Chemical potential: mu = 175.269516 k_B T_e = 1.0000 E_F
+
+MAGNETIC FIELD:
+Magnetic Field = [0.0000e+00, 0.0000e+00, 1.7000e+07] [Gauss]
+Magnetic Field Magnitude = 1.7000e+07 [Gauss]
+Magnetic Field Unit Vector = [0.0000e+00, 0.0000e+00, 1.0000e+00]
+
+THERMOSTAT:
+Type: Berendsen
+First thermostating timestep, i.e. relaxation_timestep = 100
+Berendsen parameter tau: 10.000 [timesteps]
+Berendsen relaxation rate: 0.100 [1/timesteps]
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Equilibration temperatures not defined. I will use the species&#39;s temperatures.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Thermostating temperatures:
+Species ID 0: T_eq = 3.330091e+03 [K] = 2.869650e-01 [eV]
+
+POTENTIAL:  Coulomb
+Effective Coupling constant: Gamma_eff = 95.00
+
+SIMULATION BOX:
+Units:  mks
+Wigner-Seitz radius = 5.282005e-11 [m]
+No. of non-zero box dimensions =  3
+Box side along x axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box side along y axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box side along z axis = 1.015491e+01 a_ws = 5.363830e-10 [m]
+Box Volume = 1.543210e-28 [m^3]
+Boundary conditions: periodic
+
+ELECTRON PROPERTIES:
+Number density: n_e = 1.620000e+30 [N/m^3]
+Wigner-Seitz radius: a_e = 5.282005e-11 [m]
+Temperature: T_e = 3.330091e+03 [K] = 2.869650e-01 [eV]
+de Broglie wavelength: lambda_deB = 1.291671e-09 [m]
+Thomas-Fermi length: lambda_TF = 3.382169e-11 [m]
+Fermi wave number: k_F = 3.633390e+10 [1/m]
+Fermi Energy: E_F = 5.029756e+01 [eV]
+Relativistic parameter: x_F = 0.014031 --&gt; E_F = 5.029509e+01 [eV]
+Degeneracy parameter: Theta = 0.0057
+Coupling: r_s = 0.998154,  Gamma_e = 95.000103
+Warm Dense Matter Parameter: W = 0.0002
+Chemical potential: mu = 175.269516 k_B T_e = 1.0000 E_F
+
+MAGNETIC FIELD:
+Magnetic Field = [0.0000e+00, 0.0000e+00, 1.7000e+07] [Gauss]
+Magnetic Field Magnitude = 1.7000e+07 [Gauss]
+Magnetic Field Unit Vector = [0.0000e+00, 0.0000e+00, 1.0000e+00]
+
+ALGORITHM:  P3M
+Mesh = 64 x 64 x 64
+Ewald parameter alpha = 1.0700 / a_ws = 2.025746e+10 [1/m]
+Mesh width = 0.1587, 0.1587, 0.1587 a_ws
+           = 8.3810e-12, 8.3810e-12, 8.3810e-12 [m]
+Mesh size * Ewald_parameter (h * alpha) = 0.1698, 0.1698, 0.1698
+                                        ~ 1/5, 1/5, 1/5
+rcut = 3.7864 a_ws = 2.000000e-10 [m]
+No. of PP cells per dimension =  2,  2,  2
+No. of particles in PP loop =    349
+No. of PP neighbors per particle =     54
+PM Force Error = 8.214907e-08
+PP Force Error = 3.733407e-08
+Tot Force Error = 9.023470e-08
+
+INTEGRATOR:
+Type: magnetic_verlet_zdir
+Time step = 1.100000e-17 [s]
+Total plasma frequency = 1.675504e+15 [Hz]
+w_p dt = 0.0184
+
+Equilibration:
+No. of equilibration steps = 2200
+Total equilibration time = 2.4200e-14 [s] ~ 40 w_p T_eq
+snapshot interval step = 10
+snapshot interval time = 1.1000e-16 [s] = 0.1843 w_p T_snap
+Total number of snapshots = 220
+Electrostatic Equilibration Type: magnetic_verlet
+
+Magnetization:
+No. of magnetization steps = 2200
+Total magnetization time = 2.4200e-14 [s] ~ 40 w_p T_mag
+snapshot interval step = 10
+snapshot interval time = 1.1000e-16 [s] = 0.1843 w_p T_snap
+Total number of snapshots = 220
+
+Production:
+No. of production steps = 66190
+Total production time = 7.2809e-13 [s] ~ 1219 w_p T_prod
+snapshot interval step = 10
+snapshot interval time = 1.1000e-16 [s] = 0.1843 w_p T_snap
+Total number of snapshots = 6619
+
+
+------------------------ Initialization Times ------------------------
+
+
+Potential Initialization Time: 0 hrs 0 min 3 sec
+
+Particles Initialization Time: 0 sec 0 msec 683 usec 1 nsec
+
+Total Simulation Initialization Time: 0 hrs 0 min 3 sec
+
+------------- Equilibration -------------
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "273e29f3bd2f409d9641775a0c99304b", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Equilibration Time: 0 hrs 0 min 53 sec
+
+------------- Magnetization -------------
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "a3a7ebf844c949a0a55a432e2cfddc94", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Magnetization Time: 0 hrs 0 min 53 sec
+
+------------- Production -------------
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ae3707f2351440f0807278e3c575fbb1", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Production Time: 0 hrs 26 min 25 sec
+
+Total Time: 0 hrs 28 min 16 sec
+</pre></div></div>
+</div>
+<p>The run completed in a time faster than the predicted one. Woohoo!</p>
+</div>
+<div class="section" id="PostProcessing">
+<h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                 Postprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Job ID:  ocp_mag
+Job directory:  Simulations/ocp_mag
+Equilibration dumps directory:  Simulations/ocp_mag/Simulation/Equilibration/dumps
+Production dumps directory:  Simulations/ocp_mag/Simulation/Production/dumps
+PostProcessing directory:  Simulations/ocp_mag/PostProcessing
+</pre></div></div>
+</div>
+<p>Before proceeding to the calculation of the diffusion coefficient we check for conservation of energy during the production phase.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">temp_energy_plot</span><span class="p">(</span><span class="n">postproc</span><span class="p">,</span> <span class="s1">&#39;production&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_10_0.png" src="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_10_0.png" />
+</div>
+</div>
+<p>The energy remained fairly constant over the entire production phase. The Temperature similarly oscillated widly (<span class="math notranslate nohighlight">\(\sim 10 \%\)</span>) but its average is exactly the desired value. Both the Temperature and the Total Energy show a Gaussian distribution around their means.</p>
+<p>We are ready to calculate the diffusion coefficient.</p>
+</div>
+<div class="section" id="Transport">
+<h2>Transport<a class="headerlink" href="#Transport" title="Permalink to this headline">¶</a></h2>
+<p>Transport coefficient are calculated using the <code class="docutils literal notranslate"><span class="pre">TransportCoefficient</span></code> class in <code class="docutils literal notranslate"><span class="pre">sarkas.tools.transport</span></code>. Once the class is imported the diffusion coefficient is calculated by calling the method <code class="docutils literal notranslate"><span class="pre">diffusion</span></code>. This method requires the parameters of the simulation passed as <code class="docutils literal notranslate"><span class="pre">postproc.parameters</span></code>. The <code class="docutils literal notranslate"><span class="pre">phase</span></code> argument in this case is not needed since <code class="docutils literal notranslate"><span class="pre">production</span></code> is the default phase.</p>
+<p>As mentioned above we decided to run our simulation 4 times longer than Bernu’s. This is because we wanted to divide our long simulation into 4 small simulations of length ~ 276 <span class="math notranslate nohighlight">\(\omega_p T\)</span> (Bernu’s was 244 <span class="math notranslate nohighlight">\(\omega_p T\)</span>), calculate the diffusion coefficients for each of them, and average them.</p>
+<p>Sarkas was created with this workflow in mind and the option <code class="docutils literal notranslate"><span class="pre">no_slices</span></code> allows to do exactly this.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">diffusion</span></code> method will calculate 4 velocity auto-correlation functions, their diffusion coefficients, and plot their averages with a shaded area.</p>
+<p>In the case of a magnetized plasma we have two diffusion coefficients:</p>
+<div class="math notranslate nohighlight">
+\[D_{\parallel}(\tau) = \frac{k_B T}{m} \int_0^\tau dt Z_{\parallel}(t), \quad D_{\perp}(\tau) = \frac{k_B T}{m} \int_0^\tau dt Z_{\perp}(t)\]</div>
+<p>where, for the case of a constant magnetic field in the <span class="math notranslate nohighlight">\(z\)</span>-direction</p>
+<div class="math notranslate nohighlight">
+\[Z_{\parallel}(t) = \langle v_z(t)v_z(0) \rangle, \quad Z_{\perp}(t) = \frac{1}{2} \left [ \langle v_x(t)v_x(0) \rangle + \langle v_y(t)v_y(0) \rangle \right ],\]</div>
+<p>are the velocity autocorrelation functions. These functions are calculated by the class <code class="docutils literal notranslate"><span class="pre">VelocityAutocorrelationFunction</span></code> in <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables</span></code>. This class calculates and saves <span class="math notranslate nohighlight">\(Z(t)\)</span> for each axis and the total <span class="math notranslate nohighlight">\(Z(t) = \frac{1}{3} \left [ Z_x(t) + Z_y(t) + Z_z(t) \right ]\)</span>. The <code class="docutils literal notranslate"><span class="pre">diffusion</span></code> method takes care of dividing it into the perpendicular and parallel.</p>
+<p>It is important to note that the <code class="docutils literal notranslate"><span class="pre">diffusion</span></code> method assume a constant magnetic field in the <span class="math notranslate nohighlight">\(z\)</span>-direction. Arbitrary directions of the magnetic field are not supported at the moment.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficient</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">diffusion</span> <span class="o">=</span> <span class="n">TransportCoefficient</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">phase</span> <span class="o">=</span> <span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+======================= Diffusion Coefficient ========================
+
+Data saved in:
+ Simulations/ocp_mag/PostProcessing/VelocityAutoCorrelationFunction/Production/Diffusion_ocp_mag.csv
+
+No. of slices = 5
+No. dumps per slice = 1324
+Time interval of autocorrelation function = 1.4564e-13 [s] ~ 244 w_p T
+
+Calculating vacf for slice 0/5.
+
+Parsing particles&#39; velocities.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "dd78c6d4fee0416dadb480918c96697d", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Calculating vacf for slice 1/5.
+
+Parsing particles&#39; velocities.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ae2477f4ac5942cea6c49970eb0b80c7", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Calculating vacf for slice 2/5.
+
+Parsing particles&#39; velocities.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "c49cdf97602742b79f9d94f8852f5de2", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Calculating vacf for slice 3/5.
+
+Parsing particles&#39; velocities.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f9a1e713a0b6497a80d22966988e9d58", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+Calculating vacf for slice 4/5.
+
+Parsing particles&#39; velocities.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1eba62efd9424c2cad0f247d428bde80", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+VACF Calculation Time: 0 hrs 0 min 8 sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_14_11.png" src="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_14_11.png" />
+</div>
+</div>
+<p>Once the calculation is complete <code class="docutils literal notranslate"><span class="pre">Sarkas</span></code> produces a figure containing two <code class="docutils literal notranslate"><span class="pre">subplots</span></code>: a plot of <span class="math notranslate nohighlight">\(Z_{\perp}(t)\)</span> and <span class="math notranslate nohighlight">\(Z_{\parallel}(t)\)</span> on the left and a plot of <span class="math notranslate nohighlight">\(D_{\parallel}(\tau)\)</span> and <span class="math notranslate nohighlight">\(D_{\perp}(\tau)\)</span> on the right <span class="math notranslate nohighlight">\(y\)</span>-axis. The above plots . Therefore, we re-plot the diffusion only by rescaling it by <span class="math notranslate nohighlight">\(\omega_p a_{\rm ws}^2\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Parallel Diffusion avg&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+       <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$D_{\parallel}$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+    <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span>
+    <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Parallel Diffusion avg&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span> <span class="o">-</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Parallel Diffusion std&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+    <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Parallel Diffusion avg&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span> <span class="o">+</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Parallel Diffusion std&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+
+<span class="c1"># Perpendicular</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Perpendicular Diffusion avg&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$D_{\perp}$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+    <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span>
+    <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Perpendicular Diffusion avg&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span> <span class="o">-</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Perpendicular Diffusion std&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+    <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Perpendicular Diffusion avg&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span> <span class="o">+</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Perpendicular Diffusion std&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Parallel Diffusion avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">expanding</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+       <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Mov Avg&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Perpendicular Diffusion avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">expanding</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">/</span><span class="n">rescaling</span><span class="p">,</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Mov Avg&#39;</span><span class="p">)</span>
+<span class="c1"># ax.axhline(coefficient[&quot;H Parallel Diffusion avg&quot;].iloc[10]/rescaling)</span>
+<span class="c1"># ax2.plot(diffusion[&quot;H Parallel Diffusion avg&quot;].expanding().mean()/rescaling, ls = &#39;&#39;)</span>
+<span class="c1"># ax.grid(False)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="mf">1.5</span><span class="o">*</span><span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\tau$ [fs]&#39;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$D_{\parallel,\perp}$ [$\omega_p a_</span><span class="si">{ws}</span><span class="s1">^2$]&#39;</span><span class="p">,</span> <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1500</span><span class="o">*</span><span class="mf">1.5</span><span class="p">])</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;Index&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[None, Text(0.5, 0, &#39;Index&#39;)]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_16_1.png" src="../../_images/examples_Magnetized_OCP_Magnetized_Plasma_16_1.png" />
+</div>
+</div>
+<p>This gives a clearer picture of the diffusion coefficient. Note that the diffusion is a constant and not a function of time. This plot is meant to show how the diffusion changes as the upper limit of the time integration is varied. The final value to be published would be an average over the last ~ 800 diffusion values.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The perpendicular diffusion is D_x = </span><span class="si">{:.4f}</span><span class="s1"> w_p a_ws^2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="mi">1</span><span class="o">/</span><span class="n">rescaling</span> <span class="o">*</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Perpendicular Diffusion avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">800</span><span class="p">:]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The parallel diffusion is D_z = </span><span class="si">{:.4f}</span><span class="s1"> w_p a_ws^2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="mi">1</span><span class="o">/</span><span class="n">rescaling</span> <span class="o">*</span> <span class="n">diffusion</span><span class="p">[</span><span class="s2">&quot;H Parallel Diffusion avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">800</span><span class="p">:]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The perpendicular diffusion is D_x = 0.0024 w_p a_ws^2
+The parallel diffusion is D_z = 0.0026 w_p a_ws^2
+</pre></div></div>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Jun 05, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+    </p>
+  </div>
+</footer>
+
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+      })
+  </script>
+  
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>

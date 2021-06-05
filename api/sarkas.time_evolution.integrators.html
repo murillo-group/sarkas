@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>sarkas.time_evolution.integrators module &#8212; Sarkas 1.0.0 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
@@ -15,13 +15,13 @@
     <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
     <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
@@ -145,13 +145,13 @@
 <span id="sarkas-time-evolution-integrators-module"></span><h1>sarkas.time_evolution.integrators module<a class="headerlink" href="#module-sarkas.time_evolution.integrators" title="Permalink to this headline">¶</a></h1>
 <p>Module of various types of time_evolution</p>
 <dl class="py class">
-<dt id="sarkas.time_evolution.integrators.Integrator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sarkas.time_evolution.integrators.</span></code><code class="sig-name descname"><span class="pre">Integrator</span></code><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.time_evolution.integrators.</span></span><span class="sig-name descname"><span class="pre">Integrator</span></span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class used to assign integrator type.</p>
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.dt">
-<code class="sig-name descname"><span class="pre">dt</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.dt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.dt">
+<span class="sig-name descname"><span class="pre">dt</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.dt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Timestep.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -161,8 +161,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.equilibration_steps">
-<code class="sig-name descname"><span class="pre">equilibration_steps</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.equilibration_steps" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.equilibration_steps">
+<span class="sig-name descname"><span class="pre">equilibration_steps</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.equilibration_steps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total number of equilibration timesteps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -172,8 +172,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.eq_dump_step">
-<code class="sig-name descname"><span class="pre">eq_dump_step</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.eq_dump_step" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.eq_dump_step">
+<span class="sig-name descname"><span class="pre">eq_dump_step</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.eq_dump_step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equilibration dump interval.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -183,8 +183,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.kB">
-<code class="sig-name descname"><span class="pre">kB</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.kB" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.kB">
+<span class="sig-name descname"><span class="pre">kB</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.kB" title="Permalink to this definition">¶</a></dt>
 <dd><p>Boltzmann constant.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -194,8 +194,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetized">
-<code class="sig-name descname"><span class="pre">magnetized</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetized" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.magnetized">
+<span class="sig-name descname"><span class="pre">magnetized</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetized" title="Permalink to this definition">¶</a></dt>
 <dd><p>Magnetized simulation flag.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -205,8 +205,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.production_steps">
-<code class="sig-name descname"><span class="pre">production_steps</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.production_steps" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.production_steps">
+<span class="sig-name descname"><span class="pre">production_steps</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.production_steps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total number of production timesteps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -216,8 +216,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.prod_dump_step">
-<code class="sig-name descname"><span class="pre">prod_dump_step</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.prod_dump_step" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.prod_dump_step">
+<span class="sig-name descname"><span class="pre">prod_dump_step</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.prod_dump_step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Production dump interval.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -227,8 +227,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.species_num">
-<code class="sig-name descname"><span class="pre">species_num</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.species_num" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.species_num">
+<span class="sig-name descname"><span class="pre">species_num</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.species_num" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of particles of each species. copy of <code class="docutils literal notranslate"><span class="pre">parameters.species_num</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -238,8 +238,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.box_lengths">
-<code class="sig-name descname"><span class="pre">box_lengths</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.box_lengths" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.box_lengths">
+<span class="sig-name descname"><span class="pre">box_lengths</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.box_lengths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Length of each box side.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -249,8 +249,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.verbose">
-<code class="sig-name descname"><span class="pre">verbose</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.verbose" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.verbose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verbose output flag.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -260,8 +260,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.type">
-<code class="sig-name descname"><span class="pre">type</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.type" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.type">
+<span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrator type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -271,8 +271,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.update">
-<code class="sig-name descname"><span class="pre">update</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.update" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.update">
+<span class="sig-name descname"><span class="pre">update</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrator choice. ‘verlet’ or ‘magnetic_verlet’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -282,8 +282,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.update_accelerations">
-<code class="sig-name descname"><span class="pre">update_accelerations</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.update_accelerations" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.update_accelerations">
+<span class="sig-name descname"><span class="pre">update_accelerations</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.update_accelerations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Link to the correct potential update function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -293,8 +293,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sarkas.time_evolution.integrators.Integrator.thermostate">
-<code class="sig-name descname"><span class="pre">thermostate</span></code><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.thermostate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.thermostate">
+<span class="sig-name descname"><span class="pre">thermostate</span></span><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.thermostate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Link to the correct thermostat function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -304,8 +304,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.equilibrate">
-<code class="sig-name descname"><span class="pre">equilibrate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.equilibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.equilibrate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.equilibrate">
+<span class="sig-name descname"><span class="pre">equilibrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.equilibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.equilibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loop over the equilibration steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -319,8 +319,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.from_dict">
-<code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.from_dict">
+<span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update attributes from input dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -330,8 +330,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetic_boris">
-<code class="sig-name descname"><span class="pre">magnetic_boris</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.magnetic_boris">
+<span class="sig-name descname"><span class="pre">magnetic_boris</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class using the Boris algorithm in the case of a
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id1">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <dl class="field-list simple">
@@ -348,8 +348,8 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetic_boris_zdir">
-<code class="sig-name descname"><span class="pre">magnetic_boris_zdir</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris_zdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris_zdir" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.magnetic_boris_zdir">
+<span class="sig-name descname"><span class="pre">magnetic_boris_zdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_boris_zdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_boris_zdir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class using the Boris algorithm in the case of a
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eqs. (80) - (81) of Ref. <span id="id2">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <dl class="field-list simple">
@@ -366,8 +366,8 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetic_helpers">
-<code class="sig-name descname"><span class="pre">magnetic_helpers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coefficient</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_helpers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_helpers" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.magnetic_helpers">
+<span class="sig-name descname"><span class="pre">magnetic_helpers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coefficient</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_helpers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_helpers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the trigonometric functions of the magnetic integrators.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -379,8 +379,8 @@ constant magnetic field along the <span class="math notranslate nohighlight">\(z
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet">
-<code class="sig-name descname"><span class="pre">magnetic_verlet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet">
+<span class="sig-name descname"><span class="pre">magnetic_verlet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class based on velocity verlet method in the case of an arbitrary direction of the
 constant magnetic field. For more info see eq. (78) of Ref. <span id="id3">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <dl class="field-list simple">
@@ -408,8 +408,8 @@ an arbitrary direction, methods in <cite>sarkas.tool.observables</cite> work onl
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet_zdir">
-<code class="sig-name descname"><span class="pre">magnetic_verlet_zdir</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet_zdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet_zdir" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.magnetic_verlet_zdir">
+<span class="sig-name descname"><span class="pre">magnetic_verlet_zdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetic_verlet_zdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetic_verlet_zdir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class based on velocity verlet method in the case of a
 constant magnetic field along the <span class="math notranslate nohighlight">\(z\)</span> axis. For more info see eq. (78) of Ref. <span id="id5">[<a class="reference internal" href="../theory/references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <dl class="field-list simple">
@@ -429,19 +429,19 @@ This is the preferred choice in this case.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.magnetize">
-<code class="sig-name descname"><span class="pre">magnetize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetize" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.magnetize">
+<span class="sig-name descname"><span class="pre">magnetize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.magnetize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.magnetize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.pretty_print">
-<code class="sig-name descname"><span class="pre">pretty_print</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.pretty_print">
+<span class="sig-name descname"><span class="pre">pretty_print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.pretty_print" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print integrator attributes in a user friendly way.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.produce">
-<code class="sig-name descname"><span class="pre">produce</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.produce"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.produce" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.produce">
+<span class="sig-name descname"><span class="pre">produce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.produce"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.produce" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loop over the production steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -455,8 +455,8 @@ This is the preferred choice in this case.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.setup">
-<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermostat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.setup" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermostat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign attributes from simulation’s parameters and classes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -470,8 +470,8 @@ This is the preferred choice in this case.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.verlet">
-<code class="sig-name descname"><span class="pre">verlet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.verlet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.verlet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.verlet">
+<span class="sig-name descname"><span class="pre">verlet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.verlet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.verlet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles’ class based on velocity verlet algorithm.
 More information can be found here: <a class="reference external" href="https://en.wikipedia.org/wiki/Verlet_integration">https://en.wikipedia.org/wiki/Verlet_integration</a>
 or on the Sarkas website.</p>
@@ -483,8 +483,8 @@ or on the Sarkas website.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sarkas.time_evolution.integrators.Integrator.verlet_langevin">
-<code class="sig-name descname"><span class="pre">verlet_langevin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.verlet_langevin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.verlet_langevin" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.Integrator.verlet_langevin">
+<span class="sig-name descname"><span class="pre">verlet_langevin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptcls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/time_evolution/integrators.html#Integrator.verlet_langevin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.time_evolution.integrators.Integrator.verlet_langevin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update particles class using the velocity verlet algorithm and Langevin damping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -496,8 +496,8 @@ or on the Sarkas website.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.time_evolution.integrators.enforce_pbc">
-<code class="sig-prename descclassname"><span class="pre">sarkas.time_evolution.integrators.</span></code><code class="sig-name descname"><span class="pre">enforce_pbc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cntr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BoxVector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.time_evolution.integrators.enforce_pbc" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.enforce_pbc">
+<span class="sig-prename descclassname"><span class="pre">sarkas.time_evolution.integrators.</span></span><span class="sig-name descname"><span class="pre">enforce_pbc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cntr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BoxVector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.time_evolution.integrators.enforce_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enforce Periodic Boundary conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -511,8 +511,8 @@ or on the Sarkas website.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.time_evolution.integrators.remove_drift">
-<code class="sig-prename descclassname"><span class="pre">sarkas.time_evolution.integrators.</span></code><code class="sig-name descname"><span class="pre">remove_drift</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.time_evolution.integrators.remove_drift" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.time_evolution.integrators.remove_drift">
+<span class="sig-prename descclassname"><span class="pre">sarkas.time_evolution.integrators.</span></span><span class="sig-name descname"><span class="pre">remove_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.time_evolution.integrators.remove_drift" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enforce conservation of total linear momentum. Updates <code class="docutils literal notranslate"><span class="pre">particles.vel</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -540,8 +540,8 @@ or on the Sarkas website.</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 02, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+      Last updated on Jun 05, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>
 </footer>

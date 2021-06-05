@@ -2,7 +2,10 @@
 Input File
 ==========
 The first step in any MD simulation is the creation of an input file containing all the relevant parameters
-of our simulation. Take a look at the file ``yukawa_mks_p3m.yaml``.
+of our simulation. Take a look at the file ``yukawa_mks_p3m.yaml`` that can be
+found `here <https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/input_files/yukawa_mks_p3m.yaml>`_.
+
+
 It is very important to maintain the syntax shown in the example YAML files.
 This is because the content of the YAML file is returned as a dictionary of dictionaries.
 
@@ -189,7 +192,7 @@ The observables we want to calculate are
 
 Note that ``Observables`` is again a list of dictionaries. This is because each observable is returned as 
 an object in the simulation. The lines below the observables' names are the parameters needed for the calculation. 
-The parameters are differents depending on the observable. We will discuss them in the next pages of this tutorial.
+The parameters are different depending on the observable. We will discuss them in the next pages of this tutorial.
 
 
 Transport Coefficients

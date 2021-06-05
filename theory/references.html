@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>References &#8212; Sarkas 1.0.0 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
     <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -163,7 +163,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#run-the-code">Run the code</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Tutorial_NB/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a></li>
 </ul>
 </li>
@@ -191,10 +191,11 @@
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#yukawa-potential">Yukawa Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#moliere-potential">Moliere Potential</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Berendsen_Thermostat.html">Thermostats</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Berendsen_Thermostat.html#Berendsen-Thermostat">Berendsen Thermostat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Berendsen_NB/Berendsen_Thermostat.html">Thermostats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Berendsen_NB/Berendsen_Thermostat.html#Berendsen-Thermostat">Berendsen Thermostat</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a><ul>
@@ -236,27 +237,36 @@
 <p class="caption"><span class="caption-text">Simulations:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#PreProcessing">PreProcessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#PostProcessing">PostProcessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#Transport">Transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html">H-He Mixture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html#Simulation">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html#PostProcessing">PostProcessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html#Interdiffusion">Interdiffusion</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html">MD for Experiment Validation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Ultracold-Neutral-Plasmas">Ultracold Neutral Plasmas</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Disorder-Induced-Heating">Disorder Induced Heating</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#PreProcessing">PreProcessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#PostProcessing">PostProcessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QSP/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html">Magnetized Plasma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#PostProcessing">PostProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#Transport">Transport</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#PreProcessing">PreProcessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#Simulation">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html">MD for Experiment Validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#Ultracold-Neutral-Plasmas">Ultracold Neutral Plasmas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#Disorder-Induced-Heating">Disorder Induced Heating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#PostProcessing">PostProcessing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#PreProcessing">PreProcessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#Simulation">Simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html">Moliere Potential</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html#Post-Processing">Post Processing</a></li>
 </ul>
 </li>
 </ul>
@@ -342,6 +352,9 @@
 <dt class="label" id="id10"><span class="brackets">SC08</span></dt>
 <dd><p>Harry A. Stern and Keith G. Calkins. On mesh-based ewald methods: optimal parameters for two differentiation schemes. <em>The Journal of Chemical Physics</em>, 128(21):214106, 2008. <a class="reference external" href="https://doi.org/10.1063/1.2932253">doi:10.1063/1.2932253</a>.</p>
 </dd>
+<dt class="label" id="id17"><span class="brackets">WHB77</span></dt>
+<dd><p>W. D. Wilson, L. G. Haggmark, and J. P. Biersack. Calculations of nuclear stopping, ranges, and straggling in the low-energy region. <em>Phys. Rev. B</em>, 15:2458–2468, Mar 1977. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.15.2458">https://link.aps.org/doi/10.1103/PhysRevB.15.2458</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.15.2458">doi:10.1103/PhysRevB.15.2458</a>.</p>
+</dd>
 </dl>
 </p>
 </div>
@@ -359,8 +372,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 02, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+      Last updated on Jun 05, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>
 </footer>

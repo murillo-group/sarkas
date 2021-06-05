@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Potentials &#8212; Sarkas 1.0.0 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
@@ -15,19 +15,19 @@
     <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
     <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Thermostats" href="Berendsen_Thermostat.html" />
+    <link rel="next" title="Thermostats" href="Berendsen_NB/Berendsen_Thermostat.html" />
     <link rel="prev" title="Integrators" href="integrators.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -114,6 +114,7 @@
 <li><a class="reference internal" href="#yukawa-potential">Yukawa Potential</a></li>
 <li><a class="reference internal" href="#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
 <li><a class="reference internal" href="#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li><a class="reference internal" href="#moliere-potential">Moliere Potential</a></li>
 </ul>
 </li>
 </ul>
@@ -171,7 +172,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#run-the-code">Run the code</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/Tutorial_NB/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a></li>
 </ul>
 </li>
@@ -199,10 +200,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#yukawa-potential">Yukawa Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moliere-potential">Moliere Potential</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Berendsen_Thermostat.html">Thermostats</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Berendsen_Thermostat.html#Berendsen-Thermostat">Berendsen Thermostat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Berendsen_NB/Berendsen_Thermostat.html">Thermostats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Berendsen_NB/Berendsen_Thermostat.html#Berendsen-Thermostat">Berendsen Thermostat</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="PPPM.html">Particle-Particle Particle-Mesh Algorithm</a><ul>
@@ -244,27 +246,36 @@
 <p class="caption"><span class="caption-text">Simulations:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/H-He_Mixture.html">H-He Mixture Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_Plasma.html">Magnetized Plasma</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#PreProcessing">PreProcessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#PostProcessing">PostProcessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_Plasma.html#Transport">Transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html">H-He Mixture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html#Simulation">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html#PostProcessing">PostProcessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html#Interdiffusion">Interdiffusion</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html">MD for Experiment Validation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Ultracold-Neutral-Plasmas">Ultracold Neutral Plasmas</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Disorder-Induced-Heating">Disorder Induced Heating</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#PreProcessing">PreProcessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/UCP_Experiment_Validation.html#PostProcessing">PostProcessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/QSP/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html">Magnetized Plasma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#PostProcessing">PostProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#Transport">Transport</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#PreProcessing">PreProcessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#Simulation">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html">MD for Experiment Validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#Ultracold-Neutral-Plasmas">Ultracold Neutral Plasmas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#Disorder-Induced-Heating">Disorder Induced Heating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#PreProcessing">PreProcessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html#PostProcessing">PostProcessing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#PreProcessing">PreProcessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#Simulation">Simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html">Moliere Potential</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html#Post-Processing">Post Processing</a></li>
 </ul>
 </li>
 </ul>
@@ -411,6 +422,16 @@ the exponential. The long range part of the potential is computed using the PPPM
 <span class="math notranslate nohighlight">\(1/r\)</span> term is split into a short range and long range part.</p>
 <p>The choice of this potential is due to its widespread use in the High Energy Density Physics community.</p>
 </div>
+<div class="section" id="moliere-potential">
+<h2>Moliere Potential<a class="headerlink" href="#moliere-potential" title="Permalink to this headline">¶</a></h2>
+<p>Moliere-type potentials have the form</p>
+<div class="math notranslate nohighlight">
+\[\phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left [ \sum_{j}^{3} C_j e^{-b_j r} \right]\]</div>
+<p>with the contraint</p>
+<div class="math notranslate nohighlight">
+\[\sum_{j}^{3} C_j  = 1\]</div>
+<p>more info can be found in <span id="id4">[<a class="reference internal" href="references.html#id17" title="W. D. Wilson, L. G. Haggmark, and J. P. Biersack. Calculations of nuclear stopping, ranges, and straggling in the low-energy region. Phys. Rev. B, 15:2458–2468, Mar 1977. URL: https://link.aps.org/doi/10.1103/PhysRevB.15.2458, doi:10.1103/PhysRevB.15.2458.">Wilson <em>et al.</em>, 1977</a>]</span></p>
+</div>
 </div>
 
 
@@ -426,8 +447,8 @@ the exponential. The long range part of the potential is computed using the PPPM
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 02, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+      Last updated on Jun 05, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>
 </footer>

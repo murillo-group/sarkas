@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>sarkas.potentials.lennardjones &#8212; Sarkas 1.0.0 documentation</title>
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/my-style.css" />
     <link rel="stylesheet" href="../../../_static/my-styles.css" type="text/css" />
     
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
@@ -179,7 +179,7 @@
             <span class="n">sigma2</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">epsilon_tot</span> <span class="o">+=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span>
 
-    <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">LJ_force_PP</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">lj_force</span>
 
     <span class="c1"># Calculate the force error</span>
     <span class="n">deriv_exp</span> <span class="o">=</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -189,7 +189,7 @@
 
 
 <span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
-<span class="k">def</span> <span class="nf">LJ_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix_ij</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">lj_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix_ij</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the PP force between particles using Lennard-Jones Potential.</span>
 <span class="sd">    </span>
@@ -244,8 +244,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 02, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+      Last updated on Jun 05, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>
 </footer>

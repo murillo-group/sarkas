@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>sarkas.potentials.force_pp module &#8212; Sarkas 1.0.0 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
     <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -143,8 +143,8 @@
 <span id="sarkas-potentials-force-pp-module"></span><h1>sarkas.potentials.force_pp module<a class="headerlink" href="#module-sarkas.potentials.force_pp" title="Permalink to this headline">¶</a></h1>
 <p>Module for handling Particle-Particle interaction.</p>
 <dl class="py function">
-<dt id="sarkas.potentials.force_pp.update">
-<code class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pp.</span></code><code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdf_hist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pp.update" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.potentials.force_pp.update">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pp.</span></span><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdf_hist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pp.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the force on the particles based on a linked cell-list (LCL) algorithm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -176,8 +176,8 @@ short and long ranged interactions. See the wikipedia article:
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.force_pp.update_0D">
-<code class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pp.</span></code><code class="sig-name descname"><span class="pre">update_0D</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_ij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_ij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdf_hist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pp.update_0D" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.potentials.force_pp.update_0D">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pp.</span></span><span class="sig-name descname"><span class="pre">update_0D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_ij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_ij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdf_hist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pp.update_0D" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates particles’ accelerations when the cutoff radius :math: <cite>r_c</cite> is half the box’s length, :math: <cite>r_c = L/2</cite>
 For no sub-cell. All ptcls within :math: <cite>r_c = L/2</cite> participate for force calculation. Cost ~ O(N^2)</p>
 <dl class="field-list simple">
@@ -219,8 +219,8 @@ For no sub-cell. All ptcls within :math: <cite>r_c = L/2</cite> participate for 
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 02, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+      Last updated on Jun 05, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>
 </footer>

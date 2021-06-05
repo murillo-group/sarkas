@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>sarkas.potentials.force_pm module &#8212; Sarkas 1.0.0 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
     <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -143,8 +143,8 @@
 <span id="sarkas-potentials-force-pm-module"></span><h1>sarkas.potentials.force_pm module<a class="headerlink" href="#module-sarkas.potentials.force_pm" title="Permalink to this headline">¶</a></h1>
 <p>Module for handling the Particle-Mesh part of the force and potential calculation.</p>
 <dl class="py function">
-<dt id="sarkas.potentials.force_pm.assgnmnt_func">
-<code class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></code><code class="sig-name descname"><span class="pre">assgnmnt_func</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.assgnmnt_func" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.potentials.force_pm.assgnmnt_func">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></span><span class="sig-name descname"><span class="pre">assgnmnt_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.assgnmnt_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the charge assignment function as given in Ref. [Deserno1998].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -163,8 +163,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.force_pm.calc_acc_pm">
-<code class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></code><code class="sig-name descname"><span class="pre">calc_acc_pm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E_x_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_y_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_z_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.calc_acc_pm" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.potentials.force_pm.calc_acc_pm">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></span><span class="sig-name descname"><span class="pre">calc_acc_pm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E_x_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_y_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_z_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.calc_acc_pm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the long range part of particles’ accelerations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -189,8 +189,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.force_pm.calc_charge_dens">
-<code class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></code><code class="sig-name descname"><span class="pre">calc_charge_dens</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.calc_charge_dens" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.potentials.force_pm.calc_charge_dens">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></span><span class="sig-name descname"><span class="pre">calc_charge_dens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.calc_charge_dens" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns Charges to Mesh Points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -213,8 +213,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.force_pm.calc_field">
-<code class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></code><code class="sig-name descname"><span class="pre">calc_field</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kx_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kz_v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.calc_field" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.potentials.force_pm.calc_field">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></span><span class="sig-name descname"><span class="pre">calc_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kx_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kz_v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.calc_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the Electric field in Fourier space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -237,8 +237,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.force_pm.force_optimized_green_function">
-<code class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></code><code class="sig-name descname"><span class="pre">force_optimized_green_function</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.force_optimized_green_function" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.potentials.force_pm.force_optimized_green_function">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></span><span class="sig-name descname"><span class="pre">force_optimized_green_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.force_optimized_green_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -265,8 +265,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="sarkas.potentials.force_pm.update">
-<code class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></code><code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kx_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kz_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cao</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.update" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.potentials.force_pm.update">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.force_pm.</span></span><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kx_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kz_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cao</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.force_pm.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the long range part of particles’ accelerations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -308,8 +308,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 02, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+      Last updated on Jun 05, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>
 </footer>
