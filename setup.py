@@ -111,7 +111,7 @@ setuptools.setup(
     # dependency_links = ['https://pypi.org/'],
     classifiers=[
         # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
-        'Development Status :: 5',
+        'Development Status :: 3 - Alpha',
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
