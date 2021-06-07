@@ -3,7 +3,7 @@ Module for handling Particle-Particle interaction.
 """
 
 import numpy as np
-from numba import njit
+from numba import njit, prange
 
 @njit
 def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hist):
@@ -119,7 +119,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
     return U_s_r, acc_s_r
 
 
-@njit
+@njit(parallel = True)
 def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure, rdf_hist):
     """
     Update the force on the particles based on a linked cell-list (LCL) algorithm.
@@ -208,7 +208,7 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
         head[c] = i
 
     # Loop over all cells in x, y, and z direction
-    for cx in range(cells_per_dim[0]):
+    for cx in prange(cells_per_dim[0]):
         for cy in range(cells_per_dim[1]):
             for cz in range(cells_per_dim[2]):
 
