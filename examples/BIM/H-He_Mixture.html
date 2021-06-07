@@ -109,10 +109,18 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">H-He Mixture</a></li>
+<li><a class="reference internal" href="#">H-He Mixture</a><ul>
 <li><a class="reference internal" href="#Simulation">Simulation</a></li>
 <li><a class="reference internal" href="#PostProcessing">PostProcessing</a><ul>
-<li><a class="reference internal" href="#Interdiffusion">Interdiffusion</a></li>
+<li><a class="reference internal" href="#Thermodynamic-Check">Thermodynamic Check</a></li>
+<li><a class="reference internal" href="#Pair-Distribution-Function">Pair Distribution Function</a></li>
+<li><a class="reference internal" href="#Static-Structure-Function">Static Structure Function</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Interdiffusion">Interdiffusion</a><ul>
+<li><a class="reference internal" href="#Transport-Coefficients-in-Sarkas">Transport Coefficients in Sarkas</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -399,7 +407,7 @@ div.rendered_html tbody tr:hover {
 <p>In this notebook we will calculate the diffusion and interdiffusion coefficients of Binary Ionic Mixture (BIM) of Hydrogen and Helium. This notebook tries to reproduce the data obtained from Hansen, Joly, and McDonald’s <a class="reference external" href="https://doi.org/10.1016/0378-4371(85)90022-6">paper</a>.</p>
 <p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/BIM/input_files/BIM_cgs.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/BIM/H-He_Mixture.ipynb">notebook</a>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -409,7 +417,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
 <span class="c1"># Import sarkas</span>
-<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
 
 
 <span class="c1"># Create the file path to the YAML input file</span>
@@ -426,11 +434,10 @@ Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-</div>
 <div class="section" id="Simulation">
-<h1>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h1>
+<h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -445,23 +452,19 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span style="color: rgb(0,129,131)">
+<span style="color: rgb(24,69,49)">
 
 
 
 
 
 
-
-
- _______  _______  _______  _        _______  _______
-(  ____ \(  ___  )(  ____ )| \    /\(  ___  )(  ____ \
-| (    \/| (   ) || (    )||  \  / /| (   ) || (    \/
-| (_____ | (___) || (____)||  (_/ / | (___) || (_____
-(_____  )|  ___  ||     __)|   _ (  |  ___  |(_____  )
-      ) || (   ) || (\ (   |  ( \ \ | (   ) |      ) |
-/\____) || )   ( || ) \ \__|  /  \ \| )   ( |/\____) |
-\_______)|/     \||/   \__/|_/    \/|/     \|\_______)
+     _______.     ___      .______       __  ___      ___           _______.
+    /       |    /   \     |   _  \     |  |/  /     /   \         /       |
+   |   (----`   /  ^  \    |  |_)  |    |  &#39;  /     /  ^  \       |   (----`
+    \   \      /  /_\  \   |      /     |    &lt;     /  /_\  \       \   \
+.----)   |    /  _____  \  |  |\  \----.|  .  \   /  _____  \  .----)   |
+|_______/    /__/     \__\ | _| `._____||__|\__\ /__/     \__\ |_______/
 
 
 </span>
@@ -560,7 +563,7 @@ Tot Force Error = 5.106968e-05
 
 THERMOSTAT:
 Type: Berendsen
-First thermostating timestep, i.e. relaxation_timestep = 1
+First thermostating timestep, i.e. relaxation_timestep = 100
 Berendsen parameter tau: 5.000 [timesteps]
 Berendsen relaxation rate: 0.200 [1/timesteps]
 
@@ -579,11 +582,11 @@ Total plasma frequency = 1.675694e+17 [Hz]
 w_p dt = 0.0159 ~ 1/62
 
 Equilibration:
-No. of equilibration steps = 10000
-Total equilibration time = 9.5000e-16 [s] ~ 159 w_p T_eq
+No. of equilibration steps = 5000
+Total equilibration time = 4.7500e-16 [s] ~ 79 w_p T_eq
 snapshot interval step = 10
 snapshot interval time = 9.5000e-19 [s] = 0.1592 w_p T_snap
-Total number of snapshots = 1000
+Total number of snapshots = 500
 
 Production:
 No. of production steps = 100000
@@ -596,11 +599,11 @@ Total number of snapshots = 10000
 ------------------------ Initialization Times ------------------------
 
 
-Potential Initialization Time: 0 sec 650 msec 219 usec 44 nsec
+Potential Initialization Time: 2 sec 93 msec 998 usec 238 nsec
 
-Particles Initialization Time: 0 sec 1 msec 471 usec 93 nsec
+Particles Initialization Time: 0 sec 0 msec 738 usec 489 nsec
 
-Total Simulation Initialization Time: 0 sec 650 msec 219 usec 44 nsec
+Total Simulation Initialization Time: 2 sec 93 msec 998 usec 238 nsec
 
 ------------- Equilibration -------------
 </pre></div></div>
@@ -609,7 +612,7 @@ Total Simulation Initialization Time: 0 sec 650 msec 219 usec 44 nsec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ca2e4afb2f8d4d6f8ab1f06b0758fa20", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1fa67bb136244db38604a804a6d1bd41", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -617,7 +620,7 @@ Total Simulation Initialization Time: 0 sec 650 msec 219 usec 44 nsec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Equilibration Time: 0 hrs 26 min 15 sec
+Equilibration Time: 0 hrs 13 min 26 sec
 
 ------------- Production -------------
 </pre></div></div>
@@ -626,7 +629,7 @@ Equilibration Time: 0 hrs 26 min 15 sec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "367c5b5e55774db28f5c0b8c8c5ff38a", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "98c7820daa824677881a5cbaefba919b", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -634,14 +637,14 @@ Equilibration Time: 0 hrs 26 min 15 sec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Production Time: 4 hrs 45 min 49 sec
+Production Time: 4 hrs 45 min 38 sec
 
-Total Time: 5 hrs 12 min 5 sec
+Total Time: 4 hrs 59 min 4 sec
 </pre></div></div>
 </div>
 </div>
 <div class="section" id="PostProcessing">
-<h1>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h1>
+<h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -679,8 +682,11 @@ Production Thermodynamics file:
  Simulations/bim/Simulation/Production/ProductionEnergy_bim.csv
 </pre></div></div>
 </div>
+<div class="section" id="Thermodynamic-Check">
+<h3>Thermodynamic Check<a class="headerlink" href="#Thermodynamic-Check" title="Permalink to this headline">¶</a></h3>
+<p>Let’s make sure that the equilibration phase was <span class="math notranslate nohighlight">\(NVT\)</span> and the production phase <span class="math notranslate nohighlight">\(NVE\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -695,11 +701,11 @@ Production Thermodynamics file:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_BIM_H-He_Mixture_6_0.png" src="../../_images/examples_BIM_H-He_Mixture_6_0.png" />
+<img alt="../../_images/examples_BIM_H-He_Mixture_7_0.png" src="../../_images/examples_BIM_H-He_Mixture_7_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -712,11 +718,15 @@ Production Thermodynamics file:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_BIM_H-He_Mixture_7_0.png" src="../../_images/examples_BIM_H-He_Mixture_7_0.png" />
+<img alt="../../_images/examples_BIM_H-He_Mixture_8_0.png" src="../../_images/examples_BIM_H-He_Mixture_8_0.png" />
 </div>
 </div>
+</div>
+<div class="section" id="Pair-Distribution-Function">
+<h3>Pair Distribution Function<a class="headerlink" href="#Pair-Distribution-Function" title="Permalink to this headline">¶</a></h3>
+<p>Let’s look at <span class="math notranslate nohighlight">\(g_{\alpha \beta}(r)\)</span>. Just for fun.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -733,11 +743,11 @@ Production Thermodynamics file:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Radial Distribution Function Calculation Time: 0 sec 1 msec 578 usec 255 nsec
+Radial Distribution Function Calculation Time: 0 sec 1 msec 353 usec 739 nsec
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -749,11 +759,15 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 578 usec 255 nsec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_BIM_H-He_Mixture_8_2.png" src="../../_images/examples_BIM_H-He_Mixture_8_2.png" />
+<img alt="../../_images/examples_BIM_H-He_Mixture_10_2.png" src="../../_images/examples_BIM_H-He_Mixture_10_2.png" />
 </div>
 </div>
+</div>
+<div class="section" id="Static-Structure-Function">
+<h3>Static Structure Function<a class="headerlink" href="#Static-Structure-Function" title="Permalink to this headline">¶</a></h3>
+<p>Let’s calculate <span class="math notranslate nohighlight">\(S_{\alpha\beta}(k)\)</span> up to <span class="math notranslate nohighlight">\(ka = 5\)</span> and angle average it.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -799,7 +813,7 @@ No. of unique ka values to calculate = 354
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -821,7 +835,7 @@ Calculating n(k,t) for slice 1/4.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "715729d468f5404aa107eec08c5d3c54", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3b396f92fed541d899fa7ce6ec3de7b1", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -836,7 +850,7 @@ Calculating n(k,t) for slice 2/4.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3dfd5da25d944562b3dcad16e0ba4e38", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f22542c05e044065a6599cbf1b795191", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -851,7 +865,7 @@ Calculating n(k,t) for slice 3/4.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "87a2de57141b41f3a70edd6df19cc358", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "92a43529b1ab4f6eb7947cb8afbbc1f6", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -866,7 +880,7 @@ Calculating n(k,t) for slice 4/4.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "be4230cce0cc4a70b8d585f33ae758f2", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4eeb27cf67b14169bb4c1d062b4ba977", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -874,7 +888,7 @@ Calculating n(k,t) for slice 4/4.
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-n(k,t) Calculation Time: 1 hrs 12 min 16 sec
+n(k,t) Calculation Time: 1 hrs 11 min 33 sec
 
 Calculating S(k) ...
 </pre></div></div>
@@ -883,7 +897,7 @@ Calculating S(k) ...
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "33cc9c2655fa4646b587b2005a621ad5", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5e07cea31042465eaab8f0812bf97a14", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -891,11 +905,11 @@ Calculating S(k) ...
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Static Structure Function Calculation Time: 1 sec 149 msec 725 usec 76 nsec
+Static Structure Function Calculation Time: 1 sec 143 msec 886 usec 588 nsec
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -937,52 +951,52 @@ Static Structure Function Calculation Time: 1 sec 149 msec 725 usec 76 nsec
     <tr>
       <th>0</th>
       <td>9.297400e+08</td>
-      <td>0.756288</td>
-      <td>0.146841</td>
-      <td>-0.378918</td>
-      <td>0.073543</td>
-      <td>0.190049</td>
-      <td>0.037005</td>
+      <td>0.602529</td>
+      <td>0.192241</td>
+      <td>-0.301900</td>
+      <td>0.096341</td>
+      <td>0.151476</td>
+      <td>0.048380</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1.314851e+09</td>
-      <td>1.179794</td>
-      <td>0.404432</td>
-      <td>-0.592622</td>
-      <td>0.203233</td>
-      <td>0.298148</td>
-      <td>0.102340</td>
+      <td>0.950866</td>
+      <td>0.520780</td>
+      <td>-0.477511</td>
+      <td>0.261661</td>
+      <td>0.240235</td>
+      <td>0.131608</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1.610357e+09</td>
-      <td>1.264727</td>
-      <td>0.968884</td>
-      <td>-0.636712</td>
-      <td>0.487861</td>
-      <td>0.321134</td>
-      <td>0.245976</td>
+      <td>0.739990</td>
+      <td>0.738481</td>
+      <td>-0.372485</td>
+      <td>0.372207</td>
+      <td>0.188129</td>
+      <td>0.187956</td>
     </tr>
     <tr>
       <th>3</th>
       <td>1.859480e+09</td>
-      <td>0.656470</td>
-      <td>0.338960</td>
-      <td>-0.331031</td>
-      <td>0.171030</td>
-      <td>0.167827</td>
-      <td>0.086515</td>
+      <td>0.752397</td>
+      <td>0.351244</td>
+      <td>-0.379395</td>
+      <td>0.177169</td>
+      <td>0.192214</td>
+      <td>0.089757</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2.078962e+09</td>
-      <td>0.893011</td>
-      <td>0.363256</td>
-      <td>-0.451449</td>
-      <td>0.183842</td>
-      <td>0.229346</td>
-      <td>0.093274</td>
+      <td>1.002572</td>
+      <td>0.228513</td>
+      <td>-0.506872</td>
+      <td>0.115638</td>
+      <td>0.257413</td>
+      <td>0.058941</td>
     </tr>
     <tr>
       <th>...</th>
@@ -997,52 +1011,52 @@ Static Structure Function Calculation Time: 1 sec 149 msec 725 usec 76 nsec
     <tr>
       <th>349</th>
       <td>1.785972e+10</td>
-      <td>1.268168</td>
-      <td>0.692608</td>
-      <td>0.505845</td>
-      <td>0.549410</td>
-      <td>1.338055</td>
-      <td>0.719504</td>
+      <td>1.192680</td>
+      <td>0.661692</td>
+      <td>0.436384</td>
+      <td>0.554023</td>
+      <td>1.359468</td>
+      <td>0.742470</td>
     </tr>
     <tr>
       <th>350</th>
       <td>1.826649e+10</td>
-      <td>1.171554</td>
-      <td>0.624012</td>
-      <td>0.372167</td>
-      <td>0.536261</td>
-      <td>1.220345</td>
-      <td>0.694275</td>
+      <td>1.237796</td>
+      <td>0.726700</td>
+      <td>0.405055</td>
+      <td>0.520392</td>
+      <td>1.127594</td>
+      <td>0.610901</td>
     </tr>
     <tr>
       <th>351</th>
       <td>1.831376e+10</td>
-      <td>1.222219</td>
-      <td>0.697804</td>
-      <td>0.412061</td>
-      <td>0.508447</td>
-      <td>1.135492</td>
-      <td>0.676501</td>
+      <td>1.351196</td>
+      <td>0.827004</td>
+      <td>0.469020</td>
+      <td>0.587705</td>
+      <td>1.221888</td>
+      <td>0.728822</td>
     </tr>
     <tr>
       <th>352</th>
       <td>1.880283e+10</td>
-      <td>1.177969</td>
-      <td>0.656677</td>
-      <td>0.379581</td>
-      <td>0.478443</td>
-      <td>1.044912</td>
-      <td>0.628631</td>
+      <td>1.242406</td>
+      <td>0.689684</td>
+      <td>0.364108</td>
+      <td>0.486653</td>
+      <td>1.086201</td>
+      <td>0.610369</td>
     </tr>
     <tr>
       <th>353</th>
       <td>1.932428e+10</td>
-      <td>1.356555</td>
-      <td>1.378294</td>
-      <td>0.236343</td>
-      <td>0.859552</td>
-      <td>1.060017</td>
-      <td>1.049765</td>
+      <td>1.315648</td>
+      <td>1.301362</td>
+      <td>0.305602</td>
+      <td>0.896752</td>
+      <td>0.940871</td>
+      <td>1.066535</td>
     </tr>
   </tbody>
 </table>
@@ -1050,7 +1064,7 @@ Static Structure Function Calculation Time: 1 sec 149 msec 725 usec 76 nsec
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1062,7 +1076,7 @@ Static Structure Function Calculation Time: 1 sec 149 msec 725 usec 76 nsec
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1074,15 +1088,31 @@ Static Structure Function Calculation Time: 1 sec 149 msec 725 usec 76 nsec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_BIM_H-He_Mixture_11_1.png" src="../../_images/examples_BIM_H-He_Mixture_11_1.png" />
+<img alt="../../_images/examples_BIM_H-He_Mixture_14_1.png" src="../../_images/examples_BIM_H-He_Mixture_14_1.png" />
 </div>
 </div>
+</div>
+</div>
+<div class="section" id="Interdiffusion">
+<h2>Interdiffusion<a class="headerlink" href="#Interdiffusion" title="Permalink to this headline">¶</a></h2>
+<p>The interdiffusion coefficient is calculated by the Green-Kubo relation</p>
+<div class="math notranslate nohighlight">
+\[D_{12} = \frac{\mathcal{J}}{3Nx_1x_2} \int_0^\infty dt {\rm{{ACF}_{ID}}} = \frac{\mathcal{J}}{3Nx_1x_2} \int_0^\infty dt \langle \mathbf{j}(0) \cdot \mathbf{j}(t) \rangle,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{J}\)</span> is the thermodynamic factor</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{J} = \frac{x_1x_2}{S_{cc}(k = 0)}\]</div>
+<p>and <span class="math notranslate nohighlight">\(S_{cc}(k)\)</span> is the concentration-concentration structure factor that can be decomposed into partial structure factors as</p>
+<div class="math notranslate nohighlight">
+\[S_{cc}(k) = x_1x_2[x_2S_{11}(k) + x_1S_{22}(k) - 2\sqrt{x_1x_2}S_{12}(k)].\]</div>
+<p>Calculating the interdiffusion coefficient <span class="math notranslate nohighlight">\(D_{12}\)</span> is two-fold in that we must compute the auto-correlation function <span class="math notranslate nohighlight">\(\rm{{ACF}_{ID}}\)</span> and the thermodynamic factor <span class="math notranslate nohighlight">\(\mathcal J\)</span>.</p>
+<p>We will calculate <span class="math notranslate nohighlight">\(\mathcal J\)</span> first by fitting the following function to <span class="math notranslate nohighlight">\(S_{\alpha\beta}(k)\)</span></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+<span></span><span class="c1"># Define fitting functions</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
 
 <span class="k">def</span> <span class="nf">poly_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">c</span>
@@ -1095,33 +1125,88 @@ Static Structure Function Calculation Time: 1 sec 149 msec 725 usec 76 nsec
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<p>As you can see from above <span class="math notranslate nohighlight">\(S_{\alpha\beta}(k)\)</span> are pretty noisy. Therefore we choose only those <span class="math notranslate nohighlight">\(ka\)</span> values for which we have averaged more than three <span class="math notranslate nohighlight">\(S_{\alpha\beta}(k)\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">poptH</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">poly_fit</span><span class="p">,</span> <span class="n">sk_array</span><span class="p">[:,</span><span class="mi">0</span><span class="p">][</span><span class="n">k_counts</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">][:</span><span class="mi">100</span><span class="p">],</span> <span class="n">sk_array</span><span class="p">[:,</span><span class="mi">1</span><span class="p">][</span><span class="n">k_counts</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">][:</span><span class="mi">100</span><span class="p">])</span>
-<span class="n">poptHHe</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">lin_fit</span><span class="p">,</span> <span class="n">sk_array</span><span class="p">[:,</span><span class="mi">0</span><span class="p">][</span><span class="n">k_counts</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">][:</span><span class="mi">30</span><span class="p">],</span> <span class="n">sk_array</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">k_counts</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">][:</span><span class="mi">30</span><span class="p">])</span>
-<span class="n">poptHe</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">inv_fit</span><span class="p">,</span> <span class="n">sk_array</span><span class="p">[:,</span><span class="mi">0</span><span class="p">][</span><span class="n">k_counts</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">][:</span><span class="mi">120</span><span class="p">],</span> <span class="n">sk_array</span><span class="p">[:,</span><span class="mi">5</span><span class="p">][</span><span class="n">k_counts</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">][:</span><span class="mi">120</span><span class="p">])</span>
+<span></span><span class="c1"># Create masks</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">ssf</span><span class="o">.</span><span class="n">k_counts</span> <span class="o">&gt;</span> <span class="mi">3</span>
+<span class="n">ka_values_full</span> <span class="o">=</span> <span class="n">ssf</span><span class="o">.</span><span class="n">ka_values</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
 
-<span class="n">k_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k_pred</span><span class="p">,</span> <span class="n">poly_fit</span><span class="p">(</span><span class="n">k_pred</span><span class="p">,</span> <span class="o">*</span><span class="n">poptH</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;cornflowerblue&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ka_mask</span> <span class="o">=</span> <span class="n">ka_values_full</span> <span class="o">&lt;</span> <span class="mf">3.0</span>
+<span class="n">ka_values</span> <span class="o">=</span> <span class="n">ka_values_full</span><span class="p">[</span><span class="n">ka_mask</span><span class="p">]</span>
 
-<span class="n">k_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">sk_array</span><span class="p">[:,</span><span class="mi">0</span><span class="p">][</span><span class="n">k_counts</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">][</span><span class="mi">120</span><span class="p">],</span> <span class="mf">0.1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k_pred</span><span class="p">,</span> <span class="n">inv_fit</span><span class="p">(</span><span class="n">k_pred</span><span class="p">,</span> <span class="o">*</span><span class="n">poptHe</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;indianred&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># Remake the plot</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
+<span class="n">ssf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span><span class="n">ssf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;H-H&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;H-He&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;He-He&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">)],</span>
+    <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$ka$&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">)</span>
 
-<span class="n">k_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k_pred</span><span class="p">,</span> <span class="n">lin_fit</span><span class="p">(</span><span class="n">k_pred</span><span class="p">,</span> <span class="o">*</span><span class="n">poptHHe</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:purple&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="c1"># plt.axvline(0, color=&#39;black&#39;, ls=&#39;--&#39;, lw=2)</span>
+<span class="c1"># H-H Fit and plot</span>
+<span class="n">sk_array_full</span> <span class="o">=</span> <span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;H-H&quot;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">sk_array</span> <span class="o">=</span> <span class="n">sk_array_full</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="n">poptH</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">poly_fit</span><span class="p">,</span> <span class="n">ka_values</span><span class="p">,</span> <span class="n">sk_array</span><span class="p">[</span><span class="n">ka_mask</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ka_values</span><span class="p">,</span> <span class="n">poly_fit</span><span class="p">(</span><span class="n">ka_values</span><span class="p">,</span> <span class="o">*</span><span class="n">poptH</span><span class="p">),</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Fit H-H&#39;</span><span class="p">)</span>
 
-<span class="n">Scc</span> <span class="o">=</span> <span class="n">x1</span><span class="o">*</span><span class="n">x2</span><span class="o">*</span><span class="p">(</span><span class="n">x2</span><span class="o">*</span><span class="n">inv_fit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">poptHe</span><span class="p">)</span> <span class="o">+</span> <span class="n">x1</span><span class="o">*</span><span class="n">poly_fit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">poptH</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x1</span><span class="o">*</span><span class="n">x2</span><span class="p">)</span><span class="o">*</span><span class="n">lin_fit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">poptHHe</span><span class="p">))</span>
+<span class="c1"># H-He Fit and plot</span>
+<span class="n">sk_array_full</span> <span class="o">=</span> <span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;H-He&quot;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">sk_array</span> <span class="o">=</span> <span class="n">sk_array_full</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="n">poptHHe</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">lin_fit</span><span class="p">,</span> <span class="n">ka_values</span><span class="p">,</span> <span class="n">sk_array</span><span class="p">[</span><span class="n">ka_mask</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ka_values</span><span class="p">,</span> <span class="n">lin_fit</span><span class="p">(</span><span class="n">ka_values</span><span class="p">,</span> <span class="o">*</span><span class="n">poptHHe</span><span class="p">),</span>  <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Fit H-He&#39;</span><span class="p">)</span>
 
+<span class="c1"># He-He Fit and plot</span>
+<span class="n">sk_array_full</span> <span class="o">=</span> <span class="n">ssf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;He-He&quot;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">sk_array</span> <span class="o">=</span> <span class="n">sk_array_full</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="n">poptHe</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">inv_fit</span><span class="p">,</span> <span class="n">ka_values</span><span class="p">,</span> <span class="n">sk_array</span><span class="p">[</span><span class="n">ka_mask</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ka_values</span><span class="p">,</span> <span class="n">inv_fit</span><span class="p">(</span><span class="n">ka_values</span><span class="p">,</span> <span class="o">*</span><span class="n">poptHe</span><span class="p">),</span>  <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Fit He-He&#39;</span><span class="p">)</span>
 
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span> <span class="o">=</span><span class="mi">2</span> <span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="Interdiffusion">
-<h2>Interdiffusion<a class="headerlink" href="#Interdiffusion" title="Permalink to this headline">¶</a></h2>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fa4d8477d90&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_BIM_H-He_Mixture_18_1.png" src="../../_images/examples_BIM_H-He_Mixture_18_1.png" />
+</div>
+</div>
+<p>Pretty good, right? Now for the thermodynamic factor</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">ssf</span><span class="o">.</span><span class="n">species_concentrations</span>
+<span class="n">Scc_k0</span> <span class="o">=</span> <span class="n">x1</span><span class="o">*</span><span class="n">x2</span><span class="o">*</span><span class="p">(</span><span class="n">x2</span><span class="o">*</span><span class="n">inv_fit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">poptHe</span><span class="p">)</span> <span class="o">+</span> <span class="n">x1</span><span class="o">*</span><span class="n">poly_fit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">poptH</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x1</span><span class="o">*</span><span class="n">x2</span><span class="p">)</span><span class="o">*</span><span class="n">lin_fit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">poptHHe</span><span class="p">))</span>
+<span class="n">Therm_factor</span> <span class="o">=</span> <span class="n">x1</span><span class="o">*</span><span class="n">x2</span><span class="o">/</span><span class="n">Scc_k0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;J = </span><span class="si">{:.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Therm_factor</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+J = 1.0354
+</pre></div></div>
+</div>
+<p>The value is ~ 1 which is what Hansen <em>et al.</em> assumed. Therefore we won’t use it below.</p>
+<div class="section" id="Transport-Coefficients-in-Sarkas">
+<h3>Transport Coefficients in Sarkas<a class="headerlink" href="#Transport-Coefficients-in-Sarkas" title="Permalink to this headline">¶</a></h3>
 <p>Calculating transport coefficients is easy once the <code class="docutils literal notranslate"><span class="pre">TransportCoefficient</span></code> class from the <code class="docutils literal notranslate"><span class="pre">sarkas.tools.transport</span></code> subpackage is imported.</p>
 <p>Interdiffusion is a static method of <code class="docutils literal notranslate"><span class="pre">TransportCoefficient</span></code>. The inputs are</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Parameters
@@ -1167,26 +1252,26 @@ coefficient : pandas.DataFrame
 completed for all the slices, Sarkas will calculate the average and standard deviation over the number of slices and append them as columns to <code class="docutils literal notranslate"><span class="pre">coefficient</span></code>.</p>
 <p>The option <code class="docutils literal notranslate"><span class="pre">plot=True</span></code> will make a figure with two plots. On the left the ACF as a function of time and on the right a plot of the transport coefficient as a function of time with the corresponding errorband.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficient</span>
-<span class="kn">from</span> <span class="nn">sarkas.tools.observables</span> <span class="kn">import</span> <span class="n">VelocityAutoCorrelationFunction</span><span class="p">,</span> <span class="n">DiffusionFlux</span>
+<span class="kn">from</span> <span class="nn">sarkas.tools.observables</span> <span class="kn">import</span> <span class="n">DiffusionFlux</span>
 
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Compute the diffusion flux by dividing the simulations into 10 smaller simulations</span>
+<span></span><span class="c1"># Compute the diffusion flux by dividing the simulations into 4 smaller simulations</span>
 <span class="n">jc_acf</span> <span class="o">=</span> <span class="n">DiffusionFlux</span><span class="p">()</span>
 <span class="n">jc_acf</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">jc_acf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-<span class="n">jc_acf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+<span class="n">jc_acf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1196,6 +1281,11 @@ completed for all the slices, Sarkas will calculate the average and standard dev
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
+Data file not found!
+ Simulations/bim/PostProcessing/DiffusionFlux/Production/DiffusionFlux_bim.h5
+
+Computing Observable now ...
+
 Calculating diffusion flux and its acf for slice 1/4.
 </pre></div></div>
 </div>
@@ -1203,7 +1293,7 @@ Calculating diffusion flux and its acf for slice 1/4.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4c82df95d159402b8d13d8f9b3da790c", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "aa03c5ee7a7845dc869b814338cf08ef", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -1218,7 +1308,7 @@ Calculating diffusion flux and its acf for slice 2/4.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f8def6d3a90b47dda82747558e249f07", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "caf8e4bb3262490e8ed13887aad293d5", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -1233,7 +1323,7 @@ Calculating diffusion flux and its acf for slice 3/4.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "02055f833d9e472495bc31624767eb19", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0dd977a62f9d4fe88b1b9e806217e2e8", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -1248,7 +1338,7 @@ Calculating diffusion flux and its acf for slice 4/4.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "381791c98f3b451dbccc49e17dfe616e", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "a21ce4841d6f462390061c0a76aac3e4", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -1256,11 +1346,11 @@ Calculating diffusion flux and its acf for slice 4/4.
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Diffusion Flux and its ACF Calculation Time: 0 hrs 0 min 32 sec
+Diffusion Flux and its ACF Calculation Time: 0 hrs 0 min 13 sec
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1270,7 +1360,7 @@ Diffusion Flux and its ACF Calculation Time: 0 hrs 0 min 32 sec
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1346,122 +1436,122 @@ Diffusion Flux and its ACF Calculation Time: 0 hrs 0 min 32 sec
     <tr>
       <th>0</th>
       <td>0.000000e+00</td>
-      <td>-2.617021e-31</td>
-      <td>-3.389665e-31</td>
-      <td>-4.087537e-31</td>
-      <td>9.480003e+15</td>
-      <td>1.091663e+16</td>
-      <td>1.126155e+16</td>
-      <td>3.165819e+16</td>
-      <td>2.899646e-16</td>
-      <td>5.205217e-16</td>
+      <td>1.993921e-31</td>
+      <td>-8.374467e-31</td>
+      <td>-9.471123e-32</td>
+      <td>1.007583e+16</td>
+      <td>1.203821e+16</td>
+      <td>1.236130e+16</td>
+      <td>3.447534e+16</td>
+      <td>1.650410e-16</td>
+      <td>-2.750060e-16</td>
       <td>...</td>
-      <td>-1.064998e-17</td>
-      <td>1.199352e-16</td>
-      <td>1.008575e+16</td>
-      <td>1.182383e+15</td>
-      <td>1.057538e+16</td>
-      <td>9.345124e+14</td>
-      <td>1.109975e+16</td>
-      <td>1.197097e+15</td>
-      <td>3.176088e+16</td>
-      <td>1.818064e+15</td>
+      <td>1.844145e-16</td>
+      <td>2.502405e-16</td>
+      <td>1.105215e+16</td>
+      <td>1.515083e+15</td>
+      <td>1.118884e+16</td>
+      <td>9.371650e+14</td>
+      <td>1.133122e+16</td>
+      <td>1.302754e+15</td>
+      <td>3.357221e+16</td>
+      <td>1.509181e+15</td>
     </tr>
     <tr>
       <th>1</th>
       <td>9.500000e-19</td>
-      <td>-2.252490e-17</td>
-      <td>3.990923e-18</td>
-      <td>-2.482759e-17</td>
-      <td>9.439336e+15</td>
-      <td>1.085671e+16</td>
-      <td>1.121291e+16</td>
-      <td>3.150896e+16</td>
-      <td>3.057031e-16</td>
-      <td>5.198731e-16</td>
+      <td>3.019202e-17</td>
+      <td>2.536946e-17</td>
+      <td>3.126571e-18</td>
+      <td>1.002378e+16</td>
+      <td>1.198172e+16</td>
+      <td>1.231345e+16</td>
+      <td>3.431895e+16</td>
+      <td>1.526589e-16</td>
+      <td>-2.982007e-16</td>
       <td>...</td>
-      <td>-2.597117e-17</td>
-      <td>1.512878e-16</td>
-      <td>1.002116e+16</td>
-      <td>1.180069e+15</td>
-      <td>1.051472e+16</td>
-      <td>9.367472e+14</td>
-      <td>1.104348e+16</td>
-      <td>1.190469e+15</td>
-      <td>3.157935e+16</td>
-      <td>1.808317e+15</td>
+      <td>1.755829e-16</td>
+      <td>2.573765e-16</td>
+      <td>1.098941e+16</td>
+      <td>1.508856e+15</td>
+      <td>1.113122e+16</td>
+      <td>9.375705e+14</td>
+      <td>1.127627e+16</td>
+      <td>1.305718e+15</td>
+      <td>3.339690e+16</td>
+      <td>1.511954e+15</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1.900000e-18</td>
-      <td>-4.095168e-17</td>
-      <td>2.409808e-18</td>
-      <td>-4.693011e-17</td>
-      <td>9.314934e+15</td>
-      <td>1.068448e+16</td>
-      <td>1.105979e+16</td>
-      <td>3.105921e+16</td>
-      <td>3.180984e-16</td>
-      <td>5.103667e-16</td>
+      <td>6.201764e-17</td>
+      <td>4.934061e-17</td>
+      <td>4.431807e-18</td>
+      <td>9.862379e+15</td>
+      <td>1.180764e+16</td>
+      <td>1.216098e+16</td>
+      <td>3.383100e+16</td>
+      <td>1.391056e-16</td>
+      <td>-3.185411e-16</td>
       <td>...</td>
-      <td>-4.204757e-17</td>
-      <td>1.828815e-16</td>
-      <td>9.858791e+15</td>
-      <td>1.168049e+15</td>
-      <td>1.033517e+16</td>
-      <td>9.380891e+14</td>
-      <td>1.086922e+16</td>
-      <td>1.170980e+15</td>
-      <td>3.106318e+16</td>
-      <td>1.778915e+15</td>
+      <td>1.648935e-16</td>
+      <td>2.600980e-16</td>
+      <td>1.080248e+16</td>
+      <td>1.484616e+15</td>
+      <td>1.096279e+16</td>
+      <td>9.332193e+14</td>
+      <td>1.111402e+16</td>
+      <td>1.310531e+15</td>
+      <td>3.287929e+16</td>
+      <td>1.512187e+15</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2.850000e-18</td>
-      <td>-5.480000e-17</td>
-      <td>-4.718272e-18</td>
-      <td>-6.555821e-17</td>
-      <td>9.109107e+15</td>
-      <td>1.040364e+16</td>
-      <td>1.080537e+16</td>
-      <td>3.031812e+16</td>
-      <td>3.268628e-16</td>
-      <td>4.924153e-16</td>
+      <td>9.485616e-17</td>
+      <td>7.177066e-17</td>
+      <td>3.852522e-18</td>
+      <td>9.595230e+15</td>
+      <td>1.151956e+16</td>
+      <td>1.190681e+16</td>
+      <td>3.302159e+16</td>
+      <td>1.244862e-16</td>
+      <td>-3.358978e-16</td>
       <td>...</td>
-      <td>-5.857656e-17</td>
-      <td>2.134336e-16</td>
-      <td>9.602046e+15</td>
-      <td>1.146958e+15</td>
-      <td>1.004053e+16</td>
-      <td>9.385421e+14</td>
-      <td>1.058056e+16</td>
-      <td>1.139501e+15</td>
-      <td>3.022313e+16</td>
-      <td>1.732456e+15</td>
+      <td>1.524510e-16</td>
+      <td>2.577789e-16</td>
+      <td>1.049520e+16</td>
+      <td>1.442999e+15</td>
+      <td>1.068694e+16</td>
+      <td>9.241801e+14</td>
+      <td>1.084776e+16</td>
+      <td>1.316974e+15</td>
+      <td>3.202990e+16</td>
+      <td>1.510873e+15</td>
     </tr>
     <tr>
       <th>4</th>
       <td>3.800000e-18</td>
-      <td>-6.376895e-17</td>
-      <td>-1.724043e-17</td>
-      <td>-8.014896e-17</td>
-      <td>8.825656e+15</td>
-      <td>1.002016e+16</td>
-      <td>1.045489e+16</td>
-      <td>2.930070e+16</td>
-      <td>3.318516e-16</td>
-      <td>4.666505e-16</td>
+      <td>1.280001e-16</td>
+      <td>9.259796e-17</td>
+      <td>1.410964e-18</td>
+      <td>9.228288e+15</td>
+      <td>1.112338e+16</td>
+      <td>1.155578e+16</td>
+      <td>3.190745e+16</td>
+      <td>1.089811e-16</td>
+      <td>-3.501835e-16</td>
       <td>...</td>
-      <td>-7.524226e-17</td>
-      <td>2.421415e-16</td>
-      <td>9.256245e+15</td>
-      <td>1.117795e+15</td>
-      <td>9.636998e+15</td>
-      <td>9.381702e+14</td>
-      <td>1.018338e+16</td>
-      <td>1.097547e+15</td>
-      <td>2.907662e+16</td>
-      <td>1.673228e+15</td>
+      <td>1.383516e-16</td>
+      <td>2.500423e-16</td>
+      <td>1.007394e+16</td>
+      <td>1.385101e+15</td>
+      <td>1.030925e+16</td>
+      <td>9.105861e+14</td>
+      <td>1.048282e+16</td>
+      <td>1.324741e+15</td>
+      <td>3.086601e+16</td>
+      <td>1.509517e+15</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1490,122 +1580,122 @@ Diffusion Flux and its ACF Calculation Time: 0 hrs 0 min 32 sec
     <tr>
       <th>2495</th>
       <td>2.370250e-15</td>
-      <td>1.805208e-16</td>
-      <td>3.933487e-16</td>
-      <td>4.210690e-17</td>
-      <td>-1.254977e+15</td>
-      <td>-2.317612e+14</td>
-      <td>-5.668033e+14</td>
-      <td>-2.053542e+15</td>
-      <td>5.288348e-16</td>
-      <td>-7.942051e-19</td>
+      <td>2.099584e-16</td>
+      <td>-1.233453e-16</td>
+      <td>1.169715e-16</td>
+      <td>1.632078e+15</td>
+      <td>-1.460322e+15</td>
+      <td>1.953766e+13</td>
+      <td>1.912935e+14</td>
+      <td>-4.095864e-16</td>
+      <td>-3.794951e-16</td>
       <td>...</td>
-      <td>-6.901454e-17</td>
-      <td>1.917387e-16</td>
-      <td>6.385223e+15</td>
-      <td>4.922130e+16</td>
-      <td>4.885044e+14</td>
-      <td>3.338640e+15</td>
-      <td>2.879474e+15</td>
-      <td>6.901295e+15</td>
-      <td>9.753201e+15</td>
-      <td>4.674923e+16</td>
+      <td>1.742481e-16</td>
+      <td>2.290051e-16</td>
+      <td>5.184566e+14</td>
+      <td>5.599803e+15</td>
+      <td>2.504561e+15</td>
+      <td>2.028802e+16</td>
+      <td>2.938026e+15</td>
+      <td>1.300529e+16</td>
+      <td>5.961043e+15</td>
+      <td>9.206529e+15</td>
     </tr>
     <tr>
       <th>2496</th>
       <td>2.371200e-15</td>
-      <td>2.041386e-16</td>
-      <td>4.347025e-16</td>
-      <td>5.996748e-17</td>
-      <td>-1.055828e+15</td>
-      <td>2.257743e+13</td>
-      <td>-4.777222e+14</td>
-      <td>-1.510973e+15</td>
-      <td>5.449652e-16</td>
-      <td>1.840125e-17</td>
+      <td>2.029564e-16</td>
+      <td>-1.575947e-16</td>
+      <td>9.064110e-17</td>
+      <td>1.192166e+15</td>
+      <td>-1.172756e+15</td>
+      <td>1.283863e+13</td>
+      <td>3.224903e+13</td>
+      <td>-3.848219e-16</td>
+      <td>-3.929576e-16</td>
       <td>...</td>
-      <td>-7.113654e-17</td>
-      <td>1.825976e-16</td>
-      <td>6.539456e+15</td>
-      <td>5.160549e+16</td>
-      <td>5.479167e+14</td>
-      <td>3.706325e+15</td>
-      <td>2.581893e+15</td>
-      <td>6.145536e+15</td>
-      <td>9.669266e+15</td>
-      <td>4.992620e+16</td>
+      <td>1.608045e-16</td>
+      <td>2.622822e-16</td>
+      <td>2.136609e+14</td>
+      <td>5.308954e+15</td>
+      <td>2.558052e+15</td>
+      <td>2.002863e+16</td>
+      <td>2.623260e+15</td>
+      <td>1.294249e+16</td>
+      <td>5.394973e+15</td>
+      <td>8.389719e+15</td>
     </tr>
     <tr>
       <th>2497</th>
       <td>2.372150e-15</td>
-      <td>2.276731e-16</td>
-      <td>4.687798e-16</td>
-      <td>7.814559e-17</td>
-      <td>-7.795405e+14</td>
-      <td>1.493422e+14</td>
-      <td>-3.523742e+14</td>
-      <td>-9.825726e+14</td>
-      <td>5.551124e-16</td>
-      <td>3.889167e-17</td>
+      <td>1.950846e-16</td>
+      <td>-1.901676e-16</td>
+      <td>6.264069e-17</td>
+      <td>7.702882e+14</td>
+      <td>-8.327628e+14</td>
+      <td>6.092005e+12</td>
+      <td>-5.638260e+13</td>
+      <td>-3.566792e-16</td>
+      <td>-4.045290e-16</td>
       <td>...</td>
-      <td>-7.399409e-17</td>
-      <td>1.770642e-16</td>
-      <td>6.676589e+15</td>
-      <td>5.357532e+16</td>
-      <td>5.868826e+14</td>
-      <td>4.111477e+15</td>
-      <td>2.299504e+15</td>
-      <td>5.368594e+15</td>
-      <td>9.562975e+15</td>
-      <td>5.269546e+16</td>
+      <td>1.459626e-16</td>
+      <td>2.947331e-16</td>
+      <td>-4.796186e+13</td>
+      <td>5.025962e+15</td>
+      <td>2.599889e+15</td>
+      <td>1.967793e+16</td>
+      <td>2.310677e+15</td>
+      <td>1.283600e+16</td>
+      <td>4.862604e+15</td>
+      <td>7.581750e+15</td>
     </tr>
     <tr>
       <th>2498</th>
       <td>2.373100e-15</td>
-      <td>2.503217e-16</td>
-      <td>4.947801e-16</td>
-      <td>9.547076e-17</td>
-      <td>-4.266486e+14</td>
-      <td>1.426894e+14</td>
-      <td>-1.920833e+14</td>
-      <td>-4.760426e+14</td>
-      <td>5.588525e-16</td>
-      <td>6.048540e-17</td>
+      <td>1.862069e-16</td>
+      <td>-2.207674e-16</td>
+      <td>3.393836e-17</td>
+      <td>3.714255e+14</td>
+      <td>-4.412301e+14</td>
+      <td>1.220581e+12</td>
+      <td>-6.858406e+13</td>
+      <td>-3.258457e-16</td>
+      <td>-4.136707e-16</td>
       <td>...</td>
-      <td>-7.768354e-17</td>
-      <td>1.761676e-16</td>
-      <td>6.790852e+15</td>
-      <td>5.510190e+16</td>
-      <td>6.045446e+14</td>
-      <td>4.531873e+15</td>
-      <td>2.035485e+15</td>
-      <td>4.577598e+15</td>
-      <td>9.430882e+15</td>
-      <td>5.501621e+16</td>
+      <td>1.301416e-16</td>
+      <td>3.242193e-16</td>
+      <td>-2.627152e+14</td>
+      <td>4.758238e+15</td>
+      <td>2.630386e+15</td>
+      <td>1.923399e+16</td>
+      <td>2.003174e+15</td>
+      <td>1.270448e+16</td>
+      <td>4.370845e+15</td>
+      <td>6.810733e+15</td>
     </tr>
     <tr>
       <th>2499</th>
       <td>2.374050e-15</td>
-      <td>2.713145e-16</td>
-      <td>5.121344e-16</td>
-      <td>1.108207e-16</td>
-      <td>4.194304e+02</td>
-      <td>4.194304e+02</td>
-      <td>0.000000e+00</td>
-      <td>8.388608e+02</td>
-      <td>5.559164e-16</td>
-      <td>8.289003e-17</td>
+      <td>1.762159e-16</td>
+      <td>-2.491263e-16</td>
+      <td>5.591958e-18</td>
+      <td>6.291456e+02</td>
+      <td>1.048576e+03</td>
+      <td>1.048576e+03</td>
+      <td>2.726298e+03</td>
+      <td>-2.931044e-16</td>
+      <td>-4.199792e-16</td>
       <td>...</td>
-      <td>-8.225188e-17</td>
-      <td>1.804049e-16</td>
-      <td>6.876435e+15</td>
-      <td>5.616471e+16</td>
-      <td>6.000714e+14</td>
-      <td>4.952237e+15</td>
-      <td>1.792501e+15</td>
-      <td>3.780238e+15</td>
-      <td>9.269008e+15</td>
-      <td>5.685759e+16</td>
+      <td>1.137422e-16</td>
+      <td>3.492636e-16</td>
+      <td>-4.277301e+14</td>
+      <td>4.513825e+15</td>
+      <td>2.649631e+15</td>
+      <td>1.869661e+16</td>
+      <td>1.702435e+15</td>
+      <td>1.256731e+16</td>
+      <td>3.924336e+15</td>
+      <td>6.113548e+15</td>
     </tr>
   </tbody>
 </table>
@@ -1614,7 +1704,7 @@ Diffusion Flux and its ACF Calculation Time: 0 hrs 0 min 32 sec
 </div>
 <p>Notice that there is a column <code class="docutils literal notranslate"><span class="pre">Diffusion</span> <span class="pre">Flux</span> <span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">Diffusion</span> <span class="pre">Flux</span> <span class="pre">ACF</span> <span class="pre">0</span></code> for each slice. For the transport coefficient I will use <code class="docutils literal notranslate"><span class="pre">Diffusion</span> <span class="pre">Flux</span> <span class="pre">ACF</span> <span class="pre">0</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1655,11 +1745,11 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_BIM_H-He_Mixture_19_1.png" src="../../_images/examples_BIM_H-He_Mixture_19_1.png" />
+<img alt="../../_images/examples_BIM_H-He_Mixture_27_1.png" src="../../_images/examples_BIM_H-He_Mixture_27_1.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1669,7 +1759,7 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1710,7 +1800,7 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
       <th>0</th>
       <td>0.000000e+00</td>
       <td>0.000000</td>
-      <td>0.000000</td>
+      <td>0.000000e+00</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -1720,7 +1810,7 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
       <th>1</th>
       <td>9.500000e-19</td>
       <td>0.000000</td>
-      <td>0.000000</td>
+      <td>0.000000e+00</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -1729,32 +1819,32 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
     <tr>
       <th>2</th>
       <td>1.900000e-18</td>
-      <td>0.000008</td>
-      <td>0.000008</td>
-      <td>0.000007</td>
+      <td>0.000009</td>
+      <td>8.167529e-06</td>
       <td>0.000009</td>
       <td>0.000008</td>
-      <td>4.593336e-07</td>
+      <td>0.000008</td>
+      <td>3.826732e-07</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2.850000e-18</td>
-      <td>0.000016</td>
-      <td>0.000016</td>
-      <td>0.000015</td>
       <td>0.000017</td>
+      <td>1.624232e-05</td>
+      <td>0.000018</td>
       <td>0.000016</td>
-      <td>9.136401e-07</td>
+      <td>0.000017</td>
+      <td>7.656943e-07</td>
     </tr>
     <tr>
       <th>4</th>
       <td>3.800000e-18</td>
+      <td>0.000026</td>
+      <td>2.413461e-05</td>
+      <td>0.000026</td>
       <td>0.000024</td>
-      <td>0.000024</td>
-      <td>0.000022</td>
       <td>0.000025</td>
-      <td>0.000024</td>
-      <td>1.358047e-06</td>
+      <td>1.148443e-06</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1769,52 +1859,52 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
     <tr>
       <th>2495</th>
       <td>2.370250e-15</td>
-      <td>-0.000166</td>
-      <td>0.000148</td>
-      <td>0.000121</td>
-      <td>0.000411</td>
-      <td>0.000128</td>
-      <td>2.359837e-04</td>
+      <td>0.000067</td>
+      <td>-4.542383e-06</td>
+      <td>-0.000239</td>
+      <td>0.000227</td>
+      <td>0.000012</td>
+      <td>1.937744e-04</td>
     </tr>
     <tr>
       <th>2496</th>
       <td>2.371200e-15</td>
-      <td>-0.000167</td>
-      <td>0.000154</td>
-      <td>0.000137</td>
-      <td>0.000400</td>
-      <td>0.000131</td>
-      <td>2.319035e-04</td>
+      <td>0.000067</td>
+      <td>-2.805213e-06</td>
+      <td>-0.000240</td>
+      <td>0.000232</td>
+      <td>0.000014</td>
+      <td>1.957540e-04</td>
     </tr>
     <tr>
       <th>2497</th>
       <td>2.372150e-15</td>
-      <td>-0.000167</td>
-      <td>0.000161</td>
-      <td>0.000153</td>
-      <td>0.000387</td>
-      <td>0.000133</td>
-      <td>2.278184e-04</td>
+      <td>0.000067</td>
+      <td>-1.052381e-06</td>
+      <td>-0.000240</td>
+      <td>0.000236</td>
+      <td>0.000016</td>
+      <td>1.975726e-04</td>
     </tr>
     <tr>
       <th>2498</th>
       <td>2.373100e-15</td>
-      <td>-0.000167</td>
-      <td>0.000168</td>
-      <td>0.000170</td>
-      <td>0.000373</td>
-      <td>0.000136</td>
-      <td>2.239089e-04</td>
+      <td>0.000067</td>
+      <td>7.441171e-07</td>
+      <td>-0.000241</td>
+      <td>0.000240</td>
+      <td>0.000017</td>
+      <td>1.992226e-04</td>
     </tr>
     <tr>
       <th>2499</th>
       <td>2.374050e-15</td>
-      <td>-0.000167</td>
-      <td>0.000175</td>
-      <td>0.000188</td>
-      <td>0.000358</td>
-      <td>0.000138</td>
-      <td>2.203576e-04</td>
+      <td>0.000067</td>
+      <td>2.608491e-06</td>
+      <td>-0.000241</td>
+      <td>0.000244</td>
+      <td>0.000018</td>
+      <td>2.006965e-04</td>
     </tr>
   </tbody>
 </table>
@@ -1822,48 +1912,51 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
 </div></div>
 </div>
 <p>As mentioned the InterDiffusion is calculated for each slice and then averaged. The left plot above shows the mean of 4 slices of the Diffusion Flux ACF with its standard deviation as the shaded area.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
-</pre></div>
-</div>
-</div>
+<p>Let’s now plot this and compare with Hansen <em>et al.</em> result.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">interdiffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span>
+    <span class="n">interdiffusion</span><span class="p">[(</span><span class="s2">&quot;Inter Diffusion Flux 0&quot;</span><span class="p">,</span><span class="s2">&quot;Mean&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">norm</span> <span class="p">,</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Sarkas&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">interdiffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span>
+    <span class="n">norm</span> <span class="o">*</span> <span class="n">interdiffusion</span><span class="p">[(</span><span class="s2">&quot;Inter Diffusion Flux 0&quot;</span><span class="p">,</span><span class="s2">&quot;Mean&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">expanding</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+    <span class="n">interdiffusion</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="c1"># I don&#39;t understand why I need iloc here but not above</span>
+    <span class="p">(</span><span class="n">interdiffusion</span><span class="p">[(</span><span class="s2">&quot;Inter Diffusion Flux 0&quot;</span><span class="p">,</span><span class="s2">&quot;Mean&quot;</span><span class="p">)]</span> <span class="o">-</span> <span class="n">interdiffusion</span><span class="p">[(</span><span class="s2">&quot;Inter Diffusion Flux 0&quot;</span><span class="p">,</span><span class="s2">&quot;Std&quot;</span><span class="p">)])</span><span class="o">*</span><span class="n">norm</span><span class="p">,</span>
+    <span class="p">(</span><span class="n">interdiffusion</span><span class="p">[(</span><span class="s2">&quot;Inter Diffusion Flux 0&quot;</span><span class="p">,</span><span class="s2">&quot;Mean&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="n">interdiffusion</span><span class="p">[(</span><span class="s2">&quot;Inter Diffusion Flux 0&quot;</span><span class="p">,</span><span class="s2">&quot;Std&quot;</span><span class="p">)])</span><span class="o">*</span><span class="n">norm</span><span class="p">,</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.0109</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HJM value&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;Time [fs]&#39;</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;H-He Interdiffusion $\Gamma = 40$&#39;</span><span class="p">)</span>
+
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[None,
+ Text(0.5, 0, &#39;Time [fs]&#39;),
+ Text(0.5, 1.0, &#39;H-He Interdiffusion $\\Gamma = 40$&#39;)]
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-<span class="ansi-green-fg">&lt;ipython-input-10-b82f3cef1483&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span>poptH<span class="ansi-blue-fg">,</span> pcov <span class="ansi-blue-fg">=</span> curve_fit<span class="ansi-blue-fg">(</span>poly_fit<span class="ansi-blue-fg">,</span> sk_array<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-blue-fg">,</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>k_counts<span class="ansi-blue-fg">&gt;</span><span class="ansi-cyan-fg">3</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-cyan-fg">100</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">,</span> sk_array<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-blue-fg">,</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>k_counts<span class="ansi-blue-fg">&gt;</span><span class="ansi-cyan-fg">3</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-cyan-fg">100</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      2</span> poptHHe<span class="ansi-blue-fg">,</span> pcov <span class="ansi-blue-fg">=</span> curve_fit<span class="ansi-blue-fg">(</span>lin_fit<span class="ansi-blue-fg">,</span> sk_array<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-blue-fg">,</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>k_counts<span class="ansi-blue-fg">&gt;</span><span class="ansi-cyan-fg">3</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-cyan-fg">30</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">,</span> sk_array<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-blue-fg">,</span><span class="ansi-cyan-fg">3</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>k_counts<span class="ansi-blue-fg">&gt;</span><span class="ansi-cyan-fg">3</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-cyan-fg">30</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      3</span> poptHe<span class="ansi-blue-fg">,</span> pcov <span class="ansi-blue-fg">=</span> curve_fit<span class="ansi-blue-fg">(</span>inv_fit<span class="ansi-blue-fg">,</span> sk_array<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-blue-fg">,</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>k_counts<span class="ansi-blue-fg">&gt;</span><span class="ansi-cyan-fg">3</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-cyan-fg">120</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">,</span> sk_array<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-blue-fg">,</span><span class="ansi-cyan-fg">5</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>k_counts<span class="ansi-blue-fg">&gt;</span><span class="ansi-cyan-fg">3</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span><span class="ansi-cyan-fg">120</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span> k_pred <span class="ansi-blue-fg">=</span> np<span class="ansi-blue-fg">.</span>arange<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">,</span><span class="ansi-cyan-fg">3.5</span><span class="ansi-blue-fg">,</span> <span class="ansi-cyan-fg">0.1</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      5</span> plt<span class="ansi-blue-fg">.</span>plot<span class="ansi-blue-fg">(</span>k_pred<span class="ansi-blue-fg">,</span> poly_fit<span class="ansi-blue-fg">(</span>k_pred<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">*</span>poptH<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span> color<span class="ansi-blue-fg">=</span><span class="ansi-blue-fg">&#39;cornflowerblue&#39;</span><span class="ansi-blue-fg">,</span> ls<span class="ansi-blue-fg">=</span><span class="ansi-blue-fg">&#39;--&#39;</span><span class="ansi-blue-fg">,</span> lw<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">2</span><span class="ansi-blue-fg">)</span>
-
-<span class="ansi-red-fg">NameError</span>: name &#39;sk_array&#39; is not defined
-</pre></div></div>
+<img alt="../../_images/examples_BIM_H-He_Mixture_30_1.png" src="../../_images/examples_BIM_H-He_Mixture_30_1.png" />
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
-</pre></div>
 </div>
 </div>
 </div>
@@ -1882,7 +1975,7 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 05, 2021.<br/>
+      Last updated on Jun 07, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>
