@@ -12,9 +12,9 @@ Examples
 
     <div class="ex-thumbcontainer">
             <div class="figure align-default">
-                    <img src="../_images/examples_BIM_H-He_Mixture_8_2.png" alt="">
+                    <img src="../_images/examples_BIM_H-He_Mixture_30_1.png" alt="">
                     <p class="caption">
-                        <span class="text-center"><a href="BIM/H-He_Mixture.html">H-He Mixture</a></span>
+                        <span class="text-center"><a href="BIM/H-He_Mixture.html">Interdiffusion BIM</a></span>
                     </p>
             </div>
     </div>

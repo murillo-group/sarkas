@@ -28,14 +28,14 @@ Potential:
 
 Integrator:
     type: Verlet                         # velocity integrator type
-    equilibration_steps: 10000
+    equilibration_steps: 5000
     production_steps: 100000
     eq_dump_step: 10
     prod_dump_step: 10
 
 Thermostat:
     type: Berendsen                      # thermostat type
-    relaxation_timestep: 1
+    relaxation_timestep: 100
     berendsen_tau: 5.0
 
 Parameters:
