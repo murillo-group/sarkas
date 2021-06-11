@@ -511,17 +511,17 @@ class PreProcess(Process):
 
         if pppm_estimate:
             if timing_study:
-                input_rc = self.potential.rc
-                input_mesh = np.copy(self.potential.pppm_mesh)
-                input_alpha = self.potential.pppm_alpha_ewald
+                self.input_rc = self.potential.rc
+                self.input_mesh = np.copy(self.potential.pppm_mesh)
+                self.input_alpha = self.potential.pppm_alpha_ewald
 
                 self.timing_study = timing_study
                 self.make_timing_plots()
 
                 # Reset the original values.
-                self.potential.rc = input_rc
-                self.potential.pppm_mesh = np.copy(input_mesh)
-                self.potential.pppm_alpha_ewald = input_alpha
+                self.potential.rc = self.input_rc
+                self.potential.pppm_mesh = np.copy(self.input_mesh)
+                self.potential.pppm_alpha_ewald = self.input_alpha
                 self.potential.setup(self.parameters)
 
             self.pppm_approximation()
@@ -758,6 +758,10 @@ class PreProcess(Process):
         clb.set_label(r'Force Error  [$Q^2/ a_{\rm ws}^2$]', rotation=270, va='bottom')
         CS2 = ax1.contour(CS, colors='w')
         ax1.clabel(CS2, fmt='%1.0e', colors='w')
+        input_Nc = int(self.parameters.box_lengths[0]/ self.input_rc)
+        ax1.scatter(self.input_mesh[0],input_Nc,s=200, c='k')
+        # ax1.scatter(self.input_mesh[1], input_Nc, s=200, c='k')
+        # ax1.scatter(self.input_mesh[2], input_Nc, s=200, c='k')
         ax1.set_xlabel('Mesh size')
         ax1.set_ylabel(r'N_c = Cells')
         ax1.set_title('Force Error Map')
@@ -780,7 +784,7 @@ class PreProcess(Process):
         clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap),
                            ax=ax2)
         clb.set_label('CPU Time [s]', rotation=270, va='bottom')
-
+        ax2.scatter(self.input_mesh[0], input_Nc, s=200, c='k')
         ax2.set_xlabel('Mesh size')
         ax2.set_title('Timing Map')
         fig.savefig(os.path.join(fig_path, 'ForceErrorMap_v_Timing_' + self.io.job_id + '.png'))

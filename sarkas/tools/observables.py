@@ -189,7 +189,7 @@ class Observable:
         """
         self.__dict__.update(input_dict)
 
-    def setup_init(self, params, phase):
+    def setup_init(self, params, phase: str = None):
         """Assign Observables attributes and copy the simulation's parameters.
 
         Parameters
@@ -197,7 +197,7 @@ class Observable:
         params : sarkas.core.Parameters
             Simulation's Parameters.
 
-        phase : str
+        phase : str, optional
             Phase to compute.
 
         """
@@ -330,9 +330,8 @@ class Observable:
         if not hasattr(self, 'no_slices'):
             self.no_slices = 1
 
-        self.slice_steps = int(
-            self.production_steps / self.prod_dump_step / self.no_slices) if self.no_dumps == 0 else int(
-            self.no_dumps / self.no_slices)
+        self.slice_steps = int(self.production_steps / self.prod_dump_step / self.no_slices) if self.no_dumps < self.no_slices else \
+            int(self.no_dumps / self.no_slices)
 
         # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]
         self.species_index_start = np.array([0, *np.cumsum(self.species_num)], dtype=int)
@@ -722,7 +721,17 @@ class Observable:
         return axes_handle
 
     def time_stamp(self, message: str, timing: tuple):
-        """Print to screen the elapsed time of the calculation."""
+        """Print to screen the elapsed time of the calculation.
+
+        Parameters
+        ----------
+        message : str
+            Message to print.
+
+        timing : tuple
+            Time in hrs, min, sec, msec, usec, nsec.
+
+        """
 
         t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = timing
 
@@ -766,11 +775,11 @@ class CurrentCorrelationFunction(Observable):
 
         Parameters
         ----------
-        phase : str
-            Phase to compute. Default = 'production'.
-
         params : sarkas.core.Parameters
             Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
 
         **kwargs :
             These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -925,14 +934,14 @@ class CurrentCorrelationFunction(Observable):
                 comp_name = '{}-{}'.format(sp1_name, sp2_name)
                 ### LONGITUDINAL
                 # Rename the columns with values of ka
-                ka_columns = ['Longitudinal_' + comp_name + "_Mean_ka = {:.6f}".format(ka)
+                ka_columns = ['Longitudinal_' + comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka)
                               for ik, ka in enumerate(self.ka_values)]
 
                 # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
                 df_mean = temp_dataframe['Longitudinal'][comp_name].mean(level=1, axis='columns')
                 df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
                 # Std
-                ka_columns = ['Longitudinal_' + comp_name + "_Std_ka = {:.6f}".format(ka)
+                ka_columns = ['Longitudinal_' + comp_name + "_Std_ka{} = {:.4f}".format(ik + 1,ka)
                               for ik, ka in enumerate(self.ka_values)]
                 df_std = temp_dataframe['Longitudinal'][comp_name].std(level=1, axis='columns')
                 df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
@@ -941,14 +950,14 @@ class CurrentCorrelationFunction(Observable):
 
                 ### Transverse
                 # Rename the columns with values of ka
-                ka_columns = ['Transverse_' + comp_name + "_Mean_ka = {:.6f}".format(ka)
+                ka_columns = ['Transverse_' + comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka)
                               for ik, ka in enumerate(self.ka_values)]
 
                 # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
                 tdf_mean = temp_dataframe['Transverse'][comp_name].mean(level=1, axis='columns')
                 tdf_mean = tdf_mean.rename(col_mapper(tdf_mean.columns, ka_columns), axis=1)
                 # Std
-                ka_columns = ['Transverse_' + comp_name + "_Std_ka = {:.6f}".format(ka)
+                ka_columns = ['Transverse_' + comp_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka)
                               for ik, ka in enumerate(self.ka_values)]
                 tdf_std = temp_dataframe['Transverse'][comp_name].std(level=1, axis='columns')
                 tdf_std = tdf_std.rename(col_mapper(tdf_std.columns, ka_columns), axis=1)
@@ -1025,7 +1034,7 @@ class CurrentCorrelationFunction(Observable):
 
 
 class DynamicStructureFactor(Observable):
-    """Dynamic Structure factor.    """
+    """Dynamic Structure factor."""
 
     def setup(self, params, phase: str = None, **kwargs):
         """
@@ -1033,11 +1042,11 @@ class DynamicStructureFactor(Observable):
 
         Parameters
         ----------
-        phase : str
-            Phase to compute. Default = 'production'.
-
         params : sarkas.core.Parameters
             Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
 
         **kwargs :
             These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -1154,12 +1163,12 @@ class DynamicStructureFactor(Observable):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
                 skw_name = '{}-{}'.format(sp1_name, sp2_name)
                 # Rename the columns with values of ka
-                ka_columns = [skw_name + "_Mean_ka = {:.6f}".format(ka) for ik, ka in enumerate(self.ka_values)]
+                ka_columns = [skw_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)]
                 # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
                 df_mean = temp_dataframe[skw_name].mean(level=1, axis='columns')
                 df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
                 # Std
-                ka_columns = [skw_name + "_Std_ka = {:.6f}".format(ka) for ik, ka in enumerate(self.ka_values)]
+                ka_columns = [skw_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)]
                 df_std = temp_dataframe[skw_name].std(level=1, axis='columns')
                 df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
 
@@ -1241,11 +1250,14 @@ class ElectricCurrent(Observable):
 
         Parameters
         ----------
-        phase : str
-            Phase to compute. Default = 'production'.
-
         params : sarkas.core.Parameters
             Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
+
+        no_slices : int
+            Number of independent runs inside a long simulation. Default = 1.
 
         **kwargs :
             These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -1440,11 +1452,12 @@ class RadialDistributionFunction(Observable):
 
         Parameters
         ----------
-        phase : str
-            Phase to compute. Default = 'production'.
-
         params : sarkas.core.Parameters
             Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
+
 
         **kwargs :
             These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -1588,11 +1601,11 @@ class StaticStructureFactor(Observable):
 
         Parameters
         ----------
-        phase : str
-            Phase to compute. Default = 'production'.
-
         params : sarkas.core.Parameters
             Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
 
         **kwargs :
             These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -1747,11 +1760,11 @@ class Thermodynamics(Observable):
 
         Parameters
         ----------
-        phase : str
-            Phase to compute. Default = 'production'.
-
         params : sarkas.core.Parameters
             Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
 
         **kwargs :
             These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -1796,7 +1809,7 @@ class Thermodynamics(Observable):
         pressure_tensor_temp = np.zeros((self.dimensions, self.dimensions, self.no_dumps))
 
         # Collect particles' positions, velocities and accelerations
-        for it in range(int(self.no_dumps)):
+        for it in tqdm(range(int(self.no_dumps)), disable=not self.verbose):
             dump = int(it * self.dump_step)
 
             data = load_from_restart(self.dump_dir, dump)
@@ -1840,17 +1853,17 @@ class Thermodynamics(Observable):
 
         Parameters
         ----------
-        potential: str
-            Potential used in the simulation.
-
-        potential_matrix: numpy.ndarray
-            Potential parameters.
-
         r : numpy.ndarray
             Particles' distances.
 
         gr : numpy.ndarray
             Pair distribution function.
+
+        potential: str
+            Potential used in the simulation.
+
+        potential_matrix: numpy.ndarray
+            Potential parameters.
 
         **kwargs :
             These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -1955,16 +1968,16 @@ class Thermodynamics(Observable):
         process : sarkas.processes.PostProcess
             Sarkas Process.
 
-        phase: str
+        phase: str, optional
             Phase to plot. "equilibration" or "production".
 
-        show: bool
+        show: bool, optional
             Flag for displaying the figure.
 
-        publication: bool
+        publication: bool, optional
             Flag for publication style plotting.
 
-        figname: str
+        figname: str, optional
             Name with which to save the plot.
 
         """
@@ -2199,7 +2212,7 @@ class VelocityAutoCorrelationFunction(Observable):
         no_slices : int
             Number of independent runs inside a long simulation. Default = 1.
 
-        phase : str
+        phase : str, optional
             Phase to compute. Default = 'production'.
 
         params : sarkas.core.Parameters
@@ -2337,11 +2350,11 @@ class DiffusionFlux(Observable):
 
         Parameters
         ----------
-        phase : str
-            Phase to compute. Default = 'production'.
-
         params : sarkas.core.Parameters
             Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
 
         no_slices : int
             Number of independent runs inside a long simulation. Default = 1.
@@ -2536,18 +2549,20 @@ class VelocityDistribution(Observable):
 
         Parameters
         ----------
-        curve_fit_kwargs
-        hist_kwargs : dict, optional
-            Dictionary of keyword arguments to pass to ``np.histogram`` for the calculation of the distributions.
+        params : sarkas.core.Parameters
+            Simulation's parameters.
 
-        phase : str
+        phase : str, optional
             Phase to compute. Default = 'production'.
 
         max_no_moment : int
             Maximum number of moments to calculate. Default = 6.
 
-        params : sarkas.core.Parameters
-            Simulation's parameters.
+        hist_kwargs : dict, optional
+            Dictionary of keyword arguments to pass to ``np.histogram`` for the calculation of the distributions.
+
+        curve_fit_kwargs: dict, optional
+            Dictionary of keyword arguments to pass to ``scipy.curve_fit`` for fitting of Hermite coefficients.
 
         **kwargs :
             These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
@@ -3065,7 +3080,7 @@ class VelocityDistribution(Observable):
                             lambda x, rms: grad_expansion(x, rms, h_coeff),
                             v_bins / vrms,
                             dist / norm,
-                            maxfev=1000)  # TODO: let the user pass curve_fit arguments.
+                            self.curve_fit_kwargs)
 
                         vrms *= res[0]
 
