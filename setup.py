@@ -6,45 +6,49 @@ import setuptools
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
+
 # The following are needed to copy the MSU plot styles in Matplotlib folder
 # From https://stackoverflow.com/questions/20288711/post-install-script-with-python-setuptools
 class PostDevelopCommand(develop):
     """Post-installation for development mode."""
+
     def run(self):
         develop.run(self)
         import matplotlib as mpl
         import shutil
-        #~ # ref  ->  matplotlib/style/core
+        # ~ # ref  ->  matplotlib/style/core
         BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
-        STYLE_PATH = os.path.join(os.getcwd(),os.path.join('sarkas', 'mplstyles'))
+        STYLE_PATH = os.path.join(os.getcwd(), os.path.join('sarkas', 'mplstyles'))
         STYLE_EXTENSION = 'mplstyle'
-        style_files = glob.glob(os.path.join(STYLE_PATH,"*.%s"%(STYLE_EXTENSION)))
+        style_files = glob.glob(os.path.join(STYLE_PATH, "*.%s" % (STYLE_EXTENSION)))
 
         # Copy the plotting style in the matplotlib directory
         for _path_file in style_files:
             _, fname = os.path.split(_path_file)
             dest = os.path.join(BASE_LIBRARY_PATH, fname)
             shutil.copy(_path_file, dest)
-            print("%s style installed"%(fname))
+            print("%s style installed" % (fname))
+
 
 class PostInstallCommand(install):
     """Post-installation for installation mode."""
+
     def run(self):
         install.run(self)
         import matplotlib as mpl
         import shutil
-        #~ # ref  ->  matplotlib/style/core
+        # ~ # ref  ->  matplotlib/style/core
         BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
-        STYLE_PATH = os.path.join(os.getcwd(),os.path.join('sarkas', 'mplstyles'))
+        STYLE_PATH = os.path.join(os.getcwd(), os.path.join('sarkas', 'mplstyles'))
         STYLE_EXTENSION = 'mplstyle'
-        style_files = glob.glob(os.path.join(STYLE_PATH,"*.%s"%(STYLE_EXTENSION)))
+        style_files = glob.glob(os.path.join(STYLE_PATH, "*.%s" % (STYLE_EXTENSION)))
 
         # Copy the plotting style in the matplotlib directory
         for _path_file in style_files:
             _, fname = os.path.split(_path_file)
             dest = os.path.join(BASE_LIBRARY_PATH, fname)
             shutil.copy(_path_file, dest)
-            print("%s style installed"%(fname))
+            print("%s style installed" % (fname))
 
 
 # Package Requirements
@@ -95,7 +99,6 @@ with open(DESCRIPTION_FILE, "r") as fh:
 # Treat everything in scripts as a script to be installed
 scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))]
 
-
 setuptools.setup(
     name=PACKAGENAME,  # Replace with your own username
     version=VERSION,
@@ -107,7 +110,7 @@ setuptools.setup(
     url=URL,
     scripts=scripts,
     packages=setuptools.find_packages(),
-    install_requires= BASE_DEPENDENCIES,
+    install_requires=BASE_DEPENDENCIES,
     # dependency_links = ['https://pypi.org/'],
     classifiers=[
         # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
@@ -124,5 +127,3 @@ setuptools.setup(
         'install': PostInstallCommand,
     },
 )
-
-

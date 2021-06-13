@@ -1796,57 +1796,6 @@ class Thermodynamics(Observable):
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
 
-    def compute_pressure_quantities(self):
-        """
-        Calculate Pressure, Pressure Tensor, Pressure Tensor Auto Correlation Function.
-        """
-        self.parse('production')
-        pos = np.zeros((self.dimensions, self.total_num_ptcls))
-        vel = np.zeros((self.dimensions, self.total_num_ptcls))
-        acc = np.zeros((self.dimensions, self.total_num_ptcls))
-
-        pressure = np.zeros(self.no_dumps)
-        pressure_tensor_temp = np.zeros((self.dimensions, self.dimensions, self.no_dumps))
-
-        # Collect particles' positions, velocities and accelerations
-        for it in tqdm(range(int(self.no_dumps)), disable=not self.verbose):
-            dump = int(it * self.dump_step)
-
-            data = load_from_restart(self.dump_dir, dump)
-            pos[0, :] = data["pos"][:, 0]
-            pos[1, :] = data["pos"][:, 1]
-            pos[2, :] = data["pos"][:, 2]
-
-            vel[0, :] = data["vel"][:, 0]
-            vel[1, :] = data["vel"][:, 1]
-            vel[2, :] = data["vel"][:, 2]
-
-            acc[0, :] = data["acc"][:, 0]
-            acc[1, :] = data["acc"][:, 1]
-            acc[2, :] = data["acc"][:, 2]
-
-            pressure[it], pressure_tensor_temp[:, :, it] = calc_pressure_tensor(pos, vel, acc, self.species_masses,
-                                                                                self.species_num, self.box_volume)
-
-        self.dataframe["Pressure"] = pressure
-        self.dataframe["Pressure ACF"] = correlationfunction(pressure, pressure)
-
-        if self.dimensions == 3:
-            dim_lbl = ['x', 'y', 'z']
-        elif self.dimensions == 2:
-            dim_lbl = ['x', 'y']
-
-        # Calculate the acf of the pressure tensor
-        for i, ax1 in enumerate(dim_lbl):
-            for j, ax2 in enumerate(dim_lbl):
-                self.dataframe["Pressure Tensor {}{}".format(ax1, ax2)] = pressure_tensor_temp[i, j, :]
-                pressure_tensor_acf_temp = correlationfunction(pressure_tensor_temp[i, j, :],
-                                                               pressure_tensor_temp[i, j, :])
-                self.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)] = pressure_tensor_acf_temp
-
-        # Save the pressure acf to file
-        self.dataframe.to_csv(self.prod_energy_filename, index=False, encoding='utf-8')
-
     def compute_pressure_from_rdf(self, r, gr, potential, potential_matrix, **kwargs):
         """
         Calculate the Pressure using the radial distribution function
@@ -1881,15 +1830,15 @@ class Thermodynamics(Observable):
         r2 = r * r
         r3 = r2 * r
 
-        if potential == "Coulomb":
+        if potential.lower() == "coulomb":
             dv_dr = - 1.0 / r2
             # Check for finiteness of first element when r[0] = 0.0
             if not np.isfinite(dv_dr[0]):
                 dv_dr[0] = dv_dr[1]
             gr -= 1
-        elif potential == "Yukawa":
+        elif potential.lower() == "yukawa":
             pass
-        elif potential == "QSP":
+        elif potential.lower() == "qsp":
             pass
         else:
             raise ValueError('Unknown potential')
@@ -2498,6 +2447,183 @@ class DiffusionFlux(Observable):
 
         tend = self.timer.current()
         self.time_stamp("Diffusion Flux and its ACF Calculation", self.timer.time_division(tend - t0))
+
+    def pretty_print(self):
+        """Print observable parameters for help in choice of simulation parameters."""
+
+        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
+        print('Data saved in: \n', self.filename_hdf)
+        print('Data accessible at: self.dataframe')
+
+        print('\nNo. of slices = {}'.format(self.no_slices))
+        print('No. dumps per slice = {}'.format( int(self.slice_steps/self.dump_step)) )
+        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
+            self.dt * self.slice_steps,
+            int(self.dt * self.slice_steps * self.total_plasma_frequency)))
+
+
+class PressureTensor(Observable):
+    """Diffusion Fluxes and their Auto-correlation functions."""
+
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
+        """
+        Assign attributes from simulation's parameters.
+
+        Parameters
+        ----------
+        params : sarkas.core.Parameters
+            Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
+
+        no_slices : int
+            Number of independent runs inside a long simulation. Default = 1.
+
+        **kwargs :
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
+        """
+
+        if phase:
+            self.phase = phase.lower()
+
+        if no_slices:
+            self.no_slices = no_slices
+
+        super().setup_init(params, self.phase)
+
+        self.__name__ = 'pressure_tensor'
+        self.__long_name__ = 'Pressure Tensor'
+
+        # if not hasattr(self, 'species_mass_densities'):
+        #     self.species_mass_densities = self.species_num_dens * self.species_masses
+
+        # Create the directory where to store the computed data
+        saving_dir = os.path.join(self.postprocessing_dir, 'PressureTensor')
+        if not os.path.exists(saving_dir):
+            os.mkdir(saving_dir)
+
+        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
+        if not os.path.exists(self.saving_dir):
+            os.mkdir(self.saving_dir)
+
+        self.filename_hdf = os.path.join(self.saving_dir, "PressureTensor_" + self.job_id + '.h5')
+
+        self.no_fluxes = self.num_species - 1
+        self.no_fluxes_acf = int(self.no_fluxes * self.no_fluxes)
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+
+    def compute(self, **kwargs):
+        """
+        Compute the velocity auto-correlation functions.
+
+        Parameters
+        ----------
+        **kwargs :
+            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            attributes and/or add new ones.
+
+        """
+        # Update the attribute with the passed arguments. e.g time_averaging and timesteps_to_skip
+        self.__dict__.update(kwargs.copy())
+
+        # Recalculate the slicing parameters if no_slices has been passed
+        self.slice_steps = int(self.no_dumps / self.no_slices)
+
+        start_slice = 0
+        end_slice = self.slice_steps * self.dump_step
+        time = np.zeros(self.slice_steps)
+        # Initialize timer
+        t0 = self.timer.current()
+
+        pt_str = "Pressure Tensor"
+        pt_acf_str = "Pressure Tensor ACF"
+
+        for isl in range(self.no_slices):
+            print("\nCalculating pressure tensor and its acf for slice {}/{}.".format(isl + 1, self.no_slices))
+            # Parse the particles from the dump files
+            pressure = np.zeros(self.slice_steps)
+            pressure_tensor_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
+
+            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
+                                           desc='Calculating Pressure',
+                                           disable=not self.verbose)):
+                datap = load_from_restart(self.dump_dir, dump)
+                time[it] = datap["time"]
+
+                pressure[it], pressure_tensor_temp[:, :, it] = calc_pressure_tensor(
+                    datap["pos"],
+                    datap["vel"],
+                    datap["acc"],
+                    self.species_masses,
+                    self.species_num,
+                    self.box_volume)
+            #
+
+            if isl == 0:
+                self.dataframe["Time"] = time
+
+            self.dataframe["Pressure_slice {}".format(isl)] = pressure
+            self.dataframe["Pressure ACF_slice {}".format(isl)] = correlationfunction(pressure, pressure)
+            # This is needed for the bulk viscosity
+            delta_pressure = pressure - pressure.mean()
+            self.dataframe["Delta Pressure_slice {}".format(isl)] = delta_pressure
+            self.dataframe["Delta Pressure ACF_slice {}".format(isl)] = correlationfunction(delta_pressure, delta_pressure)
+
+            if self.dimensions == 3:
+                dim_lbl = ['x', 'y', 'z']
+            elif self.dimensions == 2:
+                dim_lbl = ['x', 'y']
+
+            # Calculate the acf of the pressure tensor
+            for i, ax1 in enumerate(dim_lbl):
+                for j, ax2 in enumerate(dim_lbl):
+                    self.dataframe[pt_str + " {}{}_slice {}".format(ax1, ax2, isl)] = pressure_tensor_temp[i, j, :]
+
+                    pressure_tensor_acf_temp = correlationfunction(pressure_tensor_temp[i, j, :],
+                                                                   pressure_tensor_temp[i, j, :])
+                    self.dataframe[pt_acf_str + " {}{}_slice {}".format(ax1, ax2, isl)] = pressure_tensor_acf_temp
+
+            start_slice += self.slice_steps * self.dump_step
+            end_slice += self.slice_steps * self.dump_step
+
+        col_str = ["Pressure_slice {}".format(isl) for isl in range(self.no_slices)]
+        self.dataframe["Pressure_Mean"] = self.dataframe[col_str].mean(axis=1)
+        self.dataframe["Pressure_Std"] = self.dataframe[col_str].std(axis=1)
+        col_str = ["Pressure ACF_slice {}".format(isl) for isl in range(self.no_slices)]
+        self.dataframe["Pressure ACF_Mean"] = self.dataframe[col_str].mean(axis=1)
+        self.dataframe["Pressure ACF_Std"] = self.dataframe[col_str].std(axis=1)
+
+        col_str = ["Delta Pressure_slice {}".format(isl) for isl in range(self.no_slices)]
+        self.dataframe["Delta Pressure_Mean"] = self.dataframe[col_str].mean(axis=1)
+        self.dataframe["Delta Pressure_Std"] = self.dataframe[col_str].std(axis=1)
+        col_str = ["Delta Pressure ACF_slice {}".format(isl) for isl in range(self.no_slices)]
+        self.dataframe["Delta Pressure ACF_Mean"] = self.dataframe[col_str].mean(axis=1)
+        self.dataframe["Delta Pressure ACF_Std"] = self.dataframe[col_str].std(axis=1)
+
+        # Average and std over the slices
+        for i, ax1 in enumerate(dim_lbl):
+            for j, ax2 in enumerate(dim_lbl):
+                ij_col_str = [pt_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
+
+                self.dataframe[pt_str + " {}{}_Mean".format(ax1, ax2)] = self.dataframe[ij_col_str].mean(axis=1)
+                self.dataframe[pt_str + " {}{}_Std".format(ax1, ax2)] = self.dataframe[ij_col_str].std(axis=1)
+
+                ij_col_acf_str = [pt_acf_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
+
+                self.dataframe[pt_acf_str + " {}{}_Mean".format(ax1, ax2)] = self.dataframe[ij_col_acf_str].mean(axis=1)
+                self.dataframe[pt_acf_str + " {}{}_Std".format(ax1, ax2)] = self.dataframe[ij_col_acf_str].std(axis=1)
+
+        # Create the columns for the HDF df
+        self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
+        self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
+
+        tend = self.timer.current()
+        self.time_stamp("Pressure Tensor and its ACF Calculation", self.timer.time_division(tend - t0))
 
     def pretty_print(self):
         """Print observable parameters for help in choice of simulation parameters."""
@@ -3494,11 +3620,11 @@ def calc_pressure_tensor(pos, vel, acc, species_mass, species_np, box_volume):
     # Rescale vel and acc of each particle by their individual mass
     for sp, num in enumerate(species_np):
         sp_end += num
-        vel[:, sp_start: sp_end] *= np.sqrt(species_mass[sp])
-        acc[:, sp_start: sp_end] *= species_mass[sp]  # force
+        vel[sp_start: sp_end,:] *= np.sqrt(species_mass[sp])
+        acc[sp_start: sp_end,:] *= species_mass[sp]  # force
         sp_start += num
 
-    pressure_tensor = (vel @ np.transpose(vel) + pos @ np.transpose(acc)) / box_volume
+    pressure_tensor = (np.transpose(vel) @ vel + np.transpose(pos) @ acc) / box_volume
     pressure = np.trace(pressure_tensor) / 3.0
 
     return pressure, pressure_tensor

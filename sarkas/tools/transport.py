@@ -1,3 +1,10 @@
+from IPython import get_ipython
+
+if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+    from tqdm import tqdm_notebook as tqdm
+else:
+    from tqdm import tqdm
+
 import os
 import numpy as np
 import pandas as pd
@@ -24,14 +31,36 @@ class TransportCoefficient:
         return disp
 
     @staticmethod
+    def pretty_print(observable, tc_name):
+        """Print to screen the location where data is stored and other relevant information.
+
+        Parameters
+        ----------
+
+        observable: sarkas.tools.observables.Observable
+            Physical quantity of the ACF.
+
+        tc_name: str
+            Name of Transport coefficient to calculate.
+        """
+
+        print('Data saved in: \n', os.path.join(observable.saving_dir, tc_name + '_' + observable.job_id + '.h5'))
+        print('\nNo. of slices = {}'.format(observable.no_slices))
+        print('No. dumps per slice = {}'.format(int(observable.slice_steps / observable.dump_step)))
+
+        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
+            observable.dt * observable.slice_steps,
+            int(observable.dt * observable.slice_steps * observable.total_plasma_frequency)))
+
+    @staticmethod
     def electrical_conductivity(params,
-                  phase: str = 'production',
-                  compute_acf: bool = True,
-                  no_slices: int = 1,
-                  plot: bool = True,
-                  show: bool = False,
-                  figname: str = None,
-                  **kwargs):
+                                phase: str = 'production',
+                                compute_acf: bool = True,
+                                no_slices: int = 1,
+                                plot: bool = True,
+                                show: bool = False,
+                                figname: str = None,
+                                **kwargs):
         """
         Calculate electrical conductivity from current auto-correlation function.
 
@@ -67,14 +96,7 @@ class TransportCoefficient:
             jc_acf.parse()
 
         # Print some info
-        print('Data saved in: \n', os.path.join(jc_acf.saving_dir, 'ElectricalConductivity_' + jc_acf.job_id + '.h5'))
-
-        print('\nNo. of slices = {}'.format(jc_acf.no_slices))
-        print('No. dumps per slice = {}'.format( int(jc_acf.slice_steps/jc_acf.dump_step) ))
-
-        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            jc_acf.dt * jc_acf.slice_steps,
-            int(jc_acf.dt * jc_acf.slice_steps * jc_acf.total_plasma_frequency)))
+        TransportCoefficient.pretty_print(jc_acf, 'ElectricalConductivity')
 
         no_int = jc_acf.slice_steps
 
@@ -84,13 +106,13 @@ class TransportCoefficient:
         coefficient["Time"] = time
         jc_str = "Electric Current ACF"
         sigma_str = "Electrical Conductivity"
-        for isl in range(jc_acf.no_slices):
+        for isl in tqdm(range(jc_acf.no_slices), disable = not jc_acf.verbose):
             sigma_ij = np.zeros(jc_acf.slice_steps)
 
             integrand = np.array(jc_acf.dataframe[(jc_str, "Total", "slice {}".format(isl))])
 
             for it in range(1, no_int):
-                sigma_ij[it] = np.trapz(integrand[:it]/integrand[0], x=time[:it])
+                sigma_ij[it] = np.trapz(integrand[:it] / integrand[0], x=time[:it])
 
                 coefficient[sigma_str + "_slice {}".format(isl)] = sigma_ij[:]
 
@@ -213,30 +235,21 @@ class TransportCoefficient:
             vacf.setup(params, phase=phase, no_slices=no_slices, **kwargs)
             vacf.parse()
 
-        print('Data saved in: \n', os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.h5'))
-
-        print('\nNo. of slices = {}'.format(vacf.no_slices))
-        print('No. dumps per slice = {}'.format(int(vacf.slice_steps/vacf.dump_step)))
-
-        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            vacf.dt * vacf.slice_steps,
-            int(vacf.dt * vacf.slice_steps * vacf.total_plasma_frequency)))
-
-        vacf.compute()
-        time = vacf.dataframe["Time"].to_numpy()[:,0]
+        TransportCoefficient.pretty_print(vacf, 'Diffusion')
+        time = vacf.dataframe["Time"].to_numpy()[:, 0]
         coefficient["Time"] = time
         vacf_str = 'VACF'
         const = 1.0 / 3.0
         if not params.magnetized:
             # Loop over time slices
-            for isl in range(vacf.no_slices):
+            for isl in tqdm(range(vacf.no_slices), disable = not vacf.verbose):
                 # Initialize the temporary diffusion container
                 D = np.zeros((params.num_species, vacf.slice_steps))
                 # Iterate over the number of species
                 for i, sp in enumerate(params.species_names):
                     sp_vacf_str = "{} ".format(sp) + vacf_str
                     # Grab vacf data of each slice
-                    integrand = np.array(vacf.dataframe[(sp_vacf_str, "Total","slice {}".format(isl) )])
+                    integrand = np.array(vacf.dataframe[(sp_vacf_str, "Total", "slice {}".format(isl))])
                     # Integrate each timestep
                     for it in range(1, len(time)):
                         D[i, it] = const * np.trapz(integrand[:it], x=time[:it])
@@ -252,7 +265,7 @@ class TransportCoefficient:
 
         else:
             # Loop over time slices
-            for isl in range(vacf.no_slices):
+            for isl in tqdm(range(vacf.no_slices), disable = not vacf.verbose):
                 # Initialize the temporary diffusion container
                 D = np.zeros((params.num_species, 2, len(time)))
                 # Iterate over the number of species
@@ -319,8 +332,8 @@ class TransportCoefficient:
                     acf_avg = vacf.dataframe[(sp_vacf_str, "Total", "Mean")]
                     acf_std = vacf.dataframe[(sp_vacf_str, "Total", "Std")]
 
-                    d_avg = coefficient[("{} Diffusion".format(sp),"Mean")]
-                    d_std = coefficient[("{} Diffusion".format(sp),"Std")]
+                    d_avg = coefficient[("{} Diffusion".format(sp), "Mean")]
+                    d_std = coefficient[("{} Diffusion".format(sp), "Std")]
 
                     # Calculate axis multipliers and labels
                     xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Diffusion", vacf.units)
@@ -452,15 +465,7 @@ class TransportCoefficient:
             jc_acf.parse()
 
         # Print some info
-        print('Data saved in: \n', os.path.join(jc_acf.saving_dir, 'InterDiffusion_' + jc_acf.job_id + '.h5'))
-
-        print('\nNo. of slices = {}'.format(jc_acf.no_slices))
-        print('No. dumps per slice = {}'.format(int(jc_acf.slice_steps/jc_acf.dump_step) ))
-
-        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            jc_acf.dt * jc_acf.slice_steps * jc_acf.dump_step,
-            int(jc_acf.dt * jc_acf.slice_steps * jc_acf.dump_step * jc_acf.total_plasma_frequency)))
-
+        TransportCoefficient.pretty_print(jc_acf, 'Interdiffusion')
         no_int = jc_acf.slice_steps
         no_fluxes_acf = jc_acf.no_fluxes_acf
         # Normalization constant
@@ -472,7 +477,7 @@ class TransportCoefficient:
         coefficient["Time"] = time
         df_str = "Diffusion Flux ACF"
         id_str = "Inter Diffusion Flux"
-        for isl in range(jc_acf.no_slices):
+        for isl in tqdm(range(jc_acf.no_slices), disable= not jc_acf.verbose):
             D_ij = np.zeros((no_fluxes_acf, jc_acf.slice_steps))
 
             for ij in range(no_fluxes_acf):
@@ -483,6 +488,7 @@ class TransportCoefficient:
 
                 coefficient[id_str + " {}_slice {}".format(ij, isl)] = D_ij[ij, :]
 
+        # Average and Std of slices
         for ij in range(no_fluxes_acf):
             col_str = [id_str + " {}_slice {}".format(ij, isl) for isl in range(jc_acf.no_slices)]
             coefficient[id_str + " {}_Mean".format(ij)] = coefficient[col_str].mean(axis=1)
@@ -549,9 +555,18 @@ class TransportCoefficient:
         return coefficient
 
     @staticmethod
-    def viscosity(params, phase: str = 'production', show=False):
+    def viscosity(params,
+                  phase: str = 'production',
+                  compute_acf: bool = True,
+                  no_slices: int = 1,
+                  plot: bool = True,
+                  plot_quantities: list = ["Bulk Viscosity"],
+                  show: bool = False,
+                  figname: str = None,
+                  **kwargs
+                  ):
         """
-        TODO: Calculate bulk and shear viscosity from pressure auto-correlation function.
+        Calculate bulk and shear viscosity from pressure auto-correlation function.
 
         Parameters
         ----------
@@ -572,95 +587,130 @@ class TransportCoefficient:
         """
         print('\n\n{:=^70} \n'.format(' Viscosity Coefficient '))
         coefficient = pd.DataFrame()
+
         energies = obs.Thermodynamics()
         energies.setup(params, phase)
-        energies.parse('production')
-        beta = (energies.kB * energies.dataframe["Temperature"].mean()) ** (-1.0)
-        time = np.array(energies.dataframe["Time"])
+        energies.parse()
+
+        if compute_acf:
+            pt = obs.PressureTensor()
+            pt.setup(params, phase, no_slices, **kwargs)
+            pt.compute()
+        else:
+            pt = obs.PressureTensor()
+            pt.setup(params, phase, no_slices, **kwargs)
+            pt.parse()
+
+        TransportCoefficient.pretty_print(pt, 'Viscosities')
+
+        time = pt.dataframe["Time"].to_numpy()[:, 0]
         coefficient["Time"] = time
         dim_lbl = ['x', 'y', 'z']
-        shear_viscosity = np.zeros((params.dimensions, params.dimensions, energies.prod_no_dumps))
-        bulk_viscosity = np.zeros(energies.prod_no_dumps)
-        const = params.box_volume * beta
-        if not 'Pressure Tensor ACF xy' in energies.dataframe.columns:
-            print('Pressure not yet calculated')
-            print("Calculating Pressure quantities ...")
-            energies.compute_pressure_quantities()
 
-        # Calculate the acf of the pressure tensor
+        pt_str = "Pressure Tensor ACF"
+        start_steps = 0
+        end_steps = 0
 
-        fig, axes = plt.subplots(2, 3, sharex=True, figsize=(16, 10))
+        for isl in tqdm(range(pt.no_slices), disable=not pt.verbose):
+            end_steps += pt.slice_steps
+
+            beta = (np.mean(energies.dataframe["Temperature"].iloc[start_steps:end_steps]) * pt.kB) ** (-1.0)
+            const = params.box_volume * beta
+            # Calculate Bulk Viscosity
+            bulk_viscosity = np.zeros(pt.slice_steps)
+            # Bulk viscosity is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
+            bulk_integrand = np.copy(pt.dataframe[("Delta Pressure ACF", "slice {}".format(isl))])
+
+            for it in range(1, pt.slice_steps):
+                bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
+
+            coefficient["Bulk Viscosity_slice {}".format(isl)] = bulk_viscosity
+
+            shear_viscosity = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
+
+            for i, ax1 in enumerate(dim_lbl):
+                for j, ax2 in enumerate(dim_lbl):
+
+                    integrand = pt.dataframe[(pt_str + " {}{}".format(ax1, ax2), 'slice {}'.format(isl))].to_numpy()
+                    for it in range(1, pt.slice_steps):
+                        shear_viscosity[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+
+                    coefficient["Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_viscosity[i, j, :]
+            start_steps += pt.slice_steps
+
+        # Now average the slice
+        col_str = ["Bulk Viscosity_slice {}".format(isl) for isl in range(pt.no_slices)]
+        coefficient["Bulk Viscosity_Mean"] = coefficient[col_str].mean(axis=1)
+        coefficient["Bulk Viscosity_Std"] = coefficient[col_str].std(axis=1)
+
+        sv_str = "Shear Viscosity Tensor"
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
-                integrand = np.array(energies.dataframe["Pressure Tensor ACF {}{}".format(ax1, ax2)])
-                for it in range(1, energies.prod_no_dumps):
-                    shear_viscosity[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+                col_str = [sv_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
+                coefficient[sv_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
+                coefficient[sv_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
 
-                coefficient["{}{} Shear Viscosity Tensor".format(ax1, ax2)] = shear_viscosity[i, j, :]
-                xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, shear_viscosity[i, j, :],
-                                                               "Time", "Viscosity", energies.units)
-                if "{}{}".format(ax1, ax2) in ["yx", "xy"]:
-                    axes[0, 0].semilogx(xmul * time, integrand / integrand[0],
-                                        label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
-                    axes[1, 0].semilogx(xmul * time, ymul * shear_viscosity[i, j, :],
-                                        label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
+        coefficient.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in coefficient.columns])
+        coefficient.to_hdf(
+            os.path.join(pt.saving_dir, 'Viscosities_' + pt.job_id + '.h5'),
+            mode='w',
+            key='viscosities',
+            index=False)
 
-                elif "{}{}".format(ax1, ax2) in ["xz", "zx"]:
-                    axes[0, 1].semilogx(xmul * time, integrand / integrand[0],
-                                        label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
-                    axes[1, 1].semilogx(xmul * time, ymul * shear_viscosity[i, j, :],
-                                        label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
+        if plot or figname:
+            # Make the plot
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+            ax3 = ax1.twiny()
+            ax4 = ax2.twiny()
+            # extra space for the second axis at the bottom
+            # fig.subplots_adjust(bottom=0.2)
+            for ipq, pq in enumerate(plot_quantities):
+                if pq[:4].lower() == "bulk":
+                    acf_str = "Delta Pressure ACF"
+                    acf_avg = pt.dataframe[("Delta Pressure ACF", "Mean")]
+                    acf_std = pt.dataframe[("Delta Pressure ACF", "Std")]
+                else:
+                    # The axis are the last two elements in the string
+                    acf_str = "Pressure Tensor ACF " + pq[-2:]
+                    acf_avg = pt.dataframe[("Pressure Tensor ACF " + pq[-2:], "Mean")]
+                    acf_std = pt.dataframe[("Pressure Tensor ACF " + pq[-2:], "Std")]
 
-                elif "{}{}".format(ax1, ax2) in ["yz", "zy"]:
-                    axes[0, 2].semilogx(xmul * time, integrand / integrand[0],
-                                        label=r"$P_{" + "{}{}".format(ax1, ax2) + " }(t)$")
-                    axes[1, 2].semilogx(xmul * time, ymul * shear_viscosity[i, j, :],
-                                        label=r"$\eta_{ " + "{}{}".format(ax1, ax2) + " }(t)$")
-            axes[0, 0].legend()
-            axes[0, 1].legend()
-            axes[0, 2].legend()
-            axes[1, 0].legend()
-            axes[1, 1].legend()
-            axes[1, 2].legend()
-            axes[0, 0].set_xlabel(r"Time " + xlbl)
-            axes[0, 1].set_xlabel(r"Time " + xlbl)
-            axes[0, 2].set_xlabel(r"Time " + xlbl)
+                d_avg = coefficient[(pq, "Mean")]
+                d_std = coefficient[(pq, "Std")]
 
-            axes[1, 0].set_xlabel(r"Time " + xlbl)
-            axes[1, 1].set_xlabel(r"Time " + xlbl)
-            axes[1, 2].set_xlabel(r"Time " + xlbl)
+                # Calculate axis multipliers and labels
+                xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, d_avg, "Time", "Viscosity", pt.units)
 
-            axes[0, 0].set_ylabel(r"Pressure Tensor ACF")
-            axes[1, 0].set_ylabel(r"Shear Viscosity" + ylbl)
+                # ACF
+                ax1.plot(xmul * time, acf_avg / acf_avg.iloc[0], label=acf_str)
+                ax1.fill_between(
+                    xmul * time,
+                    (acf_avg + acf_std) / (acf_avg.iloc[0] + acf_std.iloc[0]),
+                    (acf_avg - acf_std) / (acf_avg.iloc[0] - acf_std.iloc[0]), alpha=0.2)
 
-            fig.tight_layout()
-            fig.savefig(os.path.join(energies.fldr, "ShearViscosity_Plots_" + energies.job_id + ".png"))
-            if show:
-                fig.show()
+                # Coefficient
+                ax2.plot(xmul * time, ymul * d_avg, label=r'$\eta$')
+                ax2.fill_between(xmul * time, ymul * (d_avg + d_std), ymul * (d_avg - d_std), alpha=0.2)
 
-        # Calculate Bulk Viscosity
-        pressure_acf = obs.autocorrelationfunction_1D(np.array(energies.dataframe["Pressure"])
-                                                      - energies.dataframe["Pressure"].mean())
-        bulk_integrand = pressure_acf
-        for it in range(1, energies.prod_no_dumps):
-            bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
+                xlims = (xmul * time[1], xmul * time[-1] * 1.5)
 
-        coefficient["Bulk Viscosity"] = bulk_viscosity
+                ax1.set(xlim=xlims, xscale='log', ylabel=acf_str, xlabel=r"Time difference" + xlbl)
+                ax2.set(xlim=xlims, xscale='log', ylabel=r'Viscosity' + ylbl, xlabel=r"$\tau$" + xlbl)
 
-        fig, ax = plt.subplots(2, 1)
-        xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, bulk_viscosity, "Time", "Viscosity", energies.units)
-        ax[0].semilogx(xmul * time, bulk_integrand / bulk_integrand[0], label=r"$P(t)$")
-        ax[1].semilogx(xmul * time, ymul * bulk_viscosity, label=r"$\eta_{V}(t)$")
+                ax1.legend(loc='best')
+                ax2.legend(loc='best')
+                # Finish the index axes
+                for axi in [ax3, ax4]:
+                    axi.grid(alpha=0.1)
+                    axi.set(xlim=(1, pt.slice_steps * 1.5), xscale='log', xlabel='Index')
 
-        ax[0].set_xlabel(r"Time" + xlbl)
-        ax[1].set_xlabel(r"Dumps")
-        ax[0].set_ylabel(r"Pressure ACF")
-        ax[1].set_ylabel(r"Bulk Viscosity" + ylbl)
-        ax[0].legend()
-        ax[1].legend()
-        fig.tight_layout()
-        fig.savefig(os.path.join(energies.fldr, "BulkViscosity_Plots_" + energies.job_id + ".png"))
-        if show:
-            fig.show()
+                fig.tight_layout()
+                if figname:
+                    fig.savefig(os.path.join(pt.saving_dir, figname))
+                else:
+                    fig.savefig(os.path.join(pt.saving_dir, 'Plot_' + pq.replace(" ", "") + '_' + pt.job_id + '.png'))
+
+                if show:
+                    fig.show()
 
         return coefficient

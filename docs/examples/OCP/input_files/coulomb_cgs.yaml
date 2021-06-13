@@ -9,30 +9,31 @@ Particles:
         temperature: 3.2636325e+03
 
 Potential:
-    type: Coulomb                  # potential type
-    method: P3M                   # Linked-cell
-    rc: 3.29946255e-08             # cut-off radius, meter
-    pppm_mesh: [64,64,64]
+    type: Coulomb                 # potential type
+    method: P3M                    # Linked-cell
+    rc: 3.411928e-08          # cut-off radius, meter
+    pppm_mesh: [98, 98, 98]
     pppm_aliases: [3,3,3]
     pppm_cao: 6
-    pppm_alpha_ewald: 1.0602e+8
+    pppm_alpha_ewald: 1.128394e+8
 
 Integrator:
     type: Verlet                  # velocity integrator type
     dt: 1.193536e-17            # sec
     equilibration_steps: 5000                      # number of timesteps for the equilibrium
     eq_dump_step: 10
-    production_steps: 50000
+    production_steps: 100000
     prod_dump_step: 5
 
 Thermostat:
     type: Berendsen               # thermostat type
-    relaxation_timestep: 1
+    relaxation_timestep: 100
     berendsen_tau: 5.0
 
 Parameters:
     units: cgs                    # units
-    load_method: random_no_reject
+    load_method: prod_restart
+    restart_step: 50000
     rdf_nbins: 500
     boundary_conditions: periodic
     dt: 1.193536e-17            # sec
