@@ -40,7 +40,7 @@ UNITS = [
      "Pressure": "Pa",
      "Conductivity": "S/m",
      "Diffusion": r"m$^2$/s",
-     "Viscosity": r"Pa s",
+     "Viscosity": r"kg/m s",
      "none": ""},
     # CGS Units
     {"Energy": 'erg',
@@ -56,7 +56,7 @@ UNITS = [
      "Pressure": "Ba",
      "Conductivity": "mho/m",
      "Diffusion": r"m$^2$/s",
-     "Viscosity": r"Ba s",
+     "Viscosity": r"g/ cm s",
      "none": ""}
 ]
 

@@ -2,10 +2,6 @@
 Get Started
 ***********
 
-.. warning::
-    Sarkas is not yet available via package manager ``pip``.
-    Therefore, please follow the instructions `here <dev_setup>`_ for installation.
-
 It is good practice to create virtual environment for your each of your programming projects. Below are instructions
 for creating the ``sarkas`` virtual environment. Otherwise you can jump to the next section and :ref:`install <sec_installation>` Sarkas
 

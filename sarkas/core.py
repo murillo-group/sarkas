@@ -340,7 +340,7 @@ class Parameters:
         # Initialization of attributes
         self.total_num_ptcls = 0
         self.total_num_density = 0.0
-        # Calculate species attributes and add them to simulation parametrs
+        # Calculate species attributes and add them to simulation parameters
         for i, sp in enumerate(species):
             self.total_num_ptcls += sp.num
 
