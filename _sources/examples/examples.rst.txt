@@ -12,6 +12,15 @@ Examples
 
     <div class="ex-thumbcontainer">
             <div class="figure align-default">
+                    <img src="../_images/examples_OCP_OCP_17_1.png" alt="">
+                    <p class="caption">
+                        <span class="text-center"><a href="OCP/OCP.html"> One Component Plasma</a></span>
+                    </p>
+            </div>
+    </div>
+    
+    <div class="ex-thumbcontainer">
+            <div class="figure align-default">
                     <img src="../_images/examples_BIM_H-He_Mixture_30_1.png" alt="">
                     <p class="caption">
                         <span class="text-center"><a href="BIM/H-He_Mixture.html">Interdiffusion BIM</a></span>
@@ -67,6 +76,7 @@ Examples
     :maxdepth: 1
     :hidden:
 
+    OCP/OCP
     BIM/H-He_Mixture
     QSP/QSP_Tutorial
     Magnetized_OCP/Magnetized_Plasma

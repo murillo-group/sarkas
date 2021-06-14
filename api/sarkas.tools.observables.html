@@ -218,8 +218,8 @@ attributes and/or add new ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
 </ul>
@@ -259,8 +259,8 @@ attributes and/or add new ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of independent runs inside a long simulation. Default = 1.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
@@ -302,8 +302,8 @@ attributes and/or add new ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
 </ul>
@@ -337,8 +337,9 @@ attributes and/or add new ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
+<li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of independent runs inside a long simulation. Default = 1.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
 </ul>
@@ -359,7 +360,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the computed data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1828.g3f67dc3308)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+5.ge3d57c983b)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -370,7 +371,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the longitudinal part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1828.g3f67dc3308)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+5.ge3d57c983b)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -381,7 +382,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the transverse part of the computed observable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1828.g3f67dc3308)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+5.ge3d57c983b)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -670,13 +671,13 @@ be averaged over.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sarkas.tools.observables.Observable.setup_init">
-<span class="sig-name descname"><span class="pre">setup_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.setup_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.setup_init" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">setup_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.setup_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.setup_init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign Observables attributes and copy the simulation’s parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s Parameters.</p></li>
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute.</p></li>
 </ul>
 </dd>
 </dl>
@@ -686,6 +687,56 @@ be averaged over.</p>
 <dt class="sig sig-object py" id="sarkas.tools.observables.Observable.time_stamp">
 <span class="sig-name descname"><span class="pre">time_stamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable.time_stamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable.time_stamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print to screen the elapsed time of the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Message to print.</p></li>
+<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – Time in hrs, min, sec, msec, usec, nsec.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sarkas.tools.observables.PressureTensor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">PressureTensor</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#PressureTensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.PressureTensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
+<p>Diffusion Fluxes and their Auto-correlation functions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sarkas.tools.observables.PressureTensor.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#PressureTensor.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.PressureTensor.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the velocity auto-correlation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sarkas.tools.observables.PressureTensor.pretty_print">
+<span class="sig-name descname"><span class="pre">pretty_print</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#PressureTensor.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.PressureTensor.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print observable parameters for help in choice of simulation parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sarkas.tools.observables.PressureTensor.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#PressureTensor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.PressureTensor.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign attributes from simulation’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
+<li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of independent runs inside a long simulation. Default = 1.</p></li>
+<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -744,11 +795,14 @@ attributes and/or add new ones.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
-attributes and/or add new ones.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
 </ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs :</dt><dd><p>These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
+attributes and/or add new ones.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -829,8 +883,8 @@ attributes and/or add new ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
 </ul>
@@ -852,10 +906,10 @@ attributes and/or add new ones.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>potential</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Potential used in the simulation.</p></li>
-<li><p><strong>potential_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Potential parameters.</p></li>
 <li><p><strong>r</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Particles’ distances.</p></li>
 <li><p><strong>gr</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Pair distribution function.</p></li>
+<li><p><strong>potential</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Potential used in the simulation.</p></li>
+<li><p><strong>potential_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – Potential parameters.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
 </ul>
@@ -867,12 +921,6 @@ attributes and/or add new ones.</p></li>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sarkas.tools.observables.Thermodynamics.compute_pressure_quantities">
-<span class="sig-name descname"><span class="pre">compute_pressure_quantities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics.compute_pressure_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics.compute_pressure_quantities" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate Pressure, Pressure Tensor, Pressure Tensor Auto Correlation Function.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -888,8 +936,8 @@ attributes and/or add new ones.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
 </ul>
@@ -914,10 +962,10 @@ attributes and/or add new ones.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<a class="reference internal" href="sarkas.processes.html#sarkas.processes.PostProcess" title="sarkas.processes.PostProcess"><em>sarkas.processes.PostProcess</em></a>) – Sarkas Process.</p></li>
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to plot. “equilibration” or “production”.</p></li>
-<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for displaying the figure.</p></li>
-<li><p><strong>publication</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for publication style plotting.</p></li>
-<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name with which to save the plot.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to plot. “equilibration” or “production”.</p></li>
+<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for displaying the figure.</p></li>
+<li><p><strong>publication</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for publication style plotting.</p></li>
+<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Name with which to save the plot.</p></li>
 </ul>
 </dd>
 </dl>
@@ -956,7 +1004,7 @@ attributes and/or add new ones.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of independent runs inside a long simulation. Default = 1.</p></li>
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
@@ -1052,7 +1100,7 @@ Default = False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parse_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading data. Default = False. If False, must pass <code class="docutils literal notranslate"><span class="pre">vel_raw</span></code> and <a href="#id1"><span class="problematic" id="id2">``</span></a>time.
+<li><p><strong>parse_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading data. Default = False. If False, must pass <code class="docutils literal notranslate"><span class="pre">vel_raw</span></code> and <a href="#id3"><span class="problematic" id="id4">``</span></a>time.
 If True it will parse data from simulations dumps.</p></li>
 <li><p><strong>vel_raw</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Container of particles velocity at each time step.</p></li>
 <li><p><strong>time</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Time array.</p></li>
@@ -1099,11 +1147,11 @@ If True it will parse data from simulations dumps.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>curve_fit_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]) – </p></li>
-<li><p><strong>hist_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary of keyword arguments to pass to <code class="docutils literal notranslate"><span class="pre">np.histogram</span></code> for the calculation of the distributions.</p></li>
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase to compute. Default = ‘production’.</p></li>
-<li><p><strong>max_no_moment</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Maximum number of moments to calculate. Default = 6.</p></li>
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
+<li><p><strong>max_no_moment</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Maximum number of moments to calculate. Default = 6.</p></li>
+<li><p><strong>hist_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary of keyword arguments to pass to <code class="docutils literal notranslate"><span class="pre">np.histogram</span></code> for the calculation of the distributions.</p></li>
+<li><p><strong>curve_fit_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary of keyword arguments to pass to <code class="docutils literal notranslate"><span class="pre">scipy.curve_fit</span></code> for fitting of Hermite coefficients.</p></li>
 <li><p><strong>**kwargs</strong> – These are will overwrite any <code class="docutils literal notranslate"><span class="pre">sarkas.core.Parameters</span></code> or default <code class="docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code>
 attributes and/or add new ones.</p></li>
 </ul>
@@ -1574,7 +1622,7 @@ of the simulation.</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 07, 2021.<br/>
+      Last updated on Jun 14, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>

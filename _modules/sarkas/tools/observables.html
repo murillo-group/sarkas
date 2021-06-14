@@ -177,7 +177,7 @@
      <span class="s2">&quot;Pressure&quot;</span><span class="p">:</span> <span class="s2">&quot;Pa&quot;</span><span class="p">,</span>
      <span class="s2">&quot;Conductivity&quot;</span><span class="p">:</span> <span class="s2">&quot;S/m&quot;</span><span class="p">,</span>
      <span class="s2">&quot;Diffusion&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;m$^2$/s&quot;</span><span class="p">,</span>
-     <span class="s2">&quot;Viscosity&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;Pa s&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;Viscosity&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;kg/m s&quot;</span><span class="p">,</span>
      <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">},</span>
     <span class="c1"># CGS Units</span>
     <span class="p">{</span><span class="s2">&quot;Energy&quot;</span><span class="p">:</span> <span class="s1">&#39;erg&#39;</span><span class="p">,</span>
@@ -193,7 +193,7 @@
      <span class="s2">&quot;Pressure&quot;</span><span class="p">:</span> <span class="s2">&quot;Ba&quot;</span><span class="p">,</span>
      <span class="s2">&quot;Conductivity&quot;</span><span class="p">:</span> <span class="s2">&quot;mho/m&quot;</span><span class="p">,</span>
      <span class="s2">&quot;Diffusion&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;m$^2$/s&quot;</span><span class="p">,</span>
-     <span class="s2">&quot;Viscosity&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;Ba s&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;Viscosity&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;g/ cm s&quot;</span><span class="p">,</span>
      <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
 <span class="p">]</span>
 
@@ -326,7 +326,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Observable.setup_init"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.setup_init">[docs]</a>    <span class="k">def</span> <span class="nf">setup_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+<div class="viewcode-block" id="Observable.setup_init"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.setup_init">[docs]</a>    <span class="k">def</span> <span class="nf">setup_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Assign Observables attributes and copy the simulation&#39;s parameters.</span>
 
 <span class="sd">        Parameters</span>
@@ -334,7 +334,7 @@
 <span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s Parameters.</span>
 
-<span class="sd">        phase : str</span>
+<span class="sd">        phase : str, optional</span>
 <span class="sd">            Phase to compute.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -467,9 +467,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;no_slices&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="k">else</span> \
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)</span>
 
         <span class="c1"># Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_index_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span></div>
@@ -859,7 +858,17 @@
         <span class="k">return</span> <span class="n">axes_handle</span></div>
 
 <div class="viewcode-block" id="Observable.time_stamp"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.time_stamp">[docs]</a>    <span class="k">def</span> <span class="nf">time_stamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timing</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Print to screen the elapsed time of the calculation.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Print to screen the elapsed time of the calculation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            Message to print.</span>
+
+<span class="sd">        timing : tuple</span>
+<span class="sd">            Time in hrs, min, sec, msec, usec, nsec.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">t_hrs</span><span class="p">,</span> <span class="n">t_min</span><span class="p">,</span> <span class="n">t_sec</span><span class="p">,</span> <span class="n">t_msec</span><span class="p">,</span> <span class="n">t_usec</span><span class="p">,</span> <span class="n">t_nsec</span> <span class="o">=</span> <span class="n">timing</span>
 
@@ -903,11 +912,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        phase : str</span>
-<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
-
 <span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -1062,14 +1071,14 @@
                 <span class="n">comp_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1_name</span><span class="p">,</span> <span class="n">sp2_name</span><span class="p">)</span>
                 <span class="c1">### LONGITUDINAL</span>
                 <span class="c1"># Rename the columns with values of ka</span>
-                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Longitudinal_&#39;</span> <span class="o">+</span> <span class="n">comp_name</span> <span class="o">+</span> <span class="s2">&quot;_Mean_ka = </span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ka</span><span class="p">)</span>
+                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Longitudinal_&#39;</span> <span class="o">+</span> <span class="n">comp_name</span> <span class="o">+</span> <span class="s2">&quot;_Mean_ka</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ik</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ka</span><span class="p">)</span>
                               <span class="k">for</span> <span class="n">ik</span><span class="p">,</span> <span class="n">ka</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)]</span>
 
                 <span class="c1"># Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude</span>
                 <span class="n">df_mean</span> <span class="o">=</span> <span class="n">temp_dataframe</span><span class="p">[</span><span class="s1">&#39;Longitudinal&#39;</span><span class="p">][</span><span class="n">comp_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">)</span>
                 <span class="n">df_mean</span> <span class="o">=</span> <span class="n">df_mean</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col_mapper</span><span class="p">(</span><span class="n">df_mean</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">ka_columns</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="c1"># Std</span>
-                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Longitudinal_&#39;</span> <span class="o">+</span> <span class="n">comp_name</span> <span class="o">+</span> <span class="s2">&quot;_Std_ka = </span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ka</span><span class="p">)</span>
+                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Longitudinal_&#39;</span> <span class="o">+</span> <span class="n">comp_name</span> <span class="o">+</span> <span class="s2">&quot;_Std_ka</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ik</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span><span class="n">ka</span><span class="p">)</span>
                               <span class="k">for</span> <span class="n">ik</span><span class="p">,</span> <span class="n">ka</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)]</span>
                 <span class="n">df_std</span> <span class="o">=</span> <span class="n">temp_dataframe</span><span class="p">[</span><span class="s1">&#39;Longitudinal&#39;</span><span class="p">][</span><span class="n">comp_name</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">)</span>
                 <span class="n">df_std</span> <span class="o">=</span> <span class="n">df_std</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col_mapper</span><span class="p">(</span><span class="n">df_std</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">ka_columns</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1078,14 +1087,14 @@
 
                 <span class="c1">### Transverse</span>
                 <span class="c1"># Rename the columns with values of ka</span>
-                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Transverse_&#39;</span> <span class="o">+</span> <span class="n">comp_name</span> <span class="o">+</span> <span class="s2">&quot;_Mean_ka = </span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ka</span><span class="p">)</span>
+                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Transverse_&#39;</span> <span class="o">+</span> <span class="n">comp_name</span> <span class="o">+</span> <span class="s2">&quot;_Mean_ka</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ik</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ka</span><span class="p">)</span>
                               <span class="k">for</span> <span class="n">ik</span><span class="p">,</span> <span class="n">ka</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)]</span>
 
                 <span class="c1"># Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude</span>
                 <span class="n">tdf_mean</span> <span class="o">=</span> <span class="n">temp_dataframe</span><span class="p">[</span><span class="s1">&#39;Transverse&#39;</span><span class="p">][</span><span class="n">comp_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">)</span>
                 <span class="n">tdf_mean</span> <span class="o">=</span> <span class="n">tdf_mean</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col_mapper</span><span class="p">(</span><span class="n">tdf_mean</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">ka_columns</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="c1"># Std</span>
-                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Transverse_&#39;</span> <span class="o">+</span> <span class="n">comp_name</span> <span class="o">+</span> <span class="s2">&quot;_Std_ka = </span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ka</span><span class="p">)</span>
+                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Transverse_&#39;</span> <span class="o">+</span> <span class="n">comp_name</span> <span class="o">+</span> <span class="s2">&quot;_Std_ka</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ik</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ka</span><span class="p">)</span>
                               <span class="k">for</span> <span class="n">ik</span><span class="p">,</span> <span class="n">ka</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)]</span>
                 <span class="n">tdf_std</span> <span class="o">=</span> <span class="n">temp_dataframe</span><span class="p">[</span><span class="s1">&#39;Transverse&#39;</span><span class="p">][</span><span class="n">comp_name</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">)</span>
                 <span class="n">tdf_std</span> <span class="o">=</span> <span class="n">tdf_std</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col_mapper</span><span class="p">(</span><span class="n">tdf_std</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">ka_columns</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1162,7 +1171,7 @@
 
 
 <div class="viewcode-block" id="DynamicStructureFactor"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor">[docs]</a><span class="k">class</span> <span class="nc">DynamicStructureFactor</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Dynamic Structure factor.    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Dynamic Structure factor.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DynamicStructureFactor.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFactor.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1170,11 +1179,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        phase : str</span>
-<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
-
 <span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -1291,12 +1300,12 @@
             <span class="k">for</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">sp2_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="p">[</span><span class="n">sp1</span><span class="p">:],</span> <span class="n">sp1</span><span class="p">):</span>
                 <span class="n">skw_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp1_name</span><span class="p">,</span> <span class="n">sp2_name</span><span class="p">)</span>
                 <span class="c1"># Rename the columns with values of ka</span>
-                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">skw_name</span> <span class="o">+</span> <span class="s2">&quot;_Mean_ka = </span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ka</span><span class="p">)</span> <span class="k">for</span> <span class="n">ik</span><span class="p">,</span> <span class="n">ka</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)]</span>
+                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">skw_name</span> <span class="o">+</span> <span class="s2">&quot;_Mean_ka</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ik</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ka</span><span class="p">)</span> <span class="k">for</span> <span class="n">ik</span><span class="p">,</span> <span class="n">ka</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)]</span>
                 <span class="c1"># Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude</span>
                 <span class="n">df_mean</span> <span class="o">=</span> <span class="n">temp_dataframe</span><span class="p">[</span><span class="n">skw_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">)</span>
                 <span class="n">df_mean</span> <span class="o">=</span> <span class="n">df_mean</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col_mapper</span><span class="p">(</span><span class="n">df_mean</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">ka_columns</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="c1"># Std</span>
-                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">skw_name</span> <span class="o">+</span> <span class="s2">&quot;_Std_ka = </span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ka</span><span class="p">)</span> <span class="k">for</span> <span class="n">ik</span><span class="p">,</span> <span class="n">ka</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)]</span>
+                <span class="n">ka_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">skw_name</span> <span class="o">+</span> <span class="s2">&quot;_Std_ka</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ik</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ka</span><span class="p">)</span> <span class="k">for</span> <span class="n">ik</span><span class="p">,</span> <span class="n">ka</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ka_values</span><span class="p">)]</span>
                 <span class="n">df_std</span> <span class="o">=</span> <span class="n">temp_dataframe</span><span class="p">[</span><span class="n">skw_name</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">)</span>
                 <span class="n">df_std</span> <span class="o">=</span> <span class="n">df_std</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col_mapper</span><span class="p">(</span><span class="n">df_std</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">ka_columns</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -1378,11 +1387,14 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        phase : str</span>
-<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
-
 <span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
+
+<span class="sd">        no_slices : int</span>
+<span class="sd">            Number of independent runs inside a long simulation. Default = 1.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -1577,11 +1589,12 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        phase : str</span>
-<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
-
 <span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
+
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -1725,11 +1738,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        phase : str</span>
-<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
-
 <span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -1884,11 +1897,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        phase : str</span>
-<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
-
 <span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -1920,74 +1933,23 @@
         <span class="c1"># Update the attribute with the passed arguments</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="Thermodynamics.compute_pressure_quantities"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.compute_pressure_quantities">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pressure_quantities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate Pressure, Pressure Tensor, Pressure Tensor Auto Correlation Function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;production&#39;</span><span class="p">)</span>
-        <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">))</span>
-        <span class="n">vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">))</span>
-        <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">))</span>
-
-        <span class="n">pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="p">)</span>
-        <span class="n">pressure_tensor_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="p">))</span>
-
-        <span class="c1"># Collect particles&#39; positions, velocities and accelerations</span>
-        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span><span class="p">)):</span>
-            <span class="n">dump</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">it</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">)</span>
-
-            <span class="n">data</span> <span class="o">=</span> <span class="n">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span> <span class="n">dump</span><span class="p">)</span>
-            <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
-
-            <span class="n">vel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">vel</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">vel</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
-
-            <span class="n">acc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">acc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">acc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
-
-            <span class="n">pressure</span><span class="p">[</span><span class="n">it</span><span class="p">],</span> <span class="n">pressure_tensor_temp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_pressure_tensor</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span>
-                                                                                <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pressure</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure ACF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="n">dim_lbl</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">dim_lbl</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]</span>
-
-        <span class="c1"># Calculate the acf of the pressure tensor</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ax1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dim_lbl</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ax2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dim_lbl</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure Tensor </span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pressure_tensor_temp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
-                <span class="n">pressure_tensor_acf_temp</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">pressure_tensor_temp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:],</span>
-                                                               <span class="n">pressure_tensor_temp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure Tensor ACF </span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pressure_tensor_acf_temp</span>
-
-        <span class="c1"># Save the pressure acf to file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prod_energy_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="Thermodynamics.compute_pressure_from_rdf"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.compute_pressure_from_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pressure_from_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">gr</span><span class="p">,</span> <span class="n">potential</span><span class="p">,</span> <span class="n">potential_matrix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the Pressure using the radial distribution function</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        potential: str</span>
-<span class="sd">            Potential used in the simulation.</span>
-
-<span class="sd">        potential_matrix: numpy.ndarray</span>
-<span class="sd">            Potential parameters.</span>
-
 <span class="sd">        r : numpy.ndarray</span>
 <span class="sd">            Particles&#39; distances.</span>
 
 <span class="sd">        gr : numpy.ndarray</span>
 <span class="sd">            Pair distribution function.</span>
+
+<span class="sd">        potential: str</span>
+<span class="sd">            Potential used in the simulation.</span>
+
+<span class="sd">        potential_matrix: numpy.ndarray</span>
+<span class="sd">            Potential parameters.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -2005,15 +1967,15 @@
         <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span>
         <span class="n">r3</span> <span class="o">=</span> <span class="n">r2</span> <span class="o">*</span> <span class="n">r</span>
 
-        <span class="k">if</span> <span class="n">potential</span> <span class="o">==</span> <span class="s2">&quot;Coulomb&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;coulomb&quot;</span><span class="p">:</span>
             <span class="n">dv_dr</span> <span class="o">=</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">r2</span>
             <span class="c1"># Check for finiteness of first element when r[0] = 0.0</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">dv_dr</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="n">dv_dr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dv_dr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">gr</span> <span class="o">-=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">potential</span> <span class="o">==</span> <span class="s2">&quot;Yukawa&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">potential</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;yukawa&quot;</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="k">elif</span> <span class="n">potential</span> <span class="o">==</span> <span class="s2">&quot;QSP&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">potential</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;qsp&quot;</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown potential&#39;</span><span class="p">)</span>
@@ -2092,16 +2054,16 @@
 <span class="sd">        process : sarkas.processes.PostProcess</span>
 <span class="sd">            Sarkas Process.</span>
 
-<span class="sd">        phase: str</span>
+<span class="sd">        phase: str, optional</span>
 <span class="sd">            Phase to plot. &quot;equilibration&quot; or &quot;production&quot;.</span>
 
-<span class="sd">        show: bool</span>
+<span class="sd">        show: bool, optional</span>
 <span class="sd">            Flag for displaying the figure.</span>
 
-<span class="sd">        publication: bool</span>
+<span class="sd">        publication: bool, optional</span>
 <span class="sd">            Flag for publication style plotting.</span>
 
-<span class="sd">        figname: str</span>
+<span class="sd">        figname: str, optional</span>
 <span class="sd">            Name with which to save the plot.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2336,7 +2298,7 @@
 <span class="sd">        no_slices : int</span>
 <span class="sd">            Number of independent runs inside a long simulation. Default = 1.</span>
 
-<span class="sd">        phase : str</span>
+<span class="sd">        phase : str, optional</span>
 <span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
 <span class="sd">        params : sarkas.core.Parameters</span>
@@ -2474,11 +2436,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        phase : str</span>
-<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
-
 <span class="sd">        params : sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
 <span class="sd">        no_slices : int</span>
 <span class="sd">            Number of independent runs inside a long simulation. Default = 1.</span>
@@ -2637,6 +2599,183 @@
             <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">)))</span></div></div>
 
 
+<div class="viewcode-block" id="PressureTensor"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.PressureTensor">[docs]</a><span class="k">class</span> <span class="nc">PressureTensor</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Diffusion Fluxes and their Auto-correlation functions.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PressureTensor.setup"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.PressureTensor.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">no_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign attributes from simulation&#39;s parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params : sarkas.core.Parameters</span>
+<span class="sd">            Simulation&#39;s parameters.</span>
+
+<span class="sd">        phase : str, optional</span>
+<span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
+
+<span class="sd">        no_slices : int</span>
+<span class="sd">            Number of independent runs inside a long simulation. Default = 1.</span>
+
+<span class="sd">        **kwargs :</span>
+<span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
+<span class="sd">            attributes and/or add new ones.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">no_slices</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="n">no_slices</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_init</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="s1">&#39;pressure_tensor&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__long_name__</span> <span class="o">=</span> <span class="s1">&#39;Pressure Tensor&#39;</span>
+
+        <span class="c1"># if not hasattr(self, &#39;species_mass_densities&#39;):</span>
+        <span class="c1">#     self.species_mass_densities = self.species_num_dens * self.species_masses</span>
+
+        <span class="c1"># Create the directory where to store the computed data</span>
+        <span class="n">saving_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">,</span> <span class="s1">&#39;PressureTensor&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">saving_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">saving_dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saving_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename_hdf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="s2">&quot;PressureTensor_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.h5&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_fluxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_species</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_fluxes_acf</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_fluxes</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_fluxes</span><span class="p">)</span>
+
+        <span class="c1"># Update the attribute with the passed arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="PressureTensor.compute"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.PressureTensor.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the velocity auto-correlation functions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs :</span>
+<span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
+<span class="sd">            attributes and/or add new ones.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Update the attribute with the passed arguments. e.g time_averaging and timesteps_to_skip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+        <span class="c1"># Recalculate the slicing parameters if no_slices has been passed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_dumps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)</span>
+
+        <span class="n">start_slice</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">end_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">)</span>
+        <span class="c1"># Initialize timer</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+
+        <span class="n">pt_str</span> <span class="o">=</span> <span class="s2">&quot;Pressure Tensor&quot;</span>
+        <span class="n">pt_acf_str</span> <span class="o">=</span> <span class="s2">&quot;Pressure Tensor ACF&quot;</span>
+
+        <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Calculating pressure tensor and its acf for slice </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">))</span>
+            <span class="c1"># Parse the particles from the dump files</span>
+            <span class="n">pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">)</span>
+            <span class="n">pressure_tensor_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">it</span><span class="p">,</span> <span class="n">dump</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_slice</span><span class="p">,</span> <span class="n">end_slice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">),</span>
+                                           <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Calculating Pressure&#39;</span><span class="p">,</span>
+                                           <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)):</span>
+                <span class="n">datap</span> <span class="o">=</span> <span class="n">load_from_restart</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_dir</span><span class="p">,</span> <span class="n">dump</span><span class="p">)</span>
+                <span class="n">time</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+
+                <span class="n">pressure</span><span class="p">[</span><span class="n">it</span><span class="p">],</span> <span class="n">pressure_tensor_temp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_pressure_tensor</span><span class="p">(</span>
+                    <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">],</span>
+                    <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;vel&quot;</span><span class="p">],</span>
+                    <span class="n">datap</span><span class="p">[</span><span class="s2">&quot;acc&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
+            <span class="c1">#</span>
+
+            <span class="k">if</span> <span class="n">isl</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pressure</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure ACF_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+            <span class="c1"># This is needed for the bulk viscosity</span>
+            <span class="n">delta_pressure</span> <span class="o">=</span> <span class="n">pressure</span> <span class="o">-</span> <span class="n">pressure</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Delta Pressure_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">delta_pressure</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Delta Pressure ACF_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">delta_pressure</span><span class="p">,</span> <span class="n">delta_pressure</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">dim_lbl</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">dim_lbl</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Calculate the acf of the pressure tensor</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ax1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dim_lbl</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ax2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dim_lbl</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">pt_str</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{}{}</span><span class="s2">_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pressure_tensor_temp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
+
+                    <span class="n">pressure_tensor_acf_temp</span> <span class="o">=</span> <span class="n">correlationfunction</span><span class="p">(</span><span class="n">pressure_tensor_temp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:],</span>
+                                                                   <span class="n">pressure_tensor_temp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">pt_acf_str</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{}{}</span><span class="s2">_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pressure_tensor_acf_temp</span>
+
+            <span class="n">start_slice</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
+            <span class="n">end_slice</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span>
+
+        <span class="n">col_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Pressure_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure_Mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure_Std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">col_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Pressure ACF_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure ACF_Mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Pressure ACF_Std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">col_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Delta Pressure_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Delta Pressure_Mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Delta Pressure_Std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">col_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Delta Pressure ACF_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Delta Pressure ACF_Mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Delta Pressure ACF_Std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">col_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Average and std over the slices</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ax1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dim_lbl</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ax2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dim_lbl</span><span class="p">):</span>
+                <span class="n">ij_col_str</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt_str</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{}{}</span><span class="s2">_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">pt_str</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{}{}</span><span class="s2">_Mean&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">ij_col_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">pt_str</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{}{}</span><span class="s2">_Std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">ij_col_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">ij_col_acf_str</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt_acf_str</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{}{}</span><span class="s2">_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">isl</span><span class="p">)</span> <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">)]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">pt_acf_str</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{}{}</span><span class="s2">_Mean&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">ij_col_acf_str</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">pt_acf_str</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{}{}</span><span class="s2">_Std&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="n">ij_col_acf_str</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create the columns for the HDF df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename_hdf</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="n">tend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_stamp</span><span class="p">(</span><span class="s2">&quot;Pressure Tensor and its ACF Calculation&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">time_division</span><span class="p">(</span><span class="n">tend</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="PressureTensor.pretty_print"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.PressureTensor.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print observable parameters for help in choice of simulation parameters.&quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="si">{:=^70}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__long_name__</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data saved in: </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename_hdf</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data accessible at: self.dataframe&#39;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">No. of slices = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">no_slices</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. dumps per slice = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_step</span><span class="p">))</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time interval of autocorrelation function = </span><span class="si">{:.4e}</span><span class="s1"> [s] ~ </span><span class="si">{}</span><span class="s1"> w_p T&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">)))</span></div></div>
+
+
 <div class="viewcode-block" id="VelocityDistribution"><a class="viewcode-back" href="../../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityDistribution">[docs]</a><span class="k">class</span> <span class="nc">VelocityDistribution</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Moments of the velocity distributions defined as</span>
@@ -2673,18 +2812,20 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        curve_fit_kwargs</span>
-<span class="sd">        hist_kwargs : dict, optional</span>
-<span class="sd">            Dictionary of keyword arguments to pass to ``np.histogram`` for the calculation of the distributions.</span>
+<span class="sd">        params : sarkas.core.Parameters</span>
+<span class="sd">            Simulation&#39;s parameters.</span>
 
-<span class="sd">        phase : str</span>
+<span class="sd">        phase : str, optional</span>
 <span class="sd">            Phase to compute. Default = &#39;production&#39;.</span>
 
 <span class="sd">        max_no_moment : int</span>
 <span class="sd">            Maximum number of moments to calculate. Default = 6.</span>
 
-<span class="sd">        params : sarkas.core.Parameters</span>
-<span class="sd">            Simulation&#39;s parameters.</span>
+<span class="sd">        hist_kwargs : dict, optional</span>
+<span class="sd">            Dictionary of keyword arguments to pass to ``np.histogram`` for the calculation of the distributions.</span>
+
+<span class="sd">        curve_fit_kwargs: dict, optional</span>
+<span class="sd">            Dictionary of keyword arguments to pass to ``scipy.curve_fit`` for fitting of Hermite coefficients.</span>
 
 <span class="sd">        **kwargs :</span>
 <span class="sd">            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``</span>
@@ -3202,7 +3343,7 @@
                             <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">rms</span><span class="p">:</span> <span class="n">grad_expansion</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rms</span><span class="p">,</span> <span class="n">h_coeff</span><span class="p">),</span>
                             <span class="n">v_bins</span> <span class="o">/</span> <span class="n">vrms</span><span class="p">,</span>
                             <span class="n">dist</span> <span class="o">/</span> <span class="n">norm</span><span class="p">,</span>
-                            <span class="n">maxfev</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># TODO: let the user pass curve_fit arguments.</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">curve_fit_kwargs</span><span class="p">)</span>
 
                         <span class="n">vrms</span> <span class="o">*=</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -3616,11 +3757,11 @@
     <span class="c1"># Rescale vel and acc of each particle by their individual mass</span>
     <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_np</span><span class="p">):</span>
         <span class="n">sp_end</span> <span class="o">+=</span> <span class="n">num</span>
-        <span class="n">vel</span><span class="p">[:,</span> <span class="n">sp_start</span><span class="p">:</span> <span class="n">sp_end</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">species_mass</span><span class="p">[</span><span class="n">sp</span><span class="p">])</span>
-        <span class="n">acc</span><span class="p">[:,</span> <span class="n">sp_start</span><span class="p">:</span> <span class="n">sp_end</span><span class="p">]</span> <span class="o">*=</span> <span class="n">species_mass</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>  <span class="c1"># force</span>
+        <span class="n">vel</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span> <span class="n">sp_end</span><span class="p">,:]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">species_mass</span><span class="p">[</span><span class="n">sp</span><span class="p">])</span>
+        <span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span> <span class="n">sp_end</span><span class="p">,:]</span> <span class="o">*=</span> <span class="n">species_mass</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>  <span class="c1"># force</span>
         <span class="n">sp_start</span> <span class="o">+=</span> <span class="n">num</span>
 
-    <span class="n">pressure_tensor</span> <span class="o">=</span> <span class="p">(</span><span class="n">vel</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span> <span class="o">+</span> <span class="n">pos</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">acc</span><span class="p">))</span> <span class="o">/</span> <span class="n">box_volume</span>
+    <span class="n">pressure_tensor</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span> <span class="o">@</span> <span class="n">vel</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">@</span> <span class="n">acc</span><span class="p">)</span> <span class="o">/</span> <span class="n">box_volume</span>
     <span class="n">pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">pressure_tensor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
 
     <span class="k">return</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">pressure_tensor</span>
@@ -4642,7 +4783,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 07, 2021.<br/>
+      Last updated on Jun 14, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>

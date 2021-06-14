@@ -168,7 +168,7 @@ If False it will read in the data from the dataframe.</p></li>
 <dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1828.g3f67dc3308)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+5.ge3d57c983b)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -189,7 +189,7 @@ If False it will read in the data from the dataframe.</p></li>
 <dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1828.g3f67dc3308)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+5.ge3d57c983b)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -216,15 +216,29 @@ If False it will read in the data from the dataframe.</p></li>
 <dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1828.g3f67dc3308)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+5.ge3d57c983b)">pandas.DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficient.pretty_print">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">pretty_print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tc_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print to screen the location where data is stored and other relevant information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observable</strong> (<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><em>sarkas.tools.observables.Observable</em></a>) – Physical quantity of the ACF.</p></li>
+<li><p><strong>tc_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of Transport coefficient to calculate.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficient.viscosity">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'production'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient.viscosity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient.viscosity" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO: Calculate bulk and shear viscosity from pressure auto-correlation function.</p>
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'production'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_quantities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Bulk</span> <span class="pre">Viscosity']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient.viscosity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient.viscosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate bulk and shear viscosity from pressure auto-correlation function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -237,7 +251,7 @@ If False it will read in the data from the dataframe.</p></li>
 <dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.3.0.dev0+1828.g3f67dc3308)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+5.ge3d57c983b)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -259,7 +273,7 @@ If False it will read in the data from the dataframe.</p></li>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 07, 2021.<br/>
+      Last updated on Jun 14, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>

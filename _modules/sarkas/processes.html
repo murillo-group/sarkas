@@ -648,17 +648,17 @@
 
         <span class="k">if</span> <span class="n">pppm_estimate</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">timing_study</span><span class="p">:</span>
-                <span class="n">input_rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span>
-                <span class="n">input_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">)</span>
-                <span class="n">input_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">timing_study</span> <span class="o">=</span> <span class="n">timing_study</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">make_timing_plots</span><span class="p">()</span>
 
                 <span class="c1"># Reset the original values.</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="n">input_rc</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">input_mesh</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">=</span> <span class="n">input_alpha</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_rc</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_mesh</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_alpha</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">pppm_approximation</span><span class="p">()</span>
@@ -895,6 +895,10 @@
         <span class="n">clb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Force Error  [$Q^2/ a_{\rm ws}^2$]&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
         <span class="n">CS2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">CS</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">CS2</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%1.0e</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">input_Nc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_rc</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">input_Nc</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="c1"># ax1.scatter(self.input_mesh[1], input_Nc, s=200, c=&#39;k&#39;)</span>
+        <span class="c1"># ax1.scatter(self.input_mesh[2], input_Nc, s=200, c=&#39;k&#39;)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Mesh size&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;N_c = Cells&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Force Error Map&#39;</span><span class="p">)</span>
@@ -917,7 +921,7 @@
         <span class="n">clb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">luxnorm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">luxmap</span><span class="p">),</span>
                            <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
         <span class="n">clb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;CPU Time [s]&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
-
+        <span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">input_Nc</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Mesh size&#39;</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Timing Map&#39;</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fig_path</span><span class="p">,</span> <span class="s1">&#39;ForceErrorMap_v_Timing_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">))</span></div>
@@ -1508,7 +1512,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 07, 2021.<br/>
+      Last updated on Jun 14, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
     </p>
   </div>

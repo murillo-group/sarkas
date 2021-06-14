@@ -55,7 +55,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "\u001B[38;2;24;69;49m\n",
+      "\u001b[38;2;24;69;49m\n",
       "\n",
       "\n",
       "\n",
@@ -70,7 +70,7 @@
       "|_______/    /__/     \\__\\ | _| `._____||__|\\__\\ /__/     \\__\\ |_______/    \n",
       "                                                                            \n",
       "\n",
-      "\u001B[0m\n",
+      "\u001b[0m\n",
       "An open-source pure-python molecular dynamics suite for non-ideal plasmas.\n",
       "\n",
       "\n",
