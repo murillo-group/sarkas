@@ -24,6 +24,9 @@ class Potential:
     rc : float
         Cutoff radius.
 
+    rs : float
+        Short-range cutoff to fix divergence of the Coulomb potential
+
     type : str
         Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.
 
@@ -102,6 +105,7 @@ class Potential:
         self.pbox_lengths = 0.0
         self.box_volume = 0.0
         self.pbox_volume = 0.0
+        self.rs = 0.0
         self.fourpie0 = 0.0
         self.QFactor = 0.0
         self.total_net_charge = 0.0
@@ -153,7 +157,7 @@ class Potential:
                 self.linked_list_on = False  # linked list off
 
         # Check for electrons as dynamical species
-        if self.type.lower() == 'qsp':
+        if self.type.lower() == 'qsp' or self.type.lower() == 'coulomb':
             mask = params.species_names == 'e'
             self.electron_temperature = params.species_temperatures[mask]
             params.ne = float(params.species_num_dens[mask])
