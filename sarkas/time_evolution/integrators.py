@@ -47,6 +47,9 @@ class Integrator:
     box_lengths: numpy.ndarray
         Length of each box side.
 
+    pbox_lengths: numpy.ndarray
+        Initial particle box sides' lengths.
+
     verbose: bool
         Verbose output flag.
 
@@ -79,6 +82,7 @@ class Integrator:
         self.update = None
         self.species_num = None
         self.box_lengths = None
+        self.pbox_lengths = None
         self.boundary_conditions = None
         self.verbose = False
         self.supported_boundary_conditions = ['periodic', 'absorbing']
@@ -121,6 +125,7 @@ class Integrator:
 
         """
         self.box_lengths = np.copy(params.box_lengths)
+        self.pbox_lengths = np.copy(params.pbox_lengths)
         self.kB = params.kB
         self.species_num = np.copy(params.species_num)
         self.boundary_conditions = params.boundary_conditions
