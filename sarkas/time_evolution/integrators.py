@@ -79,7 +79,9 @@ class Integrator:
         self.update = None
         self.species_num = None
         self.box_lengths = None
+        self.boundary_conditions = None
         self.verbose = False
+        self.supported_boundary_conditions = ['periodic', 'absorbing']
         self.supported_integrators = ['verlet', 'verlet_langevin', 'magnetic_verlet', 'magnetic_boris']
 
     # def __repr__(self):
@@ -121,6 +123,7 @@ class Integrator:
         self.box_lengths = np.copy(params.box_lengths)
         self.kB = params.kB
         self.species_num = np.copy(params.species_num)
+        self.boundary_conditions = params.boundary_conditions
         self.verbose = params.verbose
 
         if self.dt is None:
@@ -143,6 +146,8 @@ class Integrator:
                 self.eq_dump_step = params.eq_dump_step
             else:
                 self.eq_dump_step = int(0.1 * self.equilibration_steps)
+
+        assert self.boundary_conditions.lower() in self.supported_boundary_conditions, 'Wrong choice of boundary condition.'
 
         assert self.type.lower() in self.supported_integrators, 'Wrong integrator choice.'
 
@@ -323,8 +328,11 @@ class Integrator:
                                              + 0.5 * self.dt ** 2 * ptcls.acc[sp_start:sp_end, :] \
                                              + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
 
-        # Periodic boundary condition
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        # Enforce boundary condition
+        if self.boundary_conditions.lower() == "periodic":
+            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        if self.boundary_conditions.lower() == "absorbing":
+            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
 
         acc_old = np.copy(ptcls.acc)
         self.update_accelerations(ptcls)
@@ -357,8 +365,12 @@ class Integrator:
         # Full step position update
         ptcls.pos += ptcls.vel * self.dt
 
-        # Periodic boundary condition
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        # Enforce boundary condition
+        if self.boundary_conditions.lower() == "periodic":
+            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        if self.boundary_conditions.lower() == "absorbing":
+            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+
         # Compute total potential energy and acceleration for second half step velocity update
         self.update_accelerations(ptcls)
 
@@ -429,8 +441,11 @@ class Integrator:
         # Position update
         ptcls.pos += ptcls.vel * self.dt
 
-        # Periodic boundary condition
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        # Enforce boundary condition
+        if self.boundary_conditions.lower() == "periodic":
+            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        if self.boundary_conditions.lower() == "absorbing":
+            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -501,8 +516,11 @@ class Integrator:
         # Position update
         ptcls.pos += ptcls.vel * self.dt
 
-        # Periodic boundary condition
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        # Enforce boundary condition
+        if self.boundary_conditions.lower() == "periodic":
+            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        if self.boundary_conditions.lower() == "absorbing":
+            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -583,8 +601,11 @@ class Integrator:
         # Full step position update
         ptcls.pos += ptcls.vel * self.dt
 
-        # Periodic boundary condition
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        # Enforce boundary condition
+        if self.boundary_conditions.lower() == "periodic":
+            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        if self.boundary_conditions.lower() == "absorbing":
+            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -632,8 +653,11 @@ class Integrator:
         # Full step position update
         ptcls.pos += ptcls.vel * self.dt
 
-        # Periodic boundary condition
-        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        # Enforce boundary condition
+        if self.boundary_conditions.lower() == "periodic":
+            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+        if self.boundary_conditions.lower() == "absorbing":
+            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -807,6 +831,48 @@ def enforce_pbc(pos, cntr, BoxVector):
             if pos[p, d] < 0.0:
                 pos[p, d] += BoxVector[d]
                 cntr[p, d] -= 1
+
+
+@njit
+def enforce_abc(pos, vel, acc, charges, BoxVector):
+    """ 
+    Enforce Absorbing Boundary conditions. 
+
+    Parameters
+    ----------
+    pos: numpy.ndarray
+        Particles' positions.
+
+    vel : numpy.ndarray
+        Particles' velocities.
+
+    acc : numpy.ndarray
+        Particles' accelerations.
+		
+    charges : numpy.ndarray
+        Charge of each particle. Shape = (``total_num_ptcls``).
+
+    BoxVector: numpy.ndarray
+        Box Dimensions.
+
+    """
+
+    # Loop over all particles
+    for p in np.arange(pos.shape[0]):
+        for d in np.arange(pos.shape[1]):
+
+            # If particle is outside of box in positive direction, remove charge, velocity and acceleration
+            if pos[p, d] >= BoxVector[d]:
+                pos[p, d] = BoxVector[d]
+                vel[p, :] = np.zeros(3)
+                acc[p, :] = np.zeros(3)
+                charges[p] = 0.0
+            # If particle is outside of box in negative direction, remove charge, velocity and acceleration
+            if pos[p, d] <= 0.0:
+                pos[p, d] = 0.0
+                vel[p, :] = np.zeros(3)
+                acc[p, :] = np.zeros(3)
+                charges[p] = 0.0
 
 
 @njit
