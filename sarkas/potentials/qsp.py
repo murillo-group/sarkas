@@ -108,7 +108,7 @@ def update_params(potential, params):
         # Calculate the PP Force error from the e-e diffraction term only.
         params.pppm_pp_err = np.sqrt(two_pi * potential.matrix[1, 0, 0])
         params.pppm_pp_err *= np.exp(- potential.rc * potential.matrix[1, 0, 0])
-        params.pppm_pp_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+        params.pppm_pp_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume) # TODO: Rather use pbox_volume here?
 
     elif potential.qsp_type.lower() == "kelbg":
         potential.force = kelbg_force
