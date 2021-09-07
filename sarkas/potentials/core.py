@@ -99,7 +99,9 @@ class Potential:
         self.force_error = None
         self.measure = False
         self.box_lengths = 0.0
+        self.pbox_lengths = 0.0
         self.box_volume = 0.0
+        self.pbox_volume = 0.0
         self.fourpie0 = 0.0
         self.QFactor = 0.0
         self.total_net_charge = 0.0
@@ -215,7 +217,9 @@ class Potential:
 
         # Copy needed parameters
         self.box_lengths = np.copy(params.box_lengths)
+        self.pbox_lengths = np.copy(params.pbox_lengths)
         self.box_volume = params.box_volume
+        self.pbox_volume = params.pbox_volume
         self.fourpie0 = params.fourpie0
         self.QFactor = params.QFactor
         self.total_net_charge = params.total_net_charge
