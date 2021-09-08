@@ -27,6 +27,11 @@ def update_params(potential, params):
     Coulomb_matrix[1,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
                             Short-range cutoff in case of PP Algorithm. Same value for all species
     """
+
+    # Default attributes
+    if not hasattr(potential, 'rs'):
+        potential.rs = 0.0
+
     potential.matrix = np.zeros((2, params.num_species, params.num_species))
 
     for i, q1 in enumerate(params.species_charges):
@@ -105,9 +110,10 @@ def coulomb_force(r, pot_matrix):
 
     """
 
-    rs = pot_matrix[1] # Short-range cutoff
+    # Short-range cutoff to deal with divergence of the Coulomb potential
+    rs = pot_matrix[1]
 
-    if r <= rs:
+    if r < rs:
         U = pot_matrix[0] / rs
         fr = U / rs
     else:

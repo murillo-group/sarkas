@@ -907,6 +907,7 @@ class InputOutput:
 
         elif simulation.potential.type.lower() == 'coulomb':
             print('Effective Coupling constant: Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
+            print('Short-range Cutoff radius: rs = {:.6e}'.format(simulation.potential.rs))
             # simulation.parameters.pretty_print()
 
         elif simulation.potential.type.lower() == 'lj':
