@@ -794,7 +794,7 @@ class Integrator:
 
 
 @njit
-def enforce_pbc(pos, _, _, _, cntr, BoxVector):
+def enforce_pbc(pos, vel, acc, charges, cntr, BoxVector):
     """ 
     Enforce Periodic Boundary conditions. 
 
@@ -811,6 +811,9 @@ def enforce_pbc(pos, _, _, _, cntr, BoxVector):
 
     """
 
+    # Delete unused aruments
+    del vel, acc, charges
+
     # Loop over all particles
     for p in np.arange(pos.shape[0]):
         for d in np.arange(pos.shape[1]):
@@ -826,7 +829,7 @@ def enforce_pbc(pos, _, _, _, cntr, BoxVector):
 
 
 @njit
-def enforce_abc(pos, vel, acc, charges, _, BoxVector):
+def enforce_abc(pos, vel, acc, charges, cntr, BoxVector):
     """ 
     Enforce Absorbing Boundary conditions. 
 
@@ -848,6 +851,9 @@ def enforce_abc(pos, vel, acc, charges, _, BoxVector):
         Box Dimensions.
 
     """
+
+    # Delete unused aruments
+    del cntr
 
     # Loop over all particles
     for p in np.arange(pos.shape[0]):
