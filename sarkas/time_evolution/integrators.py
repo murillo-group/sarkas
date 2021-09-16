@@ -54,13 +54,16 @@ class Integrator:
         Integrator type.
 
     update: func
-        Integrator choice. 'verlet' or 'magnetic_verlet'.
+        Integrator choice. 'verlet', 'verlet_langevin', 'magnetic_verlet' or 'magnetic_boris'.
 
     update_accelerations: func
         Link to the correct potential update function.
 
     thermostate: func
         Link to the correct thermostat function.
+
+    enforce_bc: func
+        Link to the function enforcing boundary conditions. 'periodic' or 'absorbing'.
 
     """
 
@@ -80,6 +83,7 @@ class Integrator:
         self.species_num = None
         self.box_lengths = None
         self.boundary_conditions = None
+        self.enforce_bc = None
         self.verbose = False
         self.supported_boundary_conditions = ['periodic', 'absorbing']
         self.supported_integrators = ['verlet', 'verlet_langevin', 'magnetic_verlet', 'magnetic_boris']
@@ -148,6 +152,12 @@ class Integrator:
                 self.eq_dump_step = int(0.1 * self.equilibration_steps)
 
         assert self.boundary_conditions.lower() in self.supported_boundary_conditions, 'Wrong choice of boundary condition.'
+
+        # Assign integrator.enforce_bc to the correct method
+        if self.boundary_conditions.lower() == "periodic":
+            self.enforce_bc = self.enforce_pbc
+        elif self.boundary_conditions.lower() == "absorbing":
+            self.enforce_bc = self.enforce_abc
 
         assert self.type.lower() in self.supported_integrators, 'Wrong integrator choice.'
 
@@ -329,10 +339,7 @@ class Integrator:
                                              + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, ptcls.pbc_cntr, self.box_lengths)
 
         acc_old = np.copy(ptcls.acc)
         self.update_accelerations(ptcls)
@@ -366,10 +373,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, ptcls.pbc_cntr, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         self.update_accelerations(ptcls)
@@ -442,10 +446,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, ptcls.pbc_cntr, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -517,10 +518,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, ptcls.pbc_cntr, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -602,10 +600,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, ptcls.pbc_cntr, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -654,10 +649,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, ptcls.pbc_cntr, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -802,7 +794,7 @@ class Integrator:
 
 
 @njit
-def enforce_pbc(pos, cntr, BoxVector):
+def enforce_pbc(pos, _, _, _, cntr, BoxVector):
     """ 
     Enforce Periodic Boundary conditions. 
 
@@ -834,7 +826,7 @@ def enforce_pbc(pos, cntr, BoxVector):
 
 
 @njit
-def enforce_abc(pos, vel, acc, charges, BoxVector):
+def enforce_abc(pos, vel, acc, charges, _, BoxVector):
     """ 
     Enforce Absorbing Boundary conditions. 
 
