@@ -1,4 +1,4 @@
-""" 
+"""
 Module for handling Coulomb interaction
 """
 
@@ -39,12 +39,12 @@ def update_params(potential, params):
     # PP force error calculation. Note that the equation was derived for a single component plasma.
     alpha_times_rcut = - (potential.pppm_alpha_ewald * potential.rc) ** 2
     params.pppm_pp_err = 2.0 * np.exp(alpha_times_rcut) / np.sqrt(potential.rc)
-    params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 / np.sqrt(params.box_volume)
+    params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 / np.sqrt(params.pbox_volume)
 
 
 @njit
 def coulomb_force_pppm(r, pot_matrix):
-    """ 
+    """
     Calculate Potential and Force between two particles when the P3M algorithm is chosen.
 
     Parameters
@@ -59,10 +59,10 @@ def coulomb_force_pppm(r, pot_matrix):
     -------
     U_s_r : float
         Potential value.
-                
+
     fr : float
-        Force between two particles. 
-    
+        Force between two particles.
+
     """
 
     alpha = pot_matrix[1]  # Ewald parameter alpha

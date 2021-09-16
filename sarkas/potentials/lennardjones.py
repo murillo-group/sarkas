@@ -48,18 +48,18 @@ def update_params(potential, params):
     deriv_exp = (potential.powers[0] + 1)
     params.force_error = np.sqrt(np.pi * sigma2 ** potential.powers[0])
     params.force_error /= np.sqrt(deriv_exp * potential.rc ** deriv_exp)
-    params.force_error *= np.sqrt(params.total_num_ptcls / params.box_volume) * params.a_ws ** 2
+    params.force_error *= np.sqrt(params.total_num_ptcls / params.pbox_volume) * params.a_ws ** 2
 
 
 @nb.njit
 def lj_force(r, pot_matrix_ij):
     """
     Calculates the PP force between particles using Lennard-Jones Potential.
-    
+
     Parameters
     ----------
     pot_matrix_ij : array
-        LJ potential parameters. 
+        LJ potential parameters.
 
     r : float
         Particles' distance.
@@ -80,7 +80,7 @@ def lj_force(r, pot_matrix_ij):
     pot_matrix[1] = sigmas
     pot_matrix[2] = highest power
     pot_matrix[3] = lowest power
-    
+
     """
 
     epsilon = pot_matrix_ij[0]
