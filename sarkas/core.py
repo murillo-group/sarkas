@@ -492,9 +492,11 @@ class Parameters:
             self.LPy = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
             self.LPz = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
 
-        if self.Lx == 0 or self.Ly == 0 or self.Lz == 0:
+        if self.Lx == 0:
             self.Lx = self.LPx
+        if self.Ly == 0:
             self.Ly = self.LPy
+        if self.Lz == 0:
             self.Lz = self.LPz
 
         self.pbox_lengths = np.array([self.LPx, self.LPy, self.LPz])  # initial particle box length vector
