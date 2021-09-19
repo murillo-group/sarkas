@@ -22,6 +22,9 @@ def update_params(potential, params):
 
     twopi = 2.0 * np.pi
 
+    # Default attributes
+    if not hasattr(potential, 'rs'):
+        potential.rs = 0.0
     # lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi
     if not hasattr(potential, 'lmbda'):
         potential.lmbda = 1.0 / 9.0
@@ -68,7 +71,7 @@ def update_params(potential, params):
         params.gamma_p = params.lambda_TF * np.sqrt(params.nu / (np.sqrt(params.nu) + b))
         params.alphap = b / np.sqrt(params.nu - b)
 
-    potential.matrix = np.zeros((6, params.num_species, params.num_species))
+    potential.matrix = np.zeros((7, params.num_species, params.num_species))
 
     potential.matrix[1, :, :] = params.nu
 
@@ -90,26 +93,28 @@ def update_params(potential, params):
                 potential.matrix[4, i, j] = 1.0 / params.gamma_m
                 potential.matrix[5, i, j] = 1.0 / params.gamma_p
 
+    potential.matrix[6, :, :] = potential.rs
+
     assert potential.method == "PP", "P3M Algorithm not implemented yet. Good Bye!"
 
     potential.force = egs_force
     params.force_error = np.sqrt(twopi / params.lambda_TF) * np.exp(-potential.rc / params.lambda_TF)
     # Renormalize
-    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
 
 
 @njit
 def egs_force(r, pot_matrix):
-    """ 
+    """
     Calculates Potential and force between particles using the EGS Potential.
-    
+
     Parameters
     ----------
     r : float
         Particles' distance.
 
     pot_matrix : array
-        EGS potential parameters. 
+        EGS potential parameters.
 
     Return
     ------
@@ -121,6 +126,11 @@ def egs_force(r, pot_matrix):
         Force.
 
     """
+
+    rs = pot_matrix[6]
+    if r < rs:
+        r = rs
+
     # nu = pot_matrix[1]
     if pot_matrix[1] <= 1.0:
         # pot_matrix[0] = Charge factor = q^2/4pi eps0 if mks q^2 if cgs

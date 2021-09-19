@@ -44,6 +44,7 @@ def update_params(potential, params):
     QSP_matrix[2,:,:] = e-e Pauli term factor
     QSP_matrix[3,:,:] = e-e Pauli term exponent term
     QSP_matrix[4,:,:] = Ewald parameter
+    QSP_matrix[5,:,:] = Short-range cutoff
     """
     # Do a bunch of checks
     # P3M algorithm only
@@ -57,6 +58,8 @@ def update_params(potential, params):
         potential.qsp_type = 'Deutsch'
     if not hasattr(potential, 'qsp_pauli'):
         potential.qsp_pauli = True
+    if not hasattr(potential, 'rs'):
+        potential.rs = 0.0
 
     two_pi = 2.0 * np.pi
     four_pi = 2.0 * two_pi
@@ -72,7 +75,7 @@ def update_params(potential, params):
 
     deBroglie_const = two_pi * params.hbar2 / params.kB
 
-    QSP_matrix = np.zeros((5, params.num_species, params.num_species))
+    QSP_matrix = np.zeros((6, params.num_species, params.num_species))
     for i, name1 in enumerate(params.species_names):
         m1 = params.species_masses[i]
         q1 = params.species_charges[i]
@@ -101,6 +104,7 @@ def update_params(potential, params):
         QSP_matrix[2, :, :] = 0.0
 
     QSP_matrix[4, :, :] = potential.pppm_alpha_ewald
+    QSP_matrix[5, :, :] = potential.rs
     potential.matrix = QSP_matrix
 
     if potential.qsp_type.lower() == "deutsch":
@@ -108,7 +112,7 @@ def update_params(potential, params):
         # Calculate the PP Force error from the e-e diffraction term only.
         params.pppm_pp_err = np.sqrt(two_pi * potential.matrix[1, 0, 0])
         params.pppm_pp_err *= np.exp(- potential.rc * potential.matrix[1, 0, 0])
-        params.pppm_pp_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume) # TODO: Rather use pbox_volume here?
+        params.pppm_pp_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
 
     elif potential.qsp_type.lower() == "kelbg":
         potential.force = kelbg_force
@@ -119,7 +123,7 @@ def update_params(potential, params):
 
 @njit
 def deutsch_force(r, pot_matrix):
-    """ 
+    """
     Calculate Deutsch QSP Force between two particles.
 
     Parameters
@@ -134,12 +138,13 @@ def deutsch_force(r, pot_matrix):
         pot_matrix[2,:,:] = e-e Pauli term factor
         pot_matrix[3,:,:] = e-e Pauli term exponent term
         pot_matrix[4,:,:] = Ewald parameter
+        pot_matrix[5,:,:] = Short-range cutoff
 
     Returns
     -------
     U : float
         Potential.
-                
+
     force : float
         Force between two particles.
 
@@ -150,6 +155,10 @@ def deutsch_force(r, pot_matrix):
     D = pot_matrix[2]
     F = pot_matrix[3]
     alpha = pot_matrix[4]
+    rs = pot_matrix[5]
+
+    if r < rs:
+        r = rs
 
     a2 = alpha * alpha
     r2 = r * r
@@ -176,7 +185,7 @@ def deutsch_force(r, pot_matrix):
 
 @njit
 def kelbg_force(r, pot_matrix):
-    """ 
+    """
     Calculates the QSP Force between two particles when the P3M algorithm is chosen.
 
     Parameters
@@ -191,15 +200,16 @@ def kelbg_force(r, pot_matrix):
         pot_matrix[2] = e-e Pauli term factor
         pot_matrix[3] = e-e Pauli term exponent term
         pot_matrix[4] = Ewald parameter
+        pot_matrix[5] = Short-range cutoff
 
     Returns
     -------
     U : float
         Potential.
-                
+
     force : float
         Force between two particles.
-    
+
     """
 
     A = pot_matrix[0]
@@ -207,6 +217,11 @@ def kelbg_force(r, pot_matrix):
     D = pot_matrix[2]
     F = pot_matrix[3]
     alpha = pot_matrix[4]
+    rs = pot_matrix[5]
+
+    if r < rs:
+        r = rs
+
     C2 = C * C
     a2 = alpha * alpha
     r2 = r * r

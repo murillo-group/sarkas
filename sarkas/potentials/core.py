@@ -401,15 +401,15 @@ class Potential:
 
         # P3M parameters
         self.pppm_h_array = params.box_lengths / self.pppm_mesh
-        
+
         self.matrix[-1, :, :] = self.pppm_alpha_ewald
-        # Pack constants together for brevity in input list 
+        # Pack constants together for brevity in input list
         kappa = 1. / params.lambda_TF if self.type == "Yukawa" else 0.0
         constants = np.array([kappa, self.pppm_alpha_ewald, params.fourpie0])
         # Calculate the Optimized Green's Function
         self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
             params.box_lengths, self.pppm_mesh, self.pppm_aliases, self.pppm_cao, constants)
-        
+
         # Complete PM Force error calculation
         params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
         params.pppm_pm_err /= params.box_volume ** (2. / 3.)

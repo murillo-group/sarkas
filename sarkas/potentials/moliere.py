@@ -38,21 +38,21 @@ def update_params(potential, params):
     params.force_error = np.sqrt(2.0 * np.pi / potential.screening_lengths.min()) \
                     * np.exp(- potential.rc / potential.screening_lengths.min())
     # Renormalize
-    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
 
 
 @nb.njit
 def moliere_force(r, pot_matrix):
-    """ 
+    """
     Calculates the PP force between particles using the Moliere Potential.
-    
+
     Parameters
     ----------
     r : float
         Particles' distance.
 
     pot_matrix : numpy.ndarray
-        Moliere potential parameters. 
+        Moliere potential parameters.
 
 
     Returns

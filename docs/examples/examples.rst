@@ -66,6 +66,15 @@ Examples
 
     <div class="ex-thumbcontainer">
     <div class="figure align-default">
+        <img src="../_images/examples_Ultrafast_EC_Validation_1_0.png" alt="">
+        <p class="caption">
+            <span class="text-center"><a href="UNP/Ultrafast_EC_Validation.html">Ultrafast Electron Cooling</a></span>
+        </p>
+    </div>
+    </div>
+
+    <div class="ex-thumbcontainer">
+    <div class="figure align-default">
         <img src="../_images/examples_Moliere_Moliere_Simulation_9_1.png" alt="">
         <p class="caption">
             <span class="text-center"><a href="Moliere/Moliere_Simulation.html">Moliere Potential</a></span>
@@ -81,5 +90,6 @@ Examples
     QSP/QSP_Tutorial
     Magnetized_OCP/Magnetized_Plasma
     UNP/UCP_Experiment_Validation
+    Ultrafast_EC/Ultrafast_EC_Validation
     Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential
     Moliere/Moliere_Simulation
