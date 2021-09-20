@@ -105,7 +105,6 @@ class Potential:
         self.pbox_lengths = 0.0
         self.box_volume = 0.0
         self.pbox_volume = 0.0
-        self.rs = 0.0
         self.fourpie0 = 0.0
         self.QFactor = 0.0
         self.total_net_charge = 0.0
