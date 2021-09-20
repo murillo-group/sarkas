@@ -135,8 +135,8 @@ parameters defined in previous sections. The second instance is the value of the
 - ``random_reject`` for a uniform spatial distribution but with a minimum distance between particles
 - ``halton``
 
-Next we define the ``boundary_conditions`` of our simulation. At the moment Sarkas supports only ``periodic`` boundary
-conditions. 
+Next we define the ``boundary_conditions`` of our simulation. At the moment Sarkas supports only ``periodic`` and
+``absorbing`` boundary conditions. 
 Future implementations of Sarkas accepting open and mixed boundary conditions will be available in the future.
 We accept pull request :) !
 
