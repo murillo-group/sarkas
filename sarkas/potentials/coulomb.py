@@ -28,10 +28,6 @@ def update_params(potential, params):
     Coulomb_matrix[2,i,j] : Short-range cutoff. Same value for all species
     """
 
-    # Default attributes
-    if not hasattr(potential, 'rs'):
-        potential.rs = 0.0
-
     potential.matrix = np.zeros((3, params.num_species, params.num_species))
 
     for i, q1 in enumerate(params.species_charges):

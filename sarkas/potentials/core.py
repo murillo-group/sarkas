@@ -24,6 +24,9 @@ class Potential:
     rc : float
         Cutoff radius.
 
+    rs : float
+        Short-range cutoff to deal with divergence of the potential for r -> 0.
+
     type : str
         Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.
 
@@ -102,6 +105,7 @@ class Potential:
         self.pbox_lengths = 0.0
         self.box_volume = 0.0
         self.pbox_volume = 0.0
+        self.rs = 0.0
         self.fourpie0 = 0.0
         self.QFactor = 0.0
         self.total_net_charge = 0.0
@@ -152,6 +156,11 @@ class Potential:
                 self.rc = params.box_lengths.min() / 2.
                 self.linked_list_on = False  # linked list off
 
+            if not hasattr(self, 'rs'):
+                self.rs = 0.0
+            else:
+                print("\nWARNING: Short-range cut-off of {:1.4e} enabled. Use this feature with care!".format(self.rs))
+
         # Check for electrons as dynamical species
         if self.type.lower() == 'qsp' or self.type.lower() == 'coulomb':
             mask = params.species_names == 'e'
@@ -187,6 +196,11 @@ class Potential:
         # Update potential-specific parameters
         # Coulomb potential
         if self.type.lower() == "coulomb":
+            if self.method.lower() == 'pp':
+                print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print("Use the PP method with care for pure Coulomb interactions.")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+
             from sarkas.potentials import coulomb
             coulomb.update_params(self, params)
         # Yukawa potential

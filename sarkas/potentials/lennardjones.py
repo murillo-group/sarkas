@@ -19,9 +19,6 @@ def update_params(potential, params):
 
     """
     potential.matrix = np.zeros((5, params.num_species, params.num_species))
-    # Default attributes
-    if not hasattr(potential, 'rs'):
-        potential.rs = 0.0
     # See Lima Physica A 391 4281 (2012) for the following definitions
     if not hasattr(potential, 'powers'):
         potential.powers = np.array([12, 6])

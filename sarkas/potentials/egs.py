@@ -22,9 +22,6 @@ def update_params(potential, params):
 
     twopi = 2.0 * np.pi
 
-    # Default attributes
-    if not hasattr(potential, 'rs'):
-        potential.rs = 0.0
     # lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi
     if not hasattr(potential, 'lmbda'):
         potential.lmbda = 1.0 / 9.0

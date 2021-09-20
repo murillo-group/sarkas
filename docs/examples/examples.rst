@@ -66,9 +66,9 @@ Examples
 
     <div class="ex-thumbcontainer">
     <div class="figure align-default">
-        <img src="../_images/examples_Ultrafast_EC_Validation_1_0.png" alt="">
+        <img src="../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_10_0.png" alt="">
         <p class="caption">
-            <span class="text-center"><a href="UNP/Ultrafast_EC_Validation.html">Ultrafast Electron Cooling</a></span>
+            <span class="text-center"><a href="Ultrafast_EC/Ultrafast_EC_Validation.html">Ultrafast Electron Cooling</a></span>
         </p>
     </div>
     </div>

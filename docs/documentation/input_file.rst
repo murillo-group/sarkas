@@ -35,6 +35,10 @@ Future developments of Sarkas are aiming to automatically calculate the degree o
 temperature of the system, but for now we need to define it. The parameters given here are not the only options,
 more information of all the possible inputs can be found in the page ``input file``.
 
+The initial velocity distribution can be set by ``initial_velocity_distribution`` and defaults to a ``boltzmann``
+distribution but can also be set to ``monochromatic`` where a fixed energy is applied to the particles with a random
+distribution of the directions.
+
 Interaction
 -----------
 The next section of the input file defines our interaction potential's parameters
@@ -43,7 +47,7 @@ The next section of the input file defines our interaction potential's parameter
 
     Potential:
         type: Yukawa
-        method: P3M                        # Particle-Particle Particle-Mesh
+        method: P3M                       # Particle-Particle Particle-Mesh
         kappa: 0.5
         rc: 2.79946255e-10                # [m]
         pppm_mesh: [64, 64, 64]
@@ -65,6 +69,12 @@ cartesian coordinates, ``pppm_aliases`` indicates the number of aliases for anti
 ``pppm_cao`` stands for Charge Order Parameter and indicates the number of mesh points per direction
 on which the each particle's charge is to distributed and finally ``pppm_alpha_ewald`` refers to
 the :math:`\alpha` parameter of the Gaussian charge cloud surrounding each particle.
+
+To deal with diverging potentials a short-range cut-off radius, ``rs``, can be specified. If specified, the potential
+:math:`U(r)` will be cut to :math:`U(rs)` for interparticle distances below ``rs``. This short-range cut-off is meant to
+suppress unphysical scenarios where fast particles emerge due to the potential going to infinity. However, this feature 
+should be used with great care as is can also screen the short-range part of the interaction to unphysical values. That
+is why the default value is zero so that the short-range cut-off is not in use.
 
 Integrator
 ----------
@@ -135,10 +145,14 @@ parameters defined in previous sections. The second instance is the value of the
 - ``random_reject`` for a uniform spatial distribution but with a minimum distance between particles
 - ``halton``
 
-Next we define the ``boundary_conditions`` of our simulation. At the moment Sarkas supports only ``periodic`` boundary
-conditions. 
+Next we define the ``boundary_conditions`` of our simulation. At the moment Sarkas supports only ``periodic`` and
+``absorbing`` boundary conditions. 
 Future implementations of Sarkas accepting open and mixed boundary conditions will be available in the future.
 We accept pull request :) !
+
+By specifying ``Lx``, ``Ly`` and ``Lz`` the simulation box can be specified explicitly and expanded with respect
+to the initial particle distribution. This moves the walls where boundary conditions are applied away from the
+initial particle volume.
 
 Input/Output
 ------------

@@ -58,8 +58,6 @@ def update_params(potential, params):
         potential.qsp_type = 'Deutsch'
     if not hasattr(potential, 'qsp_pauli'):
         potential.qsp_pauli = True
-    if not hasattr(potential, 'rs'):
-        potential.rs = 0.0
 
     two_pi = 2.0 * np.pi
     four_pi = 2.0 * two_pi

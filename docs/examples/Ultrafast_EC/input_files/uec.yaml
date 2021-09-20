@@ -23,16 +23,16 @@ Particles:
 Potential:
     type: Coulomb                     # potential type
     method: PP
-    rc: 25.0e-6                       # cut-off radius, m
+    rc: 100.0e-6                      # cut-off radius, m
     rs: 20.0e-9                       # short-range cutoff
 
 Integrator:
     type: verlet
-    dt: 100.0e-15                     # sec
+    dt: 50.0e-15                      # sec
     equilibration_steps: 0
     eq_dump_step: 10
-    production_steps: 300
-    prod_dump_step: 2
+    production_steps: 600
+    prod_dump_step: 4
 
 Thermostat:
     type: Berendsen                   #  thermostat type
@@ -43,9 +43,9 @@ Parameters:
     units: mks                        # SI units
     load_method: random_no_reject
     boundary_conditions: absorbing    # absorbing boundary conditions
-    Lx: 50.0e-6                       # size of extended simulation box
-    Ly: 50.0e-6
-    Lz: 50.0e-6
+    Lx: 200.0e-6                      # size of extended simulation box
+    Ly: 200.0e-6
+    Lz: 200.0e-6
     np_per_side: [16.0, 16.0, 31.25]  # elongated initial particle distribution
 
 IO:
