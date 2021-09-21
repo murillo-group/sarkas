@@ -108,7 +108,7 @@ def update_params(potential, params):
         # Calculate the PP Force error from the e-e diffraction term only.
         params.pppm_pp_err = np.sqrt(two_pi * potential.matrix[1, 0, 0])
         params.pppm_pp_err *= np.exp(- potential.rc * potential.matrix[1, 0, 0])
-        params.pppm_pp_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+        params.pppm_pp_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
 
     elif potential.qsp_type.lower() == "kelbg":
         potential.force = kelbg_force
@@ -119,7 +119,7 @@ def update_params(potential, params):
 
 @njit
 def deutsch_force(r, pot_matrix):
-    """ 
+    """
     Calculate Deutsch QSP Force between two particles.
 
     Parameters
@@ -139,7 +139,7 @@ def deutsch_force(r, pot_matrix):
     -------
     U : float
         Potential.
-                
+
     force : float
         Force between two particles.
 
@@ -176,7 +176,7 @@ def deutsch_force(r, pot_matrix):
 
 @njit
 def kelbg_force(r, pot_matrix):
-    """ 
+    """
     Calculates the QSP Force between two particles when the P3M algorithm is chosen.
 
     Parameters
@@ -196,10 +196,10 @@ def kelbg_force(r, pot_matrix):
     -------
     U : float
         Potential.
-                
+
     force : float
         Force between two particles.
-    
+
     """
 
     A = pot_matrix[0]

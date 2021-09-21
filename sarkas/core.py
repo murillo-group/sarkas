@@ -27,6 +27,9 @@ class Parameters:
     box_volume : float
         Volume of simulation box.
 
+    pbox_volume : float
+        Volume of initial particle box.
+
     dimensions : int
         Number of non-zero dimensions. Default = 3.
 
@@ -86,6 +89,24 @@ class Parameters:
 
     e3 : float
         Unit vector in the :math:`z` direction.
+
+    LPx : float
+        Initial particle box length in the :math:`x` direction.
+
+    LPy : float
+        Initial particle box length in the :math:`y` direction.
+
+    LPz : float
+        Initial particle box length in the :math:`z` direction.
+
+    ep1 : float
+        Unit vector of the initial particle box in the :math:`x` direction.
+
+    ep2 : float
+        Unit vector of the initial particle box in the :math:`y` direction.
+
+    ep3 : float
+        Unit vector of the initial particle box in the :math:`z` direction.
 
     input_file : str
         YAML Input file with all the simulation's parameters.
@@ -181,8 +202,13 @@ class Parameters:
         self.Lx = 0.0
         self.Ly = 0.0
         self.Lz = 0.0
+        self.LPx = 0.0
+        self.LPy = 0.0
+        self.LPz = 0.0
         self.box_lengths = np.zeros(3)
+        self.pbox_lengths = np.zeros(3)
         self.box_volume = 0.0
+        self.pbox_volume = 0.0
         self.dimensions = 3
         self.J2erg = 1.0e+7  # erg/J
         self.eps0 = const.epsilon_0
@@ -453,19 +479,27 @@ class Parameters:
         # Wigner-Seitz radius calculated from the total number density
         self.a_ws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
 
-        # Calculate simulation's box parameters
+        # Calculate initial particle's and simulation's box parameters
         if self.np_per_side:
             msg = "Number of particles per dimension does not match total number of particles."
             assert int(np.prod(self.np_per_side)) == self.total_num_ptcls, msg
 
-            self.Lx = self.a_ws * self.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Ly = self.a_ws * self.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
-            self.Lz = self.a_ws * self.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.LPx = self.a_ws * self.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.LPy = self.a_ws * self.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
+            self.LPz = self.a_ws * self.np_per_side[2] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
         else:
-            self.Lx = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
-            self.Ly = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
-            self.Lz = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.LPx = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.LPy = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
+            self.LPz = self.a_ws * (4.0 * np.pi * self.total_num_ptcls / 3.0) ** (1.0 / 3.0)
 
+        if self.Lx == 0:
+            self.Lx = self.LPx
+        if self.Ly == 0:
+            self.Ly = self.LPy
+        if self.Lz == 0:
+            self.Lz = self.LPz
+
+        self.pbox_lengths = np.array([self.LPx, self.LPy, self.LPz])  # initial particle box length vector
         self.box_lengths = np.array([self.Lx, self.Ly, self.Lz])  # box length vector
 
         # Dev Note: The following are useful for future geometries
@@ -473,7 +507,12 @@ class Parameters:
         self.e2 = np.array([0.0, self.Ly, 0.0])
         self.e3 = np.array([0.0, 0.0, self.Lz])
 
+        self.ep1 = np.array([self.LPx, 0.0, 0.0])
+        self.ep2 = np.array([0.0, self.LPy, 0.0])
+        self.ep3 = np.array([0.0, 0.0, self.LPz])
+
         self.box_volume = abs(np.dot(np.cross(self.e1, self.e2), self.e3))
+        self.pbox_volume = abs(np.dot(np.cross(self.ep1, self.ep2), self.ep3))
 
         self.dimensions = np.count_nonzero(self.box_lengths)  # no. of dimensions
         # Transform the list of species names into a np.array
@@ -510,7 +549,7 @@ class Parameters:
             Flag for printing electron properties. Default = True
 
         """
-        print("\nSIMULATION BOX:")
+        print("\nSIMULATION AND INITIAL PARTICLE BOX:")
         print('Units: ', self.units)
         print('Wigner-Seitz radius = {:.6e} '.format(self.a_ws), end='')
         print("[cm]" if self.units == "cgs" else "[m]")
@@ -530,6 +569,23 @@ class Parameters:
             end='')
         print("[cm]" if self.units == "cgs" else "[m]")
         print("Box Volume = {:.6e} ".format(self.box_volume), end='')
+        print("[cm^3]" if self.units == "cgs" else "[m^3]")
+
+        print('Initial particle box side along x axis = {:.6e} a_ws = {:.6e} '.format(
+            self.pbox_lengths[0] / self.a_ws, self.pbox_lengths[0]),
+            end='')
+        print("[cm]" if self.units == "cgs" else "[m]")
+
+        print('Initial particle box side along y axis = {:.6e} a_ws = {:.6e} '.format(
+            self.pbox_lengths[1] / self.a_ws, self.pbox_lengths[1]),
+            end='')
+        print("[cm]" if self.units == "cgs" else "[m]")
+
+        print('Initial particle box side along z axis = {:.6e} a_ws = {:.6e} '.format(
+            self.pbox_lengths[2] / self.a_ws, self.pbox_lengths[2]),
+            end='')
+        print("[cm]" if self.units == "cgs" else "[m]")
+        print("Initial particle box Volume = {:.6e} ".format(self.pbox_volume), end='')
         print("[cm^3]" if self.units == "cgs" else "[m^3]")
 
         print('Boundary conditions: {}'.format(self.boundary_conditions))
@@ -607,6 +663,9 @@ class Particles:
     box_lengths : numpy.ndarray
         Box sides' lengths.
 
+    pbox_lengths : numpy.ndarray
+        Initial particle box sides' lengths.
+
     masses : numpy.ndarray
         Mass of each particle. Shape = (``total_num_ptcls``).
 
@@ -660,6 +719,7 @@ class Particles:
         self.prod_dump_dir = None
         self.eq_dump_dir = None
         self.box_lengths = None
+        self.pbox_lengths = None
         self.total_num_ptcls = None
         self.num_species = None
         self.species_num = None
@@ -711,6 +771,7 @@ class Particles:
         self.prod_dump_dir = params.prod_dump_dir
         self.eq_dump_dir = params.eq_dump_dir
         self.box_lengths = np.copy(params.box_lengths)
+        self.pbox_lengths = np.copy(params.pbox_lengths)
         self.total_num_ptcls = params.total_num_ptcls
         self.num_species = params.num_species
         self.species_num = np.copy(params.species_num)
@@ -796,7 +857,7 @@ class Particles:
             self.halton_reject(params.load_halton_bases, params.load_rejection_radius)
 
         elif params.load_method in ['uniform', 'random_no_reject']:
-            self.pos = self.uniform_no_reject([0.0, 0.0, 0.0], params.box_lengths)
+            self.pos = self.uniform_no_reject(params.box_lengths/2 - params.pbox_lengths/2, params.box_lengths/2 + params.pbox_lengths/2)
 
         else:
             raise AttributeError('Incorrect particle placement scheme specified.')
@@ -966,8 +1027,9 @@ class Particles:
         -----
         Author: Luke Stanek
         Date Created: 5/6/19
-        Date Updated: 6/2/19
+        Date Updated: 6/2/19, 9/7/21
         Updates: Added to S_init_schemes.py for Sarkas import
+                 Place lattice according to pbox parameters into center of simulation box (PWS)
         """
 
         # Check if perturbation is below maximum allowed. If not, default to maximum perturbation.
@@ -987,14 +1049,14 @@ class Particles:
             print('\nWARNING: Total number of particles requested is not a perfect cube.')
             print('Initializing with {} particles.'.format(int(part_per_side ** 3)))
 
-        dx_lattice = self.box_lengths[0] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
-        dz_lattice = self.box_lengths[1] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
-        dy_lattice = self.box_lengths[2] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
+        dx_lattice = self.pbox_lengths[0] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
+        dz_lattice = self.pbox_lengths[1] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
+        dy_lattice = self.pbox_lengths[2] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
 
         # Create x, y, and z position arrays
-        x = np.arange(0, self.box_lengths[0], dx_lattice) + 0.5 * dx_lattice
-        y = np.arange(0, self.box_lengths[1], dy_lattice) + 0.5 * dy_lattice
-        z = np.arange(0, self.box_lengths[2], dz_lattice) + 0.5 * dz_lattice
+        x = np.arange(0, self.pbox_lengths[0], dx_lattice) + 0.5 * dx_lattice
+        y = np.arange(0, self.pbox_lengths[1], dy_lattice) + 0.5 * dy_lattice
+        z = np.arange(0, self.pbox_lengths[2], dz_lattice) + 0.5 * dz_lattice
 
         # Create a lattice with appropriate x, y, and z values based on arange
         X, Y, Z = np.meshgrid(x, y, z)
@@ -1005,13 +1067,13 @@ class Particles:
         Z += self.rnd_gen.uniform(-0.5, 0.5, np.shape(Z)) * perturb * dz_lattice
 
         # Flatten the meshgrid values for plotting and computation
-        self.pos[:, 0] = X.ravel()
-        self.pos[:, 1] = Y.ravel()
-        self.pos[:, 2] = Z.ravel()
+        self.pos[:, 0] = X.ravel() + self.box_lengths[0]/2 - self.pbox_lengths[0]/2
+        self.pos[:, 1] = Y.ravel() + self.box_lengths[1]/2 - self.pbox_lengths[1]/2
+        self.pos[:, 2] = Z.ravel() + self.box_lengths[2]/2 - self.pbox_lengths[2]/2
 
     def random_reject(self, r_reject):
         """
-        Place particles by sampling a uniform distribution from 0 to L (the box length)
+        Place particles by sampling a uniform distribution from 0 to LP (the initial particle box length)
         and uses a rejection radius to avoid placing particles to close to each other.
 
         Parameters
@@ -1023,8 +1085,8 @@ class Particles:
         -----
         Author: Luke Stanek
         Date Created: 5/6/19
-        Date Updated: N/A
-        Updates: N/A
+        Date Updated: 9/7/21
+        Updates: Place initial particles according to pbox parameters into the simulation box center (PWS)
 
         """
 
@@ -1034,9 +1096,9 @@ class Particles:
         z = np.array([])
 
         # Set first x, y, and z positions
-        x_new = self.rnd_gen.uniform(0, self.box_lengths[0])
-        y_new = self.rnd_gen.uniform(0, self.box_lengths[1])
-        z_new = self.rnd_gen.uniform(0, self.box_lengths[2])
+        x_new = self.rnd_gen.uniform(0, self.pbox_lengths[0])
+        y_new = self.rnd_gen.uniform(0, self.pbox_lengths[1])
+        z_new = self.rnd_gen.uniform(0, self.pbox_lengths[2])
 
         # Append to arrays
         x = np.append(x, x_new)
@@ -1052,9 +1114,9 @@ class Particles:
         while i < self.total_num_ptcls - 1:
 
             # Set x, y, and z positions
-            x_new = self.rnd_gen.uniform(0.0, self.box_lengths[0])
-            y_new = self.rnd_gen.uniform(0.0, self.box_lengths[1])
-            z_new = self.rnd_gen.uniform(0.0, self.box_lengths[2])
+            x_new = self.rnd_gen.uniform(0.0, self.pbox_lengths[0])
+            y_new = self.rnd_gen.uniform(0.0, self.pbox_lengths[1])
+            z_new = self.rnd_gen.uniform(0.0, self.pbox_lengths[2])
 
             # Check if particle was place too close relative to all other current particles
             for j in range(len(x)):
@@ -1068,20 +1130,20 @@ class Particles:
                 z_diff = z_new - z[j]
 
                 # periodic condition applied for minimum image
-                if x_diff < - self.box_lengths[0] / 2:
-                    x_diff += self.box_lengths[0]
-                if x_diff > self.box_lengths[0] / 2:
-                    x_diff -= self.box_lengths[0]
+                if x_diff < - self.pbox_lengths[0] / 2:
+                    x_diff += self.pbox_lengths[0]
+                if x_diff > self.pbox_lengths[0] / 2:
+                    x_diff -= self.pbox_lengths[0]
 
-                if y_diff < - self.box_lengths[1] / 2:
-                    y_diff += self.box_lengths[1]
-                if y_diff > self.box_lengths[1] / 2:
-                    y_diff -= self.box_lengths[1]
+                if y_diff < - self.pbox_lengths[1] / 2:
+                    y_diff += self.pbox_lengths[1]
+                if y_diff > self.pbox_lengths[1] / 2:
+                    y_diff -= self.pbox_lengths[1]
 
-                if z_diff < -self.box_lengths[2] / 2:
-                    z_diff += self.box_lengths[2]
-                if z_diff > self.box_lengths[2] / 2:
-                    z_diff -= self.box_lengths[2]
+                if z_diff < -self.pbox_lengths[2] / 2:
+                    z_diff += self.pbox_lengths[2]
+                if z_diff > self.pbox_lengths[2] / 2:
+                    z_diff -= self.pbox_lengths[2]
 
                 # Compute distance
                 r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
@@ -1103,13 +1165,13 @@ class Particles:
                 i += 1
                 cntr_total += 1
 
-        self.pos[:, 0] = x
-        self.pos[:, 1] = y
-        self.pos[:, 2] = z
+        self.pos[:, 0] = x + self.box_lengths[0]/2 - self.pbox_lengths[0]/2
+        self.pos[:, 1] = y + self.box_lengths[1]/2 - self.pbox_lengths[1]/2
+        self.pos[:, 2] = z + self.box_lengths[2]/2 - self.pbox_lengths[2]/2
 
     def halton_reject(self, bases, r_reject):
         """
-        Place particles according to a Halton sequence from 0 to L (the box length)
+        Place particles according to a Halton sequence from 0 to LP (the initial particle box length)
         and uses a rejection radius to avoid placing particles to close to each other.
 
         Parameters
@@ -1125,8 +1187,8 @@ class Particles:
         -----
         Author: Luke Stanek
         Date Created: 5/6/19
-        Date Updated: N/A
-        Updates: N/A
+        Date Updated: 9/7/21
+        Updates: Place initial particles according to pbox parameters into the simulation box center (PWS)
 
         """
 
@@ -1157,7 +1219,7 @@ class Particles:
                 f1 /= b1
                 r1 += f1 * (n % int(b1))
                 n = np.floor(n / b1)
-            x_new = self.box_lengths[0] * r1  # new x value
+            x_new = self.pbox_lengths[0] * r1  # new x value
 
             # Determine y coordinate
             f2 = 1
@@ -1166,7 +1228,7 @@ class Particles:
                 f2 /= b2
                 r2 += f2 * (m % int(b2))
                 m = np.floor(m / b2)
-            y_new = self.box_lengths[1] * r2  # new y value
+            y_new = self.pbox_lengths[1] * r2  # new y value
 
             # Determine z coordinate
             f3 = 1
@@ -1175,7 +1237,7 @@ class Particles:
                 f3 /= b3
                 r3 += f3 * (p % int(b3))
                 p = np.floor(p / b3)
-            z_new = self.box_lengths[2] * r3  # new z value
+            z_new = self.pbox_lengths[2] * r3  # new z value
 
             # Check if particle was place too close relative to all other current particles
             for j in range(len(x)):
@@ -1189,20 +1251,20 @@ class Particles:
                 z_diff = z_new - z[j]
 
                 # Periodic condition applied for minimum image
-                if x_diff < - self.box_lengths[0] / 2:
-                    x_diff = x_diff + self.box_lengths[0]
-                if x_diff > self.box_lengths[0] / 2:
-                    x_diff = x_diff - self.box_lengths[0]
+                if x_diff < - self.pbox_lengths[0] / 2:
+                    x_diff = x_diff + self.pbox_lengths[0]
+                if x_diff > self.pbox_lengths[0] / 2:
+                    x_diff = x_diff - self.pbox_lengths[0]
 
-                if y_diff < -self.box_lengths[1] / 2:
-                    y_diff = y_diff + self.box_lengths[1]
-                if y_diff > self.box_lengths[1] / 2:
-                    y_diff = y_diff - self.box_lengths[1]
+                if y_diff < -self.pbox_lengths[1] / 2:
+                    y_diff = y_diff + self.pbox_lengths[1]
+                if y_diff > self.pbox_lengths[1] / 2:
+                    y_diff = y_diff - self.pbox_lengths[1]
 
-                if z_diff < -self.box_lengths[2] / 2:
-                    z_diff = z_diff + self.box_lengths[2]
-                if z_diff > self.box_lengths[2] / 2:
-                    z_diff = z_diff - self.box_lengths[2]
+                if z_diff < -self.pbox_lengths[2] / 2:
+                    z_diff = z_diff + self.pbox_lengths[2]
+                if z_diff > self.pbox_lengths[2] / 2:
+                    z_diff = z_diff - self.pbox_lengths[2]
 
                 # Compute distance
                 r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
@@ -1223,9 +1285,9 @@ class Particles:
                 k += 1  # Increment Halton counter
                 i += 1  # Increment particle number
 
-        self.pos[:, 0] = x
-        self.pos[:, 1] = y
-        self.pos[:, 2] = z
+        self.pos[:, 0] = x + self.box_lengths[0]/2 - self.pbox_lengths[0]/2
+        self.pos[:, 1] = y + self.box_lengths[1]/2 - self.pbox_lengths[1]/2
+        self.pos[:, 2] = z + self.box_lengths[2]/2 - self.pbox_lengths[2]/2
 
     def kinetic_temperature(self):
         """

@@ -95,21 +95,21 @@ def update_params(potential, params):
     potential.force = egs_force
     params.force_error = np.sqrt(twopi / params.lambda_TF) * np.exp(-potential.rc / params.lambda_TF)
     # Renormalize
-    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.box_volume)
+    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
 
 
 @njit
 def egs_force(r, pot_matrix):
-    """ 
+    """
     Calculates Potential and force between particles using the EGS Potential.
-    
+
     Parameters
     ----------
     r : float
         Particles' distance.
 
     pot_matrix : array
-        EGS potential parameters. 
+        EGS potential parameters.
 
     Return
     ------
