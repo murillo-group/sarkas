@@ -3,7 +3,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>H-He Mixture &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
@@ -21,7 +22,7 @@
     <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../../_static/language_data.js"></script>
   
@@ -33,9 +34,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -72,28 +73,28 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theory:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Simulations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Credits:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
 </ul>
@@ -402,7 +403,7 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="H-He-Mixture">
+<section id="H-He-Mixture">
 <h1>H-He Mixture<a class="headerlink" href="#H-He-Mixture" title="Permalink to this headline">¶</a></h1>
 <p>In this notebook we will calculate the diffusion and interdiffusion coefficients of Binary Ionic Mixture (BIM) of Hydrogen and Helium. This notebook tries to reproduce the data obtained from Hansen, Joly, and McDonald’s <a class="reference external" href="https://doi.org/10.1016/0378-4371(85)90022-6">paper</a>.</p>
 <p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/BIM/input_files/BIM_cgs.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/BIM/H-He_Mixture.ipynb">notebook</a>.</p>
@@ -434,7 +435,7 @@ Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-<div class="section" id="Simulation">
+<section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -642,8 +643,8 @@ Production Time: 4 hrs 45 min 38 sec
 Total Time: 4 hrs 59 min 4 sec
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="PostProcessing">
+</section>
+<section id="PostProcessing">
 <h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -682,7 +683,7 @@ Production Thermodynamics file:
  Simulations/bim/Simulation/Production/ProductionEnergy_bim.csv
 </pre></div></div>
 </div>
-<div class="section" id="Thermodynamic-Check">
+<section id="Thermodynamic-Check">
 <h3>Thermodynamic Check<a class="headerlink" href="#Thermodynamic-Check" title="Permalink to this headline">¶</a></h3>
 <p>Let’s make sure that the equilibration phase was <span class="math notranslate nohighlight">\(NVT\)</span> and the production phase <span class="math notranslate nohighlight">\(NVE\)</span>.</p>
 <div class="nbinput docutils container">
@@ -721,8 +722,8 @@ Production Thermodynamics file:
 <img alt="../../_images/examples_BIM_H-He_Mixture_8_0.png" src="../../_images/examples_BIM_H-He_Mixture_8_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Pair-Distribution-Function">
+</section>
+<section id="Pair-Distribution-Function">
 <h3>Pair Distribution Function<a class="headerlink" href="#Pair-Distribution-Function" title="Permalink to this headline">¶</a></h3>
 <p>Let’s look at <span class="math notranslate nohighlight">\(g_{\alpha \beta}(r)\)</span>. Just for fun.</p>
 <div class="nbinput docutils container">
@@ -762,8 +763,8 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 353 usec 739 nsec
 <img alt="../../_images/examples_BIM_H-He_Mixture_10_2.png" src="../../_images/examples_BIM_H-He_Mixture_10_2.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Static-Structure-Function">
+</section>
+<section id="Static-Structure-Function">
 <h3>Static Structure Function<a class="headerlink" href="#Static-Structure-Function" title="Permalink to this headline">¶</a></h3>
 <p>Let’s calculate <span class="math notranslate nohighlight">\(S_{\alpha\beta}(k)\)</span> up to <span class="math notranslate nohighlight">\(ka = 5\)</span> and angle average it.</p>
 <div class="nbinput docutils container">
@@ -1091,9 +1092,9 @@ Static Structure Function Calculation Time: 1 sec 143 msec 886 usec 588 nsec
 <img alt="../../_images/examples_BIM_H-He_Mixture_14_1.png" src="../../_images/examples_BIM_H-He_Mixture_14_1.png" />
 </div>
 </div>
-</div>
-</div>
-<div class="section" id="Interdiffusion">
+</section>
+</section>
+<section id="Interdiffusion">
 <h2>Interdiffusion<a class="headerlink" href="#Interdiffusion" title="Permalink to this headline">¶</a></h2>
 <p>The interdiffusion coefficient is calculated by the Green-Kubo relation</p>
 <div class="math notranslate nohighlight">
@@ -1205,7 +1206,7 @@ J = 1.0354
 </pre></div></div>
 </div>
 <p>The value is ~ 1 which is what Hansen <em>et al.</em> assumed. Therefore we won’t use it below.</p>
-<div class="section" id="Transport-Coefficients-in-Sarkas">
+<section id="Transport-Coefficients-in-Sarkas">
 <h3>Transport Coefficients in Sarkas<a class="headerlink" href="#Transport-Coefficients-in-Sarkas" title="Permalink to this headline">¶</a></h3>
 <p>Calculating transport coefficients is easy once the <code class="docutils literal notranslate"><span class="pre">TransportCoefficient</span></code> class from the <code class="docutils literal notranslate"><span class="pre">sarkas.tools.transport</span></code> subpackage is imported.</p>
 <p>Interdiffusion is a static method of <code class="docutils literal notranslate"><span class="pre">TransportCoefficient</span></code>. The inputs are</p>
@@ -1958,9 +1959,9 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
 <img alt="../../_images/examples_BIM_H-He_Mixture_30_1.png" src="../../_images/examples_BIM_H-He_Mixture_30_1.png" />
 </div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
     </div>
@@ -1975,8 +1976,8 @@ Time interval of autocorrelation function = 2.3750e-15 [s] ~ 397 w_p T
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 15, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+      Last updated on Sep 21, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
 </footer>

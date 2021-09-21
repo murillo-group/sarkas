@@ -3,7 +3,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>MD for Experiment Validation &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
@@ -21,7 +22,7 @@
     <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../../_static/language_data.js"></script>
   
@@ -33,9 +34,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -72,28 +73,28 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theory:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Simulations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Credits:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
 </ul>
@@ -399,10 +400,10 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="MD-for-Experiment-Validation">
+<section id="MD-for-Experiment-Validation">
 <h1>MD for Experiment Validation<a class="headerlink" href="#MD-for-Experiment-Validation" title="Permalink to this headline">¶</a></h1>
 <p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/UNP/input_files/ucp_N10k.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/UNP/UCP_Experiment_Validation.ipynb">notebook</a>.</p>
-<div class="section" id="Ultracold-Neutral-Plasmas">
+<section id="Ultracold-Neutral-Plasmas">
 <h2>Ultracold Neutral Plasmas<a class="headerlink" href="#Ultracold-Neutral-Plasmas" title="Permalink to this headline">¶</a></h2>
 <p>Sarkas has been developed with the experimental plasma physics community in mind. An example of strongly coupled plasmas are <a class="reference external" href="https://science.sciencemag.org/content/316/5825/705">Ultracold Neutral Plasmas</a>. In these systems a cloud of <span class="math notranslate nohighlight">\(N \sim 10^6 - 10^9\)</span> neutral atoms is trapped and cooled to ~mK temperatures. The cloud has a spherical Gaussian density distribution with peak densities in the range <span class="math notranslate nohighlight">\(\sim 10^{15}-10^{16}\, \textrm{N/cc}\)</span> with a standard deviation ranging from
 hundreds of <span class="math notranslate nohighlight">\(\mu\)</span>m to few mm. A portion of the atoms is then ionized by shining a laser, with the correct wavelength, onto the cloud. The energy from the laser is deposited on the electrons which now have enough energy to escape the the atoms, thus, leaving behind positively charged ions.</p>
@@ -411,15 +412,15 @@ hundreds of <span class="math notranslate nohighlight">\(\mu\)</span>m to few mm
 <div class="math notranslate nohighlight">
 \[\Gamma = \frac{(Ze)^2}{4\pi \varepsilon_0 a_{\rm ws}} \frac{1}{k_B T}\]</div>
 <p>where <span class="math notranslate nohighlight">\(Z\)</span> is the charge number of the ions, <span class="math notranslate nohighlight">\(T\)</span> their temperature, and <span class="math notranslate nohighlight">\(a = (3/ 4\pi n)^{1/3}\)</span> is the Wigner-Seitz radius defined by the number density <span class="math notranslate nohighlight">\(n\)</span>. In UNP experiments <span class="math notranslate nohighlight">\(1 &lt; \Gamma \sim 10\)</span>.</p>
-</div>
-<div class="section" id="Disorder-Induced-Heating">
+</section>
+<section id="Disorder-Induced-Heating">
 <h2>Disorder Induced Heating<a class="headerlink" href="#Disorder-Induced-Heating" title="Permalink to this headline">¶</a></h2>
 <p>In the laser-cooling phase of the experiment atoms are neutral. This allows them to get very close to each other and distribute randomly in space. The potential energy in this case is very low and so is the kinetic energy. By photoionizing the atoms we are effectively turning on the Coulomb interaction. The system now has a large potential energy which pushes the ions apart, thus the potential energy is converted into kinetic energy (<span class="math notranslate nohighlight">\(\sim k_BT\)</span>). This process is called <strong>Disorder Induced
 Heating (DIH)</strong>.</p>
 <p>DIH is unavoidable and it is one of the biggest obstacles that prevents UNPs to reach <span class="math notranslate nohighlight">\(\Gamma &gt; 10\)</span>. This is because the initial potential energy is what determines the final temperature and the final <span class="math notranslate nohighlight">\(\Gamma\)</span>. Large potential energies lead to large kinetic energies and low <span class="math notranslate nohighlight">\(\Gamma\)</span>. Furthermore, in an experiment the temperature evolution of the ions in the DIH phase is used to determine/validate the number density of the initial charged cloud.</p>
 <p>In the following example we will present a workflow to prepare and run an MD simulation and extract the DIH temperature of a UNP.</p>
-</div>
-<div class="section" id="PreProcessing">
+</section>
+<section id="PreProcessing">
 <h2>PreProcessing<a class="headerlink" href="#PreProcessing" title="Permalink to this headline">¶</a></h2>
 <p>We start by importing the usual libraries and creating a path to the input file of our simulation.</p>
 <div class="nbinput docutils container">
@@ -689,8 +690,8 @@ Total minimum needed space: 1 GB 657 MB 261 KB 480 bytes
 <img alt="../../_images/examples_UNP_UCP_Experiment_Validation_4_6.png" src="../../_images/examples_UNP_UCP_Experiment_Validation_4_6.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Simulation">
+</section>
+<section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
 <p>Once the simulation parameters have been decided we can start running our simulation. Since we are dealing with a non-equilibrium simulation, in order to get some statistics we need to run multiple simulations with different initial conditions. This can be done by changing the random number seed.</p>
 <p>Below we show a sample code that executes three (3) MD simulation by changing only the <code class="docutils literal notranslate"><span class="pre">rand_seed</span></code> parameter and the storing directory.</p>
@@ -740,8 +741,8 @@ Run 4 completed
 </div>
 <p>The above code will take a long time, because we need to wait for the previous simulation to finish before starting a new one. Notice that we define the <code class="docutils literal notranslate"><span class="pre">rand_seed</span></code> parameter in each loop. This is because even though we are in the same Python process Sarkas has a default <code class="docutils literal notranslate"><span class="pre">rand_seed</span></code>. Thus, if we don’t pass it we will end up with three identical simulations.</p>
 <p>If we can afford to occupy few processors on our computer we can save time by running each simulation in a different JupyterNotebook or by running three Python scripts at the same time.</p>
-</div>
-<div class="section" id="PostProcessing">
+</section>
+<section id="PostProcessing">
 <h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
 <p>Once the simulations are done, we can start our Post Processing. In the following we will calculate the average temperature and RMS speed of each species in the mixture. Save them into a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">pandas.DataFrame</a> and plot them.</p>
 <div class="nbinput nblast docutils container">
@@ -1262,7 +1263,7 @@ Run 4 completed
 </div>
 </div>
 <p>Noice! There is good agreement for the first microsecond.</p>
-<div class="section" id="Distributions-for-Thermalization-analysis">
+<section id="Distributions-for-Thermalization-analysis">
 <h3>Distributions for Thermalization analysis<a class="headerlink" href="#Distributions-for-Thermalization-analysis" title="Permalink to this headline">¶</a></h3>
 <p>The next important quantity that we need are velocity distributions. Sarkas allows you to calculate these easily and automatically average of the multiple runs and over the three cartesian dimensions. The last two are flags that can be passed when calculating.</p>
 <p>First we print the parameters of the velocity distributions</p>
@@ -1514,9 +1515,9 @@ Calculating Hermite coefficients ...
 Hermite expansion calculation Time: 0 hrs 0 min 22 sec
 </pre></div></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
     </div>
@@ -1531,8 +1532,8 @@ Hermite expansion calculation Time: 0 hrs 0 min 22 sec
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 15, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+      Last updated on Sep 21, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
 </footer>

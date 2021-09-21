@@ -3,7 +3,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>One Component Plasma (OCP) &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
@@ -21,7 +22,7 @@
     <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../../_static/language_data.js"></script>
   
@@ -33,9 +34,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -72,28 +73,28 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theory:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Simulations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Credits:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
 </ul>
@@ -402,7 +403,7 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="One-Component-Plasma-(OCP)">
+<section id="One-Component-Plasma-(OCP)">
 <h1>One Component Plasma (OCP)<a class="headerlink" href="#One-Component-Plasma-(OCP)" title="Permalink to this headline">¶</a></h1>
 <p>Oh the good ol’ OCP. The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/OCP/input_files/coulomb_cgs.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/OCP/OCP.ipynb">notebook</a>.</p>
 <div class="nbinput docutils container">
@@ -435,7 +436,7 @@ Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-<div class="section" id="Simulation">
+<section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
 <p>The following code is commented out since the simulation has been run before. We leave it here so that it is easy to copy and paste in your notebook.</p>
 <div class="nbinput nblast docutils container">
@@ -449,8 +450,8 @@ Populating the interactive namespace from numpy and matplotlib
 </pre></div>
 </div>
 </div>
-</div>
-<div class="section" id="PostProcessing">
+</section>
+<section id="PostProcessing">
 <h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -499,8 +500,8 @@ Production Thermodynamics file:
 <img alt="../../_images/examples_OCP_OCP_5_1.png" src="../../_images/examples_OCP_OCP_5_1.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Radial-Distribution-Function">
+</section>
+<section id="Radial-Distribution-Function">
 <h2>Radial Distribution Function<a class="headerlink" href="#Radial-Distribution-Function" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -568,8 +569,8 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 101 usec 204 nsec
 The excess pressure is = -26.1939 / (n k_B T)
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Dynamic-Structure-Factor">
+</section>
+<section id="Dynamic-Structure-Factor">
 <h2>Dynamic Structure Factor<a class="headerlink" href="#Dynamic-Structure-Factor" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
@@ -932,7 +933,7 @@ No. of unique ka values to calculate = 55
 <img alt="../../_images/examples_OCP_OCP_15_1.png" src="../../_images/examples_OCP_OCP_15_1.png" />
 </div>
 </div>
-<div class="section" id="Collective-Mode-Dispersion">
+<section id="Collective-Mode-Dispersion">
 <h3>Collective Mode Dispersion<a class="headerlink" href="#Collective-Mode-Dispersion" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
@@ -973,11 +974,11 @@ No. of unique ka values to calculate = 55
 <img alt="../../_images/examples_OCP_OCP_17_1.png" src="../../_images/examples_OCP_OCP_17_1.png" />
 </div>
 </div>
-</div>
-</div>
-<div class="section" id="Transport-Coefficients">
+</section>
+</section>
+<section id="Transport-Coefficients">
 <h2>Transport Coefficients<a class="headerlink" href="#Transport-Coefficients" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="Diffusion">
+<section id="Diffusion">
 <h3>Diffusion<a class="headerlink" href="#Diffusion" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
@@ -1082,9 +1083,9 @@ Time interval of autocorrelation function = 1.4919e-13 [s] ~ 249 w_p T
 <img alt="../../_images/examples_OCP_OCP_19_10.png" src="../../_images/examples_OCP_OCP_19_10.png" />
 </div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
     </div>
@@ -1099,8 +1100,8 @@ Time interval of autocorrelation function = 1.4919e-13 [s] ~ 249 w_p T
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 15, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+      Last updated on Sep 21, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
 </footer>

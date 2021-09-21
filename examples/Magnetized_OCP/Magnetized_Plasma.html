@@ -3,7 +3,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Magnetized Plasma &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
@@ -21,7 +22,7 @@
     <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../../_static/language_data.js"></script>
   
@@ -33,9 +34,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -72,28 +73,28 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theory:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Simulations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Credits:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
 </ul>
@@ -395,7 +396,7 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Magnetized-Plasma">
+<section id="Magnetized-Plasma">
 <h1>Magnetized Plasma<a class="headerlink" href="#Magnetized-Plasma" title="Permalink to this headline">¶</a></h1>
 <p>This codes tests the magnetic integrator by reproducing results of Bernu Journal de Physique, <strong>42</strong> L253 (1981). This notebook can be found in the <code class="docutils literal notranslate"><span class="pre">sarkas/notebook</span></code> folder of the Github repo.</p>
 <p>We simulate a One Component Plasma composed of <span class="math notranslate nohighlight">\(N = 1000\)</span> Hydrogen atoms at a density of <span class="math notranslate nohighlight">\(n = 1.62 \times 10^{30}\)</span> <span class="math notranslate nohighlight">\(N/m^3\)</span>, and temperature <span class="math notranslate nohighlight">\(T = 0.3\)</span> <span class="math notranslate nohighlight">\(eV\)</span>, which leads to <span class="math notranslate nohighlight">\(\Gamma = 100\)</span>. The system is in a constant magnetic field <span class="math notranslate nohighlight">\(B = B_0 \hat{\mathbf z}\)</span> with <span class="math notranslate nohighlight">\(B_0 = 17 \times 10^6\)</span> Gauss. The ratio of the cyclotron frequency to the plasma frequency is <span class="math notranslate nohighlight">\(\beta \sim 1.0\)</span>.</p>
@@ -428,7 +429,7 @@ Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-<div class="section" id="PreProcessing">
+<section id="PreProcessing">
 <h2>PreProcessing<a class="headerlink" href="#PreProcessing" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -765,8 +766,8 @@ Total Run Time: 0 hrs 35 min 55 sec
 </pre></div>
 </div>
 <p>We are ready to start the simulation.</p>
-</div>
-<div class="section" id="Simulation">
+</section>
+<section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -1016,8 +1017,8 @@ Total Time: 0 hrs 28 min 16 sec
 </pre></div></div>
 </div>
 <p>The run completed in a time faster than the predicted one. Woohoo!</p>
-</div>
-<div class="section" id="PostProcessing">
+</section>
+<section id="PostProcessing">
 <h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -1069,8 +1070,8 @@ PostProcessing directory:  Simulations/ocp_mag/PostProcessing
 </div>
 <p>The energy remained fairly constant over the entire production phase. The Temperature similarly oscillated widly (<span class="math notranslate nohighlight">\(\sim 10 \%\)</span>) but its average is exactly the desired value. Both the Temperature and the Total Energy show a Gaussian distribution around their means.</p>
 <p>We are ready to calculate the diffusion coefficient.</p>
-</div>
-<div class="section" id="Transport">
+</section>
+<section id="Transport">
 <h2>Transport<a class="headerlink" href="#Transport" title="Permalink to this headline">¶</a></h2>
 <p>Transport coefficient are calculated using the <code class="docutils literal notranslate"><span class="pre">TransportCoefficient</span></code> class in <code class="docutils literal notranslate"><span class="pre">sarkas.tools.transport</span></code>. Once the class is imported the diffusion coefficient is calculated by calling the method <code class="docutils literal notranslate"><span class="pre">diffusion</span></code>. This method requires the parameters of the simulation passed as <code class="docutils literal notranslate"><span class="pre">postproc.parameters</span></code>. The <code class="docutils literal notranslate"><span class="pre">phase</span></code> argument in this case is not needed since <code class="docutils literal notranslate"><span class="pre">production</span></code> is the default phase.</p>
 <p>As mentioned above we decided to run our simulation 4 times longer than Bernu’s. This is because we wanted to divide our long simulation into 4 small simulations of length ~ 276 <span class="math notranslate nohighlight">\(\omega_p T\)</span> (Bernu’s was 244 <span class="math notranslate nohighlight">\(\omega_p T\)</span>), calculate the diffusion coefficients for each of them, and average them.</p>
@@ -1300,8 +1301,8 @@ The perpendicular diffusion is D_x = 0.0024 w_p a_ws^2
 The parallel diffusion is D_z = 0.0026 w_p a_ws^2
 </pre></div></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
     </div>
@@ -1316,8 +1317,8 @@ The parallel diffusion is D_z = 0.0026 w_p a_ws^2
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 15, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+      Last updated on Sep 21, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
 </footer>

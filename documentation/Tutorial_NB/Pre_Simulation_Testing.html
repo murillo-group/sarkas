@@ -3,7 +3,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Pre Simulation Testing &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
@@ -21,7 +22,7 @@
     <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../../_static/language_data.js"></script>
   
@@ -33,9 +34,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -72,28 +73,28 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theory:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Simulations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/examples.html">Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Credits:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
 </ul>
@@ -417,7 +418,7 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Pre-Simulation-Testing">
+<section id="Pre-Simulation-Testing">
 <h1>Pre Simulation Testing<a class="headerlink" href="#Pre-Simulation-Testing" title="Permalink to this headline">¶</a></h1>
 <p>Now that we have created our input file we need to verify that our simulation parameters will give a good simulation.</p>
 <p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/input_files/yukawa_mks_p3m.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/Pre_Simulation_Testing.ipynb">notebook</a></p>
@@ -451,7 +452,7 @@ Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-<div class="section" id="Simulation-Parameters">
+<section id="Simulation-Parameters">
 <h2>Simulation Parameters<a class="headerlink" href="#Simulation-Parameters" title="Permalink to this headline">¶</a></h2>
 <p>Let’s verify our input parameters</p>
 <div class="nbinput docutils container">
@@ -609,31 +610,31 @@ Total Simulation Initialization Time: 0 hrs 0 min 5 sec
 </pre></div></div>
 </div>
 <p>As you can see the output is rather verbose, so let’s unpack it.</p>
-<div class="section" id="Sarkas-Figlet">
+<section id="Sarkas-Figlet">
 <h3>Sarkas Figlet<a class="headerlink" href="#Sarkas-Figlet" title="Permalink to this headline">¶</a></h3>
 <p>The first screen output is the Sarkas Figlet. This is printed at the beginning of every process by the static method <code class="docutils literal notranslate"><span class="pre">screen_figlet()</span></code> of the <code class="docutils literal notranslate"><span class="pre">InputOutput</span></code> class. The Figlet font and colors are chosen randomly from a predefined set in <code class="docutils literal notranslate"><span class="pre">sarkas.utilities.io</span></code>. This function assumes a white background if you are running a Jupyter notebook, while a dark background in the case of an IPython/Python kernel.</p>
-</div>
-<div class="section" id="Storage">
+</section>
+<section id="Storage">
 <h3>Storage<a class="headerlink" href="#Storage" title="Permalink to this headline">¶</a></h3>
 <p>Next Sarkas prints the path where the snapshots (<code class="docutils literal notranslate"><span class="pre">dumps</span></code>) and the thermodynamics information of the simulation will be stored. Notice that these are in a directory called <code class="docutils literal notranslate"><span class="pre">Simulations/yocp_ppm/PreProcessing</span></code>. The actual simulation’s dumps and energy files will be in a different directory, see next <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/Tutorial_NB/Simulation_Docs.html">page</a>.</p>
-</div>
-<div class="section" id="PARTICLES">
+</section>
+<section id="PARTICLES">
 <h3>PARTICLES<a class="headerlink" href="#PARTICLES" title="Permalink to this headline">¶</a></h3>
 <p>In this section we can find info about the particles we are simulating. Importantly we find the physical constants like the plasma frequency and Debye length.</p>
-</div>
-<div class="section" id="SIMULATION-BOX">
+</section>
+<section id="SIMULATION-BOX">
 <h3>SIMULATION BOX<a class="headerlink" href="#SIMULATION-BOX" title="Permalink to this headline">¶</a></h3>
 <p>Next we have info on the simulation box with relevant lengths and parameters. These include the value of the Wigner-Seitz radius, <code class="docutils literal notranslate"><span class="pre">a_ws</span></code>, the number of non zero dimensions, and the length of the simulation box sides in terms of <code class="docutils literal notranslate"><span class="pre">a_ws</span></code> and its numerical value in the chosen units.</p>
-</div>
-<div class="section" id="ELECTRON-PROPERTIES">
+</section>
+<section id="ELECTRON-PROPERTIES">
 <h3>ELECTRON PROPERTIES<a class="headerlink" href="#ELECTRON-PROPERTIES" title="Permalink to this headline">¶</a></h3>
 <p>This section prints thermodynamics quantities as well as dimensionless parameters of the surrounding electron liquid. Here we find the Thomas-Fermi length which is used for the screening parameter <span class="math notranslate nohighlight">\(\kappa\)</span> of our Yukawa potential. Formulas for the calculation of each of these quantities can be found in the Electron Properties <a class="reference external" href="https://murillo-group.github.io/sarkas/theory/electron_properties.html#">page</a> in the Theoretical Background section.</p>
-</div>
-<div class="section" id="POTENTIAL">
+</section>
+<section id="POTENTIAL">
 <h3>POTENTIAL<a class="headerlink" href="#POTENTIAL" title="Permalink to this headline">¶</a></h3>
 <p>This section prints potential specific parameters. In the case of Yukawa we find the electron temperature used for the calculation of <span class="math notranslate nohighlight">\(\lambda_{\rm TF}\)</span> and <span class="math notranslate nohighlight">\(\kappa = a_{ws}/\lambda_{\rm TF}\)</span>. The last line prints the coupling parameter as defined <a class="reference external" href="https://murillo-group.github.io/sarkas/theory/coupling_constant.html">here</a></p>
-</div>
-<div class="section" id="ALGORITHM">
+</section>
+<section id="ALGORITHM">
 <h3>ALGORITHM<a class="headerlink" href="#ALGORITHM" title="Permalink to this headline">¶</a></h3>
 <p>This section prints information about the choice of our algorithm. Sarkas uses a generalized P3M (or PPPM) algortihm to handle medium to long range interactions. More info can be found in our page on <a class="reference external" href="../theory/PPPM.html">PPPM</a> and DSGM17 in <a class="reference external" href="../theory/references.html">Referemces</a>.</p>
 <p>There are two parts in this algorithm: particle-particle (PP) and particle-mesh (PM). The former consists of a Linked-Cell-List (LCL). The PM instead consists in depositing the charges on a mesh, move to Fourier space, solve Poisson equation on the mesh and get the electric field, inverse Fourier to return to real space, and finally use the Electric field to push the particles.</p>
@@ -641,21 +642,21 @@ Total Simulation Initialization Time: 0 hrs 0 min 5 sec
 <p>Beside the choice of parameters Sarkas outputs the most relevant information for this algorithm: the number of cells per dimension for the LCL algorithm, the number of particles in the LCL loops, number of neighbors per particle, and the error in the force calculation. This is the error due to our choice of parameters. For more details on the way this is calculated see the page <a class="reference external" href="../theory/force_error.html">Force Error</a>. This number is dimensionless since all the variable have been rescaled.
 There is no <em>good</em> value for the Force error and it is up to YOU to decide. In Non-Ideal plasmas it is usually chosen to be less than <code class="docutils literal notranslate"><span class="pre">1e-5</span></code>. In this case we have <code class="docutils literal notranslate"><span class="pre">Tot</span> <span class="pre">Force</span> <span class="pre">Error</span> <span class="pre">=</span> <span class="pre">6.442673e-06</span></code>.</p>
 <p>Below we show how to choose all the above parameters to minimize the force error.</p>
-</div>
-<div class="section" id="THERMOSTAT">
+</section>
+<section id="THERMOSTAT">
 <h3>THERMOSTAT<a class="headerlink" href="#THERMOSTAT" title="Permalink to this headline">¶</a></h3>
 <p>Next we find information about the thermostat used. At the moment Sarkas supports the Berendsen thermostat only. You can learn more about it on this <a class="reference external" href="https://murillo-group.github.io/sarkas/theory/thermostats.html#berendsen-thermostat">page</a>. The parameter <code class="docutils literal notranslate"><span class="pre">relaxation_timestep</span></code> tells us the timestep number at which the thermostat will be turned on. Before then the system will evolve at constant energy. A good number for this is the timestep equivalent to 1 or 2 plasma periods as this allows
 the system to convert most of its potential energy into kinetic energy and thus reaching its maximum value. Turning on the thermostat once the kinetic energy is maximal is the most efficient way to thermalize.</p>
 <p>Note that there is a Warning message. This is because we did not define the equilibration <code class="docutils literal notranslate"><span class="pre">temperatures</span></code> (or <code class="docutils literal notranslate"><span class="pre">temperatures_eV</span></code>) in the <code class="docutils literal notranslate"><span class="pre">Thermostat</span></code> section of the YAML file. As the warning says, this is not a problem as Sarkas will use the temperatures defined in the <code class="docutils literal notranslate"><span class="pre">Particles</span></code> section.</p>
-</div>
-<div class="section" id="INTEGRATOR">
+</section>
+<section id="INTEGRATOR">
 <h3>INTEGRATOR<a class="headerlink" href="#INTEGRATOR" title="Permalink to this headline">¶</a></h3>
 <p>The last section prints out info about our choice of Integrator and about the timing of the phases of our simulation. The most important parameters here are the <code class="docutils literal notranslate"><span class="pre">Total</span> <span class="pre">plasma</span> <span class="pre">frequency</span></code> and <code class="docutils literal notranslate"><span class="pre">w_p</span> <span class="pre">dt</span></code>. The total plasma frequency is calculated from</p>
 <div class="math notranslate nohighlight">
 \[\omega_{\rm tot} = \left [ \sum_i \omega_i^2 \right ]^{1/2}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\omega_i\)</span> is the plasma frequency of species <span class="math notranslate nohighlight">\(i\)</span>. In the case of a one component plasma, as in this case, the total plasma frequency is the same as the plasma frequency printed in the <code class="docutils literal notranslate"><span class="pre">PARTICLES</span></code> section above. The number <code class="docutils literal notranslate"><span class="pre">w_p</span> <span class="pre">dt</span></code> tells us the fraction of plasma periods that corresponds to our choice of <code class="docutils literal notranslate"><span class="pre">dt</span></code>. A non-written rule among researchers says that we should choose a <code class="docutils literal notranslate"><span class="pre">dt</span></code> such that <span class="math notranslate nohighlight">\(\omega_p dt &lt; 1/ 25\)</span>.</p>
-</div>
-<div class="section" id="Initialization-Times">
+</section>
+<section id="Initialization-Times">
 <h3>Initialization Times<a class="headerlink" href="#Initialization-Times" title="Permalink to this headline">¶</a></h3>
 <p>In this section are indicated the times for the initialization part of the simulation. These times are</p>
 <ul class="simple">
@@ -663,9 +664,9 @@ the system to convert most of its potential energy into kinetic energy and thus 
 <li><p><code class="docutils literal notranslate"><span class="pre">Particles</span> <span class="pre">Initialization</span></code> where the particles positions and velocities are initialized. This includes the case where a specific particles distribution is chosen.</p></li>
 </ul>
 <p>Al of the above output is intended to be a check on the choice of parameters. The real advantage of using <code class="docutils literal notranslate"><span class="pre">PreProcess</span></code> comes next.</p>
-</div>
-</div>
-<div class="section" id="Parameter-Optimization">
+</section>
+</section>
+<section id="Parameter-Optimization">
 <h2>Parameter Optimization<a class="headerlink" href="#Parameter-Optimization" title="Permalink to this headline">¶</a></h2>
 <p>Plasmas main characteristic is the long range Coulomb interaction between particles. Sarkas uses the generalized PPPM algortihm which requires several parameters. The most important ones are: the short-range cut-off (<span class="math notranslate nohighlight">\(r_c\)</span>), the Ewald parameter (<span class="math notranslate nohighlight">\(\alpha\)</span>), the number of mesh points per direction.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">PreProcess</span></code> class has two primary roles: help in the decision of the above parameters and provide an estimate time of the various phases of a simulation.</p>
@@ -905,7 +906,7 @@ Figures can be found in Simulations/yocp_pppm/PreProcessing/PPPM_Plots
 </div>
 </div>
 <p>Another long output. Let’s unpack it</p>
-<div class="section" id="Times-Estimate">
+<section id="Times-Estimate">
 <h3>Times Estimate<a class="headerlink" href="#Times-Estimate" title="Permalink to this headline">¶</a></h3>
 <p>It shows the times needed for the force calculation and the averaged time for an equilibration and production time step.</p>
 <p>As you can see the calculation of the optimal Green’s function takes a relatively long time. Fortunately this needs be calculated once at the beginning of the simulation. We note also that the PM part takes ~3x the time it takes for the PP part. This is specific to this hardware and the opposite case could be true on other machines.</p>
@@ -916,14 +917,14 @@ Figures can be found in Simulations/yocp_pppm/PreProcessing/PPPM_Plots
 <blockquote>
 <div><p><strong>NOTE:</strong> These times will vary depending on the computer hardware. For this tutorial we used a 2019 Dell XPS 8930 with Intel Core i7-8700K &#64; 3.70Ghz and 48GB of RAM running Ubuntu 18.04.</p>
 </div></blockquote>
-</div>
-<div class="section" id="Filesize-Estimate">
+</section>
+<section id="Filesize-Estimate">
 <h3>Filesize Estimate<a class="headerlink" href="#Filesize-Estimate" title="Permalink to this headline">¶</a></h3>
 <p>Next Sarkas will estimate the size of the simulation. It calculates the size of an equilibration and a production dump file and multiplies it by the total number of dumps. The option <code class="docutils literal notranslate"><span class="pre">remove</span> <span class="pre">=</span> <span class="pre">True</span></code> will remove the dump files produced by <code class="docutils literal notranslate"><span class="pre">preproc.run()</span></code> in order to save up space.</p>
 <p>This simulation should take about ~800 MB of space.</p>
 <p>These first two sections are produced by the first two options <code class="docutils literal notranslate"><span class="pre">timing</span> <span class="pre">=</span> <span class="pre">True</span></code> and <code class="docutils literal notranslate"><span class="pre">loops</span> <span class="pre">=</span> <span class="pre">20</span></code>.</p>
-</div>
-<div class="section" id="Timing-Study">
+</section>
+<section id="Timing-Study">
 <h3>Timing Study<a class="headerlink" href="#Timing-Study" title="Permalink to this headline">¶</a></h3>
 <p>The option <code class="docutils literal notranslate"><span class="pre">timing_study</span> <span class="pre">=</span> <span class="pre">True</span></code> is used to calculate the force error and estimate its calculation time for several mesh sizes and LCL cells. The array of mesh sizes can be changed by setting <code class="docutils literal notranslate"><span class="pre">preproc.pm_meshes</span></code> to the desired array before the command <code class="docutils literal notranslate"><span class="pre">run()</span></code>. For each mesh size Sarkas sets <code class="docutils literal notranslate"><span class="pre">pppm_alpha_ewald</span> <span class="pre">=</span> <span class="pre">0.3</span> <span class="pre">*</span> <span class="pre">m</span> <span class="pre">/</span> <span class="pre">parameters.box_lengths.min()</span></code>, calculates <code class="docutils literal notranslate"><span class="pre">pp_cells</span></code> as given by</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>max_cells = int(0.5 * parameters.box_lengths.min() / parameters.a_ws)
@@ -937,8 +938,8 @@ pp_cells = np.arange(3, max_cells, dtype=int)
 \[\Delta F_{\textrm{tot}} = \sqrt{ \Delta F_{\mathcal R}^2 + \Delta F_{\mathcal F}^2 },\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta F_{\rm PP(PM)}\)</span> is the force error of the PP (PM) part. These maps are created using <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.contourf()</span></code> method by passing the data points in the first figure and not the fits, hence, the staggered contour lines. The fits are provided as a way for you to calculate the computation time for meshes and cells different than those computed.</p>
 <p>As expected the maps indicate that the smaller the force error the larger the computation time. They are meant to provide an overview of the parameter space and help you decide the optimal value for <span class="math notranslate nohighlight">\(M\)</span> and <span class="math notranslate nohighlight">\(N_c\)</span>.</p>
-</div>
-<div class="section" id="Force-Error">
+</section>
+<section id="Force-Error">
 <h3>Force Error<a class="headerlink" href="#Force-Error" title="Permalink to this headline">¶</a></h3>
 <p>The Ewald parameter and cut off radius are chosen with the option <code class="docutils literal notranslate"><span class="pre">pppm_estimate</span> <span class="pre">=</span> <span class="pre">True</span></code>. This option produces the last two figures shown above.</p>
 <p>The first figure is a contour map in the <span class="math notranslate nohighlight">\((r_c,\alpha)\)</span> parameters space of</p>
@@ -964,9 +965,9 @@ optimal given <span class="math notranslate nohighlight">\(\alpha a_{ws} = 0.614
 <blockquote>
 <div><p><strong>NOTE:</strong> The above investigation is useful in choosing the parameters <span class="math notranslate nohighlight">\(r_c\)</span> and <span class="math notranslate nohighlight">\(\alpha\)</span> for fixed values of the charge approximation order, <span class="math notranslate nohighlight">\(p\)</span>, the number of mesh points, <span class="math notranslate nohighlight">\(M_x = M_y = M_z\)</span>, and number of aliases <span class="math notranslate nohighlight">\(m_x = m_y = m_z\)</span>.</p>
 </div></blockquote>
-</div>
-</div>
-<div class="section" id="Post-Processing">
+</section>
+</section>
+<section id="Post-Processing">
 <h2>Post Processing<a class="headerlink" href="#Post-Processing" title="Permalink to this headline">¶</a></h2>
 <p>All the above information are needed in order to run a simulation and produce data to be analyzed in the post-processing phase. However, the optimal choice of the above parameters does not necessarily indicate that our desired physical observable is calculated correctly. Thus, we need to verify that our choices lead to the desired physical result.</p>
 <p>By setting <code class="docutils literal notranslate"><span class="pre">postprocessing=True</span></code> as the argument of <code class="docutils literal notranslate"><span class="pre">run()</span></code> we will print the parameters of the physical observables that we decided to calculate in the <code class="docutils literal notranslate"><span class="pre">PostProcessing</span></code> section of the YAML file.</p>
@@ -1091,11 +1092,11 @@ Total number of k values to calculate = 132
 No. of unique ka values to calculate = 44
 </pre></div></div>
 </div>
-<div class="section" id="Radial-Distribution-Function">
+<section id="Radial-Distribution-Function">
 <h3>Radial Distribution Function<a class="headerlink" href="#Radial-Distribution-Function" title="Permalink to this headline">¶</a></h3>
 <p>The most common physical observable is the Radial Distribution Function (RDF). Our choice of <code class="docutils literal notranslate"><span class="pre">Parameters.rdf_nbins</span> <span class="pre">:</span> <span class="pre">500</span></code> and <code class="docutils literal notranslate"><span class="pre">Potential.rc</span> <span class="pre">:</span> <span class="pre">6.2702e-11</span></code> leads to <code class="docutils literal notranslate"><span class="pre">dr</span> <span class="pre">=</span> <span class="pre">0.0110</span> <span class="pre">a_ws</span></code> and <code class="docutils literal notranslate"><span class="pre">r_max</span> <span class="pre">=</span> <span class="pre">5.5100</span> <span class="pre">a_ws</span></code>. If we desire to have a larger <code class="docutils literal notranslate"><span class="pre">r_max</span></code> we will need to increase <code class="docutils literal notranslate"><span class="pre">potential.rc</span></code>. As mentioned above this might lead to an inefficient force calculation, but the force error plots can help us find an optimal <code class="docutils literal notranslate"><span class="pre">alpha</span></code> for a larger <code class="docutils literal notranslate"><span class="pre">rcut</span></code></p>
-</div>
-<div class="section" id="Static-Structure-Factor">
+</section>
+<section id="Static-Structure-Factor">
 <h3>Static Structure Factor<a class="headerlink" href="#Static-Structure-Factor" title="Permalink to this headline">¶</a></h3>
 <p>The Fourier transform of the RDF leads to the Static Structure Factor (SSF). The important parameters for the SSF is the desired range of wavevectors to calculate. The output shows the chosen number of harmonics of the smallest wavevector in each of cartesian directions. These are the same values in the YAML file.</p>
 <p>Next, we find the total number of <span class="math notranslate nohighlight">\(\mathbf k\)</span> (vectors) that will be calculated. This number corresponds to the total number of combinations of the three harmonics directions, <code class="docutils literal notranslate"><span class="pre">n_x</span> <span class="pre">*</span> <span class="pre">n_y</span> <span class="pre">*</span> <span class="pre">n_z</span> <span class="pre">-</span> <span class="pre">1</span></code> .</p>
@@ -1110,8 +1111,8 @@ calculated as</p>
 <p>while in the case <code class="docutils literal notranslate"><span class="pre">angle_averaging</span> <span class="pre">=</span> <span class="pre">full</span></code> as</p>
 <div class="math notranslate nohighlight">
 \[k_{\rm max} = \frac{2 \pi}{L} \sqrt{n_x^2 + n_y^2 + n_z^2}.\]</div>
-</div>
-<div class="section" id="Dynamic-Structure-Factor-and-Current-Correlation-Function">
+</section>
+<section id="Dynamic-Structure-Factor-and-Current-Correlation-Function">
 <h3>Dynamic Structure Factor and Current Correlation Function<a class="headerlink" href="#Dynamic-Structure-Factor-and-Current-Correlation-Function" title="Permalink to this headline">¶</a></h3>
 <p>These two functions depend on the same parameters. However, it can be the case that only one of the two is calculated, hence, a section for each of them. The parameters are divided in two sections, frequency and wavevector constants. The wavevectors constants are the same as those in SSF. This is due to the fact that the <span class="math notranslate nohighlight">\(\mathbf k\)</span> data is saved once computed the first time. Any subsequent calculation requiring this data will read in the saved data and not recompute it. Therefore it is
 important to check that the parameters in the YAML file are the same.</p>
@@ -1123,9 +1124,9 @@ given by</p>
 <div class="math notranslate nohighlight">
 \[\Delta \omega = 2\pi \frac{d_s N_s}{M_T \Delta t}\]</div>
 <p>where <span class="math notranslate nohighlight">\(N_s\)</span> is the number of slices (<code class="docutils literal notranslate"><span class="pre">no_slices</span></code>), <span class="math notranslate nohighlight">\(M_T\)</span> the number of timesteps (<code class="docutils literal notranslate"><span class="pre">production_steps</span></code>).</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
     </div>
@@ -1140,8 +1141,8 @@ given by</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 15, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+      Last updated on Sep 21, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
 </footer>

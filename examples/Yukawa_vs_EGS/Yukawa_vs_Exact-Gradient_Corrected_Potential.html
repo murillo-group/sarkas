@@ -3,7 +3,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Yukawa vs Egs potential &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
@@ -21,7 +22,7 @@
     <script src="../../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../../_static/language_data.js"></script>
   
@@ -33,9 +34,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -72,28 +73,28 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theory:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Simulations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Credits:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
 </ul>
@@ -397,7 +398,7 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Yukawa-vs-Egs-potential">
+<section id="Yukawa-vs-Egs-potential">
 <h1>Yukawa vs Egs potential<a class="headerlink" href="#Yukawa-vs-Egs-potential" title="Permalink to this headline">¶</a></h1>
 <p>In this notebook I will show a tutorial on how to run Sarkas to compare EGS and Yukawa potential. I will run one simulation per potential choice and compute the radial distribution function <span class="math notranslate nohighlight">\(g(r)\)</span> and the static structure factor <span class="math notranslate nohighlight">\(S(k)\)</span>.</p>
 <p>The good thing about Sarkas is that I can put all of this into literally few lines.</p>
@@ -432,8 +433,8 @@ Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="PreProcessing">
+</section>
+<section id="PreProcessing">
 <h1>PreProcessing<a class="headerlink" href="#PreProcessing" title="Permalink to this headline">¶</a></h1>
 <p>The first thing to do is to check our simulation parameters. I use this preprocessing mainly to check if my force error is too large. Other would like to check other parameters, e.g. kappa.</p>
 <div class="nbinput docutils container">
@@ -698,7 +699,7 @@ Total number of k values to calculate = 215
 No. of unique ka values to calculate = 49
 </pre></div></div>
 </div>
-<div class="section" id="Simulation">
+<section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
 <p>This is the most important part of this whole notebook. Notice how I can run the simulation and calculate observables all in one loop. After the definition of the parameters using the <code class="docutils literal notranslate"><span class="pre">args</span></code> dictionary. All I need to do is run 3 lines of code for simulation and 3 for postprocessing.</p>
 <div class="nbinput docutils container">
@@ -831,7 +832,7 @@ Static Structure Factor Calculation Time: 0 sec 24 msec 969 usec 611 nsec
 <img alt="../../_images/examples_Yukawa_vs_EGS_Yukawa_vs_Exact-Gradient_Corrected_Potential_5_10.png" src="../../_images/examples_Yukawa_vs_EGS_Yukawa_vs_Exact-Gradient_Corrected_Potential_5_10.png" />
 </div>
 </div>
-<div class="section" id="Radial-Distribution-Function">
+<section id="Radial-Distribution-Function">
 <h3>Radial Distribution Function<a class="headerlink" href="#Radial-Distribution-Function" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -876,8 +877,8 @@ Static Structure Factor Calculation Time: 0 sec 24 msec 969 usec 611 nsec
 <img alt="../../_images/examples_Yukawa_vs_EGS_Yukawa_vs_Exact-Gradient_Corrected_Potential_7_1.png" src="../../_images/examples_Yukawa_vs_EGS_Yukawa_vs_Exact-Gradient_Corrected_Potential_7_1.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Static-Structure-Function">
+</section>
+<section id="Static-Structure-Function">
 <h3>Static Structure Function<a class="headerlink" href="#Static-Structure-Function" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -931,9 +932,9 @@ Static Structure Factor Calculation Time: 0 sec 24 msec 969 usec 611 nsec
 </pre></div>
 </div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
     </div>
@@ -948,8 +949,8 @@ Static Structure Factor Calculation Time: 0 sec 24 msec 969 usec 611 nsec
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 15, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+      Last updated on Sep 21, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
 </footer>

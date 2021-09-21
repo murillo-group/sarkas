@@ -29,9 +29,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -68,28 +68,28 @@
      href="index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theory:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="code_development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Simulations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/api.html">API reference</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Credits:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="credits/credits.html">Credits</a></li>
 </ul>
@@ -171,16 +171,18 @@
 </li>
       <li><a href="api/sarkas.core.html#sarkas.core.Parameters.a_ws">a_ws (sarkas.core.Parameters attribute)</a>
 </li>
+      <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.absorbing">absorbing() (sarkas.time_evolution.integrators.Integrator method)</a>
+</li>
       <li><a href="api/sarkas.core.html#sarkas.core.Particles.acc">acc (sarkas.core.Particles attribute)</a>
 </li>
       <li><a href="api/sarkas.core.html#sarkas.core.Species.ai">ai (sarkas.core.Species attribute)</a>
 </li>
       <li><a href="api/sarkas.core.html#sarkas.core.Species.ai_dens">ai_dens (sarkas.core.Species attribute)</a>
 </li>
-      <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.algorithm_info">algorithm_info() (sarkas.utilities.io.InputOutput static method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.InputOutput.algorithm_info">algorithm_info() (sarkas.utilities.io.InputOutput static method)</a>
+</li>
       <li><a href="api/sarkas.utilities.io.html#sarkas.utilities.io.alpha_to_int">alpha_to_int() (in module sarkas.utilities.io)</a>
 </li>
       <li><a href="api/sarkas.processes.html#sarkas.processes.PreProcess.analytical_approx_pp">analytical_approx_pp() (sarkas.processes.PreProcess method)</a>
@@ -399,18 +401,22 @@
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent">ElectricCurrent (class in sarkas.tools.observables)</a>
 </li>
+      <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.enforce_abc">enforce_abc() (in module sarkas.time_evolution.integrators)</a>
+</li>
+      <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.enforce_bc">enforce_bc (sarkas.time_evolution.integrators.Integrator attribute)</a>
+</li>
       <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.enforce_pbc">enforce_pbc() (in module sarkas.time_evolution.integrators)</a>
 </li>
       <li><a href="api/sarkas.core.html#sarkas.core.Parameters.eps0">eps0 (sarkas.core.Parameters attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.core.html#sarkas.core.Parameters.eq_dump_dir">eq_dump_dir (sarkas.core.Parameters attribute)</a>
 
       <ul>
         <li><a href="api/sarkas.core.html#sarkas.core.Particles.eq_dump_dir">(sarkas.core.Particles attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.eq_dump_step">eq_dump_step (sarkas.time_evolution.integrators.Integrator attribute)</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.eq_no_dumps">eq_no_dumps (sarkas.tools.observables.Observable attribute)</a>
@@ -847,6 +853,8 @@
       <li><a href="api/sarkas.core.html#sarkas.core.Particles">Particles (class in sarkas.core)</a>
 </li>
       <li><a href="api/sarkas.processes.html#sarkas.processes.Process.particles">particles (sarkas.processes.Process attribute)</a>
+</li>
+      <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.periodic">periodic() (sarkas.time_evolution.integrators.Integrator method)</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.phase">phase (sarkas.tools.observables.Observable attribute)</a>
 </li>
@@ -1453,8 +1461,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 15, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+      Last updated on Sep 21, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
 </footer>

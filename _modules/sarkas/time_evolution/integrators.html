@@ -29,9 +29,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -68,28 +68,28 @@
      href="../../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Documentation:</span></p>
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation/why_sarkas.html">Why Sarkas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation/get_started.html">Get Started</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Theory:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/theory.html">Theoretical Background</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Code Dev:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../code_development/code_dev.html">Code Development</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Simulations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples/examples.html">Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/api.html">API reference</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Credits:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../credits/credits.html">Credits</a></li>
 </ul>
@@ -191,13 +191,16 @@
 <span class="sd">        Integrator type.</span>
 
 <span class="sd">    update: func</span>
-<span class="sd">        Integrator choice. &#39;verlet&#39; or &#39;magnetic_verlet&#39;.</span>
+<span class="sd">        Integrator choice. &#39;verlet&#39;, &#39;verlet_langevin&#39;, &#39;magnetic_verlet&#39; or &#39;magnetic_boris&#39;.</span>
 
 <span class="sd">    update_accelerations: func</span>
 <span class="sd">        Link to the correct potential update function.</span>
 
 <span class="sd">    thermostate: func</span>
 <span class="sd">        Link to the correct thermostat function.</span>
+
+<span class="sd">    enforce_bc: func</span>
+<span class="sd">        Link to the function enforcing boundary conditions. &#39;periodic&#39; or &#39;absorbing&#39;.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -216,7 +219,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supported_boundary_conditions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;periodic&#39;</span><span class="p">,</span> <span class="s1">&#39;absorbing&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">supported_integrators</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;verlet&#39;</span><span class="p">,</span> <span class="s1">&#39;verlet_langevin&#39;</span><span class="p">,</span> <span class="s1">&#39;magnetic_verlet&#39;</span><span class="p">,</span> <span class="s1">&#39;magnetic_boris&#39;</span><span class="p">]</span>
 
     <span class="c1"># def __repr__(self):</span>
@@ -258,6 +264,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">boundary_conditions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">verbose</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -280,6 +287,14 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eq_dump_step</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_boundary_conditions</span><span class="p">,</span> <span class="s1">&#39;Wrong choice of boundary condition.&#39;</span>
+
+        <span class="c1"># Assign integrator.enforce_bc to the correct method</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;periodic&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;absorbing&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">absorbing</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_integrators</span><span class="p">,</span> <span class="s1">&#39;Wrong integrator choice.&#39;</span>
 
@@ -460,8 +475,8 @@
                                              <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> \
                                              <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">**</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">beta</span>
 
-        <span class="c1"># Periodic boundary condition</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
         <span class="n">acc_old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
@@ -494,8 +509,9 @@
         <span class="c1"># Full step position update</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
 
-        <span class="c1"># Periodic boundary condition</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+
         <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
@@ -566,8 +582,8 @@
         <span class="c1"># Position update</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
 
-        <span class="c1"># Periodic boundary condition</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
         <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
         <span class="n">potential_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
@@ -638,8 +654,8 @@
         <span class="c1"># Position update</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
 
-        <span class="c1"># Periodic boundary condition</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
         <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
         <span class="n">potential_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
@@ -720,8 +736,8 @@
         <span class="c1"># Full step position update</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
 
-        <span class="c1"># Periodic boundary condition</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
         <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
         <span class="n">potential_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
@@ -769,13 +785,39 @@
         <span class="c1"># Full step position update</span>
         <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
 
-        <span class="c1"># Periodic boundary condition</span>
-        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
         <span class="c1"># Compute total potential energy and acceleration for second half step velocity update</span>
         <span class="n">potential_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">potential_energy</span></div>
+
+<div class="viewcode-block" id="Integrator.periodic"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.periodic">[docs]</a>    <span class="k">def</span> <span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies periodic boundary conditions by calling enforce_pbc</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptcls: sarkas.core.Particles</span>
+<span class="sd">            Particles data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">enforce_pbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">pbc_cntr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Integrator.absorbing"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.absorbing">[docs]</a>    <span class="k">def</span> <span class="nf">absorbing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies absorbing boundary conditions by calling enforce_abc</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptcls: sarkas.core.Particles</span>
+<span class="sd">            Particles data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">enforce_abc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">charges</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Integrator.pretty_print"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">restart</span><span class="p">,</span> <span class="n">restart_step</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print integrator attributes in a user friendly way.&quot;&quot;&quot;</span>
@@ -883,7 +925,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span> <span class="o">*</span> <span class="n">wp_dt</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total number of snapshots = </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equilibration_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_dump_step</span><span class="p">)))</span>
-            
+
             <span class="c1"># Magnetization</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Electrostatic Equilibration Type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
@@ -916,8 +958,8 @@
 
 <span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">enforce_pbc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">cntr</span><span class="p">,</span> <span class="n">BoxVector</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Enforce Periodic Boundary conditions. </span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enforce Periodic Boundary conditions.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -944,6 +986,48 @@
             <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">+=</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
                 <span class="n">cntr</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+
+
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">enforce_abc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">charges</span><span class="p">,</span> <span class="n">BoxVector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enforce Absorbing Boundary conditions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pos: numpy.ndarray</span>
+<span class="sd">        Particles&#39; positions.</span>
+
+<span class="sd">    vel : numpy.ndarray</span>
+<span class="sd">        Particles&#39; velocities.</span>
+
+<span class="sd">    acc : numpy.ndarray</span>
+<span class="sd">        Particles&#39; accelerations.</span>
+
+<span class="sd">    charges : numpy.ndarray</span>
+<span class="sd">        Charge of each particle. Shape = (``total_num_ptcls``).</span>
+
+<span class="sd">    BoxVector: numpy.ndarray</span>
+<span class="sd">        Box Dimensions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Loop over all particles</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+
+            <span class="c1"># If particle is outside of box in positive direction, remove charge, velocity and acceleration</span>
+            <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">d</span><span class="p">]:</span>
+                <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">BoxVector</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+                <span class="n">vel</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">acc</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">charges</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="c1"># If particle is outside of box in negative direction, remove charge, velocity and acceleration</span>
+            <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">pos</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">vel</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">acc</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">charges</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
 
 
 <span class="nd">@njit</span>
@@ -992,8 +1076,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jun 15, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.2.<br/>
+      Last updated on Sep 21, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
 </footer>
