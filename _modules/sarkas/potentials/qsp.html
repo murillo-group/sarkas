@@ -245,7 +245,7 @@
         <span class="c1"># Calculate the PP Force error from the e-e diffraction term only.</span>
         <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">two_pi</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">pbox_volume</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">potential</span><span class="o">.</span><span class="n">qsp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;kelbg&quot;</span><span class="p">:</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">kelbg_force</span>
@@ -256,7 +256,7 @@
 
 <span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">deutsch_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate Deutsch QSP Force between two particles.</span>
 
 <span class="sd">    Parameters</span>
@@ -276,7 +276,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    U : float</span>
 <span class="sd">        Potential.</span>
-<span class="sd">                </span>
+
 <span class="sd">    force : float</span>
 <span class="sd">        Force between two particles.</span>
 
@@ -313,7 +313,7 @@
 
 <span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">kelbg_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the QSP Force between two particles when the P3M algorithm is chosen.</span>
 
 <span class="sd">    Parameters</span>
@@ -333,10 +333,10 @@
 <span class="sd">    -------</span>
 <span class="sd">    U : float</span>
 <span class="sd">        Potential.</span>
-<span class="sd">                </span>
+
 <span class="sd">    force : float</span>
 <span class="sd">        Force between two particles.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">A</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>

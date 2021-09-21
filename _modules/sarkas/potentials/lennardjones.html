@@ -185,18 +185,18 @@
     <span class="n">deriv_exp</span> <span class="o">=</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sigma2</span> <span class="o">**</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">deriv_exp</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">**</span> <span class="n">deriv_exp</span><span class="p">)</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span></div>
+    <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">pbox_volume</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span></div>
 
 
 <span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">lj_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix_ij</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the PP force between particles using Lennard-Jones Potential.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pot_matrix_ij : array</span>
-<span class="sd">        LJ potential parameters. </span>
+<span class="sd">        LJ potential parameters.</span>
 
 <span class="sd">    r : float</span>
 <span class="sd">        Particles&#39; distance.</span>
@@ -217,7 +217,7 @@
 <span class="sd">    pot_matrix[1] = sigmas</span>
 <span class="sd">    pot_matrix[2] = highest power</span>
 <span class="sd">    pot_matrix[3] = lowest power</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">epsilon</span> <span class="o">=</span> <span class="n">pot_matrix_ij</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>

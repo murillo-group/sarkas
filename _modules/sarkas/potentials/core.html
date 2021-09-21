@@ -236,7 +236,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">measure</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbox_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -352,7 +354,9 @@
 
         <span class="c1"># Copy needed parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbox_volume</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pbox_volume</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fourpie0</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QFactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">QFactor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_net_charge</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_net_charge</span>

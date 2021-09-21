@@ -140,6 +140,10 @@ Next we define the ``boundary_conditions`` of our simulation. At the moment Sark
 Future implementations of Sarkas accepting open and mixed boundary conditions will be available in the future.
 We accept pull request :) !
 
+By specifying ``Lx``, ``Ly`` and ``Lz`` the simulation box can be specified explicitly and expanded with respect
+to the initial particle distribution. This moves the walls where boundary conditions are applied away from the
+initial particle volume.
+
 Input/Output
 ------------
 The next section defines some IO parameters

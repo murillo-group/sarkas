@@ -135,7 +135,7 @@
     <div class="body col-md-12 content" role="main">
       
   <h1>Source code for sarkas.potentials.coulomb</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; </span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for handling Coulomb interaction</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -176,12 +176,12 @@
     <span class="c1"># PP force error calculation. Note that the equation was derived for a single component plasma.</span>
     <span class="n">alpha_times_rcut</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
     <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">alpha_times_rcut</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">)</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">box_volume</span><span class="p">)</span></div>
+    <span class="n">params</span><span class="o">.</span><span class="n">pppm_pp_err</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">pbox_volume</span><span class="p">)</span></div>
 
 
 <span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">coulomb_force_pppm</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate Potential and Force between two particles when the P3M algorithm is chosen.</span>
 
 <span class="sd">    Parameters</span>
@@ -196,10 +196,10 @@
 <span class="sd">    -------</span>
 <span class="sd">    U_s_r : float</span>
 <span class="sd">        Potential value.</span>
-<span class="sd">                </span>
+
 <span class="sd">    fr : float</span>
-<span class="sd">        Force between two particles. </span>
-<span class="sd">    </span>
+<span class="sd">        Force between two particles.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Ewald parameter alpha</span>
