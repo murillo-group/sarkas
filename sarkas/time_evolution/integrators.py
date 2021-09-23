@@ -57,13 +57,16 @@ class Integrator:
         Integrator type.
 
     update: func
-        Integrator choice. 'verlet' or 'magnetic_verlet'.
+        Integrator choice. 'verlet', 'verlet_langevin', 'magnetic_verlet' or 'magnetic_boris'.
 
     update_accelerations: func
         Link to the correct potential update function.
 
     thermostate: func
         Link to the correct thermostat function.
+
+    enforce_bc: func
+        Link to the function enforcing boundary conditions. 'periodic' or 'absorbing'.
 
     """
 
@@ -84,6 +87,7 @@ class Integrator:
         self.box_lengths = None
         self.pbox_lengths = None
         self.boundary_conditions = None
+        self.enforce_bc = None
         self.verbose = False
         self.supported_boundary_conditions = ['periodic', 'absorbing']
         self.supported_integrators = ['verlet', 'verlet_langevin', 'magnetic_verlet', 'magnetic_boris']
@@ -153,6 +157,12 @@ class Integrator:
                 self.eq_dump_step = int(0.1 * self.equilibration_steps)
 
         assert self.boundary_conditions.lower() in self.supported_boundary_conditions, 'Wrong choice of boundary condition.'
+
+        # Assign integrator.enforce_bc to the correct method
+        if self.boundary_conditions.lower() == "periodic":
+            self.enforce_bc = self.periodic
+        elif self.boundary_conditions.lower() == "absorbing":
+            self.enforce_bc = self.absorbing
 
         assert self.type.lower() in self.supported_integrators, 'Wrong integrator choice.'
 
@@ -334,10 +344,7 @@ class Integrator:
                                              + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls)
 
         acc_old = np.copy(ptcls.acc)
         self.update_accelerations(ptcls)
@@ -371,10 +378,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
         self.update_accelerations(ptcls)
@@ -447,10 +451,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -522,10 +523,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -607,10 +605,7 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -659,15 +654,38 @@ class Integrator:
         ptcls.pos += ptcls.vel * self.dt
 
         # Enforce boundary condition
-        if self.boundary_conditions.lower() == "periodic":
-            enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
-        if self.boundary_conditions.lower() == "absorbing":
-            enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
+        self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
 
         return potential_energy
+
+    def periodic(self, ptcls):
+        """
+        Applies periodic boundary conditions by calling enforce_pbc
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        """
+
+        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
+
+    def absorbing(self, ptcls):
+        """
+        Applies absorbing boundary conditions by calling enforce_abc
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        """
+
+        enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
 
     def pretty_print(self, frequency, restart, restart_step):
         """Print integrator attributes in a user friendly way."""
@@ -775,7 +793,7 @@ class Integrator:
                 self.eq_dump_step * self.dt,
                 self.eq_dump_step * wp_dt))
             print('Total number of snapshots = {} '.format(int(self.equilibration_steps / self.eq_dump_step)))
-            
+
             # Magnetization
             if self.electrostatic_equilibration:
                 print('Electrostatic Equilibration Type: {}'.format(self.type))
@@ -808,8 +826,8 @@ class Integrator:
 
 @njit
 def enforce_pbc(pos, cntr, BoxVector):
-    """ 
-    Enforce Periodic Boundary conditions. 
+    """
+    Enforce Periodic Boundary conditions.
 
     Parameters
     ----------
@@ -840,8 +858,8 @@ def enforce_pbc(pos, cntr, BoxVector):
 
 @njit
 def enforce_abc(pos, vel, acc, charges, BoxVector):
-    """ 
-    Enforce Absorbing Boundary conditions. 
+    """
+    Enforce Absorbing Boundary conditions.
 
     Parameters
     ----------
@@ -853,7 +871,7 @@ def enforce_abc(pos, vel, acc, charges, BoxVector):
 
     acc : numpy.ndarray
         Particles' accelerations.
-		
+
     charges : numpy.ndarray
         Charge of each particle. Shape = (``total_num_ptcls``).
 
