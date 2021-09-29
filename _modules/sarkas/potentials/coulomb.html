@@ -188,13 +188,13 @@
 
 
 <span class="nd">@njit</span>
-<span class="k">def</span> <span class="nf">coulomb_force_pppm</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">coulomb_force_pppm</span><span class="p">(</span><span class="n">r_in</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate Potential and Force between two particles when the P3M algorithm is chosen.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    r : float</span>
+<span class="sd">    r_in : float</span>
 <span class="sd">        Distance between two particles.</span>
 
 <span class="sd">    pot_matrix : numpy.ndarray</span>
@@ -212,8 +212,8 @@
 
     <span class="c1"># Short-range cutoff to deal with divergence of the Coulomb potential</span>
     <span class="n">rs</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">rs</span><span class="p">:</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">rs</span>
+    <span class="c1"># Branchless programming</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">r_in</span> <span class="o">*</span> <span class="p">(</span><span class="n">r_in</span> <span class="o">&gt;=</span> <span class="n">rs</span><span class="p">)</span> <span class="o">+</span> <span class="n">rs</span> <span class="o">*</span> <span class="p">(</span><span class="n">r_in</span> <span class="o">&lt;</span> <span class="n">rs</span><span class="p">)</span>
 
     <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Ewald parameter alpha</span>
     <span class="n">alpha_r</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span>
@@ -227,13 +227,13 @@
 
 
 <span class="nd">@njit</span>
-<span class="k">def</span> <span class="nf">coulomb_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">coulomb_force</span><span class="p">(</span><span class="n">r_in</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the coulomb potential and force between two particles.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    r : float</span>
+<span class="sd">    r_in : float</span>
 <span class="sd">        Distance between two particles.</span>
 
 <span class="sd">    pot_matrix : numpy.ndarray</span>
@@ -251,8 +251,8 @@
 
     <span class="c1"># Short-range cutoff to deal with divergence of the Coulomb potential</span>
     <span class="n">rs</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">rs</span><span class="p">:</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">rs</span>
+    <span class="c1"># Branchless programming</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">r_in</span> <span class="o">*</span> <span class="p">(</span><span class="n">r_in</span> <span class="o">&gt;=</span> <span class="n">rs</span><span class="p">)</span> <span class="o">+</span> <span class="n">rs</span> <span class="o">*</span> <span class="p">(</span><span class="n">r_in</span> <span class="o">&lt;</span> <span class="n">rs</span><span class="p">)</span>
 
     <span class="n">U</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span>
     <span class="n">fr</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span>

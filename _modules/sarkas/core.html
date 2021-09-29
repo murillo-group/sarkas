@@ -520,11 +520,12 @@
                 <span class="n">Av</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;Avogadro constant&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">sp</span><span class="o">.</span><span class="n">number_density</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">mass_density</span> <span class="o">*</span> <span class="n">Av</span> <span class="o">/</span> <span class="n">sp</span><span class="o">.</span><span class="n">atomic_weight</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">number_density</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">number_density</span>
 
             <span class="k">assert</span> <span class="n">sp</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> number density not defined&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
             <span class="c1"># Update arrays of species information</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">number_density</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">num</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">mass</span>

@@ -145,12 +145,12 @@
 <p>Module for handling Coulomb interaction</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.potentials.coulomb.coulomb_force">
-<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.coulomb.</span></span><span class="sig-name descname"><span class="pre">coulomb_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.coulomb.coulomb_force" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.coulomb.</span></span><span class="sig-name descname"><span class="pre">coulomb_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.coulomb.coulomb_force" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the coulomb potential and force between two particles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance between two particles.</p></li>
+<li><p><strong>r_in</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance between two particles.</p></li>
 <li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – It contains potential dependent variables.</p></li>
 </ul>
 </dd>
@@ -166,12 +166,12 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.potentials.coulomb.coulomb_force_pppm">
-<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.coulomb.</span></span><span class="sig-name descname"><span class="pre">coulomb_force_pppm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.coulomb.coulomb_force_pppm" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.coulomb.</span></span><span class="sig-name descname"><span class="pre">coulomb_force_pppm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.coulomb.coulomb_force_pppm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate Potential and Force between two particles when the P3M algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance between two particles.</p></li>
+<li><p><strong>r_in</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance between two particles.</p></li>
 <li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – It contains potential dependent variables.</p></li>
 </ul>
 </dd>
