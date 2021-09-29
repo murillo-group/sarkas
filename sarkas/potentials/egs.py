@@ -68,7 +68,7 @@ def update_params(potential, params):
         params.gamma_p = params.lambda_TF * np.sqrt(params.nu / (np.sqrt(params.nu) + b))
         params.alphap = b / np.sqrt(params.nu - b)
 
-    potential.matrix = np.zeros((6, params.num_species, params.num_species))
+    potential.matrix = np.zeros((7, params.num_species, params.num_species))
 
     potential.matrix[1, :, :] = params.nu
 
@@ -89,6 +89,8 @@ def update_params(potential, params):
                 potential.matrix[3, i, j] = params.alphap
                 potential.matrix[4, i, j] = 1.0 / params.gamma_m
                 potential.matrix[5, i, j] = 1.0 / params.gamma_p
+
+    potential.matrix[6, :, :] = potential.rs
 
     assert potential.method == "PP", "P3M Algorithm not implemented yet. Good Bye!"
 
@@ -121,6 +123,11 @@ def egs_force(r, pot_matrix):
         Force.
 
     """
+
+    rs = pot_matrix[6]
+    if r < rs:
+        r = rs
+
     # nu = pot_matrix[1]
     if pot_matrix[1] <= 1.0:
         # pot_matrix[0] = Charge factor = q^2/4pi eps0 if mks q^2 if cgs

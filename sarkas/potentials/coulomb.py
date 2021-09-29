@@ -25,21 +25,29 @@ def update_params(potential, params):
     -----
     Coulomb_matrix[0,i,j] : qi qj/(4pi esp0) Force factor between two particles.
     Coulomb_matrix[1,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
+    Coulomb_matrix[2,i,j] : Short-range cutoff. Same value for all species
     """
-    potential.matrix = np.zeros((2, params.num_species, params.num_species))
+
+    potential.matrix = np.zeros((3, params.num_species, params.num_species))
 
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
 
-    potential.matrix[1, :, :] = potential.pppm_alpha_ewald
-    # Calculate the (total) plasma frequency
-    potential.force = coulomb_force_pppm
+    if potential.method == "PP":
+        potential.matrix[2, :, :] = potential.rs
+        potential.force = coulomb_force
+        params.force_error = 0.0  # TODO: Implement force error in PP case
+    elif potential.method == "P3M":
+        potential.matrix[1, :, :] = potential.pppm_alpha_ewald
+        potential.matrix[2, :, :] = potential.rs
+        # Calculate the (total) plasma frequency
+        potential.force = coulomb_force_pppm
 
-    # PP force error calculation. Note that the equation was derived for a single component plasma.
-    alpha_times_rcut = - (potential.pppm_alpha_ewald * potential.rc) ** 2
-    params.pppm_pp_err = 2.0 * np.exp(alpha_times_rcut) / np.sqrt(potential.rc)
-    params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 / np.sqrt(params.pbox_volume)
+        # PP force error calculation. Note that the equation was derived for a single component plasma.
+        alpha_times_rcut = - (potential.pppm_alpha_ewald * potential.rc) ** 2
+        params.pppm_pp_err = 2.0 * np.exp(alpha_times_rcut) / np.sqrt(potential.rc)
+        params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 / np.sqrt(params.pbox_volume)
 
 
 @njit
@@ -64,6 +72,11 @@ def coulomb_force_pppm(r, pot_matrix):
         Force between two particles.
 
     """
+
+    # Short-range cutoff to deal with divergence of the Coulomb potential
+    rs = pot_matrix[2]
+    if r < rs:
+        r = rs
 
     alpha = pot_matrix[1]  # Ewald parameter alpha
     alpha_r = alpha * r
@@ -98,6 +111,11 @@ def coulomb_force(r, pot_matrix):
         Force between two particles.
 
     """
+
+    # Short-range cutoff to deal with divergence of the Coulomb potential
+    rs = pot_matrix[2]
+    if r < rs:
+        r = rs
 
     U = pot_matrix[0] / r
     fr = U / r

@@ -907,6 +907,8 @@ class InputOutput:
 
         elif simulation.potential.type.lower() == 'coulomb':
             print('Effective Coupling constant: Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
+            print('Short-range Cutoff radius: rs = {:.6e} '.format(simulation.potential.rs), end='')
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             # simulation.parameters.pretty_print()
 
         elif simulation.potential.type.lower() == 'lj':
@@ -966,6 +968,7 @@ class InputOutput:
             if len(species) > 1:
                 for i, sp in enumerate(species):
                     dkeys.append("{} Kinetic Energy".format(sp.name))
+                    dkeys.append("{} Potential Energy".format(sp.name))
                     dkeys.append("{} Temperature".format(sp.name))
             data = dict.fromkeys(dkeys)
 
@@ -979,6 +982,7 @@ class InputOutput:
             if len(species) > 1:
                 for i, sp_name in enumerate(params.species_names):
                     dkeys.append("{} Kinetic Energy".format(sp_name))
+                    dkeys.append("{} Potential Energy".format(sp_name))
                     dkeys.append("{} Temperature".format(sp_name))
             data = dict.fromkeys(dkeys)
 
@@ -993,6 +997,7 @@ class InputOutput:
                 if len(species) > 1:
                     for i, sp_name in enumerate(params.species_names):
                         dkeys.append("{} Kinetic Energy".format(sp_name))
+                        dkeys.append("{} Potential Energy".format(sp_name))
                         dkeys.append("{} Temperature".format(sp_name))
                 data = dict.fromkeys(dkeys)
 
@@ -1132,6 +1137,7 @@ class InputOutput:
             energy_file = self.mag_energy_filename
 
         kinetic_energies, temperatures = ptcls.kinetic_temperature()
+        potential_energies = ptcls.potential_energies()
         # Save Energy data
         data = {"Time": it * self.dt,
                 "Total Energy": np.sum(kinetic_energies) + ptcls.potential_energy,
@@ -1142,6 +1148,7 @@ class InputOutput:
         if len(temperatures) > 1:
             for sp, kin in enumerate(kinetic_energies):
                 data["{} Kinetic Energy".format(self.species_names[sp])] = kin
+                data["{} Potential Energy".format(self.species_names[sp])] = potential_energies[sp]
                 data["{} Temperature".format(self.species_names[sp])] = temperatures[sp]
 
         with open(energy_file, 'a') as f:

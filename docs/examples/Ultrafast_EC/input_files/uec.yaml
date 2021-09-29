@@ -1,0 +1,60 @@
+# Ultrafast electron cooling in an expanding ultracold plasma
+# T. Kroker et al., Nat. Commun. 12, 596 (2021)
+# https://doi.org/10.1038/s41467-020-20815-8
+
+Particles:
+    - Species:
+        name: e
+        number_density: 2.0e+20                        # /m^3
+        mass: 9.1093837015e-31                         # kg, electron mass
+        num: 4000                                      # total number of electrons
+        Z: -1.0                                        # degree of ionization
+        temperature: 5250                              # K, initial electron temperature
+        initial_velocity_distribution: monochromatic   # monochromatic electrons with random velocity vectors
+
+    - Species:
+        name: Rb
+        number_density: 2.0e+20                        # /m^3
+        atomic_weight: 87                              # Rubidium-87 isotope
+        num: 4000                                      # total number of particles of ion1
+        Z: 1.0                                         # degree of ionization
+        temperature: 0.033                             # K, initial ion temperature due to ionization recoil
+
+Potential:
+    type: Coulomb                     # potential type
+    method: PP
+    rc: 100.0e-6                      # cut-off radius, m
+    rs: 20.0e-9                       # short-range cutoff
+
+Integrator:
+    type: verlet
+    dt: 50.0e-15                      # sec
+    equilibration_steps: 0
+    eq_dump_step: 10
+    production_steps: 600
+    prod_dump_step: 4
+
+Thermostat:
+    type: Berendsen                   #  thermostat type
+    relaxation_timestep: 0
+    berendsen_tau: 5.0
+
+Parameters:
+    units: mks                        # SI units
+    load_method: random_no_reject
+    boundary_conditions: absorbing    # absorbing boundary conditions
+    Lx: 200.0e-6                      # size of extended simulation box
+    Ly: 200.0e-6
+    Lz: 200.0e-6
+    np_per_side: [16.0, 16.0, 31.25]  # elongated initial particle distribution
+
+IO:
+    verbose: True
+    job_dir: UEC_4000
+
+Observables:
+  - Thermodynamics:
+      phase: production
+
+  - RadialDistributionFunction:
+      no_bins: 51

@@ -24,6 +24,9 @@ class Potential:
     rc : float
         Cutoff radius.
 
+    rs : float
+        Short-range cutoff to deal with divergence of the potential for r -> 0.
+
     type : str
         Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.
 
@@ -152,8 +155,13 @@ class Potential:
                 self.rc = params.box_lengths.min() / 2.
                 self.linked_list_on = False  # linked list off
 
+            if not hasattr(self, 'rs'):
+                self.rs = 0.0
+            else:
+                print("\nWARNING: Short-range cut-off of {:1.4e} enabled. Use this feature with care!".format(self.rs))
+
         # Check for electrons as dynamical species
-        if self.type.lower() == 'qsp':
+        if self.type.lower() == 'qsp' or self.type.lower() == 'coulomb':
             mask = params.species_names == 'e'
             self.electron_temperature = params.species_temperatures[mask]
             params.ne = float(params.species_num_dens[mask])
@@ -187,6 +195,11 @@ class Potential:
         # Update potential-specific parameters
         # Coulomb potential
         if self.type.lower() == "coulomb":
+            if self.method.lower() == 'pp':
+                print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print("Use the PP method with care for pure Coulomb interactions.")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+
             from sarkas.potentials import coulomb
             coulomb.update_params(self, params)
         # Yukawa potential
@@ -401,15 +414,15 @@ class Potential:
 
         # P3M parameters
         self.pppm_h_array = params.box_lengths / self.pppm_mesh
-        
+
         self.matrix[-1, :, :] = self.pppm_alpha_ewald
-        # Pack constants together for brevity in input list 
+        # Pack constants together for brevity in input list
         kappa = 1. / params.lambda_TF if self.type == "Yukawa" else 0.0
         constants = np.array([kappa, self.pppm_alpha_ewald, params.fourpie0])
         # Calculate the Optimized Green's Function
         self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
             params.box_lengths, self.pppm_mesh, self.pppm_aliases, self.pppm_cao, constants)
-        
+
         # Complete PM Force error calculation
         params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
         params.pppm_pm_err /= params.box_volume ** (2. / 3.)
@@ -442,8 +455,3 @@ class Potential:
     #     ptcls.acc = - np.transpose(ptcls.charges * out_fmm.grad.real / ptcls.mass) / params.fourpie0
     #
     #     return potential_energy
-
-
-
-
-
