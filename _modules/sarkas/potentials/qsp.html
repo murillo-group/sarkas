@@ -181,6 +181,7 @@
 <span class="sd">    QSP_matrix[2,:,:] = e-e Pauli term factor</span>
 <span class="sd">    QSP_matrix[3,:,:] = e-e Pauli term exponent term</span>
 <span class="sd">    QSP_matrix[4,:,:] = Ewald parameter</span>
+<span class="sd">    QSP_matrix[5,:,:] = Short-range cutoff</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Do a bunch of checks</span>
     <span class="c1"># P3M algorithm only</span>
@@ -209,7 +210,7 @@
 
     <span class="n">deBroglie_const</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">hbar2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
 
-    <span class="n">QSP_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+    <span class="n">QSP_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_names</span><span class="p">):</span>
         <span class="n">m1</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">q1</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -238,6 +239,7 @@
         <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span>
+    <span class="n">QSP_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">rs</span>
     <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">QSP_matrix</span>
 
     <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">qsp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;deutsch&quot;</span><span class="p">:</span>
@@ -271,6 +273,7 @@
 <span class="sd">        pot_matrix[2,:,:] = e-e Pauli term factor</span>
 <span class="sd">        pot_matrix[3,:,:] = e-e Pauli term exponent term</span>
 <span class="sd">        pot_matrix[4,:,:] = Ewald parameter</span>
+<span class="sd">        pot_matrix[5,:,:] = Short-range cutoff</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -287,6 +290,10 @@
     <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
     <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">rs</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">rs</span>
 
     <span class="n">a2</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span>
     <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span>
@@ -328,6 +335,7 @@
 <span class="sd">        pot_matrix[2] = e-e Pauli term factor</span>
 <span class="sd">        pot_matrix[3] = e-e Pauli term exponent term</span>
 <span class="sd">        pot_matrix[4] = Ewald parameter</span>
+<span class="sd">        pot_matrix[5] = Short-range cutoff</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -344,6 +352,11 @@
     <span class="n">D</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">F</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
     <span class="n">alpha</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">rs</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">rs</span>
+
     <span class="n">C2</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">C</span>
     <span class="n">a2</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">alpha</span>
     <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span>
@@ -382,7 +395,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 21, 2021.<br/>
+      Last updated on Sep 29, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

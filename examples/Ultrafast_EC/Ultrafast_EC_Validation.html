@@ -1,0 +1,856 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Ultrafast electron cooling in an expanding ultracold plasma &#8212; Sarkas 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
+    <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script src="../../_static/js/myscript.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Yukawa vs Egs potential" href="../Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html" />
+    <link rel="prev" title="MD for Experiment Validation" href="../UNP/UCP_Experiment_Validation.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><span><img src="../../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../documentation/get_started.html">Get Started</a></li>
+                <li><a href="../examples.html">Examples</a></li>
+                <li><a href="../../code_development/code_dev.html">Code Development</a></li>
+                <li><a href="../../api/api.html">API</a></li>
+                <li><a href="../../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Ultrafast electron cooling in an expanding ultracold plasma</a><ul>
+<li><a class="reference internal" href="#Ultracold-Microplasma">Ultracold Microplasma</a></li>
+<li><a class="reference internal" href="#Initialization">Initialization</a></li>
+<li><a class="reference internal" href="#Simulation">Simulation</a></li>
+<li><a class="reference internal" href="#PostProcessing">PostProcessing</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Ultrafast-electron-cooling-in-an-expanding-ultracold-plasma">
+<h1>Ultrafast electron cooling in an expanding ultracold plasma<a class="headerlink" href="#Ultrafast-electron-cooling-in-an-expanding-ultracold-plasma" title="Permalink to this headline">¶</a></h1>
+<p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/Ultrafast_EC/input_files/uec.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/Ultrafast_EC/Ultrafast_EC_Validation.ipynb">notebook</a>.</p>
+<section id="Ultracold-Microplasma">
+<h2>Ultracold Microplasma<a class="headerlink" href="#Ultracold-Microplasma" title="Permalink to this headline">¶</a></h2>
+<p>Let us observe the <a class="reference external" href="https://doi.org/10.1038/s41467-020-20815-8">Ultrafast electron cooling in an expanding ultracold plasma</a>. Here, a cloud of neutral atoms is trapped and cooled to quantum degeneracy at ~nK temperatures. The Bose-Einstein condensate (BEC) with a peak number density of <span class="math notranslate nohighlight">\(n \sim 2 \times 10^{20}\, \textrm{m}^{-3}\)</span> is then rapidly ionized by a femtosecond laser pulse of <span class="math notranslate nohighlight">\(511\, \textrm{nm}\)</span> wavelength and <span class="math notranslate nohighlight">\(215\, \textrm{fs}\)</span> duration so that <span class="math notranslate nohighlight">\(N \sim 4000\)</span>
+ions and electrons immediately emerge after two-photon ionization. The excess energy of <span class="math notranslate nohighlight">\(0.68\, \textrm{eV}\)</span> is distributed between ions and electrons leading to an initial ion temperature of <span class="math notranslate nohighlight">\(T_{\rm i} \sim 33\, \textrm{mK}\)</span> and fast escaping electrons of <span class="math notranslate nohighlight">\(T_e \sim 5250\, \textrm{K}\)</span>.</p>
+<p>The ions are initially strongly coupled as the temperture is very small compared to the Coulomb energy of the dense, ionized BEC:</p>
+<div class="math notranslate nohighlight">
+\[\Gamma_{\rm i} = \frac{(e)^2}{4\pi \varepsilon_0 a_{\rm ws}} \frac{1}{k_B T_{\rm i}} = 4800\]</div>
+<p>where <span class="math notranslate nohighlight">\(T_{\rm i}\)</span> is the ion temperature, and <span class="math notranslate nohighlight">\(a_{\rm ws} = [3 / (4\pi n)]^{1/3}\)</span> is the Wigner-Seitz radius defined by the number density <span class="math notranslate nohighlight">\(n\)</span>.</p>
+<p>The high density also leads to ultrafast dynamics as the inverse electron plasma frequency is given by:</p>
+<div class="math notranslate nohighlight">
+\[\nu^{-1}_{\rm p,e} = 2 \pi \sqrt{\frac{m_{\rm e} \varepsilon_0}{n e^2}} \sim 8\, \textrm{ps}\]</div>
+</section>
+<section id="Initialization">
+<h2>Initialization<a class="headerlink" href="#Initialization" title="Permalink to this headline">¶</a></h2>
+<p>We start by importing the usual libraries and creating a path to the input file of our simulation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">pylab</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">PreProcess</span><span class="p">,</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;../../../sarkas/mplstyles/MSUstyle.mplstyle&#39;</span><span class="p">)</span>
+<span class="n">input_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input_files&#39;</span><span class="p">,</span> <span class="s1">&#39;uec.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using matplotlib backend: agg
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+</section>
+<section id="Simulation">
+<h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
+<p>Let us start the simulation which takes ~30 minutes on 2021’s computer.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Initialize the Simulation class</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+<span class="c1"># Setup the simulation&#39;s parameters</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Run the simulation</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span style="color: rgb(110,0,95)">
+
+
+
+
+
+
+     _______.     ___      .______       __  ___      ___           _______.
+    /       |    /   \     |   _  \     |  |/  /     /   \         /       |
+   |   (----`   /  ^  \    |  |_)  |    |  &#39;  /     /  ^  \       |   (----`
+    \   \      /  /_\  \   |      /     |    &lt;     /  /_\  \       \   \
+.----)   |    /  _____  \  |  |\  \----.|  .  \   /  _____  \  .----)   |
+|_______/    /__/     \__\ | _| `._____||__|\__\ /__/     \__\ |_______/
+
+
+</span>
+An open-source pure-python molecular dynamics suite for non-ideal plasmas.
+
+WARNING: Short-range cut-off of 2.0000e-08 enabled. Use this feature with care!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Use the PP method with care for pure Coulomb interactions.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                   Simulation
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Job ID:  UEC_4000
+Job directory:  Simulations/UEC_4000
+
+Equilibration dumps directory:
+ Simulations/UEC_4000/Simulation/Equilibration/dumps
+Production dumps directory:
+ Simulations/UEC_4000/Simulation/Production/dumps
+
+Equilibration Thermodynamics file:
+ Simulations/UEC_4000/Simulation/Equilibration/EquilibrationEnergy_UEC_4000.csv
+Production Thermodynamics file:
+ Simulations/UEC_4000/Simulation/Production/ProductionEnergy_UEC_4000.csv
+
+PARTICLES:
+Total No. of particles =  8000
+No. of species =  2
+Species ID: 0
+        Name: e
+        No. of particles = 4000
+        Number density = 2.000000e+20 [N/m^3]
+        Atomic weight = 0.0005 [a.u.]
+        Mass = 9.109384e-31 [kg]
+        Mass density = 1.455190e-05 [kg/m^3]
+        Charge number/ionization degree = -1.0000
+        Charge = -1.602177e-19 [C]
+        Temperature = 5.250000e+03 [K] = 4.524100e-01 [eV]
+        Debye Length = 3.535658e-07 [Hz]
+        Plasma Frequency = 7.978230e+11 [Hz]
+Species ID: 1
+        Name: Rb
+        No. of particles = 4000
+        Number density = 2.000000e+20 [N/m^3]
+        Atomic weight = 87.0000 [a.u.]
+        Mass = 1.455181e-25 [kg]
+        Mass density = 1.455190e-05 [kg/m^3]
+        Charge number/ionization degree = 1.0000
+        Charge = 1.602177e-19 [C]
+        Temperature = 3.300000e-02 [K] = 2.843720e-06 [eV]
+        Debye Length = 8.864364e-10 [Hz]
+        Plasma Frequency = 1.996147e+09 [Hz]
+
+SIMULATION AND INITIAL PARTICLE BOX:
+Units:  mks
+Wigner-Seitz radius = 8.419452e-08 [m]
+No. of non-zero box dimensions =  3
+Box side along x axis = 2.375452e+03 a_ws = 2.000000e-04 [m]
+Box side along y axis = 2.375452e+03 a_ws = 2.000000e-04 [m]
+Box side along z axis = 2.375452e+03 a_ws = 2.000000e-04 [m]
+Box Volume = 8.000000e-12 [m^3]
+Initial particle box side along x axis = 2.579187e+01 a_ws = 2.171534e-06 [m]
+Initial particle box side along y axis = 2.579187e+01 a_ws = 2.171534e-06 [m]
+Initial particle box side along z axis = 5.037475e+01 a_ws = 4.241278e-06 [m]
+Initial particle box Volume = 2.000000e-17 [m^3]
+Boundary conditions: absorbing
+
+ELECTRON PROPERTIES:
+Number density: n_e = 2.000000e+20 [N/m^3]
+Wigner-Seitz radius: a_e = 1.060784e-07 [m]
+Temperature: T_e = 5.250000e+03 [K] = 4.524100e-01 [eV]
+de Broglie wavelength: lambda_deB = 1.028727e-09 [m]
+Thomas-Fermi length: lambda_TF = 3.535658e-07 [m]
+Fermi wave number: k_F = 1.809188e+07 [1/m]
+Fermi Energy: E_F = 1.247068e-05 [eV]
+Relativistic parameter: x_F = 6.986347e-06 --&gt; E_F = 1.247066e-05 [eV]
+Degeneracy parameter: Theta = 3.627788e+04
+Coupling: r_s = 2004.592027,  Gamma_e = 0.030005
+Warm Dense Matter Parameter: W = 3.3054e-06
+Chemical potential: mu = -1.6033e+01 k_B T_e = -5.8165e+05 E_F
+
+POTENTIAL:  Coulomb
+Effective Coupling constant: Gamma_eff = 2386.77
+Short-range Cutoff radius: rs = 2.000000e-08 [m]
+
+ALGORITHM:  PP
+rcut = 1187.7258 a_ws = 1.000000e-04 [m]
+No. of PP cells per dimension =  2,  2,  2
+No. of particles in PP loop =  27000
+No. of PP neighbors per particle =   4188
+Tot Force Error = 0.000000e+00
+
+THERMOSTAT:
+Type: Berendsen
+First thermostating timestep, i.e. relaxation_timestep = 0
+Berendsen parameter tau: 5.000 [timesteps]
+Berendsen relaxation rate: 0.200 [1/timesteps]
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Equilibration temperatures not defined. I will use the species&#39;s temperatures
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Thermostating temperatures:
+Species ID 0: T_eq = 5.250000e+03 [K] = 4.524100e-01 [eV]
+Species ID 1: T_eq = 3.300000e-02 [K] = 2.843720e-06 [eV]
+
+INTEGRATOR:
+Type: verlet
+Time step = 5.000000e-14 [s]
+Total plasma frequency = 7.978255e+11 [Hz]
+w_p dt = 0.0399 ~ 1/25
+
+Equilibration:
+No. of equilibration steps = 0
+Total equilibration time = 0.0000e+00 [s] ~ 0 w_p T_eq
+snapshot interval step = 10
+snapshot interval time = 5.0000e-13 [s] = 0.3989 w_p T_snap
+Total number of snapshots = 0
+
+Production:
+No. of production steps = 600
+Total production time = 3.0000e-11 [s] ~ 23 w_p T_prod
+snapshot interval step = 4
+snapshot interval time = 2.0000e-13 [s] = 0.1596 w_p T_snap
+Total number of snapshots = 150
+
+
+------------------------ Initialization Times ------------------------
+
+
+Potential Initialization Time: 0 sec 193 msec 315 usec 462 nsec
+
+Particles Initialization Time: 0 sec 131 msec 268 usec 760 nsec
+
+Total Simulation Initialization Time: 0 sec 193 msec 315 usec 462 nsec
+
+------------- Equilibration -------------
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "025178db57d648bd94aecf73b3e1f892", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Equilibration Time: 0 sec 31 msec 687 usec 913 nsec
+
+------------- Production -------------
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3f82692d1cf149ff9ec2622796cce2b9", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Production Time: 0 hrs 31 min 2 sec
+
+Total Time: 0 hrs 31 min 3 sec
+</pre></div></div>
+</div>
+</section>
+<section id="PostProcessing">
+<h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
+<p>Now let’s have a look at the results and run the PostProcessing</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Initialize the Postprocessing class</span>
+<span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+<span class="c1"># Read the simulation&#39;s parameters and assign attributes</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Calculate observables</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                 Postprocessing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Job ID:  UEC_4000
+Job directory:  Simulations/UEC_4000
+PostProcessing directory:
+ Simulations/UEC_4000/PostProcessing
+
+Equilibration dumps directory:  Simulations/UEC_4000/Simulation/Equilibration/dumps
+Production dumps directory:
+ Simulations/UEC_4000/Simulation/Production/dumps
+
+Equilibration Thermodynamics file:
+ Simulations/UEC_4000/Simulation/Equilibration/EquilibrationEnergy_UEC_4000.csv
+Production Thermodynamics file:
+ Simulations/UEC_4000/Simulation/Production/ProductionEnergy_UEC_4000.csv
+
+
+==================== Radial Distribution Function ====================
+
+Data saved in:
+ Simulations/UEC_4000/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_UEC_4000.csv
+Data accessible at: self.ra_values, self.dataframe
+
+No. bins = 51
+dr = 23.2887 a_ws = 1.9608e-06 [m]
+Maximum Distance (i.e. potential.rc)= 1187.7258 a_ws = 1.0000e-04 [m]
+
+Radial Distribution Function Calculation Time: 0 sec 4 msec 89 usec 455 nsec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_6_1.png" src="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_6_1.png" />
+</div>
+</div>
+<p>Let us have a closer look at the energy evolution over time which we can extract from our Sarkas simulation into a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">pandas.DataFrame</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Rename the Thermodynamics class for convenience</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span>
+<span class="c1"># Setup its attributes</span>
+<span class="n">E</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="c1"># Grab the data</span>
+<span class="n">E</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+<span class="c1"># Results dataframe</span>
+<span class="n">Temp_vel_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="c1"># Time</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e12</span> <span class="c1"># scale by picosec</span>
+<span class="c1"># Total energies</span>
+<span class="n">eVpp</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">qe</span><span class="p">)</span> <span class="o">*</span> <span class="n">postproc</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num</span><span class="p">)</span> <span class="c1"># scale by eV per particle</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Total Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Total Energy&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">eVpp</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Total Kinetic Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Total Kinetic Energy&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">eVpp</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Potential Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Potential Energy&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">eVpp</span>
+<span class="c1"># Kinetic energies</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;e Kinetic Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">postproc</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;Kinetic Energy&#39;</span><span class="p">])]</span> <span class="o">*</span> <span class="n">eVpp</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Ion Kinetic Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">postproc</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;Kinetic Energy&#39;</span><span class="p">])]</span> <span class="o">*</span> <span class="n">eVpp</span>
+<span class="c1"># Potential energies</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;ee Potential Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">postproc</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;Potential Energy&#39;</span><span class="p">])]</span> <span class="o">*</span> <span class="n">eVpp</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;IonIon Potential Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">postproc</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;Potential Energy&#39;</span><span class="p">])]</span> <span class="o">*</span> <span class="n">eVpp</span>
+<span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;eIon Potential Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Potential Energy&#39;</span><span class="p">]</span> \
+    <span class="o">-</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;ee Potential Energy&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;IonIon Potential Energy&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>It is now time to plot and compare. For this tutorial we grabbed data from Fig. 4f of this <a class="reference external" href="https://doi.org/10.1038/s41467-020-20815-8">paper</a>. The data was obtained using <a class="reference external" href="https://automeris.io/WebPlotDigitizer/">WebPlotDigitizer</a> and saved into the files <code class="docutils literal notranslate"><span class="pre">Ee.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">Ei.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">Ekinp.csv</span></code> in the folder <code class="docutils literal notranslate"><span class="pre">uec_data</span></code>, reflecting the ultrafast energy evolution for the electrons, ions and plasma electrons, respectively.</p>
+<p>We will compare the results with our simulation. The ion energy <span class="math notranslate nohighlight">\(E_{\rm i}\)</span> is composed of <span class="math notranslate nohighlight">\(E_{\rm i} = E^{\rm kin}_{\rm i} + E^{\rm pot}_{\rm ii} + 0.5 E^{\rm pot}_{\rm ei}\)</span> while the electron energy <span class="math notranslate nohighlight">\(E_{\rm e}\)</span> is composed of <span class="math notranslate nohighlight">\(E_{\rm e} = E^{\rm kin}_{\rm e} + E^{\rm pot}_{\rm ee} + 0.5 E^{\rm pot}_{\rm ei}\)</span> so that the inter-species potential energy <span class="math notranslate nohighlight">\(E^{\rm pot}_{\rm ei}\)</span> is equally shared by the electrons and ions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Read paper data</span>
+<span class="n">Ee</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;uec_data/&#39;</span><span class="p">,</span> <span class="s1">&#39;Ee.csv&#39;</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Energy&#39;</span><span class="p">])</span>
+<span class="n">Ei</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;uec_data/&#39;</span><span class="p">,</span> <span class="s1">&#39;Ei.csv&#39;</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Energy&#39;</span><span class="p">])</span>
+<span class="n">Ekinp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;uec_data/&#39;</span><span class="p">,</span> <span class="s1">&#39;Ekinp.csv&#39;</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Energy&#39;</span><span class="p">])</span>
+
+<span class="c1"># Plot</span>
+<span class="n">fig_energy</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_etot</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+
+<span class="c1"># Simulation data</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Total Energy&#39;</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total Energy&#39;</span><span class="p">)</span>
+<span class="n">ion_energy</span> <span class="o">=</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Ion Kinetic Energy&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;IonIon Potential Energy&#39;</span><span class="p">]</span> \
+             <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;eIon Potential Energy&#39;</span><span class="p">]</span>
+<span class="n">electron_energy</span> <span class="o">=</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;e Kinetic Energy&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;ee Potential Energy&#39;</span><span class="p">]</span> \
+             <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;eIon Potential Energy&#39;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">electron_energy</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;skyblue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Electron Energy&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Temp_vel_data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">ion_energy</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;firebrick&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Ion Energy&#39;</span><span class="p">)</span>
+
+<span class="c1"># Paper data</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">Ekinp</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">Ekinp</span><span class="p">[</span><span class="s1">&#39;Energy&#39;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;cadetblue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$E_{\rm kin,plasma}$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">Ee</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">Ee</span><span class="p">[</span><span class="s1">&#39;Energy&#39;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;skyblue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$E_{\rm e}$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">Ei</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">Ei</span><span class="p">[</span><span class="s1">&#39;Energy&#39;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;firebrick&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$E_{\rm i}$&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+<span class="n">ax_etot</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax_etot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span> <span class="o">=</span><span class="sa">r</span><span class="s1">&#39;Time (ps)&#39;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;Energy (eV)&#39;</span><span class="p">)</span>
+<span class="n">fig_energy</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">fig_energy</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">postprocessing_dir</span><span class="p">,</span><span class="s1">&#39;Energy_Plot.png&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_10_0.png" src="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_10_0.png" />
+</div>
+</div>
+<p>Nice! Sarkas accurately reproduces the ultrafast electron cooling. Minor descrepancies in the amplitude and electron plasma frequency are attributed to the initial particle distribution which is an elongated box in sarkas and a cylinder in the original publication.</p>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Sep 29, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+    </p>
+  </div>
+</footer>
+
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+      })
+  </script>
+  
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>
