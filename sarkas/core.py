@@ -6,6 +6,8 @@ import os.path
 import sys
 import scipy.constants as const
 
+from scipy.spatial.distance import pdist
+
 
 class Parameters:
     """
@@ -651,6 +653,9 @@ class Particles:
     kB : float
         Boltzmann constant.
 
+    fourpie0: float
+        Electrostatic constant :math:`4\pi \epsilon_0`.
+
     pos : numpy.ndarray
         Particles' positions.
 
@@ -716,6 +721,7 @@ class Particles:
     def __init__(self):
         self.potential_energy = 0.0
         self.kB = None
+        self.fourpie0 = None
         self.prod_dump_dir = None
         self.eq_dump_dir = None
         self.box_lengths = None
@@ -768,6 +774,7 @@ class Particles:
         """
 
         self.kB = params.kB
+        self.fourpie0 = params.fourpie0
         self.prod_dump_dir = params.prod_dump_dir
         self.eq_dump_dir = params.eq_dump_dir
         self.box_lengths = np.copy(params.box_lengths)
@@ -886,6 +893,35 @@ class Particles:
         """
         return self.rnd_gen.normal(mean, sigma, (num_ptcls, 3))
 
+    def random_unit_vectors(self, num_ptcls, dimensions):
+        """
+        Initialize random unit vectors for particles' velocities (e.g. for monochromatic energies but random velocities)
+        It calls ``numpy.random.Generator.normal``
+
+        Parameters
+        ----------
+        num_ptcls : int
+            Number of particles to initialize.
+
+        dimensions : int
+            Number of non-zero dimensions.
+
+        Returns
+        -------
+        uvec : numpy.ndarray
+            Random unit vectors of specified dimensions for all particles
+
+        """
+
+        uvec = np.zeros((num_ptcls, dimensions))
+
+        for p in np.arange(num_ptcls):
+            components = [self.rnd_gen.normal() for i in range(dimensions)]
+            r = np.sqrt(np.sum(x*x for x in components))
+            uvec[p,:] = [x/r for x in components]
+
+        return uvec
+
     def update_attributes(self, species):
         """
         Assign particles attributes.
@@ -924,6 +960,13 @@ class Particles:
                 self.species_thermal_velocity[ic] = np.sqrt(self.kB * sp_temperature / sp.mass)
                 self.vel[species_start:species_end, :] = self.gaussian(sp.initial_velocity,
                                                                        self.species_thermal_velocity[ic], sp.num)
+
+            elif sp.initial_velocity_distribution == "monochromatic":
+                if self.dimensions == 1:
+                    vrms = np.sqrt(self.kB * sp.temperature / sp.mass)
+                elif self.dimensions == 3:
+                    vrms = np.sqrt(3 * self.kB * sp.temperature / sp.mass)
+                self.vel[species_start:species_end, :] = vrms * self.random_unit_vectors(sp.num, self.dimensions)
 
     def load_from_restart(self, phase, it):
         """
@@ -1316,6 +1359,35 @@ class Particles:
             species_start = species_end
 
         return K, T
+
+    def potential_energies(self):
+        """
+        Calculate the potential energies of each species.
+
+        Returns
+        -------
+        P : numpy.ndarray
+            Potential energy of each species. Shape=(``num_species``).
+
+        """
+        P = np.zeros(self.num_species)
+
+        species_start = 0
+        species_end = 0
+        for i, num in enumerate(self.species_num):
+            species_end += num
+
+            # TODO: Consider writing a numba function speedup in distance caluclation
+            species_charges = self.charges[species_start:species_end]
+            uti = np.triu_indices(species_charges.size, k=1)
+            species_charge2 = species_charges[uti[0]] * species_charges[uti[1]]
+            species_distances = pdist(self.pos[species_start:species_end, :])
+            potential = species_charge2 / self.fourpie0 / species_distances
+            P[i] = np.sum(potential)
+
+            species_start = species_end
+
+        return P
 
     def remove_drift(self):
         """

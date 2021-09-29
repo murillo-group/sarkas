@@ -18,7 +18,7 @@ def update_params(potential, params):
         Simulation's parameters.
 
     """
-    potential.matrix = np.zeros((4, params.num_species, params.num_species))
+    potential.matrix = np.zeros((5, params.num_species, params.num_species))
     # See Lima Physica A 391 4281 (2012) for the following definitions
     if not hasattr(potential, 'powers'):
         potential.powers = np.array([12, 6])
@@ -41,6 +41,8 @@ def update_params(potential, params):
             potential.matrix[3, i, j] = potential.powers[1]
             sigma2 += params.species_lj_sigmas[i]
             epsilon_tot += q1 * q2
+
+    potential.matrix[4, :, :] = potential.rs
 
     potential.force = lj_force
 
@@ -80,8 +82,13 @@ def lj_force(r, pot_matrix_ij):
     pot_matrix[1] = sigmas
     pot_matrix[2] = highest power
     pot_matrix[3] = lowest power
+    pot_matrix[4] = short-range cutoff
 
     """
+
+    rs = pot_matrix[4]
+    if r < rs:
+        r = rs
 
     epsilon = pot_matrix_ij[0]
     sigma = pot_matrix_ij[1]

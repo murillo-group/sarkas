@@ -44,6 +44,7 @@ def update_params(potential, params):
     QSP_matrix[2,:,:] = e-e Pauli term factor
     QSP_matrix[3,:,:] = e-e Pauli term exponent term
     QSP_matrix[4,:,:] = Ewald parameter
+    QSP_matrix[5,:,:] = Short-range cutoff
     """
     # Do a bunch of checks
     # P3M algorithm only
@@ -72,7 +73,7 @@ def update_params(potential, params):
 
     deBroglie_const = two_pi * params.hbar2 / params.kB
 
-    QSP_matrix = np.zeros((5, params.num_species, params.num_species))
+    QSP_matrix = np.zeros((6, params.num_species, params.num_species))
     for i, name1 in enumerate(params.species_names):
         m1 = params.species_masses[i]
         q1 = params.species_charges[i]
@@ -101,6 +102,7 @@ def update_params(potential, params):
         QSP_matrix[2, :, :] = 0.0
 
     QSP_matrix[4, :, :] = potential.pppm_alpha_ewald
+    QSP_matrix[5, :, :] = potential.rs
     potential.matrix = QSP_matrix
 
     if potential.qsp_type.lower() == "deutsch":
@@ -134,6 +136,7 @@ def deutsch_force(r, pot_matrix):
         pot_matrix[2,:,:] = e-e Pauli term factor
         pot_matrix[3,:,:] = e-e Pauli term exponent term
         pot_matrix[4,:,:] = Ewald parameter
+        pot_matrix[5,:,:] = Short-range cutoff
 
     Returns
     -------
@@ -150,6 +153,10 @@ def deutsch_force(r, pot_matrix):
     D = pot_matrix[2]
     F = pot_matrix[3]
     alpha = pot_matrix[4]
+    rs = pot_matrix[5]
+
+    if r < rs:
+        r = rs
 
     a2 = alpha * alpha
     r2 = r * r
@@ -191,6 +198,7 @@ def kelbg_force(r, pot_matrix):
         pot_matrix[2] = e-e Pauli term factor
         pot_matrix[3] = e-e Pauli term exponent term
         pot_matrix[4] = Ewald parameter
+        pot_matrix[5] = Short-range cutoff
 
     Returns
     -------
@@ -207,6 +215,11 @@ def kelbg_force(r, pot_matrix):
     D = pot_matrix[2]
     F = pot_matrix[3]
     alpha = pot_matrix[4]
+    rs = pot_matrix[5]
+
+    if r < rs:
+        r = rs
+
     C2 = C * C
     a2 = alpha * alpha
     r2 = r * r
