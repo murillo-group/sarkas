@@ -51,13 +51,13 @@ def update_params(potential, params):
 
 
 @njit
-def coulomb_force_pppm(r, pot_matrix):
+def coulomb_force_pppm(r_in, pot_matrix):
     """
     Calculate Potential and Force between two particles when the P3M algorithm is chosen.
 
     Parameters
     ----------
-    r : float
+    r_in : float
         Distance between two particles.
 
     pot_matrix : numpy.ndarray
@@ -75,8 +75,8 @@ def coulomb_force_pppm(r, pot_matrix):
 
     # Short-range cutoff to deal with divergence of the Coulomb potential
     rs = pot_matrix[2]
-    if r < rs:
-        r = rs
+    # Branchless programming
+    r = r_in * (r_in >= rs) + rs * (r_in < rs)
 
     alpha = pot_matrix[1]  # Ewald parameter alpha
     alpha_r = alpha * r
@@ -90,13 +90,13 @@ def coulomb_force_pppm(r, pot_matrix):
 
 
 @njit
-def coulomb_force(r, pot_matrix):
+def coulomb_force(r_in, pot_matrix):
     """
     Calculate the coulomb potential and force between two particles.
 
     Parameters
     ----------
-    r : float
+    r_in : float
         Distance between two particles.
 
     pot_matrix : numpy.ndarray
@@ -114,8 +114,8 @@ def coulomb_force(r, pot_matrix):
 
     # Short-range cutoff to deal with divergence of the Coulomb potential
     rs = pot_matrix[2]
-    if r < rs:
-        r = rs
+    # Branchless programming
+    r = r_in * (r_in >= rs) + rs * (r_in < rs)
 
     U = pot_matrix[0] / r
     fr = U / r
