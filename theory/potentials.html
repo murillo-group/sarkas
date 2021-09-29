@@ -116,6 +116,7 @@
 <li><a class="reference internal" href="#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
 <li><a class="reference internal" href="#quantum-statistical-potential">Quantum Statistical Potential</a></li>
 <li><a class="reference internal" href="#moliere-potential">Moliere Potential</a></li>
+<li><a class="reference internal" href="#lennard-jones">Lennard Jones</a></li>
 </ul>
 </li>
 </ul>
@@ -202,6 +203,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#quantum-statistical-potential">Quantum Statistical Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#moliere-potential">Moliere Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lennard-jones">Lennard Jones</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Berendsen_NB/Berendsen_Thermostat.html">Thermostats</a><ul>
@@ -352,12 +354,12 @@
 <p>Sarkas supports a variety of potentials both built-in and user defined. Currently the potential functions that are
 implemented include</p>
 <ul class="simple">
-<li><p>Coulomb</p></li>
-<li><p>Yukawa</p></li>
-<li><p>Exact Gradient-corrected Screened Yukawa</p></li>
-<li><p>Quantum Statistical Potential</p></li>
-<li><p>Moliere</p></li>
-<li><p>Lennard Jones</p></li>
+<li><p><a class="reference internal" href="#coulomb-pot"><span class="std std-ref">Coulomb</span></a></p></li>
+<li><p><a class="reference internal" href="#yukawa-pot"><span class="std std-ref">Yukawa</span></a></p></li>
+<li><p><a class="reference internal" href="#egs-pot"><span class="std std-ref">Exact Gradient-corrected Screened Yukawa</span></a></p></li>
+<li><p><a class="reference internal" href="#qsp-pot"><span class="std std-ref">Quantum Statistical Potential</span></a></p></li>
+<li><p><a class="reference internal" href="#moliere-pot"><span class="std std-ref">Moliere</span></a></p></li>
+<li><p><a class="reference internal" href="#lj-pot"><span class="std std-ref">Lennard Jones</span></a></p></li>
 </ul>
 <p>You can read more about each of these potentials in the corresponding sections below.
 All the equations will be given in cgs units, however, for easy conversion, we define the charge</p>
@@ -366,7 +368,7 @@ All the equations will be given in cgs units, however, for easy conversion, we d
 <p>which when substituted in gives the equivalent mks formula.</p>
 <p>Electron parameters and thermodynamic formulas are given in <a class="reference internal" href="electron_properties.html#electron-properties"><span class="std std-ref">here</span></a>.</p>
 <section id="coulomb-potential">
-<h2>Coulomb Potential<a class="headerlink" href="#coulomb-potential" title="Permalink to this headline">¶</a></h2>
+<span id="coulomb-pot"></span><h2>Coulomb Potential<a class="headerlink" href="#coulomb-potential" title="Permalink to this headline">¶</a></h2>
 <p>Two charged particle with charge numbers <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> interact with each other via the Coulomb potential
 given by</p>
 <div class="math notranslate nohighlight">
@@ -374,7 +376,7 @@ given by</p>
 <p>where <span class="math notranslate nohighlight">\(r\)</span> is the distance between ions, <span class="math notranslate nohighlight">\(e\)</span> is the elementary charge.</p>
 </section>
 <section id="yukawa-potential">
-<h2>Yukawa Potential<a class="headerlink" href="#yukawa-potential" title="Permalink to this headline">¶</a></h2>
+<span id="yukawa-pot"></span><h2>Yukawa Potential<a class="headerlink" href="#yukawa-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Yukawa potential, or screened Coulomb potential, is widely used in the plasma community to describe the interactions
 of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two ions of charge
 number <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> is given by</p>
@@ -386,7 +388,7 @@ In Sarkas <span class="math notranslate nohighlight">\(\kappa\)</span> can be gi
 <p>Notice that when <span class="math notranslate nohighlight">\(\kappa = 0\)</span> we recover the Coulomb Potential.</p>
 </section>
 <section id="exact-gradient-corrected-screened-yukawa-potential">
-<h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
+<span id="egs-pot"></span><h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas.
 Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects.
 Stanton and Murillo <span id="id1">[<a class="reference internal" href="references.html#id13" title="L. G. Stanton and M. S. Murillo. Unified description of linear screening in dense plasmas. Phys. Rev. E, 91:033104, Mar 2015. URL: https://link.aps.org/doi/10.1103/PhysRevE.91.033104, doi:10.1103/PhysRevE.91.033104.">Stanton and Murillo, 2015</a>]</span>, using a DFT formalism, derived an exact-gradient corrected ion pair potential
@@ -424,7 +426,7 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 \[D \left ( \Theta \right ) = 1 + 3.9431\Theta^2 + 7.9138\Theta^4.\]</div>
 </section>
 <section id="quantum-statistical-potential">
-<h2>Quantum Statistical Potential<a class="headerlink" href="#quantum-statistical-potential" title="Permalink to this headline">¶</a></h2>
+<span id="qsp-pot"></span><h2>Quantum Statistical Potential<a class="headerlink" href="#quantum-statistical-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Quantum Statistical Potential between two charged particles <span class="math notranslate nohighlight">\(a,b\)</span> used in Sarkas is given by eq.(5)
 in <span id="id2">[<a class="reference internal" href="references.html#id14" title="J. N. Glosli, F. R. Graziani, R. M. More, M. S. Murillo, F. H. Streitz, M. P. Surh, L. X. Benedict, S. Hau-Riege, A. B. Langdon, and R. A. London. Molecular dynamics simulations of temperature equilibration in dense hydrogen. Physical Review E - Statistical, Nonlinear, and Soft Matter Physics, aug 2008. doi:10.1103/PhysRevE.78.025401.">Glosli <em>et al.</em>, 2008</a>]</span></p>
 <div class="math notranslate nohighlight">
@@ -439,7 +441,7 @@ the exponential. The long range part of the potential is computed using the PPPM
 <p>The choice of this potential is due to its widespread use in the High Energy Density Physics community.</p>
 </section>
 <section id="moliere-potential">
-<h2>Moliere Potential<a class="headerlink" href="#moliere-potential" title="Permalink to this headline">¶</a></h2>
+<span id="moliere-pot"></span><h2>Moliere Potential<a class="headerlink" href="#moliere-potential" title="Permalink to this headline">¶</a></h2>
 <p>Moliere-type potentials have the form</p>
 <div class="math notranslate nohighlight">
 \[\phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left [ \sum_{j}^{3} C_j e^{-b_j r} \right]\]</div>
@@ -447,6 +449,20 @@ the exponential. The long range part of the potential is computed using the PPPM
 <div class="math notranslate nohighlight">
 \[\sum_{j}^{3} C_j  = 1\]</div>
 <p>more info can be found in <span id="id4">[<a class="reference internal" href="references.html#id17" title="W. D. Wilson, L. G. Haggmark, and J. P. Biersack. Calculations of nuclear stopping, ranges, and straggling in the low-energy region. Phys. Rev. B, 15:2458–2468, Mar 1977. URL: https://link.aps.org/doi/10.1103/PhysRevB.15.2458, doi:10.1103/PhysRevB.15.2458.">Wilson <em>et al.</em>, 1977</a>]</span></p>
+</section>
+<section id="lennard-jones">
+<span id="lj-pot"></span><h2>Lennard Jones<a class="headerlink" href="#lennard-jones" title="Permalink to this headline">¶</a></h2>
+<p>Sarkas support the general form of the multispecies Lennard Jones potential</p>
+<div class="math notranslate nohighlight">
+\[U_{\mu\nu}(r) = k \epsilon_{\mu\nu} \left [ \left ( \frac{\sigma_{\mu\nu}}{r}\right )^m -
+\left ( \frac{\sigma_{\mu\nu}}{r}\right )^n \right ],\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[k = \frac{n}{m-n} \left ( \frac{n}{m} \right )^{\frac{m}{n-m}}.\]</div>
+<p>In the case of multispecies liquids we use the <a class="reference external" href="https://en.wikipedia.org/wiki/Combining_rules">Lorentz-Berthelot</a>
+mixing rules</p>
+<div class="math notranslate nohighlight">
+\[\epsilon_{12} = \sqrt{\epsilon_{11} \epsilon_{22}}, \quad \sigma_{12} = \frac{\sigma_{11} + \sigma_{22}}{2}.\]</div>
 </section>
 </section>
 

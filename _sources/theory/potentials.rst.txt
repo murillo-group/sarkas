@@ -4,12 +4,12 @@ Potentials
 Sarkas supports a variety of potentials both built-in and user defined. Currently the potential functions that are
 implemented include
 
-- Coulomb
-- Yukawa
-- Exact Gradient-corrected Screened Yukawa
-- Quantum Statistical Potential
-- Moliere
-- Lennard Jones
+- :ref:`Coulomb <coulomb_pot>`
+- :ref:`Yukawa <yukawa_pot>`
+- :ref:`Exact Gradient-corrected Screened Yukawa <egs_pot>`
+- :ref:`Quantum Statistical Potential <qsp_pot>`
+- :ref:`Moliere <moliere_pot>`
+- :ref:`Lennard Jones <lj_pot>`
 
 You can read more about each of these potentials in the corresponding sections below.
 All the equations will be given in cgs units, however, for easy conversion, we define the charge
@@ -21,6 +21,8 @@ which when substituted in gives the equivalent mks formula.
 
 Electron parameters and thermodynamic formulas are given in :ref:`here <Electron Properties>`.
 
+.. _coulomb_pot:
+
 Coulomb Potential
 -----------------
 Two charged particle with charge numbers :math:`Z_a` and :math:`Z_b` interact with each other via the Coulomb potential
@@ -31,6 +33,7 @@ given by
 
 where :math:`r` is the distance between ions, :math:`e` is the elementary charge.
 
+.. _yukawa_pot:
 
 Yukawa Potential
 ----------------
@@ -46,6 +49,8 @@ In Sarkas :math:`\kappa` can be given as an input or it can be calculated from t
 :ref:`Thomas-Fermi Wavelength` formula.
 
 Notice that when :math:`\kappa = 0` we recover the Coulomb Potential.
+
+.. _egs_pot:
 
 Exact Gradient-corrected Screened Yukawa Potential
 --------------------------------------------------
@@ -102,6 +107,7 @@ where :math:`k_{\textrm{F}}` is the Fermi wavenumber and :math:`\Theta = (\beta 
 .. math::
    D \left ( \Theta \right ) = 1 + 3.9431\Theta^2 + 7.9138\Theta^4.
 
+.. _qsp_pot:
 
 Quantum Statistical Potential
 -----------------------------
@@ -125,9 +131,10 @@ the exponential. The long range part of the potential is computed using the PPPM
 
 The choice of this potential is due to its widespread use in the High Energy Density Physics community.
 
+.. _moliere_pot:
+
 Moliere Potential
 -----------------
-
 Moliere-type potentials have the form
 
 .. math::
@@ -139,3 +146,24 @@ with the contraint
     \sum_{j}^{3} C_j  = 1
 
 more info can be found in :cite:`Wilson1977`
+
+.. _lj_pot:
+
+Lennard Jones
+-------------
+Sarkas support the general form of the multispecies Lennard Jones potential
+
+.. math::
+    U_{\mu\nu}(r) = k \epsilon_{\mu\nu} \left [ \left ( \frac{\sigma_{\mu\nu}}{r}\right )^m -
+    \left ( \frac{\sigma_{\mu\nu}}{r}\right )^n \right ],
+
+where
+
+.. math::
+    k = \frac{n}{m-n} \left ( \frac{n}{m} \right )^{\frac{m}{n-m}}.
+
+In the case of multispecies liquids we use the `Lorentz-Berthelot <https://en.wikipedia.org/wiki/Combining_rules>`_
+mixing rules
+
+.. math::
+    \epsilon_{12} = \sqrt{\epsilon_{11} \epsilon_{22}}, \quad \sigma_{12} = \frac{\sigma_{11} + \sigma_{22}}{2}.
