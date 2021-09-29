@@ -383,11 +383,12 @@ class Parameters:
                 Av = const.physical_constants["Avogadro constant"][0]
                 sp.number_density = sp.mass_density * Av / sp.atomic_weight
                 self.total_num_density += sp.number_density
+            else:
+                self.total_num_density += sp.number_density
 
             assert sp.number_density, "{} number density not defined".format(sp.name)
 
             # Update arrays of species information
-            self.total_num_density += sp.number_density
             self.species_names.append(sp.name)
             self.species_num[i] = sp.num
             self.species_masses[i] = sp.mass
