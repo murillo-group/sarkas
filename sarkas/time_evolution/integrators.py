@@ -132,8 +132,11 @@ class Integrator:
         self.pbox_lengths = np.copy(params.pbox_lengths)
         self.kB = params.kB
         self.species_num = np.copy(params.species_num)
-        self.boundary_conditions = params.boundary_conditions
         self.verbose = params.verbose
+
+        # Enforce consistency
+        self.boundary_conditions = params.boundary_conditions.lower()
+        self.type = self.type.lower()
 
         if self.dt is None:
             self.dt = params.dt
@@ -156,21 +159,27 @@ class Integrator:
             else:
                 self.eq_dump_step = int(0.1 * self.equilibration_steps)
 
-        assert self.boundary_conditions.lower() in self.supported_boundary_conditions, 'Wrong choice of boundary condition.'
+        if self.boundary_conditions not in self.supported_boundary_conditions:
+            raise ValueError("Unsupported boundary conditions. "
+                             "Please choose one of the supported boundary conditions \n",
+                             self.supported_boundary_conditions)
 
         # Assign integrator.enforce_bc to the correct method
-        if self.boundary_conditions.lower() == "periodic":
+        if self.boundary_conditions == "periodic":
             self.enforce_bc = self.periodic
-        elif self.boundary_conditions.lower() == "absorbing":
+        elif self.boundary_conditions == "absorbing":
             self.enforce_bc = self.absorbing
 
-        assert self.type.lower() in self.supported_integrators, 'Wrong integrator choice.'
+        if self.type not in self.supported_integrators:
+            raise ValueError("Integrator not supported. "
+                             "Please choose one of the supported integrators \n",
+                             self.supported_integrators)
 
         # Assign integrator.update to the correct method
-        if self.type.lower() == "verlet":
+        if self.type == "verlet":
             self.update = self.verlet
 
-        elif self.type.lower() == "verlet_langevin":
+        elif self.type == "verlet_langevin":
 
             self.sigma = np.sqrt(
                 2. * self.langevin_gamma * params.kB * params.species_temperatures / params.species_masses)
@@ -178,7 +187,7 @@ class Integrator:
             self.c2 = 1. / (1. + 0.5 * self.langevin_gamma * self.dt)
             self.update = self.verlet_langevin
 
-        elif self.type.lower() == "magnetic_verlet":
+        elif self.type == "magnetic_verlet":
 
             # Create the unit vector of the magnetic field
             self.magnetic_field_uvector = params.magnetic_field / np.linalg.norm(params.magnetic_field)
@@ -207,7 +216,7 @@ class Integrator:
             else:
                 self.update = self.magnetic_verlet
 
-        elif self.type.lower() == "magnetic_boris":
+        elif self.type == "magnetic_boris":
 
             # Create the unit vector of the magnetic field
             self.magnetic_field_uvector = params.magnetic_field / np.linalg.norm(params.magnetic_field)
@@ -252,7 +261,7 @@ class Integrator:
                     else:
                         self.mag_dump_step = int(0.1 * self.production_steps)
 
-        if not potential.method == 'FMM':
+        if potential.method != "fmm":
             if potential.pppm_on:
                 self.update_accelerations = potential.update_pppm
             else:
@@ -342,6 +351,7 @@ class Integrator:
             ptcls.pos[sp_start:sp_end, :] += self.c1 * self.dt * ptcls.vel[sp_start:sp_end, :] \
                                              + 0.5 * self.dt ** 2 * ptcls.acc[sp_start:sp_end, :] \
                                              + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
+            sp_start += num
 
         # Enforce boundary condition
         self.enforce_bc(ptcls)

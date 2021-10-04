@@ -386,7 +386,8 @@ class Parameters:
             else:
                 self.total_num_density += sp.number_density
 
-            assert sp.number_density, "{} number density not defined".format(sp.name)
+            if not hasattr(sp, "number_density"):
+                raise AttributeError("\nSpecies {} number density not defined".format(sp.name) )
 
             # Update arrays of species information
             self.species_names.append(sp.name)
@@ -484,8 +485,9 @@ class Parameters:
 
         # Calculate initial particle's and simulation's box parameters
         if self.np_per_side:
-            msg = "Number of particles per dimension does not match total number of particles."
-            assert int(np.prod(self.np_per_side)) == self.total_num_ptcls, msg
+            if int(np.prod(self.np_per_side)) != self.total_num_ptcls:
+                raise ValueError("Number of particles per dimension "
+                                 "does not match total number of particles.")
 
             self.LPx = self.a_ws * self.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
             self.LPy = self.a_ws * self.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
@@ -837,8 +839,12 @@ class Particles:
                                   'magnetization_restart', 'mag_restart',
                                   'production_restart', 'prod_restart']:
             # checks
-            assert hasattr(params, 'restart_step'), "Restart step not defined. Please define restart_step."
-            assert type(params.restart_step) is int, "Only integers are allowed."
+            if params.restart_step is None:
+                raise AttributeError("Restart step not defined."
+                                     "Please define Parameters.restart_step.")
+
+            if type(params.restart_step) is not int:
+                params.restart_step = int(params.restart_step)
 
             if params.load_method[:2] == 'eq':
                 self.load_from_restart('equilibration', params.restart_step)
@@ -848,27 +854,36 @@ class Particles:
                 self.load_from_restart('magnetization', params.restart_step)
 
         elif params.load_method == 'file':
-            msg = 'Input file not defined. Please define particle_input_file.'
-            assert params.ptcls_input_file, msg
-            self.load_from_file(params.ptcls_input_file)
+            # check
+            if not hasattr(params, "particles_input_file"):
+                raise AttributeError("Input file not defined."
+                                     "Please define Parameters.particles_input_file.")
+            self.load_from_file(params.particles_input_file)
 
         # position distribution.
         elif params.load_method == 'lattice':
             self.lattice(params.load_perturb)
 
         elif params.load_method == 'random_reject':
-            assert params.load_rejection_radius, "Rejection radius not defined. Please define load_rejection_radius."
+            # check
+            if not hasattr(params, "load_rejection_radius"):
+                raise AttributeError("Rejection radius not defined. "
+                                     "Please define Parameters.load_rejection_radius.")
             self.random_reject(params.load_rejection_radius)
 
         elif params.load_method == 'halton_reject':
-            assert params.load_rejection_radius, "Rejection radius not defined. Please define load_rejection_radius."
+            # check
+            if not hasattr(params, "load_rejection_radius"):
+                raise AttributeError("Rejection radius not defined. "
+                                     "Please define Parameters.load_rejection_radius.")
             self.halton_reject(params.load_halton_bases, params.load_rejection_radius)
 
         elif params.load_method in ['uniform', 'random_no_reject']:
-            self.pos = self.uniform_no_reject(params.box_lengths/2 - params.pbox_lengths/2, params.box_lengths/2 + params.pbox_lengths/2)
+            self.pos = self.uniform_no_reject(0.5 * params.box_lengths - 0.5 * params.pbox_lengths,
+                                              0.5 * params.box_lengths + 0.5 * params.pbox_lengths)
 
         else:
-            raise AttributeError('Incorrect particle placement scheme specified.')
+            raise AttributeError("Incorrect particle placement scheme specified.")
 
     def gaussian(self, mean, sigma, num_ptcls):
         """
@@ -1378,7 +1393,7 @@ class Particles:
         for i, num in enumerate(self.species_num):
             species_end += num
 
-            # TODO: Consider writing a numba function speedup in distance caluclation
+            # TODO: Consider writing a numba function speedup in distance calculation
             species_charges = self.charges[species_start:species_end]
             uti = np.triu_indices(species_charges.size, k=1)
             species_charge2 = species_charges[uti[0]] * species_charges[uti[1]]

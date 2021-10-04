@@ -5,6 +5,9 @@ import numpy as np
 from numba import njit
 import fdint
 
+from sarkas.utilities.exceptions import AlgorithmError
+from sarkas.utilities.maths import force_error_analytic_pp
+
 
 def update_params(potential, params):
     """
@@ -18,9 +21,12 @@ def update_params(potential, params):
     params: sarkas.core.Parameters
         Simulation's parameters.
 
-    """
+    Raises
+    ------
+    `~sarkas.utilities.exceptions.AlgorithmError`
+        If the chosen algorithm is P3M.
 
-    twopi = 2.0 * np.pi
+    """
 
     # lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi
     if not hasattr(potential, 'lmbda'):
@@ -92,12 +98,21 @@ def update_params(potential, params):
 
     potential.matrix[6, :, :] = potential.rs
 
-    assert potential.method == "PP", "P3M Algorithm not implemented yet. Good Bye!"
+    if potential.method == "P3M":
+        raise AlgorithmError("P3M Algorithm not implemented yet.")
 
     potential.force = egs_force
-    params.force_error = np.sqrt(twopi / params.lambda_TF) * np.exp(-potential.rc / params.lambda_TF)
-    # Renormalize
-    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
+    # EGS is always smaller than pure Yukawa.
+    # Therefore the force error is chosen to be the same as Yukawa's.
+    # This overestimates it, but it doesn't matter.
+
+    # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
+    params.force_error = force_error_analytic_pp(
+        potential.type,
+        potential.rc,
+        potential.matrix,
+        np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+    )
 
 
 @njit

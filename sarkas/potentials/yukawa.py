@@ -4,6 +4,7 @@ Module for handling Yukawa interaction
 import numpy as np
 from numba import njit
 import math as mt
+from sarkas.utilities.maths import force_error_analytic_pp
 
 
 @njit
@@ -97,7 +98,6 @@ def update_params(potential, params):
     else:
         potential.matrix = np.zeros((2, params.num_species, params.num_species))
 
-    twopi = 2.0 * np.pi
     potential.matrix[1, :, :] = 1.0 / params.lambda_TF
 
     for i, q1 in enumerate(params.species_charges):
@@ -105,11 +105,18 @@ def update_params(potential, params):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
 
     if potential.method == "PP":
+        # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
         potential.force = yukawa_force
-        # Force error calculated from eq.(43) in Ref.[1]_
-        params.force_error = np.sqrt( twopi / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)
-        # Renormalize
-        params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
+        params.force_error = force_error_analytic_pp(
+            potential.type,
+            potential.rc,
+            potential.matrix,
+            np.sqrt(3.0 * params.a_ws/(4.0 * np.pi))
+        )
+        # # Force error calculated from eq.(43) in Ref.[1]_
+        # params.force_error = np.sqrt( TWOPI / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)
+        # # Renormalize
+        # params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
     elif potential.method == "P3M":
         potential.force = yukawa_force_pppm
         potential.matrix[2, :, :] = potential.pppm_alpha_ewald

@@ -3,6 +3,7 @@ Module for handling Moliere Potential
 """
 import numpy as np
 import numba as nb
+from sarkas.utilities.maths import force_error_analytic_pp
 
 
 def update_params(potential, params):
@@ -22,23 +23,25 @@ def update_params(potential, params):
     potential.screening_charges = np.array(potential.screening_charges)
     params_len = len(potential.screening_lengths)
 
-    moliere_matrix = np.zeros((2 * params_len + 1, params.num_species, params.num_species))
+    potential.matrix = np.zeros((2 * params_len + 1, params.num_species, params.num_species))
 
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
 
-            moliere_matrix[0, i, j] = q1 * q2 / params.fourpie0
-            moliere_matrix[1:params_len + 1, i, j] = potential.screening_charges
-            moliere_matrix[params_len + 1:, i, j] = potential.screening_lengths
+            potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
+            potential.matrix[1:params_len + 1, i, j] = potential.screening_charges
+            potential.matrix[params_len + 1:, i, j] = potential.screening_lengths
 
-    potential.matrix = moliere_matrix
     potential.force = moliere_force
-
-    # Force error calculated from eq.(43) in Ref.[1]_
-    params.force_error = np.sqrt(2.0 * np.pi / potential.screening_lengths.min()) \
-                    * np.exp(- potential.rc / potential.screening_lengths.min())
-    # Renormalize
-    params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
+    # Use Yukawa force error formula with the smallest screening length.
+    # This overestimates the Force error, but it doesn't matter.
+    # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
+    params.force_error = force_error_analytic_pp(
+        potential.type,
+        potential.rc,
+        potential.matrix[params_len + 1, :, :],
+        np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+    )
 
 
 @nb.njit

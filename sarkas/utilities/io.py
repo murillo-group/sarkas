@@ -652,7 +652,7 @@ class InputOutput:
         fnt = FONTS[np.random.randint(0, len(FONTS))]
         print_figlet('\nSarkas\n', font=fnt, colors=clr)
 
-        print("\nAn open-source pure-python molecular dynamics suite for non-ideal plasmas.")
+        print("\nAn open-source pure-python molecular dynamics suite for non-ideal plasmas.\n\n")
 
     @staticmethod
     def time_info(simulation):
@@ -667,7 +667,7 @@ class InputOutput:
         """
         wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
         print('Time step = {:.6e} [s]'.format(simulation.integrator.dt))
-        if simulation.potential.type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
+        if simulation.potential.type in ['yukawa', 'egs', 'coulomb', 'moliere']:
             print('Total plasma frequency = {:1.6e} [Hz]'.format(simulation.parameters.total_plasma_frequency))
             print('w_p dt = {:2.4f}'.format(wp_dt))
             if simulation.parameters.magnetized:
@@ -679,7 +679,7 @@ class InputOutput:
                 else:
                     high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
                     print('w_c dt = {:2.4f}'.format(high_wc_dt))
-        elif simulation.potential.type == 'QSP':
+        elif simulation.potential.type == "qsp":
             print('e plasma frequency = {:.6e} [Hz]'.format(simulation.species[0].plasma_frequency))
             print('ion plasma frequency = {:.6e} [Hz]'.format(simulation.species[1].plasma_frequency))
             print('w_pe dt = {:2.4f}'.format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
@@ -692,7 +692,7 @@ class InputOutput:
                 else:
                     high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
                     print('w_c dt = {:2.4f}'.format(high_wc_dt))
-        elif simulation.potential.type == 'LJ':
+        elif simulation.potential.type == "lj":
             print('Total equivalent plasma frequency = {:1.6e} [Hz]'.format(
                 simulation.parameters.total_plasma_frequency))
             print('w_p dt = {:2.4f}'.format(wp_dt))
