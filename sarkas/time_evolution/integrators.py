@@ -710,7 +710,7 @@ class Integrator:
 
         """
 
-        enforce_abc(ptcls.pos, ptcls.vel, self.box_lengths, self.dt)
+        enforce_rbc(ptcls.pos, ptcls.vel, self.box_lengths, self.dt)
 
     def pretty_print(self, frequency, restart, restart_step):
         """Print integrator attributes in a user friendly way."""
