@@ -89,7 +89,7 @@ class Integrator:
         self.boundary_conditions = None
         self.enforce_bc = None
         self.verbose = False
-        self.supported_boundary_conditions = ['periodic', 'absorbing']
+        self.supported_boundary_conditions = ["periodic", "absorbing", "reflecting"]
         self.supported_integrators = ['verlet', 'verlet_langevin', 'magnetic_verlet', 'magnetic_boris']
 
     # def __repr__(self):
@@ -697,6 +697,19 @@ class Integrator:
 
         enforce_abc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.charges, self.box_lengths)
 
+    def reflecting(self, ptcls):
+        """
+        Applies reflective boundary conditions by calling enforce_rbc
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        """
+
+        enforce_abc(ptcls.pos, ptcls.vel, self.box_lengths, self.dt)
+
     def pretty_print(self, frequency, restart, restart_step):
         """Print integrator attributes in a user friendly way."""
 
@@ -835,7 +848,7 @@ class Integrator:
 
 
 @njit
-def enforce_pbc(pos, cntr, BoxVector):
+def enforce_pbc(pos, cntr, box_vector):
     """
     Enforce Periodic Boundary conditions.
 
@@ -847,7 +860,7 @@ def enforce_pbc(pos, cntr, BoxVector):
     cntr: numpy.ndarray
         Counter for the number of times each particle get folded back into the main simulation box
 
-    BoxVector: numpy.ndarray
+    box_vector: numpy.ndarray
         Box Dimensions.
 
     """
@@ -857,17 +870,17 @@ def enforce_pbc(pos, cntr, BoxVector):
         for d in np.arange(pos.shape[1]):
 
             # If particle is outside of box in positive direction, wrap to negative side
-            if pos[p, d] > BoxVector[d]:
-                pos[p, d] -= BoxVector[d]
+            if pos[p, d] > box_vector[d]:
+                pos[p, d] -= box_vector[d]
                 cntr[p, d] += 1
             # If particle is outside of box in negative direction, wrap to positive side
             if pos[p, d] < 0.0:
-                pos[p, d] += BoxVector[d]
+                pos[p, d] += box_vector[d]
                 cntr[p, d] -= 1
 
 
 @njit
-def enforce_abc(pos, vel, acc, charges, BoxVector):
+def enforce_abc(pos, vel, acc, charges, box_vector):
     """
     Enforce Absorbing Boundary conditions.
 
@@ -885,7 +898,7 @@ def enforce_abc(pos, vel, acc, charges, BoxVector):
     charges : numpy.ndarray
         Charge of each particle. Shape = (``total_num_ptcls``).
 
-    BoxVector: numpy.ndarray
+    box_vector: numpy.ndarray
         Box Dimensions.
 
     """
@@ -895,8 +908,8 @@ def enforce_abc(pos, vel, acc, charges, BoxVector):
         for d in np.arange(pos.shape[1]):
 
             # If particle is outside of box in positive direction, remove charge, velocity and acceleration
-            if pos[p, d] >= BoxVector[d]:
-                pos[p, d] = BoxVector[d]
+            if pos[p, d] >= box_vector[d]:
+                pos[p, d] = box_vector[d]
                 vel[p, :] = np.zeros(3)
                 acc[p, :] = np.zeros(3)
                 charges[p] = 0.0
@@ -907,6 +920,41 @@ def enforce_abc(pos, vel, acc, charges, BoxVector):
                 acc[p, :] = np.zeros(3)
                 charges[p] = 0.0
 
+
+@njit
+def enforce_rbc(pos, vel, box_vector, dt):
+    """
+    Enforce Absorbing Boundary conditions.
+
+    Parameters
+    ----------
+    pos: numpy.ndarray
+        Particles' positions.
+
+    vel : numpy.ndarray
+        Particles' velocities.
+
+    acc : numpy.ndarray
+        Particles' accelerations.
+
+    charges : numpy.ndarray
+        Charge of each particle. Shape = (``total_num_ptcls``).
+
+    box_vector: numpy.ndarray
+        Box Dimensions.
+
+    """
+
+    # Loop over all particles
+    for p in np.arange(pos.shape[0]):
+        for d in np.arange(pos.shape[1]):
+
+            # If particle is outside of box in positive direction, wrap to negative side
+            if pos[p, d] > box_vector[d] or pos[p, d] < 0.0:
+                # Revert velocity
+                vel[p, d] *= -1.0
+                # Restore previous position assuming verlet algorithm
+                pos[p, d] += vel[p, d] * dt
 
 @njit
 def remove_drift(vel, nums, masses):
