@@ -169,6 +169,8 @@ class Integrator:
             self.enforce_bc = self.periodic
         elif self.boundary_conditions == "absorbing":
             self.enforce_bc = self.absorbing
+        elif self.boundary_conditions == "reflective":
+            self.enforce_bc = self.reflecting
 
         if self.type not in self.supported_integrators:
             raise ValueError("Integrator not supported. "
