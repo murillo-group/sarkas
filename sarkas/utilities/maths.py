@@ -77,19 +77,26 @@ def force_error_analytic_pp(potential_type,
 
     Parameters
     ----------
-    screening: float
+    potential_type: str
+        Type of potential used.
+
+    potential_matrix: numpy.ndarray
+        Potential parameters.
 
     cutoff_length : float, numpy.ndarray
+        Cutoff radius of the potential.
 
     rescaling_const: float
-
+        Constant by which to rescale the force error.
 
     Returns
     -------
+    force_error: float
+        Force error in units of Q^2/(4pi eps0) 1/a^2.
 
     """
 
-    if potential_type in ["yukawa", "egs"]:
+    if potential_type in ["yukawa", "egs", "qsp"]:
         force_error = np.sqrt(TWOPI * potential_matrix[1, 0, 0])\
                       * np.exp(- cutoff_length * potential_matrix[1, 0, 0])
     elif potential_type == "moliere":

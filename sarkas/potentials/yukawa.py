@@ -10,7 +10,7 @@ from sarkas.utilities.maths import force_error_analytic_pp
 @njit
 def yukawa_force_pppm(r, pot_matrix):
     """
-    Calculates Potential and Force between two particles when the P3M algorithm is chosen.
+    Calculates Potential and Force between two particles when the pppm algorithm is chosen.
 
     Parameters
     ----------
@@ -93,7 +93,7 @@ def update_params(potential, params):
         Simulation's parameters.
     """
 
-    if potential.method == "P3M":
+    if potential.method == "pppm":
         potential.matrix = np.zeros((3, params.num_species, params.num_species))
     else:
         potential.matrix = np.zeros((2, params.num_species, params.num_species))
@@ -117,7 +117,7 @@ def update_params(potential, params):
         # params.force_error = np.sqrt( TWOPI / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)
         # # Renormalize
         # params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
-    elif potential.method == "P3M":
+    elif potential.method == "pppm":
         potential.force = yukawa_force_pppm
         potential.matrix[2, :, :] = potential.pppm_alpha_ewald
         # PP force error calculation. Note that the equation was derived for a single component plasma.

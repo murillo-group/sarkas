@@ -24,7 +24,7 @@ def update_params(potential, params):
     Dev Notes:
     -----
     Coulomb_matrix[0,i,j] : qi qj/(4pi esp0) Force factor between two particles.
-    Coulomb_matrix[1,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
+    Coulomb_matrix[1,i,j] : Ewald parameter in the case of pppm Algorithm. Same value for all species
     Coulomb_matrix[2,i,j] : Short-range cutoff. Same value for all species
     """
 
@@ -38,7 +38,7 @@ def update_params(potential, params):
         potential.matrix[2, :, :] = potential.rs
         potential.force = coulomb_force
         params.force_error = 0.0  # TODO: Implement force error in PP case
-    elif potential.method == "P3M":
+    elif potential.method == "pppm":
         potential.matrix[1, :, :] = potential.pppm_alpha_ewald
         potential.matrix[2, :, :] = potential.rs
         # Calculate the (total) plasma frequency
@@ -53,7 +53,7 @@ def update_params(potential, params):
 @njit
 def coulomb_force_pppm(r_in, pot_matrix):
     """
-    Calculate Potential and Force between two particles when the P3M algorithm is chosen.
+    Calculate Potential and Force between two particles when the pppm algorithm is chosen.
 
     Parameters
     ----------

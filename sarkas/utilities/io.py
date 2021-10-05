@@ -587,15 +587,18 @@ class InputOutput:
         """
 
         choices = ['header', 'rdf', 'ccf', 'dsf', 'ssf', 'vd']
-        assert observable is not None, 'Observable not defined.'
+        msg = "Observable not defined. \n " \
+              "Please choose an observable from this list \n" \
+              "'rdf' = Radial Distribution Function, \n" \
+              "'ccf' = Current Correlation Function, \n" \
+              "'dsf' = Dynamic Structure Function, \n" \
+              "'ssf' = Static Structure Factor, \n" \
+              "'vd' = Velocity Distribution"
+        if observable is None:
+            raise ValueError(msg)
 
-        assert observable in choices, "Observable not defined. " \
-                                      "Please choose an observable from this list \n" \
-                                      "'rdf' = Radial Distribution Function, \n" \
-                                      "'ccf' = Current Correlation Function, \n" \
-                                      "'dsf' = Dynamic Structure Function, \n" \
-                                      "'ssf' = Static Structure Factor, \n" \
-                                      "'vd' = Velocity Distribution"
+        if observable not in choices:
+            raise ValueError(msg)
 
         if write_to_file:
             screen = sys.stdout
@@ -795,7 +798,7 @@ class InputOutput:
 
 
         """
-        if simulation.potential.method == 'P3M':
+        if simulation.potential.method == 'pppm':
             print('Charge assignment order: {}'.format(simulation.potential.pppm_cao))
             print('FFT aliases: [{}, {}, {}]'.format(*simulation.potential.pppm_aliases))
             print('Mesh: {} x {} x {}'.format(*simulation.potential.pppm_mesh))

@@ -20,8 +20,9 @@ class Potential:
 
     method : str
         Algorithm to use for force calculations.
-        "PP" = Linked Cell List (default).
-        "P3M" = Particle-Particle Particle-Mesh.
+        "pp" = Linked Cell List (default).
+        "pppm" = Particle-Particle Particle-Mesh.
+        "fmm" = Fast Multipole Method.
 
     rc : float
         Cutoff radius.
@@ -142,9 +143,16 @@ class Potential:
             Simulation's parameters.
 
         """
-        # Check for cutoff radius
 
-        if not self.type.lower() == 'fmm':
+        # Enforce consistency
+        self.type = self.type.lower()
+        if self.type == "p3m":
+            self.type == "pppm"
+
+        self.method = self.method.lower()
+
+        # Check for cutoff radius
+        if not self.type == 'fmm':
             self.linked_list_on = True  # linked list on
             if not hasattr(self, "rc"):
                 warnings.warn(
@@ -170,7 +178,7 @@ class Potential:
                     "\nShort-range cut-off enabled. Use this feature with care!",
                     category=AlgorithmWarning)
         # Check for electrons as dynamical species
-        if self.type.lower() == 'qsp' or self.type.lower() == 'coulomb':
+        if self.type == 'qsp' or self.type == 'coulomb':
             mask = params.species_names == 'e'
             self.electron_temperature = params.species_temperatures[mask]
             params.ne = float(params.species_num_dens[mask])
@@ -205,7 +213,7 @@ class Potential:
         # Update potential-specific parameters
         # Coulomb potential
         if self.type == "coulomb":
-            if self.method.lower() == 'pp':
+            if self.method == 'pp':
                 warnings.warn("Use the PP method with care for pure Coulomb interactions.",
                               category=AlgorithmWarning)
 
@@ -240,10 +248,10 @@ class Potential:
 
         # Enforce consistency
         if self.method.lower() == 'pppm':
-            self.method = "P3M"
+            self.method = "pppm"
 
         # Compute pppm parameters
-        if self.method == "P3M":
+        if self.method == "pppm":
             self.pppm_on = True
             self.pppm_setup(params)
 
@@ -420,7 +428,7 @@ class Potential:
         self.update_pm(ptcls)
 
     def pppm_setup(self, params):
-        """Calculate the P3M parameters.
+        """Calculate the pppm parameters.
 
         Parameters
         ----------
@@ -435,7 +443,7 @@ class Potential:
         if not isinstance(self.pppm_aliases, np.ndarray):
             self.pppm_aliases = np.array(self.pppm_aliases)
 
-        # P3M parameters
+        # pppm parameters
         self.pppm_h_array = params.box_lengths / self.pppm_mesh
 
         self.matrix[-1, :, :] = self.pppm_alpha_ewald

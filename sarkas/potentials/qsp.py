@@ -18,10 +18,14 @@ References
 .. [Hansen1981] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) <https://doi.org/10.1103/PhysRevA.23.2041>`_
 .. [Glosli2008] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) <https://doi.org/10.1103/PhysRevE.78.025401>`_
 """
+
+from warnings import warn
 import numpy as np
 from numba import njit
 import math as mt
 
+from sarkas.utilities.exceptions import AlgorithmWarning
+from sarkas.utilities.maths import force_error_analytic_pp, TWOPI
 
 def update_params(potential, params):
     """
@@ -47,20 +51,25 @@ def update_params(potential, params):
     QSP_matrix[5,:,:] = Short-range cutoff
     """
     # Do a bunch of checks
-    # P3M algorithm only
-    assert potential.method == "P3M", 'QSP interaction can only be calculated using P3M algorithm.'
+    # pppm algorithm only
+    if potential.method != "pppm":
+        raise ValueError("QSP interaction can only be calculated using pppm algorithm.")
 
     # Check for neutrality
-    assert params.total_net_charge == 0, 'Total net charge is not zero.'
+    if params.total_net_charge != 0:
+        warn("Total net charge is not zero.",
+             category = AlgorithmWarning)
 
     # Default attributes
     if not hasattr(potential, 'qsp_type'):
-        potential.qsp_type = 'Deutsch'
+        potential.qsp_type = 'deutsch'
     if not hasattr(potential, 'qsp_pauli'):
         potential.qsp_pauli = True
 
-    two_pi = 2.0 * np.pi
-    four_pi = 2.0 * two_pi
+    # Enforce consistency
+    potential.qsp_type = potential.qsp_type.lower()
+
+    four_pi = 2.0 * TWOPI
     log2 = np.log(2.0)
 
     # Redefine ion temperatures and ion total number density
@@ -71,7 +80,7 @@ def update_params(potential, params):
     # Calculate the total and ion Wigner-Seitz Radius from the total density
     params.ai = (3.0 / (four_pi * params.ni)) ** (1.0 / 3.0)  # Ion WS
 
-    deBroglie_const = two_pi * params.hbar2 / params.kB
+    deBroglie_const = TWOPI * params.hbar2 / params.kB
 
     QSP_matrix = np.zeros((6, params.num_species, params.num_species))
     for i, name1 in enumerate(params.species_names):
@@ -96,7 +105,7 @@ def update_params(potential, params):
                 QSP_matrix[3, i, j] = four_pi / (log2 * lambda_deB ** 2)
 
             QSP_matrix[0, i, j] = q1 * q2 / params.fourpie0
-            QSP_matrix[1, i, j] = two_pi / lambda_deB
+            QSP_matrix[1, i, j] = TWOPI / lambda_deB
 
     if not potential.qsp_pauli:
         QSP_matrix[2, :, :] = 0.0
@@ -105,18 +114,21 @@ def update_params(potential, params):
     QSP_matrix[5, :, :] = potential.rs
     potential.matrix = QSP_matrix
 
-    if potential.qsp_type.lower() == "deutsch":
+    if potential.qsp_type == "deutsch":
         potential.force = deutsch_force
         # Calculate the PP Force error from the e-e diffraction term only.
-        params.pppm_pp_err = np.sqrt(two_pi * potential.matrix[1, 0, 0])
-        params.pppm_pp_err *= np.exp(- potential.rc * potential.matrix[1, 0, 0])
-        params.pppm_pp_err *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)
-
-    elif potential.qsp_type.lower() == "kelbg":
+        params.pppm_pp_err = force_error_analytic_pp(potential.type,
+                                                     potential.rc,
+                                                     potential.matix,
+                                                     np.sqrt(3.0 * params.a_ws/(4.0 * np.pi)))
+    elif potential.qsp_type == "kelbg":
         potential.force = kelbg_force
         # TODO: Calculate the PP Force error from the e-e diffraction term only.
-        params.pppm_pp_err = np.sqrt(two_pi * potential.matrix[1, 0, 0])
-        params.pppm_pp_err *= np.exp(- potential.rc * potential.matrix[1, 0, 0])
+        # the following is a placeholder
+        params.pppm_pp_err = force_error_analytic_pp(potential.type,
+                                                     potential.rc,
+                                                     potential.matix,
+                                                     np.sqrt(3.0 * params.a_ws/(4.0 * np.pi)))
 
 
 @njit
@@ -184,7 +196,7 @@ def deutsch_force(r, pot_matrix):
 @njit
 def kelbg_force(r, pot_matrix):
     """
-    Calculates the QSP Force between two particles when the P3M algorithm is chosen.
+    Calculates the QSP Force between two particles when the pppm algorithm is chosen.
 
     Parameters
     ----------

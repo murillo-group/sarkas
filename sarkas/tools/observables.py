@@ -215,9 +215,11 @@ class Observable:
 
             if self.angle_averaging == 'custom':
                 if not hasattr(self, 'max_aa_ka_value'):
-                    assert self.max_aa_harmonics, 'max_aa_harmonics and max_aa_ka_value not defined.'
+                    if self.max_aa_harmonics is None:
+                        raise AttributeError("max_aa_harmonics and max_aa_ka_value not defined.")
                 elif not hasattr(self, 'max_aa_harmonics'):
-                    assert self.max_aa_ka_value, 'max_aa_harmonics and max_aa_ka_value not defined.'
+                    if self.max_aa_ka_value is None:
+                        raise AttributeError('max_aa_harmonics and max_aa_ka_value not defined.')
 
             # More checks on k attributes and initialization of k vectors
 
@@ -405,8 +407,13 @@ class Observable:
         """Calculate and save Fourier space data."""
 
         # Do some checks
-        assert isinstance(self.angle_averaging,
-                          str), "angle_averaging not a string. Choose from ['full', 'custom', 'principal_axis']"
+        if not isinstance(self.angle_averaging, str):
+            raise TypeError("angle_averaging not a string. "
+                             "Choose from ['full', 'custom', 'principal_axis']")
+        elif self.angle_averaging not in ['full', 'custom', 'principal_axis']:
+            raise ValueError("Option not available. "
+                             "Choose from ['full', 'custom', 'principal_axis']"
+                             "Note case sensitivity.")
         assert self.max_k_harmonics.all(), 'max_k_harmonics not defined.'
 
         # Calculate the k arrays
@@ -2711,7 +2718,8 @@ class VelocityDistribution(Observable):
         # Check on hist_kwargs
         if hist_kwargs:
             # Is it a dictionary ?
-            assert isinstance(hist_kwargs, dict), 'hist_kwargs not a dictionary. Please pass a dictionary.'
+            if not isinstance(hist_kwargs, dict):
+                raise TypeError('hist_kwargs not a dictionary. Please pass a dictionary.')
             self.hist_kwargs = hist_kwargs
         # Default number of moments to calculate
         self.max_no_moment = max_no_moment

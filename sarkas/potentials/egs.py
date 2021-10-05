@@ -24,7 +24,7 @@ def update_params(potential, params):
     Raises
     ------
     `~sarkas.utilities.exceptions.AlgorithmError`
-        If the chosen algorithm is P3M.
+        If the chosen algorithm is pppm.
 
     """
 
@@ -98,8 +98,8 @@ def update_params(potential, params):
 
     potential.matrix[6, :, :] = potential.rs
 
-    if potential.method == "P3M":
-        raise AlgorithmError("P3M Algorithm not implemented yet.")
+    if potential.method == "pppm":
+        raise AlgorithmError("pppm Algorithm not implemented yet.")
 
     potential.force = egs_force
     # EGS is always smaller than pure Yukawa.
