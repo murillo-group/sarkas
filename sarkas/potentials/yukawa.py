@@ -80,6 +80,31 @@ def yukawa_force(r, pot_matrix):
     return U, force
 
 
+@njit
+def force_deriv(r, pot_matrix):
+    """Calculate the second derivative of the potential.
+
+    Parameters
+    ----------
+
+    r : float
+        Distance between particles
+
+    pot_matrix : numpy.ndarray
+        Values of the potential constants.
+
+    Returns
+    -------
+    f_dev : float
+        Second derivative of potential.
+
+    """
+    kappa_r = pot_matrix[1] * r
+    U2 = pot_matrix[0] * np.exp(-kappa_r) / r ** 3
+    f_dev = U2 * (2.0 * (1.0 + kappa_r) + kappa_r ** 2)
+    return f_dev
+
+
 def update_params(potential, params):
     """
     Assign potential dependent simulation's parameters.

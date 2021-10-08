@@ -739,6 +739,7 @@ class Particles:
         self.vel = None
         self.acc = None
 
+        self.virial = None
         self.pbc_cntr = None
 
         self.names = None
@@ -797,6 +798,7 @@ class Particles:
         self.acc = np.zeros((self.total_num_ptcls, params.dimensions))
 
         self.pbc_cntr = np.zeros((self.total_num_ptcls, params.dimensions))
+        self.virial = np.zeros((params.dimensions, params.dimensions, self.total_num_ptcls))
 
         self.names = np.empty(self.total_num_ptcls, dtype=params.species_names.dtype)
         self.id = np.zeros(self.total_num_ptcls, dtype=int)
@@ -1638,10 +1640,11 @@ class Species:
             print("\tSigma = {:.6e} ".format(self.sigma), end='')
             print("[cm]" if units == "cgs" else "[m]")
 
-        print('\tDebye Length = {:.6e} [Hz]'.format(self.debye_length))
-        print('\tPlasma Frequency = {:.6e} [Hz]'.format(self.plasma_frequency))
+        print('\tDebye Length = {:.6e} '.format(self.debye_length), end='')
+        print("[1/cm^3]" if units == "cgs" else "[1/m^3]")
+        print('\tPlasma Frequency = {:.6e} [rad/s]'.format(self.plasma_frequency))
         if self.cyclotron_frequency:
-            print('\tCyclotron Frequency = {:.6e} [Hz]'.format(self.cyclotron_frequency) )
+            print('\tCyclotron Frequency = {:.6e} [rad/s]'.format(self.cyclotron_frequency) )
             print('\tbeta_c = {:.4f}'.format(self.cyclotron_frequency/self.plasma_frequency))
 
     # Methods

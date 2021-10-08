@@ -570,48 +570,22 @@ class Integrator:
              Total potential energy.
 
         """
-        # First half step of velocity update: Apply exp(eV_BF)
-        # epsilon/2 V_F
-        self.magnetic_helpers(0.5)
-        # Magnetic + Const force field x - velocity
-        # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
-        self.v_F[:, 0] = self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1] \
-                         + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
-        # Magnetic + Const force field y - velocity
-        # (B x a)_y  = a_x, (B x B x a)_y = -a_y
-        self.v_F[:, 1] = - self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0] \
-                         + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+        # First half step of velocity update: Apply exp(dt * V_F / 2)
+        ptcls.vel += 0.5 * ptcls.acc * self.dt
 
-        ptcls.vel[:, 0] += self.v_F[:, 0]
-        ptcls.vel[:, 1] += self.v_F[:, 1]
-        ptcls.vel[:, 2] += 0.5 * self.dt * ptcls.acc[:, 2]
+        # Rotate: Apply exp( dt * V)
+        # B cross v
+        self.v_B[:, 0] = - self.sdt[:, 1] * ptcls.vel[:, 1]
+        self.v_B[:, 1] = self.sdt[:, 0] * ptcls.vel[:, 0]
 
-        # epsilon V_B
-        self.magnetic_helpers(1.0)
-        # Magnetic rotation x - velocity
-        # (B x v)_x  = -v_y, (B x B x v)_x = -v_x
-        self.v_B[:, 0] = ptcls.vel[:, 1] * self.sdt[:, 0] + ptcls.vel[:, 0] * self.cdt[:, 0]
-        # Magnetic rotation y - velocity
-        # (B x v)_y  = v_x, (B x B x v)_y = -v_y
-        self.v_B[:, 1] = - ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
+        # B cross B cross v
+        self.v_B[:, 0] -= self.ccodt[:, 0] * ptcls.vel[:, 0]
+        self.v_B[:, 1] -= self.ccodt[:, 1] * ptcls.vel[:, 1]
+        # Update velocities
+        ptcls.vel[:, :2] += self.v_B[:, :2]
 
-        ptcls.vel[:, 0] = np.copy(self.v_B[:, 0])
-        ptcls.vel[:, 1] = np.copy(self.v_B[:, 1])
-
-        # # epsilon/2 V_F
-        self.magnetic_helpers(0.5)
-        # Magnetic + Const force field x - velocity
-        # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
-        self.v_F[:, 0] = self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1] \
-                         + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
-        # Magnetic + Const force field y - velocity
-        # (B x a)_y  = a_x, (B x B x a)_y = -a_y
-        self.v_F[:, 1] = - self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0] \
-                         + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
-
-        ptcls.vel[:, 0] += self.v_F[:, 0]
-        ptcls.vel[:, 1] += self.v_F[:, 1]
-        ptcls.vel[:, 2] += 0.5 * self.dt * ptcls.acc[:, 2]
+        # Second Acceleration half step: Apply exp(dt * V_F / 2)
+        ptcls.vel += 0.5 * ptcls.acc * self.dt
 
         # Full step position update
         ptcls.pos += ptcls.vel * self.dt
@@ -641,32 +615,24 @@ class Integrator:
 
         """
 
-        # First half step of velocity update: Apply exp(eV_BF)
-        # epsilon/2 V_F
-        self.magnetic_helpers(0.5)
-        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
-        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
-        ptcls.vel += ptcls.acc * 0.5 * self.dt - self.ccodt/self.omega_c * b_cross_a \
-                     + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+        # First half step of velocity update: Apply exp(eV_F/2)
+        ptcls.vel += 0.5 * ptcls.acc * self.dt
 
-        # epsilon V_B
-        self.magnetic_helpers(1.0)
+        # Rotate: Apply exp( dt * V)
+        # B cross v
         b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
+        # B cross B cross v
         b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
-        ptcls.vel += - self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
+        ptcls.vel += self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
-        # # epsilon/2 V_F
-        self.magnetic_helpers(0.5)
-        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
-        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
-        ptcls.vel += ptcls.acc * 0.5 * self.dt - self.ccodt/self.omega_c * b_cross_a \
-                     + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+        # Second Acceleration half step: Apply exp(dt * V_F / 2)
+        ptcls.vel += 0.5 * ptcls.acc * self.dt
 
         # Full step position update
         ptcls.pos += ptcls.vel * self.dt
 
-        # Enforce boundary condition
-        self.enforce_bc(ptcls)
+        # Periodic boundary condition
+        enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
@@ -722,7 +688,7 @@ class Integrator:
 
         wp_dt = frequency * self.dt
         print('Time step = {:.6e} [s]'.format(self.dt))
-        print('Total plasma frequency = {:.6e} [Hz]'.format(frequency))
+        print('Total plasma frequency = {:.6e} [rad/s]'.format(frequency))
         print('w_p dt = {:.4f} ~ 1/{}'.format(wp_dt, int(1.0/wp_dt) ))
         # if potential_type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
         #     # if simulation.parameters.magnetized:
@@ -735,8 +701,8 @@ class Integrator:
         #     #         high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
         #     #         print('w_c dt = {:2.4f}'.format(high_wc_dt))
         # elif simulation.potential.type == 'QSP':
-        #     print('e plasma frequency = {:.6e} [Hz]'.format(simulation.species[0].plasma_frequency))
-        #     print('ion plasma frequency = {:.6e} [Hz]'.format(simulation.species[1].plasma_frequency))
+        #     print('e plasma frequency = {:.6e} [rad/s]'.format(simulation.species[0].plasma_frequency))
+        #     print('ion plasma frequency = {:.6e} [rad/s]'.format(simulation.species[1].plasma_frequency))
         #     print('w_pe dt = {:2.4f}'.format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
         #     if simulation.parameters.magnetized:
         #         if simulation.parameters.num_species > 1:
@@ -748,7 +714,7 @@ class Integrator:
         #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
         #             print('w_c dt = {:2.4f}'.format(high_wc_dt))
         # elif simulation.potential.type == 'LJ':
-        #     print('Total equivalent plasma frequency = {:1.6e} [Hz]'.format(
+        #     print('Total equivalent plasma frequency = {:1.6e} [rad/s]'.format(
         #         simulation.parameters.total_plasma_frequency))
         #     print('w_p dt = {:2.4f}'.format(wp_dt))
         #     if simulation.parameters.magnetized:

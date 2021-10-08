@@ -670,8 +670,8 @@ class InputOutput:
         """
         wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
         print('Time step = {:.6e} [s]'.format(simulation.integrator.dt))
-        if simulation.potential.type in ['yukawa', 'egs', 'coulomb', 'moliere']:
-            print('Total plasma frequency = {:1.6e} [Hz]'.format(simulation.parameters.total_plasma_frequency))
+        if simulation.potential.type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
+            print('Total plasma frequency = {:1.6e} [rad/s]'.format(simulation.parameters.total_plasma_frequency))
             print('w_p dt = {:2.4f}'.format(wp_dt))
             if simulation.parameters.magnetized:
                 if simulation.parameters.num_species > 1:
@@ -682,9 +682,9 @@ class InputOutput:
                 else:
                     high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
                     print('w_c dt = {:2.4f}'.format(high_wc_dt))
-        elif simulation.potential.type == "qsp":
-            print('e plasma frequency = {:.6e} [Hz]'.format(simulation.species[0].plasma_frequency))
-            print('ion plasma frequency = {:.6e} [Hz]'.format(simulation.species[1].plasma_frequency))
+        elif simulation.potential.type == 'QSP':
+            print('e plasma frequency = {:.6e} [rad/s]'.format(simulation.species[0].plasma_frequency))
+            print('ion plasma frequency = {:.6e} [rad/s]'.format(simulation.species[1].plasma_frequency))
             print('w_pe dt = {:2.4f}'.format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
             if simulation.parameters.magnetized:
                 if simulation.parameters.num_species > 1:
@@ -695,8 +695,8 @@ class InputOutput:
                 else:
                     high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
                     print('w_c dt = {:2.4f}'.format(high_wc_dt))
-        elif simulation.potential.type == "lj":
-            print('Total equivalent plasma frequency = {:1.6e} [Hz]'.format(
+        elif simulation.potential.type == 'LJ':
+            print('Total equivalent plasma frequency = {:1.6e} [rad/s]'.format(
                 simulation.parameters.total_plasma_frequency))
             print('w_p dt = {:2.4f}'.format(wp_dt))
             if simulation.parameters.magnetized:
@@ -1109,6 +1109,7 @@ class InputOutput:
                      acc=ptcls.acc,
                      cntr=ptcls.pbc_cntr,
                      rdf_hist=ptcls.rdf_hist,
+                     virial=ptcls.virial,
                      time=tme)
 
             energy_file = self.prod_energy_filename
@@ -1122,6 +1123,7 @@ class InputOutput:
                      pos=ptcls.pos,
                      vel=ptcls.vel,
                      acc=ptcls.acc,
+                     virial=ptcls.virial,
                      time=tme)
 
             energy_file = self.eq_energy_filename
@@ -1135,6 +1137,7 @@ class InputOutput:
                      pos=ptcls.pos,
                      vel=ptcls.vel,
                      acc=ptcls.acc,
+                     virial=ptcls.virial,
                      time=tme)
 
             energy_file = self.mag_energy_filename

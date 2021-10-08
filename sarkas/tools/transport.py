@@ -49,8 +49,8 @@ class TransportCoefficient:
         print('No. dumps per slice = {}'.format(int(observable.slice_steps / observable.dump_step)))
 
         print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            observable.dt * observable.slice_steps,
-            int(observable.dt * observable.slice_steps * observable.total_plasma_frequency)))
+            observable.dt * observable.slice_steps * observable.dump_step,
+            int(observable.dt * observable.slice_steps * observable.dump_step * observable.total_plasma_frequency)))
 
     @staticmethod
     def electrical_conductivity(params,
@@ -106,7 +106,7 @@ class TransportCoefficient:
         coefficient["Time"] = time
         jc_str = "Electric Current ACF"
         sigma_str = "Electrical Conductivity"
-        for isl in tqdm(range(jc_acf.no_slices), disable = not jc_acf.verbose):
+        for isl in tqdm(range(jc_acf.no_slices), disable=not jc_acf.verbose):
             sigma_ij = np.zeros(jc_acf.slice_steps)
 
             integrand = np.array(jc_acf.dataframe[(jc_str, "Total", "slice {}".format(isl))])
@@ -265,7 +265,7 @@ class TransportCoefficient:
 
         else:
             # Loop over time slices
-            for isl in tqdm(range(vacf.no_slices), disable = not vacf.verbose):
+            for isl in tqdm(range(vacf.no_slices), disable=not vacf.verbose):
                 # Initialize the temporary diffusion container
                 D = np.zeros((params.num_species, 2, len(time)))
                 # Iterate over the number of species
@@ -279,43 +279,52 @@ class TransportCoefficient:
                         D[i, 0, it] = np.trapz(integrand_par[:it], x=time[:it])
                         D[i, 1, it] = 0.5 * np.trapz(integrand_perp[:it], x=time[:it])
 
-                    coefficient["{} Parallel Diffusion_slice {}".format(sp, isl)] = D[i, 0, :]
-                    coefficient["{} Perpendicular Diffusion_slice {}".format(sp, isl)] = D[i, 1, :]
+                    coefficient["{} Diffusion_Parallel_slice {}".format(sp, isl)] = D[i, 0, :]
+                    coefficient["{} Diffusion_Perpendicular_slice {}".format(sp, isl)] = D[i, 1, :]
 
             # Add the average and std of perp and par VACF to its dataframe
             for isp, sp in enumerate(params.species_names):
-                par_col_str = ["{} Z Velocity ACF slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
+                sp_vacf_str = "{} ".format(sp) + vacf_str
+                sp_diff_str = "{} ".format(sp) + 'Diffusion'
+                par_col_str = [(sp_vacf_str, 'Z', "slice {}".format(isl)) for isl in range(vacf.no_slices)]
 
-                vacf.dataframe["{} Parallel Velocity ACF avg".format(sp)] = vacf.dataframe[par_col_str].mean(axis=1)
-                vacf.dataframe["{} Parallel Velocity ACF std".format(sp)] = vacf.dataframe[par_col_str].std(axis=1)
+                vacf.dataframe[(sp_vacf_str, 'Parallel', "Mean")] = vacf.dataframe[par_col_str].mean(axis=1)
+                vacf.dataframe[(sp_vacf_str, 'Parallel', "Std")] = vacf.dataframe[par_col_str].std(axis=1)
 
-                x_col_str = ["{} X Velocity ACF slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
-                y_col_str = ["{} Y Velocity ACF slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
+                x_col_str = [(sp_vacf_str, 'X', "slice {}".format(isl)) for isl in range(vacf.no_slices)]
+                y_col_str = [(sp_vacf_str, 'Y', "slice {}".format(isl)) for isl in range(vacf.no_slices)]
 
                 perp_vacf = 0.5 * (np.array(vacf.dataframe[x_col_str]) + np.array(vacf.dataframe[y_col_str]))
-                vacf.dataframe["{} Perpendicular Velocity ACF avg".format(sp)] = perp_vacf.mean(axis=1)
-                vacf.dataframe["{} Perpendicular Velocity ACF std".format(sp)] = perp_vacf.std(axis=1)
+                vacf.dataframe[(sp_vacf_str, 'Perpendicular', "Mean")] = perp_vacf.mean(axis=1)
+                vacf.dataframe[(sp_vacf_str, 'Perpendicular', "Std")] = perp_vacf.std(axis=1)
 
                 # Average and std of each diffusion coefficient.
-                par_col_str = ["{} Parallel Diffusion slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
-                perp_col_str = ["{} Perpendicular Diffusion slice {}".format(sp, isl) for isl in range(vacf.no_slices)]
+                par_col_str = [sp_diff_str + "_Parallel_slice {}".format(isl) for isl in range(vacf.no_slices)]
+                perp_col_str = [sp_diff_str + "_Perpendicular_slice {}".format(isl) for isl in range(vacf.no_slices)]
 
-                coefficient["{} Parallel Diffusion avg".format(sp)] = coefficient[par_col_str].mean(axis=1)
-                coefficient["{} Parallel Diffusion std".format(sp)] = coefficient[par_col_str].std(axis=1)
+                coefficient[sp_diff_str + "_Parallel_Mean"] = coefficient[par_col_str].mean(axis=1)
+                coefficient[sp_diff_str + "_Parallel_Std"] = coefficient[par_col_str].std(axis=1)
 
-                coefficient["{} Perpendicular Diffusion avg".format(sp)] = coefficient[perp_col_str].mean(axis=1)
-                coefficient["{} Perpendicular Diffusion std".format(sp)] = coefficient[perp_col_str].std(axis=1)
+                coefficient[sp_diff_str + "_Perpendicular_Mean"] = coefficient[perp_col_str].mean(axis=1)
+                coefficient[sp_diff_str + "_Perpendicular_Std"] = coefficient[perp_col_str].std(axis=1)
 
+            # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.
+            # Remove the previous hdf
+            os.remove(vacf.filename_hdf)
             # Save the updated dataframe
-            vacf.dataframe.to_csv(vacf.filename_csv, index=False, encoding='utf-8')
+            vacf.dataframe.to_hdf(vacf.filename_hdf, mode='w', key=vacf.__name__)
 
         # Endif magnetized.
         coefficient.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in coefficient.columns])
+        coeff_filename = os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.h5')
+        if os.path.exists(coeff_filename):
+            # Remove the previous hdf
+            os.remove(vacf.filename_hdf)
+
         # Save the coefficient's data
-        coefficient.to_hdf(
-            os.path.join(vacf.saving_dir, 'Diffusion_' + vacf.job_id + '.h5'),
-            mode='w',
-            key='diffusion')
+        coefficient.to_hdf(coeff_filename,
+                           mode='w',
+                           key='diffusion')
 
         if plot or figname:
             # Make the plot
@@ -348,17 +357,19 @@ class TransportCoefficient:
                     ax2.fill_between(xmul * time, ymul * (d_avg + d_std), ymul * (d_avg - d_std), alpha=0.2)
             else:
                 for isp, sp in enumerate(params.species_names):
-                    par_acf_avg = vacf.dataframe["{} Parallel Velocity ACF avg".format(sp)]
-                    par_acf_std = vacf.dataframe["{} Parallel Velocity ACF std".format(sp)]
+                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    sp_diff_str = "{} ".format(sp) + 'Diffusion'
+                    par_acf_avg = vacf.dataframe[(sp_vacf_str, 'Parallel', "Mean")]
+                    par_acf_std = vacf.dataframe[(sp_vacf_str, 'Parallel', "Std")]
 
-                    par_d_avg = coefficient["{} Parallel Diffusion avg".format(sp)]
-                    par_d_std = coefficient["{} Parallel Diffusion std".format(sp)]
+                    par_d_avg = coefficient[(sp_diff_str, 'Parallel', "Mean")]
+                    par_d_std = coefficient[(sp_diff_str, 'Parallel', "Std")]
 
-                    perp_acf_avg = vacf.dataframe["{} Perpendicular Velocity ACF avg".format(sp)]
-                    perp_acf_std = vacf.dataframe["{} Perpendicular Velocity ACF std".format(sp)]
+                    perp_acf_avg = vacf.dataframe[(sp_vacf_str, 'Perpendicular', "Mean")]
+                    perp_acf_std = vacf.dataframe[(sp_vacf_str, 'Perpendicular', "Std")]
 
-                    perp_d_avg = coefficient["{} Perpendicular Diffusion avg".format(sp)]
-                    perp_d_std = coefficient["{} Perpendicular Diffusion std".format(sp)]
+                    perp_d_avg = coefficient[(sp_diff_str, 'Perpendicular', "Mean")]
+                    perp_d_std = coefficient[(sp_diff_str, 'Perpendicular', "Std")]
 
                     # Calculate axis multipliers and labels
                     xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, perp_d_avg, "Time", "Diffusion", vacf.units)
@@ -477,7 +488,7 @@ class TransportCoefficient:
         coefficient["Time"] = time
         df_str = "Diffusion Flux ACF"
         id_str = "Inter Diffusion Flux"
-        for isl in tqdm(range(jc_acf.no_slices), disable= not jc_acf.verbose):
+        for isl in tqdm(range(jc_acf.no_slices), disable=not jc_acf.verbose):
             D_ij = np.zeros((no_fluxes_acf, jc_acf.slice_steps))
 
             for ij in range(no_fluxes_acf):
@@ -557,6 +568,7 @@ class TransportCoefficient:
     @staticmethod
     def viscosity(params,
                   phase: str = 'production',
+                  parse: bool = False,
                   compute_acf: bool = True,
                   no_slices: int = 1,
                   plot: bool = True,
@@ -592,70 +604,150 @@ class TransportCoefficient:
         energies.setup(params, phase)
         energies.parse()
 
-        if compute_acf:
-            pt = obs.PressureTensor()
-            pt.setup(params, phase, no_slices, **kwargs)
-            pt.compute()
-        else:
-            pt = obs.PressureTensor()
-            pt.setup(params, phase, no_slices, **kwargs)
+        pt = obs.PressureTensor()
+        pt.setup(params, phase, no_slices, **kwargs)
+        if parse:
             pt.parse()
+            time = pt.dataframe["Time"].to_numpy()[:, 0]
+            coefficient = pd.read_hdf(os.path.join(pt.saving_dir, 'Viscosities_' + pt.job_id + '.h5'),
+                                      mode='r',
+                                      key='viscosities',
+                                      index=False)
+        else:
+            if compute_acf:
 
-        TransportCoefficient.pretty_print(pt, 'Viscosities')
+                pt.compute()
+            else:
+                pt.parse()
 
-        time = pt.dataframe["Time"].to_numpy()[:, 0]
-        coefficient["Time"] = time
-        dim_lbl = ['x', 'y', 'z']
+            TransportCoefficient.pretty_print(pt, 'Viscosities')
 
-        pt_str = "Pressure Tensor ACF"
-        start_steps = 0
-        end_steps = 0
+            time = pt.dataframe["Time"].to_numpy()[:, 0]
+            coefficient["Time"] = time
+            dim_lbl = ['x', 'y', 'z']
 
-        for isl in tqdm(range(pt.no_slices), disable=not pt.verbose):
-            end_steps += pt.slice_steps
+            pt_str_kin = "Pressure Tensor Kinetic ACF"
+            pt_str_pot = "Pressure Tensor Potential ACF"
+            pt_str_kinpot = "Pressure Tensor Kin-Pot ACF"
+            pt_str_potkin = "Pressure Tensor Pot-Kin ACF"
+            pt_str = "Pressure Tensor ACF"
 
-            beta = (np.mean(energies.dataframe["Temperature"].iloc[start_steps:end_steps]) * pt.kB) ** (-1.0)
-            const = params.box_volume * beta
-            # Calculate Bulk Viscosity
-            bulk_viscosity = np.zeros(pt.slice_steps)
-            # Bulk viscosity is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
-            bulk_integrand = np.copy(pt.dataframe[("Delta Pressure ACF", "slice {}".format(isl))])
+            start_steps = 0
+            end_steps = 0
 
-            for it in range(1, pt.slice_steps):
-                bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
+            for isl in tqdm(range(pt.no_slices), disable=not pt.verbose):
+                end_steps += pt.slice_steps
 
-            coefficient["Bulk Viscosity_slice {}".format(isl)] = bulk_viscosity
+                beta = (np.mean(energies.dataframe["Temperature"].iloc[start_steps:end_steps]) * pt.kB) ** (-1.0)
+                const = params.box_volume * beta
+                # Calculate Bulk Viscosity
+                bulk_viscosity = np.zeros(pt.slice_steps)
+                # Bulk viscosity is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
+                bulk_integrand = np.copy(pt.dataframe[("Delta Pressure ACF", "slice {}".format(isl))])
 
-            shear_viscosity = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
+                for it in range(1, pt.slice_steps):
+                    bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
+
+                coefficient["Bulk Viscosity_slice {}".format(isl)] = bulk_viscosity
+
+                shear_kinetic = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
+                shear_potential = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
+                shear_kinpot = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
+                shear_potkin = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
+
+                shear_viscosity = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
+
+                for i, ax1 in enumerate(dim_lbl):
+                    for j, ax2 in enumerate(dim_lbl):
+
+                        # Kinetic terms
+                        integrand = pt.dataframe[
+                            (pt_str_kin + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
+                        for it in range(1, pt.slice_steps):
+                            shear_kinetic[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+                        coefficient[
+                            "Kinetic Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_kinetic[i, j]
+
+                        # Potential terms
+                        integrand = pt.dataframe[
+                            (pt_str_pot + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
+                        for it in range(1, pt.slice_steps):
+                            shear_potential[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+                        coefficient[
+                            "Potential Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_potential[
+                            i, j]
+
+                        # Kinetic-Potential terms
+                        integrand = pt.dataframe[
+                            (pt_str_kinpot + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
+                        for it in range(1, pt.slice_steps):
+                            shear_kinpot[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+                        coefficient[
+                            "Kin-Pot Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_kinpot[i, j]
+
+                        # Potential-Kinetic terms
+                        integrand = pt.dataframe[
+                            (pt_str_potkin + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
+                        for it in range(1, pt.slice_steps):
+                            shear_potkin[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+                        coefficient[
+                            "Pot-Kin Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_potkin[i, j]
+
+                        # Full terms
+                        integrand = pt.dataframe[
+                            (pt_str + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
+                        for it in range(1, pt.slice_steps):
+                            shear_viscosity[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+                        coefficient[
+                            "Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_viscosity[i, j]
+
+            start_steps += pt.slice_steps
+
+            # Now average the slice
+            col_str = ["Bulk Viscosity_slice {}".format(isl) for isl in range(pt.no_slices)]
+            coefficient["Bulk Viscosity_Mean"] = coefficient[col_str].mean(axis=1)
+            coefficient["Bulk Viscosity_Std"] = coefficient[col_str].std(axis=1)
+
+            kin_str = "Kinetic Shear Viscosity Tensor"
+            pot_str = "Potential Shear Viscosity Tensor"
+            kp_str = "Kin-Pot Shear Viscosity Tensor"
+            pk_str = "Pot-Kin Shear Viscosity Tensor"
+            sv_str = "Shear Viscosity Tensor"
 
             for i, ax1 in enumerate(dim_lbl):
                 for j, ax2 in enumerate(dim_lbl):
+                    # Kinetic Terms
+                    col_str = [kin_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
+                    coefficient[kin_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
+                    coefficient[kin_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
+                    # Potential Terms
+                    col_str = [pot_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
+                    coefficient[pot_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
+                    coefficient[pot_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
+                    # Kin-Pot Terms
+                    col_str = [kp_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
+                    coefficient[kp_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
+                    coefficient[kp_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
+                    # PotKin Terms
+                    col_str = [pk_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
+                    coefficient[pk_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
+                    coefficient[pk_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
+                    # Full
+                    col_str = [sv_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
+                    coefficient[sv_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
+                    coefficient[sv_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
 
-                    integrand = pt.dataframe[(pt_str + " {}{}".format(ax1, ax2), 'slice {}'.format(isl))].to_numpy()
-                    for it in range(1, pt.slice_steps):
-                        shear_viscosity[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
+            list_coord = ['xy', 'xz', 'yx', 'yz', 'zx', 'zy']
+            col_str = [sv_str + " {}_Mean".format(coord) for coord in list_coord]
+            coefficient["Shear Viscosity_Mean"] = coefficient[col_str].mean(axis=1)
+            coefficient["Shear Viscosity_Std"] = coefficient[col_str].std(axis=1)
 
-                    coefficient["Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_viscosity[i, j, :]
-            start_steps += pt.slice_steps
-
-        # Now average the slice
-        col_str = ["Bulk Viscosity_slice {}".format(isl) for isl in range(pt.no_slices)]
-        coefficient["Bulk Viscosity_Mean"] = coefficient[col_str].mean(axis=1)
-        coefficient["Bulk Viscosity_Std"] = coefficient[col_str].std(axis=1)
-
-        sv_str = "Shear Viscosity Tensor"
-        for i, ax1 in enumerate(dim_lbl):
-            for j, ax2 in enumerate(dim_lbl):
-                col_str = [sv_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
-                coefficient[sv_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
-                coefficient[sv_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
-
-        coefficient.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in coefficient.columns])
-        coefficient.to_hdf(
-            os.path.join(pt.saving_dir, 'Viscosities_' + pt.job_id + '.h5'),
-            mode='w',
-            key='viscosities',
-            index=False)
+            coefficient.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in coefficient.columns])
+            coefficient.to_hdf(
+                os.path.join(pt.saving_dir, 'Viscosities_' + pt.job_id + '.h5'),
+                mode='w',
+                key='viscosities',
+                index=False)
 
         if plot or figname:
             # Make the plot
