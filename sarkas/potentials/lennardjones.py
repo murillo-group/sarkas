@@ -1,5 +1,56 @@
 """
-Module for handling Lennard-Jones interaction
+Module for handling Lennard-Jones interaction.
+
+Potential
+*********
+
+The generalized Lennard-Jones potential is defined as
+
+.. math::
+    U_{\\mu\\nu}(r) = k \\epsilon_{\\mu\\nu} \\left [ \\left ( \\frac{\\sigma_{\\mu\\nu}}{r}\\right )^m -
+    \\left ( \\frac{\\sigma_{\\mu\\nu}}{r}\\right )^n \\right ],
+
+where
+
+.. math::
+    k = \\frac{n}{m-n} \\left ( \\frac{n}{m} \\right )^{\\frac{m}{n-m}}.
+
+In the case of multispecies liquids we use the `Lorentz-Berthelot <https://en.wikipedia.org/wiki/Combining_rules>`_
+mixing rules
+
+.. math::
+    \\epsilon_{12} = \\sqrt{\epsilon_{11} \\epsilon_{22}}, \\quad \\sigma_{12} = \\frac{\\sigma_{11} + \\sigma_{22}}{2}.
+
+Force Error
+***********
+
+The force error for the LJ potential is given by
+
+.. math::
+    \\Delta F = \\frac{k\\epsilon}{ \\sqrt{2\\pi n}} \\left [ \\frac{m^2 \\sigma^{2m}}{2m - 1} \\frac{1}{r_c^{2m -1}}
+    + \\frac{n^2 \\sigma^{2n}}{2n - 1} \\frac{1}{r_c^{2n -1}} \\
+    -\\frac{2 m n \\sigma^{m + n}}{m + n - 1} \\frac{1}{r_c^{m + n -1}} \\
+    \\right ]^{1/2}
+
+which we approximate with the first term only
+
+.. math::
+    \\Delta F \\approx \\frac{k\\epsilon} {\\sqrt{2\\pi n} }
+    \\left [ \\frac{m^2 \\sigma^{2m}}{2m - 1} \\frac{1}{r_c^{2m -1}} \\right ]^{1/2}
+
+Potential Attributes
+********************
+
+The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+
+.. code-block::
+
+    pot_matrix[0] = epsilon_12 * lj_constant
+    pot_matrix[1] = sigmas
+    pot_matrix[2] = highest power
+    pot_matrix[3] = lowest power
+    pot_matrix[4] = short-range cutoff
+
 """
 import numpy as np
 import numba as nb
@@ -17,24 +68,6 @@ def update_params(potential, params):
 
     params : sarkas.core.Parameters
         Simulation's parameters.
-
-    Notes
-    -----
-    The force error for the LJ potential is given by
-
-    .. math::
-
-        \Delta F = \frac{k\epsilon \sqrt{2\pi n} }\left [ \frac{m^2 \sigma^{2m}}{2m - 1} \frac{1}{r_c^{2m -1}} \right . \\
-        + \frac{n^2 \sigma^{2n}}{2n - 1} \frac{1}{r_c^{2n -1}} \\
-        \left . -\frac{2 m n \sigma^{m + n}}{m + n - 1} \frac{1}{r_c^{m + n -1}} \\
-        \right ]^{1/2}
-
-    which we approximate with the first term only
-
-    .. math::
-
-        \Delta F \approx \frac{k\epsilon \sqrt{2\pi n} }\left [ \frac{m^2 \sigma^{2m}}{2m - 1} \frac{1}{r_c^{2m -1}} \right ]^{1/2}
-        \right ]^{1/2}
 
     """
     potential.matrix = np.zeros((5, params.num_species, params.num_species))
@@ -74,18 +107,18 @@ def update_params(potential, params):
     )
 
 @nb.njit
-def lj_force(r, pot_matrix):
+def lj_force(r_in, pot_matrix):
     """
     Calculates the PP force between particles using Lennard-Jones Potential.
 
     Parameters
     ----------
-    pot_matrix : array
-        LJ potential parameters.
-
-    r : float
+    r_in : float
         Particles' distance.
 
+    pot_matrix : numpy.ndarray
+        LJ potential parameters. \n
+        Shape = (5, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
 
     Returns
     -------
@@ -94,21 +127,12 @@ def lj_force(r, pot_matrix):
 
     force : float
         Force.
-    """
-    """
-    Notes
-    -----
-    pot_matrix[0] = epsilon_12 * lj_constant
-    pot_matrix[1] = sigmas
-    pot_matrix[2] = highest power
-    pot_matrix[3] = lowest power
-    pot_matrix[4] = short-range cutoff
 
     """
 
     rs = pot_matrix[4]
-    if r < rs:
-        r = rs
+    # Branchless programming
+    r = r_in * (r_in >= rs) + rs * (r_in < rs)
 
     epsilon = pot_matrix[0]
     sigma = pot_matrix[1]

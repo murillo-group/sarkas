@@ -1089,8 +1089,8 @@ class Particles:
         Author: Luke Stanek
         Date Created: 5/6/19
         Date Updated: 6/2/19, 9/7/21
-        Updates: Added to S_init_schemes.py for Sarkas import
-                 Place lattice according to pbox parameters into center of simulation box (PWS)
+        Updates: Added to S_init_schemes.py for Sarkas import.
+                Place lattice according to pbox parameters into center of simulation box (PWS)
         """
 
         # Check if perturbation is below maximum allowed. If not, default to maximum perturbation.

@@ -1,5 +1,42 @@
 """
-Module for handling Moliere Potential
+Module for handling Moliere Potential.
+
+Potential
+*********
+
+The Moliere Potential is defined as
+
+.. math::
+    U(r) = \\frac{q_i q_j}{4 \\pi \\epsilon_0} \\frac{1}{r} \\sum_{\\alpha} C_{\\alpha} e^{- b_{\\alpha} r}.
+
+For more details see :cite:`Wilson1977`. Note that the parameters :math:`b` are not normalized by the Bohr radius.
+They should be passed with the correct units [m] if mks or [cm] if cgs.
+
+Force Error
+***********
+
+The force error is calculated from the Yukawa's formula with the smallest screening length.
+
+.. math::
+
+    \\Delta F = \\frac{q^2}{4 \\pi \\epsilon_0} \\sqrt{2 \\pi n b_{\\textrm min} }e^{-b_{\\textrm min} r_c},
+
+This overestimates it, but it doesn't matter.
+
+Potential Attributes
+********************
+The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+
+.. code-block:: python
+
+    pot_matrix[0] = q_iq_je^2/(4 pi eps_0) Force factor between two particles.
+    pot_matrix[1] = C_1
+    pot_matrix[2] = C_2
+    pot_matrix[3] = C_3
+    pot_matrix[4] = b_1
+    pot_matrix[5] = b_2
+    pot_matrix[6] = b_3
+
 """
 import numpy as np
 import numba as nb
@@ -55,28 +92,17 @@ def moliere_force(r, pot_matrix):
         Particles' distance.
 
     pot_matrix : numpy.ndarray
-        Moliere potential parameters.
-
+        Moliere potential parameters. \n
+        Shape = (7, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
 
     Returns
     -------
-    phi : float
-        Potential
+    U : float
+        Potential.
 
-    fr : float
-        Force
-    """
-    """
-    Notes
-    -----
-    See Wilson et al. PRB 15 2458 (1977) for parameters' details
-    pot_matrix[0] = Z_1Z_2e^2/(4 np.pi eps_0)
-    pot_matrix[1] = C_1
-    pot_matrix[2] = C_2
-    pot_matrix[3] = C_3
-    pot_matrix[4] = b_1
-    pot_matrix[5] = b_2
-    pot_matrix[6] = b_3
+    force : float
+        Force between two particles.
+
     """
 
     U = 0.0

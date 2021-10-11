@@ -1,22 +1,72 @@
 """
-Module for handling the Quantum Statistical Potential.
+Module for handling Quantum Statistical Potentials.
 
-Note
-----
-Notice that in Ref. [Hansen1981]_ the DeBroglie wavelength is defined as
+Potential
+*********
 
-.. math::
-   \lambda_{ee} = \dfrac{\hbar}{\sqrt{2 \pi \mu_{ee} k_{B} T} },
-
-while in statistical physics textbooks and Ref. [Glosli2008]_ is defined as
+Quantum Statistical Potentials are defined by three terms
 
 .. math::
-   \lambda_{ee} = \dfrac{h}{\sqrt{2 \pi \mu_{ee} k_{B} T} },
+    U(r) = U_{\\rm pauli}(r) + U_{\\rm coul} + U_{\\rm diff} (r)
 
-References
-----------
-.. [Hansen1981] `J.P. Hansen and I.R. McDonald, Phys Rev A 23 2041 (1981) <https://doi.org/10.1103/PhysRevA.23.2041>`_
-.. [Glosli2008] `J.N. Glosli et al. Phys Rev E 78 025401(R) (2008) <https://doi.org/10.1103/PhysRevE.78.025401>`_
+where
+
+.. math::
+    U_{\\rm pauli}(r) = k_BT \\ln (2)  e^{ - 4\\pi r^2/ \\Lambda_{ab}^2 }
+
+is due to the Pauli exclusion principle,
+
+.. math::
+    U_{\\rm coul}(r) = \\frac{q_iq_j}{4\\pi \\epsilon_0} \\frac{1}{r}
+
+is the usual Coulomb interaction, and :math:`U_{\\rm diff}(r)` is a diffraction term.
+
+There are two possibilities for the diffraction term. The most common is the Deutsch Potential
+
+.. math::
+    U_{\\rm deutsch}(r) = \\frac{q_aq_b}{4\\pi \\epsilon_0} \\frac{e^{- 2 \\pi r/\\Lambda_{ab}} }{r}.
+
+The second most common form is the Kelbg potential
+
+.. math::
+    U_{\\rm kelbg}(r) = - \\frac{q_aq_b}{4\\pi \\epsilon_0} \\frac{1}{r} \\left [  e^{- 2 \\pi r^2/\\Lambda_{ab}^2 }
+    - \\sqrt{2} \\pi \\dfrac{r}{\\Lambda_{ab}} \\textrm{erfc} \\left ( \\sqrt{ 2\\pi}  r/ \\Lambda_{ab} \\right )
+    \\right ].
+
+In the above equations the screening length :math:`\\Lambda_{ab}` is the thermal de Broglie wavelength
+between the two charges defined as
+
+.. math::
+   \\Lambda_{ab} = \\sqrt{\\frac{2\\pi \\hbar^2}{\\mu_{ab} k_BT}}, \\quad  \\mu_{ab} = \\frac{m_a m_b}{m_a + m_b}
+
+
+Note that in Ref. :cite:`Hansen1981` the DeBroglie wavelength is defined as
+
+.. math::
+   \\Lambda_{ee} = \\sqrt{ \\dfrac{\\hbar^2}{2 \\pi \\mu_{ee} k_{B} T}},
+
+while in statistical physics textbooks is defined as
+
+.. math::
+   \\Lambda_{ee} = \\sqrt{ \\dfrac{2 \\pi \\hbar^2}{\\mu_{ee} k_{B} T}} .
+
+The latter will be used in Sarkas. The difference is in the factor of :math:`2\\pi`, i.e. the difference between
+a wave number and wave length.
+
+Potential Attributes
+********************
+
+The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+
+.. code-block:: python
+
+    pot_matrix[0] = qi*qj/4*pi*eps0
+    pot_matrix[1] = 2pi/deBroglie
+    pot_matrix[2] = e-e Pauli term factor
+    pot_matrix[3] = e-e Pauli term exponent term
+    pot_matrix[4] = Ewald parameter
+    pot_matrix[5] = Short-range cutoff
+
 """
 
 from warnings import warn
@@ -26,6 +76,7 @@ import math as mt
 
 from sarkas.utilities.exceptions import AlgorithmWarning
 from sarkas.utilities.maths import force_error_analytic_pp, TWOPI
+
 
 def update_params(potential, params):
     """
@@ -39,16 +90,7 @@ def update_params(potential, params):
     params : object
         Simulation's parameters
 
-    """
-    """
-    Dev Notes
-    for more info and a description of the potential's parameters.
-    QSP_matrix[0,:,:] = qi*qj/4*pi*eps0
-    QSP_matrix[1,:,:] = 2pi/deBroglie
-    QSP_matrix[2,:,:] = e-e Pauli term factor
-    QSP_matrix[3,:,:] = e-e Pauli term exponent term
-    QSP_matrix[4,:,:] = Ewald parameter
-    QSP_matrix[5,:,:] = Short-range cutoff
+
     """
     # Do a bunch of checks
     # pppm algorithm only
@@ -58,7 +100,7 @@ def update_params(potential, params):
     # Check for neutrality
     if params.total_net_charge != 0:
         warn("Total net charge is not zero.",
-             category = AlgorithmWarning)
+             category=AlgorithmWarning)
 
     # Default attributes
     if not hasattr(potential, 'qsp_type'):
@@ -120,7 +162,7 @@ def update_params(potential, params):
         params.pppm_pp_err = force_error_analytic_pp(potential.type,
                                                      potential.rc,
                                                      potential.matix,
-                                                     np.sqrt(3.0 * params.a_ws/(4.0 * np.pi)))
+                                                     np.sqrt(3.0 * params.a_ws / (4.0 * np.pi)))
     elif potential.qsp_type == "kelbg":
         potential.force = kelbg_force
         # TODO: Calculate the PP Force error from the e-e diffraction term only.
@@ -128,27 +170,22 @@ def update_params(potential, params):
         params.pppm_pp_err = force_error_analytic_pp(potential.type,
                                                      potential.rc,
                                                      potential.matix,
-                                                     np.sqrt(3.0 * params.a_ws/(4.0 * np.pi)))
+                                                     np.sqrt(3.0 * params.a_ws / (4.0 * np.pi)))
 
 
 @njit
-def deutsch_force(r, pot_matrix):
+def deutsch_force(r_in, pot_matrix):
     """
     Calculate Deutsch QSP Force between two particles.
 
     Parameters
     ----------
-    r : float
+    r_in : float
         Distance between two particles.
 
-    pot_matrix : array
-        It contains potential dependent variables.
-        pot_matrix[0,:,:] = qi*qj/4*pi*eps0
-        pot_matrix[1,:,:] = 2pi/deBroglie
-        pot_matrix[2,:,:] = e-e Pauli term factor
-        pot_matrix[3,:,:] = e-e Pauli term exponent term
-        pot_matrix[4,:,:] = Ewald parameter
-        pot_matrix[5,:,:] = Short-range cutoff
+    pot_matrix : numpy.ndarray
+        It contains potential dependent variables. \n
+        Shape = (6, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
 
     Returns
     -------
@@ -157,6 +194,7 @@ def deutsch_force(r, pot_matrix):
 
     force : float
         Force between two particles.
+
 
     """
 
@@ -167,8 +205,8 @@ def deutsch_force(r, pot_matrix):
     alpha = pot_matrix[4]
     rs = pot_matrix[5]
 
-    if r < rs:
-        r = rs
+    # Branchless programming
+    r = r_in * (r_in >= rs) + rs * (r_in < rs)
 
     a2 = alpha * alpha
     r2 = r * r
@@ -176,7 +214,7 @@ def deutsch_force(r, pot_matrix):
     # Ewald short-range potential and force terms
     U_ewald = A * mt.erfc(alpha * r) / r
     f_ewald = U_ewald / r  # 1/r derivative
-    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) ) * np.exp(- a2 * r2)/r  # erfc derivative
+    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi)) * np.exp(- a2 * r2) / r  # erfc derivative
 
     # Diffraction potential and force term
     U_diff = -A * np.exp(-C * r) / r
@@ -194,23 +232,18 @@ def deutsch_force(r, pot_matrix):
 
 
 @njit
-def kelbg_force(r, pot_matrix):
+def kelbg_force(r_in, pot_matrix):
     """
     Calculates the QSP Force between two particles when the pppm algorithm is chosen.
 
     Parameters
     ----------
-    r : float
+    r_in : float
         Distance between two particles.
 
-    pot_matrix : array
-        It contains potential dependent parameters.
-        pot_matrix[0] = qi*qj/4*pi*eps0
-        pot_matrix[1] = 2pi/deBroglie
-        pot_matrix[2] = e-e Pauli term factor
-        pot_matrix[3] = e-e Pauli term exponent term
-        pot_matrix[4] = Ewald parameter
-        pot_matrix[5] = Short-range cutoff
+    pot_matrix : numpy.ndarray
+        It contains potential dependent variables. \n
+        Shape = (6, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
 
     Returns
     -------
@@ -229,8 +262,8 @@ def kelbg_force(r, pot_matrix):
     alpha = pot_matrix[4]
     rs = pot_matrix[5]
 
-    if r < rs:
-        r = rs
+    # Branchless programming
+    r = r_in * (r_in >= rs) + rs * (r_in < rs)
 
     C2 = C * C
     a2 = alpha * alpha

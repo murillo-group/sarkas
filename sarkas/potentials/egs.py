@@ -1,5 +1,95 @@
 """
-Module for handling Exact Gradient corrected Screened (EGS) Potential
+Module for handling Exact Gradient corrected Screened (EGS) Potential.
+
+Potential
+*********
+
+The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs.
+Density gradient corrections to the free energy functional lead to the first parameter, :math:`\nu`,
+
+.. math::
+   \\nu = - \\frac{3\\lambda}{\\pi^{3/2}}  \\frac{4\\pi \\bar{e}^2 \\beta }{\\Lambda_{e}} \\frac{d}{d\\eta} \\mathcal I_{-1/2}(\\eta),
+
+where :math:`\\lambda` is a correction factor; :math:`\\lambda = 1/9` for the true gradient corrected Thomas-Fermi model
+and :math:`\\lambda = 1` for the traditional von Weissaecker model, :math:`\\mathcal I_{-1/2}[\\eta_0]` is the
+:ref:`Fermi Integral` of order :math:`-1/2`, and :math:`\\Lambda_e` is the :ref:`de Broglie wavelength` of the electrons.
+
+In the case :math:`\\nu < 1` the EGS potential takes the form
+
+.. math::
+   U_{ab}(r) = \\frac{Z_a Z_b \\bar{e}^2 }{2r}\\left [ ( 1+ \\alpha ) e^{-r/\\lambda_-} + ( 1 - \\alpha) e^{-r/\\lambda_+} \\right ],
+
+with
+
+.. math::
+   \\lambda_\\pm^2 = \\frac{\\nu \\lambda_{\\textrm{TF}}^2}{2b \\pm 2b\\sqrt{1 - \\nu}}, \\quad \\alpha = \\frac{b}{\\sqrt{b - \\nu}},
+
+where the parameter :math:`b` arises from exchange-correlation contributions, see below.\n
+On the other hand :math:`\\nu > 1`, the pair potential has the form
+
+.. math::
+   U_{ab}(r) = \\frac{Z_a Z_b \\bar{e}^2}{r}\\left [ \\cos(r/\\gamma_-) + \\alpha' \\sin(r/\\gamma_-) \\right ] e^{-r/\\gamma_+}
+
+with
+
+.. math::
+   \\gamma_\\pm^2 = \\frac{\\nu\\lambda_{\\textrm{TF}}^2}{\\sqrt{\\nu} \\pm b}, \\quad \\alpha' = \\frac{b}{\\sqrt{\\nu - b}}.
+
+Neglect of exchange-correlational effects leads to :math:`b = 1` otherwise
+
+.. math::
+   b = 1 - \\frac{2}{8} \\frac{1}{k_{\\textrm{F}}^2 \\lambda_{\\textrm{TF}}^2 }  \\left [ h\\left ( \\Theta \\right ) - 2 \\Theta h'(\\Theta) \\right ]
+
+where :math:`k_{\\textrm{F}}` is the Fermi wavenumber and :math:`\\Theta = (\\beta E_{\\textrm{F}})^{-1}` is the electron
+:ref:`Degeneracy Parameter` calculated from the :ref:`Fermi Energy`.
+
+.. math::
+   h \\left ( \\Theta \\right) = \\frac{N(\\Theta)}{D(\\Theta)}\\tanh \\left( \\Theta^{-1} \\right ),
+
+.. math::
+   N(\\Theta) = 1 + 2.8343\\Theta^2 - 0.2151\\Theta^3 + 5.2759\\Theta^4,
+
+.. math::
+   D \\left ( \\Theta \\right ) = 1 + 3.9431\\Theta^2 + 7.9138\\Theta^4.
+
+Force Error
+***********
+
+The EGS potential is always smaller than pure Yukawa. Therefore the force error is chosen to be the same as Yukawa's
+
+.. math::
+
+    \\Delta F = \\frac{q^2}{4 \\pi \\epsilon_0} \\sqrt{\\frac{2 \\pi n}{\\lambda_{-}}}e^{-r_c/\\lambda_-}
+
+This overestimates it, but it doesn't matter.
+
+Potential Attributes
+********************
+
+The elements of :attr:`sarkas.potentials.core.Potential.pot_matrix` are
+
+if :attr:`sarkas.core.Parameters.nu` less than 1:
+
+.. code-block::
+
+    pot_matrix[0] = q_iq_j/4pi eps0
+    pot_matrix[1] = nu
+    pot_matrix[2] = 1 + alpha
+    pot_matrix[3] = 1 - alpha
+    pot_matrix[4] = 1.0 / lambda_minus
+    pot_matrix[5] = 1.0 / lambda_plus
+
+else
+
+.. code-block::
+
+    pot_matrix[0] = q_iq_j/4pi eps0
+    pot_matrix[1] = nu
+    pot_matrix[2] = 1.0
+    pot_matrix[3] = alpha prime
+    pot_matrix[4] = 1.0 / gamma_minus
+    pot_matrix[5] = 1.0 / gamma_plus
+
 """
 import numpy as np
 from numba import njit
@@ -99,7 +189,7 @@ def update_params(potential, params):
     potential.matrix[6, :, :] = potential.rs
 
     if potential.method == "pppm":
-        raise AlgorithmError("pppm Algorithm not implemented yet.")
+        raise AlgorithmError("pppm algorithm not implemented yet.")
 
     potential.force = egs_force
     # EGS is always smaller than pure Yukawa.
@@ -116,21 +206,21 @@ def update_params(potential, params):
 
 
 @njit
-def egs_force(r, pot_matrix):
+def egs_force(r_in, pot_matrix):
     """
     Calculates Potential and force between particles using the EGS Potential.
 
     Parameters
     ----------
-    r : float
+    r_in : float
         Particles' distance.
 
     pot_matrix : array
-        EGS potential parameters.
+        EGS potential parameters. \n
+        Shape = (6, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
 
     Return
     ------
-
     U : float
         Potential.
 
@@ -140,17 +230,11 @@ def egs_force(r, pot_matrix):
     """
 
     rs = pot_matrix[6]
-    if r < rs:
-        r = rs
+    # Branchless programming
+    r = r_in * (r_in >= rs) + rs * (r_in < rs)
 
     # nu = pot_matrix[1]
     if pot_matrix[1] <= 1.0:
-        # pot_matrix[0] = Charge factor = q^2/4pi eps0 if mks q^2 if cgs
-        # pot_matrix[2] = 1 + alpha
-        # pot_matrix[3] = 1 - alpha
-        # pot_matrix[4] = 1.0 / lambda_minus
-        # pot_matrix[5] = 1.0 / lambda_plus
-
         temp1 = pot_matrix[2] * np.exp(-r * pot_matrix[4])
         temp2 = pot_matrix[3] * np.exp(-r * pot_matrix[5])
         # Potential
@@ -159,11 +243,6 @@ def egs_force(r, pot_matrix):
         fr = U / r + pot_matrix[0] * (temp1 * pot_matrix[4] + temp2 * pot_matrix[5]) / r
 
     else:
-        # pot_matrix[0] = Charge factor
-        # pot_matrix[2] = 1.0
-        # pot_matrix[3] = alpha prime
-        # pot_matrix[4] = 1.0 / gamma_minus
-        # pot_matrix[5] = 1.0 / gamma_plus
         cos = np.cos(r * pot_matrix[4])
         sin = np.sin(r * pot_matrix[4])
         exp = pot_matrix[0] * np.exp(-r * pot_matrix[5])

@@ -2,8 +2,46 @@
 
 import numpy as np
 import numba as nb
+import scipy.signal as scp_signal
 
 TWOPI = 2.0 * np.pi
+
+
+def correlationfunction(At, Bt):
+    """
+    Calculate the correlation function :math:`\\mathbf{A}(t)` and :math:`\\mathbf{B}(t)` using
+    ``scipy.signal.correlate``
+
+    .. math::
+        C_{AB}(\\tau) =  \\sum_j^D \\sum_i^T A_j(t_i)B_j(t_i + \\tau)
+
+    where :math:`D` (= ``no_dim``) is the number of dimensions and :math:`T` (= ``no_steps``) is the total length
+    of the simulation.
+
+    Parameters
+    ----------
+    At : numpy.ndarray
+        Observable to correlate. Shape=(``no_steps``).
+
+    Bt : numpy.ndarray
+        Observable to correlate. Shape=(``no_steps``).
+
+    Returns
+    -------
+    CF : numpy.ndarray
+        Correlation function :math:`C_{AB}(\\tau)`
+    """
+    no_steps = At.size
+
+    # Calculate the full correlation function.
+    full_corr = scp_signal.correlate(At, Bt, mode='full')
+    # Normalization of the full correlation function, Similar to norm_counter
+    norm_corr = np.array([no_steps - ii for ii in range(no_steps)])
+    # Find the mid point of the array
+    mid = full_corr.size // 2
+    # I want only the second half of the array, i.e. the positive lags only
+    return full_corr[mid:] / norm_corr
+
 
 @nb.njit
 def yukawa_green_function(x, alpha, kappa):
@@ -19,9 +57,9 @@ def betamp(m, p, alpha, kappa):
     Calculate the integral of the Yukawa Green's function
     .. math::
 
-        \beta(p,m) = \int_0^\infty G_k^2 k^{2 (p + m + 2)}.
+        \\beta(p,m) = \\int_0^\\infty G_k^2 k^{2 (p + m + 2)}.
 
-    See eq.(37) in Dharuman et al. J Chem Phys 146 024112 (2017)
+    See eq.(37) in :cite:`Dharuman2017`.
     """
     xa = np.linspace(0.0001, 500, 5000)
     Gk = yukawa_green_function(xa, alpha, kappa)
@@ -97,7 +135,7 @@ def force_error_analytic_pp(potential_type,
     """
 
     if potential_type in ["yukawa", "egs", "qsp"]:
-        force_error = np.sqrt(TWOPI * potential_matrix[1, 0, 0])\
+        force_error = np.sqrt(TWOPI * potential_matrix[1, 0, 0]) \
                       * np.exp(- cutoff_length * potential_matrix[1, 0, 0])
     elif potential_type == "moliere":
         # Choose the smallest screening length for force error calculation
@@ -110,7 +148,7 @@ def force_error_analytic_pp(potential_type,
         sigma = potential_matrix[1, :, :].max()
         high_pow = potential_matrix[2, 0, 0]
         exponent = 2 * high_pow - 1
-        force_error_tmp = high_pow**2 * sigma**(2 * high_pow)/cutoff_length**exponent
+        force_error_tmp = high_pow ** 2 * sigma ** (2 * high_pow) / cutoff_length ** exponent
         force_error_tmp /= exponent
         force_error = np.sqrt(force_error_tmp)
 

@@ -19,11 +19,12 @@ import matplotlib.pyplot as plt
 # import h5py
 # import logging
 
-import scipy.signal as scp_signal
+
 import scipy.stats as scp_stats
 
 from sarkas.utilities.timing import SarkasTimer
 from sarkas.utilities.io import num_sort
+from sarkas.utilities.maths import correlationfunction
 import sarkas.potentials as s_pot
 
 UNITS = [
@@ -2695,9 +2696,9 @@ class PressureTensor(Observable):
             print("\nCalculating stress tensor and the acfs for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
             pressure = np.zeros(self.slice_steps)
-            pressure_kin_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
-            pressure_pot_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
-            pressure_tensor_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
+            pt_kin_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
+            pt_pot_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
+            pt_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
 
             for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
                                            desc='Calculating Pressure Tensor',
@@ -2709,9 +2710,10 @@ class PressureTensor(Observable):
                                                          datap["id"],
                                                          self.box_lengths,
                                                          self.rc,
-                                                         self.potential_matrix, self.force)
-                pressure[it], pressure_kin_temp[:, :, it], pressure_pot_temp[:, :, it], pressure_tensor_temp[:, :,
-                                                                                    it] = calc_pressure_tensor(
+                                                         self.potential_matrix,
+                                                         self.force)
+
+                pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :,it] = calc_pressure_tensor(
                     datap["vel"],
                     virial,
                     self.species_masses,
@@ -2734,31 +2736,26 @@ class PressureTensor(Observable):
             elif self.dimensions == 2:
                 dim_lbl = ['x', 'y']
 
-            # Calculate the (thermal fluctuations of the) elastic moduli from the acf of the stress tensor elements
-            # Note: C_{abcd} = < sigma_{ab} sigma_{cd} >
-            for i, ax1 in enumerate(dim_lbl):
-                for j, ax2 in enumerate(dim_lbl):
-                    self.dataframe[pt_str_kin + " {}{}_slice {}".format(ax1, ax2, isl)] = pressure_kin_temp[i, j, :]
-                    self.dataframe[pt_str_pot + " {}{}_slice {}".format(ax1, ax2, isl)] = pressure_pot_temp[i, j, :]
-                    self.dataframe[pt_str + " {}{}_slice {}".format(ax1, ax2, isl)] = pressure_tensor_temp[i, j, :]
-
             # The reason for dividing these two loops is because I want a specific order in the dataframe.
             # Pressure, Stress Tensor, All
             for i, ax1 in enumerate(dim_lbl):
                 for j, ax2 in enumerate(dim_lbl):
+                    self.dataframe[pt_str_kin + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_kin_temp[i, j, :]
+                    self.dataframe[pt_str_pot + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_pot_temp[i, j, :]
+                    self.dataframe[pt_str + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_temp[i, j, :]
+
+            # Calculate the (thermal fluctuations of the) elastic moduli from the acf of the stress tensor elements
+            # Note: C_{abcd} = < sigma_{ab} sigma_{cd} >
+            for i, ax1 in enumerate(dim_lbl):
+                for j, ax2 in enumerate(dim_lbl):
                     for k, ax3 in enumerate(dim_lbl):
                         for l, ax4 in enumerate(dim_lbl):
-                            C_ijkl_kin = correlationfunction(pressure_kin_temp[i, j, :],
-                                                         pressure_kin_temp[k, l, :])
-                            C_ijkl_pot = correlationfunction(pressure_pot_temp[i, j, :],
-                                                         pressure_pot_temp[k, l, :])
-                            C_ijkl_kinpot = correlationfunction(pressure_kin_temp[i, j, :],
-                                                             pressure_pot_temp[k, l, :])
-                            C_ijkl_potkin = correlationfunction(pressure_pot_temp[i, j, :],
-                                                             pressure_kin_temp[k, l, :])
+                            C_ijkl_kin = correlationfunction(pt_kin_temp[i, j, :], pt_kin_temp[k, l, :])
+                            C_ijkl_pot = correlationfunction(pt_pot_temp[i, j, :], pt_pot_temp[k, l, :])
+                            C_ijkl_kinpot = correlationfunction(pt_kin_temp[i, j, :], pt_pot_temp[k, l, :])
+                            C_ijkl_potkin = correlationfunction(pt_pot_temp[i, j, :], pt_kin_temp[k, l, :])
 
-                            C_ijkl = correlationfunction(pressure_tensor_temp[i, j, :],
-                                                         pressure_tensor_temp[k, l, :])
+                            C_ijkl = correlationfunction(pt_temp[i, j, :], pt_temp[k, l, :])
 
                             self.dataframe[pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_kin
                             self.dataframe[pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_pot
@@ -2809,40 +2806,44 @@ class PressureTensor(Observable):
                 for k, ax3 in enumerate(dim_lbl):
                     for l, ax4 in enumerate(dim_lbl):
                         # Kinetic Terms
-                        ij_col_acf_str = [pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl) for isl in
-                                          range(self.no_slices)]
-                        self.dataframe[pt_acf_str_kin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].mean(axis=1)
-                        self.dataframe[pt_acf_str_kin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].std(axis=1)
+                        ij_col_acf_str = [pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                                          for isl in range(self.no_slices)]
+                        mean_column = pt_acf_str_kin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
+                        std_column = pt_acf_str_kin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
+                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        #
                         # Potential Terms
-                        ij_col_acf_str = [pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl) for isl in
-                                          range(self.no_slices)]
-                        self.dataframe[pt_acf_str_pot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].mean(axis=1)
-                        self.dataframe[pt_acf_str_pot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].std(axis=1)
+                        ij_col_acf_str = [pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                                          for isl in range(self.no_slices)]
+                        mean_column = pt_acf_str_pot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
+                        std_column = pt_acf_str_pot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
+                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        #
                         # Kinetic-Potential Terms
-                        ij_col_acf_str = [pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl) for isl in
-                                          range(self.no_slices)]
-                        self.dataframe[pt_acf_str_kinpot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].mean(axis=1)
-                        self.dataframe[pt_acf_str_kinpot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].std(axis=1)
+                        ij_col_acf_str = [pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                                          for isl in range(self.no_slices)]
+                        mean_column = pt_acf_str_kinpot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
+                        std_column = pt_acf_str_kinpot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
+                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        #
                         # Potential-Kinetic Terms
-                        ij_col_acf_str = [pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl) for isl in
-                                          range(self.no_slices)]
-                        self.dataframe[pt_acf_str_potkin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].mean(axis=1)
-                        self.dataframe[pt_acf_str_potkin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].std(axis=1)
+                        ij_col_acf_str = [pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                                          for isl in range(self.no_slices)]
+                        mean_column = pt_acf_str_potkin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
+                        std_column = pt_acf_str_potkin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
+                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        #
                         # Full
-                        ij_col_acf_str = [pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl) for isl in
-                                          range(self.no_slices)]
-                        self.dataframe[pt_acf_str + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].mean(axis=1)
-                        self.dataframe[pt_acf_str + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)] = self.dataframe[
-                            ij_col_acf_str].std(axis=1)
+                        ij_col_acf_str = [pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                                          for isl in range(self.no_slices)]
+                        mean_column = pt_acf_str + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
+                        std_column = pt_acf_str + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
+                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
 
         # Create the columns for the HDF df
         self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
@@ -2875,7 +2876,7 @@ class PressureTensor(Observable):
             r[0] = np.copy(r[1])
 
         gr = rdf.dataframe.iloc[:, 1].to_numpy()
-        if potential.type.lower() == 'coulomb':
+        if potential.type == 'coulomb':
 
             gr -= 1
             U = potential.matrix[0, 0, 0] / r
@@ -2893,9 +2894,9 @@ class PressureTensor(Observable):
         I_1 = 2.0 * np.pi * beta * self.total_num_density * np.trapz(r ** 3 * gr * du_dr, x=r)
         I_2 = 2.0 * np.pi * beta * self.total_num_density * np.trapz(r ** 4 * gr * d2u_dr2, x=r)
 
-        sigma_zzzz_0 = self.total_num_ptcls / beta * (3.0 + 2.0 / 15 * I_1 + 1.0 / 5 * I_2)
-        sigma_zzxx_0 = self.total_num_ptcls / beta * (1.0 - 2.0 / 5 * I_1 + 1.0 / 15 * I_2)
-        sigma_xyxy_0 = self.total_num_ptcls / beta * (1.0 + 4.0 / 15 * I_1 + 1.0 / 15 * I_2)
+        sigma_zzzz_0 = self.total_num_density / beta**2 * (3.0 + 2.0 / 15.0 * I_1 + 1.0 / 5.0 * I_2)
+        sigma_zzxx_0 = self.total_num_density / beta**2 * (1.0 - 2.0 / 5.0 * I_1 + 1.0 / 15.0 * I_2)
+        sigma_xyxy_0 = self.total_num_density / beta**2 * (1.0 + 4.0 / 15.0 * I_1 + 1.0 / 15.0 * I_2)
 
         return [sigma_zzzz_0, sigma_zzxx_0, sigma_xyxy_0]
 
@@ -3899,8 +3900,8 @@ def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume):
         vel[sp_start: sp_end, :] *= np.sqrt(species_mass[sp])
         sp_start += num
 
-    pressure_kin = vel.transpose() @ vel
-    pressure_pot = 0.5 * virial.sum(axis=-1)
+    pressure_kin = ( vel.transpose() @ vel ) / box_volume
+    pressure_pot = ( 0.5 * virial.sum(axis=-1) ) / box_volume
     pressure_tensor = (pressure_kin + pressure_pot)/box_volume
 
     pressure = np.trace(pressure_tensor) / 3.0
@@ -4557,40 +4558,6 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
 
 
-def correlationfunction(At, Bt):
-    """
-    Calculate the correlation function :math:`\mathbf{A}(t)` and :math:`\mathbf{B}(t)` using
-    ``scipy.signal.correlate``
-
-    .. math::
-        C_{AB}(\\tau) =  \sum_j^D \sum_i^T A_j(t_i)B_j(t_i + \\tau)
-
-    where :math:`D` (= ``no_dim``) is the number of dimensions and :math:`T` (= ``no_steps``) is the total length
-    of the simulation.
-
-    Parameters
-    ----------
-    At : numpy.ndarray
-        Observable to correlate. Shape=(``no_steps``).
-
-    Bt : numpy.ndarray
-        Observable to correlate. Shape=(``no_steps``).
-
-    Returns
-    -------
-    CF : numpy.ndarray
-        Correlation function :math:`C_{AB}(\\tau)`
-    """
-    no_steps = At.size
-
-    # Calculate the full correlation function.
-    full_corr = scp_signal.correlate(At, Bt, mode='full')
-    # Normalization of the full correlation function, Similar to norm_counter
-    norm_corr = np.array([no_steps - ii for ii in range(no_steps)])
-    # Find the mid point of the array
-    mid = full_corr.size // 2
-    # I want only the second half of the array, i.e. the positive lags only
-    return full_corr[mid:] / norm_corr
 
 
 def col_mapper(keys, vals):

@@ -1,5 +1,25 @@
 """
-Module for handling Coulomb interaction
+Module for handling Coulomb interaction.
+
+Potential
+*********
+
+The Coulomb potential between two particles :math:`a,b` is
+
+.. math::
+   U_{ab}(r) = \\frac{q_{a}q_b}{4 \\pi \\epsilon_0 r}.
+
+Potential Attributes
+********************
+
+The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+
+.. code-block::
+
+    pot_matrix[0] : qi qj/(4pi esp0) Force factor between two particles.
+    pot_matrix[1] : Ewald parameter in the case of pppm Algorithm. Same value for all species.
+    pot_matrix[2] : Short-range cutoff. Same value for all species.
+
 """
 
 import numpy as np
@@ -19,13 +39,7 @@ def update_params(potential, params):
     params: sarkas.core.Parameters
         Simulation's parameters
 
-    """
-    """
-    Dev Notes:
-    -----
-    Coulomb_matrix[0,i,j] : qi qj/(4pi esp0) Force factor between two particles.
-    Coulomb_matrix[1,i,j] : Ewald parameter in the case of pppm Algorithm. Same value for all species
-    Coulomb_matrix[2,i,j] : Short-range cutoff. Same value for all species
+
     """
 
     potential.matrix = np.zeros((3, params.num_species, params.num_species))
@@ -61,11 +75,12 @@ def coulomb_force_pppm(r_in, pot_matrix):
         Distance between two particles.
 
     pot_matrix : numpy.ndarray
-        It contains potential dependent variables.
+        It contains potential dependent variables.\n
+        Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`) .
 
     Returns
     -------
-    U_s_r : float
+    U : float
         Potential value.
 
     fr : float
@@ -92,7 +107,7 @@ def coulomb_force_pppm(r_in, pot_matrix):
 @njit
 def coulomb_force(r_in, pot_matrix):
     """
-    Calculate the coulomb potential and force between two particles.
+    Calculate the bare coulomb potential and force between two particles.
 
     Parameters
     ----------
@@ -100,7 +115,8 @@ def coulomb_force(r_in, pot_matrix):
         Distance between two particles.
 
     pot_matrix : numpy.ndarray
-        It contains potential dependent variables.
+        It contains potential dependent variables. \n
+        Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`) .
 
     Returns
     -------
