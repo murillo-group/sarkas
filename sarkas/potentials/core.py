@@ -363,7 +363,7 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc = force_pp.update(ptcls.pos, ptcls.id, ptcls.masses, self.box_lengths,
+        ptcls.potential_energy, ptcls.acc, ptcls.virial = force_pp.update(ptcls.pos, ptcls.id, ptcls.masses, self.box_lengths,
                                                             self.rc, self.matrix, self.force,
                                                             self.measure, ptcls.rdf_hist)
 

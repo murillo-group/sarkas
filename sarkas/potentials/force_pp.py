@@ -126,31 +126,31 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
 
     Parameters
     ----------
-    force: float, float
+    force: func
         Potential and force values.
 
-    potential_matrix: array
+    potential_matrix: numpy.ndarray
         Potential parameters.
 
     rc: float
         Cut-off radius.
 
-    box_lengths: array
+    box_lengths: numpy.ndarray
         Array of box sides' length.
 
-    p_mass: array
+    p_mass: numpy.ndarray
         Mass of each particle.
 
-    p_id: array
+    p_id: numpy.ndarray
         Id of each particle
 
-    pos: array
+    pos: numpy.ndarray
         Particles' positions.
 
     measure : bool
         Boolean for rdf calculation.
 
-    rdf_hist : array
+    rdf_hist : numpy.ndarray
         Radial Distribution function array.
 
     Returns
@@ -158,8 +158,12 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
     U_s_r : float
         Short-ranged component of the potential energy of the system.
 
-    acc_s_r : array
+    acc_s_r : numpy.ndarray
         Short-ranged component of the acceleration for the particles.
+
+    virial : numpy.ndarray
+        Virial term of each particle. \n
+        Shape = (pos.shape[0], pos.shape[0], pos.shape[1])
 
     Notes
     -----
@@ -167,13 +171,17 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
     short and long ranged interactions. See the wikipedia article:
     https://en.wikipedia.org/wiki/Ewald_summation or
     "Computer Simulation of Liquids by Allen and Tildesley" for more information.
+
     """
-    acc_s_r = np.zeros_like(pos)
 
     # Declare parameters
     N = pos.shape[0]  # Number of particles
     d = pos.shape[1]  # Number of dimensions
     rshift = np.zeros(d)  # Shifts for array flattening
+
+    acc_s_r = np.zeros_like(pos)
+    # Virial term for the viscosity calculation
+    virial = np.zeros((d, d, N))
 
     # Initialize
     U_s_r = 0.0  # Short-ranges potential energy accumulator
@@ -312,12 +320,32 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
                                             acc_s_r[j, 1] -= dy * fr / p_mass[j]
                                             acc_s_r[j, 2] -= dz * fr / p_mass[j]
 
+                                            # Since we have the info already calculate the virial
+                                            virial[0, 0, i] += dx * dx * fr
+                                            virial[0, 1, i] += dx * dy * fr
+                                            virial[0, 2, i] += dx * dz * fr
+                                            virial[1, 0, i] += dy * dx * fr
+                                            virial[1, 1, i] += dy * dy * fr
+                                            virial[1, 2, i] += dy * dz * fr
+                                            virial[2, 0, i] += dz * dx * fr
+                                            virial[2, 1, i] += dz * dy * fr
+                                            virial[2, 2, i] += dz * dz * fr
+                                            #
+                                            virial[0, 0, j] -= dx * dx * fr
+                                            virial[0, 1, j] -= dx * dy * fr
+                                            virial[0, 2, j] -= dx * dz * fr
+                                            virial[1, 0, j] -= dy * dx * fr
+                                            virial[1, 1, j] -= dy * dy * fr
+                                            virial[1, 2, j] -= dy * dz * fr
+                                            virial[2, 0, j] -= dz * dx * fr
+                                            virial[2, 1, j] -= dz * dy * fr
+                                            virial[2, 2, j] -= dz * dz * fr
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls[j]
 
                                 # Check if head particle interacts with other cells
                                 i = ls[i]
-    return U_s_r, acc_s_r
+    return U_s_r, acc_s_r, virial
 
 
 @njit
@@ -347,21 +375,8 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
 
     Returns
     -------
-    U_s_r : float
-        Short-ranged component of the potential energy of the system.
 
-    acc_s_r : array
-        Short-ranged component of the acceleration for the particles.
-
-    Notes
-    -----
-    Here the "short-ranged component" refers to the Ewald decomposition of the
-    short and long ranged interactions. See the wikipedia article:
-    https://en.wikipedia.org/wiki/Ewald_summation or
-    "Computer Simulation of Liquids by Allen and Tildesley" for more information.
     """
-    acc_s_r = np.zeros_like(pos)
-
     # Declare parameters
     N = pos.shape[0]  # Number of particles
     d = pos.shape[1]  # Number of dimensions
@@ -498,15 +513,15 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
                                             virial[2, 1, i] += dz * dy * fr
                                             virial[2, 2, i] += dz * dz * fr
                                             #
-                                            # virial[0, 0, j] -= dx * dx * fr
-                                            # virial[0, 1, j] -= dx * dy * fr
-                                            # virial[0, 2, j] -= dx * dz * fr
-                                            # virial[1, 0, j] -= dy * dx * fr
-                                            # virial[1, 1, j] -= dy * dy * fr
-                                            # virial[1, 2, j] -= dy * dz * fr
-                                            # virial[2, 0, j] -= dz * dx * fr
-                                            # virial[2, 1, j] -= dz * dy * fr
-                                            # virial[2, 2, j] -= dz * dz * fr
+                                            virial[0, 0, j] -= dx * dx * fr
+                                            virial[0, 1, j] -= dx * dy * fr
+                                            virial[0, 2, j] -= dx * dz * fr
+                                            virial[1, 0, j] -= dy * dx * fr
+                                            virial[1, 1, j] -= dy * dy * fr
+                                            virial[1, 2, j] -= dy * dz * fr
+                                            virial[2, 0, j] -= dz * dx * fr
+                                            virial[2, 1, j] -= dz * dy * fr
+                                            virial[2, 2, j] -= dz * dz * fr
 
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls[j]

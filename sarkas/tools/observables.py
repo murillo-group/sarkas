@@ -93,14 +93,8 @@ class Observable:
     dataframe : pandas.DataFrame
         Dataframe containing the computed data.
 
-    dataframe_longitudinal : pandas.DataFrame
-        Dataframe containing the longitudinal part of the computed observable.
-
-    dataframe_transverse : pandas.DataFrame
-        Dataframe containing the transverse part of the computed observable.
-
     max_k_harmonics : list
-        Maximum number of :math:`\mathbf{k}` harmonics to calculatealong each dimension.
+        Maximum number of :math:`\\mathbf{k}` harmonics to calculate along each dimension.
 
     phase : str
         Phase to analyze.
@@ -119,29 +113,23 @@ class Observable:
 
     dump_step : int
         Correct step interval.
-        It is either ``sarkas.core.Parameters.prod_dump_step`` or ``sarkas.core.Parameters.eq_dump_step``.
+        It is either :attr:`sarkas.core.Parameters.prod_dump_step` or :attr:`sarkas.core.Parameters.eq_dump_step`.
 
     no_obs : int
         Number of independent binary observable quantities.
-        It is calculated as :math:`N_s (N_s + 1) / 2` where :math: `N_s` is the number of species.
+        It is calculated as :math:`N_s (N_s + 1) / 2` where :math:`N_s` is the number of species.
 
     k_file : str
         Path to the npz file storing the :math:`k` vector values.
 
     nkt_hdf_file : str
-        Path to the npy file containing the Fourier transform of density fluctuations. :math:`n(\mathbf k, t)`.
+        Path to the npy file containing the Fourier transform of density fluctuations. :math:`n(\\mathbf k, t)`.
 
     vkt_file : str
-        Path to the npz file containing the Fourier transform of velocity fluctuations. :math:`\mathbf v(\mathbf k, t)`.
+        Path to the npz file containing the Fourier transform of velocity fluctuations. :math:`\\mathbf v(\\mathbf k, t)`.
 
     k_space_dir : str
-        Directory where :math:`\mathbf {k}` data is stored.
-
-    filename_csv_longitudinal : str
-        Path to to the csv file containing the longitudinal part of the computed observable.
-
-    filename_csv_transverse : str
-        Path to the csv file containing the transverse part of the computed observable.
+        Directory where :math:`\\mathbf {k}` data is stored.
 
     saving_dir : str
         Path to the directory where computed data is stored.
@@ -160,12 +148,15 @@ class Observable:
     """
 
     def __init__(self):
+        self.__name__ = "Name not given"
+        self.__long_name__ = "Long Name not given"
         self.dataframe = pd.DataFrame()
         self.saving_dir = None
-        self.phase = 'production'
+        self.phase = "production"
         self.multi_run_average = False
         self.dimensional_average = False
         self.runs = 1
+        self.no_slices = 1
         self.screen_output = True
         self.timer = SarkasTimer()
         self.k_observable = False
@@ -191,7 +182,7 @@ class Observable:
         """
         self.__dict__.update(input_dict)
 
-    def setup_init(self, params, phase: str = None):
+    def setup_init(self, params, phase: str = "production"):
         """Assign Observables attributes and copy the simulation's parameters.
 
         Parameters
@@ -330,11 +321,8 @@ class Observable:
             self.no_steps = self.magnetization_steps
             self.dump_dir = self.mag_dump_dir
 
-        # Time slicing for long runs
-        if not hasattr(self, 'no_slices'):
-            self.no_slices = 1
-
-        self.slice_steps = int(self.production_steps / self.prod_dump_step / self.no_slices) if self.no_dumps < self.no_slices else \
+        self.slice_steps = int(
+            self.production_steps / self.prod_dump_step / self.no_slices) if self.no_dumps < self.no_slices else \
             int(self.no_dumps / self.no_slices)
 
         # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]
@@ -411,7 +399,7 @@ class Observable:
         # Do some checks
         if not isinstance(self.angle_averaging, str):
             raise TypeError("angle_averaging not a string. "
-                             "Choose from ['full', 'custom', 'principal_axis']")
+                            "Choose from ['full', 'custom', 'principal_axis']")
         elif self.angle_averaging not in ['full', 'custom', 'principal_axis']:
             raise ValueError("Option not available. "
                              "Choose from ['full', 'custom', 'principal_axis']"
@@ -443,16 +431,21 @@ class Observable:
                  max_k_harmonics=self.max_k_harmonics,
                  max_aa_harmonics=self.max_aa_harmonics)
 
-    def parse_kt_data(self, nkt_flag=False, vkt_flag=False):
-        """Read in the precomputed time dependent Fourier space data. Recalculate if not.
+    def parse_kt_data(self,
+                      nkt_flag: bool = False,
+                      vkt_flag: bool = False):
+        """
+        Read in the precomputed time dependent Fourier space data. Recalculate if not.
 
         Parameters
         ----------
         nkt_flag : bool
-            Flag for reading microscopic density Fourier components ``n(\mathbf k, t)``. Default = False.
+            Flag for reading microscopic density Fourier components :math:`n(\\mathbf k, t)`. \n
+            Default = False.
 
         vkt_flag : bool
-            Flag for reading microscopic velocity Fourier components,``v(\mathbf k, t)``. Default = False.
+            Flag for reading microscopic velocity Fourier components, :math:`v(\\mathbf k, t)`. \n
+            Default = False.
 
         """
         if nkt_flag:
@@ -508,16 +501,20 @@ class Observable:
             except OSError:
                 self.calc_kt_data(vkt_flag=True)
 
-    def calc_kt_data(self, nkt_flag=False, vkt_flag=False):
+    def calc_kt_data(self,
+                     nkt_flag: bool = False,
+                     vkt_flag: bool = False):
         """Calculate Time dependent Fourier space quantities.
 
         Parameters
         ----------
         nkt_flag : bool
-            Flag for calculating microscopic density Fourier components ``n(\mathbf k, t)``. Default = False.
+            Flag for calculating microscopic density Fourier components :math:`n(\\mathbf k, t)`. \n
+            Default = False.
 
         vkt_flag : bool
-            Flag for calculating microscopic velocity Fourier components,``v(\mathbf k, t)``. Default = False.
+            Flag for calculating microscopic velocity Fourier components, :math:`v(\\mathbf k, t)`. \n
+            Default = False.
 
         """
         start_slice = 0
@@ -655,7 +652,12 @@ class Observable:
             #          max_harmonics=self.max_k_harmonics,
             #          angle_averaging=self.angle_averaging)
 
-    def plot(self, scaling=None, acf=False, figname=None, show=False, **kwargs):
+    def plot(self,
+             scaling: tuple = None,
+             acf: bool = False,
+             figname: str = None,
+             show: bool = False,
+             **kwargs):
         """
         Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
 
@@ -729,7 +731,10 @@ class Observable:
 
         return axes_handle
 
-    def time_stamp(self, message: str, timing: tuple):
+    def time_stamp(
+            self,
+            message: str,
+            timing: tuple):
         """Print to screen the elapsed time of the calculation.
 
         Parameters
@@ -760,7 +765,31 @@ class Observable:
 
 class CurrentCorrelationFunction(Observable):
     """
-    Current Correlation Functions: :math:`L(k,\\omega)` and :math:`T(k,\\omega)`.
+    Current Correlation Functions. \n
+
+    The species dependent longitudinal ccf :math:`L_{AB}(\\mathbf k, \\omega)` is defined as
+
+    .. math::
+
+        L_{AB}(\\mathbf k,\\omega) = \\int_0^\\infty dt \\,
+        \\left \\langle \\left [\\mathbf k \\cdot \\mathbf v_{A} ( \\mathbf k, t) \\right ]
+        \\left [ - \\mathbf k \\cdot \\mathbf v_{B} ( -\\mathbf k, t) \\right \\rangle \\right ]
+        e^{i \\omega t},
+
+    while the transverse are
+
+    .. math::
+
+        T_{AB}(\\mathbf k,\\omega) = \\int_0^\\infty dt \\,
+        \\left \\langle \\left [ \\mathbf k \\times \\mathbf v_{A} ( \\mathbf k, t) \\right ] \\cdot
+        \\left [  -\\mathbf k \\times \\mathbf v_{A} ( -\\mathbf k, t) \\right \\rangle \\right ]
+        e^{i \\omega t},
+
+    where the microscopic velocity of species :math:`A` with number of particles :math:`N_{A}` is given by
+
+    .. math::
+        \\mathbf v_{A}(\\mathbf k,t) = \\sum^{N_{A}}_{j} \\mathbf v_j(t) e^{-i \\mathbf k \\cdot \\mathbf r_j(t)} .
+
 
     Attributes
     ----------
@@ -774,7 +803,7 @@ class CurrentCorrelationFunction(Observable):
         Magnitude of each allowed :math:`ka` vector.
 
     no_ka_values: int
-        Length of ``ka_values`` array.
+        Length of :attr:`~.ka_values` array.
 
     """
 
@@ -791,7 +820,8 @@ class CurrentCorrelationFunction(Observable):
             Phase to compute. Default = 'production'.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -844,7 +874,7 @@ class CurrentCorrelationFunction(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These willoverwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1043,7 +1073,20 @@ class CurrentCorrelationFunction(Observable):
 
 
 class DynamicStructureFactor(Observable):
-    """Dynamic Structure factor."""
+    """Dynamic Structure factor.
+
+    The species dependent DSF :math:`S_{AB}(k,\\omega)` is calculated from
+
+    .. math::
+        S_{AB }(k,\\omega) = \\int_0^\\infty dt \\,
+        \\left \\langle | n_{A}( \\mathbf k, t)n_{B}( -\\mathbf k, t) \\right \\rangle e^{i \\omega t},
+
+    where the microscopic density of species :math:`A` with number of particles :math:`N_{A}` is given by
+
+    .. math::
+        n_{A}(\\mathbf k,t) = \\sum^{N_{A}}_{j} e^{-i \\mathbf k \\cdot \\mathbf r_j(t)} .
+
+    """
 
     def setup(self, params, phase: str = None, **kwargs):
         """
@@ -1058,7 +1101,8 @@ class DynamicStructureFactor(Observable):
             Phase to compute. Default = 'production'.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -1103,14 +1147,13 @@ class DynamicStructureFactor(Observable):
     def compute(self, **kwargs):
         """
         Compute :math:`S_{ij} (k,\\omega)` and the array of :math:`\\omega` values.
-        Shape = (``no_ws``, ``no_Sij``)
 
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
-
         """
 
         # Update the attribute with the passed arguments
@@ -1172,12 +1215,14 @@ class DynamicStructureFactor(Observable):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
                 skw_name = '{}-{}'.format(sp1_name, sp2_name)
                 # Rename the columns with values of ka
-                ka_columns = [skw_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)]
+                ka_columns = [skw_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in
+                              enumerate(self.ka_values)]
                 # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
                 df_mean = temp_dataframe[skw_name].mean(level=1, axis='columns')
                 df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
                 # Std
-                ka_columns = [skw_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)]
+                ka_columns = [skw_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in
+                              enumerate(self.ka_values)]
                 df_std = temp_dataframe[skw_name].std(level=1, axis='columns')
                 df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
 
@@ -1253,7 +1298,11 @@ class DynamicStructureFactor(Observable):
 class ElectricCurrent(Observable):
     """Electric Current Auto-correlation function."""
 
-    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
+    def setup(self,
+              params,
+              phase: str = "production",
+              no_slices: int = 1,
+              **kwargs):
         """
         Initialize the attributes from simulation's parameters.
 
@@ -1269,7 +1318,8 @@ class ElectricCurrent(Observable):
             Number of independent runs inside a long simulation. Default = 1.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -1305,7 +1355,7 @@ class ElectricCurrent(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
             attributes and/or add new ones.
 
         """
@@ -1467,9 +1517,9 @@ class RadialDistributionFunction(Observable):
         phase : str, optional
             Phase to compute. Default = 'production'.
 
-
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -1500,7 +1550,9 @@ class RadialDistributionFunction(Observable):
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
 
-    def compute(self, rdf_hist=None, **kwargs):
+    def compute(self,
+                rdf_hist: np.ndarray = None,
+                **kwargs):
         """
         Parameters
         ----------
@@ -1508,7 +1560,8 @@ class RadialDistributionFunction(Observable):
             Histogram of the radial distribution function.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -1570,59 +1623,49 @@ class RadialDistributionFunction(Observable):
         self.time_stamp('Radial Distribution Function Calculation', self.timer.time_division(tend - t0))
         self.dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
 
-    def compute_thermodynamics(self, potential):
-        """Compute correlational internal energy and pressure.
-         Coulomb and Yukawa potentials only are supported.
+    def compute_sum_rule_integrals(self, potential):
+        """
+        Compute integrals of the RDF used in sum rules. \n
 
-        The correlational internal energy, :math:`U_{\rm corr}` is given by
-
-        .. math::
-
-            U_{\rm hartree} =  2 \pi \frac{N_iN_j}{V} \int_0^\infty dr \, \phi_{ij}(r) r^2 dr,
+        The species dependent integrals are
 
         .. math::
 
-            U_{\rm corr} =  2 \pi \frac{N_iN_j}{V} \int_0^\infty dr \, \phi_{ij}(r) h(r) r^2 dr,
+            I_{AB}^{\\rm (Hartree, k)} = 2^{D - 2} \\pi  n_{A} n_{B} \\int_0^{\\infty} dr \\,
+            r^{D - 1 + k} \\frac{d^k}{dr^k} \\phi_{AB}(r),
 
         .. math::
 
-            P_{\rm hartree} =  - \frac{2 \pi}{3} \frac{N_iN_j}{V^2} \int_0^\infty dr \, \frac{d\phi_{ij}(r)}{dr} r^3 dr,
+            I_{AB}^{\\rm (Corr, k)} = 2^{D - 2} \\pi  n_{A} n_{B} \\int_0^{\\infty} dr \\,
+            r^{D - 1 + k} h_{AB} (r) \\frac{d^k}{dr^k} \\phi_{AB}(r),
 
-        .. math::
-
-            P_{\rm corr} =  - \frac{2 \pi}{3} \frac{N_iN_j}{V^2} \int_0^\infty dr \, \frac{d\phi_{ij}(r)}{dr} h(r) r^3 dr,
-
-
-        Notes:
-        -----
-        This method returns the correlational energy only.
-
-        In case of Yukawa you need to add the Hartree term if you want the excess quantity.
-        See Sec. IV in Hartmann et al Phys Rev E 72 026409 (2005)
-        or Eq. (24)-(28) in Rosenberg and Kalman Phys Rev E 56 7166 (1997).
+        where :math:`D` is the number of dimensions, :math:`k = {0, 1, 2}`,
+        and :math:`\\phi_{AB}(r)` is the potential between species :math:`A` and :math:`B`. \n
+        Only Coulomb and Yukawa potentials are supported at the moment.
 
         Parameters
         ----------
-        potential: sarkas.potentials.Potential
-            Potential object of the simulation.
+        potential: sarkas.potentials.core.Potential
+            Sarkas Potential object. Needed for all its attributes.
 
         Returns
         -------
-        u_corr : numpy.ndarray
-            Correlational Energy calculated from each g_{ab}(r).
+        hartrees : numpy.ndarray
+            Hartree integrals with :math:`k = {0, 1, 2}`. \n
+            Shape = ( :attr:`~.no_obs`, 3).
 
-        p_corr : numpy.ndarray
-            Correlational Pressure calculated from each g_{ab}(r).
+        corrs : numpy.ndarray
+            Correlational integrals with :math:`k = {0, 1, 2}`. \n
+            Shape = ( :attr:`~.no_obs`, 3).
+
         """
         r = np.copy(self.dataframe['Distance'])
 
         if self.dimensions == 3:
-            p_dim_const = 2.0 * np.pi / 3.0
-            u_dim_const = 2.0 * np.pi * self.box_volume
+            dim_const = 2.0 * np.pi
             dims = 3
         elif self.dimensions == 2:
-            p_dim_const = np.pi
-            u_dim_const = np.pi * self.box_volume
+            dim_const = np.pi
             dims = 2
 
         if r[0] == 0.0:
@@ -1631,17 +1674,15 @@ class RadialDistributionFunction(Observable):
         r2 = r * r
         r3 = r2 * r
 
-        p_corr = np.zeros(self.no_obs)
-        u_corr = np.zeros(self.no_obs)
-        p_hartree = np.zeros(self.no_obs)
-        u_hartree = np.zeros(self.no_obs)
+        corrs = np.zeros((self.no_obs, 3))
+        hartrees = np.zeros((self.no_obs, 3))
 
         obs_indx = 0
         for sp1, sp1_name in enumerate(self.species_names):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
                 h_r = self.dataframe['{}-{} RDF'.format(sp1_name, sp2_name)].to_numpy() - 1.0
 
-                if potential.type.lower() == "coulomb":
+                if potential.type == "coulomb":
                     u_r = potential.matrix[0, sp1, sp2] / r
                     dv_dr = - potential.matrix[0, sp1, sp2] / r2
                     d2v_dr2 = 2.0 * potential.matrix[0, sp1, sp2] / r3
@@ -1650,13 +1691,13 @@ class RadialDistributionFunction(Observable):
                         dv_dr[0] = dv_dr[1]
                         d2v_dr2[0] = d2v_dr2[1]
 
-                elif potential.type.lower() == "yukawa":
+                elif potential.type == "yukawa":
                     kappa = potential.matrix[1, sp1, sp2]
                     u_r = potential.matrix[0, sp1, sp2] * np.exp(-kappa * r) / r
                     dv_dr = - (1.0 + kappa * r) * u_r / r
 
                     d2v_dr2 = - u_r / r \
-                              - (1.0 + kappa * r) ** 2 * u_r / r2\
+                              - (1.0 + kappa * r) ** 2 * u_r / r2 \
                               + (1.0 + kappa * r) * u_r / r2
 
                     # Check for finiteness of first element when r[0] = 0.0
@@ -1669,27 +1710,18 @@ class RadialDistributionFunction(Observable):
 
                 densities = self.species_num_dens[sp1] * self.species_num_dens[sp2]
 
-                u_hartree[obs_indx] = u_dim_const * densities * np.trapz(u_r * r ** (dims - 1), x=r)
-                u_corr[obs_indx] = u_dim_const * densities * np.trapz(u_r * h_r * r ** (dims - 1), x=r)
+                hartrees[obs_indx, 0] = dim_const * densities * np.trapz(u_r * r ** (dims - 1), x=r)
+                corrs[obs_indx, 0] = dim_const * densities * np.trapz(u_r * h_r * r ** (dims - 1), x=r)
 
-                p_hartree[obs_indx] = - p_dim_const * densities * np.trapz(dv_dr * r ** dims, x=r)
-                p_corr[obs_indx] = - p_dim_const * densities * np.trapz(dv_dr * h_r * r ** dims, x=r)
+                hartrees[obs_indx, 1] = - dim_const * densities * np.trapz(dv_dr * r ** dims, x=r)
+                corrs[obs_indx, 1] = - dim_const * densities * np.trapz(dv_dr * h_r * r ** dims, x=r)
 
-                # if self.dimensions == 3:
-                #     p_hartree[obs_indx] = 2.0 / 3.0 * const * np.trapz(dv_dr * r3 , x=r)
-                #     u_hartree[obs_indx] = 2.0 * const * np.trapz(u_r * r2, x=r)
-                #     p_corr[obs_indx] = -2.0 / 3.0 * const * np.trapz(dv_dr * r3 * h_r, x=r)
-                #     u_corr[obs_indx] = 2.0 * const * np.trapz(u_r * h_r * r2, x=r)
-                #
-                # else:
-                #     p_hartree[obs_indx] = -const * np.trapz(dv_dr * r2 , x=r)
-                #     u_hartree[obs_indx] = const * np.trapz(u_r * r, x=r)
-                #     p_corr[obs_indx] = -const * np.trapz(dv_dr * r2 * h_r, x=r)
-                #     u_corr[obs_indx] = const * np.trapz(u_r * r * h_r, x=r)
+                hartrees[obs_indx,2] = - dim_const * densities * np.trapz(d2v_dr2 * r ** (dims + 1), x=r)
+                corrs[obs_indx,2] = - dim_const * densities * np.trapz(d2v_dr2 * h_r * r ** (dims + 1), x=r)
 
                 obs_indx += 1
 
-        return u_hartree, u_corr, p_hartree, p_corr
+        return hartrees, corrs
 
     def pretty_print(self):
         """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
@@ -1738,7 +1770,8 @@ class StaticStructureFactor(Observable):
             Phase to compute. Default = 'production'.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -1774,12 +1807,13 @@ class StaticStructureFactor(Observable):
 
     def compute(self, **kwargs):
         """
-        Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a csv.
+        Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a HDF.
 
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -1884,7 +1918,10 @@ class Thermodynamics(Observable):
     Thermodynamic functions.
     """
 
-    def setup(self, params, phase: str = None, **kwargs):
+    def setup(self,
+              params,
+              phase: str = "production",
+              **kwargs):
         """
         Assign attributes from simulation's parameters.
 
@@ -1897,7 +1934,8 @@ class Thermodynamics(Observable):
             Phase to compute. Default = 'production'.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -1926,47 +1964,75 @@ class Thermodynamics(Observable):
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
 
-    def compute_from_rdf(self, rdf, potential, **kwargs):
+    def compute_from_rdf(self,
+                         rdf,
+                         potential,
+                         **kwargs):
         """
         Calculate the correlational energy and correlation pressure using
-        sarkas.observables.RadialDistributionFunction.compute_thermodynamics() method.
-        Coulomb and Yukawa potentials only are supported.
+        :meth:`sarkas.tools.observables.RadialDistributionFunction.compute_sum_rule_integrals` method.
+
+        The Hartree and correlational terms between species :math:`A` and :math:`B` are
+
+        .. math::
+
+            U_{AB}^{\\rm hartree} =  2 \\pi \\frac{N_iN_j}{V} \\int_0^\\infty dr \\, \\phi_{AB}(r) r^2 dr,
+
+        .. math::
+
+            U_{AB}^{\\rm corr} =  2 \\pi \\frac{N_iN_j}{V} \\int_0^\\infty dr \\, \\phi_{AB}(r) h(r) r^2 dr,
+
+        .. math::
+
+            P_{AB}^{\\rm hartree} =  - \\frac{2 \\pi}{3} \\frac{N_iN_j}{V^2} \\int_0^\\infty dr \\, \\frac{d\\phi_{AB}(r)}{dr} r^3 dr,
+
+        .. math::
+
+            P_{AB}^{\\rm corr} =  - \\frac{2 \\pi}{3} \\frac{N_iN_j}{V^2} \\int_0^\\infty dr \\, \\frac{d\\phi_{AB}(r)}{dr} h(r) r^3 dr,
+
 
         Parameters
         ----------
-        rdf: sarkas.observables.RadialDistributionFunction
+        rdf: sarkas.tools.observables.RadialDistributionFunction
             Radial Distribution Function object.
 
-        potential: sarkas.potentials.Potential
+        potential: sarkas.potentials.core.Potential
             Potential object.
 
         **kwargs:
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         Returns
         -------
         nkT : float
-            Ideal term of the pressure
+            Ideal term of the pressure :math:`nk_BT`. Where :math:`n` is the total density.
+
+        u_hartree : numpy.ndarray
+            Hartree energy calculated from the above formula for each :math:`g_{ab}(r)`.
 
         u_corr : numpy.ndarray
-            Correlational Energy calculated from each g_{ab}(r).
+            Correlational energy calculated from the above formula for each :math:`g_{ab}(r)`.
+
+        p_hartree : numpy.ndarray
+            Hartree pressure calculated from the above formula for each :math:`g_{ab}(r)`.
 
         p_corr : numpy.ndarray
-            Correlational Pressure calculated from each g_{ab}(r).
-
-        Notes:
-        -----
-        This method returns the correlational energy only.
-        In case of Yukawa you need to add the Hartree term if you want the excess quantity.
-        See Sec. IV in Hartmann et al Phys Rev E 72 026409 (2005)
-        or Eq. (24)-(28) in Rosenberg and Kalman Phys Rev E 56 7166 (1997).
+            Correlational pressure calculated from the above formula for each :math:`g_{ab}(r)`.
 
         """
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
 
-        u_hartree, u_corr, p_hartree, p_corr = rdf.compute_thermodynamics(potential)
+        hartrees, corrs = rdf.compute_sum_rule_integrals(potential)
+
+        u_hartree = self.box_volume * hartrees[:, 0]
+        u_corr = self.box_volume * corrs[:, 0]
+
+        p_hartree = - hartrees[:, 1]/3.0
+        p_corr = - corrs[:, 1] / 3.0
+
         nkT = self.total_num_density / self.beta
         return nkT, u_hartree, u_corr, p_hartree, p_corr
 
@@ -1989,43 +2055,47 @@ class Thermodynamics(Observable):
 
         self.beta = 1.0 / (self.dataframe["Temperature"].mean() * self.kB)
 
-    def statistics(self, quantity="Total Energy", max_no_divisions=100, show=False):
-        """
-        TODO:
-        Parameters
-        ----------
-        quantity
-        max_no_divisions
-        show
+    # def statistics(self,
+    #                quantity: str ="Total Energy",
+    #                max_no_divisions: int =100,
+    #                show: bool = False):
+    #     """
+    #     TODO:
+    #     Parameters
+    #     ----------
+    #     quantity
+    #     max_no_divisions
+    #     show
+    #
+    #     Returns
+    #     -------
+    #
+    #     """
+    #     self.parse()
+    #     run_avg = self.dataframe[quantity].mean()
+    #     run_std = self.dataframe[quantity].std()
+    #
+    #     observable = np.array(self.dataframe[quantity])
+    #     # Loop over the blocks
+    #     tau_blk, sigma2_blk, statistical_efficiency = calc_statistical_efficiency(observable,
+    #                                                                               run_avg, run_std,
+    #                                                                               max_no_divisions, self.no_dumps)
+    #     # Plot the statistical efficiency
+    #     fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+    #     ax.plot(1 / tau_blk[2:], statistical_efficiency[2:], '--o', label=quantity)
+    #     ax.grid(True, alpha=0.3)
+    #     ax.legend(loc='best')
+    #     ax.set_xscale('log')
+    #     ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
+    #     ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
+    #     fig.tight_layout()
+    #     fig.savefig(os.path.join(self.postproc_dir, quantity + 'StatisticalEfficiency_' + self.job_id + '.png'))
+    #
+    #     if show:
+    #         fig.show()
 
-        Returns
-        -------
-
-        """
-        self.parse()
-        run_avg = self.dataframe[quantity].mean()
-        run_std = self.dataframe[quantity].std()
-
-        observable = np.array(self.dataframe[quantity])
-        # Loop over the blocks
-        tau_blk, sigma2_blk, statistical_efficiency = calc_statistical_efficiency(observable,
-                                                                                  run_avg, run_std,
-                                                                                  max_no_divisions, self.no_dumps)
-        # Plot the statistical efficiency
-        fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-        ax.plot(1 / tau_blk[2:], statistical_efficiency[2:], '--o', label=quantity)
-        ax.grid(True, alpha=0.3)
-        ax.legend(loc='best')
-        ax.set_xscale('log')
-        ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
-        ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
-        fig.tight_layout()
-        fig.savefig(os.path.join(self.postproc_dir, quantity + 'StatisticalEfficiency_' + self.job_id + '.png'))
-
-        if show:
-            fig.show()
-
-    def temp_energy_plot(self, process,
+    def temp_energy_plot(self,
+                         process,
                          info_list: list = None,
                          phase: str = None,
                          show: bool = False,
@@ -2037,7 +2107,7 @@ class Thermodynamics(Observable):
 
         Parameters
         ----------
-        process : sarkas.processes.PostProcess
+        process : sarkas.processes.Process
             Sarkas Process.
 
         info_list: list, optional
@@ -2288,7 +2358,11 @@ class Thermodynamics(Observable):
 class VelocityAutoCorrelationFunction(Observable):
     """Velocity Auto-correlation function."""
 
-    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
+    def setup(self,
+              params,
+              phase: str = "production",
+              no_slices: int = 1,
+              **kwargs):
         """
         Assign attributes from simulation's parameters.
 
@@ -2298,13 +2372,14 @@ class VelocityAutoCorrelationFunction(Observable):
             Number of independent runs inside a long simulation. Default = 1.
 
         phase : str, optional
-            Phase to compute. Default = 'production'.
+            Phase to compute. Default = "production".
 
         params : sarkas.core.Parameters
             Simulation's parameters.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2341,7 +2416,8 @@ class VelocityAutoCorrelationFunction(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2429,7 +2505,11 @@ class VelocityAutoCorrelationFunction(Observable):
 class DiffusionFlux(Observable):
     """Diffusion Fluxes and their Auto-correlation functions."""
 
-    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
+    def setup(self,
+              params,
+              phase: str = "production",
+              no_slices: int = 1,
+              **kwargs):
         """
         Assign attributes from simulation's parameters.
 
@@ -2445,7 +2525,8 @@ class DiffusionFlux(Observable):
             Number of independent runs inside a long simulation. Default = 1.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2488,7 +2569,8 @@ class DiffusionFlux(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2617,7 +2699,8 @@ class PressureTensor(Observable):
             Number of independent runs inside a long simulation. Default = 1.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2653,9 +2736,8 @@ class PressureTensor(Observable):
             os.mkdir(self.saving_dir)
 
         self.filename_hdf = os.path.join(self.saving_dir, "PressureTensor_" + self.job_id + '.h5')
-
-        self.no_fluxes = self.num_species - 1
-        self.no_fluxes_acf = int(self.no_fluxes * self.no_fluxes)
+        self.filename_hdf_acf = os.path.join(self.saving_dir, "PressureTensorACF_" + self.job_id + '.h5')
+        self.dataframe_acf = pd.DataFrame()
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
@@ -2667,7 +2749,8 @@ class PressureTensor(Observable):
         Parameters
         ----------
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2713,7 +2796,7 @@ class PressureTensor(Observable):
                                                          self.potential_matrix,
                                                          self.force)
 
-                pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :,it] = calc_pressure_tensor(
+                pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :, it] = calc_pressure_tensor(
                     datap["vel"],
                     virial,
                     self.species_masses,
@@ -2721,15 +2804,16 @@ class PressureTensor(Observable):
                     self.box_volume)
 
             if isl == 0:
-                self.dataframe["Time"] = time
+                self.dataframe["Time"] = np.copy(time)
+                self.dataframe_acf["Time"] = np.copy(time)
 
             self.dataframe["Pressure_slice {}".format(isl)] = pressure
-            self.dataframe["Pressure ACF_slice {}".format(isl)] = correlationfunction(pressure, pressure)
+            self.dataframe_acf["Pressure ACF_slice {}".format(isl)] = correlationfunction(pressure, pressure)
             # This is needed for the bulk viscosity
             delta_pressure = pressure - pressure.mean()
             self.dataframe["Delta Pressure_slice {}".format(isl)] = delta_pressure
-            self.dataframe["Delta Pressure ACF_slice {}".format(isl)] = correlationfunction(delta_pressure,
-                                                                                            delta_pressure)
+            self.dataframe_acf["Delta Pressure ACF_slice {}".format(isl)] = correlationfunction(delta_pressure,
+                                                                                                delta_pressure)
 
             if self.dimensions == 3:
                 dim_lbl = ['x', 'y', 'z']
@@ -2757,11 +2841,16 @@ class PressureTensor(Observable):
 
                             C_ijkl = correlationfunction(pt_temp[i, j, :], pt_temp[k, l, :])
 
-                            self.dataframe[pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_kin
-                            self.dataframe[pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_pot
-                            self.dataframe[pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_kinpot
-                            self.dataframe[pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_potkin
-                            self.dataframe[pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl
+                            self.dataframe_acf[
+                                pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_kin
+                            self.dataframe_acf[
+                                pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_pot
+                            self.dataframe_acf[pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4,
+                                                                                               isl)] = C_ijkl_kinpot
+                            self.dataframe_acf[pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4,
+                                                                                               isl)] = C_ijkl_potkin
+                            self.dataframe_acf[
+                                pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
@@ -2773,16 +2862,16 @@ class PressureTensor(Observable):
         self.dataframe["Pressure_Std"] = self.dataframe[col_str].std(axis=1)
 
         col_str = ["Pressure ACF_slice {}".format(isl) for isl in range(self.no_slices)]
-        self.dataframe["Pressure ACF_Mean"] = self.dataframe[col_str].mean(axis=1)
-        self.dataframe["Pressure ACF_Std"] = self.dataframe[col_str].std(axis=1)
+        self.dataframe_acf["Pressure ACF_Mean"] = self.dataframe_acf[col_str].mean(axis=1)
+        self.dataframe_acf["Pressure ACF_Std"] = self.dataframe_acf[col_str].std(axis=1)
 
         col_str = ["Delta Pressure_slice {}".format(isl) for isl in range(self.no_slices)]
         self.dataframe["Delta Pressure_Mean"] = self.dataframe[col_str].mean(axis=1)
         self.dataframe["Delta Pressure_Std"] = self.dataframe[col_str].std(axis=1)
 
         col_str = ["Delta Pressure ACF_slice {}".format(isl) for isl in range(self.no_slices)]
-        self.dataframe["Delta Pressure ACF_Mean"] = self.dataframe[col_str].mean(axis=1)
-        self.dataframe["Delta Pressure ACF_Std"] = self.dataframe[col_str].std(axis=1)
+        self.dataframe_acf["Delta Pressure ACF_Mean"] = self.dataframe_acf[col_str].mean(axis=1)
+        self.dataframe_acf["Delta Pressure ACF_Std"] = self.dataframe_acf[col_str].std(axis=1)
 
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
@@ -2810,44 +2899,48 @@ class PressureTensor(Observable):
                                           for isl in range(self.no_slices)]
                         mean_column = pt_acf_str_kin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str_kin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
-                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
-                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        self.dataframe_acf[mean_column] = self.dataframe_acf[ij_col_acf_str].mean(axis=1)
+                        self.dataframe_acf[std_column] = self.dataframe_acf[ij_col_acf_str].std(axis=1)
                         #
                         # Potential Terms
                         ij_col_acf_str = [pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                                           for isl in range(self.no_slices)]
                         mean_column = pt_acf_str_pot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str_pot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
-                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
-                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        self.dataframe_acf[mean_column] = self.dataframe_acf[ij_col_acf_str].mean(axis=1)
+                        self.dataframe_acf[std_column] = self.dataframe_acf[ij_col_acf_str].std(axis=1)
                         #
                         # Kinetic-Potential Terms
                         ij_col_acf_str = [pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                                           for isl in range(self.no_slices)]
                         mean_column = pt_acf_str_kinpot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str_kinpot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
-                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
-                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        self.dataframe_acf[mean_column] = self.dataframe_acf[ij_col_acf_str].mean(axis=1)
+                        self.dataframe_acf[std_column] = self.dataframe_acf[ij_col_acf_str].std(axis=1)
                         #
                         # Potential-Kinetic Terms
                         ij_col_acf_str = [pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                                           for isl in range(self.no_slices)]
                         mean_column = pt_acf_str_potkin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str_potkin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
-                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
-                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        self.dataframe_acf[mean_column] = self.dataframe_acf[ij_col_acf_str].mean(axis=1)
+                        self.dataframe_acf[std_column] = self.dataframe_acf[ij_col_acf_str].std(axis=1)
                         #
                         # Full
                         ij_col_acf_str = [pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                                           for isl in range(self.no_slices)]
                         mean_column = pt_acf_str + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
-                        self.dataframe[mean_column] = self.dataframe[ij_col_acf_str].mean(axis=1)
-                        self.dataframe[std_column] = self.dataframe[ij_col_acf_str].std(axis=1)
+                        self.dataframe_acf[mean_column] = self.dataframe_acf[ij_col_acf_str].mean(axis=1)
+                        self.dataframe_acf[std_column] = self.dataframe_acf[ij_col_acf_str].std(axis=1)
 
         # Create the columns for the HDF df
         self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
         self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
+
+        self.dataframe_acf.columns = pd.MultiIndex.from_tuples(
+            [tuple(c.split("_")) for c in self.dataframe_acf.columns])
+        self.dataframe_acf.to_hdf(self.filename_hdf_acf, mode='w', key=self.__name__)
 
         tend = self.timer.current()
         self.time_stamp("Stress Tensor and ACF Calculation", self.timer.time_division(tend - t0))
@@ -2858,12 +2951,12 @@ class PressureTensor(Observable):
         Parameters
         ----------
         beta: float
-            Inverse temperature factor. Grab it from `sarkas.tools.Observables.Thermodynamics.beta'.
+            Inverse temperature factor. Grab it from ``sarkas.tools.Observables.Thermodynamics.beta``.
 
-        rdf: 'sarkas.tools.Observables.RadialDistributionFunction'
+        rdf: ``sarkas.tools.Observables.RadialDistributionFunction``
             Radial Distribution function object.
 
-        potential: 'sarkas.potentials.Potential'
+        potential: ``sarkas.potentials.Potential``
             Potential object.
 
         Returns
@@ -2894,9 +2987,9 @@ class PressureTensor(Observable):
         I_1 = 2.0 * np.pi * beta * self.total_num_density * np.trapz(r ** 3 * gr * du_dr, x=r)
         I_2 = 2.0 * np.pi * beta * self.total_num_density * np.trapz(r ** 4 * gr * d2u_dr2, x=r)
 
-        sigma_zzzz_0 = self.total_num_density / beta**2 * (3.0 + 2.0 / 15.0 * I_1 + 1.0 / 5.0 * I_2)
-        sigma_zzxx_0 = self.total_num_density / beta**2 * (1.0 - 2.0 / 5.0 * I_1 + 1.0 / 15.0 * I_2)
-        sigma_xyxy_0 = self.total_num_density / beta**2 * (1.0 + 4.0 / 15.0 * I_1 + 1.0 / 15.0 * I_2)
+        sigma_zzzz_0 = self.total_num_density / beta ** 2 * (3.0 + 2.0 / 15.0 * I_1 + 1.0 / 5.0 * I_2)
+        sigma_zzxx_0 = self.total_num_density / beta ** 2 * (1.0 - 2.0 / 5.0 * I_1 + 1.0 / 15.0 * I_2)
+        sigma_xyxy_0 = self.total_num_density / beta ** 2 * (1.0 + 4.0 / 15.0 * I_1 + 1.0 / 15.0 * I_2)
 
         return [sigma_zzzz_0, sigma_zzxx_0, sigma_xyxy_0]
 
@@ -2966,7 +3059,8 @@ class VelocityDistribution(Observable):
             Dictionary of keyword arguments to pass to ``scipy.curve_fit`` for fitting of Hermite coefficients.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -3133,7 +3227,8 @@ class VelocityDistribution(Observable):
             Dictionary with arguments to pass to ``numpy.histogram``.
 
         **kwargs :
-            These are will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
+            These will overwrite any :attr:`sarkas.core.Parameters`
+            or default :attr:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -3900,9 +3995,9 @@ def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume):
         vel[sp_start: sp_end, :] *= np.sqrt(species_mass[sp])
         sp_start += num
 
-    pressure_kin = ( vel.transpose() @ vel ) / box_volume
-    pressure_pot = ( 0.5 * virial.sum(axis=-1) ) / box_volume
-    pressure_tensor = (pressure_kin + pressure_pot)/box_volume
+    pressure_kin = (vel.transpose() @ vel) / box_volume
+    pressure_pot = (0.5 * virial.sum(axis=-1)) / box_volume
+    pressure_tensor = (pressure_kin + pressure_pot) / box_volume
 
     pressure = np.trace(pressure_tensor) / 3.0
 
@@ -4556,8 +4651,6 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         xlabel = ''
 
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
-
-
 
 
 def col_mapper(keys, vals):

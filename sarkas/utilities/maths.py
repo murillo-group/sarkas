@@ -10,25 +10,25 @@ TWOPI = 2.0 * np.pi
 def correlationfunction(At, Bt):
     """
     Calculate the correlation function :math:`\\mathbf{A}(t)` and :math:`\\mathbf{B}(t)` using
-    ``scipy.signal.correlate``
+    :func:`scipy.signal.correlate`
 
     .. math::
         C_{AB}(\\tau) =  \\sum_j^D \\sum_i^T A_j(t_i)B_j(t_i + \\tau)
 
-    where :math:`D` (= ``no_dim``) is the number of dimensions and :math:`T` (= ``no_steps``) is the total length
+    where :math:`D` is the number of dimensions and :math:`T` is the total length
     of the simulation.
 
     Parameters
     ----------
     At : numpy.ndarray
-        Observable to correlate. Shape=(``no_steps``).
+        Observable to correlate.
 
     Bt : numpy.ndarray
-        Observable to correlate. Shape=(``no_steps``).
+        Observable to correlate.
 
     Returns
     -------
-    CF : numpy.ndarray
+    full_corr : numpy.ndarray
         Correlation function :math:`C_{AB}(\\tau)`
     """
     no_steps = At.size
@@ -44,20 +44,42 @@ def correlationfunction(At, Bt):
 
 
 @nb.njit
-def yukawa_green_function(x, alpha, kappa):
+def yukawa_green_function(k, alpha, kappa):
     """
-    Green's function of Coulomb/Yukawa potential.
+    Evaluate the Green's function of Coulomb/Yukawa potential.
+
+    .. math::
+
+        G(k) = \\frac{4 \pi }{\\kappa^2 + k^2} e^{- (k^2 + \\kappa^2)/4 \\alpha^2 }
+
+    Parameters
+    ----------
+    k : numpy.ndarray, float
+        Range or value at which to calculate the function.
+
+    alpha: float
+        Ewald screening parameter.
+
+    kappa : float
+        Inverse screening length.
+
+    Returns
+    -------
+    _ : numpy.ndarray, float
+        Green's function. See equation above
+
     """
-    return 4.0 * np.pi * np.exp(-(x ** 2 + kappa ** 2) / (2 * alpha) ** 2) / (kappa ** 2 + x ** 2)
+    return 4.0 * np.pi * np.exp(-(k ** 2 + kappa ** 2) / (2 * alpha) ** 2) / (kappa ** 2 + k ** 2)
 
 
 @nb.njit
 def betamp(m, p, alpha, kappa):
     """
     Calculate the integral of the Yukawa Green's function
+
     .. math::
 
-        \\beta(p,m) = \\int_0^\\infty G_k^2 k^{2 (p + m + 2)}.
+        \\beta(p,m) = \\int_0^\\infty dk \\, G_k^2 k^{2 (p + m + 2)}.
 
     See eq.(37) in :cite:`Dharuman2017`.
     """
@@ -69,10 +91,42 @@ def betamp(m, p, alpha, kappa):
 @nb.njit
 def force_error_approx_pppm(kappa, rc, p, h, alpha):
     """
-    Calculate the total force error for a given value of ``rc`` and ``alpha``.
-    See similar function above.
+    Calculate the total force error for a given value of the PPPM parameters.
+
+    Parameters
+    ----------
+    kappa : float
+        Inverse screening length.
+
+    rc : float
+        Cutoff length.
+
+    p : int
+        Charge assignment order.
+
+    h : float
+        Distance between two mesh points. Same for all directions.
+
+    alpha : float
+        Ewald screening parameter.
+
+    Returns
+    -------
+
+    Tot_Delta_F : float
+        Total force error given by
+
+        .. math::
+            \\Delta F = \\sqrt{\\Delta F_{\\textrm {pp}}^2 + \\Delta F_{\\textrm {pm}}^2 }
+
+    pp_force_error : float
+        PP force error.
+
+    pm_force_error: float
+        PM force error.
+
     """
-    # Coefficients from Deserno and Holm J Chem Phys 109 7694 (1998)
+    # Coefficients from :cite:`Deserno1998`
     if p == 1:
         Cmp = np.array([2 / 3])
     elif p == 2:
@@ -94,12 +148,12 @@ def force_error_approx_pppm(kappa, rc, p, h, alpha):
     for m in np.arange(p):
         expp = 2 * (m + p)
         somma += Cmp[m] * (2 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.) ** expp
-    # eq.(36) in Dharuman J Chem Phys 146 024112 (2017)
+    # eq.(36) in :cite:`Dharuman2017`
     pm_force_error = np.sqrt(3.0 * somma) / (2.0 * np.pi)
 
-    # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
+    # eq.(30) from :cite:`Dharuman2017`
     pp_force_error = 2.0 * np.exp(-(0.5 * kappa / alpha) ** 2 - alpha ** 2 * rc ** 2) / np.sqrt(rc)
-    # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
+    # eq.(42) from :cite:`Dharuman2017`
     Tot_DeltaF = np.sqrt(pm_force_error ** 2 + pp_force_error ** 2)
 
     return Tot_DeltaF, pp_force_error, pm_force_error
@@ -154,3 +208,5 @@ def force_error_analytic_pp(potential_type,
 
     # Renormalize
     force_error *= rescaling_const
+
+    return force_error

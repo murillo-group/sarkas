@@ -52,10 +52,10 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
        array of reciprocal space vectors along the z-axis
 
     PM_err : float
-        Error in the force calculation due to the optimized Green's function. eq.(28) of Ref. [Dharuman2017]
+        Error in the force calculation due to the optimized Green's function. eq.(28) of :cite:`Dharuman2017` .
 
     PP_err : float
-        Error in the force calculation due to the distance cutoff. eq.(30) of Ref. [Stern2008]
+        Error in the force calculation due to the distance cutoff. eq.(30) of :cite:`Stern2008` .
 
     """
     kappa = constants[0]

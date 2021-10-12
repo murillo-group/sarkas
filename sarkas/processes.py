@@ -1043,7 +1043,7 @@ class PreProcess(Process):
         return pp_force_error, rcuts
 
     def analytical_approx_pppm(self):
-        """Calculate the total force error as given in Dharuman et al. J Chem Phys 146 024112 (2017)."""
+        """Calculate the total force error as given in :cite:`Dharuman2017`."""
 
         p = self.potential.pppm_cao
         L = self.parameters.box_lengths[0] / self.parameters.a_ws

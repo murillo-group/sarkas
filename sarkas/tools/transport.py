@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 
 # Sarkas Modules
 import sarkas.tools.observables as obs
-from sarkas.utilities.maths import correlationfunction
+# from sarkas.utilities.maths import correlationfunction
+
 
 class TransportCoefficient:
     """

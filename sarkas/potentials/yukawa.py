@@ -91,11 +91,8 @@ def yukawa_force(r, pot_matrix):
     U : float
         Potential.
 
-
     force : float
         Force between two particles.
-
-
 
     """
     U = pot_matrix[0] * np.exp(-pot_matrix[1] * r) / r

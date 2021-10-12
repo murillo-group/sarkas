@@ -730,7 +730,7 @@ class Particles:
         self.box_lengths = None
         self.pbox_lengths = None
         self.total_num_ptcls = None
-        self.num_species = None
+        self.num_species = 1
         self.species_num = None
         self.dimensions = None
         self.rnd_gen = None
