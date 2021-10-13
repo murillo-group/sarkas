@@ -85,7 +85,6 @@ def yukawa_force(r, pot_matrix):
         It contains potential dependent variables. \n
         Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
 
-
     Returns
     -------
     U : float

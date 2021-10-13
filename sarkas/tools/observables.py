@@ -1739,7 +1739,19 @@ class RadialDistributionFunction(Observable):
 
 class StaticStructureFactor(Observable):
     """
-    Static Structure Factors :math:`S_{ij}(k)`.
+    Static Structure Factors.
+
+    The species dependent SSF :math:`S_{AB}(\\mathbf k)` is calculated from
+
+    .. math::
+        S_{AB }(\\mathbf k) = \\int_0^\\infty dt \\,
+        \\left \\langle | n_{A}( \\mathbf k, t)n_{B}( -\\mathbf k, t) \\right \\rangle,
+
+    where the microscopic density of species :math:`A` with number of particles :math:`N_{A}` is given by
+
+    .. math::
+        n_{A}(\\mathbf k,t) = \\sum^{N_{A}}_{j} e^{-i \\mathbf k \\cdot \\mathbf r_j(t)} .
+
 
     Attributes
     ----------
@@ -1757,7 +1769,10 @@ class StaticStructureFactor(Observable):
 
     """
 
-    def setup(self, params, phase: str = None, **kwargs):
+    def setup(self,
+              params,
+              phase: str = "production",
+              **kwargs):
         """
         Assign attributes from simulation's parameters.
 
