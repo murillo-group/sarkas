@@ -330,16 +330,7 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
                                             virial[2, 0, i] += dz * dx * fr
                                             virial[2, 1, i] += dz * dy * fr
                                             virial[2, 2, i] += dz * dz * fr
-                                            #
-                                            virial[0, 0, j] -= dx * dx * fr
-                                            virial[0, 1, j] -= dx * dy * fr
-                                            virial[0, 2, j] -= dx * dz * fr
-                                            virial[1, 0, j] -= dy * dx * fr
-                                            virial[1, 1, j] -= dy * dy * fr
-                                            virial[1, 2, j] -= dy * dz * fr
-                                            virial[2, 0, j] -= dz * dx * fr
-                                            virial[2, 1, j] -= dz * dy * fr
-                                            virial[2, 2, j] -= dz * dz * fr
+
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls[j]
 
@@ -512,16 +503,6 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
                                             virial[2, 0, i] += dz * dx * fr
                                             virial[2, 1, i] += dz * dy * fr
                                             virial[2, 2, i] += dz * dz * fr
-                                            #
-                                            virial[0, 0, j] -= dx * dx * fr
-                                            virial[0, 1, j] -= dx * dy * fr
-                                            virial[0, 2, j] -= dx * dz * fr
-                                            virial[1, 0, j] -= dy * dx * fr
-                                            virial[1, 1, j] -= dy * dy * fr
-                                            virial[1, 2, j] -= dy * dz * fr
-                                            virial[2, 0, j] -= dz * dx * fr
-                                            virial[2, 1, j] -= dz * dy * fr
-                                            virial[2, 2, j] -= dz * dz * fr
 
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls[j]

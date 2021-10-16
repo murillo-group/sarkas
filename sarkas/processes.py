@@ -295,7 +295,8 @@ class Process:
             self.io.read_pickle(self)
 
             # Print parameters to log file
-            self.io.simulation_summary(self)
+            if not os.path.exists(self.io.log_file):
+                self.io.simulation_summary(self)
 
             # Initialize the observable classes
             # for obs in self.observables_list:

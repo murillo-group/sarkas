@@ -9,7 +9,7 @@ TWOPI = 2.0 * np.pi
 
 def correlationfunction(At, Bt):
     """
-    Calculate the correlation function :math:`\\mathbf{A}(t)` and :math:`\\mathbf{B}(t)` using
+    Calculate the correlation function between :math:`\\mathbf{A}(t)` and :math:`\\mathbf{B}(t)` using
     :func:`scipy.signal.correlate`
 
     .. math::
@@ -44,13 +44,21 @@ def correlationfunction(At, Bt):
 
 
 @nb.njit
+def fast_integral_loop(time, integrand):
+    integral = np.zeros_like(integrand)
+    for it in range(1, len(time)):
+        integral[it] = np.trapz(integrand[:it], x=time[:it])
+
+    return integral
+
+@nb.njit
 def yukawa_green_function(k, alpha, kappa):
     """
     Evaluate the Green's function of Coulomb/Yukawa potential.
 
     .. math::
 
-        G(k) = \\frac{4 \pi }{\\kappa^2 + k^2} e^{- (k^2 + \\kappa^2)/4 \\alpha^2 }
+        G(k) = \\frac{4 \\pi }{\\kappa^2 + k^2} e^{- (k^2 + \\kappa^2)/4 \\alpha^2 }
 
     Parameters
     ----------

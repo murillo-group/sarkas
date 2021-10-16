@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 # Sarkas Modules
 import sarkas.tools.observables as obs
-# from sarkas.utilities.maths import correlationfunction
+from sarkas.utilities.maths import fast_integral_loop
 
 
 class TransportCoefficient:
@@ -421,7 +421,7 @@ class TransportCoefficient:
 
     @staticmethod
     def interdiffusion(params,
-                       phase: str = 'production',
+                       phase: str = "production",
                        compute_acf: bool = True,
                        no_slices: int = 1,
                        plot: bool = True,
@@ -568,9 +568,9 @@ class TransportCoefficient:
 
     @staticmethod
     def viscosity(params,
-                  phase: str = 'production',
+                  phase: str = "production",
                   parse: bool = False,
-                  compute_acf: bool = True,
+                  compute_acf: bool = False,
                   no_slices: int = 1,
                   plot: bool = True,
                   plot_quantities: list = ["Bulk Viscosity"],
@@ -586,11 +586,33 @@ class TransportCoefficient:
         params : sarkas.core.Parameters
             Simulation's parameters.
 
-        phase : str
-            Phase to analyze. Default = 'production'.
+        phase : str, optional
+            Phase to compute. Default = 'production'.
 
-        show : bool
-            Flag for prompting plot to screen.
+        parse : bool, optional
+            Read the precomputed viscosities. Default = False.
+
+        compute_acf : bool, optional
+            Flag for recalculating the ACF. Default = False.
+            If False it will read in the data from the dataframe.
+
+        no_slices : int, optional
+            Number of slices of the simulation. Default = 1.
+
+        plot : bool, optional
+            Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.
+
+        plot_quantities : list, optional
+            Quantities to plot. Default = ["Bulk Viscosity"]
+
+        show : bool, optional
+            Flag for prompting plot to screen when using IPython kernel. Default = False.
+
+        figname : str, optional
+            Name with which to save the file. It automatically saves it in the correct directory.
+
+        **kwargs:
+            Arguments to pass :meth:`sarkas.tools.observables.PressureTensor`
 
         Returns
         -------
@@ -599,6 +621,7 @@ class TransportCoefficient:
 
         """
         print('\n\n{:=^70} \n'.format(' Viscosity Coefficient '))
+        coefficient_slices = pd.DataFrame()
         coefficient = pd.DataFrame()
 
         energies = obs.Thermodynamics()
@@ -607,143 +630,98 @@ class TransportCoefficient:
 
         pt = obs.PressureTensor()
         pt.setup(params, phase, no_slices, **kwargs)
+
         if parse:
             pt.parse()
             time = pt.dataframe["Time"].to_numpy()[:, 0]
+            coefficient_slices = pd.read_hdf(os.path.join(pt.saving_dir, 'Viscosities_slices' + pt.job_id + '.h5'),
+                                      mode='r',
+                                      key='viscosities',
+                                      index=False)
             coefficient = pd.read_hdf(os.path.join(pt.saving_dir, 'Viscosities_' + pt.job_id + '.h5'),
                                       mode='r',
                                       key='viscosities',
                                       index=False)
         else:
             if compute_acf:
-
                 pt.compute()
             else:
                 pt.parse()
 
             TransportCoefficient.pretty_print(pt, 'Viscosities')
 
-            time = pt.dataframe["Time"].to_numpy()[:, 0]
-            coefficient["Time"] = time
+            time = pt.dataframe_acf["Time"].to_numpy()[:, 0]
+            coefficient["Time"] = np.copy(time)
+            coefficient_slices["Time"] = np.copy(time)
             dim_lbl = ['x', 'y', 'z']
 
-            pt_str_kin = "Pressure Tensor Kinetic ACF"
-            pt_str_pot = "Pressure Tensor Potential ACF"
-            pt_str_kinpot = "Pressure Tensor Kin-Pot ACF"
-            pt_str_potkin = "Pressure Tensor Pot-Kin ACF"
-            pt_str = "Pressure Tensor ACF"
+            pt_str_list = [
+                "Pressure Tensor Kinetic ACF",
+                "Pressure Tensor Potential ACF",
+                "Pressure Tensor Kin-Pot ACF",
+                "Pressure Tensor Pot-Kin ACF",
+                "Pressure Tensor ACF"
+            ]
+            eta_str_list = [
+                "Shear Viscosity Tensor Kinetic",
+                "Shear Viscosity Tensor Potential",
+                "Shear Viscosity Tensor Kin-Pot",
+                "Shear Viscosity Tensor Pot-Kin",
+                "Shear Viscosity Tensor Total"
+                ]
 
             start_steps = 0
             end_steps = 0
 
-            for isl in tqdm(range(pt.no_slices), disable=not pt.verbose):
+            for isl in tqdm(range(pt.no_slices), disable= not pt.verbose):
                 end_steps += pt.slice_steps
 
-                beta = (np.mean(energies.dataframe["Temperature"].iloc[start_steps:end_steps]) * pt.kB) ** (-1.0)
-                const = params.box_volume * beta
+                const = pt.box_volume * energies.beta
                 # Calculate Bulk Viscosity
-                bulk_viscosity = np.zeros(pt.slice_steps)
-                # Bulk viscosity is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
-                bulk_integrand = np.copy(pt.dataframe[("Delta Pressure ACF", "slice {}".format(isl))])
+                # It is is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
+                integrand = pt.dataframe_acf_slices[("Delta Pressure ACF", "slice {}".format(isl))].to_numpy()
+                coefficient_slices["Bulk Viscosity_slice {}".format(isl)] = const * fast_integral_loop(time, integrand)
 
-                for it in range(1, pt.slice_steps):
-                    bulk_viscosity[it] = const * np.trapz(bulk_integrand[:it], x=time[:it])
+                # Calculate the Shear Viscosity Elements
+                for _, ax1 in enumerate(dim_lbl):
+                    for _, ax2 in enumerate(dim_lbl):
+                        for _, (pt_str, eta_str) in enumerate(zip(pt_str_list, eta_str_list)):
 
-                coefficient["Bulk Viscosity_slice {}".format(isl)] = bulk_viscosity
+                            pt_str_temp = (pt_str + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))
+                            integrand = pt.dataframe_acf_slices[pt_str_temp].to_numpy()
+                            eta_str_temp = eta_str + " {}{}_slice {}".format(ax1, ax2, isl)
+                            coefficient_slices[eta_str_temp] = const * fast_integral_loop(time, integrand)
 
-                shear_kinetic = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
-                shear_potential = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
-                shear_kinpot = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
-                shear_potkin = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
+                start_steps += pt.slice_steps
 
-                shear_viscosity = np.zeros((params.dimensions, params.dimensions, pt.slice_steps))
-
-                for i, ax1 in enumerate(dim_lbl):
-                    for j, ax2 in enumerate(dim_lbl):
-
-                        # Kinetic terms
-                        integrand = pt.dataframe[
-                            (pt_str_kin + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
-                        for it in range(1, pt.slice_steps):
-                            shear_kinetic[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
-                        coefficient[
-                            "Kinetic Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_kinetic[i, j]
-
-                        # Potential terms
-                        integrand = pt.dataframe[
-                            (pt_str_pot + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
-                        for it in range(1, pt.slice_steps):
-                            shear_potential[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
-                        coefficient[
-                            "Potential Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_potential[
-                            i, j]
-
-                        # Kinetic-Potential terms
-                        integrand = pt.dataframe[
-                            (pt_str_kinpot + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
-                        for it in range(1, pt.slice_steps):
-                            shear_kinpot[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
-                        coefficient[
-                            "Kin-Pot Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_kinpot[i, j]
-
-                        # Potential-Kinetic terms
-                        integrand = pt.dataframe[
-                            (pt_str_potkin + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
-                        for it in range(1, pt.slice_steps):
-                            shear_potkin[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
-                        coefficient[
-                            "Pot-Kin Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_potkin[i, j]
-
-                        # Full terms
-                        integrand = pt.dataframe[
-                            (pt_str + " {}{}{}{}".format(ax1, ax2, ax1, ax2), 'slice {}'.format(isl))].to_numpy()
-                        for it in range(1, pt.slice_steps):
-                            shear_viscosity[i, j, it] = const * np.trapz(integrand[:it], x=time[:it])
-                        coefficient[
-                            "Shear Viscosity Tensor {}{}_slice {}".format(ax1, ax2, isl)] = shear_viscosity[i, j]
-
-            start_steps += pt.slice_steps
-
-            # Now average the slice
+            # Now average the slices
             col_str = ["Bulk Viscosity_slice {}".format(isl) for isl in range(pt.no_slices)]
-            coefficient["Bulk Viscosity_Mean"] = coefficient[col_str].mean(axis=1)
-            coefficient["Bulk Viscosity_Std"] = coefficient[col_str].std(axis=1)
+            coefficient["Bulk Viscosity_Mean"] = coefficient_slices[col_str].mean(axis=1)
+            coefficient["Bulk Viscosity_Std"] = coefficient_slices[col_str].std(axis=1)
 
-            kin_str = "Kinetic Shear Viscosity Tensor"
-            pot_str = "Potential Shear Viscosity Tensor"
-            kp_str = "Kin-Pot Shear Viscosity Tensor"
-            pk_str = "Pot-Kin Shear Viscosity Tensor"
-            sv_str = "Shear Viscosity Tensor"
+            for _, ax1 in enumerate(dim_lbl):
+                for _, ax2 in enumerate(dim_lbl):
+                    for _, eta_str in enumerate(eta_str_list):
 
-            for i, ax1 in enumerate(dim_lbl):
-                for j, ax2 in enumerate(dim_lbl):
-                    # Kinetic Terms
-                    col_str = [kin_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
-                    coefficient[kin_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
-                    coefficient[kin_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
-                    # Potential Terms
-                    col_str = [pot_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
-                    coefficient[pot_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
-                    coefficient[pot_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
-                    # Kin-Pot Terms
-                    col_str = [kp_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
-                    coefficient[kp_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
-                    coefficient[kp_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
-                    # PotKin Terms
-                    col_str = [pk_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
-                    coefficient[pk_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
-                    coefficient[pk_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
-                    # Full
-                    col_str = [sv_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
-                    coefficient[sv_str + " {}{}_Mean".format(ax1, ax2)] = coefficient[col_str].mean(axis=1)
-                    coefficient[sv_str + " {}{}_Std".format(ax1, ax2)] = coefficient[col_str].std(axis=1)
+                        col_str = [eta_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(pt.no_slices)]
+                        coefficient[eta_str + " {}{}_Mean".format(ax1, ax2)] = coefficient_slices[col_str].mean(axis=1)
+                        coefficient[eta_str + " {}{}_Std".format(ax1, ax2)] = coefficient_slices[col_str].std(axis=1)
 
             list_coord = ['xy', 'xz', 'yx', 'yz', 'zx', 'zy']
-            col_str = [sv_str + " {}_Mean".format(coord) for coord in list_coord]
+            col_str = [eta_str + " {}_Mean".format(coord) for coord in list_coord]
             coefficient["Shear Viscosity_Mean"] = coefficient[col_str].mean(axis=1)
             coefficient["Shear Viscosity_Std"] = coefficient[col_str].std(axis=1)
 
+            coefficient_slices.columns = pd.MultiIndex.from_tuples(
+                [tuple(c.split("_")) for c in coefficient_slices.columns])
             coefficient.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in coefficient.columns])
+
+            coefficient_slices.to_hdf(
+                os.path.join(pt.saving_dir, 'Viscosities_slices_' + pt.job_id + '.h5'),
+                mode='w',
+                key='viscosities',
+                index=False)
+
             coefficient.to_hdf(
                 os.path.join(pt.saving_dir, 'Viscosities_' + pt.job_id + '.h5'),
                 mode='w',
@@ -806,4 +784,4 @@ class TransportCoefficient:
                 if show:
                     fig.show()
 
-        return coefficient
+        return coefficient, coefficient_slices

@@ -370,7 +370,7 @@ class Integrator:
                                             + 0.5 * self.c2 * self.dt * (ptcls.acc[sp_start:sp_end, :]
                                                                          + acc_old[sp_start:sp_end, :]) \
                                             + self.c2 * self.sigma[ic] * np.sqrt(self.dt) * beta
-            sp_start = sp_end
+            sp_start += num
 
     def verlet(self, ptcls):
         """
@@ -923,6 +923,7 @@ def enforce_rbc(pos, vel, box_vector, dt):
                 vel[p, d] *= -1.0
                 # Restore previous position assuming verlet algorithm
                 pos[p, d] += vel[p, d] * dt
+
 
 @njit
 def remove_drift(vel, nums, masses):
