@@ -634,7 +634,7 @@ class TransportCoefficient:
         if parse:
             pt.parse()
             time = pt.dataframe["Time"].to_numpy()[:, 0]
-            coefficient_slices = pd.read_hdf(os.path.join(pt.saving_dir, 'Viscosities_slices' + pt.job_id + '.h5'),
+            coefficient_slices = pd.read_hdf(os.path.join(pt.saving_dir, 'Viscosities_slices_' + pt.job_id + '.h5'),
                                       mode='r',
                                       key='viscosities',
                                       index=False)
@@ -738,13 +738,13 @@ class TransportCoefficient:
             for ipq, pq in enumerate(plot_quantities):
                 if pq[:4].lower() == "bulk":
                     acf_str = "Delta Pressure ACF"
-                    acf_avg = pt.dataframe[("Delta Pressure ACF", "Mean")]
-                    acf_std = pt.dataframe[("Delta Pressure ACF", "Std")]
+                    acf_avg = pt.dataframe_acf[("Delta Pressure ACF", "Mean")]
+                    acf_std = pt.dataframe_acf[("Delta Pressure ACF", "Std")]
                 else:
                     # The axis are the last two elements in the string
                     acf_str = "Pressure Tensor ACF " + pq[-2:]
-                    acf_avg = pt.dataframe[("Pressure Tensor ACF " + pq[-2:], "Mean")]
-                    acf_std = pt.dataframe[("Pressure Tensor ACF " + pq[-2:], "Std")]
+                    acf_avg = pt.dataframe_acf[("Pressure Tensor ACF " + pq[-2:], "Mean")]
+                    acf_std = pt.dataframe_acf[("Pressure Tensor ACF " + pq[-2:], "Std")]
 
                 d_avg = coefficient[(pq, "Mean")]
                 d_std = coefficient[(pq, "Std")]
@@ -765,15 +765,26 @@ class TransportCoefficient:
 
                 xlims = (xmul * time[1], xmul * time[-1] * 1.5)
 
-                ax1.set(xlim=xlims, xscale='log', ylabel=acf_str, xlabel=r"Time difference" + xlbl)
-                ax2.set(xlim=xlims, xscale='log', ylabel=r'Viscosity' + ylbl, xlabel=r"$\tau$" + xlbl)
+                ax1.set(
+                    ylim=(-1.05, 1.05),
+                    xlim=xlims, xscale='log',
+                    ylabel=acf_str,
+                    xlabel=r"Time difference" + xlbl
+                )
+                ax2.set(
+                    xlim=xlims,
+                    xscale='log',
+                    ylabel=r'Viscosity' + ylbl,
+                    xlabel=r"$\tau$" + xlbl)
 
                 ax1.legend(loc='best')
                 ax2.legend(loc='best')
                 # Finish the index axes
                 for axi in [ax3, ax4]:
                     axi.grid(alpha=0.1)
-                    axi.set(xlim=(1, pt.slice_steps * 1.5), xscale='log', xlabel='Index')
+                    axi.set(
+                        xlim=(1, pt.slice_steps * 1.5),
+                        xscale='log', xlabel='Index')
 
                 fig.tight_layout()
                 if figname:
