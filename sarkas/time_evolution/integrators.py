@@ -66,7 +66,7 @@ class Integrator:
         Link to the correct thermostat function.
 
     enforce_bc: func
-        Link to the function enforcing boundary conditions. 'periodic' or 'absorbing'.
+        Link to the function enforcing boundary conditions. 'periodic', 'reflecting', 'open' or 'absorbing'.
 
     """
 
@@ -89,7 +89,7 @@ class Integrator:
         self.boundary_conditions = None
         self.enforce_bc = None
         self.verbose = False
-        self.supported_boundary_conditions = ['periodic', 'absorbing']
+        self.supported_boundary_conditions = ['periodic', 'reflecting', 'open', 'absorbing']
         self.supported_integrators = ['verlet', 'verlet_langevin', 'magnetic_verlet', 'magnetic_boris']
 
     # def __repr__(self):
@@ -161,6 +161,10 @@ class Integrator:
         # Assign integrator.enforce_bc to the correct method
         if self.boundary_conditions.lower() == "periodic":
             self.enforce_bc = self.periodic
+        elif self.boundary_conditions.lower() == "reflecting":
+            self.enforce_bc = self.reflecting
+        elif self.boundary_conditions.lower() == "open":
+            self.enforce_bc = self.open
         elif self.boundary_conditions.lower() == "absorbing":
             self.enforce_bc = self.absorbing
 
@@ -674,6 +678,32 @@ class Integrator:
 
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
 
+    def reflecting(self, ptcls):
+        """
+        Applies reflecting boundary conditions by calling enforce_rbc
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        """
+
+        enforce_rbc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.pbc_cntr, self.box_lengths)
+
+    def open(self, ptcls):
+        """
+        Applies open boundary conditions by not enforcing any bc
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        """
+
+        pass
+
     def absorbing(self, ptcls):
         """
         Applies absorbing boundary conditions by calling enforce_abc
@@ -854,6 +884,46 @@ def enforce_pbc(pos, cntr, BoxVector):
             if pos[p, d] < 0.0:
                 pos[p, d] += BoxVector[d]
                 cntr[p, d] -= 1
+
+
+@njit
+def enforce_rbc(pos, vel, acc, cntr, BoxVector):
+    """
+    Enforce Reflecting Boundary conditions.
+
+    Parameters
+    ----------
+    pos: numpy.ndarray
+        Particles' positions.
+
+    vel : numpy.ndarray
+        Particles' velocities.
+
+    acc : numpy.ndarray
+        Particles' accelerations.
+
+    cntr: numpy.ndarray
+        Counter for the number of times each particle get reflected back into the main simulation box
+
+    BoxVector: numpy.ndarray
+        Box Dimensions.
+
+    """
+
+    # Loop over all particles
+    for p in np.arange(pos.shape[0]):
+        for d in np.arange(pos.shape[1]):
+
+            # If particle is hits box in positive direction, reflect particle
+            if pos[p, d] >= BoxVector[d]:
+                vel[p, d] = -vel[p, d]
+                acc[p, d] = -acc[p, d]
+                cntr[p, d] += 1
+            # If particle hits box in negative direction, reflect particle
+            if pos[p, d] <= 0.0:
+                vel[p, d] = -vel[p, d]
+                acc[p, d] = -acc[p, d]
+                cntr[p, d] += 1
 
 
 @njit
