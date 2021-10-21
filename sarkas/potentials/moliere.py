@@ -76,7 +76,7 @@ def update_params(potential, params):
     params.force_error = force_error_analytic_pp(
         potential.type,
         potential.rc,
-        potential.matrix[params_len + 1, :, :],
+        potential.matrix[params_len + 1:, :, :],
         np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
     )
 

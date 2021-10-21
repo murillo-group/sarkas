@@ -12,20 +12,18 @@ from numba import njit
 from matplotlib.gridspec import GridSpec
 
 import os
+import pickle
+import copy as pycopy
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-# import h5py
-# import logging
-
 
 import scipy.stats as scp_stats
 
 from sarkas.utilities.timing import SarkasTimer
 from sarkas.utilities.io import num_sort
 from sarkas.utilities.maths import correlationfunction
-import sarkas.potentials as s_pot
 
 UNITS = [
     # MKS Units
@@ -864,6 +862,23 @@ class Observable:
             if os.path.exists(self.filename_hdf_acf_slices):
                 os.remove(self.filename_hdf_acf_slices)
             self.dataframe_acf_slices.to_hdf(self.filename_hdf_acf_slices, mode='w', key=self.__name__)
+
+
+    def save_pickle(self):
+        """Save the observable's info into a pickle file."""
+        self.filename_pickle = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
+        pickle_file = open(self.filename_pickle, "wb")
+        pickle.dump(self, pickle_file)
+        pickle_file.close()
+
+
+    def read_pickle(self):
+
+        self.filename_pickle = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
+        data = np.load(self.filename_pickle, allow_pickle=True)
+        obs = pycopy.copy(data)
+        self.from_dict(obs.__dict__)
+
 
 
 class CurrentCorrelationFunction(Observable):
@@ -1981,11 +1996,10 @@ class RadialDistributionFunction(Observable):
         #     dumps_list.sort(key=num_sort)
         #     name, ext = os.path.splitext(dumps_list[-1])
         #     _, number = name.split('_')
-        data = load_from_restart(self.dump_dir, 0)
-        rdf_hist = data["rdf_hist"]
+        datap = load_from_restart(self.dump_dir, 0)
 
         # Make sure you are getting the right number of bins and redefine dr_rdf.
-        self.no_bins = rdf_hist.shape[0]
+        self.no_bins = datap["rdf_hist"].shape[0]
         self.dr_rdf = self.rc / self.no_bins
 
         t0 = self.timer.current()
@@ -2011,20 +2025,16 @@ class RadialDistributionFunction(Observable):
         self.dataframe["Distance"] = r_values
         self.dataframe_slices["Distance"] = r_values
         for isl in tqdm(range(self.no_slices), disable=not self.verbose):
-            gr_ij = 0
+
             # Grab the data from the dumps. The -1 is for '0'-indexing
             dump_no = (isl + 1) * (self.slice_steps - 1) * self.dump_step
             datap = load_from_restart(self.dump_dir, int(dump_no))
-            rdf_hist = datap["rdf_hist"]
-
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:], i):
                     denom_const = (pair_density[i, j] * self.slice_steps * self.dump_step)
-                    gr[:, gr_ij] = (rdf_hist[:, i, j] + rdf_hist[:, j, i]) / denom_const / bin_vol[:]
-
-                    self.dataframe_slices['{}-{} RDF_slice {}'.format(sp1, sp2, isl)] = gr[:, gr_ij]
-
-                    gr_ij += 1
+                    col_str = '{}-{} RDF_slice {}'.format(sp1, sp2, isl)
+                    self.dataframe_slices[col_str] = (datap["rdf_hist"][:, i, j]
+                                                      + datap["rdf_hist"][:, j, i]) / denom_const / bin_vol
 
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
@@ -2035,9 +2045,7 @@ class RadialDistributionFunction(Observable):
         self.save_hdf()
 
         tend = self.timer.current()
-        self.time_stamp('Radial Distribution Function Calculation', self.timer.time_division(tend - t0))
-
-        #self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
+        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - t0))
 
     def compute_sum_rule_integrals(self, potential):
         """
@@ -2139,7 +2147,7 @@ class RadialDistributionFunction(Observable):
         """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
 
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: \n', self.filename_csv)
+        print('Data saved in: \n', self.filename_hdf)
         print('Data accessible at: self.ra_values, self.dataframe')
         print('\nNo. bins = {}'.format(self.no_bins))
         print('dr = {:1.4f} a_ws = {:1.4e} '.format(self.dr_rdf / self.a_ws, self.dr_rdf), end='')
@@ -2225,9 +2233,10 @@ class StaticStructureFactor(Observable):
         self.dataframe = pd.DataFrame()
         self.dataframe_slices = pd.DataFrame()
         no_dumps_calculated = self.slice_steps * self.no_slices
+        Sk_avg = np.zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
 
         print("\nCalculating S(k) ...")
-
+        k_column = "Inverse Wavelength"
         self.dataframe_slices[k_column] = self.k_values
         self.dataframe[k_column] = self.k_values
 
@@ -2241,10 +2250,14 @@ class StaticStructureFactor(Observable):
 
             init = isl * self.slice_steps
             fin = (isl + 1) * self.slice_steps
-            column = "{}-{} SSF_slice {}".format(sp1, sp2, isl)
-            self.dataframe_slices[column] = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps)
+            Sk_avg[:, :, init:fin] = calc_Sk(nkt, self.k_list, self.k_counts, self.species_num, self.slice_steps)
+            sp_indx = 0
+            for i, sp1 in enumerate(self.species_names):
+                for j, sp2 in enumerate(self.species_names[i:]):
+                    column = "{}-{} SSF_slice {}".format(sp1, sp2, isl)
+                    self.dataframe_slices[column] = Sk_avg[sp_indx,:, init:fin].mean(axis=-1)
+                    sp_indx +=1
 
-        k_column = "Inverse Wavelength"
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:]):
                 column = ["{}-{} SSF_slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]

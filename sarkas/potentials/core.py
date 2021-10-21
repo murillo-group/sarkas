@@ -100,7 +100,7 @@ class Potential:
 
     def __init__(self):
         self.type = "yukawa"
-        self.method = "PP"
+        self.method = "pp"
         self.matrix = None
         self.force_error = None
         self.measure = False
@@ -146,10 +146,10 @@ class Potential:
 
         # Enforce consistency
         self.type = self.type.lower()
-        if self.type == "p3m":
-            self.type == "pppm"
-
         self.method = self.method.lower()
+
+        if self.method == "p3m":
+            self.method == "pppm"
 
         # Check for cutoff radius
         if not self.type == 'fmm':
@@ -178,7 +178,14 @@ class Potential:
                     "\nShort-range cut-off enabled. Use this feature with care!",
                     category=AlgorithmWarning)
         # Check for electrons as dynamical species
-        if self.type == 'qsp' or self.type == 'coulomb':
+        if self.type == 'qsp':
+            mask = params.species_names == 'e'
+            self.electron_temperature = params.species_temperatures[mask]
+            params.ne = float(params.species_num_dens[mask])
+            params.electron_temperature = float(params.species_temperatures[mask])
+            params.qe = float(params.species_charges[mask])
+            params.me = float(params.species_masses[mask])
+        elif self.type == 'coulomb' and 'e' in params.species_names:
             mask = params.species_names == 'e'
             self.electron_temperature = params.species_temperatures[mask]
             params.ne = float(params.species_num_dens[mask])
@@ -213,7 +220,7 @@ class Potential:
         # Update potential-specific parameters
         # Coulomb potential
         if self.type == "coulomb":
-            if self.method == 'pp':
+            if self.method == "pp":
                 warnings.warn("Use the PP method with care for pure Coulomb interactions.",
                               category=AlgorithmWarning)
 
@@ -245,10 +252,6 @@ class Potential:
         if self.type == "qsp":
             from sarkas.potentials import qsp
             qsp.update_params(self, params)
-
-        # Enforce consistency
-        if self.method.lower() == 'pppm':
-            self.method = "pppm"
 
         # Compute pppm parameters
         if self.method == "pppm":
@@ -353,6 +356,42 @@ class Potential:
             params.horing_delta += (params.hbar * beta_e * params.electron_cyclotron_frequency) ** 2 / 12
             params.horing_delta /= params.horing_par_correction
 
+    def pppm_setup(self, params):
+        """Calculate the pppm parameters.
+
+        Parameters
+        ----------
+        params : sarkas.core.Parameters
+            Simulation's parameters
+
+        """
+
+        # Change lists to numpy arrays for Numba compatibility
+        if not isinstance(self.pppm_mesh, np.ndarray):
+            self.pppm_mesh = np.array(self.pppm_mesh)
+
+        if not isinstance(self.pppm_aliases, np.ndarray):
+            self.pppm_aliases = np.array(self.pppm_aliases)
+
+        # pppm parameters
+        self.pppm_h_array = params.box_lengths / self.pppm_mesh
+
+        # Pack constants together for brevity in input list
+        kappa = 1. / params.lambda_TF if self.type == "yukawa" else 0.0
+        constants = np.array([kappa, self.pppm_alpha_ewald, params.fourpie0])
+        # Calculate the Optimized Green's Function
+        self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
+            params.box_lengths, self.pppm_mesh, self.pppm_aliases, self.pppm_cao, constants)
+
+        # Complete PM Force error calculation
+        params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
+        params.pppm_pm_err /= params.box_volume ** (2. / 3.)
+
+        # Total Force Error
+        params.force_error = np.sqrt(params.pppm_pm_err ** 2 + params.pppm_pp_err ** 2)
+
+        self.force_error = params.force_error
+
     def update_linked_list(self, ptcls):
         """
         Calculate the pp part of the acceleration.
@@ -426,42 +465,6 @@ class Potential:
         """
         self.update_linked_list(ptcls)
         self.update_pm(ptcls)
-
-    def pppm_setup(self, params):
-        """Calculate the pppm parameters.
-
-        Parameters
-        ----------
-        params : sarkas.core.Parameters
-            Simulation's parameters
-
-        """
-        # Change lists to numpy arrays for Numba compatibility
-        if not isinstance(self.pppm_mesh, np.ndarray):
-            self.pppm_mesh = np.array(self.pppm_mesh)
-
-        if not isinstance(self.pppm_aliases, np.ndarray):
-            self.pppm_aliases = np.array(self.pppm_aliases)
-
-        # pppm parameters
-        self.pppm_h_array = params.box_lengths / self.pppm_mesh
-
-        self.matrix[-1, :, :] = self.pppm_alpha_ewald
-        # Pack constants together for brevity in input list
-        kappa = 1. / params.lambda_TF if self.type == "yukawa" else 0.0
-        constants = np.array([kappa, self.pppm_alpha_ewald, params.fourpie0])
-        # Calculate the Optimized Green's Function
-        self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
-            params.box_lengths, self.pppm_mesh, self.pppm_aliases, self.pppm_cao, constants)
-
-        # Complete PM Force error calculation
-        params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
-        params.pppm_pm_err /= params.box_volume ** (2. / 3.)
-
-        # Total Force Error
-        params.force_error = np.sqrt(params.pppm_pm_err ** 2 + params.pppm_pp_err ** 2)
-
-        self.force_error = params.force_error
 
     # def update_fmm(ptcls, params):
     #     """

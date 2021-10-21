@@ -841,7 +841,7 @@ class InputOutput:
             print('PM Force Error = {:.6e}'.format(simulation.parameters.pppm_pm_err))
             print('PP Force Error = {:.6e}'.format(simulation.parameters.pppm_pp_err))
 
-        elif simulation.potential.method == 'PP':
+        elif simulation.potential.method == 'pp':
             print(
                 'rcut = {:2.4f} a_ws = {:.6e} '.format(simulation.potential.rc / simulation.parameters.a_ws,
                                                         simulation.potential.rc),

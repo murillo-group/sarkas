@@ -45,11 +45,29 @@ def correlationfunction(At, Bt):
 
 @nb.njit
 def fast_integral_loop(time, integrand):
+    """Compute the integral with varying upper limit.
+
+    Parameters
+    ----------
+    time: numpy.ndarray
+        Domain of integration.
+
+    integrand: numpy.ndarray
+        Integrand.
+
+    Returns
+    -------
+    integral : numpy.ndarray
+        Integral with increasing upper limit. Shape = (time.len()).
+
+
+    """
     integral = np.zeros_like(integrand)
     for it in range(1, len(time)):
         integral[it] = np.trapz(integrand[:it], x=time[:it])
 
     return integral
+
 
 @nb.njit
 def yukawa_green_function(k, alpha, kappa):

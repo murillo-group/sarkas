@@ -88,10 +88,10 @@ class Thermostat:
         print('First thermostating timestep, i.e. relaxation_timestep = {}'.format(self.relaxation_timestep))
         print("Berendsen parameter tau: {:.3f} [timesteps]".format(self.berendsen_tau))
         print("Berendsen relaxation rate: {:.3f} [1/timesteps] ".format(self.relaxation_rate))
-        if not self.eV_temp_flag and not self.K_temp_flag:
-            # If you forgot to give thermostating temperatures
-            warn("Equilibration temperatures not defined. "
-                 "I will use the species's temperatures")
+        # if not self.eV_temp_flag and not self.K_temp_flag:
+        #     # If you forgot to give thermostating temperatures
+        #     warn("Equilibration temperatures not defined. "
+        #          "I will use the species's temperatures")
         print("Thermostating temperatures: ")
         for i, (t, t_ev) in enumerate(zip(self.temperatures, self.temperatures_eV)):
             print("Species ID {}: T_eq = {:.6e} [K] = {:.6e} [eV]".format(i, t, t_ev))

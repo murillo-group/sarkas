@@ -161,7 +161,7 @@ def update_params(potential, params):
         # Calculate the PP Force error from the e-e diffraction term only.
         params.pppm_pp_err = force_error_analytic_pp(potential.type,
                                                      potential.rc,
-                                                     potential.matix,
+                                                     potential.matrix,
                                                      np.sqrt(3.0 * params.a_ws / (4.0 * np.pi)))
     elif potential.qsp_type == "kelbg":
         potential.force = kelbg_force
