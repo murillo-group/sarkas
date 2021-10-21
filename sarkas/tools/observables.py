@@ -81,6 +81,18 @@ PREFIXES = {
     "Y": 1e24  # yotta
 }
 
+def compute_doc(func):
+    func.__doc__ = """
+    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n 
+    The data of each slice is saved in hierarchical dataframes,
+    :attr:`~.dataframe_slices` (:attr:`~.dataframe_acf_slices`). \n
+    
+    The sliced averaged data is saved in other hierarchical dataframes,
+    :attr:`~.dataframe` (:attr:`~.dataframe_acf_slices`).
+     
+    """
+    return func
+
 def setup_doc(func):
     func.__doc__ = """
     Assign attributes from simulation's parameters.
@@ -104,6 +116,10 @@ def setup_doc(func):
    """
     return func
 
+def arg_update_doc(func):
+    func.__doc__ = """Update observable specific attributes and call :meth:`~.update_finish` to save info."""
+    return func
+
 
 class Observable:
     """
@@ -112,7 +128,16 @@ class Observable:
     Attributes
     ----------
     dataframe : pandas.DataFrame
-        Dataframe containing the computed data.
+        Dataframe containing the observable's data averaged over the number of slices.
+
+    dataframe_acf : pandas.DataFrame
+        Dataframe containing the observable's autocorrelation function data averaged over the number of slices.
+
+    dataframe_acf_slices : pandas.DataFrame
+        Dataframe containing the observable's autocorrelation data for each slice.
+
+    dataframe_slices : pandas.DataFrame
+        Dataframe containing the observable's data for each slice.
 
     max_k_harmonics : list
         Maximum number of :math:`\\mathbf{k}` harmonics to calculate along each dimension.
@@ -155,6 +180,9 @@ class Observable:
     saving_dir : str
         Path to the directory where computed data is stored.
 
+    slice_steps : int
+        Number of steps per slice.
+
     dimensional_average: bool
             Flag for averaging over all dimensions. Default = False.
 
@@ -169,26 +197,33 @@ class Observable:
     """
 
     def __init__(self):
-        self.__name__ = "Name not given"
-        self.__long_name__ = "Long Name not given"
-        self.dataframe = pd.DataFrame()
-        self.dataframe_slices = pd.DataFrame()
         self.saving_dir = None
         self.phase = "production"
         self.multi_run_average = False
         self.dimensional_average = False
         self.runs = 1
         self.no_slices = 1
+        self.slice_steps = None
         self.screen_output = True
         self.timer = SarkasTimer()
         self.k_observable = False
+        self.kw_observable = False
         self.acf_observable = False
+        self.dataframe_slices = None
+        self.dataframe = None
+        self.dataframe_acf = None
+        self.dataframe_acf_slices = None
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
         disp = 'Observable( ' + self.__class__.__name__ + '\n'
+        exclude_list = ['dataframe',
+                        'dataframe_slices',
+                        'dataframe_acf',
+                        'dataframe_acf_slices'
+                        ]
         for key, value in sortedDict.items():
-            if not key in ['dataframe', 'dataframe_longitudinal', 'dataframe_transverse']:
+            if not key in exclude_list:
                 disp += "\t{} : {}\n".format(key, value)
         disp += ')'
         return disp
@@ -228,11 +263,18 @@ class Observable:
         if phase:
             self.phase = phase.lower()
 
+        if no_slices:
+            self.no_slices = no_slices
+
+        # The dict update could overwrite the names
+        name = self.__name__
+        long_name = self.__long_name__
+
         self.__dict__.update(params.__dict__)
 
-        if self.acf_observable:
-            self.dataframe_acf = pd.DataFrame()
-            self.dataframe_acf_slices = pd.DataFrame()
+        # Restore the correct names
+        self.__name__ = name
+        self.__long_name__ = long_name
 
         if self.k_observable:
             # Check for k space information.
@@ -361,7 +403,7 @@ class Observable:
             self.no_steps / self.dump_step / self.no_slices) if self.no_dumps < self.no_slices else \
             int(self.no_dumps / self.no_slices)
 
-        # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]
+        # Array containing the start index of each species.
         self.species_index_start = np.array([0, *np.cumsum(self.species_num)], dtype=int)
 
     def create_dirs_filenames(self):
@@ -873,12 +915,46 @@ class Observable:
 
 
     def read_pickle(self):
-
+        """Read the observable's info from the pickle file."""
         self.filename_pickle = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
-        data = np.load(self.filename_pickle, allow_pickle=True)
-        obs = pycopy.copy(data)
-        self.from_dict(obs.__dict__)
+        with open(filename, 'rb') as pkl_data:
+            data = pickle.load()
+        self.from_dict(data.__dict__)
 
+
+    def update_finish(self):
+        """Update the :attr:`~.slice_steps`, CCF's and DSF's attributes, and save pickle file with observable's info.
+
+        Notes
+        -----
+        The information is saved without the dataframe(s).
+
+        """
+        # Needed if no_slices has been passed
+        self.slice_steps = int(
+            self.no_steps / self.dump_step / self.no_slices) if self.no_dumps < self.no_slices else \
+            int(self.no_dumps / self.no_slices)
+
+        if self.kw_observable:
+            # These calculation are needed for the io.postprocess_info().
+            # This is a hack and we need to find a faster way to do it
+            dt_r = self.dt * self.dump_step
+
+            self.w_min = 2.0 * np.pi / (self.slice_steps * self.dt * self.dump_step)
+            self.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
+            self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
+            self.frequencies = np.fft.fftshift(self.frequencies)
+
+        self.create_dirs_filenames()
+        self.save_pickle()
+
+        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
+        self.dataframe = pd.DataFrame()
+        self.dataframe_slices = pd.DataFrame()
+
+        if self.acf_observable:
+            self.dataframe_acf = pd.DataFrame()
+            self.dataframe_acf_slices = pd.DataFrame()
 
 
 class CurrentCorrelationFunction(Observable):
@@ -925,6 +1001,13 @@ class CurrentCorrelationFunction(Observable):
 
     """
 
+    def __init__(self):
+        super().__init__()
+        self.__name__ = 'ccf'
+        self.__long_name__ = 'Current Correlation Function'
+        self.k_observable = True
+        self.kw_observable = True
+
     @setup_doc
     def setup(self,
               params,
@@ -932,54 +1015,21 @@ class CurrentCorrelationFunction(Observable):
               no_slices: int = None,
               **kwargs):
 
-        self.k_observable = True
-
         super().setup_init(params, phase = phase, no_slices = no_slices)
 
-        self.__name__ = 'ccf'
-        self.__long_name__ = 'Current Correlation Function'
+        self.update_args(**kwargs)
 
-        # These calculation are needed for the io.postprocess_info().
-        # This is a hack and we need to find a faster way to do it
-        dt_r = self.dt * self.dump_step
-
-        self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-
-        self.w_min = 2.0 * np.pi / (self.slice_steps * dt_r)
-        self.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
-
-        self.parse_k_data()
+    @arg_update_doc
+    def update_args(self, **kwargs):
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
+        self.update_finish()
 
-        self.create_dirs_filenames()
+    @compute_doc
+    def compute(self):
 
-    def compute(self, **kwargs):
-        """
-        Calculate the microscopic current fluctuations correlation functions.
-
-        Parameters
-        ----------
-        **kwargs :
-            These willoverwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
-            attributes and/or add new ones.
-
-        """
-
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
-        # Parse vkt otherwise calculate them
-        self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=False, vkt_flag=True)
-
-        # This re-initialization is needed in case of kwargs
-        self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-        self.frequencies = np.fft.fftshift(self.frequencies)
-
-        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
-        self.dataframe = pd.DataFrame()
-        self.dataframe_slices = pd.DataFrame()
 
         tinit = self.timer.current()
 
@@ -1145,7 +1195,31 @@ class CurrentCorrelationFunction(Observable):
 
 
 class DiffusionFlux(Observable):
-    """Diffusion Fluxes and their Auto-correlation functions."""
+    """Diffusion Fluxes and their Auto-correlation functions.\n
+
+    The :math:`\\alpha` diffusion flux :math:`\\mathbf J_{\\alpha}(t)` is calculated from eq.~(3.5) in :cite:`Zhou1996` which
+    reads
+
+    .. math::
+        \\mathbf J_{\\alpha}(t) = \\frac{m_{\\alpha}}{m_{\\rm tot} }
+            \\sum_{\\beta = 1}^{M} \\left ( m_{\\rm tot} \\delta_{\\alpha\\beta} - x_{\\alpha} m_{\\beta} \\right )
+            \\mathbf j_{\\beta} (t)
+
+    where :math:`M` is the total number of species, :math:`m_{\\rm tot} = \\sum_{i}^M m_{i}` is the total mass of the
+    system, :math:`x_{\\alpha} = N_{\\alpha} / N_{\\rm tot}` is the concentration of species :math:`\\alpha`, and
+
+    .. math::
+        \\mathbf j_{\\alpha}(t) = \\sum_{i = 1}^{N_{\\alpha}} \\mathbf v_{i}(t)
+
+    is the microscopic velocity field of species :math:`\\alpha`.
+
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.__name__ = 'diff_flux'
+        self.__long_name__ = 'Diffusion Flux'
+        self.acf_observable = True
 
     @setup_doc
     def setup(self,
@@ -1154,38 +1228,22 @@ class DiffusionFlux(Observable):
               no_slices: int = None,
               **kwargs):
 
-        self.acf_observable = True
-
         super().setup_init(params, phase, no_slices)
+        self.update_args(**kwargs)
 
-        self.__name__ = 'diff_flux'
-        self.__long_name__ = 'Diffusion Flux'
-
-        self.no_fluxes = self.num_species - 1
-        self.no_fluxes_acf = int(self.no_fluxes * self.no_fluxes)
+    @arg_update_doc
+    def update_args(self, **kwargs):
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
 
-        self.create_dirs_filenames()
+        self.no_fluxes = self.num_species - 1
+        self.no_fluxes_acf = int(self.no_fluxes * self.no_fluxes)
 
-    def compute(self, **kwargs):
-        """
-        Compute the velocity auto-correlation functions.
+        self.update_finish()
 
-        Parameters
-        ----------
-        **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
-            attributes and/or add new ones.
-
-        """
-        # Update the attribute with the passed arguments. e.g time_averaging and timesteps_to_skip
-        self.__dict__.update(kwargs.copy())
-
-        # Recalculate the slicing parameters if no_slices has been passed
-        self.slice_steps = int(self.no_dumps / self.no_slices)
+    @compute_doc
+    def compute(self):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
@@ -1303,60 +1361,34 @@ class DynamicStructureFactor(Observable):
 
     """
 
+    def __init__(self):
+        super().__init__()
+        self.__name__ = 'dsf'
+        self.__long_name__ = 'Dynamic Structure Factor'
+        self.kw_observable = True
+        self.k_observable = True
+
     @setup_doc
     def setup(self, params,
               phase: str = None,
               no_slices: int = 1,
               **kwargs):
 
-        self.k_observable = True
-
         super().setup_init(params, phase, no_slices)
+        self.update_args(**kwargs)
 
-        self.__name__ = 'dsf'
-        self.__long_name__ = 'Dynamic Structure Factor'
-
-        # These calculation are needed for the io.postprocess_info().
-        # This is a hack and we need to find a faster way to do it
-        dt_r = self.dt * self.dump_step
-
-        self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-
-        self.w_min = 2.0 * np.pi / (self.slice_steps * self.dt * self.dump_step)
-        self.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
-
-        self.parse_k_data()
+    @arg_update_doc
+    def update_args(self, **kwargs):
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
+        self.update_finish()
 
-        self.create_dirs_filenames()
-
-    def compute(self, **kwargs):
-        """
-        Compute :math:`S_{ij} (k,\\omega)` and the array of :math:`\\omega` values.
-
-        Parameters
-        ----------
-        **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
-            attributes and/or add new ones.
-        """
-
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
+    @compute_doc
+    def compute(self):
 
         # Parse nkt otherwise calculate it
-        self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=True)
-
-        self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-        self.frequencies = np.fft.fftshift(self.frequencies)
-
-        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
-        self.dataframe = pd.DataFrame()
-        self.dataframe_slices = pd.DataFrame()
 
         tinit = self.timer.current()
         nkt_df = pd.read_hdf(self.nkt_hdf_file, mode='r', key='nkt')
@@ -1474,6 +1506,12 @@ class DynamicStructureFactor(Observable):
 class ElectricCurrent(Observable):
     """Electric Current Auto-correlation function."""
 
+    def __init__(self):
+        super().__init__()
+        self.__name__ = 'ec'
+        self.__long_name__ = 'Electric Current'
+        self.acf_observable = True
+
     @setup_doc
     def setup(self,
               params,
@@ -1481,35 +1519,18 @@ class ElectricCurrent(Observable):
               no_slices: int = None,
               **kwargs):
 
-        self.acf_observable = True
-
         super().setup_init(params, phase, no_slices)
+        self.update_args(**kwargs)
 
-        self.__name__ = 'ec'
-        self.__long_name__ = 'Electric Current'
-
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
-
-        self.create_dirs_filenames()
-
-    def compute(self, **kwargs):
-        """
-        Compute the electric current and the corresponding auto-correlation functions.
-
-        Parameters
-        ----------
-        **kwargs :
-            These will overwrite any ``sarkas.core.Parameters`` or default ``sarkas.tools.observables.Observable``
-            attributes and/or add new ones.
-
-        """
+    @arg_update_doc
+    def update_args(self, **kwargs):
 
         # Update the attribute with the passed arguments. e.g time_averaging and timesteps_to_skip
         self.__dict__.update(kwargs.copy())
+        self.update_finish()
 
-        # Recalculate the slicing parameters if no_slices has been passed
-        self.slice_steps = int(self.no_dumps / self.no_slices)
+    @compute_doc
+    def compute(self):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
@@ -1640,38 +1661,27 @@ class ElectricCurrent(Observable):
 class PressureTensor(Observable):
     """Pressure Tensor."""
 
+    def __init__(self):
+        super().__init__()
+        self.__name__ = 'pressure_tensor'
+        self.__long_name__ = 'Pressure Tensor'
+        self.acf_observable = True
+
     @setup_doc
     def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
 
-        self.acf_observable = True
-
         super().setup_init(params, phase, no_slices)
+        self.update_args(**kwargs)
 
-        self.__name__ = 'pressure_tensor'
-        self.__long_name__ = 'Pressure Tensor'
+    @arg_update_doc
+    def update_args(self, **kwargs):
 
         # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
+        self.__dict__.update(**kwargs)
+        self.update_finish()
 
-        self.create_dirs_filenames()
-
-    def compute(self, **kwargs):
-        """
-        Compute the velocity auto-correlation functions.
-
-        Parameters
-        ----------
-        **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
-            attributes and/or add new ones.
-
-        """
-        # Update the attribute with the passed arguments. e.g time_averaging and timesteps_to_skip
-        self.__dict__.update(kwargs.copy())
-
-        # Recalculate the slicing parameters if no_slices has been passed
-        self.slice_steps = int(self.no_dumps / self.no_slices)
+    @compute_doc
+    def compute(self):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
@@ -1951,37 +1961,32 @@ class RadialDistributionFunction(Observable):
 
     """
 
+    def __init__(self):
+        super().__init__()
+        self.__name__ = 'rdf'
+        self.__long_name__ = 'Radial Distribution Function'
+
     @setup_doc
     def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
 
         super().setup_init(params, phase = phase, no_slices = no_slices)
+        self.update_args(**kwargs)
 
-        self.__name__ = 'rdf'
-        self.__long_name__ = 'Radial Distribution Function'
+    @arg_update_doc
+    def update_args(self, **kwargs):
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
 
         # These definitions are needed for the print out.
         self.rc = self.cutoff_radius
         self.no_bins = self.rdf_nbins
         self.dr_rdf = self.rc / self.no_bins
 
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
+        self.update_finish()
 
-        self.create_dirs_filenames()
-
-    def compute(self, **kwargs):
-        """
-        Parameters
-        ----------
-        **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
-            attributes and/or add new ones.
-
-        """
-
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
+    @compute_doc
+    def compute(self):
 
         # initialize temporary arrays
         r_values = np.zeros(self.no_bins)
@@ -2043,7 +2048,7 @@ class RadialDistributionFunction(Observable):
                 self.dataframe['{}-{} RDF_Std'.format(sp1, sp2)] = self.dataframe_slices[col_str].std(axis=1)
 
         self.save_hdf()
-
+        self.save_pickle()
         tend = self.timer.current()
         self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - t0))
 
@@ -2189,49 +2194,32 @@ class StaticStructureFactor(Observable):
 
     """
 
+    def __init__(self):
+        super().__init__()
+        self.__name__ = 'ssf'
+        self.__long_name__ = 'Static Structure Function'
+        self.k_observable = True
+        self.kw_observable = False
+
     @setup_doc
     def setup(self,
               params,
               phase: str = None,
               no_slices: int = None,
               **kwargs):
-
-        self.k_observable = True
-
         super().setup_init(params, phase=phase, no_slices=no_slices)
+        self.update_args(**kwargs)
 
-        self.__name__ = 'ssf'
-        self.__long_name__ = 'Static Structure Function'
-
-        self.parse_k_data()
-
+    @arg_update_doc
+    def update_args(self, **kwargs):
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
+        self.update_finish()
 
-        self.create_dirs_filenames()
+    @compute_doc
+    def compute(self):
 
-    def compute(self, **kwargs):
-        """
-        Calculate all :math:`S_{ij}(k)`, save them into a Pandas dataframe, and write them to a HDF.
-
-        Parameters
-        ----------
-        **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
-            attributes and/or add new ones.
-
-        """
-
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
-
-        # Parse nkt otherwise calculate it
-        self.parse_k_data()  # repeat from setup in case parameters have been updated
         self.parse_kt_data(nkt_flag=True)
-        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
-        self.dataframe = pd.DataFrame()
-        self.dataframe_slices = pd.DataFrame()
         no_dumps_calculated = self.slice_steps * self.no_slices
         Sk_avg = np.zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
 
@@ -2316,6 +2304,11 @@ class Thermodynamics(Observable):
     """
     Thermodynamic functions.
     """
+    
+    def  __init__(self):
+        super().__init__()
+        self.__name__ = 'therm'
+        self.__long_name__ = 'Thermodynamics'
 
     def setup(self,
               params,
@@ -2340,16 +2333,16 @@ class Thermodynamics(Observable):
         """
 
         super().setup_init(params, phase)
-        self.__name__ = 'therm'
-        self.__long_name__ = 'Thermodynamics'
-
-        self.dataframe = pd.DataFrame()
-
         if params.load_method == "restart":
             self.restart_sim = True
         else:
             self.restart_sim = False
 
+        self.update_args(**kwargs)
+
+    @arg_update_doc
+    def update_args(self, **kwargs):
+               
         if self.phase.lower() == 'production':
             self.saving_dir = self.production_dir
         elif self.phase.lower() == 'equilibration':
@@ -2362,8 +2355,7 @@ class Thermodynamics(Observable):
 
     def compute_from_rdf(self,
                          rdf,
-                         potential,
-                         **kwargs):
+                         potential):
         """
         Calculate the correlational energy and correlation pressure using
         :meth:`sarkas.tools.observables.RadialDistributionFunction.compute_sum_rule_integrals` method.
@@ -2395,11 +2387,6 @@ class Thermodynamics(Observable):
         potential: sarkas.potentials.core.Potential
             Potential object.
 
-        **kwargs:
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
-            attributes and/or add new ones.
-
         Returns
         -------
         nkT : float
@@ -2418,8 +2405,6 @@ class Thermodynamics(Observable):
             Correlational pressure calculated from the above formula for each :math:`g_{ab}(r)`.
 
         """
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
 
         hartrees, corrs = rdf.compute_sum_rule_integrals(potential)
 
@@ -2753,6 +2738,12 @@ class Thermodynamics(Observable):
 
 class VelocityAutoCorrelationFunction(Observable):
     """Velocity Auto-correlation function."""
+    
+    def __init__(self):
+        super(VelocityAutoCorrelationFunction, self).__init__()
+        self.__name__ = 'vacf'
+        self.__long_name__ = 'Velocity AutoCorrelation Function'
+        sefl.acf_observable = True
 
     @setup_doc
     def setup(self,
@@ -2761,37 +2752,17 @@ class VelocityAutoCorrelationFunction(Observable):
               no_slices: int = None,
               **kwargs):
 
-        # self.acf_observable = True
-
         super().setup_init(params, phase = phase, no_slices = no_slices)
+        self.update_args(**kwargs)
 
-        self.__name__ = 'vacf'
-        self.__long_name__ = 'Velocity AutoCorrelation Function'
-
+    @arg_update_doc
+    def update_args(self, **kwargs):
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
+        self.update_finish()
 
-        self.create_dirs_filenames()
-        #
-
-    def compute(self, **kwargs):
-        """
-        Compute the velocity auto-correlation functions.
-
-        Parameters
-        ----------
-        **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
-            attributes and/or add new ones.
-
-        """
-
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
-        self.dataframe = pd.DataFrame()
-        # Recalculate the slicing parameters if no_slices has been passed
-        self.slice_steps = int(self.no_dumps / self.no_slices)
+    @compute_doc
+    def compute(self):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
@@ -2816,16 +2787,18 @@ class VelocityAutoCorrelationFunction(Observable):
             if isl == 0:
                 self.dataframe["Time"] = time
                 self.dataframe_slices["Time"] = time
+                self.dataframe_acf["Time"] = time
+                self.dataframe_acf_slices["Time"] = time
 
             # Return an array of shape( num_species, dim + 1, slice_steps)
             vacf = calc_vacf(vel, self.species_num)
 
             for i, sp1 in enumerate(self.species_names):
                 sp_vacf_str = "{} ".format(sp1) + vacf_str
-                self.dataframe_slices[sp_vacf_str + "_X_slice {}".format(isl)] = vacf[i, 0, :]
-                self.dataframe_slices[sp_vacf_str + "_Y_slice {}".format(isl)] = vacf[i, 1, :]
-                self.dataframe_slices[sp_vacf_str + "_Z_slice {}".format(isl)] = vacf[i, 2, :]
-                self.dataframe_slices[sp_vacf_str + "_Total_slice {}".format(isl)] = vacf[i, 3, :]
+                self.dataframe_acf_slices[sp_vacf_str + "_X_slice {}".format(isl)] = vacf[i, 0, :]
+                self.dataframe_acf_slices[sp_vacf_str + "_Y_slice {}".format(isl)] = vacf[i, 1, :]
+                self.dataframe_acf_slices[sp_vacf_str + "_Z_slice {}".format(isl)] = vacf[i, 2, :]
+                self.dataframe_acf_slices[sp_vacf_str + "_Total_slice {}".format(isl)] = vacf[i, 3, :]
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
@@ -2838,14 +2811,14 @@ class VelocityAutoCorrelationFunction(Observable):
             zcol_str = [sp_vacf_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
             tot_col_str = [sp_vacf_str + "_Total_slice {}".format(isl) for isl in range(self.no_slices)]
 
-            self.dataframe[sp_vacf_str + "_X_Mean"] = self.dataframe_slices[xcol_str].mean(axis=1)
-            self.dataframe[sp_vacf_str + "_X_Std"] = self.dataframe_slices[xcol_str].std(axis=1)
-            self.dataframe[sp_vacf_str + "_Y_Mean"] = self.dataframe_slices[ycol_str].mean(axis=1)
-            self.dataframe[sp_vacf_str + "_Y_Std"] = self.dataframe_slices[ycol_str].std(axis=1)
-            self.dataframe[sp_vacf_str + "_Z_Mean"] = self.dataframe_slices[zcol_str].mean(axis=1)
-            self.dataframe[sp_vacf_str + "_Z_Std"] = self.dataframe_slices[zcol_str].std(axis=1)
-            self.dataframe[sp_vacf_str + "_Total_Mean"] = self.dataframe_slices[tot_col_str].mean(axis=1)
-            self.dataframe[sp_vacf_str + "_Total_Std"] = self.dataframe_slices[tot_col_str].std(axis=1)
+            self.dataframe_acf[sp_vacf_str + "_X_Mean"] = self.dataframe_acf_slices[xcol_str].mean(axis=1)
+            self.dataframe_acf[sp_vacf_str + "_X_Std"] = self.dataframe_acf_slices[xcol_str].std(axis=1)
+            self.dataframe_acf[sp_vacf_str + "_Y_Mean"] = self.dataframe_acf_slices[ycol_str].mean(axis=1)
+            self.dataframe_acf[sp_vacf_str + "_Y_Std"] = self.dataframe_acf_slices[ycol_str].std(axis=1)
+            self.dataframe_acf[sp_vacf_str + "_Z_Mean"] = self.dataframe_acf_slices[zcol_str].mean(axis=1)
+            self.dataframe_acf[sp_vacf_str + "_Z_Std"] = self.dataframe_acf_slices[zcol_str].std(axis=1)
+            self.dataframe_acf[sp_vacf_str + "_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
+            self.dataframe_acf[sp_vacf_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
 
         self.save_hdf()
         tend = self.timer.current()
@@ -2855,8 +2828,8 @@ class VelocityAutoCorrelationFunction(Observable):
         """Print observable parameters for help in choice of simulation parameters."""
 
         print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: \n', self.filename_csv)
-        print('Data accessible at: self.dataframe')
+        print('Data saved in: \n', self.filename_acf_hdf)
+        print('Data accessible at: self.dataframe_acf')
 
         print('\nNo. of slices = {}'.format(self.no_slices))
         print('No. dumps per slice = {}'.format(int(self.slice_steps / self.dump_step)))
@@ -2888,6 +2861,11 @@ class VelocityDistribution(Observable):
         Maximum number of moments = :math:`\alpha`. Default = 3.
 
     """
+
+    def __init__(self):
+        super(VelocityDistribution, self).__init__()
+        self.__name__ = 'vd'
+        self.__long_name__ = 'Velocity Distribution'
 
     def setup(self,
               params,
@@ -2927,20 +2905,30 @@ class VelocityDistribution(Observable):
 
         """
 
+        super().setup_init(params, self.phase)
+        self.update_args(hist_kwargs, max_no_moment, curve_fit_kwargs, **kwargs)
+
+    @arg_update_doc
+    def update_args(self,
+                    hist_kwargs: dict = None,
+                    max_no_moment: int = None,
+                    curve_fit_kwargs: dict = None,
+                    **kwargs):
+
         if curve_fit_kwargs:
             self.curve_fit_kwargs = curve_fit_kwargs
 
-        super().setup_init(params, self.phase)
-        self.__name__ = 'vd'
-        self.__long_name__ = 'Velocity Distribution'
-
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
         # Check on hist_kwargs
         if hist_kwargs:
             # Is it a dictionary ?
             if not isinstance(hist_kwargs, dict):
                 raise TypeError('hist_kwargs not a dictionary. Please pass a dictionary.')
+            # Did you pass a single dictionary for multispecies?
+            for key, value in hist_kwargs.items():
+                # The elements of hist_kwargs should be lists
+                if not isinstance(hist_kwargs[key], list):
+                    hist_kwargs[key] = [value for i in range(self.num_species)]
+
             self.hist_kwargs = hist_kwargs
 
         # Default number of moments to calculate
@@ -2948,6 +2936,9 @@ class VelocityDistribution(Observable):
             self.max_no_moment = max_no_moment
         else:
             self.max_no_moment = 6
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
 
         # Create the directory where to store the computed data
         # First the name of the observable
@@ -3013,21 +3004,8 @@ class VelocityDistribution(Observable):
         # range(inv_dim) for the loop over dimension
         self.inv_dim = self.dimensions if self.dimensional_average else 1
 
-        # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]
-        self.species_index_start = np.array([0, *np.cumsum(self.species_num)], dtype=int) * self.inv_dim * self.runs
-
-        # Check if arguments have been passed
-        if hist_kwargs:
-            # Did you pass a single dictionary for multispecies?
-            for key, value in hist_kwargs.items():
-                # The elements of hist_kwargs should be lists
-                if not isinstance(hist_kwargs[key], list):
-                    hist_kwargs[key] = [value for i in range(self.num_species)]
-
-            # Override whatever was passed via YAML or setup
-            self.hist_kwargs.update(hist_kwargs.copy())
-
         self.prepare_histogram_args()
+        self.save_pickle()
 
     def grab_sim_data(self):
         """Read in velocity data"""
@@ -3080,7 +3058,10 @@ class VelocityDistribution(Observable):
 
         return time, vel_raw
 
-    def compute(self, hist_kwargs: dict = None, **kwargs):
+    def compute(self,
+                compute_moments: bool = False,
+                compute_Grad_expansion: bool = False
+                ):
         """
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
 
@@ -3096,37 +3077,8 @@ class VelocityDistribution(Observable):
 
         """
 
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
-
-        # Check if arguments have been passed
-        if hist_kwargs:
-            # Did you pass a single dictionary for multispecies?
-            for key, value in hist_kwargs.items():
-                # The elements of hist_kwargs should be lists
-                if not isinstance(hist_kwargs[key], list):
-                    hist_kwargs[key] = [value for i in range(self.num_species)]
-
-            # Override whatever was passed via YAML or setup
-            self.hist_kwargs.update(hist_kwargs.copy())
-
-        # Make the histogram arguments
-        self.prepare_histogram_args()
-
         # Print info to screen
         self.pretty_print()
-
-        # Ok let's do it.
-        self.dataframe = pd.DataFrame()
-
-        # Calculate the dimension of the velocity container
-
-        # 2nd Dimension of the raw velocity array
-        self.dim = 1 if self.dimensional_average else self.dimensions
-        # range(inv_dim) for the loop over dimension
-        self.inv_dim = self.dimensions if self.dimensional_average else 1
-        # Array containing the start index of each species. The last value is equivalent to vel_raw.shape[-1]
-        self.species_index_start = np.array([0, *np.cumsum(self.species_num)], dtype=int) * self.inv_dim * self.runs
 
         # Grab simulation data
         time, vel_raw = self.grab_sim_data()
@@ -3135,11 +3087,14 @@ class VelocityDistribution(Observable):
         self.create_distribution(vel_raw, time)
 
         # Calculate velocity moments
-        if hasattr(self, "max_no_moment"):
-            self.compute_moments(False, vel_raw, time)
+        if compute_moments:
+            self.compute_moments(
+                parse_data=False,
+                vel_raw = vel_raw,
+                time = time)
         #
-        if hasattr(self, "max_hermite_order"):
-            self.compute_hermite_expansion(False)
+        if compute_Grad_expansion:
+            self.compute_hermite_expansion(compute_moments = False)
 
     def prepare_histogram_args(self):
 
@@ -3167,6 +3122,7 @@ class VelocityDistribution(Observable):
                 vth = np.sqrt(energy_df["Temperature"].mean() * self.kB / self.species_masses)
 
         except FileNotFoundError:
+            # In case you are using this in PreProcessing stage
             vth = np.sqrt(self.kB * self.T_desired / self.species_masses)
 
         self.vth = np.copy(vth)
@@ -3306,7 +3262,10 @@ class VelocityDistribution(Observable):
         tend = self.timer.current()
         self.time_stamp("Velocity distribution calculation", self.timer.time_division(tend - tinit))
 
-    def compute_moments(self, parse_data: bool = False, vel_raw: np.ndarray = None, time: np.ndarray = None):
+    def compute_moments(self,
+                        parse_data: bool = False,
+                        vel_raw: np.ndarray = None,
+                        time: np.ndarray = None):
         """Calculate and save moments of the distribution.
 
         Parameters
@@ -3375,23 +3334,28 @@ class VelocityDistribution(Observable):
             encoding='utf-8'
         )
 
-    def compute_hermite_expansion(self, calc_moments: bool = False):
+    def compute_hermite_expansion(self,
+                                  compute_moments: bool = False):
         """
         Calculate and save Hermite coefficients of the Grad expansion.
 
         Parameters
         ----------
-        calc_moments: bool
+        compute_moments: bool
             Flag for calculating velocity moments. These are needed for the hermite calculation.
-            Default = False.
+            Default = True.
 
+        Notes
+        -----
+        This is still in the development stage. Do not trust the results. It requires more study in non-equilibrium
+        statistical mechanics.
         """
         from scipy.optimize import curve_fit
 
         self.hermite_dataframe = pd.DataFrame()
         self.hermite_hdf_dataframe = pd.DataFrame()
 
-        if calc_moments:
+        if compute_moments:
             self.compute_moments(parse_data=True)
 
         if not hasattr(self, 'hermite_rms_tol'):

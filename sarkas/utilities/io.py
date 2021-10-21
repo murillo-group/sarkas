@@ -48,7 +48,6 @@ class InputOutput:
 
     def __init__(self, process: str = None):
         """Set default directory names."""
-        self.__name__ = 'io'
         self.process = process if process else 'preprocessing'
         self.input_file = None
         self.equilibration_dir = 'Equilibration'
