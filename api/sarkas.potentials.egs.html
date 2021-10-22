@@ -8,8 +8,8 @@
     <title>sarkas.potentials.egs module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -21,6 +21,8 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
@@ -108,7 +110,12 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">sarkas.potentials.egs module</a></li>
+<li><a class="reference internal" href="#">sarkas.potentials.egs module</a><ul>
+<li><a class="reference internal" href="#potential">Potential</a></li>
+<li><a class="reference internal" href="#force-error">Force Error</a></li>
+<li><a class="reference internal" href="#potential-attributes">Potential Attributes</a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -142,16 +149,81 @@
       
   <section id="module-sarkas.potentials.egs">
 <span id="sarkas-potentials-egs-module"></span><h1>sarkas.potentials.egs module<a class="headerlink" href="#module-sarkas.potentials.egs" title="Permalink to this headline">¶</a></h1>
-<p>Module for handling Exact Gradient corrected Screened (EGS) Potential</p>
+<p>Module for handling Exact Gradient corrected Screened (EGS) Potential.</p>
+<section id="potential">
+<h2>Potential<a class="headerlink" href="#potential" title="Permalink to this headline">¶</a></h2>
+<p>The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs.
+Density gradient corrections to the free energy functional lead to the first parameter, :math:`
+u`,</p>
+<div class="math notranslate nohighlight">
+\[\nu = - \frac{3\lambda}{\pi^{3/2}}  \frac{4\pi \bar{e}^2 \beta }{\Lambda_{e}} \frac{d}{d\eta} \mathcal I_{-1/2}(\eta),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a correction factor; <span class="math notranslate nohighlight">\(\lambda = 1/9\)</span> for the true gradient corrected Thomas-Fermi model
+and <span class="math notranslate nohighlight">\(\lambda = 1\)</span> for the traditional von Weissaecker model, <span class="math notranslate nohighlight">\(\mathcal I_{-1/2}[\eta_0]\)</span> is the
+<a class="reference internal" href="../theory/electron_properties.html#fermi-integral"><span class="std std-ref">Fermi Integral</span></a> of order <span class="math notranslate nohighlight">\(-1/2\)</span>, and <span class="math notranslate nohighlight">\(\Lambda_e\)</span> is the <a class="reference internal" href="../theory/electron_properties.html#de-broglie-wavelength"><span class="std std-ref">de Broglie wavelength</span></a> of the electrons.</p>
+<p>In the case <span class="math notranslate nohighlight">\(\nu &lt; 1\)</span> the EGS potential takes the form</p>
+<div class="math notranslate nohighlight">
+\[U_{ab}(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],\]</div>
+<p>with</p>
+<div class="math notranslate nohighlight">
+\[\lambda_\pm^2 = \frac{\nu \lambda_{\textrm{TF}}^2}{2b \pm 2b\sqrt{1 - \nu}}, \quad \alpha = \frac{b}{\sqrt{b - \nu}},\]</div>
+<p>where the parameter <span class="math notranslate nohighlight">\(b\)</span> arises from exchange-correlation contributions, see below.</p>
+<p>On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</span>, the pair potential has the form</p>
+<div class="math notranslate nohighlight">
+\[U_{ab}(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}\]</div>
+<p>with</p>
+<div class="math notranslate nohighlight">
+\[\gamma_\pm^2 = \frac{\nu\lambda_{\textrm{TF}}^2}{\sqrt{\nu} \pm b}, \quad \alpha' = \frac{b}{\sqrt{\nu - b}}.\]</div>
+<p>Neglect of exchange-correlational effects leads to <span class="math notranslate nohighlight">\(b = 1\)</span> otherwise</p>
+<div class="math notranslate nohighlight">
+\[b = 1 - \frac{2}{8} \frac{1}{k_{\textrm{F}}^2 \lambda_{\textrm{TF}}^2 }  \left [ h\left ( \Theta \right ) - 2 \Theta h'(\Theta) \right ]\]</div>
+<p>where <span class="math notranslate nohighlight">\(k_{\textrm{F}}\)</span> is the Fermi wavenumber and <span class="math notranslate nohighlight">\(\Theta = (\beta E_{\textrm{F}})^{-1}\)</span> is the electron
+<a class="reference internal" href="../theory/electron_properties.html#degeneracy-parameter"><span class="std std-ref">Degeneracy Parameter</span></a> calculated from the <a class="reference internal" href="../theory/electron_properties.html#fermi-energy"><span class="std std-ref">Fermi Energy</span></a>.</p>
+<div class="math notranslate nohighlight">
+\[h \left ( \Theta \right) = \frac{N(\Theta)}{D(\Theta)}\tanh \left( \Theta^{-1} \right ),\]</div>
+<div class="math notranslate nohighlight">
+\[N(\Theta) = 1 + 2.8343\Theta^2 - 0.2151\Theta^3 + 5.2759\Theta^4,\]</div>
+<div class="math notranslate nohighlight">
+\[D \left ( \Theta \right ) = 1 + 3.9431\Theta^2 + 7.9138\Theta^4.\]</div>
+</section>
+<section id="force-error">
+<h2>Force Error<a class="headerlink" href="#force-error" title="Permalink to this headline">¶</a></h2>
+<p>The EGS potential is always smaller than pure Yukawa. Therefore the force error is chosen to be the same as Yukawa’s</p>
+<div class="math notranslate nohighlight">
+\[\Delta F = \frac{q^2}{4 \pi \epsilon_0} \sqrt{\frac{2 \pi n}{\lambda_{-}}}e^{-r_c/\lambda_-}\]</div>
+<p>This overestimates it, but it doesn’t matter.</p>
+</section>
+<section id="potential-attributes">
+<h2>Potential Attributes<a class="headerlink" href="#potential-attributes" title="Permalink to this headline">¶</a></h2>
+<p>The elements of <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.potentials.core.Potential.pot_matrix</span></code> are</p>
+<p>if <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.nu</span></code> less than 1:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_iq_j</span><span class="o">/</span><span class="mi">4</span><span class="n">pi</span> <span class="n">eps0</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nu</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">lambda_minus</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">lambda_plus</span>
+</pre></div>
+</div>
+<p>else</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_iq_j</span><span class="o">/</span><span class="mi">4</span><span class="n">pi</span> <span class="n">eps0</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nu</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span> <span class="n">prime</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">gamma_minus</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">gamma_plus</span>
+</pre></div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.potentials.egs.egs_force">
-<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.egs.</span></span><span class="sig-name descname"><span class="pre">egs_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.egs.egs_force" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.egs.</span></span><span class="sig-name descname"><span class="pre">egs_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.egs.egs_force" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates Potential and force between particles using the EGS Potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Particles’ distance.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – EGS potential parameters.</p></li>
+<li><p><strong>r_in</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Particles’ distance.</p></li>
+<li><p><strong>pot_matrix</strong> (<em>array</em>) – <p>EGS potential parameters.</p>
+<p>Shape = (6, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>)</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -175,9 +247,13 @@
 <li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="sarkas.utilities.exceptions.html#sarkas.utilities.exceptions.AlgorithmError" title="sarkas.utilities.exceptions.AlgorithmError"><strong>AlgorithmError</strong></a> – If the chosen algorithm is pppm.</p>
+</dd>
 </dl>
 </dd></dl>
 
+</section>
 </section>
 
 
@@ -193,7 +269,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

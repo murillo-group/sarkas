@@ -8,8 +8,8 @@
     <title>Quickstart &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -400,7 +400,7 @@ div.rendered_html tbody tr:hover {
 <section id="Quickstart">
 <h1>Quickstart<a class="headerlink" href="#Quickstart" title="Permalink to this headline">¶</a></h1>
 <p>Once installation is complete you can start running Sarkas. This quickstart guide will walk you through a simple example in order to check that everything is running smoothly.</p>
-<p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/input_files/yocp_cgs_pp.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/Quickstart.ipynb">notebook</a></p>
+<p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/input_files/yocp_quickstart.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/Quickstart.ipynb">notebook</a></p>
 <hr class="docutils" />
 <section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
@@ -421,7 +421,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
 
 <span class="c1"># Create the file path to the YAML input file</span>
-<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input_files&#39;</span><span class="p">,</span> <span class="s1">&#39;yocp_cgs_pp.yaml&#39;</span><span class="p">)</span>
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input_files&#39;</span><span class="p">,</span> <span class="s1">&#39;yocp_quickstart.yaml&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -455,7 +455,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span style="color: rgb(0,129,131)">
+<span style="color: rgb(24,69,49)">
 
 
 
@@ -471,22 +471,24 @@ An open-source pure-python molecular dynamics suite for non-ideal plasmas.
 
 
 
+
+
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                                    Simulation
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Job ID:  yocp_cgs_pp
-Job directory:  Simulations/yocp_cgs_pp
+Job ID:  yocp_quickstart
+Job directory:  Simulations/yocp_quickstart
 
 Equilibration dumps directory:
- Simulations/yocp_cgs_pp/Simulation/Equilibration/dumps
+ Simulations/yocp_quickstart/Simulation/Equilibration/dumps
 Production dumps directory:
- Simulations/yocp_cgs_pp/Simulation/Production/dumps
+ Simulations/yocp_quickstart/Simulation/Production/dumps
 
 Equilibration Thermodynamics file:
- Simulations/yocp_cgs_pp/Simulation/Equilibration/EquilibrationEnergy_yocp_cgs_pp.csv
+ Simulations/yocp_quickstart/Simulation/Equilibration/EquilibrationEnergy_yocp_quickstart.csv
 Production Thermodynamics file:
- Simulations/yocp_cgs_pp/Simulation/Production/ProductionEnergy_yocp_cgs_pp.csv
+ Simulations/yocp_quickstart/Simulation/Production/ProductionEnergy_yocp_quickstart.csv
 
 PARTICLES:
 Total No. of particles =  1000
@@ -501,10 +503,10 @@ Species ID: 0
         Charge number/ionization degree = 1.9766
         Charge = 9.494010e-10 [esu]
         Temperature = 5.000000e+03 [K] = 4.308667e-01 [eV]
-        Debye Length = 7.322426e-10 [Hz]
-        Plasma Frequency = 2.531585e+14 [Hz]
+        Debye Length = 7.322426e-10 [1/cm^3]
+        Plasma Frequency = 2.531585e+14 [rad/s]
 
-SIMULATION BOX:
+SIMULATION AND INITIAL PARTICLE BOX:
 Units:  cgs
 Wigner-Seitz radius = 1.280636e-08 [cm]
 No. of non-zero box dimensions =  3
@@ -512,6 +514,10 @@ Box side along x axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
 Box side along y axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
 Box side along z axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
 Box Volume = 8.797633e-21 [cm^3]
+Initial particle box side along x axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Initial particle box side along y axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Initial particle box side along z axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
+Initial particle box Volume = 8.797633e-21 [cm^3]
 Boundary conditions: periodic
 
 ELECTRON PROPERTIES:
@@ -528,12 +534,12 @@ Coupling: r_s = 1.928347,  Gamma_e = 32.750858
 Warm Dense Matter Parameter: W = 3.8973e-03
 Chemical potential: mu = 3.1251e+01 k_B T_e = 9.9916e-01 E_F
 
-POTENTIAL:  Yukawa
+POTENTIAL:  yukawa
 electron temperature = 5.0000e+03 [K] = 4.3087e-01 [eV]
 kappa = 2.7231
 Gamma_eff = 101.96
 
-ALGORITHM:  PP
+ALGORITHM:  pp
 rcut = 4.6852 a_ws = 6.000000e-08 [cm]
 No. of PP cells per dimension =  3,  3,  3
 No. of particles in PP loop =    662
@@ -541,22 +547,17 @@ No. of PP neighbors per particle =    102
 Tot Force Error = 5.818612e-06
 
 THERMOSTAT:
-Type: Berendsen
+Type: berendsen
 First thermostating timestep, i.e. relaxation_timestep = 300
 Berendsen parameter tau: 2.000 [timesteps]
 Berendsen relaxation rate: 0.500 [1/timesteps]
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Equilibration temperatures not defined. I will use the species&#39;s temperatures
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 Thermostating temperatures:
 Species ID 0: T_eq = 5.000000e+03 [K] = 4.308667e-01 [eV]
 
 INTEGRATOR:
-Type: Verlet
+Type: verlet
 Time step = 5.000000e-17 [s]
-Total plasma frequency = 2.531585e+14 [Hz]
+Total plasma frequency = 2.531585e+14 [rad/s]
 w_p dt = 0.0127 ~ 1/79
 
 Equilibration:
@@ -577,20 +578,22 @@ Total number of snapshots = 2000
 ------------------------ Initialization Times ------------------------
 
 
-Potential Initialization Time: 0 sec 21 msec 103 usec 695 nsec
+Potential Initialization Time: 1 sec 95 msec 165 usec 515 nsec
 
-Particles Initialization Time: 0 sec 0 msec 372 usec 925 nsec
+Particles Initialization Time: 0 sec 0 msec 354 usec 373 nsec
 
-Total Simulation Initialization Time: 0 sec 21 msec 103 usec 695 nsec
+Total Simulation Initialization Time: 1 sec 95 msec 165 usec 515 nsec
 
-------------- Equilibration -------------
+
+--------------------------- Equilibration ----------------------------
+
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "d131ae553a324e6f87f3e74a27c64d60", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "dd87a37175684343b8da3ee4ccaf6b75", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -598,16 +601,18 @@ Total Simulation Initialization Time: 0 sec 21 msec 103 usec 695 nsec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Equilibration Time: 0 hrs 0 min 59 sec
+Equilibration Time: 0 hrs 1 min 35 sec
 
-------------- Production -------------
+
+----------------------------- Production -----------------------------
+
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "c608a02036794208b78691ac7e1dbb35", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "fc2520bd22af4ee79799999aced46521", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -615,9 +620,9 @@ Equilibration Time: 0 hrs 0 min 59 sec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Production Time: 0 hrs 2 min 10 sec
+Production Time: 0 hrs 3 min 30 sec
 
-Total Time: 0 hrs 3 min 10 sec
+Total Time: 0 hrs 5 min 6 sec
 </pre></div></div>
 </div>
 </section>
@@ -651,39 +656,52 @@ Total Time: 0 hrs 3 min 10 sec
                                  Postprocessing
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Job ID:  yocp_cgs_pp
-Job directory:  Simulations/yocp_cgs_pp
+Job ID:  yocp_quickstart
+Job directory:  Simulations/yocp_quickstart
 PostProcessing directory:
- Simulations/yocp_cgs_pp/PostProcessing
+ Simulations/yocp_quickstart/PostProcessing
 
-Equilibration dumps directory:  Simulations/yocp_cgs_pp/Simulation/Equilibration/dumps
+Equilibration dumps directory:  Simulations/yocp_quickstart/Simulation/Equilibration/dumps
 Production dumps directory:
- Simulations/yocp_cgs_pp/Simulation/Production/dumps
+ Simulations/yocp_quickstart/Simulation/Production/dumps
 
 Equilibration Thermodynamics file:
- Simulations/yocp_cgs_pp/Simulation/Equilibration/EquilibrationEnergy_yocp_cgs_pp.csv
+ Simulations/yocp_quickstart/Simulation/Equilibration/EquilibrationEnergy_yocp_quickstart.csv
 Production Thermodynamics file:
- Simulations/yocp_cgs_pp/Simulation/Production/ProductionEnergy_yocp_cgs_pp.csv
+ Simulations/yocp_quickstart/Simulation/Production/ProductionEnergy_yocp_quickstart.csv
 
 
 ==================== Radial Distribution Function ====================
 
 Data saved in:
- Simulations/yocp_cgs_pp/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_yocp_cgs_pp.csv
+ Simulations/yocp_quickstart/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_yocp_quickstart.h5
 Data accessible at: self.ra_values, self.dataframe
 
 No. bins = 250
 dr = 0.0187 a_ws = 2.4000e-10 [cm]
 Maximum Distance (i.e. potential.rc)= 4.6852 a_ws = 6.0000e-08 [cm]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "af95b51a82ad412f93697cdd9f38cc19", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
 
-Radial Distribution Function Calculation Time: 0 sec 0 msec 928 usec 274 nsec
+Radial Distribution Function Calculation Time: 0 sec 62 msec 472 usec 771 nsec
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/documentation_Tutorial_NB_Quickstart_5_1.png" src="../../_images/documentation_Tutorial_NB_Quickstart_5_1.png" />
+<img alt="../../_images/documentation_Tutorial_NB_Quickstart_5_3.png" src="../../_images/documentation_Tutorial_NB_Quickstart_5_3.png" />
 </div>
 </div>
 <p>You will notice that both the energy and temperature oscillates wildly. This is fine as long as the percentage deviations, in the top plots, are small. You should have a temperature deviations between -2% to ~ 4-5% while energy deviations between -2% and 1%.</p>
@@ -697,7 +715,13 @@ Radial Distribution Function Calculation Time: 0 sec 0 msec 928 usec 274 nsec
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Initialize the Pair Distribution Function class</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scaling</span><span class="o">=</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_{\rm ws}$&#39;</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span><span class="o">=</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;C-C RDF&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)],</span>
+    <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_{\rm ws}$&#39;</span><span class="p">,</span>
+    <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$g(r)$&#39;</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;C-C RDF&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -707,7 +731,7 @@ Radial Distribution Function Calculation Time: 0 sec 0 msec 928 usec 274 nsec
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;AxesSubplot:xlabel=&#39;$r/a_{\\rm ws}$&#39;&gt;
+&lt;matplotlib.legend.Legend at 0x7f43925b7690&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -741,7 +765,7 @@ Radial Distribution Function Calculation Time: 0 sec 0 msec 928 usec 274 nsec
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

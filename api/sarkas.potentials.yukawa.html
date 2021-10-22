@@ -8,8 +8,8 @@
     <title>sarkas.potentials.yukawa module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -21,6 +21,8 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
@@ -108,7 +110,11 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">sarkas.potentials.yukawa module</a></li>
+<li><a class="reference internal" href="#">sarkas.potentials.yukawa module</a><ul>
+<li><a class="reference internal" href="#potential">Potential</a></li>
+<li><a class="reference internal" href="#potential-attributes">Potential Attributes</a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -142,7 +148,44 @@
       
   <section id="module-sarkas.potentials.yukawa">
 <span id="sarkas-potentials-yukawa-module"></span><h1>sarkas.potentials.yukawa module<a class="headerlink" href="#module-sarkas.potentials.yukawa" title="Permalink to this headline">¶</a></h1>
-<p>Module for handling Yukawa interaction</p>
+<p>Module for handling Yukawa potential.</p>
+<section id="potential">
+<h2>Potential<a class="headerlink" href="#potential" title="Permalink to this headline">¶</a></h2>
+<p>The Yukawa potential between two charges <span class="math notranslate nohighlight">\(q_i\)</span> and <span class="math notranslate nohighlight">\(q_j\)</span> at distant <span class="math notranslate nohighlight">\(r\)</span> is defined as</p>
+<div class="math notranslate nohighlight">
+\[U_{ab}(r) = \frac{q_a q_b}{4 \pi \epsilon_0} \frac{e^{- \kappa r} }{r}.\]</div>
+<p>where <span class="math notranslate nohighlight">\(\kappa = 1/\lambda\)</span> is the screening parameter.</p>
+</section>
+<section id="potential-attributes">
+<h2>Potential Attributes<a class="headerlink" href="#potential-attributes" title="Permalink to this headline">¶</a></h2>
+<p>The elements of the <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.potentials.core.Potential.pot_matrix</span></code> are:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_iq_j</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span> <span class="n">pi</span> <span class="n">eps0</span><span class="p">)</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="k">lambda</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ewald</span> <span class="n">screening</span> <span class="n">parameter</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="sarkas.potentials.yukawa.force_deriv">
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.yukawa.</span></span><span class="sig-name descname"><span class="pre">force_deriv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.yukawa.force_deriv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the second derivative of the potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Distance between particles</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>Values of the potential constants.</p>
+<p>Shape = (3, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>)</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>f_dev</strong> – Second derivative of potential.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.potentials.yukawa.update_params">
 <span class="sig-prename descclassname"><span class="pre">sarkas.potentials.yukawa.</span></span><span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/potentials/yukawa.html#update_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.potentials.yukawa.update_params" title="Permalink to this definition">¶</a></dt>
@@ -164,8 +207,10 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – It contains potential dependent variables.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>It contains potential dependent variables.</p>
+<p>Shape = (3, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>)</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -181,25 +226,27 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.potentials.yukawa.yukawa_force_pppm">
 <span class="sig-prename descclassname"><span class="pre">sarkas.potentials.yukawa.</span></span><span class="sig-name descname"><span class="pre">yukawa_force_pppm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.yukawa.yukawa_force_pppm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates Potential and Force between two particles when the P3M algorithm is chosen.</p>
+<dd><p>Calculates Potential and Force between two particles when the pppm algorithm is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<em>array</em>) – Potential matrix. See setup function above.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Distance between two particles.</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>It contains potential dependent variables.</p>
+<p>Shape = (3, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>)</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>U_s_r</strong> (<em>float</em>) – Potential value</p></li>
-<li><p><strong>fr</strong> (<em>float</em>) – Force between two particles calculated using eq.(22) in Ref. [Dharuman2017] .</p></li>
+<li><p><strong>U</strong> (<em>float</em>) – Potential value</p></li>
+<li><p><strong>fr</strong> (<em>float</em>) – Force between two particles calculated using eq.(22) in <span id="id1">[<a class="reference internal" href="../theory/references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>]</span>.</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p class="rubric">References</p>
 </dd></dl>
 
+</section>
 </section>
 
 
@@ -215,7 +262,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

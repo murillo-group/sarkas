@@ -7,8 +7,8 @@
     <title>sarkas.potentials.moliere &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -136,10 +136,48 @@
       
   <h1>Source code for sarkas.potentials.moliere</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module for handling Moliere Potential</span>
+<span class="sd">Module for handling Moliere Potential.</span>
+
+<span class="sd">Potential</span>
+<span class="sd">*********</span>
+
+<span class="sd">The Moliere Potential is defined as</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    U(r) = \\frac{q_i q_j}{4 \\pi \\epsilon_0} \\frac{1}{r} \\sum_{\\alpha} C_{\\alpha} e^{- b_{\\alpha} r}.</span>
+
+<span class="sd">For more details see :cite:`Wilson1977`. Note that the parameters :math:`b` are not normalized by the Bohr radius.</span>
+<span class="sd">They should be passed with the correct units [m] if mks or [cm] if cgs.</span>
+
+<span class="sd">Force Error</span>
+<span class="sd">***********</span>
+
+<span class="sd">The force error is calculated from the Yukawa&#39;s formula with the smallest screening length.</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">    \\Delta F = \\frac{q^2}{4 \\pi \\epsilon_0} \\sqrt{2 \\pi n b_{\\textrm min} }e^{-b_{\\textrm min} r_c},</span>
+
+<span class="sd">This overestimates it, but it doesn&#39;t matter.</span>
+
+<span class="sd">Potential Attributes</span>
+<span class="sd">********************</span>
+<span class="sd">The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">    pot_matrix[0] = q_iq_je^2/(4 pi eps_0) Force factor between two particles.</span>
+<span class="sd">    pot_matrix[1] = C_1</span>
+<span class="sd">    pot_matrix[2] = C_2</span>
+<span class="sd">    pot_matrix[3] = C_3</span>
+<span class="sd">    pot_matrix[4] = b_1</span>
+<span class="sd">    pot_matrix[5] = b_2</span>
+<span class="sd">    pot_matrix[6] = b_3</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+<span class="kn">from</span> <span class="nn">sarkas.utilities.maths</span> <span class="kn">import</span> <span class="n">force_error_analytic_pp</span>
 
 
 <div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.moliere.html#sarkas.potentials.moliere.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
@@ -159,23 +197,25 @@
     <span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span><span class="p">)</span>
     <span class="n">params_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span><span class="p">)</span>
 
-    <span class="n">moliere_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
 
-            <span class="n">moliere_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
-            <span class="n">moliere_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span>
-            <span class="n">moliere_matrix</span><span class="p">[</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span>
 
-    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">moliere_matrix</span>
     <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">moliere_force</span>
-
-    <span class="c1"># Force error calculated from eq.(43) in Ref.[1]_</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> \
-                    <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-    <span class="c1"># Renormalize</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">pbox_volume</span><span class="p">)</span></div>
+    <span class="c1"># Use Yukawa force error formula with the smallest screening length.</span>
+    <span class="c1"># This overestimates the Force error, but it doesn&#39;t matter.</span>
+    <span class="c1"># The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">force_error_analytic_pp</span><span class="p">(</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+    <span class="p">)</span></div>
 
 
 <span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
@@ -189,28 +229,17 @@
 <span class="sd">        Particles&#39; distance.</span>
 
 <span class="sd">    pot_matrix : numpy.ndarray</span>
-<span class="sd">        Moliere potential parameters.</span>
-
+<span class="sd">        Moliere potential parameters. \n</span>
+<span class="sd">        Shape = (7, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    phi : float</span>
-<span class="sd">        Potential</span>
+<span class="sd">    U : float</span>
+<span class="sd">        Potential.</span>
 
-<span class="sd">    fr : float</span>
-<span class="sd">        Force</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    See Wilson et al. PRB 15 2458 (1977) for parameters&#39; details</span>
-<span class="sd">    pot_matrix[0] = Z_1Z_2e^2/(4 np.pi eps_0)</span>
-<span class="sd">    pot_matrix[1] = C_1</span>
-<span class="sd">    pot_matrix[2] = C_2</span>
-<span class="sd">    pot_matrix[3] = C_3</span>
-<span class="sd">    pot_matrix[4] = b_1</span>
-<span class="sd">    pot_matrix[5] = b_2</span>
-<span class="sd">    pot_matrix[6] = b_3</span>
+<span class="sd">    force : float</span>
+<span class="sd">        Force between two particles.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">U</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -240,7 +269,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

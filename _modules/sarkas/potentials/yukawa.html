@@ -7,8 +7,8 @@
     <title>sarkas.potentials.yukawa &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -136,37 +136,57 @@
       
   <h1>Source code for sarkas.potentials.yukawa</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module for handling Yukawa interaction</span>
+<span class="sd">Module for handling Yukawa potential.</span>
+
+<span class="sd">Potential</span>
+<span class="sd">*********</span>
+
+<span class="sd">The Yukawa potential between two charges :math:`q_i` and :math:`q_j` at distant :math:`r` is defined as</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    U_{ab}(r) = \\frac{q_a q_b}{4 \\pi \\epsilon_0} \\frac{e^{- \\kappa r} }{r}.</span>
+
+<span class="sd">where :math:`\\kappa = 1/\\lambda` is the screening parameter.</span>
+
+<span class="sd">Potential Attributes</span>
+<span class="sd">********************</span>
+
+<span class="sd">The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">    pot_matrix[0] = q_iq_j^2/(4 pi eps0)</span>
+<span class="sd">    pot_matrix[1] = 1/lambda</span>
+<span class="sd">    pot_matrix[2] = Ewald screening parameter</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
+<span class="kn">from</span> <span class="nn">sarkas.utilities.maths</span> <span class="kn">import</span> <span class="n">force_error_analytic_pp</span>
 
 
 <span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">yukawa_force_pppm</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates Potential and Force between two particles when the P3M algorithm is chosen.</span>
+<span class="sd">    Calculates Potential and Force between two particles when the pppm algorithm is chosen.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    r : float</span>
 <span class="sd">        Distance between two particles.</span>
 
-<span class="sd">    pot_matrix : array</span>
-<span class="sd">        Potential matrix. See setup function above.</span>
+<span class="sd">    pot_matrix : numpy.ndarray</span>
+<span class="sd">        It contains potential dependent variables. \n</span>
+<span class="sd">        Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    U_s_r : float</span>
+<span class="sd">    U : float</span>
 <span class="sd">        Potential value</span>
 
 <span class="sd">    fr : float</span>
-<span class="sd">        Force between two particles calculated using eq.(22) in Ref. [Dharuman2017] .</span>
-
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-<span class="sd">    .. [Dharuman2017]: `Dharuman et al. J. Chem. Phys. 146, 024112 (2017) &lt;https://doi.org/10.1063/1.4973842&gt;`_</span>
+<span class="sd">        Force between two particles calculated using eq.(22) in :cite:`Dharuman2017`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">kappa</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -175,7 +195,7 @@
     <span class="n">kappa_alpha</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">/</span> <span class="n">alpha</span>
     <span class="n">alpha_r</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span>
     <span class="n">kappa_r</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">r</span>
-    <span class="n">U_s_r</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha_r</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">kappa_alpha</span><span class="p">)</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha_r</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">kappa_alpha</span><span class="p">)</span>
                                          <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha_r</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">kappa_alpha</span><span class="p">))</span>
     <span class="c1"># Derivative of the exponential term and 1/r</span>
     <span class="n">f1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kappa</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">alpha_r</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">kappa_alpha</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">r</span> <span class="o">-</span> <span class="n">kappa</span><span class="p">)</span>
@@ -185,7 +205,7 @@
                                               <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">alpha_r</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">kappa_alpha</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa_r</span><span class="p">))</span>
     <span class="n">fr</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span> <span class="o">+</span> <span class="n">f3</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">U_s_r</span><span class="p">,</span> <span class="n">fr</span>
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">fr</span>
 
 
 <span class="nd">@njit</span>
@@ -198,8 +218,9 @@
 <span class="sd">    r : float</span>
 <span class="sd">        Distance between two particles.</span>
 
-<span class="sd">    pot_matrix : array</span>
-<span class="sd">        It contains potential dependent variables.</span>
+<span class="sd">    pot_matrix : numpy.ndarray</span>
+<span class="sd">        It contains potential dependent variables. \n</span>
+<span class="sd">        Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -211,9 +232,35 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">U</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
-    <span class="n">force</span> <span class="o">=</span> <span class="n">U</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">U</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span>
+
+
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">force_deriv</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the second derivative of the potential.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    r : float</span>
+<span class="sd">        Distance between particles</span>
+
+<span class="sd">    pot_matrix : numpy.ndarray</span>
+<span class="sd">        Values of the potential constants. \n</span>
+<span class="sd">        Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    f_dev : float</span>
+<span class="sd">        Second derivative of potential.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kappa_r</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span>
+    <span class="n">U2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa_r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">3</span>
+    <span class="n">f_dev</span> <span class="o">=</span> <span class="n">U2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">kappa_r</span><span class="p">)</span> <span class="o">+</span> <span class="n">kappa_r</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f_dev</span>
 
 
 <div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.yukawa.html#sarkas.potentials.yukawa.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
@@ -227,27 +274,34 @@
 
 <span class="sd">    params: sarkas.core.Parameters</span>
 <span class="sd">        Simulation&#39;s parameters.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;pppm&quot;</span><span class="p">:</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
 
-    <span class="n">twopi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
     <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
 
-    <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;PP&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;pp&quot;</span><span class="p">:</span>
+        <span class="c1"># The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">yukawa_force</span>
-        <span class="c1"># Force error calculated from eq.(43) in Ref.[1]_</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="n">twopi</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span>
-        <span class="c1"># Renormalize</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">*=</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">pbox_volume</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;P3M&quot;</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">force_error_analytic_pp</span><span class="p">(</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span><span class="o">/</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="c1"># # Force error calculated from eq.(43) in Ref.[1]_</span>
+        <span class="c1"># params.force_error = np.sqrt( TWOPI / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)</span>
+        <span class="c1"># # Renormalize</span>
+        <span class="c1"># params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)</span>
+    <span class="k">elif</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;pppm&quot;</span><span class="p">:</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">yukawa_force_pppm</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">pppm_alpha_ewald</span>
         <span class="c1"># PP force error calculation. Note that the equation was derived for a single component plasma.</span>
@@ -269,7 +323,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

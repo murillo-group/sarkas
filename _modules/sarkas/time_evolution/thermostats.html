@@ -7,8 +7,8 @@
     <title>sarkas.time_evolution.thermostats &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -138,6 +138,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module containing various thermostat. Berendsen only for now.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
 
@@ -224,11 +225,10 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;First thermostating timestep, i.e. relaxation_timestep = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Berendsen parameter tau: </span><span class="si">{:.3f}</span><span class="s2"> [timesteps]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">berendsen_tau</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Berendsen relaxation rate: </span><span class="si">{:.3f}</span><span class="s2"> [1/timesteps] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">))</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eV_temp_flag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_temp_flag</span><span class="p">:</span>
-            <span class="c1"># If you forgot to give thermostating temperatures</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Equilibration temperatures not defined. I will use the species&#39;s temperatures&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># if not self.eV_temp_flag and not self.K_temp_flag:</span>
+        <span class="c1">#     # If you forgot to give thermostating temperatures</span>
+        <span class="c1">#     warn(&quot;Equilibration temperatures not defined. &quot;</span>
+        <span class="c1">#          &quot;I will use the species&#39;s temperatures&quot;)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Thermostating temperatures: &quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t_ev</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">)):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Species ID </span><span class="si">{}</span><span class="s2">: T_eq = </span><span class="si">{:.6e}</span><span class="s2"> [K] = </span><span class="si">{:.6e}</span><span class="s2"> [eV]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t_ev</span><span class="p">))</span></div>
@@ -242,9 +242,15 @@
 <span class="sd">        params: sarkas.core.Parameters</span>
 <span class="sd">            Simulation&#39;s parameters</span>
 
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If a thermostat different than Berendsen is chosen.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Check whether you input temperatures in eV or K</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eV_temp_flag</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eV2K</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">)</span>
@@ -266,7 +272,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_masses</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;berendsen&quot;</span><span class="p">,</span> <span class="s2">&quot;Only Berendsen thermostat is supported.&quot;</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;berendsen&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only Berendsen thermostat is supported.&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -281,55 +288,9 @@
 <span class="sd">            Current timestep.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">K</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">kinetic_temperature</span><span class="p">()</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">kinetic_temperature</span><span class="p">()</span>
         <span class="n">berendsen</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span><span class="p">,</span>
                   <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span></div></div>
-
-
-<span class="nd">@njit</span>
-<span class="k">def</span> <span class="nf">calc_kin_temp</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="n">masses</span><span class="p">,</span> <span class="n">kB</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates the kinetic energy and temperature.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    kB: float</span>
-<span class="sd">        Boltzmann constant in chosen units.</span>
-
-<span class="sd">    masses: numpy.ndarray</span>
-<span class="sd">        Mass of each species.</span>
-
-<span class="sd">    nums: numpy.ndarray</span>
-<span class="sd">        Number of particles of each species.</span>
-
-<span class="sd">    vel: numpy.ndarray</span>
-<span class="sd">        Particles&#39; velocities.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    K : numpy.ndarray</span>
-<span class="sd">        Kinetic energy of each species.</span>
-
-<span class="sd">    T : numpy.ndarray</span>
-<span class="sd">        Temperature of each species.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">num_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
-
-    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_species</span><span class="p">)</span>
-    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_species</span><span class="p">)</span>
-    <span class="n">const</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">kB</span> <span class="o">*</span> <span class="n">nums</span> <span class="o">*</span> <span class="n">vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">kinetic_energies</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">masses</span> <span class="o">*</span> <span class="p">(</span><span class="n">vel</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-
-    <span class="n">species_start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">species_end</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nums</span><span class="p">):</span>
-        <span class="n">species_end</span> <span class="o">+=</span> <span class="n">num</span>
-        <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kinetic_energies</span><span class="p">[:,</span> <span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">])</span>
-        <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">const</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">species_start</span> <span class="o">+=</span> <span class="n">num</span>
-
-    <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">T</span>
 
 
 <span class="nd">@njit</span>
@@ -394,7 +355,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

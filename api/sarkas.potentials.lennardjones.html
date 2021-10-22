@@ -8,8 +8,8 @@
     <title>sarkas.potentials.lennardjones module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -21,6 +21,8 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
@@ -108,7 +110,12 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">sarkas.potentials.lennardjones module</a></li>
+<li><a class="reference internal" href="#">sarkas.potentials.lennardjones module</a><ul>
+<li><a class="reference internal" href="#potential">Potential</a></li>
+<li><a class="reference internal" href="#force-error">Force Error</a></li>
+<li><a class="reference internal" href="#potential-attributes">Potential Attributes</a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -142,16 +149,55 @@
       
   <section id="module-sarkas.potentials.lennardjones">
 <span id="sarkas-potentials-lennardjones-module"></span><h1>sarkas.potentials.lennardjones module<a class="headerlink" href="#module-sarkas.potentials.lennardjones" title="Permalink to this headline">¶</a></h1>
-<p>Module for handling Lennard-Jones interaction</p>
+<p>Module for handling Lennard-Jones interaction.</p>
+<section id="potential">
+<h2>Potential<a class="headerlink" href="#potential" title="Permalink to this headline">¶</a></h2>
+<p>The generalized Lennard-Jones potential is defined as</p>
+<div class="math notranslate nohighlight">
+\[U_{\mu\nu}(r) = k \epsilon_{\mu\nu} \left [ \left ( \frac{\sigma_{\mu\nu}}{r}\right )^m -
+\left ( \frac{\sigma_{\mu\nu}}{r}\right )^n \right ],\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[k = \frac{n}{m-n} \left ( \frac{n}{m} \right )^{\frac{m}{n-m}}.\]</div>
+<p>In the case of multispecies liquids we use the <a class="reference external" href="https://en.wikipedia.org/wiki/Combining_rules">Lorentz-Berthelot</a>
+mixing rules</p>
+<div class="math notranslate nohighlight">
+\[\epsilon_{12} = \sqrt{\epsilon_{11} \epsilon_{22}}, \quad \sigma_{12} = \frac{\sigma_{11} + \sigma_{22}}{2}.\]</div>
+</section>
+<section id="force-error">
+<h2>Force Error<a class="headerlink" href="#force-error" title="Permalink to this headline">¶</a></h2>
+<p>The force error for the LJ potential is given by</p>
+<div class="math notranslate nohighlight">
+\[\Delta F = \frac{k\epsilon}{ \sqrt{2\pi n}} \left [ \frac{m^2 \sigma^{2m}}{2m - 1} \frac{1}{r_c^{2m -1}}
++ \frac{n^2 \sigma^{2n}}{2n - 1} \frac{1}{r_c^{2n -1}} \
+-\frac{2 m n \sigma^{m + n}}{m + n - 1} \frac{1}{r_c^{m + n -1}} \
+\right ]^{1/2}\]</div>
+<p>which we approximate with the first term only</p>
+<div class="math notranslate nohighlight">
+\[\Delta F \approx \frac{k\epsilon} {\sqrt{2\pi n} }
+\left [ \frac{m^2 \sigma^{2m}}{2m - 1} \frac{1}{r_c^{2m -1}} \right ]^{1/2}\]</div>
+</section>
+<section id="potential-attributes">
+<h2>Potential Attributes<a class="headerlink" href="#potential-attributes" title="Permalink to this headline">¶</a></h2>
+<p>The elements of the <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.potentials.core.Potential.pot_matrix</span></code> are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">epsilon_12</span> <span class="o">*</span> <span class="n">lj_constant</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigmas</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">highest</span> <span class="n">power</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">lowest</span> <span class="n">power</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">short</span><span class="o">-</span><span class="nb">range</span> <span class="n">cutoff</span>
+</pre></div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.potentials.lennardjones.lj_force">
-<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.lennardjones.</span></span><span class="sig-name descname"><span class="pre">lj_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix_ij</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.lennardjones.lj_force" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sarkas.potentials.lennardjones.</span></span><span class="sig-name descname"><span class="pre">lj_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.lennardjones.lj_force" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the PP force between particles using Lennard-Jones Potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pot_matrix_ij</strong> (<em>array</em>) – LJ potential parameters.</p></li>
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Particles’ distance.</p></li>
+<li><p><strong>r_in</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Particles’ distance.</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>LJ potential parameters.</p>
+<p>Shape = (5, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>)</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -179,6 +225,7 @@
 </dd></dl>
 
 </section>
+</section>
 
 
     </div>
@@ -193,7 +240,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

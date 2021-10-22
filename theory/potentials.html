@@ -8,8 +8,8 @@
     <title>Potentials &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -114,7 +114,7 @@
 <li><a class="reference internal" href="#coulomb-potential">Coulomb Potential</a></li>
 <li><a class="reference internal" href="#yukawa-potential">Yukawa Potential</a></li>
 <li><a class="reference internal" href="#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
-<li><a class="reference internal" href="#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li><a class="reference internal" href="#quantum-statistical-potentials">Quantum Statistical Potentials</a></li>
 <li><a class="reference internal" href="#moliere-potential">Moliere Potential</a></li>
 <li><a class="reference internal" href="#lennard-jones">Lennard Jones</a></li>
 </ul>
@@ -201,7 +201,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#coulomb-potential">Coulomb Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#yukawa-potential">Yukawa Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quantum-statistical-potentials">Quantum Statistical Potentials</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#moliere-potential">Moliere Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lennard-jones">Lennard Jones</a></li>
 </ul>
@@ -372,7 +372,7 @@ All the equations will be given in cgs units, however, for easy conversion, we d
 <p>Two charged particle with charge numbers <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> interact with each other via the Coulomb potential
 given by</p>
 <div class="math notranslate nohighlight">
-\[V(r) = \frac{Z_{a}Z_b\bar{e}^2}{r}.\]</div>
+\[U_{ab}(r) = \frac{Z_{a}Z_b\bar{e}^2}{r}.\]</div>
 <p>where <span class="math notranslate nohighlight">\(r\)</span> is the distance between ions, <span class="math notranslate nohighlight">\(e\)</span> is the elementary charge.</p>
 </section>
 <section id="yukawa-potential">
@@ -381,7 +381,7 @@ given by</p>
 of positively charged ions in a uniform background of electrons. The form of the Yukawa potential for two ions of charge
 number <span class="math notranslate nohighlight">\(Z_a\)</span> and <span class="math notranslate nohighlight">\(Z_b\)</span> is given by</p>
 <div class="math notranslate nohighlight">
-\[V(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{- r /\lambda_{\textrm{TF}}}, \quad \kappa = \frac{a_{\textrm{ws}}}{\lambda_{\textrm{TF}} }\]</div>
+\[U_{ab}(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{- r /\lambda_{\textrm{TF}}}, \quad \kappa = \frac{a_{\textrm{ws}}}{\lambda_{\textrm{TF}} }\]</div>
 <p>where <span class="math notranslate nohighlight">\(\lambda_{\textrm{TF}}\)</span> is the Thomas-Fermi wavelength and <span class="math notranslate nohighlight">\(\kappa\)</span> is the screening parameter.
 In Sarkas <span class="math notranslate nohighlight">\(\kappa\)</span> can be given as an input or it can be calculated from the
 <a class="reference internal" href="electron_properties.html#thomas-fermi-wavelength"><span class="std std-ref">Thomas-Fermi Wavelength</span></a> formula.</p>
@@ -391,7 +391,7 @@ In Sarkas <span class="math notranslate nohighlight">\(\kappa\)</span> can be gi
 <span id="egs-pot"></span><h2>Exact Gradient-corrected Screened Yukawa Potential<a class="headerlink" href="#exact-gradient-corrected-screened-yukawa-potential" title="Permalink to this headline">¶</a></h2>
 <p>The Yukawa potential is derived on the assumption that the electron gas behaves as an ideal Fermi gas.
 Improvements in this theory can be achieved by considering density gradients and exchange-correlation effects.
-Stanton and Murillo <span id="id1">[<a class="reference internal" href="references.html#id13" title="L. G. Stanton and M. S. Murillo. Unified description of linear screening in dense plasmas. Phys. Rev. E, 91:033104, Mar 2015. URL: https://link.aps.org/doi/10.1103/PhysRevE.91.033104, doi:10.1103/PhysRevE.91.033104.">Stanton and Murillo, 2015</a>]</span>, using a DFT formalism, derived an exact-gradient corrected ion pair potential
+Stanton and Murillo <span id="id1">[<a class="reference internal" href="references.html#id16" title="L. G. Stanton and M. S. Murillo. Unified description of linear screening in dense plasmas. Phys. Rev. E, 91:033104, Mar 2015. URL: https://link.aps.org/doi/10.1103/PhysRevE.91.033104, doi:10.1103/PhysRevE.91.033104.">Stanton and Murillo, 2015</a>]</span>, using a DFT formalism, derived an exact-gradient corrected ion pair potential
 across a wide range of densities and temperatures.</p>
 <p>The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs.
 Density gradient corrections to the free energy functional lead to the first parameter, <span class="math notranslate nohighlight">\(\nu\)</span>,</p>
@@ -402,14 +402,14 @@ and <span class="math notranslate nohighlight">\(\lambda = 1\)</span> for the tr
 <a class="reference internal" href="electron_properties.html#fermi-integral"><span class="std std-ref">Fermi Integral</span></a> of order <span class="math notranslate nohighlight">\(-1/2\)</span>, and <span class="math notranslate nohighlight">\(\Lambda_e\)</span> is the <a class="reference internal" href="electron_properties.html#de-broglie-wavelength"><span class="std std-ref">de Broglie wavelength</span></a> of the electrons.</p>
 <p>In the case <span class="math notranslate nohighlight">\(\nu &lt; 1\)</span> the EGS potential takes the form</p>
 <div class="math notranslate nohighlight">
-\[V(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],\]</div>
+\[U_{ab}(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],\]</div>
 <p>with</p>
 <div class="math notranslate nohighlight">
 \[\lambda_\pm^2 = \frac{\nu \lambda_{\textrm{TF}}^2}{2b \pm 2b\sqrt{1 - \nu}}, \quad \alpha = \frac{b}{\sqrt{b - \nu}},\]</div>
 <p>where the parameter <span class="math notranslate nohighlight">\(b\)</span> arises from exchange-correlation contributions, see below.
 On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</span>, the pair potential has the form</p>
 <div class="math notranslate nohighlight">
-\[V(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}\]</div>
+\[U_{ab}(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}\]</div>
 <p>with</p>
 <div class="math notranslate nohighlight">
 \[\gamma_\pm^2 = \frac{\nu\lambda_{\textrm{TF}}^2}{\sqrt{\nu} \pm b}, \quad \alpha' = \frac{b}{\sqrt{\nu - b}}.\]</div>
@@ -425,19 +425,37 @@ On the other hand <span class="math notranslate nohighlight">\(\nu &gt; 1\)</spa
 <div class="math notranslate nohighlight">
 \[D \left ( \Theta \right ) = 1 + 3.9431\Theta^2 + 7.9138\Theta^4.\]</div>
 </section>
-<section id="quantum-statistical-potential">
-<span id="qsp-pot"></span><h2>Quantum Statistical Potential<a class="headerlink" href="#quantum-statistical-potential" title="Permalink to this headline">¶</a></h2>
-<p>The Quantum Statistical Potential between two charged particles <span class="math notranslate nohighlight">\(a,b\)</span> used in Sarkas is given by eq.(5)
-in <span id="id2">[<a class="reference internal" href="references.html#id14" title="J. N. Glosli, F. R. Graziani, R. M. More, M. S. Murillo, F. H. Streitz, M. P. Surh, L. X. Benedict, S. Hau-Riege, A. B. Langdon, and R. A. London. Molecular dynamics simulations of temperature equilibration in dense hydrogen. Physical Review E - Statistical, Nonlinear, and Soft Matter Physics, aug 2008. doi:10.1103/PhysRevE.78.025401.">Glosli <em>et al.</em>, 2008</a>]</span></p>
+<section id="quantum-statistical-potentials">
+<span id="qsp-pot"></span><h2>Quantum Statistical Potentials<a class="headerlink" href="#quantum-statistical-potentials" title="Permalink to this headline">¶</a></h2>
+<p>An extensive review on Quantum Statistical Potentials is given in <span id="id2">[<a class="reference internal" href="references.html#id4" title="Christopher S Jones and Michael S Murillo. Analysis of semi-classical potentials for molecular dynamics and monte carlo simulations of warm dense matter. High energy density physics, 3(3-4):379–394, 2007.">Jones and Murillo, 2007</a>]</span>. The following module uses that as
+the main reference.</p>
+<p>Quantum Statistical Potentials are defined by three terms</p>
 <div class="math notranslate nohighlight">
-\[\phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left ( 1 - e^{ - 2\pi r/\Lambda_{ab}}\right ) + \delta_{ae} \delta_{be} k_BT \ln(2) \exp \left \{ - \frac{4 \pi r^2}{\Lambda_{ab}^2 \ln (2)} \right \}\]</div>
-<p>where the screening length <span class="math notranslate nohighlight">\(\Lambda_{ab}\)</span> is the thermal de Broglie wavelength between the two charges defined as</p>
+\[U(r) = U_{\textrm{pauli}}(r) + U_{\textrm{coul}}(r) + U_{\textrm{diff} }(r)\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[U_{\textrm{pauli}}(r) = - k_BT \ln \left [ 1 - \frac{1}{2} \exp \left ( - 2\pi r^2/ \Lambda^2 \right ) \right ]\]</div>
+<p>is due to the Pauli exclusion principle and it accounts for spin-averaged effects,</p>
+<div class="math notranslate nohighlight">
+\[U_{\textrm{coul}}(r) = \frac{Z_a Z_b \bar{e}^2}{r}\]</div>
+<p>is the usual Coulomb interaction between two charged particles with charge numbers <span class="math notranslate nohighlight">\(Z_a,Z_b\)</span>,
+and <span class="math notranslate nohighlight">\(U_{\textrm{diff}}(r)\)</span> is a diffraction term. There are two possibilities for
+the diffraction term. The most common is the Deutsch potential</p>
+<div class="math notranslate nohighlight">
+\[U_{\textrm{deutsch}}(r) = \frac{Z_a Z_b \bar{e}^2}{r} e^{ - 2\pi r/\Lambda_{ab}}.\]</div>
+<p>The second most common form is the Kelbg potential</p>
+<div class="math notranslate nohighlight">
+\[U_{\textrm{kelbg}}(r) = - \frac{Z_a Z_b \bar{e}^2}{r} \left [  e^{- 2 \pi r^2/\Lambda_{ab}^2 }
+- \sqrt{2} \pi \frac{r}{\Lambda_{ab}} \textrm{erfc} \left ( \sqrt{ 2\pi}  r/ \Lambda_{ab} \right )
+\right ]\]</div>
+<p>In the above equations the screening length <span class="math notranslate nohighlight">\(\Lambda_{ab}\)</span> is the thermal de Broglie wavelength
+between the two charges defined as</p>
 <div class="math notranslate nohighlight">
 \[\Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}}, \quad  \mu_{ab} = \frac{m_a m_b}{m_a + m_b}\]</div>
-<p>The last term, present only in the interaction between two electrons, accounts for spin-averaged effects.</p>
-<p>Note that the de Broglie wavelength is defined differently in <span id="id3">[<a class="reference internal" href="references.html#id15" title="J. P. Hansen and I. R. McDonald. Microscopic simulation of a strongly coupled hydrogen plasma. Physical Review A, 23(4):2041–2059, 1981. doi:10.1103/PhysRevA.23.2041.">Hansen and McDonald, 1981</a>]</span> hence the factor of <span class="math notranslate nohighlight">\(2\pi\)</span> in
-the exponential. The long range part of the potential is computed using the PPPM algorithm where only the
-<span class="math notranslate nohighlight">\(1/r\)</span> term is split into a short range and long range part.</p>
+<p>Note that the de Broglie wavelength is defined differently in <span id="id3">[<a class="reference internal" href="references.html#id18" title="J. P. Hansen and I. R. McDonald. Microscopic simulation of a strongly coupled hydrogen plasma. Physical Review A, 23(4):2041–2059, 1981. doi:10.1103/PhysRevA.23.2041.">Hansen and McDonald, 1981</a>]</span> hence the factor of <span class="math notranslate nohighlight">\(2\pi\)</span> in
+the exponential.</p>
+<p>The long range part of the potential is computed using the PPPM algorithm where only the
+<span class="math notranslate nohighlight">\(U_{\textrm{coul}}(r)\)</span> term is split into a short range and long range part.</p>
 <p>The choice of this potential is due to its widespread use in the High Energy Density Physics community.</p>
 </section>
 <section id="moliere-potential">
@@ -448,7 +466,7 @@ the exponential. The long range part of the potential is computed using the PPPM
 <p>with the contraint</p>
 <div class="math notranslate nohighlight">
 \[\sum_{j}^{3} C_j  = 1\]</div>
-<p>more info can be found in <span id="id4">[<a class="reference internal" href="references.html#id17" title="W. D. Wilson, L. G. Haggmark, and J. P. Biersack. Calculations of nuclear stopping, ranges, and straggling in the low-energy region. Phys. Rev. B, 15:2458–2468, Mar 1977. URL: https://link.aps.org/doi/10.1103/PhysRevB.15.2458, doi:10.1103/PhysRevB.15.2458.">Wilson <em>et al.</em>, 1977</a>]</span></p>
+<p>more info can be found in <span id="id4">[<a class="reference internal" href="references.html#id20" title="W. D. Wilson, L. G. Haggmark, and J. P. Biersack. Calculations of nuclear stopping, ranges, and straggling in the low-energy region. Phys. Rev. B, 15:2458–2468, Mar 1977. URL: https://link.aps.org/doi/10.1103/PhysRevB.15.2458, doi:10.1103/PhysRevB.15.2458.">Wilson <em>et al.</em>, 1977</a>]</span></p>
 </section>
 <section id="lennard-jones">
 <span id="lj-pot"></span><h2>Lennard Jones<a class="headerlink" href="#lennard-jones" title="Permalink to this headline">¶</a></h2>
@@ -479,7 +497,7 @@ mixing rules</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

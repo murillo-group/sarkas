@@ -8,8 +8,8 @@
     <title>sarkas.processes module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -21,8 +21,6 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
@@ -145,12 +143,6 @@
   <section id="module-sarkas.processes">
 <span id="sarkas-processes-module"></span><h1>sarkas.processes module<a class="headerlink" href="#module-sarkas.processes" title="Permalink to this headline">¶</a></h1>
 <p>Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="sarkas.processes.Gk">
-<span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">Gk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.processes.Gk" title="Permalink to this definition">¶</a></dt>
-<dd><p>Green’s function of Coulomb/Yukawa potential.</p>
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.processes.PostProcess">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">PostProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PostProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PostProcess" title="Permalink to this definition">¶</a></dt>
@@ -158,7 +150,7 @@
 <p>Class handling the post-processing stage of a simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Path to the YAML input file.</p>
+<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the YAML input file.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -187,7 +179,7 @@
 <p>Wrapper class handling the estimation of time and best parameters of a simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Path to the YAML input file.</p>
+<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the YAML input file.</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -196,7 +188,7 @@
 <dd><p>Number of timesteps to run for time and size estimates. Default = 10</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -207,7 +199,7 @@
 <dd><p>Run an estimate for the best PPPM parameters in the simulation. Default=False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -240,7 +232,7 @@
 <dd><p>Screening parameter. Calculated from <a class="reference internal" href="sarkas.potentials.core.html#sarkas.potentials.core.Potential.matrix" title="sarkas.potentials.core.Potential.matrix"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.potentials.core.Potential.matrix()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -254,7 +246,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="sarkas.processes.PreProcess.analytical_approx_pppm">
 <span class="sig-name descname"><span class="pre">analytical_approx_pppm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.analytical_approx_pppm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.analytical_approx_pppm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the total force error as given in Dharuman et al. J Chem Phys 146 024112 (2017).</p>
+<dd><p>Calculate the total force error as given in <span id="id1">[<a class="reference internal" href="../theory/references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>]</span>.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -272,8 +264,8 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rcuts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Cut off distances.</p></li>
 <li><p><strong>alphas</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Ewald parameters.</p></li>
-<li><p><strong>chosen_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen Ewald parameter.</p></li>
-<li><p><strong>chosen_rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen cut off radius.</p></li>
+<li><p><strong>chosen_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Chosen Ewald parameter.</p></li>
+<li><p><strong>chosen_rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Chosen cut off radius.</p></li>
 <li><p><strong>total_force_error</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Force error matrix.</p></li>
 </ul>
 </dd>
@@ -305,8 +297,8 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rcuts</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Cut off distances.</p></li>
 <li><p><strong>alphas</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Ewald parameters.</p></li>
-<li><p><strong>chosen_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen Ewald parameter.</p></li>
-<li><p><strong>chosen_rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Chosen cut off radius.</p></li>
+<li><p><strong>chosen_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Chosen Ewald parameter.</p></li>
+<li><p><strong>chosen_rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Chosen cut off radius.</p></li>
 <li><p><strong>total_force_error</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Force error matrix.</p></li>
 </ul>
 </dd>
@@ -322,7 +314,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="sarkas.processes.PreProcess.pppm_approximation">
 <span class="sig-name descname"><span class="pre">pppm_approximation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.pppm_approximation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.pppm_approximation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Force error for a PPPM simulation using analytical approximations.
+<dd><p>Calculate the Force error for a PPPM simulation
+using analytical approximations.
 Plot the force error in the parameter space.</p>
 </dd></dl>
 
@@ -333,14 +326,14 @@ Plot the force error in the parameter space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>loops</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of loops over which to average the acceleration calculation.
+<li><p><strong>loops</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of loops over which to average the acceleration calculation.
 Note that the number of timestep over which to averages is three times this value.
 Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.</p></li>
-<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating simulation times. Default =True.</p></li>
-<li><p><strong>timing_study</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for estimating time for simulation parameters.</p></li>
-<li><p><strong>pppm_estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for showing the force error plots in case of pppm algorithm.</p></li>
-<li><p><strong>postprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for calculating Post processing parameters.</p></li>
-<li><p><strong>remove</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for removing energy files and dumps created during times estimation. Default = False.</p></li>
+<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for estimating simulation times. Default =True.</p></li>
+<li><p><strong>timing_study</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for estimating time for simulation parameters.</p></li>
+<li><p><strong>pppm_estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for showing the force error plots in case of pppm algorithm.</p></li>
+<li><p><strong>postprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for calculating Post processing parameters.</p></li>
+<li><p><strong>remove</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for removing energy files and dumps created during times estimation. Default = False.</p></li>
 </ul>
 </dd>
 </dl>
@@ -362,11 +355,11 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.processes.Process">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">Process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Stage of a Molecular Dynamics simulation. This is the Parent class for PreProcess, Simulation, and PostProcess.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Path to the YAML input file.</p>
+<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the YAML input file.</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -430,7 +423,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>List of <a class="reference internal" href="sarkas.core.html#sarkas.core.Species" title="sarkas.core.Species"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.core.Species()</span></code></a> classes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -441,7 +434,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Path to YAML input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -474,10 +467,10 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Parse simulation parameters from YAML file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Input YAML file</p>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Input YAML file</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -495,8 +488,8 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>read_yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for reading YAML input file. Default = False.</p></li>
-<li><p><strong>other_inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Dictionary with additional simulations options.</p></li>
+<li><p><strong>read_yaml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for reading YAML input file. Default = False.</p></li>
+<li><p><strong>other_inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Dictionary with additional simulations options.</p></li>
 </ul>
 </dd>
 </dl>
@@ -511,7 +504,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <p>Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Path to the YAML input file.</p>
+<dd class="field-odd"><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the YAML input file.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -520,7 +513,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -531,7 +524,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Run the time integrator to evolve the system for the duration of the production phase.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -542,45 +535,11 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 <dd><p>Run the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sarkas.processes.analytical_approx_pppm_single">
-<span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">analytical_approx_pppm_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.processes.analytical_approx_pppm_single" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the total force error for a given value of <code class="docutils literal notranslate"><span class="pre">rc</span></code> and <code class="docutils literal notranslate"><span class="pre">alpha</span></code>. See similar function above.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sarkas.processes.betamp">
-<span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">betamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.processes.betamp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate <span class="math notranslate nohighlight">\(eta(m)\)</span> of eq.(37) in Dharuman et al. J Chem Phys 146 024112 (2017)</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sarkas.processes.pm_time_model">
-<span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">pm_time_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#pm_time_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.pm_time_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Quadratic function for fitting.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>array</em>) – Values at which to calculate the function.</p></li>
-<li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Intercept.</p></li>
-<li><p><strong>b</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Coefficient of linear term.</p></li>
-<li><p><strong>c</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Coefficient of quadratic term.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>quadratic formula</p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
@@ -598,7 +557,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

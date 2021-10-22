@@ -8,8 +8,8 @@
     <title>Force Error &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -193,7 +193,7 @@
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#coulomb-potential">Coulomb Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#yukawa-potential">Yukawa Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#quantum-statistical-potentials">Quantum Statistical Potentials</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#moliere-potential">Moliere Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#lennard-jones">Lennard Jones</a></li>
 </ul>
@@ -344,7 +344,7 @@
   <section id="force-error">
 <h1>Force Error<a class="headerlink" href="#force-error" title="Permalink to this headline">¶</a></h1>
 <p>The Force error is the error incurred when we cut the potential interaction after a certain distance. Following the works
-of <span id="id1">[<a class="reference internal" href="references.html#id8" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>, <a class="reference internal" href="references.html#id2" title="Jiri Kolafa and John W. Perram. Cutoff errors in the ewald summation formulae for point charge systems. Molecular Simulation, 9(5):351-368, 1992. doi:10.1080/08927029208049126.">Kolafa and Perram, 1992</a>, <a class="reference internal" href="references.html#id10" title="Harry A. Stern and Keith G. Calkins. On mesh-based ewald methods: optimal parameters for two differentiation schemes. The Journal of Chemical Physics, 128(21):214106, 2008. doi:10.1063/1.2932253.">Stern and Calkins, 2008</a>]</span> we define the total force error for our P3M algorithm as</p>
+of <span id="id1">[<a class="reference internal" href="references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>, <a class="reference internal" href="references.html#id2" title="Jiri Kolafa and John W. Perram. Cutoff errors in the ewald summation formulae for point charge systems. Molecular Simulation, 9(5):351-368, 1992. doi:10.1080/08927029208049126.">Kolafa and Perram, 1992</a>, <a class="reference internal" href="references.html#id13" title="Harry A. Stern and Keith G. Calkins. On mesh-based ewald methods: optimal parameters for two differentiation schemes. The Journal of Chemical Physics, 128(21):214106, 2008. doi:10.1063/1.2932253.">Stern and Calkins, 2008</a>]</span> we define the total force error for our P3M algorithm as</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\textrm{tot}} = \sqrt{ \Delta F_{\mathcal R}^2 + \Delta F_{\mathcal F}^2 }\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta F_{\mathcal R}\)</span> is the error obtained in the PP part of the force calculation and
@@ -398,7 +398,7 @@ the equation for <span class="math notranslate nohighlight">\(\Delta F_{\mathcal
 see in the second part of the output the time it takes to calculate <span class="math notranslate nohighlight">\(G_{\mathbf k}\)</span> is in the order of seconds,
 thus, a loop over several <span class="math notranslate nohighlight">\(\alpha\)</span> values would be very time consuming. Fortunately researchers
 have calculated an analytical approximation allowing for the exploration of the whole <span class="math notranslate nohighlight">\(r_c,\; \alpha\)</span> parameter
-space <span id="id2">[<a class="reference internal" href="references.html#id8" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>]</span>. The equations of this approximation are</p>
+space <span id="id2">[<a class="reference internal" href="references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>]</span>. The equations of this approximation are</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\mathcal F}^{(\textrm{approx})} \simeq Q^2 \sqrt{\frac{N}{V}} A_{\mathcal F}^{1/2},\]</div>
 <div class="math notranslate nohighlight">
@@ -427,7 +427,7 @@ space <span id="id2">[<a class="reference internal" href="references.html#id8" t
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

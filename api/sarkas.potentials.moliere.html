@@ -8,8 +8,8 @@
     <title>sarkas.potentials.moliere module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -21,6 +21,8 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
@@ -108,7 +110,12 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">sarkas.potentials.moliere module</a></li>
+<li><a class="reference internal" href="#">sarkas.potentials.moliere module</a><ul>
+<li><a class="reference internal" href="#potential">Potential</a></li>
+<li><a class="reference internal" href="#force-error">Force Error</a></li>
+<li><a class="reference internal" href="#potential-attributes">Potential Attributes</a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -142,7 +149,34 @@
       
   <section id="module-sarkas.potentials.moliere">
 <span id="sarkas-potentials-moliere-module"></span><h1>sarkas.potentials.moliere module<a class="headerlink" href="#module-sarkas.potentials.moliere" title="Permalink to this headline">¶</a></h1>
-<p>Module for handling Moliere Potential</p>
+<p>Module for handling Moliere Potential.</p>
+<section id="potential">
+<h2>Potential<a class="headerlink" href="#potential" title="Permalink to this headline">¶</a></h2>
+<p>The Moliere Potential is defined as</p>
+<div class="math notranslate nohighlight">
+\[U(r) = \frac{q_i q_j}{4 \pi \epsilon_0} \frac{1}{r} \sum_{\alpha} C_{\alpha} e^{- b_{\alpha} r}.\]</div>
+<p>For more details see <span id="id1">[<a class="reference internal" href="../theory/references.html#id20" title="W. D. Wilson, L. G. Haggmark, and J. P. Biersack. Calculations of nuclear stopping, ranges, and straggling in the low-energy region. Phys. Rev. B, 15:2458–2468, Mar 1977. URL: https://link.aps.org/doi/10.1103/PhysRevB.15.2458, doi:10.1103/PhysRevB.15.2458.">Wilson <em>et al.</em>, 1977</a>]</span>. Note that the parameters <span class="math notranslate nohighlight">\(b\)</span> are not normalized by the Bohr radius.
+They should be passed with the correct units [m] if mks or [cm] if cgs.</p>
+</section>
+<section id="force-error">
+<h2>Force Error<a class="headerlink" href="#force-error" title="Permalink to this headline">¶</a></h2>
+<p>The force error is calculated from the Yukawa’s formula with the smallest screening length.</p>
+<div class="math notranslate nohighlight">
+\[\Delta F = \frac{q^2}{4 \pi \epsilon_0} \sqrt{2 \pi n b_{\textrm min} }e^{-b_{\textrm min} r_c},\]</div>
+<p>This overestimates it, but it doesn’t matter.</p>
+</section>
+<section id="potential-attributes">
+<h2>Potential Attributes<a class="headerlink" href="#potential-attributes" title="Permalink to this headline">¶</a></h2>
+<p>The elements of the <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.potentials.core.Potential.pot_matrix</span></code> are:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_iq_je</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span> <span class="n">pi</span> <span class="n">eps_0</span><span class="p">)</span> <span class="n">Force</span> <span class="n">factor</span> <span class="n">between</span> <span class="n">two</span> <span class="n">particles</span><span class="o">.</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_1</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_2</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_3</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">b_1</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">b_2</span>
+<span class="n">pot_matrix</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">b_3</span>
+</pre></div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.potentials.moliere.moliere_force">
 <span class="sig-prename descclassname"><span class="pre">sarkas.potentials.moliere.</span></span><span class="sig-name descname"><span class="pre">moliere_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.potentials.moliere.moliere_force" title="Permalink to this definition">¶</a></dt>
@@ -150,14 +184,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Particles’ distance.</p></li>
-<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Moliere potential parameters.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Particles’ distance.</p></li>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>Moliere potential parameters.</p>
+<p>Shape = (7, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>)</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>phi</strong> (<em>float</em>) – Potential</p></li>
-<li><p><strong>fr</strong> (<em>float</em>) – Force</p></li>
+<li><p><strong>U</strong> (<em>float</em>) – Potential.</p></li>
+<li><p><strong>force</strong> (<em>float</em>) – Force between two particles.</p></li>
 </ul>
 </p>
 </dd>
@@ -179,6 +215,7 @@
 </dd></dl>
 
 </section>
+</section>
 
 
     </div>
@@ -193,7 +230,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

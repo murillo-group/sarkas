@@ -8,8 +8,8 @@
     <title>Integrators &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -198,7 +198,7 @@
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#coulomb-potential">Coulomb Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#yukawa-potential">Yukawa Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#exact-gradient-corrected-screened-yukawa-potential">Exact Gradient-corrected Screened Yukawa Potential</a></li>
-<li class="toctree-l3"><a class="reference internal" href="potentials.html#quantum-statistical-potential">Quantum Statistical Potential</a></li>
+<li class="toctree-l3"><a class="reference internal" href="potentials.html#quantum-statistical-potentials">Quantum Statistical Potentials</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#moliere-potential">Moliere Potential</a></li>
 <li class="toctree-l3"><a class="reference internal" href="potentials.html#lennard-jones">Lennard Jones</a></li>
 </ul>
@@ -406,7 +406,7 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
 <section id="magnetic-velocity-verlet">
 <h2>Magnetic Velocity Verlet<a class="headerlink" href="#magnetic-velocity-verlet" title="Permalink to this headline">¶</a></h2>
 <p>A generalization to include constant external magnetic fields leads to the Liouville operator
-<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <span id="id2">[<a class="reference internal" href="references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
+<span class="math notranslate nohighlight">\(e^{i \epsilon( K + V + L_B)}\)</span> where <span id="id2">[<a class="reference internal" href="references.html#id14" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <div class="math notranslate nohighlight">
 \[L_B = \omega_c \left ( \hat{\mathbf B} \times \mathbf v \right ) \cdot \frac{\partial}{\partial \mathbf v}  = \omega_c \hat{\mathbf B} \cdot \left( \mathbf v \times \frac{\partial}{\partial \mathbf v} \right ) = \omega_c \hat{\mathbf B} \cdot \mathbf J_{\mathbf v}.\]</div>
 <p>Application of this operator leads to <span class="math notranslate nohighlight">\(e^{i \epsilon L_B}\vb{r}_0 = 0\)</span> and</p>
@@ -426,10 +426,10 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
 <p>Time integrators of various order can be found by exponential splitting, that is</p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx \prod_{ j = 1}^{N} e^{i a_j \epsilon K} e^{i b_j \epsilon \left ( L_B + V \right ) }.\]</div>
-<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <span id="id3">[<a class="reference internal" href="references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
+<p>The Boris algorithm, widely used in Particle in Cell simulations, corresponds to <span id="id3">[<a class="reference internal" href="references.html#id14" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>]</span></p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx e^{i \epsilon K} e^{i \epsilon V/2}  e^{i \epsilon L_B} e^{i \epsilon V/2}\]</div>
-<p>while a generalization of the Velocity-Verlet <span id="id4">[<a class="reference internal" href="references.html#id11" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>, <a class="reference internal" href="references.html#id9" title="Q Spreiter and M Walter. Classical molecular dynamics simulation with the velocity verlet algorithm at strong external magnetic fields. Journal of Computational Physics, 152(1):102–119, 1999. doi:10.1006/jcph.1999.6237.">Spreiter and Walter, 1999</a>]</span></p>
+<p>while a generalization of the Velocity-Verlet <span id="id4">[<a class="reference internal" href="references.html#id14" title="Siu A. Chin. Symplectic and energy-conserving algorithms for solving magnetic field trajectories. Physical Review E, 77(6):066401, 2008. doi:10.1103/PhysRevE.77.066401.">Chin, 2008</a>, <a class="reference internal" href="references.html#id12" title="Q Spreiter and M Walter. Classical molecular dynamics simulation with the velocity verlet algorithm at strong external magnetic fields. Journal of Computational Physics, 152(1):102–119, 1999. doi:10.1006/jcph.1999.6237.">Spreiter and Walter, 1999</a>]</span></p>
 <div class="math notranslate nohighlight">
 \[e^{i \epsilon \mathcal L} \approx  e^{i \epsilon (L_B + V) /2} e^{i \epsilon K} e^{i \epsilon ( L_B + V)/2}.\]</div>
 <p>Notice that all the above algorithm require one force calculation per time step.</p>
@@ -449,7 +449,7 @@ V = \mathbf a \cdot \pdv{\mathbf v}.\]</div>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

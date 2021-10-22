@@ -8,8 +8,8 @@
     <title>sarkas.utilities.io module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -26,8 +26,8 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sarkas.utilities.timing module" href="sarkas.utilities.timing.html" />
-    <link rel="prev" title="sarkas.utilities package" href="sarkas.utilities.html" />
+    <link rel="next" title="sarkas.utilities.maths module" href="sarkas.utilities.maths.html" />
+    <link rel="prev" title="sarkas.utilities.exceptions module" href="sarkas.utilities.exceptions.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -145,7 +145,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.utilities.io.InputOutput">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.utilities.io.</span></span><span class="sig-name descname"><span class="pre">InputOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sarkas.utilities.io.InputOutput.algorithm_info">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">algorithm_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/io.html#InputOutput.algorithm_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.utilities.io.InputOutput.algorithm_info" title="Permalink to this definition">¶</a></dt>
@@ -170,9 +170,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Simulation phase.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Simulation phase.</p></li>
 <li><p><strong>ptcls</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Particles" title="sarkas.core.Particles"><em>sarkas.core.Particles</em></a>) – Particles data.</p></li>
-<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Timestep number.</p></li>
+<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Timestep number.</p></li>
 </ul>
 </dd>
 </dl>
@@ -185,8 +185,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Phase from which to read dumps. ‘equilibration’ or ‘production’.</p></li>
-<li><p><strong>dump_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Interval of dumps to skip. Default = 1</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Phase from which to read dumps. ‘equilibration’ or ‘production’.</p></li>
+<li><p><strong>dump_skip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Interval of dumps to skip. Default = 1</p></li>
 </ul>
 </dd>
 </dl>
@@ -204,7 +204,7 @@
 <dd><p>Update attributes from input dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary to be copied.</p>
+<dd class="field-odd"><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Dictionary to be copied.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -215,13 +215,13 @@
 <dd><p>Parse inputs from YAML file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Input YAML file.</p>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Input YAML file.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>dics</strong> – Content of YAML file parsed in a nested dictionary</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -240,8 +240,8 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>simulation</strong> (<a class="reference internal" href="sarkas.processes.html#sarkas.processes.PostProcess" title="sarkas.processes.PostProcess"><em>sarkas.processes.PostProcess</em></a>) – Sarkas processing stage.</p></li>
-<li><p><strong>write_to_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Flag for printing info also to file. Default= False.</p></li>
-<li><p><strong>observable</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Observable whose info to print. Default = None.
+<li><p><strong>write_to_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for printing info also to file. Default= False.</p></li>
+<li><p><strong>observable</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Observable whose info to print. Default = None.
 Choices = [‘header’,’rdf’, ‘ccf’, ‘dsf’, ‘ssf’, ‘vm’]</p></li>
 </ul>
 </dd>
@@ -278,8 +278,8 @@ Choices = [‘header’,’rdf’, ‘ccf’, ‘dsf’, ‘ssf’, ‘vm’]</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Folder containing dumps.</p></li>
-<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Timestep to load.</p></li>
+<li><p><strong>fldr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Folder containing dumps.</p></li>
+<li><p><strong>it</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Timestep to load.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -309,7 +309,7 @@ sarkas.core.Simulation, sarkas.tools.PostProcess)</p>
 <dd><p>Read the desired pickle file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>class_to_read</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the class to read.</p>
+<dd class="field-odd"><p><strong>class_to_read</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of the class to read.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Desired class.</p>
@@ -382,8 +382,8 @@ If verbose output then it will print twice: the first time to file and second ti
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>time_stamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Array of time stamps.</p></li>
-<li><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Elapsed time.</p></li>
+<li><p><strong>time_stamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Array of time stamps.</p></li>
+<li><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Elapsed time.</p></li>
 </ul>
 </dd>
 </dl>
@@ -422,13 +422,13 @@ If verbose output then it will print twice: the first time to file and second ti
 (See Toothy’s implementation in the comments)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Text to be split into str and int</p>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Text to be split into str and int</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>List containing text and integers</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -448,7 +448,7 @@ If verbose output then it will print twice: the first time to file and second ti
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Sep 29, 2021.<br/>
+      Last updated on Oct 22, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
