@@ -227,31 +227,34 @@ class Potential:
             from sarkas.potentials import coulomb
             coulomb.update_params(self, params)
 
-        # Yukawa potential
-        if self.type == "yukawa":
-
+        elif self.type == "yukawa":
+            # Yukawa potential
             from sarkas.potentials import yukawa
             yukawa.update_params(self, params)
 
-        # exact gradient-corrected screening (EGS) potential
-        if self.type == "egs":
+        elif self.type == "egs":
+            # exact gradient-corrected screening (EGS) potential
             from sarkas.potentials import egs
             egs.update_params(self, params)
 
-        # Lennard-Jones potential
-        if self.type == "lj":
+        elif self.type == "lj":
+            # Lennard-Jones potential
             from sarkas.potentials import lennardjones as lj
             lj.update_params(self, params)
 
-        # Moliere potential
-        if self.type == "moliere":
+        elif self.type == "moliere":
+            # Moliere potential
             from sarkas.potentials import moliere
             moliere.update_params(self, params)
 
-        # QSP potential
-        if self.type == "qsp":
+        elif self.type == "qsp":
+            # QSP potential
             from sarkas.potentials import qsp
             qsp.update_params(self, params)
+        elif self.type == "hs_yukawa":
+            # Hard-Sphere Yukawa
+            from sarkas.potentials import hs_yukawa
+            hs_yukawa.update_params(self, params)
 
         # Compute pppm parameters
         if self.method == "pppm":

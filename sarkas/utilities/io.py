@@ -870,14 +870,14 @@ class InputOutput:
             Simulation's parameters.
 
         """
-        if simulation.potential.type.lower() == 'yukawa':
+        if simulation.potential.type == 'yukawa':
             print('electron temperature = {:1.4e} [K] = {:1.4e} [eV]'.format(
                 simulation.parameters.electron_temperature,
                 simulation.parameters.electron_temperature / simulation.parameters.eV2K))
             print('kappa = {:.4f}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
             print('Gamma_eff = {:.2f}'.format(simulation.parameters.coupling_constant))
 
-        elif simulation.potential.type.lower() == 'egs':
+        elif simulation.potential.type == 'egs':
             # print('electron temperature = {:1.4e} [K] = {:1.4e} eV'.format(
             #     simulation.parameters.electron_temperature,
             #     simulation.parameters.electron_temperature / simulation.parameters.eV2K))
@@ -907,18 +907,18 @@ class InputOutput:
 
             print('Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
 
-        elif simulation.potential.type.lower() == 'coulomb':
+        elif simulation.potential.type == 'coulomb':
             print('Effective Coupling constant: Gamma_eff = {:4.2f}'.format(simulation.parameters.coupling_constant))
             print('Short-range Cutoff radius: rs = {:.6e} '.format(simulation.potential.rs), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             # simulation.parameters.pretty_print()
 
-        elif simulation.potential.type.lower() == 'lj':
+        elif simulation.potential.type == 'lj':
             print('epsilon = {:.6e}'.format(simulation.potential.matrix[0, 0, 0]))
             print('sigma = {:.6e}'.format(simulation.potential.matrix[1, 0, 0]))
             print('Gamma_eff = {:.2f}'.format(simulation.parameters.coupling_constant))
 
-        elif simulation.potential.type.lower() == "qsp":
+        elif simulation.potential.type == "qsp":
             print("QSP type: {}".format(simulation.potential.qsp_type))
             print("Pauli term: {}".format(simulation.potential.qsp_pauli))
             print("e de Broglie wavelength = {:.4f} a_ws = {:.6e} ".format(
@@ -942,6 +942,19 @@ class InputOutput:
                 1.0/simulation.potential.matrix[1, 0, 1]), end='')
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("e-i coupling constant = {:.4f} ".format(simulation.parameters.coupling_constant))
+
+        elif simulation.potential.type == "hs_yukawa":
+            print('electron temperature = {:1.4e} [K] = {:1.4e} [eV]'.format(
+                simulation.parameters.electron_temperature,
+                simulation.parameters.electron_temperature / simulation.parameters.eV2K))
+            print('kappa = {:.4f}'.format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
+            print("short range cutoff = {:.2f} a_ws = {:.4e} ".format(
+                simulation.potential.matrix[-1,0,0] / simulation.parameters.a_ws,
+                simulation.potential.matrix[-1,0,0]),
+                end='')
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+
+            print('Gamma_eff = {:.2f}'.format(simulation.parameters.coupling_constant))
 
     def setup_checkpoint(self, params, species):
         """

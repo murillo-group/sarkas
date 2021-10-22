@@ -241,12 +241,28 @@ class Process:
                                 "other_inputs should be a nested dictionary")
 
             for class_name, class_attr in other_inputs.items():
-                if class_name not in ['Particles', 'Obervables']:
+                if class_name not in ['Particles', 'Observables']:
                     self.__dict__[class_name.lower()].__dict__.update(class_attr)
-                else:
-                    for sp, species in enumerate(other_inputs["Particles"]):
-                        spec = Species(species["Species"])
-                        self.species[sp].__dict__.update(spec.__dict__)
+                elif class_name == "Particles":
+                    # Remember Particles should be a list of dict
+                    # example:
+                    # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
+
+                    # Check if you already have a non-empty list of species
+                    if isinstance(self.species, list):
+                        # If so do you want to replace or update?
+                        # Update species attributes
+                        for sp, species in enumerate(other_inputs["Particles"]):
+                            spec = Species(species["Species"])
+                            if hasattr(spec, "replace"):
+                                self.species[sp].__dict__.update(spec.__dict__)
+                            else:
+                                self.species.append(spec)
+                    else:
+                        # Append new species
+                        for sp, species in enumerate(other_inputs["Particles"]):
+                            spec = Species(species["Species"])
+                            self.species.append(spec)
 
                 if class_name == 'Observables':
 
