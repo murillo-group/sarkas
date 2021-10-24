@@ -3,6 +3,7 @@
 import numpy as np
 import numba as nb
 import scipy.signal as scp_signal
+import fdint
 
 TWOPI = 2.0 * np.pi
 
@@ -236,3 +237,4 @@ def force_error_analytic_pp(potential_type,
     force_error *= rescaling_const
 
     return force_error
+

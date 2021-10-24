@@ -470,10 +470,8 @@ class Observable:
             if hasattr(self, 'dataframe_slices'):
                 self.dataframe_slices = pd.read_hdf(self.filename_hdf_slices, mode='r', index_col=False)
 
-            if hasattr(self, "dataframe_acf_slices"):
+            if self.acf_observable:
                 self.dataframe_acf_slices = pd.read_hdf(self.filename_hdf_acf_slices, mode='r', index_col=False)
-
-            if hasattr(self, "dataframe_acf"):
                 self.dataframe_acf = pd.read_hdf(self.filename_hdf_acf, mode='r', index_col=False)
 
     def parse_k_data(self):
