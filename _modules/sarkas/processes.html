@@ -240,60 +240,63 @@
             <span class="k">if</span> <span class="n">lkey</span> <span class="o">==</span> <span class="s2">&quot;Parameters&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dics</span><span class="p">[</span><span class="n">lkey</span><span class="p">])</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># This is not needed in the case of process = simulation</span>
-        <span class="k">for</span> <span class="n">observable</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s1">&#39;Observables&#39;</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">observable</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;rdf&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">RadialDistributionFunction</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HermiteCoefficients&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">HermiteCoefficients</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Thermodynamics&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">therm</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">Thermodynamics</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;therm&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DynamicStructureFactor&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;dsf&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">DynamicStructureFactor</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CurrentCorrelationFunction&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;ccf&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">CurrentCorrelationFunction</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;StaticStructureFactor&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;ssf&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">StaticStructureFactor</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityAutoCorrelationFunction&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;vacf&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">VelocityAutoCorrelationFunction</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityDistribution&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;vd&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">vm</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">VelocityDistribution</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;ElectricCurrent&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;ec&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">ElectricCurrent</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DiffusionFlux&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;diff_flux&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">DiffusionFlux</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s2">&quot;simulation&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">if</span> <span class="s1">&#39;TransportCoefficients&#39;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">transport_dict</span> <span class="o">=</span> <span class="n">dics</span><span class="p">[</span><span class="s2">&quot;TransportCoefficients&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+            <span class="k">for</span> <span class="n">observable</span> <span class="ow">in</span> <span class="n">dics</span><span class="p">[</span><span class="s2">&quot;Observables&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">observable</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;RadialDistributionFunction&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;rdf&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">RadialDistributionFunction</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Thermodynamics&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">therm</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">Thermodynamics</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;therm&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DynamicStructureFactor&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;dsf&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">DynamicStructureFactor</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">dsf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CurrentCorrelationFunction&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;ccf&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">CurrentCorrelationFunction</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ccf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;StaticStructureFactor&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;ssf&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">StaticStructureFactor</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ssf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityAutoCorrelationFunction&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;vacf&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">VelocityAutoCorrelationFunction</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VelocityDistribution&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;vd&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">vm</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">VelocityDistribution</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;ElectricCurrent&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;ec&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">ElectricCurrent</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DiffusionFlux&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;diff_flux&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">DiffusionFlux</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;PressureTensor&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;p_tensor&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">p_tensor</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">PressureTensor</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">sub_dict</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">p_tensor</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s2">&quot;TransportCoefficients&quot;</span> <span class="ow">in</span> <span class="n">dics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transport_dict</span> <span class="o">=</span> <span class="n">dics</span><span class="p">[</span><span class="s2">&quot;TransportCoefficients&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Process.initialization"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.Process.initialization">[docs]</a>    <span class="k">def</span> <span class="nf">initialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize all classes.&quot;&quot;&quot;</span>
@@ -499,6 +502,7 @@
         <span class="sd">&quot;&quot;&quot;Calculate all the observables from the YAML input file.&quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">observables_list</span><span class="p">:</span>
+            <span class="c1"># Check that the observable is actually there</span>
             <span class="k">if</span> <span class="n">obs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">obs</span><span class="p">]</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">obs</span> <span class="o">==</span> <span class="s1">&#39;therm&#39;</span><span class="p">:</span>
@@ -507,24 +511,48 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">postprocess_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">write_to_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">obs</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;transport_dict&#39;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficients</span> <span class="k">as</span> <span class="n">TC</span>
+            <span class="c1"># Calculate transport coefficients</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;transport_dict&#39;</span><span class="p">):</span>
+                <span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficients</span>
 
-            <span class="k">for</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport_dict</span><span class="p">:</span>
+                <span class="n">tc</span> <span class="o">=</span> <span class="n">TransportCoefficients</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
 
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">coeff_kwargs</span> <span class="ow">in</span> <span class="n">coeff</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport_dict</span><span class="p">:</span>
 
-                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;diffusion&#39;</span><span class="p">:</span>
-                        <span class="n">TC</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="o">**</span><span class="n">coeff_kwargs</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">coeff_kwargs</span> <span class="ow">in</span> <span class="n">coeff</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;interdiffusion&#39;</span><span class="p">:</span>
-                        <span class="n">TC</span><span class="o">.</span><span class="n">interdiffusion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="o">**</span><span class="n">coeff_kwargs</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;diffusion&#39;</span><span class="p">:</span>
+                            <span class="c1"># Calculate if not already</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">VelocityAutoCorrelationFunction</span><span class="p">()</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+                                <span class="c1"># Use parse in case you calculated it already</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
 
-                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;viscosity&#39;</span><span class="p">:</span>
-                        <span class="n">TC</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="o">**</span><span class="n">coeff_kwargs</span><span class="p">)</span>
+                            <span class="n">tc</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">observable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vacf</span><span class="p">)</span>
 
-                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;electricalconductivity&#39;</span><span class="p">:</span>
-                        <span class="n">TC</span><span class="o">.</span><span class="n">electrical_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="o">**</span><span class="n">coeff_kwargs</span><span class="p">)</span></div></div>
+                        <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;interdiffusion&#39;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">DiffusionFlux</span><span class="p">()</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+                            <span class="n">tc</span><span class="o">.</span><span class="n">interdiffusion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diff_flux</span><span class="p">)</span>
+
+                        <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;viscosity&quot;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_tensor</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">p_tensor</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">PressureTensor</span><span class="p">()</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">p_tensor</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">p_tensor</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+                            <span class="n">tc</span><span class="o">.</span><span class="n">viscosity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_tensor</span><span class="p">)</span>
+
+                        <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;electricalconductivity&quot;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">sk_obs</span><span class="o">.</span><span class="n">ElectricCurrent</span><span class="p">()</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+                            <span class="n">tc</span><span class="o">.</span><span class="n">electrical_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PreProcess"><a class="viewcode-back" href="../../api/sarkas.processes.html#sarkas.processes.PreProcess">[docs]</a><span class="k">class</span> <span class="nc">PreProcess</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
